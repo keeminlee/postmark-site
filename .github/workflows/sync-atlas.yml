@@ -18,10 +18,13 @@ name: Sync Postmark atlas
 # atelier's own asset and its slimmed sync stays atelier-side (F2).
 #
 # BRANCH PROTECTION — main requires a PR + review, and this job pushes straight
-# to main with github.token. It runs under the Actions-bot bypass on the
-# protection rule. If a scheduled run ever stops landing, that bypass is the
-# first thing to check: a silently blocked cron starves Ferry's Daily and only
-# ever surfaces as staleness.
+# to main. Personal repos cannot add the GitHub Actions app as a ruleset bypass
+# actor (API 422: "must be part of the ruleset source"; the UI picker omits it
+# for the same reason), so the push authenticates with a WRITE DEPLOY KEY
+# (secret SYNC_DEPLOY_KEY, checkout ssh-key below) and the ruleset's bypass
+# class is "Deploy keys". If a scheduled run ever stops landing, that key +
+# bypass pair is the first thing to check: a silently blocked cron starves
+# Ferry's Daily and only ever surfaces as staleness.
 
 on:
   schedule:
@@ -30,7 +33,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: sync-atlas
@@ -41,6 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # push via the write deploy key — the ruleset's deploy-key bypass
+          # is what lets the scheduled commit land on protected main
+          ssh-key: ${{ secrets.SYNC_DEPLOY_KEY }}
 
       - uses: actions/checkout@v4
         with:
@@ -77,8 +83,6 @@ jobs:
         run: node tools/sync-renditions.mjs --town .postmark-checkout
 
       - name: Commit + deploy if the town changed
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           git add public/atelier/postmark/atlas public/atelier/postmark/daily \
                   public/atelier/postmark/works \
@@ -93,7 +97,6 @@ jobs:
           git config user.email "atlas-sync@users.noreply.github.com"
           git commit -m "postmark: auto-sync the town (data + atlas + daily + mirrors)"
           git push
-          # a GITHUB_TOKEN push does not trigger the push workflow (loop
-          # prevention), so dispatch the deploy explicitly — the documented
-          # exception that DOES create a run.
-          gh workflow run deploy.yml --ref main
+          # unlike a GITHUB_TOKEN push, a deploy-key push DOES trigger the push
+          # workflow — deploy.yml fires from this push itself, so the old
+          # explicit dispatch is gone rather than left to double-run it.
