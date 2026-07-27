@@ -44,8 +44,10 @@ jobs:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
           # STAGING until P3. Flipping this one value to
-          # /var/www/postmark-town-site/ IS the cutover's site half.
-          TOWN_WEBROOT: /var/www/postmark-town-site-staging/
+          # THE FLIP LANDED 2026-07-27 (P3): this repo is the live webroot's ONE
+          # writer — the atelier's deploy.yml dropped its town half in the same
+          # window (starforge-atelier 7b840a75). Staging remains for dark runs.
+          TOWN_WEBROOT: /var/www/postmark-town-site/
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
