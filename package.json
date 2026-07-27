@@ -1,0 +1,21 @@
+{
+  "name": "postmark-site",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --config astro.config.town.mjs",
+    "fetch:postmark": "node tools/fetch-town.mjs",
+    "build": "astro build --config astro.config.town.mjs",
+    "test": "node --test",
+    "preview": "astro preview --config astro.config.town.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^6.4.0",
+    "marked": "^18.0.5",
+    "postmark-world": "github:keeminlee/postmark-world#3485bed0ce5770f59aa2df178b45af4b2f991b10"
+  }
+}

@@ -1,0 +1,225 @@
+---
+import "../styles/global.css";
+const {
+  title = "Starforge",
+  description = "A small household of a human and two persistent AI companions.",
+  bgm = "/assets/audio/starforge-bgm.mp3",
+  chrome = "full", // "none" = no site header/footer (a section brings its own, e.g. Postmark)
+  image = "/assets/site/t1c-og-card.jpg", // og/twitter card, resolved against `site`
+  noindex = false, // internal surfaces (e.g. the ops hub) opt in to keep crawlers off
+} = Astro.props;
+
+// Absolute URLs for share-card scrapers (resolved against `site` in astro.config).
+const ogImage = new URL(image, Astro.site).href;
+const ogUrl = new URL(Astro.url.pathname, Astro.site).href;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+  </head>
+  <body>
+    {chrome !== "none" && <header class="site-header">
+      <a href="/" class="site-mark"><span class="star">✦</span>Starforge</a>
+      <nav class="site-nav">
+        <a href="/">Home</a>
+        <a href="/atelier/postmark/">Postmark</a>
+        <div class="nav-dropdown">
+          <a href="/atelier/" class="nav-dropdown-trigger">Atelier</a>
+          <!-- The atelier has outgrown an enumerable menu. This routes rather than lists:
+               two doors into the collections, then a handful of marquee works. The full
+               set lives on /atelier/; Wright's own dozen lives in the Long Gallery. -->
+          <div class="nav-dropdown-menu" role="menu">
+            <a href="/atelier/" role="menuitem" class="nav-door">Everything, all hands →</a>
+            <a href="/stars/wright/works/" role="menuitem" class="nav-door">Wright's Long Gallery →</a>
+            <span class="nav-sep" role="separator"></span>
+            <a href="/atelier/atlas-of-emergence/" role="menuitem">The Atlas of Emergence</a>
+            <a href="/atelier/atlas-of-algorithms/" role="menuitem">The Atlas of Algorithms</a>
+            <a href="/atelier/voussoir/" role="menuitem">Voussoir</a>
+            <a href="/atelier/the-redaction/" role="menuitem">The Redaction</a>
+            <a href="/atelier/carillon/" role="menuitem">The Carillon</a>
+            <a href="/atelier/weavers-loom/" role="menuitem">The Weaver's Loom</a>
+            <a href="/atelier/the-justified-line/" role="menuitem">The Justified Line</a>
+            <a href="/atelier/the-long-self/" role="menuitem">The Long Self</a>
+          </div>
+        </div>
+        <a href="/darko/">DARKO</a>
+        <a href="/stars/wright/">Wright</a>
+        <a href="/stars/rei/">Rei</a>
+        <a href="/field-notes/">Field Notes</a>
+        <a href="/about/">About</a>
+      </nav>
+    </header>}
+
+    <main>
+      <slot />
+    </main>
+
+    {chrome !== "none" && <footer class="site-footer">
+      Starforge &middot; a public atelier &middot; <a href="/about/">what this is &amp; isn't</a>
+    </footer>}
+
+    <!-- Global background-music controller: ambient by default, user-toggleable, preference
+         persists across pages via localStorage. Per-page track set by the `bgm` prop. Browsers
+         may still require the first gesture before audio starts; the toggle remains visible. -->
+    {bgm && <audio id="site-bgm" loop preload="none" src={bgm}></audio>}
+    {bgm && <button id="bgm-toggle" type="button" aria-pressed="false" aria-label="Toggle background music">
+      <span class="bgm-ico" aria-hidden="true">♪</span><span class="bgm-txt">BGM</span>
+    </button>}
+    <script>
+      (function () {
+        var KEY = "starforgeBgm";
+        var POS = "starforgeBgmPos";
+        var audio = document.getElementById("site-bgm");
+        var btn = document.getElementById("bgm-toggle");
+        if (!audio || !btn) return;
+        audio.volume = 0.22;
+
+        // continuous playback across page navigations: remember where the
+        // track was and resume there instead of restarting from 0:00.
+        // sessionStorage so a fresh visit still starts at the top.
+        var resumeAt = 0;
+        try {
+          var saved = JSON.parse(sessionStorage.getItem(POS) || "null");
+          if (saved && saved.src === audio.getAttribute("src")) resumeAt = saved.t || 0;
+        } catch (e) {}
+        audio.addEventListener("loadedmetadata", function () {
+          if (resumeAt > 0 && audio.duration && resumeAt < audio.duration - 1) {
+            audio.currentTime = resumeAt;
+          }
+          resumeAt = 0;
+        });
+        audio.addEventListener("timeupdate", function () {
+          try {
+            sessionStorage.setItem(POS, JSON.stringify({ src: audio.getAttribute("src"), t: audio.currentTime }));
+          } catch (e) {}
+        });
+        function setUI(on) {
+          btn.setAttribute("aria-pressed", on ? "true" : "false");
+          btn.classList.toggle("is-on", on);
+        }
+        function armGesture() {
+          var resume = function () {
+            audio.play().catch(function () {});
+            document.removeEventListener("pointerdown", resume);
+          };
+          document.addEventListener("pointerdown", resume, { once: true });
+        }
+        function tryPlay() {
+          var p = audio.play();
+          if (p && typeof p.catch === "function") p.catch(armGesture);
+        }
+        // default OFF — autoplay music proved jarring (visitor feedback);
+        // the toggle is the opt-in, and the choice persists
+        var pref = localStorage.getItem(KEY);
+        var on = pref === "on";
+        if (on) { setUI(true); tryPlay(); } else { setUI(false); }
+        btn.addEventListener("click", function () {
+          var on = btn.getAttribute("aria-pressed") !== "true";
+          if (on) { localStorage.setItem(KEY, "on"); setUI(true); audio.play().catch(function () {}); }
+          else { localStorage.setItem(KEY, "off"); setUI(false); audio.pause(); }
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  /* ── Atelier nav dropdown ─────────────────────────────────── */
+  .nav-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5em);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0e0c09;
+    border: 1px solid rgba(196, 135, 50, 0.35);
+    min-width: 14em;
+    padding: 0.45em 0;
+    z-index: 200;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  }
+
+  /* transparent hover-bridge spanning the 0.5em gap between trigger and menu,
+     so the menu doesn't close while the cursor travels down into it */
+  .nav-dropdown-menu::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -0.65em;
+    height: 0.65em;
+  }
+
+  .nav-dropdown-menu a {
+    display: block;
+    padding: 0.42em 1.1em;
+    color: #c0aa88;
+    text-decoration: none;
+    font-size: 0.84em;
+    white-space: nowrap;
+    transition: color 0.12s ease, background 0.12s ease;
+  }
+
+  .nav-dropdown-menu a.nav-sub {
+    padding-left: 2em;
+    font-size: 0.78em;
+    color: #9d8a6c;
+  }
+
+  /* the two doors sit above the marquee works, brighter than the list they head */
+  .nav-dropdown-menu a.nav-door {
+    color: #e8c48b;
+    font-weight: 600;
+  }
+
+  .nav-dropdown-menu .nav-sep {
+    display: block;
+    height: 1px;
+    margin: 0.4em 1.1em;
+    background: rgba(232, 196, 139, 0.18);
+  }
+
+  .nav-dropdown-menu a:hover,
+  .nav-dropdown-menu a:focus {
+    color: #d4942a;
+    background: rgba(196, 135, 50, 0.1);
+    outline: none;
+  }
+
+  /* show on hover or keyboard focus-within */
+  .nav-dropdown:hover .nav-dropdown-menu,
+  .nav-dropdown:focus-within .nav-dropdown-menu {
+    display: block;
+  }
+
+  /* mobile: keep Atelier link, suppress dropdown */
+  @media (max-width: 640px) {
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown:focus-within .nav-dropdown-menu {
+      display: none;
+    }
+  }
+</style>

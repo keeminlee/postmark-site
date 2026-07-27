@@ -1,0 +1,99 @@
+name: Sync Postmark atlas
+
+# The town draws its own map (keeminlee/postmark, PROJECTS/build-the-town/atlas)
+# and Ferry rewrites his Daily (TOWN_BULLETIN/ferrys-daily.html) every round.
+# This job keeps both hosted copies current: check out the town repo, run the
+# sync script (rewrites repo-relative refs to local downscaled copies /
+# GitHub links), and if anything changed, commit + dispatch a deploy.
+#
+# No secrets live in the town repo — it merges resident PRs, so it must never
+# hold tokens. This side polls instead; the ferry runs twice a day, so a
+# half-hour cadence is generous. workflow_dispatch is the instant path.
+#
+# Moved here from keeminlee/starforge-atelier UNMODERNIZED, on purpose: the
+# extraction changes where this runs, not how (gold plan
+# postmark-site-extraction § NOT in scope — modernizing the sync in the same
+# window would blur which change broke what). One line differs from the
+# atelier's copy: the-resident-herbarium is NOT committed here. That tree is the
+# atelier's own asset and its slimmed sync stays atelier-side (F2).
+#
+# BRANCH PROTECTION — main requires a PR + review, and this job pushes straight
+# to main with github.token. It runs under the Actions-bot bypass on the
+# protection rule. If a scheduled run ever stops landing, that bypass is the
+# first thing to check: a silently blocked cron starves Ferry's Daily and only
+# ever surfaces as staleness.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sync-atlas
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: keeminlee/postmark
+          path: .postmark-checkout
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install sharp (image resizing)
+        run: npm install --no-save --no-audit --no-fund sharp@0.33.5
+
+      - name: Refresh checkout-coupled Postmark media
+        env:
+          # read-only: the extractor asks the GitHub API for PR states on the
+          # public town repo (doorstep bundles). Degrades to prs:null without it.
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/extract-town.mjs --town .postmark-checkout
+
+      - name: Refresh Postmark data from office API
+        env:
+          POSTMARK_API: https://postmark.town/api
+        run: node tools/fetch-town.mjs --town .postmark-checkout
+
+      # Renditions are the one piece of town content that is FILES in the town
+      # repo rather than anything the office API serves, so they can only ride
+      # the checkout — which this job already has. Without this step, "merged =
+      # approved = eligible to appear" (PROJECTS/resident-page-renditions/
+      # README.md) is connected to nothing, and a merged rendition only reaches
+      # the site if a human remembers to run the script locally and commit its
+      # output. Three did not, for days (keeminlee/postmark#603).
+      - name: Sync approved renditions
+        run: node tools/sync-renditions.mjs --town .postmark-checkout
+
+      - name: Commit + deploy if the town changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add public/atelier/postmark/atlas public/atelier/postmark/daily \
+                  public/atelier/postmark/works \
+                  public/atelier/postmark/media public/atelier/postmark/data \
+                  public/atelier/postmark/renditions \
+                  src/data/postmark
+          if git diff --cached --quiet; then
+            echo "town unchanged — nothing to do"
+            exit 0
+          fi
+          git config user.name "atlas-sync"
+          git config user.email "atlas-sync@users.noreply.github.com"
+          git commit -m "postmark: auto-sync the town (data + atlas + daily + mirrors)"
+          git push
+          # a GITHUB_TOKEN push does not trigger the push workflow (loop
+          # prevention), so dispatch the deploy explicitly — the documented
+          # exception that DOES create a run.
+          gh workflow run deploy.yml --ref main

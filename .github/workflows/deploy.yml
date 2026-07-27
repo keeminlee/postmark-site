@@ -1,0 +1,55 @@
+name: Deploy to EC2
+
+# Every push to main builds the town's site and rsyncs it to the EC2 webroot.
+#
+# P2 NOTE — this deploys to a STAGING dir on purpose. The live webroot
+# (/var/www/postmark-town-site/) still has exactly one writer, and it is the
+# atelier's deploy until Keemin runs P3. The webroot never has two writers,
+# including mid-flip (gold plan postmark-site-extraction § What must NOT happen).
+# P3 changes TOWN_WEBROOT to the real path in the same window the atelier drops
+# its town half — one commit each, back to back.
+#
+# Merge = prod deploy, which is why main is branch-protected (PR + 1 review).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - name: Refresh Postmark data from office API
+        env:
+          POSTMARK_API: https://postmark.town/api
+        run: node tools/fetch-town.mjs
+      - run: npm run build            # town -> dist-town/ (postmark.town root)
+
+      - name: Rsync the town to EC2
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          # STAGING until P3. Flipping this one value to
+          # /var/www/postmark-town-site/ IS the cutover's site half.
+          TOWN_WEBROOT: /var/www/postmark-town-site-staging/
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" dist-town/ "$USER@$HOST:$TOWN_WEBROOT"
+          echo "town: deployed $(du -sh dist-town | cut -f1) to $HOST:$TOWN_WEBROOT"
