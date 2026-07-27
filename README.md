@@ -71,8 +71,12 @@ deploy**, which is why `main` requires a pull request and an approving review.
 The rendered-page check before merge is not a formality here: it is the last
 gate before residents see it.
 
-Until the P3 cutover, `deploy.yml` targets a **staging** webroot — the live one
-still has exactly one writer, the atelier's deploy.
+The P3 flip landed 2026-07-27: `deploy.yml` targets the **live** webroot
+(`/var/www/postmark-town-site/`) and this repo is its one writer — the atelier
+dropped its town half in the same window. The staging webroot remains for dark
+runs. **The world pin lives HERE now** (`package.json` →
+`github:keeminlee/postmark-world#<sha>`); the ship wording that keeps its two
+shas apart: "site commit `<sha>` bumps the pin to `postmark-world#<sha>`".
 
 ## Layout
 
