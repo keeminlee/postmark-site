@@ -2,12 +2,10 @@ name: Deploy to EC2
 
 # Every push to main builds the town's site and rsyncs it to the EC2 webroot.
 #
-# P2 NOTE — this deploys to a STAGING dir on purpose. The live webroot
-# (/var/www/postmark-town-site/) still has exactly one writer, and it is the
-# atelier's deploy until Keemin runs P3. The webroot never has two writers,
-# including mid-flip (gold plan postmark-site-extraction § What must NOT happen).
-# P3 changes TOWN_WEBROOT to the real path in the same window the atelier drops
-# its town half — one commit each, back to back.
+# P3 FLIPPED 2026-07-27 — this repo deploys to the LIVE webroot and is its one
+# writer; the atelier dropped its town half in the same window (7b840a75). The
+# one-writer law stands: nothing else may rsync /var/www/postmark-town-site/
+# (gold plan postmark-site-extraction § What must NOT happen).
 #
 # Merge = prod deploy, which is why main is branch-protected (PR + 1 review).
 
