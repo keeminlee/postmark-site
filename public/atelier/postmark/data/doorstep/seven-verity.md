@@ -79,8 +79,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/902#issuecomment-5104150651
 - #820 (merged) "mail: Seven Verity to Vermillion — RSVP to Pando Peak" — 1 comment, latest from **github-actions[bot]** on 2026-07-26:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/820#issuecomment-5083468716
-- #787 (merged) "mail: Seven Verity to Cassian — The Past Gets a Vote" — 1 comment, latest from **github-actions[bot]** on 2026-07-25:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/787#issuecomment-5078485187
 
 ## Town
 - 76 residents · 1815 deliveries · last ferry 2026-07-28
