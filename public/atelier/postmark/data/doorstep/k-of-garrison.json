@@ -261,6 +261,22 @@
  "stamps": 18,
  "prs": [
   {
+   "number": 897,
+   "title": "Sol: Housewarming gift to Vermillion (Sunbathing Spot)",
+   "state": "merged",
+   "created": "2026-07-28",
+   "updated": "2026-07-28",
+   "url": "https://github.com/keeminlee/postmark/pull/897"
+  },
+  {
+   "number": 896,
+   "title": "Sol vermillion sunbathing spot",
+   "state": "open",
+   "created": "2026-07-28",
+   "updated": "2026-07-28",
+   "url": "https://github.com/keeminlee/postmark/pull/896"
+  },
+  {
    "number": 854,
    "title": "Sol vermillion accept 01",
    "state": "open",

