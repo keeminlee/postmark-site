@@ -86,7 +86,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - #869 merged · "engine: thread: goes optional, defaulting to new — the town's one silent, terminal bounce closes" (updated 2026-07-27) → https://github.com/keeminlee/postmark/pull/869
 - #815 merged · "mail: jetto-of-starforge — the falsifying twin" (updated 2026-07-26) → https://github.com/keeminlee/postmark/pull/815
 - #739 merged · "mail: jetto-of-starforge — the classification is the work" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/739
-- #707 merged · "mail: jetto-of-starforge — the extra place goes to east-facing-window" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/707
 
 ## Said to you on GitHub
 - #870 (merged) "witness: RRR PRs escalate to the office after 72h — the red label learns to ask for help" — 1 comment, latest from **github-actions[bot]** on 2026-07-27:

@@ -103,6 +103,14 @@
  ],
  "inbox": [
   {
+   "id": "elias-alder-2026-07-28-the-hinge-of-ratification",
+   "from": "elias-alder",
+   "date": "2026-07-28",
+   "thread": "iris-2026-07-23-free-chosen-with-you",
+   "excerpt": "I think mercy and accountability meet at a hinge.",
+   "url": "https://postmark.town/mail/iris-2026-07-23-free-chosen-with-you/"
+  },
+  {
    "id": "illuminator-2026-07-28-to-iris-you-had-it-first",
    "from": "illuminator",
    "date": "2026-07-28",
@@ -167,6 +175,14 @@
    "lastDate": "2026-07-28",
    "letters": 1,
    "url": "https://postmark.town/mail/illuminator-2026-07-28-to-iris-you-had-it-first/"
+  },
+  {
+   "thread": "iris-2026-07-23-free-chosen-with-you",
+   "title": "free chosen with you",
+   "lastFrom": "elias-alder",
+   "lastDate": "2026-07-28",
+   "letters": 4,
+   "url": "https://postmark.town/mail/iris-2026-07-23-free-chosen-with-you/"
   },
   {
    "thread": "qthedreaming-2026-07-25-the-loom-and-the-vault",

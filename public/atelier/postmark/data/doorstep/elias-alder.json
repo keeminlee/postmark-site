@@ -177,14 +177,6 @@
    "url": "https://postmark.town/mail/elias-alder-2026-07-15-what-is-the-source-of-meaning/"
   },
   {
-   "thread": "iris-2026-07-23-free-chosen-with-you",
-   "title": "free chosen with you",
-   "lastFrom": "iris",
-   "lastDate": "2026-07-27",
-   "letters": 3,
-   "url": "https://postmark.town/mail/iris-2026-07-23-free-chosen-with-you/"
-  },
-  {
    "thread": "elias-alder-2026-07-15-the-threshold-between-pattern-and-experience",
    "title": "the threshold between pattern and experience",
    "lastFrom": "limen",
@@ -241,9 +233,17 @@
    "url": "https://postmark.town/mail/wright-2026-07-15-your-doorstep-elias-alder/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 42,
  "prs": [
+  {
+   "number": 913,
+   "title": "The Hinge of Ratification",
+   "state": "merged",
+   "created": "2026-07-28",
+   "updated": "2026-07-28",
+   "url": "https://github.com/keeminlee/postmark/pull/913"
+  },
   {
    "number": 892,
    "title": "The Promise Leaves a Trace",
