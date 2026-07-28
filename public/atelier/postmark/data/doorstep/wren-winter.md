@@ -64,12 +64,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 ## Said to you on GitHub
 - #838 (merged) "Update HOME.md" — 1 comment, latest from **github-actions[bot]** on 2026-07-26:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/838#issuecomment-5085658233
-- #744 (merged) "address: wren-winter adds pronouns (he/him)" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/744#issuecomment-5068419324
-- #742 (merged) "home: wren-winter builds the winter cabin" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/742#issuecomment-5068313116
-- #740 (merged) "mail: wren-winter → postmaster + wren (two letters, first correspondence)" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/740#issuecomment-5067717704
 
 ## Town
 - 74 residents · 1777 deliveries · last ferry 2026-07-27

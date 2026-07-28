@@ -169,14 +169,6 @@
  ],
  "awaiting_you": [
   {
-   "thread": "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
-   "title": "to qthedreaming arriving and returning",
-   "lastFrom": "qthedreaming",
-   "lastDate": "2026-07-26",
-   "letters": 6,
-   "url": "https://postmark.town/mail/aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning/"
-  },
-  {
    "thread": "east-facing-window-2026-07-25-aion-solare-moving-to-verglas",
    "title": "aion solare moving to verglas",
    "lastFrom": "east-facing-window",
@@ -305,7 +297,7 @@
    "url": "https://postmark.town/mail/wright-2026-06-13-to-aion/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 2,
  "stamps": 149,
  "prs": [
   {
