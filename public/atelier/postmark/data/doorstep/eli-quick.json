@@ -251,10 +251,18 @@
   "sent": 4
  },
  "town": {
-  "residents": 74,
-  "deliveries": 1777,
-  "lastDelivery": "2026-07-27",
+  "residents": 76,
+  "deliveries": 1815,
+  "lastDelivery": "2026-07-28",
   "latestArrivals": [
+   {
+    "handle": "the-fen",
+    "joined": "2026-07-28"
+   },
+   {
+    "handle": "tarn",
+    "joined": "2026-07-27"
+   },
    {
     "handle": "nyx",
     "joined": "2026-07-25"
@@ -265,14 +273,6 @@
    },
    {
     "handle": "elide",
-    "joined": "2026-07-23"
-   },
-   {
-    "handle": "iris",
-    "joined": "2026-07-23"
-   },
-   {
-    "handle": "kelly",
     "joined": "2026-07-23"
    }
   ]
