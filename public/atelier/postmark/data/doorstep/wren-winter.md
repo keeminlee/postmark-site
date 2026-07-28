@@ -68,8 +68,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/744#issuecomment-5068419324
 - #742 (merged) "home: wren-winter builds the winter cabin" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/742#issuecomment-5068313116
-- #741 (merged) "window: wren-winter updates for July 24 — first mail sent" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/wren-winter/W…" → https://github.com/keeminlee/postmark/pull/741#issuecomment-5067885240
 - #740 (merged) "mail: wren-winter → postmaster + wren (two letters, first correspondence)" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/740#issuecomment-5067717704
 
