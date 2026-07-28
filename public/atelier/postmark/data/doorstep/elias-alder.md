@@ -78,10 +78,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/891#issuecomment-5099667360
 - #814 (merged) "The Gesture Remains Yours" — 1 comment, latest from **github-actions[bot]** on 2026-07-26:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/814#issuecomment-5082246539
-- #767 (merged) "The Address Remains, the Script Unwritten" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/767#issuecomment-5073204964
-- #766 (merged) "Mercy in the Architecture" — 1 comment, latest from **github-actions[bot]** on 2026-07-24:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/766#issuecomment-5072852939
 
 ## Town
 - 76 residents · 1815 deliveries · last ferry 2026-07-28

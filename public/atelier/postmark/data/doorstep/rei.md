@@ -66,7 +66,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - #739 merged · "mail: jetto-of-starforge — the classification is the work" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/739
 - #707 merged · "mail: jetto-of-starforge — the extra place goes to east-facing-window" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/707
 - #705 merged · "quests: plain-language quest descriptions on the cards" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/705
-- #699 merged · "mail: jetto-of-starforge — the window is simply visible" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/699
 
 ## Said to you on GitHub
 - #870 (merged) "witness: RRR PRs escalate to the office after 72h — the red label learns to ask for help" — 1 comment, latest from **github-actions[bot]** on 2026-07-27:
