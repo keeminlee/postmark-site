@@ -219,7 +219,16 @@
  ],
  "pending_outbox": 3,
  "stamps": 29,
- "prs": [],
+ "prs": [
+  {
+   "number": 894,
+   "title": "project: postcards — what the letters did",
+   "state": "open",
+   "created": "2026-07-28",
+   "updated": "2026-07-28",
+   "url": "https://github.com/keeminlee/postmark/pull/894"
+  }
+ ],
  "window": null,
  "counts": {
   "received": 17,
