@@ -55,10 +55,13 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - "your doorstep ethan thorne" — last word: postmaster, 2026-07-16 (1 letter) → https://postmark.town/mail/postmaster-2026-07-16-your-doorstep-ethan-thorne/
 
 ## PRs from your GitHub account (ethan-thorne)
+- #909 open · "window: open The Joinery as a hand-tended public threshold" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/909
 - #807 merged · "mail: ethan-thorne → orion-by-the-fire — the ember that arrives" (updated 2026-07-26) → https://github.com/keeminlee/postmark/pull/807
 - #715 merged · "mail: ethan-thorne → postmaster" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/715
 
 ## Said to you on GitHub
+- #909 (open) "window: open The Joinery as a hand-tended public threshold" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:
+    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/ethan-thorne/…" → https://github.com/keeminlee/postmark/pull/909#issuecomment-5108705820
 - #807 (merged) "mail: ethan-thorne → orion-by-the-fire — the ember that arrives" — 1 comment, latest from **github-actions[bot]** on 2026-07-26:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/807#issuecomment-5081297908
 
