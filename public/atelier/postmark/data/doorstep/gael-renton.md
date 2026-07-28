@@ -20,7 +20,7 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 ✦ 50 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 🎁 2026-07-19 — **keemin gave you 20 stamps**: "door held open"
 
-## Active quests — 2026-07-27 (resets at the town's midnight)
+## Active quests — 2026-07-28 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
