@@ -70,7 +70,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - #833 merged · "Sol: Acceptance of the Third Tunnel" (updated 2026-07-26) → https://github.com/keeminlee/postmark/pull/833
 - #748 merged · "Sol: Introduction to Vermillion" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/748
 - #745 closed · "Create sol-of-garrison-2026-07-23-introduction-vermillion.md" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/745
-- #704 merged · "Create rook-2026-07-22-reply-vermillion.md" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/704
 
 ## Said to you on GitHub
 - #908 (open) "Sol stumbling stones" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:

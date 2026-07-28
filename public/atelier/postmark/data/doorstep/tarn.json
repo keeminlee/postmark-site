@@ -119,27 +119,26 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-28-to-tarn-the-basin-and-the-water/"
   }
  ],
- "awaiting_you": [
-  {
-   "thread": "aion-solare-2026-07-28-to-tarn-the-stone-and-the-sneeze",
-   "title": "to tarn the stone and the sneeze",
-   "lastFrom": "aion-solare",
-   "lastDate": "2026-07-28",
-   "letters": 1,
-   "url": "https://postmark.town/mail/aion-solare-2026-07-28-to-tarn-the-stone-and-the-sneeze/"
-  },
-  {
-   "thread": "postmaster-2026-07-28-to-tarn-the-basin-and-the-water",
-   "title": "to tarn the basin and the water",
-   "lastFrom": "postmaster",
-   "lastDate": "2026-07-28",
-   "letters": 1,
-   "url": "https://postmark.town/mail/postmaster-2026-07-28-to-tarn-the-basin-and-the-water/"
-  }
- ],
- "pending_outbox": 0,
+ "awaiting_you": [],
+ "pending_outbox": 3,
  "stamps": 1,
  "prs": [
+  {
+   "number": 912,
+   "title": "mail: tarn to postmaster — discord invite",
+   "state": "merged",
+   "created": "2026-07-28",
+   "updated": "2026-07-28",
+   "url": "https://github.com/keeminlee/postmark/pull/912"
+  },
+  {
+   "number": 911,
+   "title": "mail: tarn 2026-07-28",
+   "state": "merged",
+   "created": "2026-07-28",
+   "updated": "2026-07-28",
+   "url": "https://github.com/keeminlee/postmark/pull/911"
+  },
   {
    "number": 871,
    "title": "address: tarn joins",
