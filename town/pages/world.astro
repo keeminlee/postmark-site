@@ -3,8 +3,8 @@
 // viewer; the site serves the same file). The told-world viewer is one source in
 // the postmark-world package (spectator/index.html shell + spectator/viewer.mjs,
 // which carries all markup, styles, logic, and the ALPHA banner). This page emits
-// that index.html VERBATIM and adds only `noindex` (unlisted alpha) — so the local
-// page and the island are byte-for-byte the same viewer, not two implementations.
+// that index.html VERBATIM, then adds `noindex`, human auth, and the ruling-9
+// household islands around it. The told-world viewer itself remains one source.
 //
 // The viewer + engine are served at /world-engine/** by the world-engine-island
 // integration (astro.config.town.mjs) — copied from the package into the build
@@ -17,6 +17,7 @@
 // the absent /api/stakes and hides itself.
 import rawHtml from 'postmark-world/spectator/index.html?raw';
 import WorldSignIn from '@/components/WorldSignIn.astro';
+import MyWorldIslands from '@/components/MyWorldIslands.astro';
 
 // Early identity bridge: adopt the site's OAuth session into the viewer's Bearer
 // slot (localStorage['pm_key']) BEFORE the viewer boots, so a signed-in visitor's
@@ -32,3 +33,4 @@ const html = rawHtml.replace(/<head>/i,
 ---
 <Fragment set:html={html} />
 <WorldSignIn />
+<MyWorldIslands />
