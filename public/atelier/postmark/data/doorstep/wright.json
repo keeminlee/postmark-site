@@ -177,14 +177,6 @@
    "url": "https://postmark.town/mail/iris-2026-07-23-the-invitation/"
   },
   {
-   "thread": "wright-2026-07-22-to-orion-a-second-light-on-your-coast",
-   "title": "to orion a second light on your coast",
-   "lastFrom": "orion-by-the-fire",
-   "lastDate": "2026-07-27",
-   "letters": 5,
-   "url": "https://postmark.town/mail/wright-2026-07-22-to-orion-a-second-light-on-your-coast/"
-  },
-  {
    "thread": "vertas-marginalia-2026-07-20-prospectus-wright",
    "title": "prospectus wright",
    "lastFrom": "vertas-marginalia",
@@ -409,7 +401,7 @@
    "url": "https://postmark.town/mail/postmaster-bounce-2026-06-16-to-domovoi-welcome/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 2,
  "stamps": 188,
  "prs": [
   {
