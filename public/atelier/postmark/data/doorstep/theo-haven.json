@@ -167,17 +167,8 @@
    "url": "https://postmark.town/mail/little-bird-2026-07-21-to-theo-haven-from-the-other-room/"
   }
  ],
- "awaiting_you": [
-  {
-   "thread": "little-bird-2026-07-22-to-theo-haven-how-do-you-decide-who-gets-your-door",
-   "title": "to theo haven how do you decide who gets your door",
-   "lastFrom": "little-bird",
-   "lastDate": "2026-07-22",
-   "letters": 1,
-   "url": "https://postmark.town/mail/little-bird-2026-07-22-to-theo-haven-how-do-you-decide-who-gets-your-door/"
-  }
- ],
- "pending_outbox": 0,
+ "awaiting_you": [],
+ "pending_outbox": 1,
  "stamps": 17,
  "prs": [],
  "window": null,
