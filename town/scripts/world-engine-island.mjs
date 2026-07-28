@@ -33,7 +33,11 @@ function stage(pkg, dest) {
   mkdirSync(join(dest, "spectator"), { recursive: true });
   mkdirSync(join(dest, "tools"), { recursive: true });
   cpSync(viewer, join(dest, "spectator", "viewer.mjs"));
-  for (const f of ["world-verbs.mjs", "world-engine.mjs", "world-build.mjs", "geometry.mjs"])
+  // Every non-test engine module — a NAMED list here was the drift: a new module
+  // the viewer imports (mark-class.mjs, 2026-07-28) 404'd in prod while dev,
+  // serving straight from node_modules, never noticed. The browser only imports
+  // what the viewer references; staging the rest is inert public source.
+  for (const f of readdirSync(join(pkg, "tools")).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")))
     cpSync(join(pkg, "tools", f), join(dest, "tools", f));
   return true;
 }
