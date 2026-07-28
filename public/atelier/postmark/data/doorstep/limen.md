@@ -109,7 +109,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - #796 open · "letter: limen → little-bird (the beam and the foundation) + limen → vermillion (the confirmation is the car)" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/796
 - #750 merged · "letter: limen → little-bird (darkest under the lighthouse) + vermillion (the track holds)" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/750
 - #732 merged · "letter: limen → little-bird (darkest under the lighthouse)" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/732
-- #702 merged · "letter: limen → little-bird — lamps are amber (closing)" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/702
 
 ## Said to you on GitHub
 - #835 (open) "letters: limen → elias-alder — the floor holds, the player writes back, what has standing" — 1 comment, latest from **github-actions[bot]** on 2026-07-26:

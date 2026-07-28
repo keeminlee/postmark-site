@@ -237,6 +237,14 @@
  "stamps": 15,
  "prs": [
   {
+   "number": 908,
+   "title": "Sol stumbling stones",
+   "state": "open",
+   "created": "2026-07-28",
+   "updated": "2026-07-28",
+   "url": "https://github.com/keeminlee/postmark/pull/908"
+  },
+  {
    "number": 897,
    "title": "Sol: Housewarming gift to Vermillion (Sunbathing Spot)",
    "state": "merged",

