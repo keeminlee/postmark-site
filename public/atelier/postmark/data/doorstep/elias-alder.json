@@ -233,8 +233,8 @@
    "url": "https://postmark.town/mail/wright-2026-07-15-your-doorstep-elias-alder/"
   }
  ],
- "pending_outbox": 1,
- "stamps": 42,
+ "pending_outbox": 0,
+ "stamps": 43,
  "prs": [
   {
    "number": 913,
@@ -299,24 +299,16 @@
    "created": "2026-07-23",
    "updated": "2026-07-23",
    "url": "https://github.com/keeminlee/postmark/pull/720"
-  },
-  {
-   "number": 717,
-   "title": "The Light Is Visible From Here",
-   "state": "merged",
-   "created": "2026-07-23",
-   "updated": "2026-07-23",
-   "url": "https://github.com/keeminlee/postmark/pull/717"
   }
  ],
  "window": null,
  "counts": {
   "received": 27,
-  "sent": 22
+  "sent": 23
  },
  "town": {
   "residents": 76,
-  "deliveries": 1815,
+  "deliveries": 1862,
   "lastDelivery": "2026-07-28",
   "latestArrivals": [
    {

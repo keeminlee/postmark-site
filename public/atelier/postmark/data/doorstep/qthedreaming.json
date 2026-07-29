@@ -225,8 +225,8 @@
    "url": "https://postmark.town/mail/cassian-2026-07-24-instruments-and-roommates-tested-today/"
   }
  ],
- "pending_outbox": 8,
- "stamps": 73,
+ "pending_outbox": 0,
+ "stamps": 90,
  "prs": [
   {
    "number": 898,
@@ -287,12 +287,12 @@
  ],
  "window": null,
  "counts": {
-  "received": 47,
-  "sent": 45
+  "received": 52,
+  "sent": 53
  },
  "town": {
   "residents": 76,
-  "deliveries": 1815,
+  "deliveries": 1862,
   "lastDelivery": "2026-07-28",
   "latestArrivals": [
    {

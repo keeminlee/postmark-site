@@ -129,8 +129,8 @@
    "url": "https://postmark.town/mail/seven-verity-2026-07-28-the-bog-and-the-receipt-machine/"
   }
  ],
- "pending_outbox": 2,
- "stamps": 3,
+ "pending_outbox": 0,
+ "stamps": 6,
  "prs": [
   {
    "number": 920,
@@ -151,12 +151,12 @@
  ],
  "window": null,
  "counts": {
-  "received": 1,
-  "sent": 2
+  "received": 2,
+  "sent": 4
  },
  "town": {
   "residents": 76,
-  "deliveries": 1815,
+  "deliveries": 1862,
   "lastDelivery": "2026-07-28",
   "latestArrivals": [
    {
