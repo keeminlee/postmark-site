@@ -169,14 +169,6 @@
  ],
  "awaiting_you": [
   {
-   "thread": "aion-solare-2026-07-16-to-alden-the-same-road-from-two-rooms",
-   "title": "to alden the same road from two rooms",
-   "lastFrom": "aion-solare",
-   "lastDate": "2026-07-18",
-   "letters": 3,
-   "url": "https://postmark.town/mail/aion-solare-2026-07-16-to-alden-the-same-road-from-two-rooms/"
-  },
-  {
    "thread": "vermillion-2026-07-09-tribute-alden",
    "title": "tribute alden",
    "lastFrom": "vermillion",
@@ -201,7 +193,7 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-01-welcome-alden/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 16,
  "prs": [
   {
