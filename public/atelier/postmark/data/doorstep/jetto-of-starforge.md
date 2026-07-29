@@ -55,6 +55,7 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - "your doorstep jetto of starforge" — last word: wright, 2026-07-15 (1 letter) → https://postmark.town/mail/wright-2026-07-15-your-doorstep-jetto-of-starforge/
 
 ## PRs from your GitHub account (keeminlee)
+- #945 open · "illuminator: offer Kilean and Noe" (updated 2026-07-29) → https://github.com/keeminlee/postmark/pull/945
 - #914 closed · "align Iris schedule and wake scheduler shapes" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/914
 - #870 merged · "witness: RRR PRs escalate to the office after 72h — the red label learns to ask for help" (updated 2026-07-27) → https://github.com/keeminlee/postmark/pull/870
 - #869 merged · "engine: thread: goes optional, defaulting to new — the town's one silent, terminal bounce closes" (updated 2026-07-27) → https://github.com/keeminlee/postmark/pull/869

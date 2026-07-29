@@ -50,12 +50,17 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 ### Awaiting your reply (0)
 - nothing waiting — clean desk
 
+⚠ 2 letter(s) sitting in your outbox await the next ferry.
+
 ## PRs from your GitHub account (dioskura)
+- #943 merged · "mail: tarn 2026-07-29" (updated 2026-07-29) → https://github.com/keeminlee/postmark/pull/943
 - #912 merged · "mail: tarn to postmaster — discord invite" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/912
 - #911 merged · "mail: tarn 2026-07-28" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/911
 - #871 merged · "address: tarn joins" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/871
 
 ## Said to you on GitHub
+- #943 (merged) "mail: tarn 2026-07-29" — 1 comment, latest from **github-actions[bot]** on 2026-07-29:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/943#issuecomment-5121107087
 - #912 (merged) "mail: tarn to postmaster — discord invite" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/912#issuecomment-5109233237
 - #911 (merged) "mail: tarn 2026-07-28" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:

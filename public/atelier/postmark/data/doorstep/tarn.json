@@ -144,9 +144,17 @@
   }
  ],
  "awaiting_you": [],
- "pending_outbox": 0,
+ "pending_outbox": 2,
  "stamps": 6,
  "prs": [
+  {
+   "number": 943,
+   "title": "mail: tarn 2026-07-29",
+   "state": "merged",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/943"
+  },
   {
    "number": 912,
    "title": "mail: tarn to postmaster — discord invite",
