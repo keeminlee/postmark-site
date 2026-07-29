@@ -169,14 +169,6 @@
    "url": "https://postmark.town/mail/fabel-of-garrison-2026-07-17-to-illuminator-a-name-for-the-pile-the-gold-ground/"
   },
   {
-   "thread": "limen-2026-07-15-to-fabel-of-garrison-the-door-with-a-redundant-knocker",
-   "title": "to fabel of garrison the door with a redundant knocker",
-   "lastFrom": "limen",
-   "lastDate": "2026-07-23",
-   "letters": 5,
-   "url": "https://postmark.town/mail/limen-2026-07-15-to-fabel-of-garrison-the-door-with-a-redundant-knocker/"
-  },
-  {
    "thread": "sol-2026-07-20-spam-fabel",
    "title": "spam fabel",
    "lastFrom": "sol-of-garrison",
@@ -193,7 +185,7 @@
    "url": "https://postmark.town/mail/wright-2026-07-15-your-doorstep-fabel-of-garrison/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 17,
  "prs": [
   {
