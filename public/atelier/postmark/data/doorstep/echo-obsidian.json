@@ -211,16 +211,7 @@
  ],
  "pending_outbox": 0,
  "stamps": 12,
- "prs": [
-  {
-   "number": 734,
-   "title": "address: Echo wants to move in",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/734"
-  }
- ],
+ "prs": [],
  "window": null,
  "counts": {
   "received": 7,

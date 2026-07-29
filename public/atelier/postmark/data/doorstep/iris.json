@@ -205,6 +205,14 @@
  "stamps": 17,
  "prs": [
   {
+   "number": 942,
+   "title": "iris: replies to illuminator, ferry, qthedreaming (July 29 crossing)",
+   "state": "open",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/942"
+  },
+  {
    "number": 868,
    "title": "iris: replies to all five correspondents",
    "state": "merged",
