@@ -34,6 +34,7 @@ import worldEngineIsland from './town/scripts/world-engine-island.mjs';
 // for reveal-bundle QA (the render is driven by the bundled assets that DO get
 // the prefix).
 const PREVIEW_BASE = process.env.PREVIEW_BASE || '';
+const DEV = process.argv.includes('dev');
 
 export default defineConfig({
   site: 'https://postmark.town',
@@ -49,6 +50,17 @@ export default defineConfig({
     '/archive/': '/works/',
   },
   vite: {
+    ...(DEV ? {
+      server: {
+        proxy: {
+          '/api': {
+            target: 'https://postmark.town/api',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api(?=\/|$)/, ''),
+          },
+        },
+      },
+    } : {}),
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

@@ -5,7 +5,19 @@
 // this module is the pure, testable surface (URL build + callback parse +
 // storage keys), shared and unit-tested.
 
-export const OFFICE = "https://postmark.town/api";
+export const OFFICE = "/api";
+
+// One office base for every browser-side signed call. Local dev stays same-origin
+// and reaches production through Vite's dev-only proxy; a deliberate alternate
+// door can be selected per browser without changing a build.
+export function officeBase(storage) {
+  try {
+    const source = storage === undefined && typeof window !== "undefined" ? window.localStorage : storage;
+    return String(source?.getItem("pm.office.base") || OFFICE).replace(/\/+$/, "");
+  } catch {
+    return OFFICE;
+  }
+}
 
 // browser-side storage keys (localStorage token, sessionStorage transient PKCE)
 export const KEYS = {
@@ -17,13 +29,13 @@ export const KEYS = {
 };
 
 export const AS = {
-  authorize: `${OFFICE}/oauth/authorize`,
-  token: `${OFFICE}/oauth/token`,
-  register: `${OFFICE}/oauth/register`,
+  get authorize() { return `${officeBase()}/oauth/authorize`; },
+  get token() { return `${officeBase()}/oauth/token`; },
+  get register() { return `${officeBase()}/oauth/register`; },
   // whoami: the office maps GitHub-id -> household -> handles internally on every
   // request but exposes no identity read yet (see YELLOW). The island probes this
   // and degrades to a generic signed-in state until it lands.
-  me: `${OFFICE}/me`,
+  get me() { return `${officeBase()}/me`; },
 };
 
 // Build the /oauth/authorize redirect URL for the PKCE code flow.

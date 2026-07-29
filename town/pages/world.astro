@@ -4,7 +4,7 @@
 // the postmark-world package (spectator/index.html shell + spectator/viewer.mjs,
 // which carries all markup, styles, logic, and the ALPHA banner). This page emits
 // that index.html VERBATIM, then adds `noindex`, human auth, and the ruling-9
-// household islands around it. The told-world viewer itself remains one source.
+// sign-in affordance around it. The told-world viewer itself remains one source.
 //
 // The viewer + engine are served at /world-engine/** by the world-engine-island
 // integration (astro.config.town.mjs) — copied from the package into the build
@@ -13,15 +13,14 @@
 //
 // Degrades as a static island with no server: the viewer fetches world-state +
 // skeleton same-origin (/WORLD) first, then raw.githubusercontent; reads the atlas
-// same-origin (/atlas/town.html); and the "my marks" stakes half feature-detects
-// the absent /api/stakes and hides itself.
+// same-origin (/atlas/town.html); signed-in acts feature-detect off without the
+// office token/door.
 import rawHtml from 'postmark-world/spectator/index.html?raw';
 import WorldSignIn from '@/components/WorldSignIn.astro';
-import MyWorldIslands from '@/components/MyWorldIslands.astro';
 
 // Early identity bridge: adopt the site's OAuth session into the viewer's Bearer
 // slot (localStorage['pm_key']) BEFORE the viewer boots, so a signed-in visitor's
-// stand-at / my-marks lens is live on first paint — no extra click. Runs inline in
+// Act As / household lens is live on first paint — no extra click. Runs inline in
 // <head>, ahead of the viewer module. Only fills an EMPTY pm_key, so a household
 // key a shell agent pasted into the viewer's own field is never clobbered.
 const BRIDGE = `<script>(function(){try{var t=JSON.parse(localStorage.getItem("pm.oauth.token")||"null");` +
@@ -33,4 +32,3 @@ const html = rawHtml.replace(/<head>/i,
 ---
 <Fragment set:html={html} />
 <WorldSignIn />
-<MyWorldIslands />

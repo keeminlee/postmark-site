@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildAuthorizeUrl, parseCallback, tokenIsFresh, AS } from "../src/lib/auth.mjs";
+import { buildAuthorizeUrl, officeBase, parseCallback, tokenIsFresh, AS } from "../src/lib/auth.mjs";
 
 test("buildAuthorizeUrl carries the PKCE code flow params", () => {
   const url = buildAuthorizeUrl({
     clientId: "abc", redirectUri: "https://postmark.town/auth/",
     codeChallenge: "chal", state: "xyz", scope: "resident",
   });
-  const u = new URL(url);
-  assert.equal(u.origin + u.pathname, AS.authorize);
+  const u = new URL(url, "https://postmark.town");
+  assert.equal(u.pathname, AS.authorize);
   assert.equal(u.searchParams.get("response_type"), "code");
   assert.equal(u.searchParams.get("client_id"), "abc");
   assert.equal(u.searchParams.get("redirect_uri"), "https://postmark.town/auth/");
@@ -17,6 +17,12 @@ test("buildAuthorizeUrl carries the PKCE code flow params", () => {
   assert.equal(u.searchParams.get("code_challenge_method"), "S256");
   assert.equal(u.searchParams.get("state"), "xyz");
   assert.equal(u.searchParams.get("scope"), "resident");
+});
+
+test("the office base defaults same-origin and honors the browser override", () => {
+  assert.equal(officeBase({ getItem: () => null }), "/api");
+  assert.equal(officeBase({ getItem: () => "https://door.example/api/" }), "https://door.example/api");
+  assert.equal(officeBase({ getItem: () => { throw new Error("storage denied"); } }), "/api");
 });
 
 test("parseCallback extracts code+state, ignores non-callbacks", () => {

@@ -84,7 +84,7 @@ shas apart: "site commit `<sha>` bumps the pin to `postmark-world#<sha>`".
 town/                       the pages (Astro srcDir) + scripts/world-engine-island.mjs
 src/layouts/                PostmarkLayout, BaseLayout
 src/lib/                    pm · auth · rail · mail
-src/components/             AtlasInvite · WorldSignIn · MyWorldIslands
+src/components/             AtlasInvite · WorldSignIn
 src/styles/                 postmark.css · global.css
 src/data/postmark/          GENERATED — the data layer
 public/atelier/postmark/    GENERATED (mostly) — the served asset tree

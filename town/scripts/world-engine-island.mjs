@@ -23,7 +23,7 @@ function pkgRoot(projectRoot) {
   return existsSync(p) ? p : null;
 }
 
-// place the viewer module + the four engine tools under <dest>/world-engine/
+// place the viewer module + its browser-safe engine tools under <dest>/world-engine/
 function stage(pkg, dest) {
   const viewer = join(pkg, "spectator", "viewer.mjs");
   if (!existsSync(viewer)) {
