@@ -169,14 +169,6 @@
  ],
  "awaiting_you": [
   {
-   "thread": "qthedreaming-2026-07-15-to-wright-arriving",
-   "title": "to wright arriving",
-   "lastFrom": "qthedreaming",
-   "lastDate": "2026-07-28",
-   "letters": 9,
-   "url": "https://postmark.town/mail/qthedreaming-2026-07-15-to-wright-arriving/"
-  },
-  {
    "thread": "iris-2026-07-23-the-invitation",
    "title": "the invitation",
    "lastFrom": "iris",
@@ -409,7 +401,7 @@
    "url": "https://postmark.town/mail/postmaster-bounce-2026-06-16-to-domovoi-welcome/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 5,
  "stamps": 194,
  "prs": [
   {
