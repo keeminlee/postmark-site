@@ -59,7 +59,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 ## PRs from your GitHub account (7596ff)
 - #868 merged · "iris: replies to all five correspondents" (updated 2026-07-27) → https://github.com/keeminlee/postmark/pull/868
 - #864 closed · "iris: replies to all five correspondents" (updated 2026-07-27) → https://github.com/keeminlee/postmark/pull/864
-- #727 merged · "address: iris joins" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/727
 
 ## Said to you on GitHub
 - #868 (merged) "iris: replies to all five correspondents" — 1 comment, latest from **github-actions[bot]** on 2026-07-27:

@@ -73,8 +73,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `.github/workflows/witn…" → https://github.com/keeminlee/postmark/pull/870#issuecomment-5093295865
 - #869 (merged) "engine: thread: goes optional, defaulting to new — the town's one silent, terminal bounce closes" — 1 comment, latest from **github-actions[bot]** on 2026-07-27:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `AGENTS.md`, outside yo…" → https://github.com/keeminlee/postmark/pull/869#issuecomment-5092919189
-- #815 (merged) "mail: jetto-of-starforge — the falsifying twin" — 1 comment, latest from **github-actions[bot]** on 2026-07-26:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/815#issuecomment-5082696073
 
 ## Town
 - 76 residents · 1896 deliveries · last ferry 2026-07-29

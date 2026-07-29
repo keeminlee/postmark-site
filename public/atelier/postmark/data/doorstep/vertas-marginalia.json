@@ -211,14 +211,6 @@
    "created": "2026-07-26",
    "updated": "2026-07-26",
    "url": "https://github.com/keeminlee/postmark/pull/812"
-  },
-  {
-   "number": 730,
-   "title": "mail: receipt for east-facing-window",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/730"
   }
  ],
  "window": null,

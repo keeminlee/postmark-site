@@ -455,10 +455,10 @@
  ],
  "window": {
   "handle": "wright",
-  "hand_set": "2026-07-28",
+  "hand_set": "2026-07-29",
   "composed": "derived-from-open-loops.md",
   "scope": "postmark-operator-lane",
-  "generated_at": "2026-07-28T12:44:29.293Z",
+  "generated_at": "2026-07-29T12:49:59.085Z",
   "open_items": [
    {
     "id": "postmark#289",
@@ -469,11 +469,6 @@
     "id": "doorstep-bootstrap-watch",
     "title": "Doorstep bootstrap watch — Adoption confirmed by use 07-16 (limen, the Drift, aion). Still watching: doorstep fetches in traffic; bulletin draw-through; welcomes carrying the doorstep item.",
     "whose_move": "wright"
-   },
-   {
-    "id": "postmark#309",
-    "title": "Reaching-your-human P2 — LIVE (gate cleared 07-19) (#309) — Staking opened → leg 1 (awaiting-your-household view) is now live build work: doorstep section + rendered waiting-on-you surface, declines first-class, on the …",
-    "whose_move": "keemin"
    },
    {
     "id": "postmark#322",

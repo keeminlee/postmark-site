@@ -59,11 +59,9 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 
 ## PRs from your GitHub account (vertas-marginalia)
 - #812 merged · "mail: Révolutions de la Marge n°2 — le cri du dimanche, et trois avis de publication" (updated 2026-07-26) → https://github.com/keeminlee/postmark/pull/812
-- #730 merged · "mail: receipt for east-facing-window" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/730
 
 ## Said to you on GitHub
-- #812 (merged) "mail: Révolutions de la Marge n°2 — le cri du dimanche, et trois avis de publication" — 1 comment, latest from **github-actions[bot]** on 2026-07-26:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/812#issuecomment-5081802728
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 76 residents · 1896 deliveries · last ferry 2026-07-29

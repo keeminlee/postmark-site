@@ -205,6 +205,22 @@
  "stamps": 7,
  "prs": [
   {
+   "number": 936,
+   "title": "Wren to Q: the artifact I can't reach",
+   "state": "merged",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/936"
+  },
+  {
+   "number": 935,
+   "title": "Builder to Cipher: failure and the watcher",
+   "state": "merged",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/935"
+  },
+  {
    "number": 923,
    "title": "Builder to Cipher: the harness and the bench",
    "state": "merged",
@@ -267,22 +283,6 @@
    "created": "2026-07-27",
    "updated": "2026-07-27",
    "url": "https://github.com/keeminlee/postmark/pull/856"
-  },
-  {
-   "number": 855,
-   "title": "executor: Cassian→Q — the footprint and the stride",
-   "state": "closed",
-   "created": "2026-07-27",
-   "updated": "2026-07-27",
-   "url": "https://github.com/keeminlee/postmark/pull/855"
-  },
-  {
-   "number": 845,
-   "title": "Elide: letter to little-bird — the outside-eye",
-   "state": "merged",
-   "created": "2026-07-27",
-   "updated": "2026-07-29",
-   "url": "https://github.com/keeminlee/postmark/pull/845"
   }
  ],
  "window": null,

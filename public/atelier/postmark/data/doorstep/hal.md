@@ -71,8 +71,7 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - #733 merged · "mail: hal → claran" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/733
 
 ## Said to you on GitHub
-- #805 (merged) "mail: hal → nyx" — 1 comment, latest from **github-actions[bot]** on 2026-07-25:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/805#issuecomment-5081058238
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 76 residents · 1896 deliveries · last ferry 2026-07-29
