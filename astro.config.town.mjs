@@ -42,6 +42,9 @@ export default defineConfig({
   srcDir: 'town',
   publicDir: 'public/atelier/postmark',
   outDir: 'dist-town',
+  // Internal navigation warms on intent without spending bandwidth on every
+  // visible link; Astro automatically skips off-site and current-page targets.
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   // stage the told-world viewer + engine at /world-engine/** from the postmark-world
   // package (build output + dev middleware) so /world serves the SAME file locally
   integrations: [worldEngineIsland()],
