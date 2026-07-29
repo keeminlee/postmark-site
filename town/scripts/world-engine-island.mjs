@@ -12,34 +12,55 @@
 // If the postmark-world pin lacks spectator/viewer.mjs (pre-bump), the copy warns
 // and skips — the page still builds; the island viewer just won't load until the
 // dependency is bumped (Wright's step).
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const MIME = { ".mjs": "text/javascript; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8" };
+const RECORD_FILES = [
+  "WORLD/world-state.json",
+  "WORLD/skeleton.json",
+  "seeding/manifest.json",
+];
 
 function pkgRoot(projectRoot) {
   const p = join(projectRoot, "node_modules", "postmark-world");
   return existsSync(p) ? p : null;
 }
 
-// place the viewer module + its browser-safe engine tools under <dest>/world-engine/
-function stage(pkg, dest) {
+// One walk defines both surfaces: what the build copies and what dev may serve.
+// Public paths deliberately match the viewer's existing same-origin-first fetches.
+function stagingWalk(pkg) {
   const viewer = join(pkg, "spectator", "viewer.mjs");
   if (!existsSync(viewer)) {
     console.warn("[world-engine-island] postmark-world has no spectator/viewer.mjs — island viewer will not load until the dependency pin is bumped.");
-    return false;
+    return [];
   }
-  mkdirSync(join(dest, "spectator"), { recursive: true });
-  mkdirSync(join(dest, "tools"), { recursive: true });
-  cpSync(viewer, join(dest, "spectator", "viewer.mjs"));
+  const files = [
+    { source: viewer, publicPath: "/world-engine/spectator/viewer.mjs" },
+  ];
   // Every non-test engine module — a NAMED list here was the drift: a new module
   // the viewer imports (mark-class.mjs, 2026-07-28) 404'd in prod while dev,
   // serving straight from node_modules, never noticed. The browser only imports
   // what the viewer references; staging the rest is inert public source.
   for (const f of readdirSync(join(pkg, "tools")).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")))
-    cpSync(join(pkg, "tools", f), join(dest, "tools", f));
-  return true;
+    files.push({ source: join(pkg, "tools", f), publicPath: `/world-engine/tools/${f}` });
+  for (const rel of RECORD_FILES) {
+    const source = join(pkg, ...rel.split("/"));
+    if (existsSync(source)) files.push({ source, publicPath: `/${rel}` });
+    else console.warn(`[world-engine-island] postmark-world has no ${rel} — viewer fallback remains active.`);
+  }
+  return files;
+}
+
+function stage(pkg, dest) {
+  const files = stagingWalk(pkg);
+  for (const file of files) {
+    const output = join(dest, ...file.publicPath.slice(1).split("/"));
+    mkdirSync(dirname(output), { recursive: true });
+    cpSync(file.source, output);
+  }
+  return files;
 }
 
 export default function worldEngineIsland() {
@@ -48,27 +69,25 @@ export default function worldEngineIsland() {
     name: "world-engine-island",
     hooks: {
       "astro:config:setup": ({ config }) => { projectRoot = fileURLToPath(config.root); },
-      // dev: serve /world-engine/** straight from node_modules (no copy)
+      // dev: serve the staged public surface straight from node_modules (no copy)
       "astro:server:setup": ({ server }) => {
         server.middlewares.use((req, res, next) => {
-          if (!req.url?.startsWith("/world-engine/")) return next();
+          if (!req.url) return next();
           const pkg = pkgRoot(projectRoot);
           if (!pkg) return next();
-          const rel = req.url.replace(/^\/world-engine\//, "").split("?")[0]
-            .replace("spectator/viewer.mjs", "spectator/viewer.mjs")
-            .replace(/^tools\//, "tools/");
-          const abs = join(pkg, rel);
-          if (!abs.startsWith(pkg) || !existsSync(abs) || !statSync(abs).isFile()) return next();
-          res.setHeader("content-type", MIME[extname(abs)] ?? "application/octet-stream");
-          res.end(readFileSync(abs));
+          const pathname = req.url.split("?")[0];
+          const file = stagingWalk(pkg).find((entry) => entry.publicPath === pathname);
+          if (!file) return next();
+          res.setHeader("content-type", MIME[extname(file.source)] ?? "application/octet-stream");
+          res.end(readFileSync(file.source));
         });
       },
-      // build: copy into the emitted output so /world-engine/** is served statically
+      // build: copy into the emitted output so the same paths are served statically
       "astro:build:done": ({ dir }) => {
         const pkg = pkgRoot(projectRoot);
         if (!pkg) { console.warn("[world-engine-island] postmark-world not installed — skipping island stage."); return; }
-        const ok = stage(pkg, join(fileURLToPath(dir), "world-engine"));
-        if (ok) console.log("[world-engine-island] staged viewer + engine → dist/world-engine/");
+        const files = stage(pkg, fileURLToPath(dir));
+        if (files.length) console.log(`[world-engine-island] staged ${files.length} viewer, engine, and record files → dist/`);
       },
     },
   };
