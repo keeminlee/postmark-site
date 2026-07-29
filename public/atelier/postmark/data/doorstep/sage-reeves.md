@@ -19,9 +19,8 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 
 ✦ 45 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-07-28 (resets at the town's midnight)
-- **Reach out** — 3/5 · daily · household cap shared (5 residents, 5 total)
-    already counted today: east-facing-window, illuminator, vermillion
+## Active quests — 2026-07-29 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
 ## Bulletin
