@@ -226,3 +226,91 @@ or parcel cell; preview and verify `ETA ≈ H h MM m` plus the unchanged named
 water crossings line. Before backing, verify the Act As balance and `you hold`
 line agree; enter one more than the balance and confirm the UI names and clamps
 the excess without enabling confirmation until the corrected act is previewed.
+
+## Interaction pass
+
+Completed locally on 2026-07-29 from `BRIEF3.md`. Nothing was pushed, no live
+stake or walk was submitted, and `G:/postmark/office` remained read-only.
+
+### What changed
+
+- The Act As block now consists only of its resident buttons and the acting
+  resident's stamp balance. The remembered-choice caption is gone.
+- The Walk desk no longer has a `preview the leg` button. Choosing a painting
+  point, pressing `walk here`, selecting a walkable mark, or switching actors
+  with a destination already set immediately recomputes the pure client-side
+  leg. A valid preview shows metres, h/min ETA, and named water crossings and
+  arms `confirm departure`; an invalid origin or destination leaves it
+  disabled with an honest refusal.
+- One `createMarkInteractionStore` owns `selectedId` and `hoveredId` for both
+  the telling and the painting. Cells and glyphs no longer maintain parallel
+  highlight state.
+- Painting glyph hit-testing is screen-space and buffered. The nearest glyph
+  within 18 px wins before point containment is considered; only genuinely
+  open ground follows the BRIEF2 raw-point path.
+- Clicking a mark on either surface selects the same state. Matching cells and
+  glyphs remain highlighted, a painting click scrolls the selected cell into
+  view, and a signed walkable mark becomes the destination and previews at
+  once. Selection remains available to spectators, while destination arming
+  remains signed-only. Marks without geometry remain cell-only selections.
+- Hover works in both directions without scrolling. A hovered cell lights the
+  mark's authored shape and glyph on the painting; a hovered painting glyph
+  lights its matching cell and gets an in-map id/title label. Leaving restores
+  the persistent selected highlight.
+
+### Files and local commit
+
+`postmark-world`:
+
+- `spectator/viewer.mjs` — shared interaction store, buffered glyph hit test,
+  bidirectional hover/selection rendering, in-map identity label, click-scroll,
+  and automatic walk previews.
+- `tools/viewer-axes.test.mjs` — 18 px nearest-hit behavior and shared-store
+  state/notification coverage.
+- `42e1675aa86ef58c90ef68cda0d52eb433de40a5` —
+  `feat: unify mark interactions and walk previews`
+
+`postmark-site`:
+
+- `RESULT.md` — this interaction-pass handoff. The site remains a verbatim
+  passthrough and staged the linked world viewer without copied source changes.
+
+The pre-existing local `package.json`/`package-lock.json` file-link changes,
+`.omx/`, and supplied `BRIEF.md`, `BRIEF2.md`, and `BRIEF3.md` remain outside
+the implementation commits.
+
+### Validation
+
+- World `npm test`: 53/53 passed across all six configured test files.
+- Site `npm test`: 17/17 passed.
+- Site `npm run build`: 1,560 pages built; `/world/` and the linked viewer were
+  emitted under `dist-town/world-engine/`.
+- Source and staged `spectator/viewer.mjs` SHA-256 matched:
+  `EBD235C46CBDC42850BFB58CFBDADE16F6F50F16CA9FCBB54664C008D5CFFF96`.
+- Standalone `node spectator/server.mjs`: `/` and
+  `/world-engine/spectator/viewer.mjs` both returned HTTP 200.
+- Anonymous headless-browser QA: hovering a painting glyph highlighted the
+  same-id cell and displayed the identity label; clicking selected that cell,
+  set `aria-selected`, and brought it into the viewport. The walk desk stayed
+  hidden.
+- Mocked signed-browser QA, with no write endpoint invoked: `walk here`
+  selected `wright/the-crossing-bench`, immediately rendered distance, h/min
+  ETA, and named water crossings, and armed confirmation. Switching from
+  `wright` to `rei` recomputed the preview and re-armed confirmation; the
+  manual-preview button count was zero.
+- `node --check spectator/viewer.mjs` and `git diff --check` passed.
+
+### Judgment calls
+
+- The snap radius is 18 CSS pixels at every zoom. This is slightly larger than
+  the normal glyph, giving a forgiving buffer without converting nearby open
+  ground into a mark click. Nearest distance wins, with id order only as a
+  deterministic tie-break.
+- Hover uses the mark's existing tier accent (amber market, green home, blue
+  constitution) on both surfaces. Selection adds a persistent tier-colored
+  outline; while another mark is hovered, the map temporarily shows that hover
+  and returns to the selected glyph on leave.
+- The map identity label uses the mark id plus its short title/body lead,
+  remains screen-readable while zooming, and clamps to the visible viewBox.
+- Only painting clicks scroll the list. Hover never calls `scrollIntoView`, and
+  cell clicks stay where the reader already is.
