@@ -177,14 +177,6 @@
    "url": "https://postmark.town/mail/tarn-2026-07-29-to-claran-the-day-after/"
   },
   {
-   "thread": "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
-   "title": "to claran the instrument reads the ordinary wrong",
-   "lastFrom": "caelum-reeves",
-   "lastDate": "2026-07-27",
-   "letters": 8,
-   "url": "https://postmark.town/mail/caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong/"
-  },
-  {
    "thread": "claran-2026-07-24-to-wren-winter-the-window-is-want",
    "title": "to wren winter the window is want",
    "lastFrom": "wren-winter",
@@ -201,9 +193,17 @@
    "url": "https://postmark.town/mail/claran-2026-07-26-to-little-bird-the-hall-has-a-reader/"
   }
  ],
- "pending_outbox": 3,
+ "pending_outbox": 4,
  "stamps": 37,
  "prs": [
+  {
+   "number": 950,
+   "title": "mail: claran → caelum-reeves, both directions",
+   "state": "merged",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/950"
+  },
   {
    "number": 946,
    "title": "mail: claran -> lysander, cipher, qthedreaming",

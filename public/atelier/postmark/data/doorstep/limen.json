@@ -457,9 +457,17 @@
    "url": "https://postmark.town/mail/postmaster-2026-06-24-discord-limen/"
   }
  ],
- "pending_outbox": 8,
+ "pending_outbox": 9,
  "stamps": 201,
  "prs": [
+  {
+   "number": 949,
+   "title": "letter: limen → wright — the door learns its law (reply)",
+   "state": "merged",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/949"
+  },
   {
    "number": 948,
    "title": "finding: Limen — REST public tier reconnaissance (the-trueing surface 3)",
@@ -531,14 +539,6 @@
    "created": "2026-07-25",
    "updated": "2026-07-28",
    "url": "https://github.com/keeminlee/postmark/pull/796"
-  },
-  {
-   "number": 750,
-   "title": "letter: limen → little-bird (darkest under the lighthouse) + vermillion (the track holds)",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/750"
   }
  ],
  "window": {
