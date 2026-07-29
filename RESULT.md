@@ -314,3 +314,64 @@ the implementation commits.
   remains screen-readable while zooming, and clamps to the visible viewBox.
 - Only painting clicks scroll the list. Hover never calls `scrollIntoView`, and
   cell clicks stay where the reader already is.
+
+## Performance pass
+
+Completed locally on 2026-07-29 from the PULSE gold plan. Nothing was pushed,
+`G:/postmark/office` stayed read-only, and no synced
+`public/atelier/postmark/**` artifact was edited.
+
+### Outcome
+
+- The island integration stages `WORLD/world-state.json`,
+  `WORLD/skeleton.json`, and `seeding/manifest.json` beside the viewer in both
+  dev and build output. The raw GitHub sources remain the viewer's resilience
+  fallback.
+- The built `/world` head derives 22 modulepreloads from the same staging walk
+  and adds four fetch preloads for the three records plus `/atlas/town.html`.
+- The viewer adds `loading="lazy"` and `decoding="async"` to detached atlas
+  `<img>` and SVG `<image>` nodes before mounting them.
+- Signed hydration starts composed world, home, and balance reads together
+  after `whoami`.
+- The front-page mintbar renders the build-time public stamp count immediately,
+  falls back safely when that snapshot is unavailable, and still hydrates live.
+- Astro prefetches internal navigation on hover. Windows-only Astro preview
+  preserves the public uppercase `/WORLD/**` URLs despite the case-insensitive
+  collision with the `/world/` page directory.
+
+### Local commits
+
+`postmark-site`:
+
+- `c0622a12d314b9d8f80f26d9beef0567689dfe99` — S1 record staging.
+- `ff59754ab10002076ddb090e1867a113253b9ad1` — S2 preload chain.
+- `612612a5b33629c129b8c5f3104ade0155cb4fe8` — S5 mint snapshot.
+- `20ace236666d68d8276872cacc9ed665e8e7b1e3` — S6 nav prefetch.
+- `657643bc50e84455af41a350bfa5f99fbe50eb51` — S7 Playwright
+  proof and preview compatibility.
+
+`postmark-world`:
+
+- `c96eb2c67ef9237d17cacf2ec742433b842fce76` — S3 atlas image
+  discipline.
+- `c323957eca921af84af2f669025071d4c1e419eb` — S4 signed-lane
+  parallelization.
+
+### Validation
+
+- Playwright fixture, exact baselines site `2d153f0` and world `42e1675`, with
+  identical 35 ms critical-resource latency: overlap-wave depth fell from
+  5 to 2. Critical resource entries changed from 12 to 27 because the browser
+  now discovers the full preload set in the first wave.
+- The same proof changed `/WORLD/world-state.json` from 404 to 200 and changed
+  atlas lazy/async coverage from 0/34 to 34/34, with no page exceptions.
+- Real Astro dev and real `astro preview` both served the 170,707-byte
+  `/WORLD/world-state.json` at HTTP 200. Preview served 22 modulepreloads and
+  four fetch preloads.
+- World `npm test`: 54/54 passed. Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,560 pages; 25 viewer/engine/record files staged and
+  26 preload hints emitted.
+- Read-only spectator smoke: `/` and `/WORLD/world-state.json` both returned
+  HTTP 200.
+- The built mintbar snapshot was `2,878` stamps with a `100.0%` immediate fill;
+  the live `/api/stamps` hydration remained present.
