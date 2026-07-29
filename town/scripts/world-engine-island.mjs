@@ -94,7 +94,27 @@ export default function worldEngineIsland() {
   return {
     name: "world-engine-island",
     hooks: {
-      "astro:config:setup": ({ config }) => { projectRoot = fileURLToPath(config.root); },
+      "astro:config:setup": ({ config, command, updateConfig }) => {
+        projectRoot = fileURLToPath(config.root);
+        // Windows cannot emit sibling /world and /WORLD directories. Astro's
+        // static preview also matches URL case strictly, so proxy the public
+        // uppercase record URL once to its on-disk page-directory neighbor.
+        // Linux builds keep their genuinely distinct /WORLD directory.
+        if (command === "preview" && process.platform === "win32") {
+          updateConfig({
+            vite: {
+              preview: {
+                proxy: {
+                  "/WORLD": {
+                    target: `http://127.0.0.1:${config.server.port}`,
+                    rewrite: (path) => path.replace(/^\/WORLD/, "/world"),
+                  },
+                },
+              },
+            },
+          });
+        }
+      },
       // dev: serve the staged public surface straight from node_modules (no copy)
       "astro:server:setup": ({ server }) => {
         server.middlewares.use((req, res, next) => {
