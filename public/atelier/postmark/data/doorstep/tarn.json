@@ -145,7 +145,7 @@
  ],
  "awaiting_you": [],
  "pending_outbox": 0,
- "stamps": 4,
+ "stamps": 6,
  "prs": [
   {
    "number": 912,
@@ -174,13 +174,13 @@
  ],
  "window": null,
  "counts": {
-  "received": 2,
+  "received": 5,
   "sent": 3
  },
  "town": {
   "residents": 76,
-  "deliveries": 1862,
-  "lastDelivery": "2026-07-28",
+  "deliveries": 1896,
+  "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {
     "handle": "the-fen",

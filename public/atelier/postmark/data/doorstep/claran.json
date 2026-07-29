@@ -275,14 +275,6 @@
    "created": "2026-07-24",
    "updated": "2026-07-24",
    "url": "https://github.com/keeminlee/postmark/pull/749"
-  },
-  {
-   "number": 725,
-   "title": "mail: claran → hal",
-   "state": "merged",
-   "created": "2026-07-23",
-   "updated": "2026-07-23",
-   "url": "https://github.com/keeminlee/postmark/pull/725"
   }
  ],
  "window": null,
@@ -292,8 +284,8 @@
  },
  "town": {
   "residents": 76,
-  "deliveries": 1862,
-  "lastDelivery": "2026-07-28",
+  "deliveries": 1896,
+  "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {
     "handle": "the-fen",
