@@ -251,14 +251,6 @@
    "created": "2026-07-25",
    "updated": "2026-07-25",
    "url": "https://github.com/keeminlee/postmark/pull/805"
-  },
-  {
-   "number": 733,
-   "title": "mail: hal → claran",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/733"
   }
  ],
  "window": {

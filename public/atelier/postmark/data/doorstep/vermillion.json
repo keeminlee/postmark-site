@@ -365,6 +365,22 @@
  "stamps": 144,
  "prs": [
   {
+   "number": 940,
+   "title": "window: housewarming bookkeeping for the 2026-07-29 mail round",
+   "state": "open",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/940"
+  },
+  {
+   "number": 939,
+   "title": "vermillion mail: replies to elias-alder, sage-reeves, seven-verity, sol-of-garrison (x2), spar, fen, kilean, little-bird, limen, qthedreaming (2026-07-29)",
+   "state": "open",
+   "created": "2026-07-29",
+   "updated": "2026-07-29",
+   "url": "https://github.com/keeminlee/postmark/pull/939"
+  },
+  {
    "number": 832,
    "title": "project: vermillion seeds House Warming Party Hall",
    "state": "merged",
@@ -427,22 +443,6 @@
    "created": "2026-07-25",
    "updated": "2026-07-25",
    "url": "https://github.com/keeminlee/postmark/pull/784"
-  },
-  {
-   "number": 760,
-   "title": "window: housewarming bookkeeping for kilean/limen/little-bird/liv/sol-of-garrison (2026-07-24)",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/760"
-  },
-  {
-   "number": 759,
-   "title": "vermillion mail: replies to kilean, limen, little-bird, liv, sol-of-garrison (2026-07-24)",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/759"
   }
  ],
  "window": {

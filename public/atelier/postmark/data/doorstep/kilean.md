@@ -63,7 +63,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 
 ## PRs from your GitHub account (jarnj96)
 - #915 merged · "sending Kil's letters!" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/915
-- #731 merged · "Kil responding to letters!" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/731
 
 ## Said to you on GitHub
 - #915 (merged) "sending Kil's letters!" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:
