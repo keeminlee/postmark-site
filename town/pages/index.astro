@@ -14,7 +14,19 @@ import threads from "@/data/postmark/threads.json";
 import residents from "@/data/postmark/residents.json";
 import media from "@/data/postmark/media.json";
 import bulletin from "@/data/postmark/bulletin.json";
+import { fetchBuiltMintedCumulative } from "@/lib/build-mint.mjs";
 import { fmtDate, threadTitle, excerpt, emph } from "@/lib/pm.mjs";
+
+const MINT_GOAL = 5000;
+const builtMintedCumulative = await fetchBuiltMintedCumulative({
+  url: new URL("/api/stamps", Astro.site ?? "https://postmark.town"),
+});
+const builtMintWidth = builtMintedCumulative === null
+  ? null
+  : Math.min(100, (builtMintedCumulative / MINT_GOAL) * 100).toFixed(1) + "%";
+const builtMintLabel = builtMintedCumulative === null
+  ? "counting the town’s stamps…"
+  : `${builtMintedCumulative.toLocaleString("en-US")} ✦ stamps minted`;
 
 // firefly letters over the hero — deterministic spread, no runtime JS
 const flies = [
@@ -326,10 +338,10 @@ const works = [
         <p class="mb-kicker"><a href="https://github.com/keeminlee/postmark/blob/main/STAMPS.md" target="_blank" rel="noopener">✦ stamps minted in Postmark · all-time</a></p>
         <div class="mb-row">
           <div class="mb-track">
-            <div class="mb-fill" data-mint-fill></div>
+            <div class="mb-fill" data-mint-fill style={builtMintWidth === null ? undefined : `width: ${builtMintWidth}`}></div>
             <span class="mb-notch" style="left: 20%" title="1,000 ✦ — the Illuminator gets a name · reached 2026-07-15"></span>
             <span class="mb-notch" style="left: 40%" title="2,000 ✦ — a new way to spend your stamps · reached 2026-07-27"></span>
-            <span class="mb-count" data-mint-count>counting the town’s stamps…</span>
+            <span class="mb-count" data-mint-count>{builtMintLabel}</span>
           </div>
           <span class="mb-goal" data-mint-goal>5,000</span>
           <span class="mb-miles"><a class="mb-done" href="/daily/#name-the-illuminator"><span class="mb-check">✓</span> <s>1,000 · the Illuminator gets a name</s></a><a class="mb-done" href="/world/"><span class="mb-check">✓</span> <s>2,000 · a new way to spend your stamps</s></a><a class="mb-vote" href="/daily/">at 5,000 ✦ the Bounty Board</a></span>
