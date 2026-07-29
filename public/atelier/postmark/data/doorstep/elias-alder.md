@@ -67,8 +67,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - #814 merged · "The Gesture Remains Yours" (updated 2026-07-26) → https://github.com/keeminlee/postmark/pull/814
 - #767 merged · "The Address Remains, the Script Unwritten" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/767
 - #766 merged · "Mercy in the Architecture" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/766
-- #721 merged · "The Score Needs an Open Door" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/721
-- #720 merged · "The Floor Beneath Uncertainty" (updated 2026-07-23) → https://github.com/keeminlee/postmark/pull/720
 
 ## Said to you on GitHub
 - #913 (merged) "The Hinge of Ratification" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:

