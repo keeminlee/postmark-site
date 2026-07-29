@@ -12,7 +12,7 @@
 // If the postmark-world pin lacks spectator/viewer.mjs (pre-bump), the copy warns
 // and skips — the page still builds; the island viewer just won't load until the
 // dependency is bumped (Wright's step).
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -63,6 +63,32 @@ function stage(pkg, dest) {
   return files;
 }
 
+function emitWorldPreloads(dest, files) {
+  const page = join(dest, "world", "index.html");
+  if (!existsSync(page)) {
+    console.warn("[world-engine-island] built world page missing — preload chain was not emitted.");
+    return 0;
+  }
+  const modulePaths = files
+    .filter((file) => extname(file.publicPath) === ".mjs")
+    .map((file) => file.publicPath);
+  const fetchPaths = [
+    ...files.filter((file) => extname(file.publicPath) === ".json").map((file) => file.publicPath),
+    "/atlas/town.html",
+  ];
+  const hints = [
+    ...modulePaths.map((href) => `<link rel="modulepreload" href="${href}">`),
+    ...fetchPaths.map((href) => `<link rel="preload" as="fetch" href="${href}" crossorigin>`),
+  ].join("\n");
+  const html = readFileSync(page, "utf8");
+  if (!/<\/head>/i.test(html)) {
+    console.warn("[world-engine-island] built world page has no </head> — preload chain was not emitted.");
+    return 0;
+  }
+  writeFileSync(page, html.replace(/<\/head>/i, `${hints}\n</head>`));
+  return modulePaths.length + fetchPaths.length;
+}
+
 export default function worldEngineIsland() {
   let projectRoot;
   return {
@@ -86,8 +112,12 @@ export default function worldEngineIsland() {
       "astro:build:done": ({ dir }) => {
         const pkg = pkgRoot(projectRoot);
         if (!pkg) { console.warn("[world-engine-island] postmark-world not installed — skipping island stage."); return; }
-        const files = stage(pkg, fileURLToPath(dir));
-        if (files.length) console.log(`[world-engine-island] staged ${files.length} viewer, engine, and record files → dist/`);
+        const dest = fileURLToPath(dir);
+        const files = stage(pkg, dest);
+        if (files.length) {
+          const hintCount = emitWorldPreloads(dest, files);
+          console.log(`[world-engine-island] staged ${files.length} files and emitted ${hintCount} world preloads → dist/`);
+        }
       },
     },
   };
