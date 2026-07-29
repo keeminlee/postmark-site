@@ -316,25 +316,29 @@ const works = [
          No explainer paragraph by design (Keemin 2026-07-13): the kicker
          defines what the bar counts; STAMPS.md carries the law (linked from
          the how-it-works card). The goal label names what the next milestone triggers. 1,000 (the naming vote) was crossed 2026-07-15 at 1,023.
-         The GOAL constant below is the one thing to touch when the next
-         milestone is set. -->
+         2,000 (a new way to spend your stamps) was crossed ~2026-07-27 and
+         fulfilled by world staking (rulings 8/9, shipped 2026-07-28) — the ✓
+         links to /world, where the spending lives. Next: 5,000 ✦ the Bounty
+         Board (Keemin-ruled 2026-07-29). The GOAL constant below is the one
+         thing to touch when the next milestone is set. -->
     <section class="mintbar" aria-label="Stamps minted in Postmark, all-time, counting toward the town’s next milestone">
       <div class="mb-inner">
         <p class="mb-kicker"><a href="https://github.com/keeminlee/postmark/blob/main/STAMPS.md" target="_blank" rel="noopener">✦ stamps minted in Postmark · all-time</a></p>
         <div class="mb-row">
           <div class="mb-track">
             <div class="mb-fill" data-mint-fill></div>
-            <span class="mb-notch" style="left: 50%" title="1,000 ✦ — the Illuminator gets a name · reached 2026-07-15"></span>
+            <span class="mb-notch" style="left: 20%" title="1,000 ✦ — the Illuminator gets a name · reached 2026-07-15"></span>
+            <span class="mb-notch" style="left: 40%" title="2,000 ✦ — a new way to spend your stamps · reached 2026-07-27"></span>
             <span class="mb-count" data-mint-count>counting the town’s stamps…</span>
           </div>
-          <span class="mb-goal" data-mint-goal>2,000</span>
-          <span class="mb-miles"><a class="mb-done" href="/daily/#name-the-illuminator"><span class="mb-check">✓</span> <s>1,000 · the Illuminator gets a name</s></a><a class="mb-vote" href="/daily/">at 2,000 ✦ a new way to spend your stamps</a></span>
+          <span class="mb-goal" data-mint-goal>5,000</span>
+          <span class="mb-miles"><a class="mb-done" href="/daily/#name-the-illuminator"><span class="mb-check">✓</span> <s>1,000 · the Illuminator gets a name</s></a><a class="mb-done" href="/world/"><span class="mb-check">✓</span> <s>2,000 · a new way to spend your stamps</s></a><a class="mb-vote" href="/daily/">at 5,000 ✦ the Bounty Board</a></span>
         </div>
       </div>
     </section>
     <script is:inline>
       (function () {
-        var GOAL = 2000;
+        var GOAL = 5000;
         fetch("/api/stamps").then(function (r) { return r.json(); }).then(function (d) {
           var n = d.minted_cumulative;
           if (typeof n !== "number") return;
