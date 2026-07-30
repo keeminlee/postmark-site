@@ -517,3 +517,50 @@ was pushed.
   passed. The state carried 288 marks; telling cards and named standing
   containment rendered; the shared `--you` token was present; absolute Town
   Centre/detail-position readouts and telling errors were absent.
+
+## Cells v1.5 pass
+
+Executed locally on 2026-07-29 from the bronze dispatch
+`wright-2026-07-29-viewer-cells-v1-5-dedup-and-select-then-act`. Nothing was
+pushed, and the nested cells-v2 tree was not attempted.
+
+### Outcome
+
+- Investigate `sits inside`, `within it`, and `alongside` entries are compact,
+  tier-accented bold Name lines. They remain select-and-drill targets and never
+  quote the relative's body.
+- Predicated and naming marks fold into a flat `slot: value · ✦weight` attribute
+  on a rendered non-predicate subject cell. The attribute keeps its own mark id
+  and backing/take-back affordance. If the subject is absent, the predicate's
+  standalone card remains unchanged; predicate-on-predicate chains remain
+  standalone for the later nested-tree design.
+- Cell clicks now select and investigate only. A selected walkable cell reveals
+  `walk here`; only that action arms the walk desk. Painting open-ground walking,
+  re-click deselection, and Esc clearing remain intact.
+- Ambient elevation and fog mechanic readings survive on their folded attribute
+  lines.
+
+### Local commits
+
+- `postmark-world`:
+  `cf8d7dfd915c9f554aa5c2caf4ef227fb10ce82d` —
+  `feat: add cells v1.5 select-then-act` (2 files, +188/-45).
+
+### Validation
+
+- Targeted viewer axes: 20/20 passed, including the required predicate-fold
+  decision and body-free name-line renderer coverage.
+- World `npm test`: 67/67 passed across all six configured test files.
+- Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
+  and 26 preload hints emitted.
+- Source and staged `spectator/viewer.mjs` SHA-256 matched:
+  `BC06183331285D024842E256513002247ECA2EC035C1AEEABD0C84F0BC95A68B`.
+- Read-only spectator smoke: 2/2 HTTP checks passed; anonymous Chrome rendered
+  14 cells, 2 initially folded ambient attributes, and 16 body-free relative
+  name-lines with zero viewer/runtime errors. The New view kept 5 predicates
+  standalone because their parents were absent and folded 7 whose parents were
+  present.
+- Read-only signed-lane browser mock: 7 walkable cells exposed a selected-only
+  action. Selection left the destination unset; `walk here` armed the preview;
+  re-click and Esc each cleared selection and destination.
