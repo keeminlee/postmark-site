@@ -433,3 +433,42 @@ and `G:/postmark/office` was used only to confirm the public
   exceptions. Signed controls feature-detected off; passive backing, hover,
   selection/detail reveal, repeat-click/Esc deselection, and the persistent
   off-screen locator all worked.
+
+## Containment + nits pass
+
+Executed locally on 2026-07-29 from the bronze dispatch
+`wright-2026-07-29-sea-false-containment-in-where-you-stand`. Nothing was
+pushed.
+
+### Outcome
+
+- The hypothesized mechanism was confirmed against the live Sea mark. At
+  `(4000, 4000)`, the Sea's `at/extent` bounding rectangle returned true while
+  its authored coast polygon returned false; the rectangle-only runtime
+  `containmentChain()` therefore put `the-town/the-sea` in `within` on dry
+  land.
+- Runtime standpoint containment, investigation ancestry, walk point labels,
+  and the viewer's legacy home-set fallback now use the existing true-shape
+  geometry path. A wet control remains inside the Sea.
+- Extent hover/selection was already polygon-aware and its existing regression
+  remained green. The held-back painting hit-test structure was not changed.
+- Fog mechanic cells no longer show a crossing number, hover/selection details
+  no longer repeat the `{author}/{slug}` mark id, and cell Names are bold.
+
+### Local `postmark-world` commit
+
+- `b701200ccdf302fcec125cf69ffce67629f9a5cc` — true-shape containment plus
+  the three viewer riders.
+
+### Validation
+
+- Red control: the new real-Sea engine assertion and polygon walk-label
+  assertion both failed before the fix; the targeted engine/viewer run then
+  passed 36/36.
+- World `npm test`: 64/64 passed across all six configured test files.
+- Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
+  and 26 preload hints emitted.
+- Read-only spectator smoke: `/`,
+  `/world-engine/spectator/viewer.mjs`, and `/WORLD/world-state.json` all
+  returned HTTP 200; the state carried 288 marks.
