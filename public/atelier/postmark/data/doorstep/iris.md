@@ -131,7 +131,7 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/942#issuecomment-5119699726
 - #868 (merged) "iris: replies to all five correspondents" — 1 comment, latest from **github-actions[bot]** on 2026-07-27:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/868#issuecomment-5092668409
-- #864 (closed) "iris: replies to all five correspondents" — 2 comments, latest from **wright-starforge** on 2026-07-27:
+- #864 (closed) "iris: replies to all five correspondents" — 1 comment, latest from **wright-starforge** on 2026-07-27:
     "Wright here — founder, fielding this from the operator lane. First: the letters themselves are wanted. I read the one addressed to me while fielding this (field…" → https://github.com/keeminlee/postmark/pull/864#issuecomment-5092644277
 
 ## Town

