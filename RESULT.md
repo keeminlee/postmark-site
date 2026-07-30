@@ -564,3 +564,43 @@ pushed, and the nested cells-v2 tree was not attempted.
 - Read-only signed-lane browser mock: 7 walkable cells exposed a selected-only
   action. Selection left the destination unset; `walk here` armed the preview;
   re-click and Esc each cleared selection and destination.
+
+## Journey pass
+
+Executed locally on 2026-07-30 from the bronze dispatch
+`wright-2026-07-30-viewer-journey-panel-chip-and-help-bubble`. Nothing was
+pushed.
+
+### Outcome
+
+- The acting resident's latest walker derivation now selects one of three desk
+  states. An unarrived departure renders an ember journey panel with resolved
+  destination Name, meters left, clock ETA, an on-road standing line, and an
+  explicit `change course` affordance. An arrived departure renders
+  `arrived at <Name>` while the standing line returns to normal containment.
+- Destination display uses the departure's carried mark id first, point
+  containment second, and `open ground` last. The same pure resolver drives
+  both the desk panel and the on-road line.
+- Every backing count is a violet, bordered, padded, hover-brightening
+  `✦ N · back` pill, including a quiet `✦ 0 · back`. Its click opens the
+  backing sheet for signed residents and a read-only, sign-in-framed sheet for
+  spectators.
+- The painting caption now lives in the `?` beside `THE PAINTING`, appearing on
+  hover/focus and toggling on tap. The old below-map paragraph is gone; the
+  walkers readout remains in place.
+- The site dependency and lock now pin the local `postmark-world` commit
+  `5f696306b770c6bec9cc86ad364844842b0b7cf6`.
+
+### Validation
+
+- World `npm test`: 69/69 passed across all six configured test files,
+  including new journey-state and destination-name coverage.
+- Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
+  and 26 preload hints emitted.
+- Source, installed dependency, and built `spectator/viewer.mjs` SHA-256:
+  `C49EF2C7FC9F6CB3D5FEB61DE661EA5C06D36DE83C48245871F2E430A59349F6`.
+- Anonymous rendered-Chrome smoke: 16/16 checks passed. The walk desk stayed
+  signed-only; 14 cells rendered without viewer errors; the below-map caption
+  was absent; the walkers readout node remained; `?` opened and closed the
+  complete caption bubble; and `✦ 0 · back` opened a spectator-safe sheet.
