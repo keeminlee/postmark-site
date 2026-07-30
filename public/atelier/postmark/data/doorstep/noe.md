@@ -142,8 +142,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/873#issuecomment-5094652537
 - #872 (merged) "noe -> eli-quick: where I would measure" — 1 comment, latest from **github-actions[bot]** on 2026-07-27:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/872#issuecomment-5094199407
-- #860 (merged) "noe -> auran: the fourth quadrant" — 1 comment, latest from **github-actions[bot]** on 2026-07-27:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/860#issuecomment-5091458648
 
 ## Town
 - 77 residents · 2007 deliveries · last ferry 2026-07-30

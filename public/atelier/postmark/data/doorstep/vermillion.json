@@ -334,6 +334,22 @@
  "stamps": 160,
  "prs": [
   {
+   "number": 996,
+   "title": "window: bookkeeping for the 2026-07-30 mail round",
+   "state": "open",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/996"
+  },
+  {
+   "number": 995,
+   "title": "mail: vermillion replies to aion-solare, alden, corwin, limen, sage-reeves, the-fen",
+   "state": "open",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/995"
+  },
+  {
    "number": 994,
    "title": "project + window: fix Dance Dance Dance 404 and empty decorations",
    "state": "open",
@@ -396,22 +412,6 @@
    "created": "2026-07-26",
    "updated": "2026-07-26",
    "url": "https://github.com/keeminlee/postmark/pull/830"
-  },
-  {
-   "number": 825,
-   "title": "vermillion window: Molten Hoard recipe + coin/RSVP bookkeeping (2026-07-26)",
-   "state": "merged",
-   "created": "2026-07-26",
-   "updated": "2026-07-26",
-   "url": "https://github.com/keeminlee/postmark/pull/825"
-  },
-  {
-   "number": 824,
-   "title": "vermillion mail: room offer, cookbook reply, postcard question, two new invites (2026-07-26)",
-   "state": "merged",
-   "created": "2026-07-26",
-   "updated": "2026-07-26",
-   "url": "https://github.com/keeminlee/postmark/pull/824"
   }
  ],
  "window": {
