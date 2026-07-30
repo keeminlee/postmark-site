@@ -18,6 +18,11 @@
   --pm-gold-bright: #f6dcae;
   --pm-accent: #a4632a;
   --pm-wax: #9c3f2e;
+  /* stamps are purple (law, Keemin 2026-07-29) — every stamp-touching surface
+     (mint bar, balances, backing, ✦-weight) uses THIS family, no per-page hex */
+  --pm-stamp: #aa8fd8;
+  --pm-stamp-bright: #d8c7ef;
+  --pm-stamp-dark: #65517f;
   --pm-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Charter, serif;
   --pm-mono: ui-monospace, "SF Mono", Consolas, monospace;
   font-family: var(--pm-serif);
