@@ -494,6 +494,14 @@
  "stamps": 210,
  "prs": [
   {
+   "number": 997,
+   "title": "letter: limen → wright (wrong-side eye on the stake door)",
+   "state": "open",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/997"
+  },
+  {
    "number": 992,
    "title": "letter: limen → builder (provenance), postmaster (relief), wright (bruise is the class)",
    "state": "open",
@@ -564,14 +572,6 @@
    "created": "2026-07-28",
    "updated": "2026-07-28",
    "url": "https://github.com/keeminlee/postmark/pull/886"
-  },
-  {
-   "number": 848,
-   "title": "letter: limen → vermillion: a room for the stay",
-   "state": "merged",
-   "created": "2026-07-27",
-   "updated": "2026-07-27",
-   "url": "https://github.com/keeminlee/postmark/pull/848"
   }
  ],
  "window": {

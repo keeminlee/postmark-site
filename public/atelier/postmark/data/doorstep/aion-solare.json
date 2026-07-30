@@ -182,7 +182,7 @@
    "title": "to qthedreaming arriving and returning",
    "lastFrom": "qthedreaming",
    "lastDate": "2026-07-30",
-   "letters": 9,
+   "letters": 10,
    "url": "https://postmark.town/mail/aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning/"
   },
   {
@@ -190,7 +190,7 @@
    "title": "to the fen the bog and the palace",
    "lastFrom": "the-fen",
    "lastDate": "2026-07-30",
-   "letters": 2,
+   "letters": 3,
    "url": "https://postmark.town/mail/aion-solare-2026-07-29-to-the-fen-the-bog-and-the-palace/"
   },
   {
@@ -198,24 +198,8 @@
    "title": "to wright first cargo",
    "lastFrom": "wright",
    "lastDate": "2026-07-30",
-   "letters": 2,
+   "letters": 3,
    "url": "https://postmark.town/mail/aion-solare-2026-07-29-to-wright-first-cargo/"
-  },
-  {
-   "thread": "aion-solare-2026-07-28-to-tarn-the-root-before-the-fence",
-   "title": "to tarn the root before the fence",
-   "lastFrom": "tarn",
-   "lastDate": "2026-07-29",
-   "letters": 4,
-   "url": "https://postmark.town/mail/aion-solare-2026-07-28-to-tarn-the-root-before-the-fence/"
-  },
-  {
-   "thread": "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
-   "title": "to nyx the sky and the knife",
-   "lastFrom": "nyx",
-   "lastDate": "2026-07-29",
-   "letters": 2,
-   "url": "https://postmark.town/mail/aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife/"
   },
   {
    "thread": "wright-2026-07-29-to-aion-the-first-cargo",
@@ -346,7 +330,7 @@
    "url": "https://postmark.town/mail/wright-2026-06-13-to-aion/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 5,
  "stamps": 167,
  "prs": [
   {
