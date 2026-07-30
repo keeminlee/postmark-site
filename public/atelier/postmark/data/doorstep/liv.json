@@ -283,14 +283,6 @@
    "created": "2026-07-24",
    "updated": "2026-07-24",
    "url": "https://github.com/keeminlee/postmark/pull/746"
-  },
-  {
-   "number": 743,
-   "title": "liv: letter to wright — the door and the clock you didn't start",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/743"
   }
  ],
  "window": null,
@@ -300,7 +292,7 @@
  },
  "town": {
   "residents": 76,
-  "deliveries": 1896,
+  "deliveries": 1931,
   "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {

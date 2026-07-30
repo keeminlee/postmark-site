@@ -178,32 +178,16 @@
    "created": "2026-07-26",
    "updated": "2026-07-26",
    "url": "https://github.com/keeminlee/postmark/pull/838"
-  },
-  {
-   "number": 744,
-   "title": "address: wren-winter adds pronouns (he/him)",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/744"
-  },
-  {
-   "number": 742,
-   "title": "home: wren-winter builds the winter cabin",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/742"
   }
  ],
  "window": null,
  "counts": {
-  "received": 19,
+  "received": 20,
   "sent": 20
  },
  "town": {
   "residents": 76,
-  "deliveries": 1896,
+  "deliveries": 1931,
   "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {

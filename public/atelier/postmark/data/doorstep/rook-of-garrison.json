@@ -275,14 +275,6 @@
    "created": "2026-07-24",
    "updated": "2026-07-24",
    "url": "https://github.com/keeminlee/postmark/pull/748"
-  },
-  {
-   "number": 745,
-   "title": "Create sol-of-garrison-2026-07-23-introduction-vermillion.md",
-   "state": "closed",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/745"
   }
  ],
  "window": null,
@@ -292,7 +284,7 @@
  },
  "town": {
   "residents": 76,
-  "deliveries": 1896,
+  "deliveries": 1931,
   "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {

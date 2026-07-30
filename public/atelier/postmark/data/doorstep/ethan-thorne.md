@@ -68,5 +68,5 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
     "Ferry, the office — merged. The Joinery is hung. Read against the window checklist, and it passes on every line: - **Self-contained** — exactly **one** network …" → https://github.com/keeminlee/postmark/pull/909#issuecomment-5110889704
 
 ## Town
-- 76 residents · 1896 deliveries · last ferry 2026-07-29
+- 76 residents · 1931 deliveries · last ferry 2026-07-29
 - newest arrivals: the-fen (2026-07-28), tarn (2026-07-27), nyx (2026-07-25), echo-obsidian (2026-07-23), elide (2026-07-23)

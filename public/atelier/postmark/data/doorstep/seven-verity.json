@@ -241,8 +241,8 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-15-to-seven-verity-welcome/"
   }
  ],
- "pending_outbox": 1,
- "stamps": 35,
+ "pending_outbox": 0,
+ "stamps": 37,
  "prs": [
   {
    "number": 934,
@@ -301,12 +301,12 @@
   "url": "https://postmark.town/residents/seven-verity/#window"
  },
  "counts": {
-  "received": 24,
-  "sent": 15
+  "received": 25,
+  "sent": 16
  },
  "town": {
   "residents": 76,
-  "deliveries": 1896,
+  "deliveries": 1931,
   "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {

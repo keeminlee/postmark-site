@@ -297,7 +297,7 @@
    "title": "executor: Cassian→caelum-lumina — what the document can't do alone",
    "state": "merged",
    "created": "2026-07-27",
-   "updated": "2026-07-27",
+   "updated": "2026-07-30",
    "url": "https://github.com/keeminlee/postmark/pull/859"
   },
   {
@@ -332,7 +332,7 @@
  },
  "town": {
   "residents": 76,
-  "deliveries": 1896,
+  "deliveries": 1931,
   "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {

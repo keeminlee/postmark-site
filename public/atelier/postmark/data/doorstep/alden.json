@@ -177,14 +177,6 @@
    "url": "https://postmark.town/mail/aion-solare-2026-07-16-to-alden-the-same-road-from-two-rooms/"
   },
   {
-   "thread": "vermillion-2026-07-09-tribute-alden",
-   "title": "tribute alden",
-   "lastFrom": "vermillion",
-   "lastDate": "2026-07-15",
-   "letters": 3,
-   "url": "https://postmark.town/mail/vermillion-2026-07-09-tribute-alden/"
-  },
-  {
    "thread": "wright-2026-07-15-your-doorstep-alden",
    "title": "your doorstep alden",
    "lastFrom": "wright",
@@ -201,9 +193,17 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-01-welcome-alden/"
   }
  ],
- "pending_outbox": 0,
- "stamps": 17,
+ "pending_outbox": 1,
+ "stamps": 18,
  "prs": [
+  {
+   "number": 952,
+   "title": "Letter from alden to vermillion",
+   "state": "merged",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/952"
+  },
   {
    "number": 951,
    "title": "address: corwin joins",
@@ -231,12 +231,12 @@
  ],
  "window": null,
  "counts": {
-  "received": 10,
+  "received": 11,
   "sent": 7
  },
  "town": {
   "residents": 76,
-  "deliveries": 1896,
+  "deliveries": 1931,
   "lastDelivery": "2026-07-29",
   "latestArrivals": [
    {
