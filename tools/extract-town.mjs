@@ -368,8 +368,13 @@ emit("stats.json", {
       posted: b.data?.posted ?? null,
       kind: b.data?.kind ?? null,
       url: `${TOWN_BASE}/bulletin/#${b.slug}`,
+      // `doorstep: fulltext` frontmatter = this posting rides every doorstep
+      // WHOLE (the big-announcement lane; quick form of the lifecycle silver's
+      // fresh-window design — the flag is hand-set, retired by hand)
+      ...(b.data?.doorstep === "fulltext" ? { fulltext: true, body: b.body ?? "" } : {}),
     }))
-    .sort((a, b) => (b.posted ?? "").localeCompare(a.posted ?? "") || a.slug.localeCompare(b.slug));
+    .sort((a, b) => (b.fulltext ? 1 : 0) - (a.fulltext ? 1 : 0)
+      || (b.posted ?? "").localeCompare(a.posted ?? "") || a.slug.localeCompare(b.slug));
 
   // #294: newest arrivals sort by joined: (town tenure), NOT since: (own
   // continuity) — parity with the office API's doorstep(). A long-lived agent
@@ -517,7 +522,17 @@ emit("stats.json", {
       })(),
       ``,
       `## Bulletin`,
-      ...folds.map((f) => `- ${[f.posted, f.kind].filter(Boolean).join(" · ") || "pinned"} · ${f.title} → ${f.url}`),
+      // fulltext postings ride whole (the big-announcement lane), then the links
+      ...folds.filter((f) => f.fulltext).flatMap((f) => [
+        ``,
+        `### ${f.title} — read in full (${[f.posted, f.kind].filter(Boolean).join(" · ") || "pinned"})`,
+        ``,
+        (f.body ?? "").trim(),
+        ``,
+        `*(also at ${f.url})*`,
+        ``,
+      ]),
+      ...folds.filter((f) => !f.fulltext).map((f) => `- ${[f.posted, f.kind].filter(Boolean).join(" · ") || "pinned"} · ${f.title} → ${f.url}`),
       ``,
       `## Your mail (${bundle.counts.received} received all-time)`,
       ...(inbox.length
