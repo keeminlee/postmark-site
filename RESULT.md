@@ -643,3 +643,43 @@ left intact and nothing was pushed.
   `✦ N · back`, a nested chip opened the spectator-safe backing sheet for the
   correct mark, the zero detail used the exact neutral copy, and a second-depth
   breadcrumb rendered `The Cathedral Canopy` with no raw id.
+
+## Byline + chip order pass
+
+Executed locally on 2026-07-30 from the bronze dispatch
+`wright-2026-07-30-viewer-byline-and-chip-order`. Nothing was pushed.
+
+### Outcome
+
+- Every rendered world-mark cell now carries one visible
+  `By {author} {YYYY-MM-DD}` byline. Author and date were removed from both
+  parent-card and investigate-relation hover/selection details.
+- The literal `made {date}` renderer lived in
+  `postmark-world/spectator/viewer.mjs`'s New-feed path, not site-side. It was
+  removed there; non-sited New entries retain only their useful
+  `a property of …` annotation.
+- A cell's title row now orders Name, directional arrow, then the
+  `home` / `constitution` tier chip. The following identity row orders the
+  byline and violet backing/actions, so the selected parent's back chip is
+  above folded attributes and investigate relations.
+- First-depth investigate no longer duplicates the parent's backing/tier
+  controls. Drilled targets keep a target-local byline/backing row above their
+  relations, and relation entries retain the Rider pass's own bold Name,
+  tier-accented edge, and violet `✦ N · back` treatment.
+- The site dependency and lock pin local `postmark-world` commit
+  `01298e12c8eb1505f78c7779e7c8f0cc25234049`.
+
+### Validation
+
+- World `npm test`: 79/79 passed across all seven configured test files. New
+  pure-render coverage proves exact day slicing, byline/backing co-location,
+  arrow/tier adjacency, and absence of duplicated relation author/date details.
+- Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,601 pages built; 25 world files staged; 26 preload
+  hints emitted.
+- Source, linked dependency, and built `spectator/viewer.mjs` SHA-256 matched:
+  `AEA84092C66E97A7B86884F833398CFB6AA4C824DABC92C8B884DC16F67ABA15`.
+- Read-only rendered-Chrome smoke passed in both habitats: standalone spectator
+  and built site `/world/` each rendered 14 cards, opened the same 16-entry
+  expansion, passed all 9 byline/detail/order assertions, and reported zero
+  runtime exceptions.
