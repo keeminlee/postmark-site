@@ -375,3 +375,61 @@ Completed locally on 2026-07-29 from the PULSE gold plan. Nothing was pushed,
   HTTP 200.
 - The built mintbar snapshot was `2,878` stamps with a `100.0%` immediate fill;
   the live `/api/stamps` hydration remained present.
+
+## Legibility pass
+
+Executed locally on 2026-07-29 from the PULSE silver
+`silver-2026-07-29_postmark-world-viewer-legibility-batch`. Nothing was pushed,
+and `G:/postmark/office` was used only to confirm the public
+`GET /world/stake?mark=…` read contract.
+
+### Outcome
+
+- Ambient ancestry now keeps the world root and fog-like conditions out of every
+  extent, direction, hit target, and off-screen-location path.
+- Mark cells lead with resolved Names, show fold-determined names in gold, keep a
+  larger meaningful-direction arrow beside the Name, and reveal id/author/date,
+  honest extent, cardinal position, distance, and direction on hover or
+  selection.
+- Polygon claims carry polygon glyphs. Painting hits resolve by 18 px pip snap,
+  then smallest containing non-ambient true extent, then open ground.
+- Every cell shows current backing passively. The unchanged violet `back` sheet
+  reads the public holder rows and shows the top five plus the remaining count.
+- The walk desk has no `walk here` chip. Cell selection arms a named destination;
+  open ground uses a dot plus cardinal position; repeat-click or Esc clears both
+  selection and destination; previews contain only distance, h/min ETA, and
+  destination.
+- All viewer positions use the shared cardinal Town Centre formatter. Selected
+  and hovered off-screen marks retain tier-colored edge locators; non-ambient
+  predicates resolve through their nearest embodied ancestor.
+- “Where you stand” is exact, the redundant “What tells from here” heading is
+  gone, and each distance band derives its approximate range from the live LOD
+  band dials.
+
+### Local `postmark-world` commits
+
+- `82c1068` — ambient classifier.
+- `27138b4` — resolved Name-first cells and hover/selection details.
+- `bbebc34` — honest rectangle/polygon extent glyphs.
+- `229e0b9` — passive backing and top-five backers.
+- `b9604f4` — shared cardinal position display.
+- `dbbc23d` — walk-desk declutter and deselection.
+- `62bfca2` — off-screen edge locators.
+- `1887da0` — painting extent hit order.
+- `f5d66b0` — section and distance-band hierarchy.
+- `54d0871` — selected-locator persistence while another mark is hovered.
+
+### Validation
+
+- World `npm test`: 62/62 passed across all six configured test files, including
+  the required ambient, name, cardinal, containment-order, and backer-summary
+  pure coverage.
+- Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
+  and 26 preload hints emitted.
+- Linked source and built `spectator/viewer.mjs` SHA-256 matched:
+  `253ED6609B70113FE12AB538BF0F6EB81343201382EEA13956255B1CB1CDD5CB`.
+- Anonymous Chrome spectator smoke: 16/16 checks passed with zero runtime
+  exceptions. Signed controls feature-detected off; passive backing, hover,
+  selection/detail reveal, repeat-click/Esc deselection, and the persistent
+  off-screen locator all worked.
