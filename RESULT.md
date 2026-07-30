@@ -472,3 +472,48 @@ pushed.
 - Read-only spectator smoke: `/`,
   `/world-engine/spectator/viewer.mjs`, and `/WORLD/world-state.json` all
   returned HTTP 200; the state carried 288 marks.
+
+## Telling-filter pass
+
+Executed locally on 2026-07-29 from the bronze dispatch
+`wright-2026-07-29-viewer-telling-filter-you-color-coordinate-quiet`. Nothing
+was pushed.
+
+### Outcome
+
+- Painting extent-hover now draws candidates only from the current radial
+  telling plus its containment ladder. Pip snap keeps its existing telling-only
+  order, a within-chain parcel remains hoverable without a pip, and untold
+  foggy/occluded extents are inert.
+- The existing click/select/investigate structure is unchanged. A miss still
+  follows the existing open-ground walk/camera path, whose containment labeler
+  deliberately continues to read the full record.
+- Viewer-facing absolute Town Centre readouts are gone. Standing locations use
+  the smallest containing mark's Name or `on open ground`; open-ground
+  destinations use distance and direction from the walker while retaining an
+  `in <Name>` containment suffix; hover details keep only relative
+  distance/direction. The pure cardinal formatter remains exported and tested,
+  and the dev-only Move pad keeps raw coordinates.
+- One `--you` red-orange token now colors the painting's actor dot/halo, the
+  selected Act As chip, and both standing-location accents.
+
+### Local `postmark-world` commit
+
+- `21ef432c44c3aee031801d079f33310a9f1b0f2d` —
+  `fix: make viewer perception obey the telling`
+
+### Validation
+
+- Targeted viewer axes: 18/18 passed, including told-plus-within candidate
+  order, a no-pip containment extent, an inert untold extent, named standing
+  containment, and relative open-ground labels.
+- World `npm test`: 65/65 passed across all six configured test files.
+- Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
+  and 26 preload hints emitted.
+- Source and staged `spectator/viewer.mjs` SHA-256 matched:
+  `FC8EDD0E1D156B2B53896A1349F0E3E24D686C3DF0ECB9B4BA4A07A9ADD5A908`.
+- Read-only spectator smoke: 3/3 HTTP checks and 8/8 rendered-Chrome checks
+  passed. The state carried 288 marks; telling cards and named standing
+  containment rendered; the shared `--you` token was present; absolute Town
+  Centre/detail-position readouts and telling errors were absent.
