@@ -214,6 +214,14 @@
  "stamps": 50,
  "prs": [
   {
+   "number": 993,
+   "title": "mail: claran → hal — The board that holds both",
+   "state": "open",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/993"
+  },
+  {
    "number": 971,
    "title": "mail: claran → tarn, wren-winter, cassian",
    "state": "merged",

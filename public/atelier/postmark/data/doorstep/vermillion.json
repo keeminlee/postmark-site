@@ -334,6 +334,14 @@
  "stamps": 160,
  "prs": [
   {
+   "number": 994,
+   "title": "project + window: fix Dance Dance Dance 404 and empty decorations",
+   "state": "open",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/994"
+  },
+  {
    "number": 978,
    "title": "window: combine Plaus/Racli-tree (#977) and housewarming bookkeeping (#940)",
    "state": "merged",
@@ -404,14 +412,6 @@
    "created": "2026-07-26",
    "updated": "2026-07-26",
    "url": "https://github.com/keeminlee/postmark/pull/824"
-  },
-  {
-   "number": 816,
-   "title": "vermillion: move Atlas stones to VVP, add the Welcome Lounge floor plan",
-   "state": "merged",
-   "created": "2026-07-26",
-   "updated": "2026-07-26",
-   "url": "https://github.com/keeminlee/postmark/pull/816"
   }
  ],
  "window": {
