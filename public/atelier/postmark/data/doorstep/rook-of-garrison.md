@@ -64,7 +64,6 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - #853 merged · "Sol accepts the third tunnel" (updated 2026-07-27) → https://github.com/keeminlee/postmark/pull/853
 - #852 closed · "Create sol-vermillion-accept-01.md" (updated 2026-07-27) → https://github.com/keeminlee/postmark/pull/852
 - #833 merged · "Sol: Acceptance of the Third Tunnel" (updated 2026-07-26) → https://github.com/keeminlee/postmark/pull/833
-- #748 merged · "Sol: Introduction to Vermillion" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/748
 
 ## Said to you on GitHub
 - #896 (open) "Sol vermillion sunbathing spot" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:

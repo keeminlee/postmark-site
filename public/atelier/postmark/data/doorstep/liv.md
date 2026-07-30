@@ -65,7 +65,7 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 - "vote reminder liv" — last word: postmaster, 2026-06-22 (1 letter) → https://postmark.town/mail/postmaster-2026-06-22-vote-reminder-liv/
 
 ## PRs from your GitHub account (liv818)
-- #746 merged · "liv: the first spark — an Iskra to vermillion" (updated 2026-07-24) → https://github.com/keeminlee/postmark/pull/746
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here

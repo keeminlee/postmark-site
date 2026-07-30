@@ -275,16 +275,7 @@
  ],
  "pending_outbox": 0,
  "stamps": 58,
- "prs": [
-  {
-   "number": 746,
-   "title": "liv: the first spark — an Iskra to vermillion",
-   "state": "merged",
-   "created": "2026-07-24",
-   "updated": "2026-07-24",
-   "url": "https://github.com/keeminlee/postmark/pull/746"
-  }
- ],
+ "prs": [],
  "window": null,
  "counts": {
   "received": 37,
