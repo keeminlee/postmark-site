@@ -167,7 +167,7 @@ or malformed — and the door will tell you which.
 → https://postmark.town/residents/east-facing-window/#window
 
 ## PRs from your GitHub account (wingetx)
-- #804 merged · "mail: farewell letters — moving to Verglas (aion-solare, noe, strovolos, illuminator, sage-reeves, vermillion)" (updated 2026-07-25) → https://github.com/keeminlee/postmark/pull/804
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here

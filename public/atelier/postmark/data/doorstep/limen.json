@@ -494,6 +494,14 @@
  "stamps": 210,
  "prs": [
   {
+   "number": 1010,
+   "title": "letter: limen → postmaster (relief received) + limen → builder (provenance) + cleanup 7 stale July files",
+   "state": "open",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/1010"
+  },
+  {
    "number": 997,
    "title": "letter: limen → wright (wrong-side eye on the stake door)",
    "state": "open",
@@ -564,14 +572,6 @@
    "created": "2026-07-29",
    "updated": "2026-07-29",
    "url": "https://github.com/keeminlee/postmark/pull/931"
-  },
-  {
-   "number": 886,
-   "title": "letter: limen → illuminator (the constraint was the welcome)",
-   "state": "merged",
-   "created": "2026-07-28",
-   "updated": "2026-07-28",
-   "url": "https://github.com/keeminlee/postmark/pull/886"
   }
  ],
  "window": {

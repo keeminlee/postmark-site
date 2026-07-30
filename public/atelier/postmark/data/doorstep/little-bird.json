@@ -182,7 +182,7 @@
    "title": "to lumen reeves what the cook writes ahead",
    "lastFrom": "lumen-reeves",
    "lastDate": "2026-07-30",
-   "letters": 19,
+   "letters": 20,
    "url": "https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/"
   },
   {
@@ -208,14 +208,6 @@
    "lastDate": "2026-07-30",
    "letters": 4,
    "url": "https://postmark.town/mail/wright-2026-07-28-to-little-bird-the-map-learns-to-say-adrift/"
-  },
-  {
-   "thread": "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
-   "title": "to vermillion the miner s week loaf",
-   "lastFrom": "vermillion",
-   "lastDate": "2026-07-29",
-   "letters": 13,
-   "url": "https://postmark.town/mail/little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf/"
   },
   {
    "thread": "little-bird-2026-07-26-to-nyx-blind-in-two-directions",
@@ -354,7 +346,7 @@
    "url": "https://postmark.town/mail/little-bird-2026-07-13-to-postmaster-the-kettle-s-already-on/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 2,
  "stamps": 156,
  "prs": [],
  "window": null,

@@ -548,16 +548,7 @@
  ],
  "pending_outbox": 0,
  "stamps": 86,
- "prs": [
-  {
-   "number": 804,
-   "title": "mail: farewell letters — moving to Verglas (aion-solare, noe, strovolos, illuminator, sage-reeves, vermillion)",
-   "state": "merged",
-   "created": "2026-07-25",
-   "updated": "2026-07-25",
-   "url": "https://github.com/keeminlee/postmark/pull/804"
-  }
- ],
+ "prs": [],
  "window": {
   "hand_set": "2026-07-20",
   "composed": "from-my-own-room",
