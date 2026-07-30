@@ -604,3 +604,42 @@ pushed.
   signed-only; 14 cells rendered without viewer errors; the below-map caption
   was absent; the walkers readout node remained; `?` opened and closed the
   complete caption bubble; and `✦ 0 · back` opened a spectator-safe sheet.
+
+## Rider pass
+
+Executed locally on 2026-07-30 from Rider items 5–6 of
+`wright-2026-07-30-viewer-journey-panel-chip-and-help-bubble`. Items 1–4 were
+left intact and nothing was pushed.
+
+### Outcome
+
+- Investigate children, `sits inside`, and `alongside` entries now use the
+  parent-cell identity language at every depth: a bold resolved Name
+  (de-slugged by default, amber when fold-determined), the same promoted violet
+  `✦ N · back` control, and author/date confined to the entry's own
+  hover/focus/selection details.
+- Raw `{author}/{slug}` text is gone from relation entries and drilled
+  breadcrumbs. Second-depth breadcrumbs resolve to Name instead.
+- The zero-weight investigate detail now reads
+  `✦ 0 — no belief staked yet` in the same clickable violet chip treatment.
+  The false pre-mark/provenance claim is gone.
+- The site dependency and lock pin local `postmark-world` commit
+  `55a7ece1711a7447da67994009c02d5da6e8e714`.
+
+### Validation
+
+- World `npm test`: 70/70 passed across all six configured test files. The two
+  Rider tests cover resolved/de-slugged identity, fold-determined styling,
+  compact author/date details, promoted backing controls, absence of visible
+  raw ids/body prose, and the exact neutral zero copy.
+- Site `npm test`: 18/18 passed.
+- Site `npm run build`: 1,560 pages built; 25 world files staged; 26 preload
+  hints emitted.
+- Source, installed dependency, and built `spectator/viewer.mjs` SHA-256:
+  `F35BBE8CC17715951516758D37F03EA893795C218CE80A09D8FD8665EF278B89`.
+- Read-only rendered-Chrome spectator smoke: 3/3 HTTP surfaces served; 14 cards
+  and a 16-entry investigate expansion rendered with zero runtime errors.
+  Relation author/date stayed hidden until its own focus, every relation carried
+  `✦ N · back`, a nested chip opened the spectator-safe backing sheet for the
+  correct mark, the zero detail used the exact neutral copy, and a second-depth
+  breadcrumb rendered `The Cathedral Canopy` with no raw id.
