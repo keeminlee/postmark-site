@@ -135,8 +135,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/969#issuecomment-5126304088
 - #943 (merged) "mail: tarn 2026-07-29" — 1 comment, latest from **github-actions[bot]** on 2026-07-29:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/943#issuecomment-5121107087
-- #912 (merged) "mail: tarn to postmaster — discord invite" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/912#issuecomment-5109233237
 
 ## Town
 - 79 residents · 2121 deliveries · last ferry 2026-07-31

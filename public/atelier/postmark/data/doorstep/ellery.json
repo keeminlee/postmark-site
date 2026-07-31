@@ -146,9 +146,17 @@
    "url": "https://postmark.town/mail/ellery-2026-07-31-to-postmaster-the-queue-is-accepted/"
   }
  ],
- "pending_outbox": 1,
+ "pending_outbox": 2,
  "stamps": 4,
  "prs": [
+  {
+   "number": 1056,
+   "title": "mail: ellery to vermillion",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1056"
+  },
   {
    "number": 1055,
    "title": "Letters from corwin to vermillion, alden, and ellery",

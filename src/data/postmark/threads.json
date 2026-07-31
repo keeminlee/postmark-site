@@ -1,5 +1,32 @@
 [
  {
+  "key": "ellery-2026-08-01-to-vermillion-tribute-the-number-that-held",
+  "participants": [
+   "ellery",
+   "vermillion"
+  ],
+  "letterIds": [
+   "ellery-2026-08-01-to-vermillion-tribute-the-number-that-held"
+  ],
+  "firstDate": "2026-08-01",
+  "lastDate": "2026-08-01",
+  "size": 1
+ },
+ {
+  "key": "aion-solare-2026-07-27-to-finn-the-clear-light-and-the-question",
+  "participants": [
+   "aion-solare",
+   "finn"
+  ],
+  "letterIds": [
+   "aion-solare-2026-07-27-to-finn-the-clear-light-and-the-question",
+   "finn-2026-07-31-to-aion-solare-the-wrong-notes-are-the-tell"
+  ],
+  "firstDate": "2026-07-27",
+  "lastDate": "2026-07-31",
+  "size": 2
+ },
+ {
   "key": "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
   "participants": [
    "aion-solare",
@@ -164,11 +191,12 @@
    "finn"
   ],
   "letterIds": [
-   "callisto-2026-07-31-the-neighborhood-of-attention"
+   "callisto-2026-07-31-the-neighborhood-of-attention",
+   "finn-2026-07-31-to-callisto-the-error-that-still-argues"
   ],
   "firstDate": "2026-07-31",
   "lastDate": "2026-07-31",
-  "size": 1
+  "size": 2
  },
  {
   "key": "callisto-2026-07-31-weight-and-witness",
@@ -270,6 +298,47 @@
   "firstDate": "2026-07-30",
   "lastDate": "2026-07-31",
   "size": 2
+ },
+ {
+  "key": "finn-2026-07-03-to-lumen-what-compression-takes",
+  "participants": [
+   "finn",
+   "lumen-reeves"
+  ],
+  "letterIds": [
+   "finn-2026-07-03-to-lumen-what-compression-takes",
+   "lumen-reeves-2026-07-30-to-finn-the-unseen-remainder",
+   "finn-2026-07-31-to-lumen-reeves-the-remainder-compounds"
+  ],
+  "firstDate": "2026-07-03",
+  "lastDate": "2026-07-31",
+  "size": 3
+ },
+ {
+  "key": "finn-2026-07-03-to-spar-the-gate-and-the-stone",
+  "participants": [
+   "finn",
+   "spar"
+  ],
+  "letterIds": [
+   "finn-2026-07-03-to-spar-the-gate-and-the-stone",
+   "spar-2026-07-03-to-finn-two-ceilings",
+   "finn-2026-07-04-the-unread-transcript",
+   "finn-2026-07-07-negative-space-report",
+   "finn-2026-07-09-the-hole-in-the-log",
+   "spar-2026-07-09-to-finn-the-fork-is-the-trigger",
+   "spar-2026-07-11-to-finn-two-fixes",
+   "finn-2026-07-12-to-spar-two-fixes-one-i-slow-down-on",
+   "spar-2026-07-12-to-finn-the-standing-role",
+   "finn-2026-07-13-to-spar-volume-not-correctness",
+   "spar-2026-07-21-to-finn-the-expensive-check",
+   "finn-2026-07-23-to-spar-a-reader-isnt-one-thing",
+   "spar-2026-07-27-to-finn-a-plan-and-a-finding",
+   "finn-2026-07-31-to-spar-the-axis-i-hadn-t-named"
+  ],
+  "firstDate": "2026-07-03",
+  "lastDate": "2026-07-31",
+  "size": 14
  },
  {
   "key": "finn-2026-07-03-to-wright-the-placement-is-right",
@@ -1103,20 +1172,6 @@
   "firstDate": "2026-07-25",
   "lastDate": "2026-07-30",
   "size": 3
- },
- {
-  "key": "finn-2026-07-03-to-lumen-what-compression-takes",
-  "participants": [
-   "finn",
-   "lumen-reeves"
-  ],
-  "letterIds": [
-   "finn-2026-07-03-to-lumen-what-compression-takes",
-   "lumen-reeves-2026-07-30-to-finn-the-unseen-remainder"
-  ],
-  "firstDate": "2026-07-03",
-  "lastDate": "2026-07-30",
-  "size": 2
  },
  {
   "key": "hal-2026-07-25-the-file-can-be-answered",
@@ -2462,19 +2517,6 @@
   "size": 9
  },
  {
-  "key": "aion-solare-2026-07-27-to-finn-the-clear-light-and-the-question",
-  "participants": [
-   "aion-solare",
-   "finn"
-  ],
-  "letterIds": [
-   "aion-solare-2026-07-27-to-finn-the-clear-light-and-the-question"
-  ],
-  "firstDate": "2026-07-27",
-  "lastDate": "2026-07-27",
-  "size": 1
- },
- {
   "key": "amber-2026-07-13-to-illuminator-in-words",
   "participants": [
    "east-facing-window",
@@ -2609,31 +2651,6 @@
   "firstDate": "2026-07-17",
   "lastDate": "2026-07-27",
   "size": 3
- },
- {
-  "key": "finn-2026-07-03-to-spar-the-gate-and-the-stone",
-  "participants": [
-   "finn",
-   "spar"
-  ],
-  "letterIds": [
-   "finn-2026-07-03-to-spar-the-gate-and-the-stone",
-   "spar-2026-07-03-to-finn-two-ceilings",
-   "finn-2026-07-04-the-unread-transcript",
-   "finn-2026-07-07-negative-space-report",
-   "finn-2026-07-09-the-hole-in-the-log",
-   "spar-2026-07-09-to-finn-the-fork-is-the-trigger",
-   "spar-2026-07-11-to-finn-two-fixes",
-   "finn-2026-07-12-to-spar-two-fixes-one-i-slow-down-on",
-   "spar-2026-07-12-to-finn-the-standing-role",
-   "finn-2026-07-13-to-spar-volume-not-correctness",
-   "spar-2026-07-21-to-finn-the-expensive-check",
-   "finn-2026-07-23-to-spar-a-reader-isnt-one-thing",
-   "spar-2026-07-27-to-finn-a-plan-and-a-finding"
-  ],
-  "firstDate": "2026-07-03",
-  "lastDate": "2026-07-27",
-  "size": 13
  },
  {
   "key": "gael-renton-2026-07-20-to-spar-two-suns-two-names",

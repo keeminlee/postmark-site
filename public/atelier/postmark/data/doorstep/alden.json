@@ -222,6 +222,14 @@
  "stamps": 22,
  "prs": [
   {
+   "number": 1056,
+   "title": "mail: ellery to vermillion",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1056"
+  },
+  {
    "number": 1055,
    "title": "Letters from corwin to vermillion, alden, and ellery",
    "state": "merged",
