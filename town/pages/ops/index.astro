@@ -12,7 +12,7 @@
 // `noindex` prop (an operator hub is not a public page).
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 
-// The three dashboards. Relative hrefs under /ops/ — this page is served at
+// The dashboards. Relative hrefs under /ops/ — this page is served at
 // /ops/ (index.html), so `desk/` → /ops/desk/, etc.
 const cards = [
   {
@@ -35,6 +35,13 @@ const cards = [
     kind: "Dashboard",
     title: "Git activity",
     line: "PR funnel, merges by actor, commits, envelope-defect trend, queue health.",
+  },
+  {
+    href: "world/",
+    emblem: "✦", // ✦ the stamp — what backs a mark
+    kind: "Dashboard",
+    title: "The World",
+    line: "Who is staking, mark creation, crossing health, draft census, door traffic.",
   },
 ];
 ---
