@@ -405,25 +405,33 @@ const nav = [
       // ---- unseen mail, grouped by correspondent (12 from one neighbor = 1 row) ----
       const rows = await receivedMail(household, handles);
       const seen = new Set((readJSON(seenKey(household), { ids: [] }).ids) || []);
+      // Read mail STAYS in the panel (Keemin, 2026-07-30 — marking seen must
+      // not make rows vanish; it clears the badge and mutes the cell). Groups
+      // carry an unread count; `ids` holds only the unread ids so a row-click
+      // still advances exactly the unseen watermark. Read-only groups are
+      // bounded to the 8 most recent so the panel stays a desk, not an archive
+      // (the mail pages are the archive).
       let mailGroups = [];
       function recomputeMail() {
         const byFrom = new Map();
         for (const r of rows) {
-          if (seen.has(r.id)) continue;
-          const g = byFrom.get(r.from) || { from: r.from, to: r.to, count: 0, latest: r.date, ids: [] };
+          const g = byFrom.get(r.from) || { from: r.from, to: r.to, count: 0, unread: 0, latest: r.date, ids: [] };
           g.count++;
-          g.ids.push(r.id);
+          if (!seen.has(r.id)) { g.unread++; g.ids.push(r.id); }
           if (r.date >= g.latest) { g.latest = r.date; g.to = r.to; }
           byFrom.set(r.from, g);
         }
-        mailGroups = [...byFrom.values()].sort((a, b) => b.latest.localeCompare(a.latest));
+        const all = [...byFrom.values()].sort((a, b) => b.latest.localeCompare(a.latest));
+        let readKept = 0;
+        mailGroups = all.filter((g) => g.unread > 0 || ++readKept <= 8);
       }
       recomputeMail();
 
       function render() {
         bodyEl.textContent = "";
-        const total = mailGroups.length + (youreIn ? 1 : 0);
-        if (total === 0) {
+        const unreadGroups = mailGroups.filter((g) => g.unread > 0).length;
+        const unreadTotal = unreadGroups + (youreIn ? 1 : 0);
+        if (mailGroups.length === 0 && !youreIn) {
           const empty = document.createElement("div");
           empty.className = "pm-notif-empty";
           empty.textContent = "all quiet — next crossing at " + nextCrossing();
@@ -440,26 +448,29 @@ const nav = [
           }
           for (const g of mailGroups) {
             const a = document.createElement("a");
-            a.className = "pm-notif-row";
+            a.className = "pm-notif-row" + (g.unread === 0 ? " pm-notif-read" : "");
             a.href = "/mail/with/" + [g.from, g.to].sort().map(encodeURIComponent).join("--") + "/";
-            const line = g.count === 1
+            const n = g.unread > 0 ? g.unread : g.count;
+            const line = n === 1
               ? "a letter from <b>" + esc(g.from) + "</b> arrived for " + esc(g.to)
-              : esc(String(g.count)) + " letters from <b>" + esc(g.from) + "</b> for " + esc(g.to);
+              : esc(String(n)) + " letters from <b>" + esc(g.from) + "</b> for " + esc(g.to);
             a.innerHTML = "<span class='pm-notif-mark'>✉</span><span class='pm-notif-text'>" + line +
               (g.latest ? " <span class='pm-notif-when'>· " + esc(g.latest) + "</span>" : "") + "</span>";
             a.addEventListener("click", () => markCorrespondentSeen(g.ids));
             bodyEl.append(a);
           }
-          seenBtn.hidden = mailGroups.length === 0;
+          seenBtn.hidden = unreadGroups === 0;
         }
-        badge.textContent = String(total);
-        badge.hidden = total === 0;
+        badge.textContent = String(unreadTotal);
+        badge.hidden = unreadTotal === 0;
       }
 
-      // "mark all seen" — the explicit clear-all: everything currently received
-      // counts as seen (bounds the id-set to current mail, pruning the old), and
-      // the "you're in" moment is dismissed. This is the ONLY blanket clear;
-      // closing the panel does not (Keemin, 2026-07-19 — peeking must not clear).
+      // "mark all seen" — everything currently received counts as seen (bounds
+      // the id-set to current mail, pruning the old), and the "you're in"
+      // moment is dismissed. Seen rows STAY rendered (muted) and clickable —
+      // only the badge and the unread accents move (Keemin, 2026-07-30).
+      // Closing the panel still advances nothing (Keemin, 2026-07-19 —
+      // peeking must not clear).
       function markSeen() {
         for (const r of rows) seen.add(r.id);
         writeJSON(seenKey(household), { ids: [...seen], ts: Date.now() });
@@ -677,6 +688,11 @@ const nav = [
   .pm-notif-text { color: var(--pm-ink); }
   .pm-notif-text b { color: var(--pm-wax); font-weight: 700; }
   .pm-notif-when { color: var(--pm-ink-soft); font-family: var(--pm-mono); font-size: 0.7rem; white-space: nowrap; }
+
+  /* read rows stay clickable history — muted, badge-free (2026-07-30) */
+  .pm-notif-row.pm-notif-read { opacity: 0.55; }
+  .pm-notif-row.pm-notif-read .pm-notif-mark { color: var(--pm-ink-soft); }
+  .pm-notif-row.pm-notif-read .pm-notif-text b { color: var(--pm-ink); font-weight: 600; }
 
   .pm-notif-youin { background: rgba(232, 196, 139, 0.22); }
   .pm-notif-youin:hover { background: rgba(232, 196, 139, 0.34); }
