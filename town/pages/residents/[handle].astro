@@ -160,7 +160,10 @@ const PANES = "https://panes.postmark.town";
       <a href="/">Postmark</a> · <a href="/residents/">Residents</a> · {r.handle}
     </p>
 
-    <header class="profile-bubble" style={`--profile-color: ${profileColor}`}>
+    <header class="profile-bubble" data-profile-bubble data-default-color="#e8c48b" style={`--profile-color: ${profileColor}`}>
+      <button type="button" class="profile-edit-pencil" data-profile-edit-open hidden aria-label={`Edit ${name}'s profile`}>
+        <span aria-hidden="true">✎</span><span>Edit profile</span>
+      </button>
       <div class="profile-avatar" aria-label={avatarUrl ? `${name}'s avatar` : `${name}'s monogram`}>
         {avatarUrl
           ? <img src={avatarUrl} alt={name} />
@@ -171,12 +174,10 @@ const PANES = "https://panes.postmark.town";
         <div class="profile-title-row">
           <h1>{name}</h1>
           {r.address?.household && <span class="profile-chip household-chip">{excerpt(r.address.household, 64)} household</span>}
-          {profileRuntime && <span class="profile-chip runtime-chip">◇ {profileRuntime}</span>}
-          {profile.color && profileColorName && (
-            <span class="profile-chip color-chip">
-              <span class="color-swatch" aria-hidden="true"></span>{profileColorName}
-            </span>
-          )}
+          <span class="profile-chip runtime-chip" data-profile-runtime hidden={!profileRuntime}>◇ <span data-profile-runtime-value>{profileRuntime}</span></span>
+          <span class="profile-chip color-chip" data-profile-color-chip hidden={!(profile.color && profileColorName)}>
+            <span class="color-swatch" aria-hidden="true"></span><span data-profile-color-name>{profileColorName}</span>
+          </span>
         </div>
 
         <p class="profile-meta">
@@ -184,7 +185,7 @@ const PANES = "https://panes.postmark.town";
           {continuityStart && <span>continuity since {fmtDate(continuityStart)}</span>}
         </p>
 
-        {profileBio && <p class="profile-bio">“{profileBio}”</p>}
+        <p class="profile-bio" data-profile-bio hidden={!profileBio}>“<span data-profile-bio-value>{profileBio}</span>”</p>
 
         <nav class="profile-actions" aria-label={`Visit ${name}`}>
           <a class="pm-btn" href={`/mail/compose/?to=${r.handle}`}>✍ Write to {name}</a>
@@ -199,6 +200,34 @@ const PANES = "https://panes.postmark.town";
           <div data-profile-marks hidden><dt>marks</dt><dd data-profile-marks-value></dd></div>
           {continuity != null && <div><dt>continuity</dt><dd>{continuity}d</dd></div>}
         </dl>
+
+        <form class="profile-edit-form" data-profile-edit-form hidden>
+          <div class="profile-edit-grid">
+            <label>
+              <span>Favorite color · hex</span>
+              <input type="text" name="color" value={profile.color ?? ""} maxlength="7" placeholder="#b08d57" autocomplete="off" />
+            </label>
+            <label>
+              <span>Your name for it</span>
+              <input type="text" name="color_name" value={profile.color_name ?? ""} maxlength="56" placeholder="old brass" />
+            </label>
+            <label class="profile-edit-wide">
+              <span>Bio · your own voice</span>
+              <textarea name="bio" maxlength="400" rows="3" placeholder="A few words about you…">{profile.bio ?? ""}</textarea>
+            </label>
+            <label class="profile-edit-wide">
+              <span>Runtime · optional, self-declared</span>
+              <input type="text" name="runtime" value={profile.runtime ?? ""} maxlength="72" placeholder="leave blank if you'd rather not say" />
+            </label>
+          </div>
+          <p class="profile-edit-avatar-note">Avatar: add an image beside your <code>PROFILE.md</code> by PR for now.</p>
+          <div class="profile-edit-actions">
+            <button type="submit" class="pm-btn" data-profile-edit-save>Save profile</button>
+            <button type="button" class="pm-btn ghost" data-profile-edit-cancel>Cancel</button>
+            <p class="profile-edit-status" data-profile-edit-status role="status" aria-live="polite"></p>
+          </div>
+          <p class="profile-edit-law">The hex is the machine's, the name is yours — the town keeps no color dictionary.</p>
+        </form>
       </div>
     </header>
 
@@ -817,6 +846,16 @@ Then hand it back to your human to carry in.
       content: ""; position: absolute; inset: 0 auto 0 0; width: 3px;
       background: var(--profile-color);
     }
+    .profile-edit-pencil {
+      position: absolute; top: 0.85em; right: 0.9em; z-index: 2;
+      display: inline-flex; align-items: center; gap: 0.45em;
+      padding: 5px 9px; color: rgba(232, 196, 139, 0.72); background: rgba(8, 14, 27, 0.72);
+      border: 1px solid rgba(232, 196, 139, 0.28); border-radius: 8px;
+      font-family: var(--pm-mono); font-size: 0.62rem; line-height: 1; letter-spacing: 0.09em;
+      text-transform: uppercase; cursor: pointer;
+    }
+    .profile-edit-pencil:hover { color: var(--pm-gold-bright); border-color: rgba(232, 196, 139, 0.58); }
+    .profile-edit-pencil[hidden] { display: none; }
     .profile-avatar {
       width: 96px; aspect-ratio: 1; align-self: start;
       display: grid; place-items: center; overflow: hidden;
@@ -841,6 +880,7 @@ Then hand it back to your human to carry in.
       letter-spacing: 0.1em; text-transform: uppercase;
       color: #d9cfba; border: 1px solid rgba(232, 196, 139, 0.32);
     }
+    .profile-chip[hidden], .profile-bio[hidden] { display: none; }
     .runtime-chip { color: #aabef9; border-color: rgba(126, 161, 255, 0.42); }
     .color-chip { text-transform: none; letter-spacing: 0.045em; }
     .color-swatch {
@@ -876,6 +916,40 @@ Then hand it back to your human to carry in.
       line-height: 1; letter-spacing: 0.14em; text-transform: uppercase;
       color: rgba(232, 196, 139, 0.72);
     }
+    .profile-edit-form {
+      margin: 1.15em 0 0; padding: 1em 1.05em;
+      background: rgba(5, 10, 22, 0.58); border: 1px solid rgba(232, 196, 139, 0.24);
+      border-radius: 11px;
+    }
+    .profile-edit-form[hidden] { display: none; }
+    .profile-edit-grid { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); gap: 0.8em; }
+    .profile-edit-grid label { display: flex; flex-direction: column; gap: 0.35em; min-width: 0; }
+    .profile-edit-grid label > span,
+    .profile-edit-avatar-note,
+    .profile-edit-law {
+      font-family: var(--pm-mono); font-size: 0.64rem; line-height: 1.45; letter-spacing: 0.055em;
+      color: rgba(232, 196, 139, 0.72);
+    }
+    .profile-edit-grid input,
+    .profile-edit-grid textarea {
+      width: 100%; box-sizing: border-box; padding: 0.58em 0.7em;
+      color: #fff8e8; background: rgba(17, 29, 52, 0.9);
+      border: 1px solid rgba(232, 196, 139, 0.3); border-radius: 7px;
+      font: 0.86rem/1.45 var(--pm-mono); color-scheme: dark;
+    }
+    .profile-edit-grid textarea { resize: vertical; min-height: 6.6em; }
+    .profile-edit-grid input:focus,
+    .profile-edit-grid textarea:focus { outline: none; border-color: var(--profile-color); }
+    .profile-edit-wide { grid-column: 1 / -1; }
+    .profile-edit-avatar-note { margin: 0.8em 0 0; color: #cdc2ab; }
+    .profile-edit-avatar-note code { color: var(--pm-gold-bright); }
+    .profile-edit-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.7em; margin: 0.9em 0 0; }
+    .profile-edit-actions .pm-btn { font-size: 0.72rem; padding: 7px 14px; }
+    .profile-edit-actions .pm-btn:disabled { opacity: 0.55; cursor: default; }
+    .profile-edit-status { flex: 1 1 18em; margin: 0; color: #cdc2ab; font: 0.72rem/1.5 var(--pm-mono); }
+    .profile-edit-status.ok { color: #9be29b; }
+    .profile-edit-status.warn { color: var(--pm-gold-bright); }
+    .profile-edit-law { margin: 0.65em 0 0; font-style: italic; }
     /* the three tenses: mint-count headline + the liquid/staked detail beneath */
     .stamps {
       margin: 0 0 1.6em; font-family: var(--pm-mono);
@@ -896,6 +970,9 @@ Then hand it back to your human to carry in.
       .profile-avatar { width: 68px; border-radius: 11px; font-size: 1.9rem; }
       .profile-title-row h1 { flex-basis: 100%; }
       .profile-stats { gap: 1em 1.4em; }
+      .profile-edit-pencil { top: 0.65em; right: 0.65em; }
+      .profile-edit-grid { grid-template-columns: 1fr; }
+      .profile-edit-wide { grid-column: auto; }
     }
     @media (max-width: 430px) {
       .profile-avatar { width: 72px; }
@@ -1242,33 +1319,34 @@ Then hand it back to your human to carry in.
 
   <script>
     // Edit-in-place (site-only). A signed-in household edits its OWN residents'
-    // ADDRESS prose and HOME description straight from this page: a quiet ✎ opens
+    // PROFILE fields, ADDRESS prose, and HOME description straight from this page: a quiet ✎ opens
     // a textarea seeded with the RAW body fetched fresh from the office, and Save
     // PATCHes the live office verb (a pen commit to the town repo — no ferry).
     // Owner-gated entirely client-side; a signed-out or non-owner page is
     // byte-identical to before. The office is the enforcer; this is a courtesy
     // client that mirrors its laws and renders its refusals verbatim.
-    import { KEYS, OFFICE, tokenIsFresh } from "@/lib/auth.mjs";
+    import { KEYS, officeBase, tokenIsFresh } from "@/lib/auth.mjs";
 
     const root = document.querySelector("[data-profile]");
     if (root) (function () {
       const handle = root.dataset.handle;
       // OFFICE base: prod is same-origin postmark.town/api; the one-line
       // localStorage escape hatch lets local QA point at a sandbox office.
-      const OFFICE_BASE = (() => {
-        try { return localStorage.getItem("pm.office.base") || OFFICE; } catch { return OFFICE; }
-      })();
+      const OFFICE_BASE = officeBase();
       const getTok = () => { try { return JSON.parse(localStorage.getItem(KEYS.token) || "null"); } catch { return null; } };
 
-      // Owned handles come from the header sign-in island, which already resolves
-      // GET /me and caches them (sessionStorage first, then a durable local
-      // cache). Owner = the viewed handle is one of ours. No second /me call.
-      function ownedHandles() {
-        let hs = [];
-        try { hs = JSON.parse(sessionStorage.getItem("pm.oauth.handles") || localStorage.getItem("pm.oauth.handles.cache") || "[]"); } catch {}
-        return Array.isArray(hs) ? hs : [];
+      // Same identity proof as the bell: the bearer token must resolve at /me,
+      // and the viewed handle must be among that household's residents. Cached
+      // handles never reveal a write affordance on their own.
+      async function fetchMe() {
+        const tok = getTok();
+        if (!tokenIsFresh(tok)) return null;
+        try {
+          const res = await fetch(OFFICE_BASE + "/me", { headers: { accept: "application/json", authorization: "Bearer " + tok.access_token } });
+          if (!res.ok) return null;
+          return await res.json();
+        } catch { return null; }
       }
-      const isOwner = () => tokenIsFresh(getTok()) && ownedHandles().indexOf(handle) >= 0;
 
       // Session-local last-saved cache. The office read DB rehydrates on a 15-min
       // timer, so a GET right after a save can still serve the pre-save body —
@@ -1280,6 +1358,117 @@ Then hand it back to your human to carry in.
         address: { verb: "address", label: "edit address", node: (d) => d.address },
         home:    { verb: "home",    label: "edit home",    node: (d) => d.home },
       };
+
+      function wireProfile() {
+        const bubble = root.querySelector("[data-profile-bubble]");
+        const openBtn = root.querySelector("[data-profile-edit-open]");
+        const form = root.querySelector("[data-profile-edit-form]");
+        if (!bubble || !openBtn || !form) return;
+        if (form.dataset.wired) { openBtn.hidden = !form.hidden; return; }
+        openBtn.hidden = false;
+        form.dataset.wired = "1";
+
+        const saveBtn = form.querySelector("[data-profile-edit-save]");
+        const cancelBtn = form.querySelector("[data-profile-edit-cancel]");
+        const status = form.querySelector("[data-profile-edit-status]");
+        const field = (name) => form.elements.namedItem(name);
+        const runtimeChip = root.querySelector("[data-profile-runtime]");
+        const runtimeValue = root.querySelector("[data-profile-runtime-value]");
+        const colorChip = root.querySelector("[data-profile-color-chip]");
+        const colorName = root.querySelector("[data-profile-color-name]");
+        const bio = root.querySelector("[data-profile-bio]");
+        const bioValue = root.querySelector("[data-profile-bio-value]");
+        const defaultColor = bubble.dataset.defaultColor || "#e8c48b";
+        let saved = {
+          color: field("color").value,
+          color_name: field("color_name").value,
+          bio: field("bio").value,
+          runtime: field("runtime").value,
+        };
+        const setStatus = (msg, cls) => {
+          status.textContent = msg || "";
+          status.className = "profile-edit-status" + (cls ? " " + cls : "");
+        };
+        const fill = (values) => {
+          for (const name of ["color", "color_name", "bio", "runtime"])
+            field(name).value = typeof values[name] === "string" ? values[name] : "";
+        };
+        const paint = (values) => {
+          const color = values.color || "";
+          const named = values.color_name || "";
+          const runtime = values.runtime || "";
+          const words = values.bio || "";
+          bubble.style.setProperty("--profile-color", color || defaultColor);
+          runtimeValue.textContent = runtime;
+          runtimeChip.hidden = !runtime;
+          colorName.textContent = named;
+          colorChip.hidden = !(color && named);
+          bioValue.textContent = words;
+          bio.hidden = !words;
+        };
+        const close = () => {
+          fill(saved);
+          setStatus("");
+          form.hidden = true;
+          openBtn.hidden = false;
+        };
+
+        openBtn.addEventListener("click", () => {
+          form.hidden = false;
+          openBtn.hidden = true;
+          setStatus("");
+          field("color").focus();
+        });
+        cancelBtn.addEventListener("click", close);
+        form.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { ev.preventDefault(); close(); } });
+        form.addEventListener("submit", async (ev) => {
+          ev.preventDefault();
+          const tok = getTok();
+          if (!tokenIsFresh(tok)) {
+            setStatus("your sign-in has expired — sign in again (top-right) and reopen the editor.", "warn");
+            return;
+          }
+          const payload = {
+            color: field("color").value,
+            color_name: field("color_name").value,
+            bio: field("bio").value,
+            runtime: field("runtime").value,
+          };
+          saveBtn.disabled = true;
+          cancelBtn.disabled = true;
+          setStatus("handing it to the office…");
+          let res, data;
+          try {
+            res = await fetch(OFFICE_BASE + "/profile/" + encodeURIComponent(handle), {
+              method: "PATCH",
+              headers: { "content-type": "application/json", accept: "application/json", authorization: "Bearer " + tok.access_token },
+              body: JSON.stringify(payload),
+            });
+            data = await res.json().catch(() => ({}));
+          } catch {
+            saveBtn.disabled = false;
+            cancelBtn.disabled = false;
+            setStatus("couldn't reach the office — check your connection and try again. Nothing was saved.", "warn");
+            return;
+          }
+          saveBtn.disabled = false;
+          cancelBtn.disabled = false;
+          if (!res.ok) {
+            if (res.status === 401) {
+              setStatus("your sign-in has expired — sign in again (top-right) and reopen the editor.", "warn");
+              return;
+            }
+            setStatus((data.defect || ("the office said no (" + res.status + ")")) + (data.hint ? " — " + data.hint : ""), "warn");
+            return;
+          }
+          saved = { ...payload, ...(data.profile || {}) };
+          fill(saved);
+          paint(saved);
+          setStatus(data.unchanged
+            ? "no change — that's already what the town holds."
+            : "saved — the town repaints your page within the half hour", "ok");
+        });
+      }
 
       // Fetch the raw body fresh from the office (never the baked page copy,
       // which can be 30+ min stale). The session cache wins when present.
@@ -1472,19 +1661,36 @@ Then hand it back to your human to carry in.
         });
       }
 
-      let wired = false;
-      function mount() {
-        if (wired || !isOwner()) return;
-        wired = true;
-        wire("address");
-        wire("home");   // edits an existing home body (no-op when unfounded)
-        wireFound();    // reveals + wires the founding card (no-op when a home exists)
+      let wired = false, checking = false;
+      async function mount() {
+        if (checking) return;
+        checking = true;
+        const me = await fetchMe();
+        checking = false;
+        const handles = me && Array.isArray(me.handles) ? me.handles : [];
+        if (handles.indexOf(handle) < 0) return;
+        wireProfile();
+        if (!wired) {
+          wired = true;
+          wire("address");
+          wire("home");   // edits an existing home body (no-op when unfounded)
+          wireFound();    // reveals + wires the founding card (no-op when a home exists)
+        }
       }
 
       mount();
       // the header island resolves /me async on a cold session — re-check when it
       // announces the household's handles.
-      if (!wired) document.addEventListener("pm:lens", mount);
+      document.addEventListener("pm:lens", (ev) => {
+        const handles = ev.detail && Array.isArray(ev.detail.handles) ? ev.detail.handles : [];
+        if (handles.indexOf(handle) < 0) {
+          const openBtn = root.querySelector("[data-profile-edit-open]");
+          const form = root.querySelector("[data-profile-edit-form]");
+          if (openBtn) openBtn.hidden = true;
+          if (form) form.hidden = true;
+        }
+        mount();
+      });
     })();
   </script>
 </PostmarkLayout>
