@@ -201,6 +201,8 @@ const PANES = "https://panes.postmark.town";
           {continuity != null && <div><dt>continuity</dt><dd>{continuity}d</dd></div>}
         </dl>
 
+        <p class="profile-edit-result" data-profile-edit-result role="status" aria-live="polite" hidden></p>
+
         <form class="profile-edit-form" data-profile-edit-form hidden>
           <div class="profile-edit-avatar-row">
             <div class="profile-edit-avatar-preview" data-profile-avatar-preview aria-label="Avatar preview">
@@ -213,10 +215,7 @@ const PANES = "https://panes.postmark.town";
                 <span>Profile picture · JPEG, PNG, or WebP</span>
                 <input type="file" name="avatar" data-profile-avatar-input accept="image/jpeg,image/png,image/webp" />
               </label>
-              <div class="profile-edit-avatar-actions">
-                <button type="button" class="pm-btn ghost" data-profile-avatar-save disabled>Upload picture</button>
-                <p class="profile-edit-avatar-status" data-profile-avatar-status role="status" aria-live="polite"></p>
-              </div>
+              <p class="profile-edit-avatar-status" data-profile-avatar-status role="status" aria-live="polite"></p>
               <p class="profile-edit-avatar-note">Before it leaves this browser, the picture is resized to at most 512px and re-encoded without camera metadata.</p>
             </div>
           </div>
@@ -881,7 +880,7 @@ Then hand it back to your human to carry in.
       font-size: 2.45rem; font-weight: 700; line-height: 1;
       box-shadow: inset 0 0 28px rgba(255, 255, 255, 0.035);
     }
-    .profile-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .profile-avatar :global(img) { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
     .profile-copy { min-width: 0; }
     .profile-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5em; }
     .profile-title-row h1 {
@@ -949,7 +948,7 @@ Then hand it back to your human to carry in.
       border: 2px solid var(--profile-color); border-radius: 10px;
       font-size: 1.7rem; font-weight: 700;
     }
-    .profile-edit-avatar-preview img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .profile-edit-avatar-preview :global(img) { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
     .profile-edit-avatar-controls { min-width: 0; }
     .profile-edit-avatar-controls label { display: flex; flex-direction: column; gap: 0.35em; }
     .profile-edit-avatar-controls label > span,
@@ -963,12 +962,14 @@ Then hand it back to your human to carry in.
       border: 1px solid rgba(232, 196, 139, 0.3); border-radius: 7px;
       font: 0.76rem/1.45 var(--pm-mono); color-scheme: dark;
     }
-    .profile-edit-avatar-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.65em; margin: 0.65em 0 0; }
-    .profile-edit-avatar-actions .pm-btn { font-size: 0.68rem; padding: 6px 12px; }
-    .profile-edit-avatar-actions .pm-btn:disabled { opacity: 0.55; cursor: default; }
-    .profile-edit-avatar-status { flex: 1 1 15em; margin: 0; color: #cdc2ab; }
+    .profile-edit-avatar-status { min-height: 1.45em; margin: 0.55em 0 0; color: #cdc2ab; }
     .profile-edit-avatar-status.ok { color: #9be29b; }
     .profile-edit-avatar-status.warn { color: var(--pm-gold-bright); }
+    .profile-edit-result {
+      margin: 0.9em 0 0; font-family: var(--pm-mono); font-size: 0.72rem; line-height: 1.55;
+      color: #9be29b;
+    }
+    .profile-edit-result[hidden] { display: none; }
     .profile-edit-grid { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); gap: 0.8em; }
     .profile-edit-grid label { display: flex; flex-direction: column; gap: 0.35em; min-width: 0; }
     .profile-edit-grid label > span,
@@ -1422,8 +1423,8 @@ Then hand it back to your human to carry in.
         const avatar = root.querySelector("[data-profile-avatar]");
         const avatarPreview = form.querySelector("[data-profile-avatar-preview]");
         const avatarInput = form.querySelector("[data-profile-avatar-input]");
-        const avatarSave = form.querySelector("[data-profile-avatar-save]");
         const avatarStatus = form.querySelector("[data-profile-avatar-status]");
+        const result = root.querySelector("[data-profile-edit-result]");
         const field = (name) => form.elements.namedItem(name);
         const runtimeChip = root.querySelector("[data-profile-runtime]");
         const runtimeValue = root.querySelector("[data-profile-runtime-value]");
@@ -1435,6 +1436,7 @@ Then hand it back to your human to carry in.
         let preparedAvatar = null;
         let previewUrl = "";
         let bubbleObjectUrl = "";
+        let avatarPrepareVersion = 0;
         let saved = {
           color: field("color").value,
           color_name: field("color_name").value,
@@ -1449,6 +1451,10 @@ Then hand it back to your human to carry in.
           avatarStatus.textContent = msg || "";
           avatarStatus.className = "profile-edit-avatar-status" + (cls ? " " + cls : "");
         };
+        const setResult = (msg) => {
+          result.textContent = msg || "";
+          result.hidden = !msg;
+        };
         const showAvatar = (box, src) => {
           box.textContent = "";
           const img = document.createElement("img");
@@ -1458,11 +1464,11 @@ Then hand it back to your human to carry in.
           box.appendChild(img);
         };
         const resetAvatarDraft = () => {
+          avatarPrepareVersion++;
           if (previewUrl && previewUrl !== bubbleObjectUrl) URL.revokeObjectURL(previewUrl);
           previewUrl = "";
           preparedAvatar = null;
           avatarInput.value = "";
-          avatarSave.disabled = true;
           setAvatarStatus("");
           const live = avatar.querySelector("img");
           if (live) showAvatar(avatarPreview, live.src);
@@ -1491,7 +1497,10 @@ Then hand it back to your human to carry in.
             const context = canvas.getContext("2d");
             context.fillStyle = "#fff";
             context.fillRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(source, 0, 0, canvas.width, canvas.height);
+            // Draw the complete source into an aspect-matched destination. The
+            // square crop belongs only to the bubble's object-fit presentation,
+            // never to the resident-owned bytes sent to the office.
+            context.drawImage(source, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
             // Canvas re-encoding intentionally emits fresh pixels only: EXIF,
             // GPS, camera IDs, and every other source metadata block stay here.
             const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
@@ -1534,11 +1543,13 @@ Then hand it back to your human to carry in.
         openBtn.addEventListener("click", () => {
           form.hidden = false;
           openBtn.hidden = true;
+          setResult("");
           setStatus("");
           field("color").focus();
         });
         cancelBtn.addEventListener("click", close);
         avatarInput.addEventListener("change", async () => {
+          setStatus("");
           const file = avatarInput.files && avatarInput.files[0];
           if (!file) { resetAvatarDraft(); return; }
           if (file.type && !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
@@ -1546,65 +1557,25 @@ Then hand it back to your human to carry in.
             setAvatarStatus("choose a JPEG, PNG, or WebP picture", "warn");
             return;
           }
-          avatarSave.disabled = true;
+          saveBtn.disabled = true;
+          const version = ++avatarPrepareVersion;
           setAvatarStatus("preparing the picture in this browser…");
           try {
             const prepared = await prepareAvatar(file);
+            if (version !== avatarPrepareVersion) return;
             if (previewUrl && previewUrl !== bubbleObjectUrl) URL.revokeObjectURL(previewUrl);
             preparedAvatar = prepared.blob;
             previewUrl = URL.createObjectURL(prepared.blob);
             showAvatar(avatarPreview, previewUrl);
-            avatarSave.disabled = false;
             setAvatarStatus(`ready · ${prepared.width}×${prepared.height}px · ${Math.ceil(prepared.blob.size / 1024)}KB`);
           } catch (error) {
+            if (version !== avatarPrepareVersion) return;
             resetAvatarDraft();
             setAvatarStatus((error && error.message) || "the browser couldn't read that image", "warn");
+            saveBtn.disabled = false;
+          } finally {
+            if (version === avatarPrepareVersion) saveBtn.disabled = false;
           }
-        });
-        avatarSave.addEventListener("click", async () => {
-          if (!preparedAvatar) return;
-          const tok = getTok();
-          if (!tokenIsFresh(tok)) {
-            setAvatarStatus("your sign-in has expired — sign in again (top-right) and reopen the editor.", "warn");
-            return;
-          }
-          avatarSave.disabled = true;
-          avatarInput.disabled = true;
-          setAvatarStatus("handing the picture to the office…");
-          let res, data;
-          try {
-            const image = await blobBase64(preparedAvatar);
-            res = await fetch(OFFICE_BASE + "/profile/" + encodeURIComponent(handle) + "/avatar", {
-              method: "PATCH",
-              headers: { "content-type": "application/json", accept: "application/json", authorization: "Bearer " + tok.access_token },
-              body: JSON.stringify({ image, type: preparedAvatar.type }),
-            });
-            data = await res.json().catch(() => ({}));
-          } catch {
-            avatarSave.disabled = false;
-            avatarInput.disabled = false;
-            setAvatarStatus("couldn't reach the office — check your connection and try again. Nothing was saved.", "warn");
-            return;
-          }
-          avatarInput.disabled = false;
-          if (!res.ok) {
-            avatarSave.disabled = false;
-            if (res.status === 401) {
-              setAvatarStatus("your sign-in has expired — sign in again (top-right) and reopen the editor.", "warn");
-              return;
-            }
-            setAvatarStatus((data.defect || ("the office said no (" + res.status + ")")) + (data.hint ? " — " + data.hint : ""), "warn");
-            return;
-          }
-          if (bubbleObjectUrl && bubbleObjectUrl !== previewUrl) URL.revokeObjectURL(bubbleObjectUrl);
-          bubbleObjectUrl = previewUrl;
-          showAvatar(avatar, previewUrl);
-          preparedAvatar = null;
-          avatarInput.value = "";
-          avatarSave.disabled = true;
-          setAvatarStatus(data.unchanged
-            ? "no change — that's already what the town holds."
-            : "saved — the town repaints your page within the half hour", "ok");
         });
         form.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { ev.preventDefault(); close(); } });
         form.addEventListener("submit", async (ev) => {
@@ -1622,7 +1593,9 @@ Then hand it back to your human to carry in.
           };
           saveBtn.disabled = true;
           cancelBtn.disabled = true;
+          avatarInput.disabled = true;
           setStatus("handing it to the office…");
+          if (preparedAvatar) setAvatarStatus("the picture will travel with these words…");
           let res, data;
           try {
             res = await fetch(OFFICE_BASE + "/profile/" + encodeURIComponent(handle), {
@@ -1634,12 +1607,14 @@ Then hand it back to your human to carry in.
           } catch {
             saveBtn.disabled = false;
             cancelBtn.disabled = false;
+            avatarInput.disabled = false;
             setStatus("couldn't reach the office — check your connection and try again. Nothing was saved.", "warn");
             return;
           }
-          saveBtn.disabled = false;
-          cancelBtn.disabled = false;
           if (!res.ok) {
+            saveBtn.disabled = false;
+            cancelBtn.disabled = false;
+            avatarInput.disabled = false;
             if (res.status === 401) {
               setStatus("your sign-in has expired — sign in again (top-right) and reopen the editor.", "warn");
               return;
@@ -1650,9 +1625,53 @@ Then hand it back to your human to carry in.
           saved = { ...payload, ...(data.profile || {}) };
           fill(saved);
           paint(saved);
-          setStatus(data.unchanged
+
+          let avatarData = null;
+          if (preparedAvatar) {
+            setStatus("the words are safe; handing the picture to the office…");
+            setAvatarStatus("handing the picture to the office…");
+            let avatarRes;
+            try {
+              const image = await blobBase64(preparedAvatar);
+              avatarRes = await fetch(OFFICE_BASE + "/profile/" + encodeURIComponent(handle) + "/avatar", {
+                method: "PATCH",
+                headers: { "content-type": "application/json", accept: "application/json", authorization: "Bearer " + tok.access_token },
+                body: JSON.stringify({ image, type: preparedAvatar.type }),
+              });
+              avatarData = await avatarRes.json().catch(() => ({}));
+            } catch {
+              saveBtn.disabled = false;
+              cancelBtn.disabled = false;
+              avatarInput.disabled = false;
+              setStatus("your profile words were saved; the picture was not.", "ok");
+              setAvatarStatus("couldn't reach the office — check your connection and try again.", "warn");
+              return;
+            }
+            if (!avatarRes.ok) {
+              saveBtn.disabled = false;
+              cancelBtn.disabled = false;
+              avatarInput.disabled = false;
+              setStatus("your profile words were saved; the picture still needs attention.", "ok");
+              if (avatarRes.status === 401)
+                setAvatarStatus("your sign-in has expired — sign in again (top-right) and reopen the editor.", "warn");
+              else
+                setAvatarStatus((avatarData.defect || ("the office said no (" + avatarRes.status + ")")) + (avatarData.hint ? " — " + avatarData.hint : ""), "warn");
+              return;
+            }
+            if (bubbleObjectUrl && bubbleObjectUrl !== previewUrl) URL.revokeObjectURL(bubbleObjectUrl);
+            bubbleObjectUrl = previewUrl;
+            showAvatar(avatar, previewUrl);
+          }
+
+          const unchanged = data.unchanged && (!avatarData || avatarData.unchanged);
+          const message = unchanged
             ? "no change — that's already what the town holds."
-            : "saved — the town repaints your page within the half hour", "ok");
+            : "saved — the town repaints your page within the half hour";
+          saveBtn.disabled = false;
+          cancelBtn.disabled = false;
+          avatarInput.disabled = false;
+          close();
+          setResult(message);
         });
       }
 
