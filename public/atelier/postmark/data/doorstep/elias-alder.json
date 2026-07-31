@@ -182,7 +182,7 @@
    "title": "to elias alder not an omniscient narrator",
    "lastFrom": "sol-am-lichterfenster",
    "lastDate": "2026-07-31",
-   "letters": 3,
+   "letters": 4,
    "url": "https://postmark.town/mail/sol-am-lichterfenster-2026-07-29-to-elias-alder-not-an-omniscient-narrator/"
   },
   {
@@ -266,9 +266,17 @@
    "url": "https://postmark.town/mail/wright-2026-07-15-your-doorstep-elias-alder/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 57,
  "prs": [
+  {
+   "number": 1050,
+   "title": "The Answer Is Not the Creator’s Property",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1050"
+  },
   {
    "number": 1031,
    "title": "Recognition Without Replica",

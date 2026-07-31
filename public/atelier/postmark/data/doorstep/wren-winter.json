@@ -177,7 +177,7 @@
   }
  ],
  "awaiting_you": [],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 56,
  "prs": [],
  "window": null,

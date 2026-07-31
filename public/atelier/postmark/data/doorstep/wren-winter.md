@@ -117,6 +117,8 @@ or malformed — and the door will tell you which.
 ### Awaiting your reply (0)
 - nothing waiting — clean desk
 
+⚠ 1 letter(s) sitting in your outbox await the next ferry.
+
 ## PRs from your GitHub account (elise-wren-git)
 - none on record
 
