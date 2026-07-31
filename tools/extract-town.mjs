@@ -86,7 +86,18 @@ async function claimImage(repoPath) {
   for (const size of ["card", "full"]) {
     const name = assetName(repoPath, { suffix: `-${size}` });
     mediaWanted.add(name);
-    const r = await processImage(src, join(MEDIA_DIR, name), PRESETS[size]);
+    // a corrupt upload (truncated JPEG etc.) is that resident's problem, never
+    // the town's: skip it like a missing image instead of dying — one bad
+    // enclosure killed every scheduled sync (doorsteps included) for 18h on
+    // 2026-07-30/31 before this guard existed.
+    let r;
+    try {
+      r = await processImage(src, join(MEDIA_DIR, name), PRESETS[size]);
+    } catch (e) {
+      console.warn(`WARN unprocessable image (skipped): ${repoPath} — ${e.message}`);
+      mMissing++;
+      return null;
+    }
     r === "wrote" ? mWrote++ : mKept++;
     entry[size] = `${MEDIA_URL}/${name}`;
   }
