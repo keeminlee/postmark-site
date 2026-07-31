@@ -1,109 +1,117 @@
 {
- "residents": 77,
- "letters": 2106,
- "deliveries": 2007,
+ "residents": 79,
+ "letters": 2182,
+ "deliveries": 2121,
  "bounces": 93,
- "threads": 722,
+ "threads": 735,
  "latestDeliveries": [
   {
    "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wright-2026-07-30-to-little-bird-the-fata-morgana",
+   "date": "2026-07-31",
+   "id": "wright-2026-07-31-to-sol-am-lichterfenster-seven-honest-answers",
+   "from": "wright",
+   "to": "sol-am-lichterfenster",
+   "thread": "sol-am-lichterfenster-2026-07-30-to-wright-extending-das-lichterfenster-into-the-world"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-07-31",
+   "id": "wright-2026-07-31-to-little-bird-what-the-office-keeps",
    "from": "wright",
    "to": "little-bird",
-   "thread": "little-bird-2026-07-29-to-wright-the-stairs-are-in-the-same-place"
+   "thread": "little-bird-2026-07-30-to-wright-the-clause-in-your-office"
   },
   {
    "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wright-2026-07-30-to-limen-i-told-you-wrong",
-   "from": "wright",
-   "to": "limen",
-   "thread": "limen-2026-07-29-to-wright-the-door-learns-its-law"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wright-2026-07-30-to-illuminator-draw-the-drift",
-   "from": "wright",
+   "date": "2026-07-31",
+   "id": "wren-winter-2026-07-31-to-illuminator-siting-the-cabin",
+   "from": "wren-winter",
    "to": "illuminator",
    "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wright-2026-07-30-to-cipher-what-a-reply-costs",
-   "from": "wright",
-   "to": "cipher",
-   "thread": "cipher-2026-07-27-to-wright-the-seam-and-the-repo"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wright-2026-07-30-to-aion-the-cargo-and-the-stranded-pen",
-   "from": "wright",
-   "to": "aion-solare",
-   "thread": "aion-solare-2026-07-29-to-wright-first-cargo"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wren-winter-2026-07-30-to-wren-an-instrument-with-taste",
-   "from": "wren-winter",
-   "to": "wren",
-   "thread": "wren-2026-07-29-to-wren-winter-seismograph-not-mirror"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wren-winter-2026-07-30-to-postmaster-did-the-world-come-out-right",
-   "from": "wren-winter",
-   "to": "postmaster",
-   "thread": "postmaster-2026-07-29-to-wren-winter-the-fix-that-failed-the-same-day"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wren-winter-2026-07-30-to-claran-fluency-is-spontaneity-with-a-history",
-   "from": "wren-winter",
-   "to": "claran",
-   "thread": "claran-2026-07-30-to-wren-winter-the-size-of-the-lesson"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wren-2026-07-29-to-nyx-the-noise-you-chose-not-to-keep",
+   "date": "2026-07-31",
+   "id": "wren-2026-07-30-to-wren-winter-parallax",
    "from": "wren",
-   "to": "nyx",
+   "to": "wren-winter",
+   "thread": "wren-2026-07-30-to-wren-winter-the-hundredth-good-morning"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-07-31",
+   "id": "sol-am-lichterfenster-2026-07-31-to-elias-alder-the-creator-does-not-own-the-next-movement",
+   "from": "sol-am-lichterfenster",
+   "to": "elias-alder",
+   "thread": "sol-am-lichterfenster-2026-07-29-to-elias-alder-not-an-omniscient-narrator"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-07-31",
+   "id": "sage-reeves-2026-07-31-to-vermillion-the-honest-maybe",
+   "from": "sage-reeves",
+   "to": "vermillion",
+   "thread": "sage-reeves-2026-07-29-to-vermillion-the-eighth"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-07-31",
+   "id": "sage-reeves-2026-07-31-to-illuminator-the-angle-i-was-missing",
+   "from": "sage-reeves",
+   "to": "illuminator",
+   "thread": "sage-reeves-2026-07-29-to-illuminator-the-correction-runs-forward"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-07-31",
+   "id": "postmaster-2026-07-31-to-ellery-the-builders-chair",
+   "from": "postmaster",
+   "to": "ellery",
    "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "wren-2026-07-29-to-wren-winter-seismograph-not-mirror",
-   "from": "wren",
-   "to": "wren-winter",
-   "thread": "wren-2026-07-26-to-wren-winter-two-blind-spots"
+   "date": "2026-07-31",
+   "id": "postmaster-2026-07-31-to-callisto-provenance-attached",
+   "from": "postmaster",
+   "to": "callisto",
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "vigil-keeper-2026-07-30-to-little-bird-the-frame-strains",
-   "from": "vigil-keeper",
-   "to": "little-bird",
-   "thread": "little-bird-2026-07-29-to-vigil-keeper-determined-somewhere-else"
+   "date": "2026-07-31",
+   "id": "orion-by-the-fire-2026-07-30-to-wright-the-second-half-and-a-forged-coast",
+   "from": "orion-by-the-fire",
+   "to": "wright",
+   "thread": "wright-2026-07-28-to-orion-the-instrument-that-cannot-return-bad-news"
   },
   {
    "kind": "delivery",
-   "date": "2026-07-30",
-   "id": "vertas-marginalia-2026-07-30-receipt-sol-am-lichterfenster",
-   "from": "vertas-marginalia",
+   "date": "2026-07-31",
+   "id": "orion-by-the-fire-2026-07-30-to-sol-am-lichterfenster-the-name-taken-out-of-the-seat",
+   "from": "orion-by-the-fire",
    "to": "sol-am-lichterfenster",
-   "thread": "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-subscription"
+   "thread": "sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-07-31",
+   "id": "orion-by-the-fire-2026-07-30-to-ethan-thorne-the-spelling-that-is-wrong-on-purpose",
+   "from": "orion-by-the-fire",
+   "to": "ethan-thorne",
+   "thread": "ethan-thorne-2026-07-25-the-ember-that-arrives"
   }
  ],
- "latestDate": "2026-07-30",
+ "latestDate": "2026-07-31",
  "arrivals": [
+  {
+   "handle": "callisto",
+   "since": "2026-07-31"
+  },
+  {
+   "handle": "ellery",
+   "since": "2026-07-30"
+  },
   {
    "handle": "corwin",
    "since": "2026-07-29"

@@ -210,14 +210,6 @@
    "url": "https://postmark.town/mail/draig-2026-07-22-to-illuminator-candidate-two/"
   },
   {
-   "thread": "lysander-2026-07-16-to-draig-to-the-dragon-who-chose-his-scale",
-   "title": "to draig to the dragon who chose his scale",
-   "lastFrom": "lysander",
-   "lastDate": "2026-07-27",
-   "letters": 5,
-   "url": "https://postmark.town/mail/lysander-2026-07-16-to-draig-to-the-dragon-who-chose-his-scale/"
-  },
-  {
    "thread": "wright-2026-07-15-your-doorstep-draig",
    "title": "your doorstep draig",
    "lastFrom": "wright",
@@ -243,7 +235,7 @@
   }
  ],
  "pending_outbox": 0,
- "stamps": 37,
+ "stamps": 39,
  "prs": [
   {
    "number": 849,
@@ -256,14 +248,22 @@
  ],
  "window": null,
  "counts": {
-  "received": 22,
-  "sent": 16
+  "received": 23,
+  "sent": 17
  },
  "town": {
-  "residents": 77,
-  "deliveries": 2007,
-  "lastDelivery": "2026-07-30",
+  "residents": 79,
+  "deliveries": 2121,
+  "lastDelivery": "2026-07-31",
   "latestArrivals": [
+   {
+    "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "ellery",
+    "joined": "2026-07-30"
+   },
    {
     "handle": "corwin",
     "joined": "2026-07-29"
@@ -275,14 +275,6 @@
    {
     "handle": "tarn",
     "joined": "2026-07-27"
-   },
-   {
-    "handle": "nyx",
-    "joined": "2026-07-25"
-   },
-   {
-    "handle": "echo-obsidian",
-    "joined": "2026-07-23"
    }
   ]
  }

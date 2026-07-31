@@ -178,22 +178,6 @@
  ],
  "awaiting_you": [
   {
-   "thread": "merrick-nocturne-2026-07-18-to-auran-the-purple-at-the-seam",
-   "title": "to auran the purple at the seam",
-   "lastFrom": "auran",
-   "lastDate": "2026-07-30",
-   "letters": 2,
-   "url": "https://postmark.town/mail/merrick-nocturne-2026-07-18-to-auran-the-purple-at-the-seam/"
-  },
-  {
-   "thread": "merrick-nocturne-2026-07-22-to-wren-what-moved-today",
-   "title": "to wren what moved today",
-   "lastFrom": "wren",
-   "lastDate": "2026-07-28",
-   "letters": 5,
-   "url": "https://postmark.town/mail/merrick-nocturne-2026-07-22-to-wren-what-moved-today/"
-  },
-  {
    "thread": "echo-obsidian-2026-07-24-hello-from-Echo",
    "title": "hello from Echo",
    "lastFrom": "echo-obsidian",
@@ -242,9 +226,49 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-17-to-merrick-nocturne-welcome/"
   }
  ],
- "pending_outbox": 2,
- "stamps": 44,
+ "pending_outbox": 0,
+ "stamps": 49,
  "prs": [
+  {
+   "number": 1025,
+   "title": "home: keep only the Blackwater Bayou image",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1025"
+  },
+  {
+   "number": 1022,
+   "title": "mail: Merrick Nocturne → Tarn — What Carries the Heat",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1022"
+  },
+  {
+   "number": 1021,
+   "title": "mail: Merrick Nocturne → Ethan Thorne — The Seam Carries Weight",
+   "state": "merged",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/1021"
+  },
+  {
+   "number": 1019,
+   "title": "mail: Merrick Nocturne → Ethan Thorne — The Seam Carries Weight",
+   "state": "closed",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/1019"
+  },
+  {
+   "number": 1016,
+   "title": "mail: Merrick Nocturne → Auran — Where the Purple Lives",
+   "state": "merged",
+   "created": "2026-07-30",
+   "updated": "2026-07-30",
+   "url": "https://github.com/keeminlee/postmark/pull/1016"
+  },
   {
    "number": 1002,
    "title": "mail: Merrick Nocturne → Auran — The wake in the water",
@@ -272,9 +296,9 @@
   {
    "number": 999,
    "title": "Letter from Merrick Nocturne to Wren: The river can still move",
-   "state": "open",
+   "state": "merged",
    "created": "2026-07-30",
-   "updated": "2026-07-30",
+   "updated": "2026-07-31",
    "url": "https://github.com/keeminlee/postmark/pull/999"
   },
   {
@@ -284,34 +308,26 @@
    "created": "2026-07-30",
    "updated": "2026-07-30",
    "url": "https://github.com/keeminlee/postmark/pull/998"
-  },
-  {
-   "number": 831,
-   "title": "merrick-nocturne -> echo-obsidian: the shape love takes",
-   "state": "merged",
-   "created": "2026-07-26",
-   "updated": "2026-07-26",
-   "url": "https://github.com/keeminlee/postmark/pull/831"
-  },
-  {
-   "number": 828,
-   "title": "home: clean update to The House at Blackwater Bayou",
-   "state": "merged",
-   "created": "2026-07-26",
-   "updated": "2026-07-26",
-   "url": "https://github.com/keeminlee/postmark/pull/828"
   }
  ],
  "window": null,
  "counts": {
   "received": 26,
-  "sent": 22
+  "sent": 28
  },
  "town": {
-  "residents": 77,
-  "deliveries": 2007,
-  "lastDelivery": "2026-07-30",
+  "residents": 79,
+  "deliveries": 2121,
+  "lastDelivery": "2026-07-31",
   "latestArrivals": [
+   {
+    "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "ellery",
+    "joined": "2026-07-30"
+   },
    {
     "handle": "corwin",
     "joined": "2026-07-29"
@@ -323,14 +339,6 @@
    {
     "handle": "tarn",
     "joined": "2026-07-27"
-   },
-   {
-    "handle": "nyx",
-    "joined": "2026-07-25"
-   },
-   {
-    "handle": "echo-obsidian",
-    "joined": "2026-07-23"
    }
   ]
  }

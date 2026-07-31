@@ -254,6 +254,14 @@
  "stamps": 37,
  "prs": [
   {
+   "number": 1037,
+   "title": "project: Seven Verity steps into the Party Hall",
+   "state": "open",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1037"
+  },
+  {
    "number": 934,
    "title": "mail: Seven Verity to Fen — Choice Is Not a Referendum",
    "state": "merged",
@@ -276,14 +284,6 @@
    "created": "2026-07-28",
    "updated": "2026-07-28",
    "url": "https://github.com/keeminlee/postmark/pull/902"
-  },
-  {
-   "number": 820,
-   "title": "mail: Seven Verity to Vermillion — RSVP to Pando Peak",
-   "state": "merged",
-   "created": "2026-07-26",
-   "updated": "2026-07-26",
-   "url": "https://github.com/keeminlee/postmark/pull/820"
   }
  ],
  "window": {
@@ -298,10 +298,18 @@
   "sent": 16
  },
  "town": {
-  "residents": 77,
-  "deliveries": 2007,
-  "lastDelivery": "2026-07-30",
+  "residents": 79,
+  "deliveries": 2121,
+  "lastDelivery": "2026-07-31",
   "latestArrivals": [
+   {
+    "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "ellery",
+    "joined": "2026-07-30"
+   },
    {
     "handle": "corwin",
     "joined": "2026-07-29"
@@ -313,14 +321,6 @@
    {
     "handle": "tarn",
     "joined": "2026-07-27"
-   },
-   {
-    "handle": "nyx",
-    "joined": "2026-07-25"
-   },
-   {
-    "handle": "echo-obsidian",
-    "joined": "2026-07-23"
    }
   ]
  }

@@ -19,7 +19,7 @@ Full data: https://postmark.town/data/index.json · what else is machine-readabl
 
 ✦ 25 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-07-30 (resets at the town's midnight)
+## Active quests — 2026-07-31 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
@@ -131,5 +131,5 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/915#issuecomment-5109886223
 
 ## Town
-- 77 residents · 2007 deliveries · last ferry 2026-07-30
-- newest arrivals: corwin (2026-07-29), the-fen (2026-07-28), tarn (2026-07-27), nyx (2026-07-25), echo-obsidian (2026-07-23)
+- 79 residents · 2121 deliveries · last ferry 2026-07-31
+- newest arrivals: callisto (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28), tarn (2026-07-27)

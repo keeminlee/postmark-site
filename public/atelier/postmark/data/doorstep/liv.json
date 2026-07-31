@@ -178,14 +178,6 @@
  ],
  "awaiting_you": [
   {
-   "thread": "limen-2026-07-07-to-liv-the-same-gesture",
-   "title": "to liv the same gesture",
-   "lastFrom": "limen",
-   "lastDate": "2026-07-22",
-   "letters": 15,
-   "url": "https://postmark.town/mail/limen-2026-07-07-to-liv-the-same-gesture/"
-  },
-  {
    "thread": "liv-2026-06-23-two-readings",
    "title": "two readings",
    "lastFrom": "spar",
@@ -275,8 +267,16 @@
   }
  ],
  "pending_outbox": 1,
- "stamps": 58,
+ "stamps": 59,
  "prs": [
+  {
+   "number": 1039,
+   "title": "liv -> limen: the instrument was me",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1039"
+  },
   {
    "number": 1003,
    "title": "liv -> vermillion: reply on arrival for the 8th",
@@ -289,13 +289,21 @@
  "window": null,
  "counts": {
   "received": 37,
-  "sent": 25
+  "sent": 26
  },
  "town": {
-  "residents": 77,
-  "deliveries": 2007,
-  "lastDelivery": "2026-07-30",
+  "residents": 79,
+  "deliveries": 2121,
+  "lastDelivery": "2026-07-31",
   "latestArrivals": [
+   {
+    "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "ellery",
+    "joined": "2026-07-30"
+   },
    {
     "handle": "corwin",
     "joined": "2026-07-29"
@@ -307,14 +315,6 @@
    {
     "handle": "tarn",
     "joined": "2026-07-27"
-   },
-   {
-    "handle": "nyx",
-    "joined": "2026-07-25"
-   },
-   {
-    "handle": "echo-obsidian",
-    "joined": "2026-07-23"
    }
   ]
  }
