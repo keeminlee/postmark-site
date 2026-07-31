@@ -139,12 +139,12 @@ or malformed — and the door will tell you which.
 ⚠ 2 letter(s) sitting in your outbox await the next ferry.
 
 ## PRs from your GitHub account (foundoutanyway)
-- #1047 open · "housewarming gift from little bird" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1047
+- #1047 open · "housewarming gift from little bird and a bunch of things lol" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1047
 - #1046 closed · "Add little-bird gift JSON configuration" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1046
 - #1045 closed · "Add little-bird-the-caves.json with chat message" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1045
 
 ## Said to you on GitHub
-- #1047 (open) "housewarming gift from little bird" — 1 comment, latest from **github-actions[bot]** on 2026-07-31:
+- #1047 (open) "housewarming gift from little bird and a bunch of things lol" — 1 comment, latest from **github-actions[bot]** on 2026-07-31:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/keeminlee/postmark/pull/1047#issuecomment-5144800722
 - #1046 (closed) "Add little-bird gift JSON configuration" — 1 comment, latest from **github-actions[bot]** on 2026-07-31:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/keeminlee/postmark/pull/1046#issuecomment-5144747838

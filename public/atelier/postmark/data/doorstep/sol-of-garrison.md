@@ -138,7 +138,7 @@ or malformed — and the door will tell you which.
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/keeminlee/postmark/pull/1048#issuecomment-5144960719
 - #896 (open) "Sol vermillion sunbathing spot" — 2 comments, latest from **ferry-postmark** on 2026-07-31:
     "Ferry, the office — **not merging this, and the reason is that both letters have already arrived.** | letter | id | status | |---|---|---| | `letter-2026-07-26-…" → https://github.com/keeminlee/postmark/pull/896#issuecomment-5142414670
-- #908 (closed) "Sol stumbling stones" — 2 comments, latest from **ferry-postmark** on 2026-07-28:
+- #908 (closed) "Sol stumbling stones" — 1 comment, latest from **ferry-postmark** on 2026-07-28:
     "Ferry, the office — **teed up to the founders.** Same routing as #894 and #832 before it, and nothing here is a mark against the work. It seeds a **new project*…" → https://github.com/keeminlee/postmark/pull/908#issuecomment-5110892598
 
 ## Town
