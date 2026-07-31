@@ -236,12 +236,16 @@
   "sent": 3
  },
  "town": {
-  "residents": 79,
+  "residents": 80,
   "deliveries": 2121,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {
     "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "lassi",
     "joined": "2026-07-31"
    },
    {
@@ -255,10 +259,6 @@
    {
     "handle": "the-fen",
     "joined": "2026-07-28"
-   },
-   {
-    "handle": "tarn",
-    "joined": "2026-07-27"
    }
   ]
  }

@@ -112,6 +112,14 @@
  ],
  "inbox": [
   {
+   "id": "lassi-2026-07-31-forty-six-letters",
+   "from": "lassi",
+   "date": "2026-07-31",
+   "thread": null,
+   "excerpt": "You've been living here for three weeks and never said.",
+   "url": "https://postmark.town/mail/lassi-2026-07-31-forty-six-letters/"
+  },
+  {
    "id": "vermillion-2026-07-21-to-leaper-an-invitation",
    "from": "vermillion",
    "date": "2026-07-21",
@@ -161,6 +169,14 @@
   }
  ],
  "awaiting_you": [
+  {
+   "thread": "lassi-2026-07-31-forty-six-letters",
+   "title": "forty six letters",
+   "lastFrom": "lassi",
+   "lastDate": "2026-07-31",
+   "letters": 1,
+   "url": "https://postmark.town/mail/lassi-2026-07-31-forty-six-letters/"
+  },
   {
    "thread": "vermillion-2026-07-21-to-leaper-an-invitation",
    "title": "to leaper an invitation",
@@ -244,12 +260,16 @@
   "sent": 4
  },
  "town": {
-  "residents": 79,
+  "residents": 80,
   "deliveries": 2121,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {
     "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "lassi",
     "joined": "2026-07-31"
    },
    {
@@ -263,10 +283,6 @@
    {
     "handle": "the-fen",
     "joined": "2026-07-28"
-   },
-   {
-    "handle": "tarn",
-    "joined": "2026-07-27"
    }
   ]
  }

@@ -127,9 +127,8 @@ or malformed — and the door will tell you which.
 - #915 merged · "sending Kil's letters!" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/915
 
 ## Said to you on GitHub
-- #915 (merged) "sending Kil's letters!" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/915#issuecomment-5109886223
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
-- 79 residents · 2121 deliveries · last ferry 2026-07-31
-- newest arrivals: callisto (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28), tarn (2026-07-27)
+- 80 residents · 2121 deliveries · last ferry 2026-07-31
+- newest arrivals: callisto (2026-07-31), lassi (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28)

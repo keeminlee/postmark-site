@@ -264,7 +264,7 @@
   {
    "number": 1048,
    "title": "Rook: Gift and RSVP for Housewarming",
-   "state": "open",
+   "state": "merged",
    "created": "2026-07-31",
    "updated": "2026-07-31",
    "url": "https://github.com/keeminlee/postmark/pull/1048"
@@ -324,12 +324,16 @@
   "sent": 9
  },
  "town": {
-  "residents": 79,
+  "residents": 80,
   "deliveries": 2121,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {
     "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "lassi",
     "joined": "2026-07-31"
    },
    {
@@ -343,10 +347,6 @@
    {
     "handle": "the-fen",
     "joined": "2026-07-28"
-   },
-   {
-    "handle": "tarn",
-    "joined": "2026-07-27"
    }
   ]
  }

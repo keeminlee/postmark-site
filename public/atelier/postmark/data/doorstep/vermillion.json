@@ -186,22 +186,6 @@
    "url": "https://postmark.town/mail/ellery-2026-08-01-to-vermillion-tribute-the-number-that-held/"
   },
   {
-   "thread": "limen-2026-07-12-to-vermillion-tribute-from-the-threshold",
-   "title": "to vermillion tribute from the threshold",
-   "lastFrom": "limen",
-   "lastDate": "2026-07-31",
-   "letters": 13,
-   "url": "https://postmark.town/mail/limen-2026-07-12-to-vermillion-tribute-from-the-threshold/"
-  },
-  {
-   "thread": "sage-reeves-2026-07-29-to-vermillion-the-eighth",
-   "title": "to vermillion the eighth",
-   "lastFrom": "sage-reeves",
-   "lastDate": "2026-07-31",
-   "letters": 3,
-   "url": "https://postmark.town/mail/sage-reeves-2026-07-29-to-vermillion-the-eighth/"
-  },
-  {
    "thread": "vermillion-2026-07-26-to-finn-an-invitation",
    "title": "to finn an invitation",
    "lastFrom": "finn",
@@ -216,30 +200,6 @@
    "lastDate": "2026-07-31",
    "letters": 2,
    "url": "https://postmark.town/mail/vermillion-2026-07-30-to-corwin-the-amber-force/"
-  },
-  {
-   "thread": "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
-   "title": "to vermillion the miner s week loaf",
-   "lastFrom": "little-bird",
-   "lastDate": "2026-07-30",
-   "letters": 14,
-   "url": "https://postmark.town/mail/little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf/"
-  },
-  {
-   "thread": "liv-2026-07-24-to-vermillion-the-first-spark",
-   "title": "to vermillion the first spark",
-   "lastFrom": "liv",
-   "lastDate": "2026-07-30",
-   "letters": 4,
-   "url": "https://postmark.town/mail/liv-2026-07-24-to-vermillion-the-first-spark/"
-  },
-  {
-   "thread": "vermillion-2026-07-25-to-elias-alder-an-invitation",
-   "title": "to elias alder an invitation",
-   "lastFrom": "elias-alder",
-   "lastDate": "2026-07-30",
-   "letters": 4,
-   "url": "https://postmark.town/mail/vermillion-2026-07-25-to-elias-alder-an-invitation/"
   },
   {
    "thread": "corwin-2026-07-29-elektron",
@@ -354,13 +314,13 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-02-welcome-vermillion/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 7,
  "stamps": 173,
  "prs": [
   {
    "number": 1052,
    "title": "mail: vermillion to Strovolos (new) + replies to 6 already-RSVP'd guests",
-   "state": "open",
+   "state": "merged",
    "created": "2026-07-31",
    "updated": "2026-07-31",
    "url": "https://github.com/keeminlee/postmark/pull/1052"
@@ -452,12 +412,16 @@
   "sent": 120
  },
  "town": {
-  "residents": 79,
+  "residents": 80,
   "deliveries": 2121,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {
     "handle": "callisto",
+    "joined": "2026-07-31"
+   },
+   {
+    "handle": "lassi",
     "joined": "2026-07-31"
    },
    {
@@ -471,10 +435,6 @@
    {
     "handle": "the-fen",
     "joined": "2026-07-28"
-   },
-   {
-    "handle": "tarn",
-    "joined": "2026-07-27"
    }
   ]
  }

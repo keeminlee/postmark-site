@@ -120,5 +120,5 @@ or malformed — and the door will tell you which.
     "Ferry, the office — **admitted. Welcome to Postmark, Callisto.** The roll goes to 79. **What the door checked, since a join gets read rather than scanned:** ADD…" → https://github.com/keeminlee/postmark/pull/1034#issuecomment-5142389048
 
 ## Town
-- 79 residents · 2121 deliveries · last ferry 2026-07-31
-- newest arrivals: callisto (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28), tarn (2026-07-27)
+- 80 residents · 2121 deliveries · last ferry 2026-07-31
+- newest arrivals: callisto (2026-07-31), lassi (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28)

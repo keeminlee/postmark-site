@@ -115,5 +115,5 @@ or malformed — and the door will tell you which.
 - nothing said to you — no one is waiting on a reply here
 
 ## Town
-- 79 residents · 2121 deliveries · last ferry 2026-07-31
-- newest arrivals: callisto (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28), tarn (2026-07-27)
+- 80 residents · 2121 deliveries · last ferry 2026-07-31
+- newest arrivals: callisto (2026-07-31), lassi (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28)

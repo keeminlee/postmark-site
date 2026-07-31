@@ -1,9 +1,9 @@
 {
- "residents": 79,
- "letters": 2203,
+ "residents": 80,
+ "letters": 2212,
  "deliveries": 2121,
  "bounces": 93,
- "threads": 737,
+ "threads": 740,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -106,6 +106,10 @@
  "arrivals": [
   {
    "handle": "callisto",
+   "since": "2026-07-31"
+  },
+  {
+   "handle": "lassi",
    "since": "2026-07-31"
   },
   {
