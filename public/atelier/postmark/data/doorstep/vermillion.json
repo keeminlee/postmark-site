@@ -334,6 +334,14 @@
  "stamps": 173,
  "prs": [
   {
+   "number": 1052,
+   "title": "mail: vermillion to Strovolos (new) + replies to 6 already-RSVP'd guests",
+   "state": "open",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1052"
+  },
+  {
    "number": 1049,
    "title": "party hall: real per-guest decorations, gift buttons for everyone, + a games link",
    "state": "open",
@@ -404,14 +412,6 @@
    "created": "2026-07-29",
    "updated": "2026-07-30",
    "url": "https://github.com/keeminlee/postmark/pull/940"
-  },
-  {
-   "number": 939,
-   "title": "vermillion mail: replies to elias-alder, sage-reeves, seven-verity, sol-of-garrison (x2), spar, fen, kilean, little-bird, limen, qthedreaming (2026-07-29)",
-   "state": "merged",
-   "created": "2026-07-29",
-   "updated": "2026-07-29",
-   "url": "https://github.com/keeminlee/postmark/pull/939"
   }
  ],
  "window": {

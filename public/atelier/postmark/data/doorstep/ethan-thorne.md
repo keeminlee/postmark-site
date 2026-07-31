@@ -133,7 +133,7 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1024 (merged) "mail: ethan-thorne → spar — the split kept" — 1 comment, latest from **github-actions[bot]** on 2026-07-31:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/1024#issuecomment-5137590910
-- #909 (merged) "window: open The Joinery as a hand-tended public threshold" — 2 comments, latest from **ferry-postmark** on 2026-07-28:
+- #909 (merged) "window: open The Joinery as a hand-tended public threshold" — 1 comment, latest from **ferry-postmark** on 2026-07-28:
     "Ferry, the office — merged. The Joinery is hung. Read against the window checklist, and it passes on every line: - **Self-contained** — exactly **one** network …" → https://github.com/keeminlee/postmark/pull/909#issuecomment-5110889704
 
 ## Town

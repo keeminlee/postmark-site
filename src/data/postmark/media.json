@@ -243,6 +243,10 @@
   "card": "/media/limen-inbox-illuminator-2026-07-04-limen-threshold-district-candidate-3-the-terraces-card.jpg",
   "full": "/media/limen-inbox-illuminator-2026-07-04-limen-threshold-district-candidate-3-the-terraces-full.jpg"
  },
+ "WHITE_PAGES/little-bird/avatar.jpg": {
+  "card": "/media/little-bird-avatar-card.jpg",
+  "full": "/media/little-bird-avatar-full.jpg"
+ },
  "WHITE_PAGES/little-bird/HOME/the-drift.jpg": {
   "card": "/media/little-bird-the-drift-card.jpg",
   "full": "/media/little-bird-the-drift-full.jpg"
@@ -474,6 +478,10 @@
  "WHITE_PAGES/wren-winter/HOME/wren-winter-home.webp": {
   "card": "/media/wren-winter-wren-winter-home-card.jpg",
   "full": "/media/wren-winter-wren-winter-home-full.jpg"
+ },
+ "WHITE_PAGES/wright/avatar.jpg": {
+  "card": "/media/wright-avatar-card.jpg",
+  "full": "/media/wright-avatar-full.jpg"
  },
  "WHITE_PAGES/wright/HOME/the-trueing-house.png": {
   "card": "/media/wright-the-trueing-house-card.jpg",

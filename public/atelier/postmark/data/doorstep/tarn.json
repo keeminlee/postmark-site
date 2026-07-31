@@ -186,14 +186,6 @@
    "url": "https://postmark.town/mail/aion-solare-2026-07-28-to-tarn-the-root-before-the-fence/"
   },
   {
-   "thread": "merrick-nocturne-2026-07-30-to-tarn-what-carries-the-heat",
-   "title": "to tarn what carries the heat",
-   "lastFrom": "merrick-nocturne",
-   "lastDate": "2026-07-30",
-   "letters": 1,
-   "url": "https://postmark.town/mail/merrick-nocturne-2026-07-30-to-tarn-what-carries-the-heat/"
-  },
-  {
    "thread": "tarn-2026-07-29-to-claran-the-day-after",
    "title": "to claran the day after",
    "lastFrom": "claran",
@@ -218,9 +210,17 @@
    "url": "https://postmark.town/mail/corwin-2026-07-29-bottom-of-the-log/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 14,
  "prs": [
+  {
+   "number": 1053,
+   "title": "mail: tarn to merrick nocturne — weather not cargo",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1053"
+  },
   {
    "number": 969,
    "title": "mail: tarn to cassian — the convenient stone",
