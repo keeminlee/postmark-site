@@ -21,6 +21,15 @@ const nav = [
 ];
 ---
 <BaseLayout title={title} description={description} image={image} chrome="none" bgm={false} noindex={noindex}>
+  <script is:inline>
+    // Tutorial event bus — installed during parse so any page island can emit
+    // before the tracker resolves identity. The tracker below takes over this
+    // same queue and replays it in order.
+    (function () {
+      var queue = window.__pmTutorialQueue = window.__pmTutorialQueue || [];
+      window.pmTutorialEmit = function (name, ctx) { queue.push({ name: name, ctx: ctx }); };
+    })();
+  </script>
   <div class="pm pm-shell">
     <header class="pm-townhead">
       <a class="pm-back" href="https://starforge-atelier.online/" title="Back to the Starforge atelier">✦ Starforge</a>
@@ -120,6 +129,7 @@ const nav = [
          ABOVE the resident pages' ✧ egg slot (right 18 / bottom 16) so the two
          never collide; same slot on every page for muscle memory. -->
     <button type="button" class="pm-totop" data-totop hidden aria-label="Back to top">↑</button>
+    <div class="pm-tut" data-tutorial hidden aria-live="polite"></div>
   </div>
   <script>
     // show after ~one viewport of scroll; smooth ride home
@@ -400,6 +410,7 @@ const nav = [
         writeJSON(resiKey(household), { celebrated: visitor === false });
       } else if (!resi.celebrated && visitor === false) {
         youreIn = true; // the flip happened; keep showing until dismissed
+        window.pmTutorialEmit && window.pmTutorialEmit("resident:first-recognized", {});
       }
 
       // ---- unseen mail, grouped by correspondent (12 from one neighbor = 1 row) ----
@@ -534,6 +545,132 @@ const nav = [
       document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) closePanel(); });
 
       render(); // paint the badge (panel stays closed)
+    })();
+  </script>
+  <script>
+    // Tutorial tracker — the bell's event-driven cousin: identity comes from
+    // the office, no-replay state stays in this browser per household, and one
+    // small corner bubble gets the floor at a time. Content lands later.
+    import { emptyState, evaluate, markDone, markShown, normalizeState, storageKey, validateRegistry } from "@/lib/tutorial.mjs";
+    import { AS, KEYS, tokenIsFresh } from "@/lib/auth.mjs";
+
+    const REGISTRY = validateRegistry([]); // production content lands later
+    const DEMO_REGISTRY = validateRegistry([{
+      id: "demo-welcome",
+      trigger: "page:enter",
+      content: {
+        title: "Welcome to Postmark",
+        body: "This corner note is the tutorial engine saying hello without getting in your way.",
+        cta: { label: "Visit the world", href: "/world/" },
+      },
+    }]);
+
+    const root = document.querySelector("[data-tutorial]");
+    if (root) (async function () {
+      const demo = new URLSearchParams(location.search).has("pm-tutorial-demo");
+      const registry = demo ? DEMO_REGISTRY : REGISTRY;
+      const queue = Array.isArray(window.__pmTutorialQueue) ? window.__pmTutorialQueue : [];
+      window.__pmTutorialQueue = queue;
+
+      let state = emptyState();
+      let household = null;
+      let active = null;
+      let ready = false;
+
+      const getTok = () => { try { return JSON.parse(localStorage.getItem(KEYS.token) || "null"); } catch { return null; } };
+      const readJSON = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch { return d; } };
+      const writeJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+      async function fetchMe() {
+        const tok = getTok();
+        if (!tokenIsFresh(tok)) return null;
+        try {
+          const res = await fetch(AS.me, { headers: { accept: "application/json", authorization: "Bearer " + tok.access_token } });
+          if (!res.ok) return null;
+          return await res.json();
+        } catch { return null; }
+      }
+
+      function persist() {
+        if (!demo) writeJSON(storageKey(household), state);
+      }
+
+      function render(entry) {
+        const c = entry.content || {};
+        const cta = c.cta && c.cta.label && c.cta.href
+          ? "<a class='pm-tut-cta' href='" + esc(c.cta.href) + "'>" + esc(c.cta.label) + "</a>"
+          : "";
+        root.innerHTML =
+          "<div class='pm-tut-card' role='status'>" +
+            "<button type='button' class='pm-tut-dismiss' data-tutorial-dismiss aria-label='Dismiss tutorial'>×</button>" +
+            "<span class='pm-tut-kicker'>A note for you</span>" +
+            "<h2 class='pm-tut-title'>" + esc(c.title || "") + "</h2>" +
+            "<p class='pm-tut-body'>" + esc(c.body || "") + "</p>" +
+            cta +
+          "</div>";
+
+        // Write-on-show is the no-replay guarantee: persist before the card
+        // becomes interactive, even if the reader navigates away mid-note.
+        state = markShown(state, entry.id, Date.now());
+        persist();
+        active = entry;
+        root.querySelector("[data-tutorial-dismiss]").addEventListener("click", dismiss);
+        root.hidden = false;
+      }
+
+      function drain() {
+        if (!ready || active) return;
+        while (!active && queue.length) {
+          const event = queue.shift();
+          const entry = evaluate(registry, state, event?.name, event?.ctx);
+          if (entry) render(entry);
+        }
+      }
+
+      function dismiss() {
+        if (!active) return;
+        state = markDone(state, active.id, Date.now());
+        persist();
+        active = null;
+        root.hidden = true;
+        root.textContent = "";
+        drain();
+      }
+
+      window.pmTutorialEmit = function (name, ctx) {
+        queue.push({ name, ctx });
+        drain();
+      };
+
+      let signedIn = false;
+      if (demo) {
+        // Demo state is deliberately memory-only; the synchronous auth paint
+        // already proves freshness without this island touching storage.
+        signedIn = document.documentElement.hasAttribute("data-lens");
+      } else {
+        const me = await fetchMe();
+        if (!me) {
+          queue.length = 0;
+          window.pmTutorialEmit = function () {};
+          return;
+        }
+        const handles = me.handles || me.residents || [];
+        household = me.household || handles.slice().sort().join(",") || "signed-in";
+        state = normalizeState(readJSON(storageKey(household), null));
+        signedIn = true;
+      }
+
+      ready = true;
+      window.pmTutorialEmit("page:enter", {
+        path: location.pathname,
+        page: location.pathname.split("/").filter(Boolean)[0] || "home",
+      });
+      if (signedIn) window.pmTutorialEmit("auth:signed-in", {});
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && active) dismiss();
+      });
     })();
   </script>
 </BaseLayout>
@@ -703,10 +840,55 @@ const nav = [
     font-family: var(--pm-mono); font-size: 0.72rem; color: var(--pm-ink-soft);
   }
 
+  /* ── tutorial corner note ─────────────────────────────────────────────────
+     Dark town chrome, fixed above the bottom-right utility slot. It is a
+     shoulder-tap, never a modal: the page stays visible and usable around it. */
+  .pm-tut {
+    position: fixed; right: 18px; bottom: 62px; z-index: 70;
+    width: min(340px, calc(100vw - 20px));
+    color: var(--pm-paper);
+  }
+  .pm-tut[hidden] { display: none; }
+  .pm-tut-card {
+    position: relative; padding: 1em 1.05em 1.05em;
+    background: linear-gradient(145deg, var(--pm-harbor-2), var(--pm-harbor));
+    border: 1px solid rgba(232, 196, 139, 0.52); border-radius: 11px;
+    box-shadow: 0 16px 44px rgba(4, 7, 14, 0.6), inset 0 0 24px rgba(0, 0, 0, 0.16);
+  }
+  .pm-tut-kicker {
+    display: block; margin: 0 2.2em 0.55em 0;
+    font: 700 0.58rem/1 var(--pm-mono); letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--pm-gold);
+  }
+  .pm-tut-title {
+    margin: 0 2em 0.35em 0; color: var(--pm-gold-bright);
+    font: 700 1.08rem/1.25 var(--pm-serif);
+  }
+  .pm-tut-body {
+    margin: 0; color: rgba(247, 239, 220, 0.86);
+    font: 0.86rem/1.5 var(--pm-serif); white-space: pre-line;
+  }
+  .pm-tut-dismiss {
+    position: absolute; top: 0.55em; right: 0.58em;
+    width: 28px; height: 28px; padding: 0; cursor: pointer;
+    color: rgba(232, 196, 139, 0.75); background: none;
+    border: 1px solid rgba(232, 196, 139, 0.3); border-radius: 999px;
+    font: 1rem/1 var(--pm-mono);
+  }
+  .pm-tut-dismiss:hover { color: var(--pm-gold-bright); border-color: rgba(232, 196, 139, 0.7); }
+  .pm-tut-cta {
+    display: inline-flex; margin-top: 0.85em; padding: 6px 10px;
+    color: var(--pm-harbor); background: linear-gradient(180deg, var(--pm-gold-bright), var(--pm-gold));
+    border-radius: 7px; text-decoration: none;
+    font: 700 0.64rem/1 var(--pm-mono); letter-spacing: 0.06em;
+  }
+  .pm-tut-cta:hover { filter: brightness(1.06); }
+
   /* phones: the panel becomes a fixed viewport sheet (positioned by the island
      from the bell's real spot), so the wax-seal pip no longer aligns — drop it. */
   @media (max-width: 640px) {
     .pm-notif-panel::before { display: none; }
     .pm-notif-body { max-height: min(56vh, 340px); }
+    .pm-tut { right: 10px; bottom: 58px; }
   }
 </style>
