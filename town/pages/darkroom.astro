@@ -1,0 +1,225 @@
+---
+// The Darkroom — the town's naive resizer. A picture headed for the town
+// (an avatar, a letter enclosure, a home painting) gets developed here:
+// resized aspect-true to a chosen longest edge and re-encoded fresh, all
+// inside the visitor's own browser. Nothing is uploaded anywhere — the page
+// has no server half. Re-encoding from pixels is also what strips EXIF/GPS/
+// camera metadata, same as the profile editor's prepare step.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+---
+<PostmarkLayout
+  title="The Darkroom — resize a picture for the town"
+  description="Resize and re-encode a picture in your own browser before it travels: aspect-true, metadata-stripped, checked against the town's 1.5 MB courtesy."
+  active=""
+>
+  <div class="darkroom">
+    <p class="pm-kicker"><a href="/">Postmark</a> · The Darkroom</p>
+
+    <header class="dr-head">
+      <h1>The Darkroom</h1>
+      <p class="tag">develop a picture before it travels — resized true, metadata left behind</p>
+    </header>
+
+    <p class="dr-note">
+      Everything happens in this browser; the picture never leaves your machine.
+      Re-encoding emits fresh pixels only — EXIF, GPS, and camera metadata stay
+      here. The town asks that files in its ledger keep under the witness's
+      <strong>1.5&nbsp;MB courtesy</strong>, because git history is forever.
+    </p>
+
+    <div class="dr-drop" data-dr-drop>
+      <label class="dr-pick">
+        <span>Choose a picture · JPEG, PNG, or WebP</span>
+        <input type="file" data-dr-input accept="image/jpeg,image/png,image/webp" />
+      </label>
+      <p class="dr-drop-hint">…or drop one anywhere in this frame</p>
+    </div>
+
+    <fieldset class="dr-controls">
+      <legend>Longest edge</legend>
+      <div class="dr-edges" data-dr-edges>
+        <label><input type="radio" name="dr-edge" value="512" /> 512 <small>avatar</small></label>
+        <label><input type="radio" name="dr-edge" value="1024" checked /> 1024 <small>enclosure</small></label>
+        <label><input type="radio" name="dr-edge" value="1600" /> 1600 <small>painting</small></label>
+        <label class="dr-custom"><input type="radio" name="dr-edge" value="custom" /> custom
+          <input type="number" data-dr-custom min="16" max="4096" value="800" inputmode="numeric" /></label>
+      </div>
+      <label class="dr-png"><input type="checkbox" data-dr-keep-png /> keep PNG
+        <small>line art &amp; transparency; otherwise JPEG (transparency becomes white)</small></label>
+    </fieldset>
+
+    <p class="dr-status" data-dr-status role="status" aria-live="polite"></p>
+
+    <div class="dr-result" data-dr-result hidden>
+      <img class="dr-preview" data-dr-preview alt="Developed picture preview" />
+      <div class="dr-facts">
+        <p data-dr-dims></p>
+        <p data-dr-bytes></p>
+        <p class="dr-lamp" data-dr-lamp></p>
+        <a class="pm-btn" data-dr-download download>Save the developed picture</a>
+      </div>
+    </div>
+  </div>
+</PostmarkLayout>
+
+<style>
+  .darkroom { max-width: 46rem; margin: 0 auto; padding: 2.2rem 1.1rem 4rem; }
+  .dr-head h1 { margin: 0.2em 0 0; }
+  .dr-head .tag { margin: 0.35em 0 0; font-style: italic; opacity: 0.85; }
+  .dr-note { margin: 1.4em 0; font-size: 0.95rem; line-height: 1.6; opacity: 0.9; }
+  .dr-drop {
+    border: 1.5px dashed rgba(232, 196, 139, 0.45); border-radius: 12px;
+    padding: 1.6em 1.2em; text-align: center;
+  }
+  .dr-drop.dragging { border-color: var(--pm-gold-bright, #e8c48b); background: rgba(232, 196, 139, 0.06); }
+  .dr-pick { display: inline-flex; flex-direction: column; gap: 0.5em; cursor: pointer; }
+  .dr-pick > span { font-family: var(--pm-mono); font-size: 0.8rem; color: var(--pm-gold-bright, #e8c48b); }
+  .dr-drop-hint { margin: 0.7em 0 0; font-size: 0.78rem; opacity: 0.6; }
+  .dr-controls { margin: 1.3em 0 0; border: 1px solid rgba(232, 196, 139, 0.25); border-radius: 10px; padding: 0.9em 1em 1em; }
+  .dr-controls legend { font-family: var(--pm-mono); font-size: 0.75rem; padding: 0 0.5em; }
+  .dr-edges { display: flex; flex-wrap: wrap; gap: 0.9em 1.4em; }
+  .dr-edges label { display: inline-flex; align-items: baseline; gap: 0.4em; font-size: 0.9rem; }
+  .dr-edges small, .dr-png small { opacity: 0.6; }
+  .dr-custom input[type="number"] { width: 5.2em; margin-left: 0.3em; }
+  .dr-png { display: flex; align-items: baseline; gap: 0.45em; margin-top: 0.9em; font-size: 0.9rem; }
+  .dr-status { min-height: 1.5em; margin: 1em 0 0; font-family: var(--pm-mono); font-size: 0.8rem; color: #cdc2ab; }
+  .dr-status.warn { color: var(--pm-gold-bright, #e8c48b); }
+  .dr-result { display: flex; flex-wrap: wrap; gap: 1.2em; margin-top: 1.3em; align-items: flex-start; }
+  .dr-preview {
+    max-width: min(20rem, 100%); height: auto; border-radius: 10px;
+    border: 1px solid rgba(232, 196, 139, 0.3);
+    background:
+      repeating-conic-gradient(rgba(255,255,255,0.06) 0% 25%, transparent 0% 50%) 0 0 / 18px 18px;
+  }
+  .dr-facts { flex: 1 1 14rem; }
+  .dr-facts p { margin: 0 0 0.55em; font-family: var(--pm-mono); font-size: 0.82rem; }
+  .dr-lamp.ok { color: #9be29b; }
+  .dr-lamp.warn { color: var(--pm-gold-bright, #e8c48b); }
+  .dr-facts .pm-btn { margin-top: 0.5em; display: inline-block; }
+</style>
+
+<script>
+  const root = document.querySelector(".darkroom");
+  const drop = root.querySelector("[data-dr-drop]");
+  const input = root.querySelector("[data-dr-input]");
+  const edges = root.querySelector("[data-dr-edges]");
+  const custom = root.querySelector("[data-dr-custom]");
+  const keepPng = root.querySelector("[data-dr-keep-png]");
+  const status = root.querySelector("[data-dr-status]");
+  const result = root.querySelector("[data-dr-result]");
+  const preview = root.querySelector("[data-dr-preview]");
+  const dims = root.querySelector("[data-dr-dims]");
+  const bytes = root.querySelector("[data-dr-bytes]");
+  const lamp = root.querySelector("[data-dr-lamp]");
+  const download = root.querySelector("[data-dr-download]");
+
+  const COURTESY = 1.5 * 1024 * 1024;
+  let currentFile = null;
+  let previewUrl = "";
+  let version = 0;
+
+  const setStatus = (msg, cls) => {
+    status.textContent = msg || "";
+    status.className = "dr-status" + (cls ? " " + cls : "");
+  };
+  const fmtBytes = (n) =>
+    n >= 1024 * 1024 ? (n / (1024 * 1024)).toFixed(2) + " MB" : Math.ceil(n / 1024) + " KB";
+  const maxEdge = () => {
+    const picked = edges.querySelector("input[name='dr-edge']:checked")?.value || "1024";
+    if (picked !== "custom") return parseInt(picked, 10);
+    const n = parseInt(custom.value, 10);
+    return Number.isFinite(n) ? Math.min(4096, Math.max(16, n)) : 800;
+  };
+
+  const imageSource = async (file) => {
+    if (typeof createImageBitmap === "function") {
+      try { return await createImageBitmap(file); } catch { /* fall through */ }
+    }
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error("unreadable"));
+        img.src = url;
+      });
+      return img;
+    } finally { URL.revokeObjectURL(url); }
+  };
+
+  async function develop() {
+    if (!currentFile) return;
+    const v = ++version;
+    setStatus("developing…");
+    result.hidden = true;
+    let source;
+    try {
+      source = await imageSource(currentFile);
+    } catch {
+      if (v === version)
+        setStatus("the browser couldn't read that picture — the file may be truncated or damaged. Better to learn it here than at the mailbag.", "warn");
+      return;
+    }
+    try {
+      const w = source.naturalWidth || source.width;
+      const h = source.naturalHeight || source.height;
+      if (!(w > 0 && h > 0)) { setStatus("that picture has no readable dimensions.", "warn"); return; }
+      const edge = maxEdge();
+      const scale = Math.min(1, edge / Math.max(w, h));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(w * scale));
+      canvas.height = Math.max(1, Math.round(h * scale));
+      const ctx = canvas.getContext("2d");
+      const asPng = keepPng.checked;
+      if (!asPng) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+      ctx.drawImage(source, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((res) =>
+        asPng ? canvas.toBlob(res, "image/png") : canvas.toBlob(res, "image/jpeg", 0.85));
+      if (v !== version) return;
+      if (!blob) { setStatus("the browser couldn't develop that picture.", "warn"); return; }
+
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = URL.createObjectURL(blob);
+      preview.src = previewUrl;
+      const stem = (currentFile.name || "picture").replace(/\.[^.]+$/, "");
+      download.href = previewUrl;
+      download.download = `${stem}-${canvas.width}x${canvas.height}.${asPng ? "png" : "jpg"}`;
+      dims.textContent = scale < 1
+        ? `${w}×${h} → ${canvas.width}×${canvas.height}px`
+        : `${w}×${h}px — already within ${edge}px; re-encoded only`;
+      bytes.textContent = `${fmtBytes(currentFile.size)} → ${fmtBytes(blob.size)}`;
+      if (blob.size <= COURTESY) {
+        lamp.textContent = "✓ fits the witness's 1.5 MB courtesy";
+        lamp.className = "dr-lamp ok";
+      } else {
+        lamp.textContent = "still over the 1.5 MB courtesy — try a smaller edge, or JPEG instead of PNG";
+        lamp.className = "dr-lamp warn";
+      }
+      result.hidden = false;
+      setStatus("");
+    } finally { if (typeof source.close === "function") source.close(); }
+  }
+
+  input.addEventListener("change", () => {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    currentFile = f;
+    develop();
+  });
+  edges.addEventListener("change", develop);
+  custom.addEventListener("input", () => {
+    if (edges.querySelector("input[value='custom']").checked) develop();
+  });
+  keepPng.addEventListener("change", develop);
+
+  for (const ev of ["dragover", "dragenter"])
+    drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("dragging"); });
+  for (const ev of ["dragleave", "drop"])
+    drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("dragging"); });
+  drop.addEventListener("drop", (e) => {
+    const f = e.dataTransfer?.files?.[0];
+    if (!f) return;
+    currentFile = f;
+    develop();
+  });
+</script>
