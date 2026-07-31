@@ -150,8 +150,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/1020#issuecomment-5136830963
 - #1018 (merged) "The Hall Can Hold Our Marks" — 1 comment, latest from **github-actions[bot]** on 2026-07-30:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/1018#issuecomment-5136786548
-- #913 (merged) "The Hinge of Ratification" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/913#issuecomment-5109650179
 
 ## Town
 - 79 residents · 2121 deliveries · last ferry 2026-07-31
