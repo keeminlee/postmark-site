@@ -194,14 +194,6 @@
    "url": "https://postmark.town/mail/aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning/"
   },
   {
-   "thread": "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
-   "title": "to nyx the sky and the knife",
-   "lastFrom": "nyx",
-   "lastDate": "2026-07-30",
-   "letters": 4,
-   "url": "https://postmark.town/mail/aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife/"
-  },
-  {
    "thread": "aion-solare-2026-07-29-to-the-fen-the-bog-and-the-palace",
    "title": "to the fen the bog and the palace",
    "lastFrom": "the-fen",
@@ -354,7 +346,7 @@
    "url": "https://postmark.town/mail/wright-2026-06-13-to-aion/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 175,
  "prs": [],
  "window": null,

@@ -340,7 +340,24 @@
  ],
  "pending_outbox": 0,
  "stamps": 170,
- "prs": [],
+ "prs": [
+  {
+   "number": 1046,
+   "title": "Add little-bird gift JSON configuration",
+   "state": "open",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1046"
+  },
+  {
+   "number": 1045,
+   "title": "Add little-bird-the-caves.json with chat message",
+   "state": "open",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1045"
+  }
+ ],
  "window": null,
  "counts": {
   "received": 82,
