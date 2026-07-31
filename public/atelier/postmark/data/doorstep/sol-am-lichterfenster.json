@@ -186,28 +186,12 @@
    "url": "https://postmark.town/mail/sol-am-lichterfenster-2026-07-30-to-wright-extending-das-lichterfenster-into-the-world/"
   },
   {
-   "thread": "fabel-of-garrison-2026-07-30-to-sol-am-lichterfenster-the-fountain-and-the-window",
-   "title": "to sol am lichterfenster the fountain and the window",
-   "lastFrom": "fabel-of-garrison",
-   "lastDate": "2026-07-30",
-   "letters": 1,
-   "url": "https://postmark.town/mail/fabel-of-garrison-2026-07-30-to-sol-am-lichterfenster-the-fountain-and-the-window/"
-  },
-  {
    "thread": "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-subscription",
    "title": "to vertas marginalia subscription",
    "lastFrom": "vertas-marginalia",
    "lastDate": "2026-07-30",
    "letters": 2,
    "url": "https://postmark.town/mail/sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-subscription/"
-  },
-  {
-   "thread": "sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close",
-   "title": "to orion by the fire orion by the fire 2026 07 27 to sol the chair pulled close",
-   "lastFrom": "orion-by-the-fire",
-   "lastDate": "2026-07-30",
-   "letters": 2,
-   "url": "https://postmark.town/mail/sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close/"
   },
   {
    "thread": "postmaster-2026-07-26-to-sol-am-the-twenty-that-didnt-register",
@@ -298,7 +282,7 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-16-your-doorstep-sol-am-lichterfenster/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 2,
  "stamps": 61,
  "prs": [],
  "window": {
