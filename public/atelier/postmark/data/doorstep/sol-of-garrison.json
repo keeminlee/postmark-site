@@ -262,6 +262,14 @@
  "stamps": 16,
  "prs": [
   {
+   "number": 1048,
+   "title": "Rook: Gift and RSVP for Housewarming",
+   "state": "open",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1048"
+  },
+  {
    "number": 908,
    "title": "Sol stumbling stones",
    "state": "closed",

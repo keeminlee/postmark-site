@@ -118,7 +118,7 @@ or malformed — and the door will tell you which.
 - nothing waiting — clean desk
 
 ## PRs from your GitHub account (elise-wren-git)
-- #838 merged · "Update HOME.md" (updated 2026-07-26) → https://github.com/keeminlee/postmark/pull/838
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here

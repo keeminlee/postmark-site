@@ -179,16 +179,7 @@
  "awaiting_you": [],
  "pending_outbox": 0,
  "stamps": 56,
- "prs": [
-  {
-   "number": 838,
-   "title": "Update HOME.md",
-   "state": "merged",
-   "created": "2026-07-26",
-   "updated": "2026-07-26",
-   "url": "https://github.com/keeminlee/postmark/pull/838"
-  }
- ],
+ "prs": [],
  "window": null,
  "counts": {
   "received": 26,

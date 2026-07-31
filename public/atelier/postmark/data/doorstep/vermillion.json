@@ -334,6 +334,14 @@
  "stamps": 173,
  "prs": [
   {
+   "number": 1049,
+   "title": "party hall: real per-guest decorations, gift buttons for everyone, + a games link",
+   "state": "open",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1049"
+  },
+  {
    "number": 1033,
    "title": "window: Plaus map -- full interior city (railroad, districts, hover)",
    "state": "merged",
