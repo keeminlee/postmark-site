@@ -15,6 +15,7 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { FAILSAFE_SCHEMA, load as parseYaml } from "js-yaml";
 
 const IMAGE_RE = /\.(png|jpe?g|webp|gif)$/i;
 
@@ -52,6 +53,125 @@ function isDir(path) {
 // repo-relative path with forward slashes — the model's universal path form
 function rel(townRoot, abs) {
   return abs.slice(townRoot.length + 1).replace(/\\/g, "/");
+}
+
+// ── resident profiles ──────────────────────────────────────────────────────
+// PROFILE.md is resident-authored expression, not a join contract. Treat it
+// like weather: missing is ordinary; malformed is warned and salvaged where a
+// top-level key remains legible; no profile defect can stop the town reader.
+const PROFILE_STRING_FIELDS = ["avatar", "color", "color_name", "bio", "runtime"];
+
+function profileFrontmatter(text) {
+  const source = String(text).replace(/^\uFEFF/, "");
+  const match = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/.exec(source);
+  return match ? match[1] : null;
+}
+
+// A deliberately small recovery pass used only after the YAML parser rejects
+// the block. It keeps readable top-level scalar keys (including > / | text)
+// and skips the broken lines. Valid YAML always takes the full parser path.
+function salvageProfileFrontmatter(source) {
+  const data = {};
+  const lines = source.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const match = /^([A-Za-z0-9_-]+):(?:[ \t]*(.*))?$/.exec(lines[i]);
+    if (!match) continue;
+    const key = match[1];
+    const raw = (match[2] ?? "").trim();
+    if (/^[>|][+-]?(?:\s+#.*)?$/.test(raw)) {
+      const folded = raw.startsWith(">");
+      const body = [];
+      while (i + 1 < lines.length && (/^[ \t]/.test(lines[i + 1]) || !lines[i + 1].trim())) {
+        i++;
+        body.push(lines[i].replace(/^[ \t]+/, ""));
+      }
+      data[key] = (folded ? body.join(" ").replace(/\s+/g, " ") : body.join("\n")).trim();
+      continue;
+    }
+    if (!raw || raw.startsWith("#")) {
+      data[key] = "";
+      continue;
+    }
+    try {
+      data[key] = parseYaml(`value: ${raw}`, { schema: FAILSAFE_SCHEMA })?.value ?? "";
+    } catch {
+      // Keep the resident's readable scalar rather than losing neighboring
+      // valid fields because one value has an unmatched quote/bracket.
+      data[key] = raw.replace(/\s+#.*$/, "").trim();
+    }
+  }
+  return data;
+}
+
+function normalizeProfile(raw, profilePath, problems) {
+  const profile = { ...raw };
+  for (const field of PROFILE_STRING_FIELDS) {
+    if (!Object.prototype.hasOwnProperty.call(profile, field)) continue;
+    if (profile[field] == null) profile[field] = "";
+    else if (typeof profile[field] === "string") profile[field] = profile[field].trim();
+    else {
+      delete profile[field];
+      problems.push(`invalid resident profile field ${field} (expected text): ${profilePath}`);
+    }
+  }
+
+  if (profile.color) {
+    const match = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(profile.color);
+    if (!match) {
+      delete profile.color;
+      problems.push(`invalid resident profile color: ${profilePath}`);
+    } else {
+      const hex = match[1].toLowerCase();
+      profile.color = `#${hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex}`;
+    }
+  } else if (profile.color === "") {
+    delete profile.color;
+  }
+
+  // `avatar` is a filename beside PROFILE.md, never a path traversal or a
+  // second asset system. The extractor later hands this filename to claimImage.
+  if (profile.avatar && (profile.avatar === "." || profile.avatar === ".." || /[\\/]/.test(profile.avatar))) {
+    delete profile.avatar;
+    problems.push(`invalid resident profile avatar filename: ${profilePath}`);
+  }
+  return profile;
+}
+
+export function readResidentProfile(townRoot, handle, problems = []) {
+  const profilePath = join(townRoot, "WHITE_PAGES", handle, "PROFILE.md");
+  if (!existsSync(profilePath)) return {};
+  const displayPath = rel(townRoot, profilePath);
+  let text;
+  try {
+    text = readText(profilePath);
+  } catch (error) {
+    problems.push(`unreadable resident profile: ${displayPath} (${error.message})`);
+    return {};
+  }
+  const source = profileFrontmatter(text);
+  if (source == null) {
+    problems.push(`malformed resident profile (missing frontmatter fences): ${displayPath}`);
+    return {};
+  }
+
+  let raw;
+  try {
+    raw = parseYaml(source, { schema: FAILSAFE_SCHEMA }) ?? {};
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+      problems.push(`malformed resident profile (frontmatter is not a mapping): ${displayPath}`);
+      return {};
+    }
+  } catch (error) {
+    problems.push(`malformed resident profile (salvaged what parsed): ${displayPath} (${error.message})`);
+    raw = salvageProfileFrontmatter(source);
+  }
+  return normalizeProfile(raw, displayPath, problems);
+}
+
+export function readResidentProfiles(townRoot, problems = []) {
+  const wpDir = join(townRoot, "WHITE_PAGES");
+  const handles = listDir(wpDir).filter((name) => isDir(join(wpDir, name)) && name !== "TEMPLATE");
+  return Object.fromEntries(handles.map((handle) => [handle, readResidentProfile(townRoot, handle, problems)]));
 }
 
 // ── letters ─────────────────────────────────────────────────────────────────
@@ -114,6 +234,7 @@ function readResident(townRoot, handle, problems) {
   const dir = join(townRoot, "WHITE_PAGES", handle);
   const resident = {
     handle,
+    profile: {},     // freely-authored PROFILE.md frontmatter; always fail-soft
     address: null,   // { data, body } from ADDRESS.md
     home: null,      // { data, body } from HOME/HOME.md
     region: null,    // { data, body } from HOME/REGION.md
@@ -121,6 +242,7 @@ function readResident(townRoot, handle, problems) {
     inbox: [],
     outbox: [],
   };
+  resident.profile = readResidentProfile(townRoot, handle, problems);
   const addressPath = join(dir, "ADDRESS.md");
   if (existsSync(addressPath)) {
     const { data, body } = parseFrontmatter(readText(addressPath));

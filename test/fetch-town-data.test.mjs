@@ -117,13 +117,16 @@ function fixtureSnapshot() {
   writeJson(data, "docs.json", { README: { body: "snapshot docs", path: "README.md" } });
   writeJson(data, "meeps.json", [{ name: "snapshot-meep", skill: null, dailyCount: 0 }]);
   writeJson(data, "stats.json", { latestDate: "2026-07-01", latestDeliveries: [] });
+  writeJson(data, "residents.json", [{ handle: "wright", profile: { bio: "snapshot profile" } }]);
 
   const town = join(root, "town");
   mkdirSync(join(town, "MEEPS", "ferry", "memory", "daily"), { recursive: true });
   mkdirSync(join(town, "MEEPS", "SKILLS"), { recursive: true });
+  mkdirSync(join(town, "WHITE_PAGES", "wright"), { recursive: true });
   writeFileSync(join(town, "MEEPS", "ferry", "identity.md"), "# ferry\n");
   writeFileSync(join(town, "MEEPS", "ferry", "memory", "daily", "2026-07-02.md"), "# day\n");
   writeFileSync(join(town, "MEEPS", "SKILLS", "ferry-round.md"), "# skill\n");
+  writeFileSync(join(town, "WHITE_PAGES", "wright", "PROFILE.md"), "---\ncolor: '#abc'\nbio: checkout profile\n---\n");
   return { data, town };
 }
 
@@ -137,9 +140,20 @@ test("buildOfficeData maps public API payloads to site data files", async () => 
   assert.equal(result.files["threads.json"].length, 1);
   assert.equal(result.files["residents.json"].find((r) => r.handle === "wright").counts.received, 1);
   assert.equal(result.files["residents.json"].find((r) => r.handle === "wright").is_office, false);
+  assert.deepEqual(result.files["residents.json"].find((r) => r.handle === "wright").profile, {
+    color: "#aabbcc",
+    bio: "checkout profile",
+  });
   assert.equal(result.files["meeps.json"][0].name, "ferry");
   assert.equal(result.files["ledger.json"].length, 2);
   assert.match(result.endpointGaps.join("\n"), /ledger\.json preserved/);
+});
+
+test("buildOfficeData preserves committed profiles when no checkout is supplied", async () => {
+  const { data } = fixtureSnapshot();
+  const result = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, fetchImpl: fixtureFetch() });
+  assert.deepEqual(result.files["residents.json"].find((r) => r.handle === "wright").profile, { bio: "snapshot profile" });
+  assert.match(result.endpointGaps.join("\n"), /profiles preserved from committed snapshot/);
 });
 
 test("buildOfficeData output is byte-stable for the same API state", async () => {

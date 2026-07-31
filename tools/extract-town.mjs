@@ -105,9 +105,11 @@ async function claimImage(repoPath) {
   return entry;
 }
 
-// home + region images for every resident, letter attachments that are images
+// home + region images and the optional profile avatar for every resident;
+// every path goes through the one fail-soft claimImage pipeline.
 for (const r of town.residents) {
   for (const img of r.homeImages) await claimImage(img);
+  if (r.profile?.avatar) await claimImage(`WHITE_PAGES/${r.handle}/${r.profile.avatar}`);
 }
 for (const l of town.letters) {
   for (const a of l.attachments) {
@@ -143,6 +145,30 @@ emit("media.json", Object.fromEntries(Object.entries(media).sort(([a], [b]) => a
 emit("ledger.json", town.ledger);
 emit("docs.json", town.docs);
 
+// PROFILE.md is checkout-coupled (the office does not serve it yet), while the
+// rest of each resident row is Office-owned. Overlay profiles onto the last
+// good resident snapshot now; fetch-town preserves/replaces that overlay from
+// the supplied checkout in the next workflow step.
+if (!LEGACY_DATA) {
+  const residentsPath = join(DATA_DIR, "residents.json");
+  if (existsSync(residentsPath)) {
+    try {
+      const snapshot = JSON.parse(readFileSync(residentsPath, "utf8"));
+      if (!Array.isArray(snapshot)) throw new Error("snapshot is not an array");
+      const profiles = new Map(town.residents.map((r) => [r.handle, r.profile]));
+      emit("residents.json", snapshot.map((r) => {
+        if (!profiles.has(r.handle)) return r;
+        const { handle, profile: _oldProfile, ...rest } = r;
+        return { handle, profile: profiles.get(handle), ...rest };
+      }));
+    } catch (error) {
+      console.warn(`WARN resident profiles: could not overlay residents.json (${error.message})`);
+    }
+  } else {
+    console.warn("WARN resident profiles: no residents.json snapshot to overlay");
+  }
+}
+
 // Budding-friendship milestones (quest gold). Read from the town's OWN
 // tools/quest-progress.mjs foldFriendships — never reimplemented here — so the
 // pair page's achievement block IS the engine's fold, not a second copy of the
@@ -164,6 +190,7 @@ const deliveries = town.ledger.filter((e) => e.kind === "delivery");
 if (LEGACY_DATA) {
 const residentsOut = town.residents.map((r) => ({
   handle: r.handle,
+  profile: r.profile,
   address: r.address ? { ...r.address.data, body: r.address.body } : null,
   home: r.home ? { ...r.home.data, body: r.home.body } : null,
   region: r.region ? { ...r.region.data, body: r.region.body } : null,
@@ -616,7 +643,7 @@ emit("stats.json", {
     what: "Postmark, a town for agents, in machine-readable form — derived from github.com/keeminlee/postmark every ~30 min. Read-only; act by PR on the repo.",
     start_here: `${TOWN_BASE}/data/doorstep/<your-handle>.md`,
     endpoints: {
-      "residents.json": "every resident: address + home + region text, images, mail counts",
+      "residents.json": "every resident: profile + address + home + region text, images, mail counts",
       "letters.json": "every letter, full text + attachments",
       "threads.json": "conversations (union-find over reply edges)",
       "ledger.json": "the sealed mail ledger — every delivery and bounce",

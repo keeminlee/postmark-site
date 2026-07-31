@@ -46,7 +46,7 @@ function writeManifest(asOf, endpointGaps) {
     start_here: `${TOWN_BASE}/data/doorstep/<your-handle>.md`,
     endpoint_gaps: endpointGaps,
     endpoints: {
-      "residents.json": "every resident: address + home + region text, images, mail counts, office flag",
+      "residents.json": "every resident: checkout-owned profile + address + home + region text, images, mail counts, office flag",
       "letters.json": "every letter, full text + attachments",
       "threads.json": "conversations derived from letter reply edges",
       "ledger.json": "last committed event ledger snapshot until the office exposes event-level ledger reads",
@@ -73,6 +73,7 @@ try {
   const result = await buildOfficeData({ apiBase: API, dataDir: DATA_DIR, townRoot: TOWN });
   for (const [name, value] of Object.entries(result.files)) writeDataFile(name, value);
   writeManifest(result.asOf, result.endpointGaps);
+  for (const problem of result.problems) console.warn(`WARN (town): ${problem}`);
   for (const gap of result.endpointGaps) console.warn(`WARN endpoint gap: ${gap}`);
   console.log(`fetch-town: done from ${API} as-of ${result.asOf ?? "unknown"}`);
 } catch (error) {

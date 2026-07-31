@@ -3,7 +3,7 @@
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { buildThreads, parseFrontmatter } from "./town.mjs";
+import { buildThreads, parseFrontmatter, readResidentProfiles } from "./town.mjs";
 
 export const DATA_FILES = [
   "letters.json",
@@ -124,9 +124,10 @@ function flattenDoc(doc) {
   return doc ? { ...(doc.data ?? {}), body: doc.body ?? "" } : null;
 }
 
-export function mapResident(r, letters, ledger = null) {
+export function mapResident(r, letters, ledger = null, profile = {}) {
   return {
     handle: r.handle,
+    profile,
     address: flattenDoc(r.address),
     home: flattenDoc(r.home),
     region: flattenDoc(r.region),
@@ -200,6 +201,7 @@ export async function buildOfficeData({
 } = {}) {
   const readSnapshot = snapshotReader(dataDir);
   const endpointGaps = [];
+  const problems = [];
 
   const [{ body: town, asOf }, residentListRes, metricsRes, bulletinListRes] = await Promise.all([
     apiGet("/town", { apiBase, fetchImpl, retries }),
@@ -218,8 +220,26 @@ export async function buildOfficeData({
   const ledger = readSnapshot("ledger.json", []);
   endpointGaps.push("ledger.json preserved from committed snapshot: office has metrics but no event-level ledger endpoint yet");
 
+  // Resident profiles are checkout-owned until the Office grows a profile read
+  // endpoint. A checkout refresh wins; without one (ordinary deploy), retain
+  // the committed last-good overlay so fetching API rows cannot erase it.
+  const profileByHandle = new Map(
+    ensureArray(readSnapshot("residents.json", []), "snapshot residents.json")
+      .map((r) => [r.handle, r.profile ?? {}])
+  );
+  if (townRoot) {
+    const checkoutProblems = [];
+    for (const [handle, profile] of Object.entries(readResidentProfiles(townRoot, checkoutProblems))) {
+      profileByHandle.set(handle, profile);
+    }
+    problems.push(...checkoutProblems);
+    endpointGaps.push("resident profiles read from the supplied checkout: office has no profile endpoint yet");
+  } else {
+    endpointGaps.push("resident profiles preserved from committed snapshot: office has no profile endpoint yet");
+  }
+
   const residents = fullResidents
-    .map((r) => mapResident(r, letters, ledger))
+    .map((r) => mapResident(r, letters, ledger, profileByHandle.get(r.handle) ?? r.profile ?? {}))
     .sort((a, b) => a.handle.localeCompare(b.handle));
 
   const bulletin = await Promise.all(ensureArray(bulletinListRes.body, "/bulletin").map(async (b) =>
@@ -243,6 +263,7 @@ export async function buildOfficeData({
   return {
     asOf: asOf ?? town.as_of ?? null,
     endpointGaps,
+    problems,
     files: {
       "residents.json": residents,
       "letters.json": letters,
