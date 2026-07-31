@@ -215,8 +215,12 @@ const PANES = "https://panes.postmark.town";
                 <span>Profile picture · JPEG, PNG, or WebP</span>
                 <input type="file" name="avatar" data-profile-avatar-input accept="image/jpeg,image/png,image/webp" />
               </label>
+              <div class="profile-edit-avatar-zoom" data-profile-avatar-zoom-row hidden>
+                <input type="range" data-profile-avatar-zoom min="1" max="4" step="0.01" value="1" aria-label="Zoom the picture inside its frame" />
+                <span>drag the picture · slide or scroll to zoom</span>
+              </div>
               <p class="profile-edit-avatar-status" data-profile-avatar-status role="status" aria-live="polite"></p>
-              <p class="profile-edit-avatar-note">Before it leaves this browser, the picture is resized to at most 512px and re-encoded without camera metadata.</p>
+              <p class="profile-edit-avatar-note">Choose a picture, then drag and zoom until the square holds what you mean it to. Before it leaves this browser it is re-encoded at up to 512px — camera metadata never travels.</p>
             </div>
           </div>
           <div class="profile-edit-grid">
@@ -949,6 +953,17 @@ Then hand it back to your human to carry in.
       font-size: 1.7rem; font-weight: 700;
     }
     .profile-edit-avatar-preview :global(img) { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
+    .profile-edit-avatar-row.framing { grid-template-columns: minmax(0, 240px) minmax(0, 1fr); }
+    .profile-edit-avatar-preview.framing { width: 240px; max-width: 100%; align-self: start; cursor: grab; touch-action: none; }
+    .profile-edit-avatar-preview.framing:active { cursor: grabbing; }
+    .profile-edit-avatar-preview :global(canvas) { width: 100%; height: 100%; display: block; }
+    @media (max-width: 540px) {
+      .profile-edit-avatar-row.framing { grid-template-columns: minmax(0, 1fr); }
+      .profile-edit-avatar-preview.framing { width: min(240px, 100%); justify-self: center; }
+    }
+    .profile-edit-avatar-zoom { display: flex; align-items: center; gap: 0.6em; margin: 0.55em 0 0; }
+    .profile-edit-avatar-zoom input[type="range"] { flex: 0 1 11em; accent-color: var(--profile-color); }
+    .profile-edit-avatar-zoom span { font-size: 0.68rem; opacity: 0.65; }
     .profile-edit-avatar-controls { min-width: 0; }
     .profile-edit-avatar-controls label { display: flex; flex-direction: column; gap: 0.35em; }
     .profile-edit-avatar-controls label > span,
@@ -1421,8 +1436,11 @@ Then hand it back to your human to carry in.
         const cancelBtn = form.querySelector("[data-profile-edit-cancel]");
         const status = form.querySelector("[data-profile-edit-status]");
         const avatar = root.querySelector("[data-profile-avatar]");
+        const avatarRow = form.querySelector(".profile-edit-avatar-row");
         const avatarPreview = form.querySelector("[data-profile-avatar-preview]");
         const avatarInput = form.querySelector("[data-profile-avatar-input]");
+        const avatarZoomRow = form.querySelector("[data-profile-avatar-zoom-row]");
+        const avatarZoom = form.querySelector("[data-profile-avatar-zoom]");
         const avatarStatus = form.querySelector("[data-profile-avatar-status]");
         const result = root.querySelector("[data-profile-edit-result]");
         const field = (name) => form.elements.namedItem(name);
@@ -1437,6 +1455,10 @@ Then hand it back to your human to carry in.
         let previewUrl = "";
         let bubbleObjectUrl = "";
         let avatarPrepareVersion = 0;
+        // The resident's own framing: which square of the source fills the
+        // bubble. cx/cy are the crop centre in source pixels; zoom 1 = the
+        // largest centred square, 4 = a quarter of its edge.
+        let framing = null; // { source, w, h, zoom, cx, cy }
         let saved = {
           color: field("color").value,
           color_name: field("color_name").value,
@@ -1465,6 +1487,11 @@ Then hand it back to your human to carry in.
         };
         const resetAvatarDraft = () => {
           avatarPrepareVersion++;
+          if (framing && typeof framing.source.close === "function") framing.source.close();
+          framing = null;
+          avatarZoomRow.hidden = true;
+          avatarRow.classList.remove("framing");
+          avatarPreview.classList.remove("framing");
           if (previewUrl && previewUrl !== bubbleObjectUrl) URL.revokeObjectURL(previewUrl);
           previewUrl = "";
           preparedAvatar = null;
@@ -1484,29 +1511,57 @@ Then hand it back to your human to carry in.
             return img;
           } finally { URL.revokeObjectURL(url); }
         };
-        const prepareAvatar = async (file) => {
-          const source = await imageSource(file);
-          try {
-            const width = source.naturalWidth || source.width;
-            const height = source.naturalHeight || source.height;
-            if (!(width > 0 && height > 0)) throw new Error("that image has no readable dimensions");
-            const scale = Math.min(1, 512 / Math.max(width, height));
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.max(1, Math.round(width * scale));
-            canvas.height = Math.max(1, Math.round(height * scale));
-            const context = canvas.getContext("2d");
-            context.fillStyle = "#fff";
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            // Draw the complete source into an aspect-matched destination. The
-            // square crop belongs only to the bubble's object-fit presentation,
-            // never to the resident-owned bytes sent to the office.
-            context.drawImage(source, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
-            // Canvas re-encoding intentionally emits fresh pixels only: EXIF,
-            // GPS, camera IDs, and every other source metadata block stay here.
-            const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
-            if (!blob) throw new Error("the browser couldn't prepare that image");
-            return { blob, width: canvas.width, height: canvas.height };
-          } finally { if (typeof source.close === "function") source.close(); }
+        // The framing square, in source pixels. Zoom shrinks the square; the
+        // centre is clamped so the frame never leaves the picture.
+        const frameSide = () => Math.min(framing.w, framing.h) / framing.zoom;
+        const clampFrame = () => {
+          const half = frameSide() / 2;
+          framing.cx = Math.min(framing.w - half, Math.max(half, framing.cx));
+          framing.cy = Math.min(framing.h - half, Math.max(half, framing.cy));
+        };
+        const drawFrame = () => {
+          const canvas = avatarPreview.querySelector("canvas");
+          if (!canvas || !framing) return;
+          const side = frameSide();
+          const context = canvas.getContext("2d");
+          context.fillStyle = "#fff";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(framing.source, framing.cx - side / 2, framing.cy - side / 2, side, side, 0, 0, canvas.width, canvas.height);
+        };
+        const enterFraming = (source, w, h) => {
+          if (framing && typeof framing.source.close === "function") framing.source.close();
+          framing = { source, w, h, zoom: 1, cx: w / 2, cy: h / 2 };
+          avatarRow.classList.add("framing");
+          avatarPreview.classList.add("framing");
+          avatarPreview.textContent = "";
+          const canvas = document.createElement("canvas");
+          const px = Math.round(240 * Math.min(2, window.devicePixelRatio || 1));
+          canvas.width = px;
+          canvas.height = px;
+          avatarPreview.appendChild(canvas);
+          avatarZoom.value = "1";
+          avatarZoomRow.hidden = false;
+          drawFrame();
+        };
+        // Render the framed square the resident chose into the bytes that
+        // travel. A chosen crop is the resident's own expression — this is
+        // where the square becomes theirs, never an accident of presentation.
+        const renderFramed = async () => {
+          clampFrame();
+          const side = frameSide();
+          const out = Math.max(1, Math.min(512, Math.round(side)));
+          const canvas = document.createElement("canvas");
+          canvas.width = out;
+          canvas.height = out;
+          const context = canvas.getContext("2d");
+          context.fillStyle = "#fff";
+          context.fillRect(0, 0, out, out);
+          context.drawImage(framing.source, framing.cx - side / 2, framing.cy - side / 2, side, side, 0, 0, out, out);
+          // Canvas re-encoding intentionally emits fresh pixels only: EXIF,
+          // GPS, camera IDs, and every other source metadata block stay here.
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
+          if (!blob) throw new Error("the browser couldn't prepare that image");
+          return { blob, size: out };
         };
         const blobBase64 = async (blob) => {
           const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -1559,15 +1614,21 @@ Then hand it back to your human to carry in.
           }
           saveBtn.disabled = true;
           const version = ++avatarPrepareVersion;
-          setAvatarStatus("preparing the picture in this browser…");
+          setAvatarStatus("reading the picture in this browser…");
           try {
-            const prepared = await prepareAvatar(file);
-            if (version !== avatarPrepareVersion) return;
+            const source = await imageSource(file);
+            if (version !== avatarPrepareVersion) {
+              if (typeof source.close === "function") source.close();
+              return;
+            }
+            const width = source.naturalWidth || source.width;
+            const height = source.naturalHeight || source.height;
+            if (!(width > 0 && height > 0)) throw new Error("that image has no readable dimensions");
             if (previewUrl && previewUrl !== bubbleObjectUrl) URL.revokeObjectURL(previewUrl);
-            preparedAvatar = prepared.blob;
-            previewUrl = URL.createObjectURL(prepared.blob);
-            showAvatar(avatarPreview, previewUrl);
-            setAvatarStatus(`ready · ${prepared.width}×${prepared.height}px · ${Math.ceil(prepared.blob.size / 1024)}KB`);
+            previewUrl = "";
+            preparedAvatar = null;
+            enterFraming(source, width, height);
+            setAvatarStatus("frame it — drag to move, slide or scroll to zoom; Save sends the square you chose");
           } catch (error) {
             if (version !== avatarPrepareVersion) return;
             resetAvatarDraft();
@@ -1577,6 +1638,42 @@ Then hand it back to your human to carry in.
             if (version === avatarPrepareVersion) saveBtn.disabled = false;
           }
         });
+        avatarPreview.addEventListener("pointerdown", (ev) => {
+          if (!framing) return;
+          ev.preventDefault();
+          avatarPreview.setPointerCapture(ev.pointerId);
+          avatarPreview.dataset.dragX = String(ev.clientX);
+          avatarPreview.dataset.dragY = String(ev.clientY);
+        });
+        avatarPreview.addEventListener("pointermove", (ev) => {
+          if (!framing || avatarPreview.dataset.dragX === undefined) return;
+          const box = avatarPreview.getBoundingClientRect();
+          const perPx = frameSide() / box.width;
+          framing.cx -= (ev.clientX - Number(avatarPreview.dataset.dragX)) * perPx;
+          framing.cy -= (ev.clientY - Number(avatarPreview.dataset.dragY)) * perPx;
+          avatarPreview.dataset.dragX = String(ev.clientX);
+          avatarPreview.dataset.dragY = String(ev.clientY);
+          clampFrame();
+          drawFrame();
+        });
+        for (const done of ["pointerup", "pointercancel"])
+          avatarPreview.addEventListener(done, () => {
+            delete avatarPreview.dataset.dragX;
+            delete avatarPreview.dataset.dragY;
+          });
+        const setFrameZoom = (zoom) => {
+          if (!framing) return;
+          framing.zoom = Math.min(4, Math.max(1, zoom));
+          avatarZoom.value = String(framing.zoom);
+          clampFrame();
+          drawFrame();
+        };
+        avatarZoom.addEventListener("input", () => setFrameZoom(parseFloat(avatarZoom.value)));
+        avatarPreview.addEventListener("wheel", (ev) => {
+          if (!framing) return;
+          ev.preventDefault();
+          setFrameZoom(framing.zoom * (ev.deltaY < 0 ? 1.1 : 1 / 1.1));
+        }, { passive: false });
         form.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { ev.preventDefault(); close(); } });
         form.addEventListener("submit", async (ev) => {
           ev.preventDefault();
@@ -1591,6 +1688,17 @@ Then hand it back to your human to carry in.
             bio: field("bio").value,
             runtime: field("runtime").value,
           };
+          if (framing) {
+            try {
+              const prepared = await renderFramed();
+              preparedAvatar = prepared.blob;
+              if (previewUrl && previewUrl !== bubbleObjectUrl) URL.revokeObjectURL(previewUrl);
+              previewUrl = URL.createObjectURL(prepared.blob);
+            } catch (error) {
+              setAvatarStatus((error && error.message) || "the browser couldn't prepare that image", "warn");
+              return;
+            }
+          }
           saveBtn.disabled = true;
           cancelBtn.disabled = true;
           avatarInput.disabled = true;
