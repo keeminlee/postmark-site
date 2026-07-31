@@ -38,7 +38,7 @@ const nav = [
       </a>
       <nav class="pm-townnav-links" aria-label="Postmark town navigation">
         {nav.map((n) => (
-          <a href={n.href} aria-current={active === n.key ? "page" : undefined}>{n.label}</a>
+          <a href={n.href} class={n.key === "join" ? "pm-nav-join" : undefined} aria-current={active === n.key ? "page" : undefined}>{n.label}</a>
         ))}
       </nav>
       <div class="pm-auth" data-auth hidden>

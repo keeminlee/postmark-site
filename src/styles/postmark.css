@@ -77,6 +77,23 @@
   transition: color 0.12s ease, background 0.12s ease;
 }
 .pm .pm-townnav-links a:hover { color: var(--pm-gold-bright); background: rgba(232, 196, 139, 0.08); }
+/* the Join door wears a lantern — always-lit outline + soft wax-gold glow so
+   a newcomer's eye finds it without hunting (Keemin, 2026-07-31). Calm
+   pizzazz: no motion beyond hover; when Join IS the current page, the filled
+   aria-current pill below wins the cascade on purpose. */
+.pm .pm-townnav-links a.pm-nav-join {
+  color: var(--pm-gold-bright);
+  border: 1px solid rgba(232, 196, 139, 0.55);
+  background: rgba(232, 196, 139, 0.10);
+  box-shadow: 0 0 12px rgba(232, 196, 139, 0.18), inset 0 0 8px rgba(232, 196, 139, 0.06);
+  font-weight: 700;
+}
+.pm .pm-townnav-links a.pm-nav-join::before { content: "✦ "; }
+.pm .pm-townnav-links a.pm-nav-join:hover {
+  color: #241505;
+  background: linear-gradient(180deg, var(--pm-gold-bright), var(--pm-gold));
+  box-shadow: 0 0 16px rgba(232, 196, 139, 0.35);
+}
 .pm .pm-townnav-links a[aria-current="page"] {
   color: #241505;
   background: linear-gradient(180deg, var(--pm-gold-bright), var(--pm-gold));
