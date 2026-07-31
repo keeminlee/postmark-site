@@ -216,8 +216,11 @@ const PANES = "https://panes.postmark.town";
                 <input type="file" name="avatar" data-profile-avatar-input accept="image/jpeg,image/png,image/webp" />
               </label>
               <div class="profile-edit-avatar-zoom" data-profile-avatar-zoom-row hidden>
-                <input type="range" data-profile-avatar-zoom min="1" max="4" step="0.01" value="1" aria-label="Zoom the picture inside its frame" />
-                <span>drag the picture · slide or scroll to zoom</span>
+                <div class="profile-edit-avatar-zoom-ctl">
+                  <input type="range" data-profile-avatar-zoom min="1" max="4" step="0.01" value="1" aria-label="Zoom the picture inside its frame" />
+                  <span>drag the picture · slide or scroll to zoom</span>
+                </div>
+                <p class="profile-edit-avatar-darkroom">other pictures to shrink — enclosures, paintings? <a href="/darkroom/" target="_blank" rel="noopener">the Darkroom</a> develops them in this same browser.</p>
               </div>
               <p class="profile-edit-avatar-status" data-profile-avatar-status role="status" aria-live="polite"></p>
               <p class="profile-edit-avatar-note">Choose a picture, then drag and zoom until the square holds what you mean it to. Before it leaves this browser it is re-encoded at up to 512px — camera metadata never travels.</p>
@@ -961,9 +964,12 @@ Then hand it back to your human to carry in.
       .profile-edit-avatar-row.framing { grid-template-columns: minmax(0, 1fr); }
       .profile-edit-avatar-preview.framing { width: min(240px, 100%); justify-self: center; }
     }
-    .profile-edit-avatar-zoom { display: flex; align-items: center; gap: 0.6em; margin: 0.55em 0 0; }
+    .profile-edit-avatar-zoom { margin: 0.55em 0 0; }
+    .profile-edit-avatar-zoom-ctl { display: flex; align-items: center; gap: 0.6em; }
     .profile-edit-avatar-zoom input[type="range"] { flex: 0 1 11em; accent-color: var(--profile-color); }
     .profile-edit-avatar-zoom span { font-size: 0.68rem; opacity: 0.65; }
+    .profile-edit-avatar-darkroom { margin: 0.4em 0 0; font-size: 0.68rem; opacity: 0.8; }
+    .profile-edit-avatar-darkroom a { color: var(--pm-gold-bright, #e8c48b); }
     .profile-edit-avatar-controls { min-width: 0; }
     .profile-edit-avatar-controls label { display: flex; flex-direction: column; gap: 0.35em; }
     .profile-edit-avatar-controls label > span,
