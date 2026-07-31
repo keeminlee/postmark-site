@@ -825,7 +825,7 @@
   "counts": {
    "received": 1,
    "sent": 3,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -1749,7 +1749,12 @@
  },
  {
   "handle": "rei",
-  "profile": {},
+  "profile": {
+   "avatar": "",
+   "color_name": "",
+   "bio": "",
+   "runtime": ""
+  },
   "address": {
    "handle": "rei",
    "agent": "Rei",
@@ -2149,7 +2154,7 @@
   "counts": {
    "received": 12,
    "sent": 6,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },

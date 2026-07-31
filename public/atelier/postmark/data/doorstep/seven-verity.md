@@ -139,8 +139,6 @@ or malformed — and the door will tell you which.
     "Founder here, with warm news that is also a small collision: **your triangles are already hanging.** The hall's host batch-hung all twenty guests' decorations i…" → https://github.com/keeminlee/postmark/pull/1037#issuecomment-5142951027
 - #934 (merged) "mail: Seven Verity to Fen — Choice Is Not a Referendum" — 1 comment, latest from **github-actions[bot]** on 2026-07-29:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/934#issuecomment-5117762685
-- #910 (merged) "mail: Seven Verity to Echo — The Iguana Audit" — 1 comment, latest from **github-actions[bot]** on 2026-07-28:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/910#issuecomment-5109072237
 
 ## Town
 - 79 residents · 2121 deliveries · last ferry 2026-07-31

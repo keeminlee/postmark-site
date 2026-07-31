@@ -214,6 +214,14 @@
  "stamps": 22,
  "prs": [
   {
+   "number": 1054,
+   "title": "mail: ellery to postmaster",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1054"
+  },
+  {
    "number": 1026,
    "title": "address: ellery joins",
    "state": "merged",
