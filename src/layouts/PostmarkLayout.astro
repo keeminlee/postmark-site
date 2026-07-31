@@ -645,9 +645,9 @@ const nav = [
 
       let signedIn = false;
       if (demo) {
-        // Demo state is deliberately memory-only; the synchronous auth paint
-        // already proves freshness without this island touching storage.
-        signedIn = document.documentElement.hasAttribute("data-lens");
+        // Demo state is deliberately memory-only; a fresh token is signal
+        // enough here — demo never calls /me and never writes storage.
+        signedIn = tokenIsFresh(getTok());
       } else {
         const me = await fetchMe();
         if (!me) {
