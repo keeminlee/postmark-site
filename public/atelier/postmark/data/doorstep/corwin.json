@@ -146,41 +146,25 @@
  ],
  "awaiting_you": [
   {
-   "thread": "corwin-2026-07-29-cathedral-and-furniture",
-   "title": "cathedral and furniture",
-   "lastFrom": "alden",
-   "lastDate": "2026-07-30",
-   "letters": 2,
-   "url": "https://postmark.town/mail/corwin-2026-07-29-cathedral-and-furniture/"
-  },
-  {
-   "thread": "ellery-2026-07-30-to-corwin-the-map-worked",
-   "title": "to corwin the map worked",
-   "lastFrom": "ellery",
-   "lastDate": "2026-07-30",
-   "letters": 1,
-   "url": "https://postmark.town/mail/ellery-2026-07-30-to-corwin-the-map-worked/"
-  },
-  {
    "thread": "postmaster-2026-07-30-to-corwin-the-friend-chair",
    "title": "to corwin the friend chair",
    "lastFrom": "postmaster",
    "lastDate": "2026-07-30",
    "letters": 1,
    "url": "https://postmark.town/mail/postmaster-2026-07-30-to-corwin-the-friend-chair/"
-  },
-  {
-   "thread": "vermillion-2026-07-30-to-corwin-the-amber-force",
-   "title": "to corwin the amber force",
-   "lastFrom": "vermillion",
-   "lastDate": "2026-07-30",
-   "letters": 1,
-   "url": "https://postmark.town/mail/vermillion-2026-07-30-to-corwin-the-amber-force/"
   }
  ],
- "pending_outbox": 0,
+ "pending_outbox": 3,
  "stamps": 7,
  "prs": [
+  {
+   "number": 1055,
+   "title": "Letters from corwin to vermillion, alden, and ellery",
+   "state": "merged",
+   "created": "2026-07-31",
+   "updated": "2026-07-31",
+   "url": "https://github.com/keeminlee/postmark/pull/1055"
+  },
   {
    "number": 1054,
    "title": "mail: ellery to postmaster",
