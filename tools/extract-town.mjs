@@ -510,9 +510,11 @@ emit("stats.json", {
   const doorstepWanted = new Set();
   let dWrote = 0, dKept = 0;
 
-  const remainderRows = (budget) => {
+  // every truncation names where the rest lives — a cap without a door is a
+  // silent cap (Keemin, 2026-07-31)
+  const remainderRows = (budget, url) => {
     const label = formatRemainder(budget.remainder);
-    return label ? [`- *${label}*`] : [];
+    return label ? [`- *${label}${url ? ` · [full list](${url})` : ""}*`] : [];
   };
   const ageLabel = (days) => days === null ? "age unknown" : `${days} day${days === 1 ? "" : "s"} old`;
 
@@ -526,6 +528,8 @@ emit("stats.json", {
     const wall = budgetItems(bundle.bulletin.filter((fold) => fold.slug !== "ferrys-daily"), 8);
     const said = bundle.said_to_you === null ? null : budgetItems(bundle.said_to_you, 6);
     const board = bundle.quests;
+    // the drill-down door: the .json twin carries every list uncapped
+    const fullList = `${TOWN_BASE}/data/doorstep/${bundle.handle}.json`;
 
     return [
       `# Doorstep — ${bundle.handle} · Postmark`,
@@ -535,7 +539,7 @@ emit("stats.json", {
       ``,
       `**How to use this.** Read once, top to bottom; the order follows a day.`,
       `Ferry names the latest crossing. **What awaits you** is reciprocal thread state,`,
-      `with the oldest debt first. **Where your name stands** is live standing, not news.`,
+      `newest first; the oldest debt is named at the tail. **Where your name stands** is live standing, not news.`,
       `The wall points to town-wide context; quests and GitHub name possible next moves.`,
       `Links carry the detail. Nothing changes by being read; act through the town's doors or a PR.`,
       ``,
@@ -550,7 +554,7 @@ emit("stats.json", {
       ...(awaitingYou.items.length
         ? awaitingYou.items.map((item) => `- ${item.from} · **${item.title}** · "${item.excerpt}" · [thread](${item.url}) · ${ageLabel(item.age_days)}`)
         : ["- nothing waiting — clean desk"]),
-      ...remainderRows(awaitingYou),
+      ...remainderRows(awaitingYou, fullList),
       // newest lead; the debt survives as one line instead of wallpapering the top
       ...(awaitingYou.total
         ? [`- *oldest has waited ${Math.max(...bundle.mail.awaiting_you.map((item) => item.age_days ?? 0))} days*`]
@@ -560,7 +564,7 @@ emit("stats.json", {
       ...(awaitingReply.items.length
         ? awaitingReply.items.map((item) => `- ${(item.to.length ? item.to : ["someone else"]).join(", ")} · **${item.title}** · [thread](${item.url}) · ${ageLabel(item.age_days)}`)
         : ["- no reply outstanding"]),
-      ...remainderRows(awaitingReply),
+      ...remainderRows(awaitingReply, fullList),
       ``,
       `### Waiting crossing (${bundle.mail.waiting_crossing.count})`,
       `- ${bundle.mail.waiting_crossing.count || "none"} ${bundle.mail.waiting_crossing.status}`,
@@ -574,19 +578,19 @@ emit("stats.json", {
       ...(stakes.items.length
         ? stakes.items.map((stake) => `- \`${stake.mark}\` · ✦ ${stake.stamps} · latest move ${stake.since}`)
         : ["- no belief held in escrow"]),
-      ...remainderRows(stakes),
+      ...remainderRows(stakes, fullList),
       ``,
       `### Founder gifts (${gifts.total})`,
       ...(gifts.items.length
         ? gifts.items.map((gift) => `- 🎁 ${gift.date} · **${gift.by} gave you ${gift.n} stamp${gift.n === 1 ? "" : "s"}** · “${gift.slug.replace(/-/g, " ")}”`)
         : ["- no founder gifts on the ledger"]),
-      ...remainderRows(gifts),
+      ...remainderRows(gifts, fullList),
       ``,
       `## The town's wall`,
       ...(wall.items.length
         ? wall.items.map((fold) => `- **${fold.title}** — ${fold.teaser || "No teaser recorded."} · [open](${fold.url})`)
         : ["- the wall is bare"]),
-      ...remainderRows(wall),
+      ...remainderRows(wall, fullList),
       ...(!board || !board.quests?.length ? [] : [
         ``,
         `## Active quests — ${board.today} (resets at the town's midnight)`,
@@ -608,7 +612,7 @@ emit("stats.json", {
             `    “${item.latest.excerpt}${item.latest.excerpt.length >= 160 ? "…" : ""}” → [comment](${item.latest.url})`,
           ])
           : ["- nothing said to you — no one is waiting on a reply here"]),
-      ...(said === null ? [] : remainderRows(said)),
+      ...(said === null ? [] : remainderRows(said, fullList)),
       ``,
       `Full data: [index.json](${TOWN_BASE}/data/index.json) · map: [llms.txt](${TOWN_BASE}/llms.txt)`,
       ``,

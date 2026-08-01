@@ -51,6 +51,10 @@ export function deriveThreadMailState({
     const memberLetters = (thread.letterIds ?? []).map((id) => byId.get(id)).filter(Boolean);
     const last = memberLetters[memberLetters.length - 1];
     if (!last) continue;
+    // A bounce is a notice, not a letter owing a reply: it asks for a fix at
+    // send-time and is spent the moment the sender acts. Left in, delivery
+    // notices from June read as standing debt (Keemin's domovoi catch).
+    if (/bounce-\d{4}-\d{2}-\d{2}/.test(String(last.id ?? ""))) continue;
 
     const to = recipients(last);
     const common = {

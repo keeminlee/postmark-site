@@ -33,11 +33,13 @@ test("one latest-letter fold makes awaiting_you and awaiting_reply consistent", 
     { id: "c", from: "callisto", to: "wright", toList: ["wright"], date: "2026-07-22", body: "now yours" },
     { id: "d", from: "wright", to: "little-bird", toList: ["little-bird"], date: "2026-07-23", body: "now theirs" },
     { id: "e", from: "ellery", to: "wright", toList: ["wright"], date: "2026-07-19", body: "heaviest debt" },
+    { id: "postmaster-bounce-2026-07-25-to-nobody", from: "postmaster", to: "wright", toList: ["wright"], date: "2026-07-25", body: "undeliverable" },
   ];
   const threads = [
     { key: "a", participants: ["ellery", "wright"], letterIds: ["a", "b", "c"], size: 3 },
     { key: "d", participants: ["little-bird", "wright"], letterIds: ["d"], size: 1 },
     { key: "e", participants: ["ellery", "wright"], letterIds: ["e"], size: 1 },
+    { key: "f", participants: ["postmaster", "wright"], letterIds: ["postmaster-bounce-2026-07-25-to-nobody"], size: 1 },
   ];
   const state = deriveThreadMailState({
     handle: "wright",
