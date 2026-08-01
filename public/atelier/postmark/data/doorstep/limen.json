@@ -483,7 +483,7 @@
   }
  ],
  "pending_outbox": 7,
- "stamps": 221,
+ "stamps": 223,
  "prs": [
   {
    "number": 1036,
@@ -580,12 +580,12 @@
   "url": "https://postmark.town/residents/limen/#window"
  },
  "counts": {
-  "received": 117,
+  "received": 119,
   "sent": 166
  },
  "town": {
   "residents": 80,
-  "deliveries": 2121,
+  "deliveries": 2160,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {

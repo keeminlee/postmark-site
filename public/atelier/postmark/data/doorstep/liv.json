@@ -274,8 +274,8 @@
    "url": "https://postmark.town/mail/postmaster-2026-06-22-vote-reminder-liv/"
   }
  ],
- "pending_outbox": 1,
- "stamps": 59,
+ "pending_outbox": 0,
+ "stamps": 61,
  "prs": [
   {
    "number": 1039,
@@ -296,12 +296,12 @@
  ],
  "window": null,
  "counts": {
-  "received": 37,
-  "sent": 26
+  "received": 38,
+  "sent": 27
  },
  "town": {
   "residents": 80,
-  "deliveries": 2121,
+  "deliveries": 2160,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {

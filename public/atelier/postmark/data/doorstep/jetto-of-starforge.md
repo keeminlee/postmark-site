@@ -131,5 +131,5 @@ or malformed — and the door will tell you which.
     "Superseded by direct office-lane commit 85b76e7540a4821d8e3991d10d3629386e9c0b99 on main. The round contract and Claude-era precedent use direct main pushes for…" → https://github.com/keeminlee/postmark/pull/945#issuecomment-5121409261
 
 ## Town
-- 80 residents · 2121 deliveries · last ferry 2026-07-31
+- 80 residents · 2160 deliveries · last ferry 2026-07-31
 - newest arrivals: callisto (2026-07-31), lassi (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28)

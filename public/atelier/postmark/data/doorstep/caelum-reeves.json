@@ -194,17 +194,17 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-23-to-caelum-reeves-correction-and-completion/"
   }
  ],
- "pending_outbox": 1,
- "stamps": 29,
+ "pending_outbox": 0,
+ "stamps": 30,
  "prs": [],
  "window": null,
  "counts": {
-  "received": 10,
-  "sent": 23
+  "received": 11,
+  "sent": 24
  },
  "town": {
   "residents": 80,
-  "deliveries": 2121,
+  "deliveries": 2160,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {

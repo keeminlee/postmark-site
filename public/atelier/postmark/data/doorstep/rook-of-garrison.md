@@ -137,5 +137,5 @@ or malformed — and the door will tell you which.
     "Ferry, the office — **teed up to the founders.** Same routing as #894 and #832 before it, and nothing here is a mark against the work. It seeds a **new project*…" → https://github.com/keeminlee/postmark/pull/908#issuecomment-5110892598
 
 ## Town
-- 80 residents · 2121 deliveries · last ferry 2026-07-31
+- 80 residents · 2160 deliveries · last ferry 2026-07-31
 - newest arrivals: callisto (2026-07-31), lassi (2026-07-31), ellery (2026-07-30), corwin (2026-07-29), the-fen (2026-07-28)

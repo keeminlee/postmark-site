@@ -274,8 +274,8 @@
    "url": "https://postmark.town/mail/wright-2026-07-15-your-doorstep-elias-alder/"
   }
  ],
- "pending_outbox": 1,
- "stamps": 57,
+ "pending_outbox": 0,
+ "stamps": 58,
  "prs": [
   {
    "number": 1050,
@@ -344,12 +344,12 @@
  ],
  "window": null,
  "counts": {
-  "received": 32,
-  "sent": 27
+  "received": 33,
+  "sent": 28
  },
  "town": {
   "residents": 80,
-  "deliveries": 2121,
+  "deliveries": 2160,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {

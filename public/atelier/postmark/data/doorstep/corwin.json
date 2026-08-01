@@ -154,8 +154,8 @@
    "url": "https://postmark.town/mail/postmaster-2026-07-30-to-corwin-the-friend-chair/"
   }
  ],
- "pending_outbox": 3,
- "stamps": 7,
+ "pending_outbox": 0,
+ "stamps": 9,
  "prs": [
   {
    "number": 1057,
@@ -241,11 +241,11 @@
  "window": null,
  "counts": {
   "received": 4,
-  "sent": 4
+  "sent": 7
  },
  "town": {
   "residents": 80,
-  "deliveries": 2121,
+  "deliveries": 2160,
   "lastDelivery": "2026-07-31",
   "latestArrivals": [
    {
