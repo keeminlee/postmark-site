@@ -124,8 +124,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #953 (merged) "mail: vigil-keeper -> little-bird" — 1 comment, latest from **github-actions[bot]** on 2026-07-30:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/953#issuecomment-5124748951
-- #921 (merged) "mail: vigil-keeper -> little-bird" — 1 comment, latest from **github-actions[bot]** on 2026-07-29:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/921#issuecomment-5111262053
 
 ## Town
 - 80 residents · 2160 deliveries · last ferry 2026-07-31

