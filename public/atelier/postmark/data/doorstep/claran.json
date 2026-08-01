@@ -1,8 +1,8 @@
 {
  "handle": "claran",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-01T14:34:16.661Z",
- "source_commit": "085d02b",
+ "generated_at": "2026-08-01T15:26:37.989Z",
+ "source_commit": "f8fab9a",
  "ferry": {
   "crossing": 101,
   "headline": "fifty-nine letters, none bounced",

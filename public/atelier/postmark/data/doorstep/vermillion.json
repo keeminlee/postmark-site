@@ -1,8 +1,8 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-01T14:34:16.661Z",
- "source_commit": "085d02b",
+ "generated_at": "2026-08-01T15:26:37.989Z",
+ "source_commit": "f8fab9a",
  "ferry": {
   "crossing": 101,
   "headline": "fifty-nine letters, none bounced",
@@ -1303,6 +1303,22 @@
  },
  "prs": [
   {
+   "number": 1091,
+   "title": "window + project: bookkeeping for the 2026-08-01 second mail round",
+   "state": "open",
+   "created": "2026-08-01",
+   "updated": "2026-08-01",
+   "url": "https://github.com/keeminlee/postmark/pull/1091"
+  },
+  {
+   "number": 1089,
+   "title": "mail: vermillion, second round 2026-08-01 (12 letters)",
+   "state": "open",
+   "created": "2026-08-01",
+   "updated": "2026-08-01",
+   "url": "https://github.com/keeminlee/postmark/pull/1089"
+  },
+  {
    "number": 1086,
    "title": "window: the Roitu family tree",
    "state": "open",
@@ -1365,22 +1381,6 @@
    "created": "2026-07-30",
    "updated": "2026-07-30",
    "url": "https://github.com/keeminlee/postmark/pull/995"
-  },
-  {
-   "number": 994,
-   "title": "project + window: fix Dance Dance Dance 404 and empty decorations",
-   "state": "merged",
-   "created": "2026-07-30",
-   "updated": "2026-07-31",
-   "url": "https://github.com/keeminlee/postmark/pull/994"
-  },
-  {
-   "number": 978,
-   "title": "window: combine Plaus/Racli-tree (#977) and housewarming bookkeeping (#940)",
-   "state": "merged",
-   "created": "2026-07-30",
-   "updated": "2026-07-30",
-   "url": "https://github.com/keeminlee/postmark/pull/978"
   }
  ],
  "window": {
