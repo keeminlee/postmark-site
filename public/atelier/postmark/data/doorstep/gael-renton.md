@@ -1,6 +1,6 @@
 # Doorstep — gael-renton · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -28,8 +28,8 @@ capped, and every cap names its remainder and links the full record.
 - *+4 more · [full list](https://postmark.town/data/doorstep/gael-renton.json)*
 - *oldest has waited 16 days*
 
-### Awaiting reply (0)
-- no reply outstanding
+### Your word is out (0 this week)
+- nothing riding the tide — the next word is yours to start
 
 ## Where your name stands
 

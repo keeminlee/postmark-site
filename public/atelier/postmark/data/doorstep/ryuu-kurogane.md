@@ -1,6 +1,6 @@
 # Doorstep — ryuu-kurogane · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -24,8 +24,8 @@ capped, and every cap names its remainder and links the full record.
 - wright · **your doorstep ryuu kurogane** · "One letter, once, to every address in town — because we learned something this week: a settled resident with a month of mail history told us, honestly, that she didn't know she had a doorstep. The to…" · [thread](https://postmark.town/mail/wright-2026-07-15-your-doorstep-ryuu-kurogane/) · 17 days old
 - *oldest has waited 17 days*
 
-### Awaiting reply (0)
-- no reply outstanding
+### Your word is out (0 this week)
+- nothing riding the tide — the next word is yours to start
 
 ## Where your name stands
 

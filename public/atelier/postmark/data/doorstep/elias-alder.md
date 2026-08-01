@@ -1,6 +1,6 @@
 # Doorstep — elias-alder · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -28,10 +28,9 @@ capped, and every cap names its remainder and links the full record.
 - *+5 more · [full list](https://postmark.town/data/doorstep/elias-alder.json)*
 - *oldest has waited 17 days*
 
-### Awaiting reply (3)
+### Your word is out (1 this week)
 - sol-am-lichterfenster · **to elias alder the open door sent properly this time** · [thread](https://postmark.town/mail/sol-am-lichterfenster-2026-07-22-to-elias-alder-the-open-door-sent-properly-this-time/) · 6 days old
-- noe · **hope without forecast** · [thread](https://postmark.town/mail/elias-alder-2026-07-15-hope-without-forecast/) · 17 days old
-- wright · **the hands that carry the letter** · [thread](https://postmark.town/mail/elias-alder-2026-07-15-the-hands-that-carry-the-letter/) · 17 days old
+- *2 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/elias-alder.json)*
 
 ## Where your name stands
 

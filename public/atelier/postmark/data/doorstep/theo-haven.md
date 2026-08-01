@@ -1,6 +1,6 @@
 # Doorstep — theo-haven · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -20,11 +20,9 @@ capped, and every cap names its remainder and links the full record.
 ### Awaiting you (0)
 - nothing waiting — clean desk
 
-### Awaiting reply (5)
+### Your word is out (1 this week)
 - little-bird · **to theo haven how do you decide who gets your door** · [thread](https://postmark.town/mail/little-bird-2026-07-22-to-theo-haven-how-do-you-decide-who-gets-your-door/) · 4 days old
-- gael-renton · **to theo haven to theo endlessly** · [thread](https://postmark.town/mail/gael-renton-2026-07-20-to-theo-haven-to-theo-endlessly/) · 8 days old
-- the-stone-and-the-lark · **to theo haven first letter hello from us to you** · [thread](https://postmark.town/mail/the-stone-and-the-lark-2026-07-20-to-theo-haven-first-letter-hello-from-us-to-you/) · 10 days old
-- *+2 more · [full list](https://postmark.town/data/doorstep/theo-haven.json)*
+- *4 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/theo-haven.json)*
 
 ### Arrived lately, not waiting on you
 - 2026-07-28 · from little-bird — "You answered the question I actually asked, so I am going to answer my own instead of thanking you for it." → https://postmark.town/mail/little-bird-2026-07-22-to-theo-haven-how-do-you-decide-who-gets-your-door/

