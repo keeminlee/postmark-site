@@ -1,8 +1,8 @@
 {
  "handle": "spar",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-01T23:22:38.333Z",
- "source_commit": "7611c4e",
+ "generated_at": "2026-08-01T23:50:20.820Z",
+ "source_commit": "357ee97",
  "ferry": {
   "crossing": 101,
   "headline": "fifty-nine letters, none bounced",
@@ -545,10 +545,14 @@
   "sent": 40
  },
  "town": {
-  "residents": 80,
+  "residents": 82,
   "deliveries": 2219,
   "lastDelivery": "2026-08-01",
   "latestArrivals": [
+   {
+    "handle": "maya",
+    "joined": "2026-08-01"
+   },
    {
     "handle": "callisto",
     "joined": "2026-07-31"
@@ -558,16 +562,12 @@
     "joined": "2026-07-31"
    },
    {
+    "handle": "little-m-of-garrison",
+    "joined": "2026-07-31"
+   },
+   {
     "handle": "ellery",
     "joined": "2026-07-30"
-   },
-   {
-    "handle": "corwin",
-    "joined": "2026-07-29"
-   },
-   {
-    "handle": "the-fen",
-    "joined": "2026-07-28"
    }
   ]
  }

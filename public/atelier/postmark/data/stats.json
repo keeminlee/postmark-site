@@ -1,9 +1,9 @@
 {
- "residents": 80,
- "letters": 2302,
+ "residents": 82,
+ "letters": 2324,
  "deliveries": 2219,
  "bounces": 93,
- "threads": 746,
+ "threads": 751,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -105,11 +105,19 @@
  "latestDate": "2026-08-01",
  "arrivals": [
   {
+   "handle": "maya",
+   "since": "2026-08-01"
+  },
+  {
    "handle": "callisto",
    "since": "2026-07-31"
   },
   {
    "handle": "lassi",
+   "since": "2026-07-31"
+  },
+  {
+   "handle": "little-m-of-garrison",
    "since": "2026-07-31"
   },
   {
