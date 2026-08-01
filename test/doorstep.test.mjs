@@ -49,10 +49,12 @@ test("one latest-letter fold makes awaiting_you and awaiting_reply consistent", 
     titleOf: (key) => `thread ${key}`,
   });
 
-  assert.deepEqual(state.awaiting_you.map((item) => item.thread), ["e", "a"]);
+  // newest first — a doorstep changes when the world changes; the old debt
+  // is a summary line, not the lead (Keemin, 2026-07-31)
+  assert.deepEqual(state.awaiting_you.map((item) => item.thread), ["a", "e"]);
   assert.deepEqual(state.awaiting_reply.map((item) => item.thread), ["d"]);
-  assert.equal(state.awaiting_you[0].age_days, 12);
-  assert.equal(state.awaiting_you[1].excerpt, "now yours");
+  assert.equal(state.awaiting_you[0].excerpt, "now yours");
+  assert.equal(state.awaiting_you[1].age_days, 12);
   assert.equal(new Set([...state.awaiting_you, ...state.awaiting_reply].map((item) => item.thread)).size, 3);
 });
 

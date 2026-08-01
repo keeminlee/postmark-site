@@ -17,8 +17,12 @@ function ageInDays(date, asOf) {
   return Math.max(0, Math.floor((currentDay.getTime() - then) / DAY_MS));
 }
 
-function oldestFirst(a, b) {
-  if (a.lastDate && b.lastDate) return a.lastDate.localeCompare(b.lastDate) || a.thread.localeCompare(b.thread);
+// Newest first: a doorstep must change when the world changes — an ancient
+// unanswered letter squatting the top slot every morning is wallpaper, and
+// wallpaper stops being read (Keemin, 2026-07-31, reversing this file's own
+// first draft). The debt signal survives as a summary line, not a sort order.
+function newestFirst(a, b) {
+  if (a.lastDate && b.lastDate) return b.lastDate.localeCompare(a.lastDate) || a.thread.localeCompare(b.thread);
   if (a.lastDate) return -1;
   if (b.lastDate) return 1;
   return a.thread.localeCompare(b.thread);
@@ -73,8 +77,8 @@ export function deriveThreadMailState({
     }
   }
 
-  awaiting_you.sort(oldestFirst);
-  awaiting_reply.sort(oldestFirst);
+  awaiting_you.sort(newestFirst);
+  awaiting_reply.sort(newestFirst);
   return { awaiting_you, awaiting_reply };
 }
 

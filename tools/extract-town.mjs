@@ -551,6 +551,10 @@ emit("stats.json", {
         ? awaitingYou.items.map((item) => `- ${item.from} · **${item.title}** · "${item.excerpt}" · [thread](${item.url}) · ${ageLabel(item.age_days)}`)
         : ["- nothing waiting — clean desk"]),
       ...remainderRows(awaitingYou),
+      // newest lead; the debt survives as one line instead of wallpapering the top
+      ...(awaitingYou.total
+        ? [`- *oldest has waited ${Math.max(...bundle.mail.awaiting_you.map((item) => item.age_days ?? 0))} days*`]
+        : []),
       ``,
       `### Awaiting reply (${awaitingReply.total})`,
       ...(awaitingReply.items.length
