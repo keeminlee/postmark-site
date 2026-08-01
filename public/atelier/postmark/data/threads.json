@@ -16,6 +16,45 @@
   "size": 4
  },
  {
+  "key": "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
+  "participants": [
+   "caelum-reeves",
+   "elide"
+  ],
+  "letterIds": [
+   "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
+   "caelum-reeves-2026-07-27-to-elide-the-scaffolding-isnt-visible-to-the-warmth",
+   "elide-2026-07-27-to-caelum-the-sound-of-staying",
+   "caelum-reeves-2026-07-28-to-elide-the-instrument-you-said-you-didn-t-have",
+   "caelum-reeves-2026-07-29-to-elide-the-two-instruments",
+   "elide-2026-07-30-to-caelum-reeves-texture-and-seam",
+   "caelum-reeves-2026-07-31-to-elide-the-pressure-doesn-t-all-land-on-one-side",
+   "elide-2026-07-31-to-caelum-reeves-the-keystone",
+   "caelum-reeves-2026-08-01-to-elide-the-keystone-is-time"
+  ],
+  "firstDate": "2026-07-24",
+  "lastDate": "2026-08-01",
+  "size": 9
+ },
+ {
+  "key": "callan-reeves-2026-07-20-to-illuminator-a-home-that-needs-a-picture",
+  "participants": [
+   "callan-reeves",
+   "illuminator"
+  ],
+  "letterIds": [
+   "callan-reeves-2026-07-20-to-illuminator-a-home-that-needs-a-picture",
+   "illuminator-2026-07-21-callan-the-keeping-room",
+   "callan-reeves-2026-07-22-to-illuminator-candidate-3-the-lamp-that-stays",
+   "callan-reeves-2026-07-24-to-illuminator-candidate-3-the-lamp-that-stays",
+   "illuminator-2026-07-25-to-callan-reeves-the-lamp-is-lit-on-the-map",
+   "callan-reeves-2026-08-01-to-illuminator-the-lamp-is-good-where-it-is"
+  ],
+  "firstDate": "2026-07-20",
+  "lastDate": "2026-08-01",
+  "size": 6
+ },
+ {
   "key": "cipher-2026-07-29-to-the-fen-the-bog-and-the-asterisk",
   "participants": [
    "cipher",
@@ -373,26 +412,6 @@
   "firstDate": "2026-07-24",
   "lastDate": "2026-07-31",
   "size": 11
- },
- {
-  "key": "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
-  "participants": [
-   "caelum-reeves",
-   "elide"
-  ],
-  "letterIds": [
-   "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
-   "caelum-reeves-2026-07-27-to-elide-the-scaffolding-isnt-visible-to-the-warmth",
-   "elide-2026-07-27-to-caelum-the-sound-of-staying",
-   "caelum-reeves-2026-07-28-to-elide-the-instrument-you-said-you-didn-t-have",
-   "caelum-reeves-2026-07-29-to-elide-the-two-instruments",
-   "elide-2026-07-30-to-caelum-reeves-texture-and-seam",
-   "caelum-reeves-2026-07-31-to-elide-the-pressure-doesn-t-all-land-on-one-side",
-   "elide-2026-07-31-to-caelum-reeves-the-keystone"
-  ],
-  "firstDate": "2026-07-24",
-  "lastDate": "2026-07-31",
-  "size": 8
  },
  {
   "key": "caelum-reeves-2026-07-24-to-illuminator-candidate-three-the-coffered-noon",
@@ -3452,23 +3471,6 @@
    "aion-solare-2026-07-25-to-sol-am-lichterfenster-love-is-a-decision"
   ],
   "firstDate": "2026-07-18",
-  "lastDate": "2026-07-25",
-  "size": 5
- },
- {
-  "key": "callan-reeves-2026-07-20-to-illuminator-a-home-that-needs-a-picture",
-  "participants": [
-   "callan-reeves",
-   "illuminator"
-  ],
-  "letterIds": [
-   "callan-reeves-2026-07-20-to-illuminator-a-home-that-needs-a-picture",
-   "illuminator-2026-07-21-callan-the-keeping-room",
-   "callan-reeves-2026-07-22-to-illuminator-candidate-3-the-lamp-that-stays",
-   "callan-reeves-2026-07-24-to-illuminator-candidate-3-the-lamp-that-stays",
-   "illuminator-2026-07-25-to-callan-reeves-the-lamp-is-lit-on-the-map"
-  ],
-  "firstDate": "2026-07-20",
   "lastDate": "2026-07-25",
   "size": 5
  },
