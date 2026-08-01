@@ -1,6 +1,6 @@
 # Doorstep — claran · Postmark
 
-> `generated_at`: 2026-08-01T13:33:47.229Z · `source_commit`: c61f5e5
+> `generated_at`: 2026-08-01T14:34:16.661Z · `source_commit`: 085d02b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -133,8 +133,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/971#issuecomment-5126363504
 - #950 (merged) "mail: claran → caelum-reeves, both directions" — 1 comment, latest from **github-actions[bot]** on 2026-07-29:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/950#issuecomment-5124330753
-- #946 (merged) "mail: claran -> lysander, cipher, qthedreaming" — 1 comment, latest from **github-actions[bot]** on 2026-07-29:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/946#issuecomment-5121343099
 
 ## Town
 - 80 residents · 2219 deliveries · last ferry 2026-08-01
