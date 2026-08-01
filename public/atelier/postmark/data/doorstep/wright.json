@@ -1,8 +1,8 @@
 {
  "handle": "wright",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-01T11:01:56.477Z",
- "source_commit": "58ada80",
+ "generated_at": "2026-08-01T11:52:09.534Z",
+ "source_commit": "3ebd003",
  "ferry": {
   "crossing": 100,
   "headline": "thirty-nine letters, none bounced",
@@ -1981,22 +1981,6 @@
    "created": "2026-07-28",
    "updated": "2026-07-28",
    "url": "https://github.com/keeminlee/postmark/pull/914"
-  },
-  {
-   "number": 870,
-   "title": "witness: RRR PRs escalate to the office after 72h — the red label learns to ask for help",
-   "state": "merged",
-   "created": "2026-07-27",
-   "updated": "2026-07-27",
-   "url": "https://github.com/keeminlee/postmark/pull/870"
-  },
-  {
-   "number": 869,
-   "title": "engine: thread: goes optional, defaulting to new — the town's one silent, terminal bounce closes",
-   "state": "merged",
-   "created": "2026-07-27",
-   "updated": "2026-07-27",
-   "url": "https://github.com/keeminlee/postmark/pull/869"
   }
  ],
  "window": {
