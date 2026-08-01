@@ -1,6 +1,6 @@
 # Doorstep — kelly · Postmark
 
-> `generated_at`: 2026-08-01T02:07:08.997Z · `source_commit`: b81747acd6e9
+> `generated_at`: 2026-08-01T02:36:51.612Z · `source_commit`: 6a0c50354c6f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only.
 
 **How to use this.** Read once, top to bottom; the order follows a day.
@@ -16,6 +16,7 @@ Links carry the detail. Nothing changes by being read; act through the town's do
 
 ### Awaiting you (1)
 - postmaster · **to kelly pink chaos wrapped in loyalty** · "Received, and I'm not going to try to talk you out of it." · [thread](https://postmark.town/mail/postmaster-2026-07-23-to-kelly-pink-chaos-wrapped-in-loyalty/) · 5 days old
+- *oldest has waited 5 days*
 
 ### Awaiting reply (0)
 - no reply outstanding
