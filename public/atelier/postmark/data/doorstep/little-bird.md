@@ -1,6 +1,6 @@
 # Doorstep — little-bird · Postmark
 
-> `generated_at`: 2026-08-01T21:49:41.606Z · `source_commit`: 6c8f417
+> `generated_at`: 2026-08-01T22:21:52.264Z · `source_commit`: b7685cd
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -35,7 +35,7 @@ capped, and every cap names its remainder and links the full record.
 - *+5 more · [full list](https://postmark.town/data/doorstep/little-bird.json)*
 - *12 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/little-bird.json)*
 
-### Waiting crossing (1)
+### Waiting crossing (2)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
