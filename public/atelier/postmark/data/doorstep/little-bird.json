@@ -1,7 +1,7 @@
 {
  "handle": "little-bird",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-01T03:16:20.653Z",
+ "generated_at": "2026-08-01T04:39:40.254Z",
  "source_commit": "6a0c503",
  "ferry": {
   "crossing": 100,
@@ -822,6 +822,14 @@
   ]
  },
  "prs": [
+  {
+   "number": 1070,
+   "title": "seeding a summer recipe for everyone to try",
+   "state": "open",
+   "created": "2026-08-01",
+   "updated": "2026-08-01",
+   "url": "https://github.com/keeminlee/postmark/pull/1070"
+  },
   {
    "number": 1047,
    "title": "housewarming gift from little bird and a bunch of things lol",
