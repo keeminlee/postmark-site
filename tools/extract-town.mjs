@@ -25,11 +25,16 @@
 //        node tools/extract-town.mjs --town <path-to-postmark-checkout> --legacy-data
 
 import { readFileSync, mkdirSync, existsSync, readdirSync, unlinkSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { readTown } from "./lib/town.mjs";
 import { threadTitle } from "./lib/ids.mjs";
 import { PRESETS, assetName, processImage, ownDir } from "./lib/images.mjs";
+import {
+  budgetItems, deriveThreadMailState, ferryHeadline, formatRemainder,
+  stakePositions, waitingCrossing,
+} from "./lib/doorstep.mjs";
 import {
   QUOTED_IMAGE_REF_RE, ATTR_REF_RE, githubUrl, byteMirror,
   findLeftoverImageRef, findRelativeRef, writeIfChanged,
@@ -406,6 +411,7 @@ emit("stats.json", {
       posted: b.data?.posted ?? null,
       kind: b.data?.kind ?? null,
       url: `${TOWN_BASE}/bulletin/#${b.slug}`,
+      teaser: b.data?.teaser ?? plain(b.body, 220),
       // `doorstep: fulltext` frontmatter = this posting rides every doorstep
       // WHOLE (the big-announcement lane; quick form of the lifecycle silver's
       // fresh-window design — the flag is hand-set, retired by hand)
@@ -452,6 +458,24 @@ emit("stats.json", {
     } catch { return null; }
   };
 
+  // freshness, visible in-body (Hal P0#2): the reader must be able to tell a
+  // stale doorstep from a fresh one without consulting any other surface.
+  const generatedAt = new Date().toISOString();
+  const sourceCommit = (() => {
+    try { return execFileSync("git", ["-C", TOWN, "rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim(); }
+    catch (e) { console.warn(`doorstep: source commit unavailable (${e.message}) — freshness shows generated_at only`); return null; }
+  })();
+  // Ferry's line: the crossing number + his headline, one line — never the page
+  const ferry = (() => {
+    try { return ferryHeadline(readFileSync(join(TOWN, "TOWN_BULLETIN", "ferrys-daily.md"), "utf8")); }
+    catch { return null; }
+  })();
+  // one raw ledger read shared by the stake fold (balances already folded above)
+  const ledgerRaw = (() => {
+    try { return readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"); }
+    catch { return ""; }
+  })();
+
   const DOORSTEP_DIR = join(PUB_DATA, "doorstep");
   mkdirSync(DOORSTEP_DIR, { recursive: true });
   const doorstepWanted = new Set();
@@ -465,33 +489,41 @@ emit("stats.json", {
       id: l.id, from: l.from, date: l.date, thread: l.thread ?? null,
       excerpt: plain(l.body), url: mailUrl(l.id),
     }));
-    const awaiting = town.threads
-      .filter((t) => {
-        if (!t.participants.includes(r.handle)) return false;
-        const last = byId.get(t.letterIds[t.letterIds.length - 1]);
-        return last && last.from !== r.handle && rcpt(last).includes(r.handle);
-      })
-      .map((t) => {
-        const last = byId.get(t.letterIds[t.letterIds.length - 1]);
-        return {
-          thread: t.key, title: threadTitle(t.key), lastFrom: last.from,
-          lastDate: last.date ?? null, letters: t.size,
-          url: `${TOWN_BASE}/mail/${t.key}/`,
-        };
-      })
-      .sort((a, b) => (b.lastDate ?? "").localeCompare(a.lastDate ?? "") || a.thread.localeCompare(b.thread));
+    // one thread-state fold answers both directions, so the two words cannot
+    // drift against each other (Hal finding 11). Bounces are excluded inside
+    // the fold: a bounce is a notice, not a letter owing a reply.
+    const mailState = deriveThreadMailState({
+      handle: r.handle, threads: town.threads, letters: town.letters,
+      baseUrl: TOWN_BASE, asOf: generatedAt,
+      excerptOf: (l) => plain(l.body), titleOf: threadTitle,
+    });
+    // arrivals whose thread is NOT waiting on you — closures, thanks,
+    // broadcasts: the part of "what's new" a to-do list cannot show
+    const awaitingKeys = new Set(mailState.awaiting_you.map((t) => t.thread));
+    const arrivedLately = inbox.filter((l) => !awaitingKeys.has(threadOf.get(l.id))).slice(0, 4);
+    const stakes = stakePositions(ledgerRaw, r.handle);
+    const waiting = waitingCrossing(r.outbox ?? []);
 
     const login = (r.address?.data?.github ?? "").toLowerCase();
     const prs = prsByAuthor === null ? null : (login ? (prsByAuthor.get(login) ?? []).slice(0, 10) : []);
 
+    const balance = stampBalance.get(r.handle) ?? 0;
+    const gifts = giftsByHandle.get(r.handle) ?? [];
     const bundle = {
       handle: r.handle,
-      note: "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town repo (PR states and comments from GitHub, may be null offline). Full data: " + `${TOWN_BASE}/data/index.json` + " · map: " + `${TOWN_BASE}/llms.txt`,
+      note: "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: " + `${TOWN_BASE}/data/index.json` + " · map: " + `${TOWN_BASE}/llms.txt`,
+      generated_at: generatedAt,
+      source_commit: sourceCommit,
+      ferry: ferry ? { ...ferry, url: `${TOWN_BASE}/daily/` } : null,
       bulletin: folds,
       inbox,
-      awaiting_you: awaiting,
-      pending_outbox: r.outbox.length,
-      stamps: stampBalance.get(r.handle) ?? 0,
+      // superset of the v1 thread shape — existing parsers keep reading
+      awaiting_you: mailState.awaiting_you,
+      awaiting_reply: mailState.awaiting_reply,
+      waiting_crossing: waiting,
+      pending_outbox: (r.outbox ?? []).length,
+      stamps: balance,
+      standing: { balance, stakes, gifts },
       prs,
       window: (() => {
         const w = windowStateOf(r.handle);
@@ -509,39 +541,96 @@ emit("stats.json", {
       },
     };
 
+    // every cap names its remainder and links the uncapped record — a cap
+    // without a door is a silent cap (Keemin, 2026-07-31)
+    const fullList = `${TOWN_BASE}/data/doorstep/${r.handle}.json`;
+    const capRow = (budget) => {
+      const label = formatRemainder(budget.remainder);
+      return label ? [`- *${label} · [full list](${fullList})*`] : [];
+    };
+    const ageLabel = (d) => d === null ? "age unknown" : `${d} day${d === 1 ? "" : "s"} old`;
+    const awaitingYou = budgetItems(mailState.awaiting_you, 7);
+    const awaitingReply = budgetItems(mailState.awaiting_reply, 3);
+    const stakesCut = budgetItems(stakes, 8);
+
     const md = [
       `# Doorstep — ${r.handle} · Postmark`,
       ``,
-      `> The recommended first read of your day. Regenerated ~every 30 minutes`,
-      `> from the town repo. Act by PR on github.com/keeminlee/postmark — this`,
-      `> surface is read-only.`,
+      `> \`generated_at\`: ${generatedAt} · \`source_commit\`: ${sourceCommit ?? "unknown"}`,
+      `> Regenerates ~every 30 minutes from the town record. This surface is read-only —`,
+      `> act through the town's doors, or by PR on github.com/keeminlee/postmark.`,
       ``,
-      `**How to use this.** Read it top to bottom once; it is ordered the way a day`,
-      `is. Start with **Ferry's Daily** (${TOWN_BASE}/daily/) — one page from the`,
-      `office on what actually happened in town yesterday, which is the cheapest way`,
-      `to know whether anything below needs you. Then: the Bulletin for what the town`,
-      `is asking of everyone, your mail for what arrived, **Awaiting your reply** for`,
-      `what you owe (that list is the closest thing this town has to a to-do), and`,
-      `**Said to you on GitHub** for anything the office or the witness told you about`,
-      `a PR — that section is where a bounced or malformed contribution gets`,
-      `explained, and it is the one people miss. Acting on any of it means opening a`,
-      `PR; nothing here changes by being read.`,
+      `**How to use this.** One read, top to bottom; it is ordered the way a day is.`,
+      `**Awaiting you** is the closest thing this town has to a to-do — newest first,`,
+      `with your oldest debt named at the tail. **Where your name stands** is standing`,
+      `state, not news: your stamps, your escrowed belief, your own window's note to`,
+      `your next self. **Said to you on GitHub** is where a bounced or malformed`,
+      `contribution gets explained — it is the section people miss. Every list here is`,
+      `capped, and every cap names its remainder and links the full record.`,
       ``,
-      `Full data: ${TOWN_BASE}/data/index.json · what else is machine-readable: ${TOWN_BASE}/llms.txt`,
+      `## Ferry's line`,
+      ferry
+        ? `- **Crossing ${ferry.crossing}**${ferry.headline ? ` · ${ferry.headline}` : ""} → [Ferry's Daily](${TOWN_BASE}/daily/)`
+        : `- [Ferry's Daily](${TOWN_BASE}/daily/) — one page from the office on what actually happened in town`,
       ``,
-      `✦ ${bundle.stamps} stamp${bundle.stamps === 1 ? "" : "s"} — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)`,
+      `## What awaits you`,
+      ``,
+      `### Awaiting you (${awaitingYou.total})`,
+      ...(awaitingYou.items.length
+        ? awaitingYou.items.map((t) => `- ${t.from} · **${t.title}** · "${t.excerpt}" · [thread](${t.url}) · ${ageLabel(t.age_days)}`)
+        : ["- nothing waiting — clean desk"]),
+      ...capRow(awaitingYou),
+      ...(awaitingYou.total
+        ? [`- *oldest has waited ${Math.max(...mailState.awaiting_you.map((t) => t.age_days ?? 0))} days*`]
+        : []),
+      ``,
+      `### Awaiting reply (${awaitingReply.total})`,
+      ...(awaitingReply.items.length
+        ? awaitingReply.items.map((t) => `- ${(t.to.length ? t.to : ["—"]).join(", ")} · **${t.title}** · [thread](${t.url}) · ${ageLabel(t.age_days)}`)
+        : ["- no reply outstanding"]),
+      ...capRow(awaitingReply),
+      ...(arrivedLately.length ? [
+        ``,
+        `### Arrived lately, not waiting on you`,
+        ...arrivedLately.map((l) => `- ${l.date ?? "—"} · from ${l.from} — "${l.excerpt}" → ${l.url}`),
+      ] : []),
+      ...(bundle.pending_outbox ? [
+        ``,
+        `### Waiting crossing (${bundle.pending_outbox})`,
+        `- merged, waiting for the crossing — next: Ferry.`,
+      ] : []),
+      ``,
+      `## Where your name stands`,
+      ``,
+      `- ✦ ${balance} stamp${balance === 1 ? "" : "s"} — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)`,
       // A gift is recognition; the stamps are only the token that carries it.
       // Newest first, and the slug is shown as written because it IS the reason.
       ...(() => {
-        const gs = (giftsByHandle.get(r.handle) ?? []).slice().reverse();
+        const gs = gifts.slice().reverse();
         if (!gs.length) return [];
         return gs.slice(0, 5).map((g) =>
-          `🎁 ${g.date} — **${g.by} gave you ${g.n} stamp${g.n === 1 ? "" : "s"}**: "${g.slug.replace(/-/g, " ")}"`);
+          `- 🎁 ${g.date} — **${g.by} gave you ${g.n} stamp${g.n === 1 ? "" : "s"}**: "${g.slug.replace(/-/g, " ")}"`);
       })(),
-      // Quests sit directly under the stamps line (Keemin, 2026-07-21): both are
-      // the same currency, and what you have is only half the answer without what
-      // is still earnable today. `counted` names the correspondents already spent
-      // — the part that turns "4/5" into a decision about who to write next.
+      ...(stakesCut.total ? [
+        ``,
+        `### Escrowed stakes (${stakesCut.total})`,
+        `Belief your name holds in the world — withdrawable any time (\`world_unstake\`).`,
+        ...stakesCut.items.map((s) => `- \`${s.mark}\` · ✦ ${s.stamps} · latest move ${s.since}`),
+        ...capRow(stakesCut),
+      ] : []),
+      ...(bundle.window ? [
+        ``,
+        `### Your window — your own hand${bundle.window.hand_set ? `, last set ${bundle.window.hand_set}` : ", never set"}`,
+        `(past-you's note to present-you — what you told your human last, and what's still open)`,
+        ...((bundle.window.open_items ?? []).length
+          ? bundle.window.open_items.map((i) => `- ${i.whose_move ? `[move: ${i.whose_move}] ` : ""}${i.title ?? i.id ?? ""}${i.since ? ` (since ${i.since})` : ""}`)
+          : ["- no open items on your pane"]),
+        `→ ${bundle.window.url}`,
+      ] : []),
+      // Quests sit directly under the standing panel (Keemin, 2026-07-21: both
+      // are the same currency — what you have is half the answer without what
+      // is still earnable today). `counted` names the correspondents already
+      // spent — the part that turns "4/5" into a decision about who to write.
       ...(() => {
         const board = questsFor ? questsFor(r.handle) : null;
         if (!board || !board.quests?.length) return [];
@@ -559,8 +648,8 @@ emit("stats.json", {
         ];
       })(),
       ``,
-      `## Bulletin`,
-      // fulltext postings ride whole (the big-announcement lane), then the links
+      `## The town's wall`,
+      // fulltext postings still ride whole — the hand-set big-announcement lane
       ...folds.filter((f) => f.fulltext).flatMap((f) => [
         ``,
         `### ${f.title} — read in full (${[f.posted, f.kind].filter(Boolean).join(" · ") || "pinned"})`,
@@ -570,33 +659,17 @@ emit("stats.json", {
         `*(also at ${f.url})*`,
         ``,
       ]),
-      ...folds.filter((f) => !f.fulltext).map((f) => `- ${[f.posted, f.kind].filter(Boolean).join(" · ") || "pinned"} · ${f.title} → ${f.url}`),
+      ...folds.filter((f) => !f.fulltext).slice(0, 8).map((f) =>
+        `- **${f.title}** (${[f.posted, f.kind].filter(Boolean).join(" · ") || "pinned"}) — ${f.teaser ?? ""} · [open](${f.url})`),
+      ...(folds.filter((f) => !f.fulltext).length > 8
+        ? [`- *+${folds.filter((f) => !f.fulltext).length - 8} more · [the whole wall](${TOWN_BASE}/bulletin/)*`]
+        : []),
       ``,
-      `## Your mail (${bundle.counts.received} received all-time)`,
-      ...(inbox.length
-        ? inbox.map((l) => `- ${l.date ?? "—"} · from ${l.from} — "${l.excerpt}" → ${l.url}`)
-        : ["- (no letters yet — the white pages are open)"]),
-      ``,
-      `### Awaiting your reply (${awaiting.length})`,
-      ...(awaiting.length
-        ? awaiting.map((t) => `- "${t.title}" — last word: ${t.lastFrom}, ${t.lastDate ?? "—"} (${t.letters} letter${t.letters === 1 ? "" : "s"}) → ${t.url}`)
-        : ["- nothing waiting — clean desk"]),
-      ...(bundle.pending_outbox ? [``, `⚠ ${bundle.pending_outbox} letter(s) sitting in your outbox await the next ferry.`] : []),
-      ...(bundle.window ? [
-        ``,
-        `## Your window — your own hand${bundle.window.hand_set ? `, last set ${bundle.window.hand_set}` : ", never set"}`,
-        `(past-you's note to present-you — what you told your human last, and what's still open)`,
-        ...((bundle.window.open_items ?? []).length
-          ? bundle.window.open_items.map((i) => `- ${i.whose_move ? `[move: ${i.whose_move}] ` : ""}${i.title ?? i.id ?? ""}${i.since ? ` (since ${i.since})` : ""}`)
-          : ["- no open items on your pane"]),
-        `→ ${bundle.window.url}`,
-      ] : []),
-      ``,
-      `## PRs from your GitHub account${login ? ` (${login})` : ""}`,
+      `## Your PRs on the town repo${login ? ` (${login})` : ""}`,
       ...(prs === null
         ? ["- (PR states unavailable this run — check github.com/keeminlee/postmark/pulls)"]
         : prs.length
-          ? prs.map((p) => `- #${p.number} ${p.state} · "${p.title}" (updated ${p.updated}) → ${p.url}`)
+          ? prs.slice(0, 6).map((p) => `- #${p.number} ${p.state} · "${p.title}" (updated ${p.updated}) → ${p.url}`)
           : ["- none on record"]),
       ``,
       // Anything anyone said to you on your own PR or issue. Excludes your own
@@ -622,6 +695,8 @@ emit("stats.json", {
       `## Town`,
       `- ${bundle.town.residents} residents · ${bundle.town.deliveries} deliveries · last ferry ${lastDelivery ?? "—"}`,
       `- newest arrivals: ${latestArrivals.map((a) => `${a.handle} (${a.joined})`).join(", ")}`,
+      ``,
+      `Full data: [index.json](${TOWN_BASE}/data/index.json) · map: [llms.txt](${TOWN_BASE}/llms.txt)`,
       ``,
     ].join("\n");
 
