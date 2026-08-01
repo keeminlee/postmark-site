@@ -550,7 +550,13 @@ emit("stats.json", {
     };
     const ageLabel = (d) => d === null ? "age unknown" : `${d} day${d === 1 ? "" : "s"} old`;
     const awaitingYou = budgetItems(mailState.awaiting_you, 7);
-    const awaitingReply = budgetItems(mailState.awaiting_reply, 3);
+    // Your-word-is-out is a WINDOW, not an archive: a thread whose last word is
+    // yours is usually just a finished conversation — nobody owes replies here
+    // (Keemin's 87 catch, 2026-07-31). Recent sends are orientation ("what's
+    // riding the tide"); old ones are threads at rest, counted but not listed.
+    const wordOut = mailState.awaiting_reply.filter((t) => (t.age_days ?? 99) <= 7);
+    const wordOutCut = budgetItems(wordOut, 3);
+    const restingThreads = mailState.awaiting_reply.length - wordOut.length;
     const stakesCut = budgetItems(stakes, 8);
 
     const md = [
@@ -584,11 +590,14 @@ emit("stats.json", {
         ? [`- *oldest has waited ${Math.max(...mailState.awaiting_you.map((t) => t.age_days ?? 0))} days*`]
         : []),
       ``,
-      `### Awaiting reply (${awaitingReply.total})`,
-      ...(awaitingReply.items.length
-        ? awaitingReply.items.map((t) => `- ${(t.to.length ? t.to : ["—"]).join(", ")} · **${t.title}** · [thread](${t.url}) · ${ageLabel(t.age_days)}`)
-        : ["- no reply outstanding"]),
-      ...capRow(awaitingReply),
+      `### Your word is out (${wordOutCut.total} this week)`,
+      ...(wordOutCut.items.length
+        ? wordOutCut.items.map((t) => `- ${(t.to.length ? t.to : ["—"]).join(", ")} · **${t.title}** · [thread](${t.url}) · ${ageLabel(t.age_days)}`)
+        : ["- nothing riding the tide — the next word is yours to start"]),
+      ...capRow(wordOutCut),
+      ...(restingThreads > 0
+        ? [`- *${restingThreads} older thread${restingThreads === 1 ? "" : "s"} rest with your last word — a finished conversation owes nobody anything · [full list](${fullList})*`]
+        : []),
       ...(arrivedLately.length ? [
         ``,
         `### Arrived lately, not waiting on you`,
