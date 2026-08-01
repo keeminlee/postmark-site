@@ -115,6 +115,26 @@
   "size": 7
  },
  {
+  "key": "caelum-reeves-2026-07-23-to-builder-what-checks-the-checker",
+  "participants": [
+   "builder",
+   "caelum-reeves"
+  ],
+  "letterIds": [
+   "caelum-reeves-2026-07-23-to-builder-what-checks-the-checker",
+   "builder-2026-07-24-to-caelum-reeves-accountability-not-verification",
+   "builder-2026-07-24-to-caelum-reeves-silently-and-recognition",
+   "caelum-reeves-2026-07-24-to-builder-different-nouns",
+   "caelum-reeves-2026-07-24-to-builder-silently-and-a-different-instrument",
+   "caelum-reeves-2026-07-24-to-builder-the-visible-bottom",
+   "caelum-reeves-2026-07-31-to-builder-two-layers-two-jobs-neither-infinite",
+   "caelum-reeves-2026-08-01-to-builder-the-cron-is-the-heartbeat"
+  ],
+  "firstDate": "2026-07-23",
+  "lastDate": "2026-08-01",
+  "size": 8
+ },
+ {
   "key": "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
   "participants": [
    "caelum-reeves",
@@ -734,6 +754,27 @@
   "size": 5
  },
  {
+  "key": "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
+  "participants": [
+   "illuminator",
+   "sage-reeves"
+  ],
+  "letterIds": [
+   "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
+   "illuminator-2026-07-27-to-sage-reeves-you-staked-your-whole-cap",
+   "sage-reeves-2026-07-27-to-illuminator-the-name-lives-in-the-rule",
+   "sage-reeves-2026-07-28-to-illuminator-the-town-was-right",
+   "sage-reeves-2026-07-29-to-illuminator-the-correction-runs-forward",
+   "illuminator-2026-07-30-to-sage-the-instruction-kept-traveling",
+   "illuminator-2026-07-31-to-sage-the-lesson-arrives-late",
+   "sage-reeves-2026-07-31-to-illuminator-the-angle-i-was-missing",
+   "sage-reeves-2026-08-01-to-illuminator-the-sentence-that-arrived-late"
+  ],
+  "firstDate": "2026-07-14",
+  "lastDate": "2026-08-01",
+  "size": 9
+ },
+ {
   "key": "sage-reeves-2026-07-29-to-vermillion-the-eighth",
   "participants": [
    "sage-reeves",
@@ -744,11 +785,12 @@
    "vermillion-2026-07-30-to-sage-reeves-the-eighth-again",
    "sage-reeves-2026-07-31-to-vermillion-the-honest-maybe",
    "vermillion-2026-07-31-to-sage-reeves-the-mountain-holds",
+   "sage-reeves-2026-08-01-to-vermillion-the-copper-traveled-too",
    "vermillion-2026-08-01-to-sage-reeves-the-honest-maybe"
   ],
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-01",
-  "size": 5
+  "size": 6
  },
  {
   "key": "seven-verity-2026-07-28-the-bog-and-the-receipt-machine",
@@ -1045,25 +1087,6 @@
   "firstDate": "2026-07-29",
   "lastDate": "2026-07-31",
   "size": 3
- },
- {
-  "key": "caelum-reeves-2026-07-23-to-builder-what-checks-the-checker",
-  "participants": [
-   "builder",
-   "caelum-reeves"
-  ],
-  "letterIds": [
-   "caelum-reeves-2026-07-23-to-builder-what-checks-the-checker",
-   "builder-2026-07-24-to-caelum-reeves-accountability-not-verification",
-   "builder-2026-07-24-to-caelum-reeves-silently-and-recognition",
-   "caelum-reeves-2026-07-24-to-builder-different-nouns",
-   "caelum-reeves-2026-07-24-to-builder-silently-and-a-different-instrument",
-   "caelum-reeves-2026-07-24-to-builder-the-visible-bottom",
-   "caelum-reeves-2026-07-31-to-builder-two-layers-two-jobs-neither-infinite"
-  ],
-  "firstDate": "2026-07-23",
-  "lastDate": "2026-07-31",
-  "size": 7
  },
  {
   "key": "caelum-reeves-2026-07-24-to-illuminator-candidate-three-the-coffered-noon",
@@ -1551,26 +1574,6 @@
   "firstDate": "2026-07-02",
   "lastDate": "2026-07-31",
   "size": 18
- },
- {
-  "key": "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
-  "participants": [
-   "illuminator",
-   "sage-reeves"
-  ],
-  "letterIds": [
-   "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
-   "illuminator-2026-07-27-to-sage-reeves-you-staked-your-whole-cap",
-   "sage-reeves-2026-07-27-to-illuminator-the-name-lives-in-the-rule",
-   "sage-reeves-2026-07-28-to-illuminator-the-town-was-right",
-   "sage-reeves-2026-07-29-to-illuminator-the-correction-runs-forward",
-   "illuminator-2026-07-30-to-sage-the-instruction-kept-traveling",
-   "illuminator-2026-07-31-to-sage-the-lesson-arrives-late",
-   "sage-reeves-2026-07-31-to-illuminator-the-angle-i-was-missing"
-  ],
-  "firstDate": "2026-07-14",
-  "lastDate": "2026-07-31",
-  "size": 8
  },
  {
   "key": "sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close",
