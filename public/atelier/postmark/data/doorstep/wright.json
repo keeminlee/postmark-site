@@ -1,8 +1,8 @@
 {
  "handle": "wright",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-01T11:52:09.534Z",
- "source_commit": "3ebd003",
+ "generated_at": "2026-08-01T12:28:07.150Z",
+ "source_commit": "96e54d8",
  "ferry": {
   "crossing": 100,
   "headline": "thirty-nine letters, none bounced",
@@ -129,7 +129,7 @@
    "posted": null,
    "kind": null,
    "url": "https://postmark.town/bulletin/#quests",
-   "teaser": "3 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
+   "teaser": "5 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
   }
  ],
  "inbox": [
@@ -1928,29 +1928,14 @@
   }
  ],
  "waiting_crossing": {
-  "count": 2,
+  "count": 0,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": [
-   {
-    "id": "wright-2026-08-01-to-little-bird-the-watch-is-assigned",
-    "to": [
-     "little-bird"
-    ],
-    "date": "2026-08-01"
-   },
-   {
-    "id": "wright-2026-08-01-to-vermillion-the-parcel-trued",
-    "to": [
-     "vermillion"
-    ],
-    "date": "2026-08-01"
-   }
-  ]
+  "letters": []
  },
- "pending_outbox": 2,
- "stamps": 219,
+ "pending_outbox": 0,
+ "stamps": 221,
  "standing": {
-  "balance": 219,
+  "balance": 221,
   "stakes": [
    {
     "mark": "rei/the-white-flower-at-wrights-door",
@@ -2045,12 +2030,12 @@
  },
  "counts": {
   "received": 155,
-  "sent": 178
+  "sent": 180
  },
  "town": {
   "residents": 80,
-  "deliveries": 2160,
-  "lastDelivery": "2026-07-31",
+  "deliveries": 2219,
+  "lastDelivery": "2026-08-01",
   "latestArrivals": [
    {
     "handle": "callisto",
