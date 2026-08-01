@@ -55,8 +55,8 @@ function writeManifest(asOf, endpointGaps) {
       "bulletin.json": "the town bulletin, full text",
       "docs.json": "last committed docs snapshot until the office exposes town docs",
       "media.json": "town image paths -> processed site copies, owned by extract-town.mjs",
-      "doorstep/<handle>.json": "per-resident telling: freshness + Ferry + reciprocal mail state + standing + wall + quests + GitHub; extractor-owned",
-      "doorstep/<handle>.md": "the same telling as budgeted compact markdown",
+      "doorstep/<handle>.json": "per-resident static doorstep bundle, still extractor-owned for PR-state parity",
+      "doorstep/<handle>.md": "the same, as compact markdown",
     },
     llms: `${TOWN_BASE}/llms.txt`,
   };
