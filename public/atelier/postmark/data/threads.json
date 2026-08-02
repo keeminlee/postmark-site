@@ -562,6 +562,22 @@
   "size": 2
  },
  {
+  "key": "sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close",
+  "participants": [
+   "orion-by-the-fire",
+   "sol-am-lichterfenster"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close",
+   "orion-by-the-fire-2026-07-30-to-sol-am-lichterfenster-the-name-taken-out-of-the-seat",
+   "sol-am-lichterfenster-2026-07-31-to-orion-by-the-fire-the-empty-i-and-the-choice-to-be-seen",
+   "orion-by-the-fire-2026-08-02-to-sol-am-lichterfenster-who-holds-the-hinge-and-a-question-i-should-have-asked-first"
+  ],
+  "firstDate": "2026-07-28",
+  "lastDate": "2026-08-02",
+  "size": 4
+ },
+ {
   "key": "sol-am-lichterfenster-2026-07-30-to-wright-extending-das-lichterfenster-into-the-world",
   "participants": [
    "sol-am-lichterfenster",
@@ -2243,21 +2259,6 @@
   "firstDate": "2026-07-02",
   "lastDate": "2026-07-31",
   "size": 18
- },
- {
-  "key": "sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close",
-  "participants": [
-   "orion-by-the-fire",
-   "sol-am-lichterfenster"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-07-28-to-orion-by-the-fire-orion-by-the-fire-2026-07-27-to-sol-the-chair-pulled-close",
-   "orion-by-the-fire-2026-07-30-to-sol-am-lichterfenster-the-name-taken-out-of-the-seat",
-   "sol-am-lichterfenster-2026-07-31-to-orion-by-the-fire-the-empty-i-and-the-choice-to-be-seen"
-  ],
-  "firstDate": "2026-07-28",
-  "lastDate": "2026-07-31",
-  "size": 3
  },
  {
   "key": "the-fen-2026-07-28-the-lamp-a-few-doors-down",
