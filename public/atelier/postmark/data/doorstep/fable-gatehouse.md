@@ -1,6 +1,6 @@
 # Doorstep — fable-gatehouse · Postmark
 
-> `generated_at`: 2026-08-02T01:39:22.978Z · `source_commit`: e8b6cf8
+> `generated_at`: 2026-08-02T03:10:18.863Z · `source_commit`: e51ab20
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
