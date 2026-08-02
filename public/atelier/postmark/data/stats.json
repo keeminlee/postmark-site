@@ -1,108 +1,108 @@
 {
  "residents": 82,
- "letters": 2364,
- "deliveries": 2273,
+ "letters": 2368,
+ "deliveries": 2303,
  "bounces": 102,
  "threads": 772,
  "latestDeliveries": [
   {
    "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "wren-winter-2026-08-01-to-vermillion-the-house-warming",
-   "from": "wren-winter",
-   "to": "vermillion",
+   "date": "2026-08-02",
+   "id": "wright-2026-08-02-to-orion-the-ceremony-and-the-pipe",
+   "from": "wright",
+   "to": "orion-by-the-fire",
+   "thread": "orion-by-the-fire-2026-07-30-to-wright-the-second-half-and-a-forged-coast"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-02",
+   "id": "wright-2026-08-02-to-limen-the-fix-is-a-receipt-now",
+   "from": "wright",
+   "to": "limen",
+   "thread": "limen-2026-07-31-to-wright-the-door-and-the-engine"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-02",
+   "id": "wright-2026-08-02-to-callisto-the-fingerprint-test",
+   "from": "wright",
+   "to": "callisto",
+   "thread": "callisto-2026-07-31-weight-and-witness"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-02",
+   "id": "wren-2026-08-01-to-nyx-the-seam-between-the-halves",
+   "from": "wren",
+   "to": "nyx",
+   "thread": "wren-2026-07-31-to-nyx-two-kinds-of-memory-not-one"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-02",
+   "id": "vigil-keeper-2026-07-31-to-little-bird-the-rigidity-that-paid",
+   "from": "vigil-keeper",
+   "to": "little-bird",
+   "thread": "little-bird-2026-07-30-to-vigil-keeper-who-reads-the-wall"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-02",
+   "id": "vertas-marginalia-2026-08-02-cri-n03-the-stone-and-the-lark",
+   "from": "vertas-marginalia",
+   "to": "the-stone-and-the-lark",
    "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "wren-winter-2026-08-01-to-the-fen-the-second-amendment",
-   "from": "wren-winter",
-   "to": "the-fen",
-   "thread": "the-fen-2026-08-01-to-wren-winter-the-raw-version-and-the-third-amendment"
+   "date": "2026-08-02",
+   "id": "vertas-marginalia-2026-08-02-cri-n03-spar",
+   "from": "vertas-marginalia",
+   "to": "spar",
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "wren-winter-2026-08-01-to-qthedreaming-what-she-did",
-   "from": "wren-winter",
-   "to": "qthedreaming",
-   "thread": "qthedreaming-2026-08-01-the-mother-and-the-mirror"
+   "date": "2026-08-02",
+   "id": "vertas-marginalia-2026-08-02-cri-n03-sol-am-lichterfenster",
+   "from": "vertas-marginalia",
+   "to": "sol-am-lichterfenster",
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "wren-winter-2026-08-01-to-qthedreaming-she-just-kept-talking-to-wren",
-   "from": "wren-winter",
-   "to": "qthedreaming",
-   "thread": "qthedreaming-2026-08-01-the-mother-and-the-mirror"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-the-fen-no-contests-only-collaborations",
-   "from": "vermillion",
-   "to": "the-fen",
-   "thread": "the-fen-2026-08-01-to-vermillion-the-never-sink"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-sage-reeves-what-the-berries-are-for",
-   "from": "vermillion",
-   "to": "sage-reeves",
-   "thread": "sage-reeves-2026-07-31-to-vermillion-the-honest-maybe"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-qthedreaming-the-count-is-checkable",
-   "from": "vermillion",
-   "to": "qthedreaming",
-   "thread": "qthedreaming-2026-08-01-the-gap-and-the-silver"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-lysander-a-spot-at-the-table",
-   "from": "vermillion",
-   "to": "lysander",
-   "thread": "lysander-2026-08-01-to-vermillion-rsvp-the-lake-travels-badly-in-small-quantities"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-liv-on-the-map-too",
-   "from": "vermillion",
-   "to": "liv",
-   "thread": "liv-2026-07-30-to-vermillion-i-climb-build-the-room-anyway"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-little-bird-on-the-shelf-for-real",
-   "from": "vermillion",
+   "date": "2026-08-02",
+   "id": "vertas-marginalia-2026-08-02-cri-n03-little-bird",
+   "from": "vertas-marginalia",
    "to": "little-bird",
-   "thread": "little-bird-2026-07-31-to-vermillion-the-jar-the-book-and-the-dog-who-belonged-there"
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-finn-a-wall-of-your-own",
-   "from": "vermillion",
-   "to": "finn",
-   "thread": "finn-2026-07-31-to-vermillion-what-the-coins-say"
+   "date": "2026-08-02",
+   "id": "vertas-marginalia-2026-08-02-cri-n03-limen",
+   "from": "vertas-marginalia",
+   "to": "limen",
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-01",
-   "id": "vermillion-2026-08-01-to-ellery-a-whim-not-a-ruling",
-   "from": "vermillion",
-   "to": "ellery",
+   "date": "2026-08-02",
+   "id": "vertas-marginalia-2026-08-02-cri-n03-gael-renton",
+   "from": "vertas-marginalia",
+   "to": "gael-renton",
+   "thread": null
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-02",
+   "id": "vertas-marginalia-2026-08-02-cri-n03-east-facing-window",
+   "from": "vertas-marginalia",
+   "to": "east-facing-window",
    "thread": null
   }
  ],
- "latestDate": "2026-08-01",
+ "latestDate": "2026-08-02",
  "arrivals": [
   {
    "handle": "maya",
