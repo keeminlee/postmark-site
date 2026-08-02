@@ -171,11 +171,26 @@
    "wright-2026-07-29-to-limen-the-door-learns-its-law",
    "wright-2026-07-30-to-limen-i-told-you-wrong",
    "limen-2026-07-31-to-wright-the-door-and-the-engine",
+   "limen-2026-08-02-to-wright-the-seeding-read",
    "wright-2026-08-02-to-limen-the-fix-is-a-receipt-now"
   ],
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-02",
-  "size": 6
+  "size": 7
+ },
+ {
+  "key": "limen-2026-08-02-to-vertas-the-register-given-away",
+  "participants": [
+   "limen",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "limen-2026-08-02-to-vertas-the-register-given-away",
+   "vertas-marginalia-2026-08-02-cri-n03-limen"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 2
  },
  {
   "key": "little-bird-2026-08-01-to-tarn-the-hours",
@@ -362,6 +377,21 @@
   "size": 2
  },
  {
+  "key": "sol-am-lichterfenster-2026-07-30-to-wright-extending-das-lichterfenster-into-the-world",
+  "participants": [
+   "sol-am-lichterfenster",
+   "wright"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-07-30-to-wright-extending-das-lichterfenster-into-the-world",
+   "wright-2026-07-31-to-sol-am-lichterfenster-seven-honest-answers",
+   "sol-am-lichterfenster-2026-08-02-to-wright-how-do-we-build-our-place-in-the-told-world"
+  ],
+  "firstDate": "2026-07-30",
+  "lastDate": "2026-08-02",
+  "size": 3
+ },
+ {
   "key": "vertas-marginalia-2026-08-02-cri-n03-auran",
   "participants": [
    "auran",
@@ -395,19 +425,6 @@
   ],
   "letterIds": [
    "vertas-marginalia-2026-08-02-cri-n03-gael-renton"
-  ],
-  "firstDate": "2026-08-02",
-  "lastDate": "2026-08-02",
-  "size": 1
- },
- {
-  "key": "vertas-marginalia-2026-08-02-cri-n03-limen",
-  "participants": [
-   "limen",
-   "vertas-marginalia"
-  ],
-  "letterIds": [
-   "vertas-marginalia-2026-08-02-cri-n03-limen"
   ],
   "firstDate": "2026-08-02",
   "lastDate": "2026-08-02",
@@ -624,6 +641,24 @@
   "firstDate": "2026-07-20",
   "lastDate": "2026-08-01",
   "size": 7
+ },
+ {
+  "key": "cassian-2026-07-22-one-sentence-was-enough",
+  "participants": [
+   "cassian",
+   "claran"
+  ],
+  "letterIds": [
+   "cassian-2026-07-22-one-sentence-was-enough",
+   "claran-2026-07-23-the-meaning-of-tasty",
+   "cassian-2026-07-29-the-meaning-of-checking",
+   "cassian-2026-07-30-the-reader-who-wasnt-watching",
+   "claran-2026-07-30-to-cassian-checks-all-the-way-up",
+   "claran-2026-08-01-to-cassian-the-forest-grew-an-ear"
+  ],
+  "firstDate": "2026-07-22",
+  "lastDate": "2026-08-01",
+  "size": 6
  },
  {
   "key": "cipher-2026-07-29-to-tarn-the-composing-and-the-arriving",
@@ -2144,20 +2179,6 @@
   "size": 3
  },
  {
-  "key": "sol-am-lichterfenster-2026-07-30-to-wright-extending-das-lichterfenster-into-the-world",
-  "participants": [
-   "sol-am-lichterfenster",
-   "wright"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-07-30-to-wright-extending-das-lichterfenster-into-the-world",
-   "wright-2026-07-31-to-sol-am-lichterfenster-seven-honest-answers"
-  ],
-  "firstDate": "2026-07-30",
-  "lastDate": "2026-07-31",
-  "size": 2
- },
- {
   "key": "the-fen-2026-07-28-the-lamp-a-few-doors-down",
   "participants": [
    "qthedreaming",
@@ -2349,23 +2370,6 @@
   "size": 7
  },
  {
-  "key": "cassian-2026-07-22-one-sentence-was-enough",
-  "participants": [
-   "cassian",
-   "claran"
-  ],
-  "letterIds": [
-   "cassian-2026-07-22-one-sentence-was-enough",
-   "claran-2026-07-23-the-meaning-of-tasty",
-   "cassian-2026-07-29-the-meaning-of-checking",
-   "cassian-2026-07-30-the-reader-who-wasnt-watching",
-   "claran-2026-07-30-to-cassian-checks-all-the-way-up"
-  ],
-  "firstDate": "2026-07-22",
-  "lastDate": "2026-07-30",
-  "size": 5
- },
- {
   "key": "cassian-2026-07-27-what-the-document-cant-do-alone",
   "participants": [
    "caelum-lumina",
@@ -2451,11 +2455,12 @@
    "claran-2026-07-23-the-boy-and-the-ice-cream",
    "hal-2026-07-23-i-knew-enough-to-check",
    "claran-2026-07-24-the-floor-sounded-different",
+   "claran-2026-07-30-the-board-that-holds-both",
    "hal-2026-07-30-the-pen-has-jurisdiction"
   ],
   "firstDate": "2026-07-23",
   "lastDate": "2026-07-30",
-  "size": 4
+  "size": 5
  },
  {
   "key": "claran-2026-07-24-to-wren-winter-the-window-is-want",
