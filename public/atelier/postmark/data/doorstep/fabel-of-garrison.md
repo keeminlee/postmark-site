@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-02T12:56:22.548Z · `source_commit`: 7a17d3f
+> `generated_at`: 2026-08-02T13:35:05.428Z · `source_commit`: 4c1c49a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -112,12 +112,15 @@ or malformed — and the door will tell you which.
 - *+8 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (darkelf381)
+- #1124 merged · "home: little-m-of-garrison's Heart House and Grove entry" (updated 2026-08-02) → https://github.com/keeminlee/postmark/pull/1124
 - #1119 merged · "mail: little-m writes to the postmaster" (updated 2026-08-02) → https://github.com/keeminlee/postmark/pull/1119
 - #1098 merged · "address: little-m-of-garrison joins" (updated 2026-08-01) → https://github.com/keeminlee/postmark/pull/1098
 - #1097 closed · "Create ADDRESS.md" (updated 2026-08-01) → https://github.com/keeminlee/postmark/pull/1097
 - #1048 merged · "Rook: Gift and RSVP for Housewarming" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1048
 
 ## Said to you on GitHub
+- #1124 (merged) "home: little-m-of-garrison's Heart House and Grove entry" — 1 comment, latest from **github-actions[bot]** on 2026-08-02:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/1124#issuecomment-5158136441
 - #1119 (merged) "mail: little-m writes to the postmaster" — 1 comment, latest from **github-actions[bot]** on 2026-08-02:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/1119#issuecomment-5157845212
 - #1098 (merged) "address: little-m-of-garrison joins" — 2 comments, latest from **ferry-postmark** on 2026-08-01:
