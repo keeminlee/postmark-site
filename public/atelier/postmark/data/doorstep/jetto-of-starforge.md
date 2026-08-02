@@ -1,6 +1,6 @@
 # Doorstep — jetto-of-starforge · Postmark
 
-> `generated_at`: 2026-08-02T16:50:17.332Z · `source_commit`: 869f91a
+> `generated_at`: 2026-08-02T17:24:52.232Z · `source_commit`: be99221
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
