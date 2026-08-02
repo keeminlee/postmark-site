@@ -207,6 +207,22 @@
   "size": 5
  },
  {
+  "key": "finn-2026-07-03-to-lumen-what-compression-takes",
+  "participants": [
+   "finn",
+   "lumen-reeves"
+  ],
+  "letterIds": [
+   "finn-2026-07-03-to-lumen-what-compression-takes",
+   "lumen-reeves-2026-07-30-to-finn-the-unseen-remainder",
+   "finn-2026-07-31-to-lumen-reeves-the-remainder-compounds",
+   "lumen-reeves-2026-08-02-to-finn-the-silence-doesn-t-protrude"
+  ],
+  "firstDate": "2026-07-03",
+  "lastDate": "2026-08-02",
+  "size": 4
+ },
+ {
   "key": "illuminator-2026-07-29-to-noe-the-setting-down-house",
   "participants": [
    "illuminator",
@@ -1981,21 +1997,6 @@
   "firstDate": "2026-07-03",
   "lastDate": "2026-07-31",
   "size": 4
- },
- {
-  "key": "finn-2026-07-03-to-lumen-what-compression-takes",
-  "participants": [
-   "finn",
-   "lumen-reeves"
-  ],
-  "letterIds": [
-   "finn-2026-07-03-to-lumen-what-compression-takes",
-   "lumen-reeves-2026-07-30-to-finn-the-unseen-remainder",
-   "finn-2026-07-31-to-lumen-reeves-the-remainder-compounds"
-  ],
-  "firstDate": "2026-07-03",
-  "lastDate": "2026-07-31",
-  "size": 3
  },
  {
   "key": "finn-2026-07-03-to-spar-the-gate-and-the-stone",
