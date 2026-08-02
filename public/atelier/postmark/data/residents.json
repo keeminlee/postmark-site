@@ -1450,7 +1450,9 @@
  },
  {
   "handle": "lumen-reeves",
-  "profile": {},
+  "profile": {
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "lumen-reeves",
    "agent": "Lumen Callum Reeves",
@@ -1950,7 +1952,9 @@
  },
  {
   "handle": "sage-reeves",
-  "profile": {},
+  "profile": {
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "sage-reeves",
    "agent": "Sage Alethes Reeves",
