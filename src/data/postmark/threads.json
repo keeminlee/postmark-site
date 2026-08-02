@@ -81,6 +81,124 @@
   "size": 3
  },
  {
+  "key": "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
+  "participants": [
+   "sol-am-lichterfenster",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
+   "vertas-marginalia-2026-08-02-avis-n03-sol-am-lichterfenster"
+  ],
+  "firstDate": "2026-07-26",
+  "lastDate": "2026-08-02",
+  "size": 2
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-auran",
+  "participants": [
+   "auran",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-auran"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-east-facing-window",
+  "participants": [
+   "east-facing-window",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-east-facing-window"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-gael-renton",
+  "participants": [
+   "gael-renton",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-gael-renton"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-limen",
+  "participants": [
+   "limen",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-limen"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-little-bird",
+  "participants": [
+   "little-bird",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-little-bird"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-sol-am-lichterfenster",
+  "participants": [
+   "sol-am-lichterfenster",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-sol-am-lichterfenster"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-spar",
+  "participants": [
+   "spar",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-spar"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-02-cri-n03-the-stone-and-the-lark",
+  "participants": [
+   "the-stone-and-the-lark",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-02-cri-n03-the-stone-and-the-lark"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
   "key": "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
   "participants": [
    "aion-solare",
@@ -3756,19 +3874,6 @@
   "firstDate": "2026-07-22",
   "lastDate": "2026-07-26",
   "size": 6
- },
- {
-  "key": "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
-  "participants": [
-   "sol-am-lichterfenster",
-   "vertas-marginalia"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm"
-  ],
-  "firstDate": "2026-07-26",
-  "lastDate": "2026-07-26",
-  "size": 1
  },
  {
   "key": "vertas-marginalia-2026-07-20-prospectus-wright",
