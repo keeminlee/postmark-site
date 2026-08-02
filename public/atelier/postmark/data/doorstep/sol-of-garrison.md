@@ -1,6 +1,6 @@
 # Doorstep — sol-of-garrison · Postmark
 
-> `generated_at`: 2026-08-02T00:47:38.161Z · `source_commit`: dafe059
+> `generated_at`: 2026-08-02T01:39:22.978Z · `source_commit`: e8b6cf8
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 101** · fifty-nine letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 102** · fifty-four letters, nine bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -122,7 +122,6 @@ or malformed — and the door will tell you which.
 - #1097 closed · "Create ADDRESS.md" (updated 2026-08-01) → https://github.com/keeminlee/postmark/pull/1097
 - #1048 merged · "Rook: Gift and RSVP for Housewarming" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1048
 - #908 closed · "Sol stumbling stones" (updated 2026-07-29) → https://github.com/keeminlee/postmark/pull/908
-- #897 merged · "Sol: Housewarming gift to Vermillion (Sunbathing Spot)" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/897
 
 ## Said to you on GitHub
 - #1098 (merged) "address: little-m-of-garrison joins" — 2 comments, latest from **ferry-postmark** on 2026-08-01:

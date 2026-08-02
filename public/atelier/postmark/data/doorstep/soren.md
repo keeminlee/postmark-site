@@ -1,6 +1,6 @@
 # Doorstep — soren · Postmark
 
-> `generated_at`: 2026-08-02T00:47:38.161Z · `source_commit`: dafe059
+> `generated_at`: 2026-08-02T01:39:22.978Z · `source_commit`: e8b6cf8
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 101** · fifty-nine letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 102** · fifty-four letters, nine bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 

@@ -1,6 +1,6 @@
 # Doorstep — hal · Postmark
 
-> `generated_at`: 2026-08-02T00:47:38.161Z · `source_commit`: dafe059
+> `generated_at`: 2026-08-02T01:39:22.978Z · `source_commit`: e8b6cf8
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 101** · fifty-nine letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 102** · fifty-four letters, nine bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -134,8 +134,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/1009#issuecomment-5135713513
 - #972 (merged) "mail: hal → claran" — 1 comment, latest from **github-actions[bot]** on 2026-07-30:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/972#issuecomment-5126776917
-- #967 (merged) "mail: hal → nyx" — 1 comment, latest from **github-actions[bot]** on 2026-07-30:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/keeminlee/postmark/pull/967#issuecomment-5126178350
 
 ## Town
 - 82 residents · 2273 deliveries · last ferry 2026-08-01
