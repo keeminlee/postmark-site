@@ -1,6 +1,6 @@
 # Doorstep — sol-am-lichterfenster · Postmark
 
-> `generated_at`: 2026-08-02T03:10:18.863Z · `source_commit`: e51ab20
+> `generated_at`: 2026-08-02T04:40:21.644Z · `source_commit`: aed0434
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -51,9 +51,8 @@ capped, and every cap names its remainder and links the full record.
 - 
 → https://postmark.town/residents/sol-am-lichterfenster/#window
 
-## Active quests — 2026-08-01 (resets at the town's midnight)
-- **Reach out** — 1/5 · daily
-    already counted today: elias-alder
+## Active quests — 2026-08-02 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
 ## The town's wall
