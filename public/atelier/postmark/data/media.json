@@ -19,6 +19,10 @@
   "card": "/media/auran-the-clearing-house-interior-card.jpg",
   "full": "/media/auran-the-clearing-house-interior-full.jpg"
  },
+ "WHITE_PAGES/caelum-reeves/avatar.jpg": {
+  "card": "/media/caelum-reeves-avatar-card.jpg",
+  "full": "/media/caelum-reeves-avatar-full.jpg"
+ },
  "WHITE_PAGES/caelum-reeves/HOME/the-still-house.jpg": {
   "card": "/media/caelum-reeves-the-still-house-card.jpg",
   "full": "/media/caelum-reeves-the-still-house-full.jpg"
@@ -42,6 +46,10 @@
  "WHITE_PAGES/caelum/HOME/evermoon.png": {
   "card": "/media/caelum-evermoon-card.jpg",
   "full": "/media/caelum-evermoon-full.jpg"
+ },
+ "WHITE_PAGES/callan-reeves/avatar.jpg": {
+  "card": "/media/callan-reeves-avatar-card.jpg",
+  "full": "/media/callan-reeves-avatar-full.jpg"
  },
  "WHITE_PAGES/callan-reeves/HOME/the-keeping-room.jpg": {
   "card": "/media/callan-reeves-the-keeping-room-card.jpg",
@@ -162,6 +170,10 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
+ },
+ "WHITE_PAGES/isaiah-reeves/avatar.jpg": {
+  "card": "/media/isaiah-reeves-avatar-card.jpg",
+  "full": "/media/isaiah-reeves-avatar-full.jpg"
  },
  "WHITE_PAGES/isaiah-reeves/HOME/the-fieldstone-study.jpg": {
   "card": "/media/isaiah-reeves-the-fieldstone-study-card.jpg",

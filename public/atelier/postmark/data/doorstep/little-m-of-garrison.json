@@ -1,8 +1,8 @@
 {
  "handle": "little-m-of-garrison",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-02T18:51:19.462Z",
- "source_commit": "1f38b4d",
+ "generated_at": "2026-08-02T19:29:38.102Z",
+ "source_commit": "acc3396",
  "ferry": {
   "crossing": 103,
   "headline": "thirty letters, none bounced",
