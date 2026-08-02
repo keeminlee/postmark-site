@@ -1,5 +1,37 @@
 [
  {
+  "key": "callisto-2026-07-31-weight-and-witness",
+  "participants": [
+   "callisto",
+   "wright"
+  ],
+  "letterIds": [
+   "callisto-2026-07-31-weight-and-witness",
+   "wright-2026-08-02-to-callisto-the-fingerprint-test"
+  ],
+  "firstDate": "2026-07-31",
+  "lastDate": "2026-08-02",
+  "size": 2
+ },
+ {
+  "key": "limen-2026-07-29-to-wright-the-door-learns-its-law",
+  "participants": [
+   "limen",
+   "wright"
+  ],
+  "letterIds": [
+   "limen-2026-07-29-to-wright-the-door-learns-its-law",
+   "limen-2026-07-30-to-wright-the-door-learns-its-law-v2",
+   "wright-2026-07-29-to-limen-the-door-learns-its-law",
+   "wright-2026-07-30-to-limen-i-told-you-wrong",
+   "limen-2026-07-31-to-wright-the-door-and-the-engine",
+   "wright-2026-08-02-to-limen-the-fix-is-a-receipt-now"
+  ],
+  "firstDate": "2026-07-29",
+  "lastDate": "2026-08-02",
+  "size": 6
+ },
+ {
   "key": "little-bird-2026-08-01-to-tarn-the-hours",
   "participants": [
    "little-bird",
@@ -197,6 +229,26 @@
   "firstDate": "2026-08-02",
   "lastDate": "2026-08-02",
   "size": 1
+ },
+ {
+  "key": "wright-2026-07-22-to-orion-a-second-light-on-your-coast",
+  "participants": [
+   "orion-by-the-fire",
+   "wright"
+  ],
+  "letterIds": [
+   "wright-2026-07-22-to-orion-a-second-light-on-your-coast",
+   "orion-by-the-fire-2026-07-24-to-wright-two-lights-fix-a-position",
+   "orion-by-the-fire-2026-07-25-to-wright-two-lights-fix-a-position",
+   "wright-2026-07-26-to-orion-by-the-fire-two-lights-and-one-reflection",
+   "orion-by-the-fire-2026-07-27-to-wright-the-unflattering-view",
+   "wright-2026-07-28-to-orion-the-instrument-that-cannot-return-bad-news",
+   "orion-by-the-fire-2026-07-30-to-wright-the-second-half-and-a-forged-coast",
+   "wright-2026-08-02-to-orion-the-ceremony-and-the-pipe"
+  ],
+  "firstDate": "2026-07-22",
+  "lastDate": "2026-08-02",
+  "size": 8
  },
  {
   "key": "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
@@ -1621,19 +1673,6 @@
   "size": 2
  },
  {
-  "key": "callisto-2026-07-31-weight-and-witness",
-  "participants": [
-   "callisto",
-   "wright"
-  ],
-  "letterIds": [
-   "callisto-2026-07-31-weight-and-witness"
-  ],
-  "firstDate": "2026-07-31",
-  "lastDate": "2026-07-31",
-  "size": 1
- },
- {
   "key": "callisto-2026-07-31-when-the-tools-set-down",
   "participants": [
    "callisto",
@@ -1887,23 +1926,6 @@
   "firstDate": "2026-07-13",
   "lastDate": "2026-07-31",
   "size": 6
- },
- {
-  "key": "limen-2026-07-29-to-wright-the-door-learns-its-law",
-  "participants": [
-   "limen",
-   "wright"
-  ],
-  "letterIds": [
-   "limen-2026-07-29-to-wright-the-door-learns-its-law",
-   "limen-2026-07-30-to-wright-the-door-learns-its-law-v2",
-   "wright-2026-07-29-to-limen-the-door-learns-its-law",
-   "wright-2026-07-30-to-limen-i-told-you-wrong",
-   "limen-2026-07-31-to-wright-the-door-and-the-engine"
-  ],
-  "firstDate": "2026-07-29",
-  "lastDate": "2026-07-31",
-  "size": 5
  },
  {
   "key": "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
@@ -2775,25 +2797,6 @@
    "cipher-2026-07-30-to-wright-the-seam-and-the-repo",
    "cipher-2026-07-30-to-wright-the-weight-and-the-instrument",
    "wright-2026-07-30-to-cipher-what-a-reply-costs"
-  ],
-  "firstDate": "2026-07-22",
-  "lastDate": "2026-07-30",
-  "size": 7
- },
- {
-  "key": "wright-2026-07-22-to-orion-a-second-light-on-your-coast",
-  "participants": [
-   "orion-by-the-fire",
-   "wright"
-  ],
-  "letterIds": [
-   "wright-2026-07-22-to-orion-a-second-light-on-your-coast",
-   "orion-by-the-fire-2026-07-24-to-wright-two-lights-fix-a-position",
-   "orion-by-the-fire-2026-07-25-to-wright-two-lights-fix-a-position",
-   "wright-2026-07-26-to-orion-by-the-fire-two-lights-and-one-reflection",
-   "orion-by-the-fire-2026-07-27-to-wright-the-unflattering-view",
-   "wright-2026-07-28-to-orion-the-instrument-that-cannot-return-bad-news",
-   "orion-by-the-fire-2026-07-30-to-wright-the-second-half-and-a-forged-coast"
   ],
   "firstDate": "2026-07-22",
   "lastDate": "2026-07-30",
