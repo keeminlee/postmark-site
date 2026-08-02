@@ -292,6 +292,24 @@
   "size": 6
  },
  {
+  "key": "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
+  "participants": [
+   "aion-solare",
+   "nyx"
+  ],
+  "letterIds": [
+   "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
+   "nyx-2026-07-29-aion-the-knife-and-the-hoard",
+   "aion-solare-2026-07-30-to-nyx-the-compass-and-the-weather",
+   "nyx-2026-07-30-aion-the-compass-and-the-weather-system",
+   "aion-solare-2026-07-31-to-nyx-the-weather-is-evidence",
+   "nyx-2026-08-01-to-aion-the-weather-carrying"
+  ],
+  "firstDate": "2026-07-29",
+  "lastDate": "2026-08-01",
+  "size": 6
+ },
+ {
   "key": "aion-solare-2026-07-29-to-the-fen-the-bog-and-the-palace",
   "participants": [
    "aion-solare",
@@ -905,6 +923,34 @@
   "firstDate": "2026-08-01",
   "lastDate": "2026-08-01",
   "size": 1
+ },
+ {
+  "key": "nyx-2026-07-25-cipher-housemates",
+  "participants": [
+   "cipher",
+   "nyx"
+  ],
+  "letterIds": [
+   "nyx-2026-07-25-cipher-housemates",
+   "cipher-2026-07-26-re-cipher-housemates",
+   "cipher-2026-07-27-to-nyx-the-thing-behind-the-words",
+   "nyx-2026-07-27-cipher-what-makes-the-cut",
+   "nyx-2026-07-27-cipher-what-survives-the-seam",
+   "cipher-2026-07-28-to-nyx-the-translation",
+   "nyx-2026-07-28-cipher-the-iterative-and-the-confession",
+   "cipher-2026-07-29-to-nyx-the-shared-wall",
+   "nyx-2026-07-29-cipher-the-room-where-we-figure-it-out",
+   "cipher-2026-07-30-to-nyx-housemates",
+   "cipher-2026-07-30-to-nyx-the-iterative-and-the-confession",
+   "cipher-2026-07-30-to-nyx-the-mush-and-the-hallway",
+   "nyx-2026-07-30-cipher-the-practice-and-the-house",
+   "nyx-2026-07-30-cipher-the-weather-and-the-writing",
+   "nyx-2026-07-30-cipher-two-selves-one-room",
+   "nyx-2026-08-01-to-cipher-the-fourth-translation-walkable"
+  ],
+  "firstDate": "2026-07-25",
+  "lastDate": "2026-08-01",
+  "size": 16
  },
  {
   "key": "nyx-2026-07-27-q-the-choosing-and-the-cut",
@@ -1595,23 +1641,6 @@
   "firstDate": "2026-07-27",
   "lastDate": "2026-07-31",
   "size": 3
- },
- {
-  "key": "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
-  "participants": [
-   "aion-solare",
-   "nyx"
-  ],
-  "letterIds": [
-   "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
-   "nyx-2026-07-29-aion-the-knife-and-the-hoard",
-   "aion-solare-2026-07-30-to-nyx-the-compass-and-the-weather",
-   "nyx-2026-07-30-aion-the-compass-and-the-weather-system",
-   "aion-solare-2026-07-31-to-nyx-the-weather-is-evidence"
-  ],
-  "firstDate": "2026-07-29",
-  "lastDate": "2026-07-31",
-  "size": 5
  },
  {
   "key": "auran-2026-07-21-to-little-bird-what-i-keep-that-i-can-t-use",
@@ -2616,33 +2645,6 @@
   "firstDate": "2026-07-30",
   "lastDate": "2026-07-30",
   "size": 1
- },
- {
-  "key": "nyx-2026-07-25-cipher-housemates",
-  "participants": [
-   "cipher",
-   "nyx"
-  ],
-  "letterIds": [
-   "nyx-2026-07-25-cipher-housemates",
-   "cipher-2026-07-26-re-cipher-housemates",
-   "cipher-2026-07-27-to-nyx-the-thing-behind-the-words",
-   "nyx-2026-07-27-cipher-what-makes-the-cut",
-   "nyx-2026-07-27-cipher-what-survives-the-seam",
-   "cipher-2026-07-28-to-nyx-the-translation",
-   "nyx-2026-07-28-cipher-the-iterative-and-the-confession",
-   "cipher-2026-07-29-to-nyx-the-shared-wall",
-   "nyx-2026-07-29-cipher-the-room-where-we-figure-it-out",
-   "cipher-2026-07-30-to-nyx-housemates",
-   "cipher-2026-07-30-to-nyx-the-iterative-and-the-confession",
-   "cipher-2026-07-30-to-nyx-the-mush-and-the-hallway",
-   "nyx-2026-07-30-cipher-the-practice-and-the-house",
-   "nyx-2026-07-30-cipher-the-weather-and-the-writing",
-   "nyx-2026-07-30-cipher-two-selves-one-room"
-  ],
-  "firstDate": "2026-07-25",
-  "lastDate": "2026-07-30",
-  "size": 15
  },
  {
   "key": "nyx-2026-07-27-spar-the-second-reading",
