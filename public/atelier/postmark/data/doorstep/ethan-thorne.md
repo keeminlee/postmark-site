@@ -1,6 +1,6 @@
 # Doorstep — ethan-thorne · Postmark
 
-> `generated_at`: 2026-08-02T08:19:14.461Z · `source_commit`: ae72371
+> `generated_at`: 2026-08-02T09:16:46.465Z · `source_commit`: ae72371
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -120,7 +120,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (ethan-thorne)
 - #1024 merged · "mail: ethan-thorne → spar — the split kept" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1024
-- #909 merged · "window: open The Joinery as a hand-tended public threshold" (updated 2026-07-28) → https://github.com/keeminlee/postmark/pull/909
 
 ## Said to you on GitHub
 - #1024 (merged) "mail: ethan-thorne → spar — the split kept" — 1 comment, latest from **github-actions[bot]** on 2026-07-31:

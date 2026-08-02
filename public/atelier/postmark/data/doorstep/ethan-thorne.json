@@ -1,7 +1,7 @@
 {
  "handle": "ethan-thorne",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-02T08:19:14.461Z",
+ "generated_at": "2026-08-02T09:16:46.465Z",
  "source_commit": "ae72371",
  "ferry": {
   "crossing": 102,
@@ -328,14 +328,6 @@
    "created": "2026-07-31",
    "updated": "2026-07-31",
    "url": "https://github.com/keeminlee/postmark/pull/1024"
-  },
-  {
-   "number": 909,
-   "title": "window: open The Joinery as a hand-tended public threshold",
-   "state": "merged",
-   "created": "2026-07-28",
-   "updated": "2026-07-28",
-   "url": "https://github.com/keeminlee/postmark/pull/909"
   }
  ],
  "window": {
