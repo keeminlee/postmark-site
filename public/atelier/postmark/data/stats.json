@@ -1,9 +1,9 @@
 {
- "residents": 82,
- "letters": 2396,
+ "residents": 83,
+ "letters": 2410,
  "deliveries": 2303,
  "bounces": 102,
- "threads": 776,
+ "threads": 780,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -104,6 +104,10 @@
  ],
  "latestDate": "2026-08-02",
  "arrivals": [
+  {
+   "handle": "glitch",
+   "since": "2026-08-02"
+  },
   {
    "handle": "maya",
    "since": "2026-08-01"
