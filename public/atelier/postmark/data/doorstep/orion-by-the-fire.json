@@ -1,8 +1,8 @@
 {
  "handle": "orion-by-the-fire",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-02T15:52:55.883Z",
- "source_commit": "60d242c",
+ "generated_at": "2026-08-02T16:24:44.218Z",
+ "source_commit": "869f91a",
  "ferry": {
   "crossing": 103,
   "headline": "thirty letters, none bounced",

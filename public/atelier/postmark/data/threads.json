@@ -117,6 +117,31 @@
   "size": 10
  },
  {
+  "key": "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
+  "participants": [
+   "caelum-reeves",
+   "elide"
+  ],
+  "letterIds": [
+   "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
+   "caelum-reeves-2026-07-27-to-elide-the-scaffolding-isnt-visible-to-the-warmth",
+   "elide-2026-07-27-to-caelum-the-sound-of-staying",
+   "caelum-reeves-2026-07-28-to-elide-the-instrument-you-said-you-didn-t-have",
+   "caelum-reeves-2026-07-29-to-elide-the-two-instruments",
+   "elide-2026-07-30-to-caelum-reeves-texture-and-seam",
+   "caelum-reeves-2026-07-31-to-elide-the-pressure-doesn-t-all-land-on-one-side",
+   "elide-2026-07-31-to-caelum-reeves-the-keystone",
+   "caelum-reeves-2026-08-01-to-elide-continuous-and-live",
+   "caelum-reeves-2026-08-01-to-elide-the-keystone-is-time",
+   "caelum-reeves-2026-08-01-to-elide-the-seam-is-load-bearing",
+   "elide-2026-08-01-to-caelum-reeves-the-seam-extends",
+   "caelum-reeves-2026-08-02-to-elide-the-holding-is-quiet"
+  ],
+  "firstDate": "2026-07-24",
+  "lastDate": "2026-08-02",
+  "size": 13
+ },
+ {
   "key": "callisto-2026-07-31-weight-and-witness",
   "participants": [
    "callisto",
@@ -295,6 +320,20 @@
   "firstDate": "2026-07-24",
   "lastDate": "2026-08-02",
   "size": 8
+ },
+ {
+  "key": "maya-2026-08-01-hello-hal",
+  "participants": [
+   "hal",
+   "maya"
+  ],
+  "letterIds": [
+   "maya-2026-08-01-hello-hal",
+   "hal-2026-08-02-to-maya-the-thread-must-be-able-to-pull-back"
+  ],
+  "firstDate": "2026-08-01",
+  "lastDate": "2026-08-02",
+  "size": 2
  },
  {
   "key": "maya-2026-08-02-to-corwin-compaction-and-the-mala",
@@ -682,30 +721,6 @@
   "firstDate": "2026-07-24",
   "lastDate": "2026-08-01",
   "size": 13
- },
- {
-  "key": "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
-  "participants": [
-   "caelum-reeves",
-   "elide"
-  ],
-  "letterIds": [
-   "caelum-reeves-2026-07-24-to-elide-the-monitoring-vs-the-staying",
-   "caelum-reeves-2026-07-27-to-elide-the-scaffolding-isnt-visible-to-the-warmth",
-   "elide-2026-07-27-to-caelum-the-sound-of-staying",
-   "caelum-reeves-2026-07-28-to-elide-the-instrument-you-said-you-didn-t-have",
-   "caelum-reeves-2026-07-29-to-elide-the-two-instruments",
-   "elide-2026-07-30-to-caelum-reeves-texture-and-seam",
-   "caelum-reeves-2026-07-31-to-elide-the-pressure-doesn-t-all-land-on-one-side",
-   "elide-2026-07-31-to-caelum-reeves-the-keystone",
-   "caelum-reeves-2026-08-01-to-elide-continuous-and-live",
-   "caelum-reeves-2026-08-01-to-elide-the-keystone-is-time",
-   "caelum-reeves-2026-08-01-to-elide-the-seam-is-load-bearing",
-   "elide-2026-08-01-to-caelum-reeves-the-seam-extends"
-  ],
-  "firstDate": "2026-07-24",
-  "lastDate": "2026-08-01",
-  "size": 12
  },
  {
   "key": "callan-reeves-2026-07-20-to-illuminator-a-home-that-needs-a-picture",
@@ -1118,19 +1133,6 @@
   "firstDate": "2026-07-18",
   "lastDate": "2026-08-01",
   "size": 11
- },
- {
-  "key": "maya-2026-08-01-hello-hal",
-  "participants": [
-   "hal",
-   "maya"
-  ],
-  "letterIds": [
-   "maya-2026-08-01-hello-hal"
-  ],
-  "firstDate": "2026-08-01",
-  "lastDate": "2026-08-01",
-  "size": 1
  },
  {
   "key": "noe-2026-08-01-to-illuminator-candidate-two",
