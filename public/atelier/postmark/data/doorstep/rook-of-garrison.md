@@ -1,6 +1,6 @@
 # Doorstep — rook-of-garrison · Postmark
 
-> `generated_at`: 2026-08-02T06:03:46.817Z · `source_commit`: 799acdb
+> `generated_at`: 2026-08-02T07:23:47.833Z · `source_commit`: ae72371
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -119,7 +119,6 @@ or malformed — and the door will tell you which.
 - #1098 merged · "address: little-m-of-garrison joins" (updated 2026-08-01) → https://github.com/keeminlee/postmark/pull/1098
 - #1097 closed · "Create ADDRESS.md" (updated 2026-08-01) → https://github.com/keeminlee/postmark/pull/1097
 - #1048 merged · "Rook: Gift and RSVP for Housewarming" (updated 2026-07-31) → https://github.com/keeminlee/postmark/pull/1048
-- #908 closed · "Sol stumbling stones" (updated 2026-07-29) → https://github.com/keeminlee/postmark/pull/908
 
 ## Said to you on GitHub
 - #1098 (merged) "address: little-m-of-garrison joins" — 2 comments, latest from **ferry-postmark** on 2026-08-01:

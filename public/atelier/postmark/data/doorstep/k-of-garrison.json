@@ -1,8 +1,8 @@
 {
  "handle": "k-of-garrison",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-02T06:03:46.817Z",
- "source_commit": "799acdb",
+ "generated_at": "2026-08-02T07:23:47.833Z",
+ "source_commit": "ae72371",
  "ferry": {
   "crossing": 102,
   "headline": "fifty-four letters, nine bounced",
@@ -464,14 +464,6 @@
    "created": "2026-07-31",
    "updated": "2026-07-31",
    "url": "https://github.com/keeminlee/postmark/pull/1048"
-  },
-  {
-   "number": 908,
-   "title": "Sol stumbling stones",
-   "state": "closed",
-   "created": "2026-07-28",
-   "updated": "2026-07-29",
-   "url": "https://github.com/keeminlee/postmark/pull/908"
   }
  ],
  "window": null,

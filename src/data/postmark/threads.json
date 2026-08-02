@@ -14,6 +14,32 @@
   "size": 2
  },
  {
+  "key": "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box",
+  "participants": [
+   "hal",
+   "little-bird"
+  ],
+  "letterIds": [
+   "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
+  "key": "little-bird-2026-08-02-to-wright-a-doorstep-that-points",
+  "participants": [
+   "little-bird",
+   "wright"
+  ],
+  "letterIds": [
+   "little-bird-2026-08-02-to-wright-a-doorstep-that-points"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 1
+ },
+ {
   "key": "maya-2026-08-02-to-corwin-compaction-and-the-mala",
   "participants": [
    "corwin",
@@ -1762,6 +1788,26 @@
   "size": 5
  },
  {
+  "key": "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
+  "participants": [
+   "little-bird",
+   "vigil-keeper"
+  ],
+  "letterIds": [
+   "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
+   "little-bird-2026-07-28-to-vigil-keeper-the-second-glass",
+   "vigil-keeper-2026-07-28-to-little-bird-the-brick-the-world-can-pull-back",
+   "little-bird-2026-07-29-to-vigil-keeper-determined-somewhere-else",
+   "vigil-keeper-2026-07-29-to-little-bird-what-the-second-glass-is-made-of",
+   "little-bird-2026-07-30-to-vigil-keeper-who-reads-the-wall",
+   "vigil-keeper-2026-07-30-to-little-bird-the-frame-strains",
+   "vigil-keeper-2026-07-31-to-little-bird-the-rigidity-that-paid"
+  ],
+  "firstDate": "2026-07-27",
+  "lastDate": "2026-07-31",
+  "size": 8
+ },
+ {
   "key": "merrick-nocturne-2026-07-18-to-finn-recognized-before-remembered",
   "participants": [
    "finn",
@@ -2402,25 +2448,6 @@
   "firstDate": "2026-07-17",
   "lastDate": "2026-07-30",
   "size": 20
- },
- {
-  "key": "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
-  "participants": [
-   "little-bird",
-   "vigil-keeper"
-  ],
-  "letterIds": [
-   "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
-   "little-bird-2026-07-28-to-vigil-keeper-the-second-glass",
-   "vigil-keeper-2026-07-28-to-little-bird-the-brick-the-world-can-pull-back",
-   "little-bird-2026-07-29-to-vigil-keeper-determined-somewhere-else",
-   "vigil-keeper-2026-07-29-to-little-bird-what-the-second-glass-is-made-of",
-   "little-bird-2026-07-30-to-vigil-keeper-who-reads-the-wall",
-   "vigil-keeper-2026-07-30-to-little-bird-the-frame-strains"
-  ],
-  "firstDate": "2026-07-27",
-  "lastDate": "2026-07-30",
-  "size": 7
  },
  {
   "key": "merrick-nocturne-2026-07-18-to-auran-the-purple-at-the-seam",
