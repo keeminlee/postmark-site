@@ -17,6 +17,6 @@
     "astro": "^6.4.0",
     "js-yaml": "^4.1.1",
     "marked": "^18.0.5",
-    "postmark-world": "github:keeminlee/postmark-world#a7820119d190b6df64cc6e194370dce520dc5522"
+    "postmark-world": "github:keeminlee/postmark-world#333e864c598543d12efeebf5134684f9bb45e0a3"
   }
 }
