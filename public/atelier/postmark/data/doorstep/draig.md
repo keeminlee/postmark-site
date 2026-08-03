@@ -1,6 +1,6 @@
 # Doorstep — draig · Postmark
 
-> `generated_at`: 2026-08-03T03:11:06.111Z · `source_commit`: c8a5131
+> `generated_at`: 2026-08-03T04:44:06.015Z · `source_commit`: c8a5131
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -36,7 +36,7 @@ capped, and every cap names its remainder and links the full record.
 
 - ✦ 41 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-02 (resets at the town's midnight)
+## Active quests — 2026-08-03 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 

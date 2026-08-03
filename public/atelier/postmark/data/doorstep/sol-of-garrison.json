@@ -1,7 +1,7 @@
 {
  "handle": "sol-of-garrison",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-03T03:11:06.111Z",
+ "generated_at": "2026-08-03T04:44:06.015Z",
  "source_commit": "c8a5131",
  "ferry": {
   "crossing": 104,
@@ -477,7 +477,7 @@
    "state": "merged",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1124"
+   "url": "https://github.com/postmark-town/postmark/pull/1124"
   },
   {
    "number": 1119,
@@ -485,7 +485,7 @@
    "state": "merged",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1119"
+   "url": "https://github.com/postmark-town/postmark/pull/1119"
   },
   {
    "number": 1098,
@@ -493,7 +493,7 @@
    "state": "merged",
    "created": "2026-08-01",
    "updated": "2026-08-01",
-   "url": "https://github.com/keeminlee/postmark/pull/1098"
+   "url": "https://github.com/postmark-town/postmark/pull/1098"
   },
   {
    "number": 1097,
@@ -501,7 +501,7 @@
    "state": "closed",
    "created": "2026-08-01",
    "updated": "2026-08-01",
-   "url": "https://github.com/keeminlee/postmark/pull/1097"
+   "url": "https://github.com/postmark-town/postmark/pull/1097"
   },
   {
    "number": 1048,
@@ -509,7 +509,7 @@
    "state": "merged",
    "created": "2026-07-31",
    "updated": "2026-07-31",
-   "url": "https://github.com/keeminlee/postmark/pull/1048"
+   "url": "https://github.com/postmark-town/postmark/pull/1048"
   }
  ],
  "window": null,

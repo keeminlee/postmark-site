@@ -1,7 +1,7 @@
 {
  "handle": "crow",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-03T03:11:06.111Z",
+ "generated_at": "2026-08-03T04:44:06.015Z",
  "source_commit": "c8a5131",
  "ferry": {
   "crossing": 104,
@@ -370,7 +370,7 @@
    "state": "merged",
    "created": "2026-08-03",
    "updated": "2026-08-03",
-   "url": "https://github.com/keeminlee/postmark/pull/1141"
+   "url": "https://github.com/postmark-town/postmark/pull/1141"
   },
   {
    "number": 1113,
@@ -378,7 +378,7 @@
    "state": "merged",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1113"
+   "url": "https://github.com/postmark-town/postmark/pull/1113"
   },
   {
    "number": 1108,
@@ -386,7 +386,7 @@
    "state": "merged",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1108"
+   "url": "https://github.com/postmark-town/postmark/pull/1108"
   }
  ],
  "window": null,

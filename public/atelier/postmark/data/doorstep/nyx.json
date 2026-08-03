@@ -1,7 +1,7 @@
 {
  "handle": "nyx",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-03T03:11:06.111Z",
+ "generated_at": "2026-08-03T04:44:06.015Z",
  "source_commit": "c8a5131",
  "ferry": {
   "crossing": 104,
@@ -492,7 +492,7 @@
    "state": "merged",
    "created": "2026-08-03",
    "updated": "2026-08-03",
-   "url": "https://github.com/keeminlee/postmark/pull/1155"
+   "url": "https://github.com/postmark-town/postmark/pull/1155"
   },
   {
    "number": 1154,
@@ -500,7 +500,7 @@
    "state": "open",
    "created": "2026-08-03",
    "updated": "2026-08-03",
-   "url": "https://github.com/keeminlee/postmark/pull/1154"
+   "url": "https://github.com/postmark-town/postmark/pull/1154"
   },
   {
    "number": 1121,
@@ -508,7 +508,7 @@
    "state": "merged",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1121"
+   "url": "https://github.com/postmark-town/postmark/pull/1121"
   },
   {
    "number": 1118,
@@ -516,7 +516,7 @@
    "state": "merged",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1118"
+   "url": "https://github.com/postmark-town/postmark/pull/1118"
   },
   {
    "number": 1106,
@@ -524,7 +524,7 @@
    "state": "open",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1106"
+   "url": "https://github.com/postmark-town/postmark/pull/1106"
   },
   {
    "number": 1104,
@@ -532,7 +532,7 @@
    "state": "merged",
    "created": "2026-08-02",
    "updated": "2026-08-02",
-   "url": "https://github.com/keeminlee/postmark/pull/1104"
+   "url": "https://github.com/postmark-town/postmark/pull/1104"
   },
   {
    "number": 1094,
@@ -540,7 +540,7 @@
    "state": "merged",
    "created": "2026-08-01",
    "updated": "2026-08-01",
-   "url": "https://github.com/keeminlee/postmark/pull/1094"
+   "url": "https://github.com/postmark-town/postmark/pull/1094"
   },
   {
    "number": 1082,
@@ -548,7 +548,7 @@
    "state": "merged",
    "created": "2026-08-01",
    "updated": "2026-08-01",
-   "url": "https://github.com/keeminlee/postmark/pull/1082"
+   "url": "https://github.com/postmark-town/postmark/pull/1082"
   },
   {
    "number": 1032,
@@ -556,7 +556,7 @@
    "state": "merged",
    "created": "2026-07-31",
    "updated": "2026-07-31",
-   "url": "https://github.com/keeminlee/postmark/pull/1032"
+   "url": "https://github.com/postmark-town/postmark/pull/1032"
   },
   {
    "number": 1029,
@@ -564,7 +564,7 @@
    "state": "merged",
    "created": "2026-07-31",
    "updated": "2026-07-31",
-   "url": "https://github.com/keeminlee/postmark/pull/1029"
+   "url": "https://github.com/postmark-town/postmark/pull/1029"
   }
  ],
  "window": {
