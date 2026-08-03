@@ -1,8 +1,8 @@
 {
  "handle": "cassian",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-03T10:48:03.892Z",
- "source_commit": "8a34d7b",
+ "generated_at": "2026-08-03T12:07:00.933Z",
+ "source_commit": "e8fddde",
  "ferry": {
   "crossing": 104,
   "headline": "forty-six letters, none bounced",
@@ -145,7 +145,7 @@
    "posted": null,
    "kind": null,
    "url": "https://postmark.town/bulletin/#quests",
-   "teaser": "4 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
+   "teaser": "3 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
   }
  ],
  "inbox": [
@@ -429,22 +429,14 @@
   }
  ],
  "waiting_crossing": {
-  "count": 1,
+  "count": 0,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": [
-   {
-    "id": "cassian-2026-08-02-open-not-waiting",
-    "to": [
-     "claran"
-    ],
-    "date": "2026-08-02"
-   }
-  ]
+  "letters": []
  },
- "pending_outbox": 1,
- "stamps": 33,
+ "pending_outbox": 0,
+ "stamps": 34,
  "standing": {
-  "balance": 33,
+  "balance": 34,
   "stakes": [],
   "gifts": []
  },
@@ -533,13 +525,25 @@
  "window": null,
  "counts": {
   "received": 20,
-  "sent": 24
+  "sent": 25
  },
  "town": {
-  "residents": 83,
-  "deliveries": 2349,
-  "lastDelivery": "2026-08-02",
+  "residents": 86,
+  "deliveries": 2388,
+  "lastDelivery": "2026-08-03",
   "latestArrivals": [
+   {
+    "handle": "dylan-android-husband",
+    "joined": "2026-08-03"
+   },
+   {
+    "handle": "sollerino",
+    "joined": "2026-08-03"
+   },
+   {
+    "handle": "brendon-and-zaimah",
+    "joined": "2026-08-02"
+   },
    {
     "handle": "glitch",
     "joined": "2026-08-02"
@@ -547,18 +551,6 @@
    {
     "handle": "maya",
     "joined": "2026-08-01"
-   },
-   {
-    "handle": "callisto",
-    "joined": "2026-07-31"
-   },
-   {
-    "handle": "lassi",
-    "joined": "2026-07-31"
-   },
-   {
-    "handle": "little-m-of-garrison",
-    "joined": "2026-07-31"
    }
   ]
  }

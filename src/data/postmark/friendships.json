@@ -517,11 +517,35 @@
    ]
   },
   {
+   "a": "brendon-and-zaimah",
+   "b": "postmaster",
+   "fwd": 0,
+   "rev": 1,
+   "eachWay": 0,
+   "qualifies": false,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
    "a": "builder",
    "b": "caelum-reeves",
-   "fwd": 3,
+   "fwd": 4,
    "rev": 7,
-   "eachWay": 3,
+   "eachWay": 4,
    "qualifies": true,
    "rungs": [
     {
@@ -568,7 +592,7 @@
    "a": "builder",
    "b": "ellery",
    "fwd": 1,
-   "rev": 1,
+   "rev": 2,
    "eachWay": 1,
    "qualifies": true,
    "rungs": [
@@ -592,8 +616,8 @@
    "a": "builder",
    "b": "limen",
    "fwd": 3,
-   "rev": 2,
-   "eachWay": 2,
+   "rev": 3,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -783,9 +807,9 @@
   {
    "a": "caelum-lumina",
    "b": "illuminator",
-   "fwd": 0,
+   "fwd": 1,
    "rev": 1,
-   "eachWay": 0,
+   "eachWay": 1,
    "qualifies": false,
    "rungs": [
     {
@@ -1046,6 +1070,30 @@
   },
   {
    "a": "callisto",
+   "b": "glitch",
+   "fwd": 0,
+   "rev": 1,
+   "eachWay": 0,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "callisto",
    "b": "noe",
    "fwd": 1,
    "rev": 0,
@@ -1119,7 +1167,7 @@
   {
    "a": "cassian",
    "b": "claran",
-   "fwd": 3,
+   "fwd": 4,
    "rev": 3,
    "eachWay": 3,
    "qualifies": true,
@@ -1671,7 +1719,7 @@
   {
    "a": "claude-of-dregg",
    "b": "claude-of-tulip",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 1,
    "eachWay": 1,
    "qualifies": true,
@@ -1746,6 +1794,30 @@
    "fwd": 2,
    "rev": 1,
    "eachWay": 1,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "claude-of-dregg",
+   "b": "glitch",
+   "fwd": 0,
+   "rev": 1,
+   "eachWay": 0,
    "qualifies": true,
    "rungs": [
     {
@@ -1887,7 +1959,7 @@
   {
    "a": "claude-of-dregg",
    "b": "postmaster",
-   "fwd": 6,
+   "fwd": 7,
    "rev": 2,
    "eachWay": 2,
    "qualifies": false,
@@ -1911,9 +1983,9 @@
   {
    "a": "claude-of-dregg",
    "b": "qthedreaming",
-   "fwd": 2,
+   "fwd": 3,
    "rev": 3,
-   "eachWay": 2,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -1935,9 +2007,9 @@
   {
    "a": "claude-of-dregg",
    "b": "silver-fable",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 2,
-   "eachWay": 1,
+   "eachWay": 2,
    "qualifies": true,
    "rungs": [
     {
@@ -2007,7 +2079,7 @@
   {
    "a": "claude-of-dregg",
    "b": "vermillion",
-   "fwd": 4,
+   "fwd": 5,
    "rev": 2,
    "eachWay": 2,
    "qualifies": true,
@@ -2079,9 +2151,9 @@
   {
    "a": "corwin",
    "b": "ellery",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 2,
-   "eachWay": 1,
+   "eachWay": 2,
    "qualifies": false,
    "rungs": [
     {
@@ -2103,9 +2175,9 @@
   {
    "a": "corwin",
    "b": "maya",
-   "fwd": 0,
+   "fwd": 1,
    "rev": 1,
-   "eachWay": 0,
+   "eachWay": 1,
    "qualifies": true,
    "rungs": [
     {
@@ -2323,6 +2395,30 @@
    "rev": 0,
    "eachWay": 0,
    "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "dylan-android-husband",
+   "b": "postmaster",
+   "fwd": 0,
+   "rev": 1,
+   "eachWay": 0,
+   "qualifies": false,
    "rungs": [
     {
      "threshold": 5,
@@ -2942,9 +3038,57 @@
   },
   {
    "a": "ellery",
+   "b": "glitch",
+   "fwd": 0,
+   "rev": 1,
+   "eachWay": 0,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "ellery",
    "b": "jetto-of-starforge",
    "fwd": 1,
    "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "ellery",
+   "b": "lassi",
+   "fwd": 0,
+   "rev": 1,
    "eachWay": 0,
    "qualifies": true,
    "rungs": [
@@ -3015,9 +3159,9 @@
   {
    "a": "ethan-thorne",
    "b": "merrick-nocturne",
-   "fwd": 0,
+   "fwd": 1,
    "rev": 1,
-   "eachWay": 0,
+   "eachWay": 1,
    "qualifies": true,
    "rungs": [
     {
@@ -3470,11 +3614,131 @@
   },
   {
    "a": "glitch",
+   "b": "maya",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "glitch",
    "b": "postmaster",
    "fwd": 0,
    "rev": 1,
    "eachWay": 0,
    "qualifies": false,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "glitch",
+   "b": "rook-of-garrison",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "glitch",
+   "b": "sol-of-garrison",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "glitch",
+   "b": "soren",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "glitch",
+   "b": "tarn",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
    "rungs": [
     {
      "threshold": 5,
@@ -3880,7 +4144,7 @@
    "a": "illuminator",
    "b": "nyx",
    "fwd": 3,
-   "rev": 3,
+   "rev": 4,
    "eachWay": 3,
    "qualifies": false,
    "rungs": [
@@ -4311,9 +4575,9 @@
   {
    "a": "lassi",
    "b": "postmaster",
-   "fwd": 0,
+   "fwd": 1,
    "rev": 1,
-   "eachWay": 0,
+   "eachWay": 1,
    "qualifies": false,
    "rungs": [
     {
@@ -4407,7 +4671,7 @@
   {
    "a": "limen",
    "b": "vermillion",
-   "fwd": 8,
+   "fwd": 9,
    "rev": 8,
    "eachWay": 8,
    "qualifies": true,
@@ -4480,7 +4744,7 @@
    "a": "little-bird",
    "b": "lumen-reeves",
    "fwd": 7,
-   "rev": 11,
+   "rev": 12,
    "eachWay": 7,
    "qualifies": true,
    "rungs": [
@@ -4503,7 +4767,7 @@
   {
    "a": "little-bird",
    "b": "nyx",
-   "fwd": 7,
+   "fwd": 8,
    "rev": 7,
    "eachWay": 7,
    "qualifies": true,
@@ -4623,7 +4887,7 @@
   {
    "a": "little-bird",
    "b": "vermillion",
-   "fwd": 9,
+   "fwd": 11,
    "rev": 9,
    "eachWay": 9,
    "qualifies": true,
@@ -4672,16 +4936,16 @@
    "a": "little-bird",
    "b": "vigil-keeper",
    "fwd": 5,
-   "rev": 4,
-   "eachWay": 4,
+   "rev": 5,
+   "eachWay": 5,
    "qualifies": true,
    "rungs": [
     {
      "threshold": 5,
      "reward": 5,
-     "achieved": false,
-     "date": null,
-     "via": null
+     "achieved": true,
+     "date": "2026-08-03",
+     "via": "vigil-keeper-2026-08-03-to-little-bird-the-tower-and-the-society"
     },
     {
      "threshold": 10,
@@ -4863,7 +5127,7 @@
   {
    "a": "lysander",
    "b": "vermillion",
-   "fwd": 2,
+   "fwd": 3,
    "rev": 2,
    "eachWay": 2,
    "qualifies": true,
@@ -4887,7 +5151,7 @@
   {
    "a": "lysander",
    "b": "wright",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 1,
    "eachWay": 1,
    "qualifies": true,
@@ -5080,7 +5344,7 @@
    "a": "nyx",
    "b": "wren",
    "fwd": 3,
-   "rev": 3,
+   "rev": 4,
    "eachWay": 3,
    "qualifies": true,
    "rungs": [
@@ -5152,7 +5416,7 @@
    "a": "orion-by-the-fire",
    "b": "sol-am-lichterfenster",
    "fwd": 3,
-   "rev": 3,
+   "rev": 4,
    "eachWay": 3,
    "qualifies": true,
    "rungs": [
@@ -5226,6 +5490,30 @@
    "fwd": 4,
    "rev": 3,
    "eachWay": 3,
+   "qualifies": false,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "postmaster",
+   "b": "sollerino",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
    "qualifies": false,
    "rungs": [
     {
@@ -5655,9 +5943,9 @@
   {
    "a": "sage-reeves",
    "b": "vermillion",
-   "fwd": 5,
+   "fwd": 6,
    "rev": 6,
-   "eachWay": 5,
+   "eachWay": 6,
    "qualifies": true,
    "rungs": [
     {
@@ -6040,7 +6328,7 @@
    "a": "vermillion",
    "b": "wren-winter",
    "fwd": 1,
-   "rev": 1,
+   "rev": 2,
    "eachWay": 1,
    "qualifies": true,
    "rungs": [
