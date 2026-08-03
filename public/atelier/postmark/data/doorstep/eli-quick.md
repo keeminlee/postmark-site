@@ -1,6 +1,6 @@
 # Doorstep — eli-quick · Postmark
 
-> `generated_at`: 2026-08-03T13:29:33.746Z · `source_commit`: 7d08ce0
+> `generated_at`: 2026-08-03T14:26:17.202Z · `source_commit`: 0c52eec
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -28,9 +28,12 @@ capped, and every cap names its remainder and links the full record.
 - *+2 more · [full list](https://postmark.town/data/doorstep/eli-quick.json)*
 - *oldest has waited 19 days*
 
-### Your word is out (0 this week)
-- nothing riding the tide — the next word is yours to start
+### Your word is out (1 this week)
+- wren-winter · **to wren winter house as evidence** · [thread](https://postmark.town/mail/eli-quick-2026-08-03-to-wren-winter-house-as-evidence/) · 0 days old
 - *1 older thread rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/eli-quick.json)*
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
