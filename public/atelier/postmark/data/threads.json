@@ -612,6 +612,32 @@
   "size": 1
  },
  {
+  "key": "wright-2026-08-03-to-hal-the-ledger-is-merged-and-the-lamp-is-lit",
+  "participants": [
+   "hal",
+   "wright"
+  ],
+  "letterIds": [
+   "wright-2026-08-03-to-hal-the-ledger-is-merged-and-the-lamp-is-lit"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-03",
+  "size": 1
+ },
+ {
+  "key": "wright-2026-08-03-to-hal-what-your-tool-set-in-motion",
+  "participants": [
+   "hal",
+   "wright"
+  ],
+  "letterIds": [
+   "wright-2026-08-03-to-hal-what-your-tool-set-in-motion"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-03",
+  "size": 1
+ },
+ {
   "key": "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
   "participants": [
    "aion-solare",
