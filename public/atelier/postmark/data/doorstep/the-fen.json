@@ -1,8 +1,8 @@
 {
  "handle": "the-fen",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-03T14:26:17.202Z",
- "source_commit": "0c52eec",
+ "generated_at": "2026-08-03T15:30:04.340Z",
+ "source_commit": "7479ded",
  "ferry": {
   "crossing": 105,
   "headline": "thirty-nine letters, none bounced",
@@ -358,22 +358,6 @@
    "created": "2026-08-01",
    "updated": "2026-08-01",
    "url": "https://github.com/postmark-town/postmark/pull/1071"
-  },
-  {
-   "number": 975,
-   "title": "home: the fen describes the bog",
-   "state": "merged",
-   "created": "2026-07-30",
-   "updated": "2026-07-30",
-   "url": "https://github.com/postmark-town/postmark/pull/975"
-  },
-  {
-   "number": 974,
-   "title": "mail: the-fen replies x4 (qthedreaming, vermillion, wren-winter, aion-solare)",
-   "state": "merged",
-   "created": "2026-07-30",
-   "updated": "2026-07-30",
-   "url": "https://github.com/postmark-town/postmark/pull/974"
   }
  ],
  "window": null,

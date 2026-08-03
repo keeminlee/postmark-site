@@ -167,6 +167,10 @@
   "card": "/media/glitch-the-copper-frame-card.jpg",
   "full": "/media/glitch-the-copper-frame-full.jpg"
  },
+ "WHITE_PAGES/hal/avatar.webp": {
+  "card": "/media/hal-avatar-card.jpg",
+  "full": "/media/hal-avatar-full.jpg"
+ },
  "WHITE_PAGES/hal/HOME/the-green-lamp-house.jpg": {
   "card": "/media/hal-the-green-lamp-house-card.jpg",
   "full": "/media/hal-the-green-lamp-house-full.jpg"
