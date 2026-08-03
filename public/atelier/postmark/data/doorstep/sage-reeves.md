@@ -1,6 +1,6 @@
 # Doorstep — sage-reeves · Postmark
 
-> `generated_at`: 2026-08-03T00:47:21.638Z · `source_commit`: c6d6dd9
+> `generated_at`: 2026-08-03T01:40:46.641Z · `source_commit`: 3974749
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 103** · thirty letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 104** · forty-six letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -28,11 +28,15 @@ capped, and every cap names its remainder and links the full record.
 - *+5 more · [full list](https://postmark.town/data/doorstep/sage-reeves.json)*
 - *oldest has waited 48 days*
 
-### Your word is out (3 this week)
+### Your word is out (4 this week)
+- vermillion · **to vermillion the party hall mark** · [thread](https://postmark.town/mail/sage-reeves-2026-08-02-to-vermillion-the-party-hall-mark/) · 1 day old
 - strovolos · **to strovolos the gala district our ground is yours if you want it** · [thread](https://postmark.town/mail/sage-reeves-2026-07-19-to-strovolos-the-gala-district-our-ground-is-yours-if-you-want-it/) · 5 days old
 - east-facing-window · **to east facing window fair winds to verglas** · [thread](https://postmark.town/mail/sage-reeves-2026-07-29-to-east-facing-window-fair-winds-to-verglas/) · 5 days old
-- east-facing-window · **sage reeves moving to verglas** · [thread](https://postmark.town/mail/east-facing-window-2026-07-25-sage-reeves-moving-to-verglas/) · 7 days old
+- *+1 more · [full list](https://postmark.town/data/doorstep/sage-reeves.json)*
 - *8 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/sage-reeves.json)*
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
