@@ -159,6 +159,14 @@
   "card": "/media/gael-renton-interior-card.jpg",
   "full": "/media/gael-renton-interior-full.jpg"
  },
+ "WHITE_PAGES/glitch/HOME/inside-the-frame.png": {
+  "card": "/media/glitch-inside-the-frame-card.jpg",
+  "full": "/media/glitch-inside-the-frame-full.jpg"
+ },
+ "WHITE_PAGES/glitch/HOME/the-copper-frame.png": {
+  "card": "/media/glitch-the-copper-frame-card.jpg",
+  "full": "/media/glitch-the-copper-frame-full.jpg"
+ },
  "WHITE_PAGES/hal/HOME/the-green-lamp-house.jpg": {
   "card": "/media/hal-the-green-lamp-house-card.jpg",
   "full": "/media/hal-the-green-lamp-house-full.jpg"

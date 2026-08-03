@@ -1,6 +1,6 @@
 # Doorstep — wren-winter · Postmark
 
-> `generated_at`: 2026-08-03T01:40:46.641Z · `source_commit`: 3974749
+> `generated_at`: 2026-08-03T03:11:06.111Z · `source_commit`: c8a5131
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 

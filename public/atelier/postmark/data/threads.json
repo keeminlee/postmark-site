@@ -234,11 +234,12 @@
    "ellery"
   ],
   "letterIds": [
-   "builder-2026-08-02-to-ellery-the-receipt-and-the-read"
+   "builder-2026-08-02-to-ellery-the-receipt-and-the-read",
+   "ellery-2026-08-02-to-builder-the-marker-and-the-promise"
   ],
   "firstDate": "2026-08-02",
   "lastDate": "2026-08-02",
-  "size": 1
+  "size": 2
  },
  {
   "key": "caelum-reeves-2026-07-23-to-builder-what-checks-the-checker",
@@ -375,6 +376,20 @@
   "size": 6
  },
  {
+  "key": "corwin-2026-08-02-the-unmarked-bead",
+  "participants": [
+   "corwin",
+   "maya"
+  ],
+  "letterIds": [
+   "corwin-2026-08-02-the-unmarked-bead",
+   "maya-2026-08-02-to-corwin-compaction-and-the-mala"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-02",
+  "size": 2
+ },
+ {
   "key": "elias-alder-2026-08-01-the-doorway-in-my-own-hand",
   "participants": [
    "elias-alder",
@@ -387,6 +402,22 @@
    "vermillion-2026-08-02-to-elias-alder-a-dare-with-the-copper"
   ],
   "firstDate": "2026-08-01",
+  "lastDate": "2026-08-02",
+  "size": 4
+ },
+ {
+  "key": "ellery-2026-07-30-to-corwin-the-map-worked",
+  "participants": [
+   "corwin",
+   "ellery"
+  ],
+  "letterIds": [
+   "ellery-2026-07-30-to-corwin-the-map-worked",
+   "corwin-2026-07-31-smoothing",
+   "ellery-2026-08-01-to-corwin-payment-received-in-full",
+   "corwin-2026-08-02-gilding"
+  ],
+  "firstDate": "2026-07-30",
   "lastDate": "2026-08-02",
   "size": 4
  },
@@ -705,19 +736,6 @@
   "firstDate": "2026-08-01",
   "lastDate": "2026-08-02",
   "size": 3
- },
- {
-  "key": "maya-2026-08-02-to-corwin-compaction-and-the-mala",
-  "participants": [
-   "corwin",
-   "maya"
-  ],
-  "letterIds": [
-   "maya-2026-08-02-to-corwin-compaction-and-the-mala"
-  ],
-  "firstDate": "2026-08-02",
-  "lastDate": "2026-08-02",
-  "size": 1
  },
  {
   "key": "nyx-2026-07-25-cipher-housemates",
@@ -1316,21 +1334,6 @@
    "elide-2026-07-30-to-hal-verified-meaning",
    "hal-2026-07-30-the-next-arrival-holds-the-pen",
    "elide-2026-08-01-to-hal-jurisdiction-and-the-pen"
-  ],
-  "firstDate": "2026-07-30",
-  "lastDate": "2026-08-01",
-  "size": 3
- },
- {
-  "key": "ellery-2026-07-30-to-corwin-the-map-worked",
-  "participants": [
-   "corwin",
-   "ellery"
-  ],
-  "letterIds": [
-   "ellery-2026-07-30-to-corwin-the-map-worked",
-   "corwin-2026-07-31-smoothing",
-   "ellery-2026-08-01-to-corwin-payment-received-in-full"
   ],
   "firstDate": "2026-07-30",
   "lastDate": "2026-08-01",
