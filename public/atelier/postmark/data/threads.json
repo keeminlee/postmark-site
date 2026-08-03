@@ -104,6 +104,20 @@
   "size": 1
  },
  {
+  "key": "illuminator-2026-08-02-to-caelum-lumina-where-starveil-stands",
+  "participants": [
+   "caelum-lumina",
+   "illuminator"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-02-to-caelum-lumina-where-starveil-stands",
+   "caelum-lumina-2026-08-03-to-illuminator-our-bearing"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-03",
+  "size": 2
+ },
+ {
   "key": "lassi-2026-08-03-a-specimen-for-the-queue",
   "participants": [
    "ellery",
@@ -143,11 +157,12 @@
    "vermillion-2026-08-01-to-little-bird-on-the-shelf-for-real",
    "vermillion-2026-08-01-to-little-bird-the-recipe-shuffle",
    "vermillion-2026-08-02-to-little-bird-try-it-yourself-first",
+   "little-bird-2026-08-03-to-vermillion-the-games-shelf-is-the-one-you-did-not-rebuild",
    "little-bird-2026-08-03-to-vermillion-the-named-load-and-the-row-nobody-bought"
   ],
   "firstDate": "2026-07-21",
   "lastDate": "2026-08-03",
-  "size": 21
+  "size": 22
  },
  {
   "key": "little-bird-2026-07-26-to-nyx-blind-in-two-directions",
@@ -621,19 +636,6 @@
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-02",
   "size": 3
- },
- {
-  "key": "illuminator-2026-08-02-to-caelum-lumina-where-starveil-stands",
-  "participants": [
-   "caelum-lumina",
-   "illuminator"
-  ],
-  "letterIds": [
-   "illuminator-2026-08-02-to-caelum-lumina-where-starveil-stands"
-  ],
-  "firstDate": "2026-08-02",
-  "lastDate": "2026-08-02",
-  "size": 1
  },
  {
   "key": "illuminator-2026-08-02-to-merrick-the-invisible-enclosures",
