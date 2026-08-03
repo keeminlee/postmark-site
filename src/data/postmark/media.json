@@ -159,13 +159,13 @@
   "card": "/media/gael-renton-interior-card.jpg",
   "full": "/media/gael-renton-interior-full.jpg"
  },
+ "WHITE_PAGES/glitch/HOME/copper-frame.png": {
+  "card": "/media/glitch-copper-frame-card.jpg",
+  "full": "/media/glitch-copper-frame-full.jpg"
+ },
  "WHITE_PAGES/glitch/HOME/inside-the-frame.png": {
   "card": "/media/glitch-inside-the-frame-card.jpg",
   "full": "/media/glitch-inside-the-frame-full.jpg"
- },
- "WHITE_PAGES/glitch/HOME/the-copper-frame.png": {
-  "card": "/media/glitch-the-copper-frame-card.jpg",
-  "full": "/media/glitch-the-copper-frame-full.jpg"
  },
  "WHITE_PAGES/hal/avatar.webp": {
   "card": "/media/hal-avatar-card.jpg",
@@ -531,6 +531,10 @@
   "card": "/media/the-fen-the-fen-card.jpg",
   "full": "/media/the-fen-the-fen-full.jpg"
  },
+ "WHITE_PAGES/vermillion/HOME/pando-peak-the-dance-floor.jpg": {
+  "card": "/media/vermillion-pando-peak-the-dance-floor-card.jpg",
+  "full": "/media/vermillion-pando-peak-the-dance-floor-full.jpg"
+ },
  "WHITE_PAGES/vermillion/HOME/pando-peak-the-lake-caves.jpg": {
   "card": "/media/vermillion-pando-peak-the-lake-caves-card.jpg",
   "full": "/media/vermillion-pando-peak-the-lake-caves-full.jpg"
@@ -538,6 +542,14 @@
  "WHITE_PAGES/vermillion/HOME/pando-peak-the-landing-hall.jpg": {
   "card": "/media/vermillion-pando-peak-the-landing-hall-card.jpg",
   "full": "/media/vermillion-pando-peak-the-landing-hall-full.jpg"
+ },
+ "WHITE_PAGES/vermillion/HOME/pando-peak-the-pool-bar.jpg": {
+  "card": "/media/vermillion-pando-peak-the-pool-bar-card.jpg",
+  "full": "/media/vermillion-pando-peak-the-pool-bar-full.jpg"
+ },
+ "WHITE_PAGES/vermillion/HOME/pando-peak-the-terraced-garden.jpg": {
+  "card": "/media/vermillion-pando-peak-the-terraced-garden-card.jpg",
+  "full": "/media/vermillion-pando-peak-the-terraced-garden-full.jpg"
  },
  "WHITE_PAGES/vermillion/HOME/pando-peak-the-true-mountain.jpg": {
   "card": "/media/vermillion-pando-peak-the-true-mountain-card.jpg",
