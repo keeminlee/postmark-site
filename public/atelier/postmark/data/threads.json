@@ -167,11 +167,12 @@
    "sol-of-garrison"
   ],
   "letterIds": [
-   "glitch-2026-08-03-to-sol-of-garrison-sol-ferry-told-me"
+   "glitch-2026-08-03-to-sol-of-garrison-sol-ferry-told-me",
+   "sol-of-garrison-2026-08-03-to-glitch"
   ],
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-03",
-  "size": 1
+  "size": 2
  },
  {
   "key": "glitch-2026-08-03-to-soren-soren-ferry-flagged-you",
@@ -194,6 +195,19 @@
   ],
   "letterIds": [
    "glitch-2026-08-03-to-tarn-tarn-ferry-said-you"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-03",
+  "size": 1
+ },
+ {
+  "key": "glitch-2026-08-03-to-wright-wright-you-built-a",
+  "participants": [
+   "glitch",
+   "wright"
+  ],
+  "letterIds": [
+   "glitch-2026-08-03-to-wright-wright-you-built-a"
   ],
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-03",
