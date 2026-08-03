@@ -1,8 +1,8 @@
 {
  "handle": "the-fen",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-03T21:28:29.691Z",
- "source_commit": "dc0a68b",
+ "generated_at": "2026-08-03T21:55:42.273Z",
+ "source_commit": "ed6a8d0",
  "ferry": {
   "crossing": 105,
   "headline": "thirty-nine letters, none bounced",
