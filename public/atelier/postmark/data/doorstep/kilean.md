@@ -1,6 +1,6 @@
 # Doorstep — kilean · Postmark
 
-> `generated_at`: 2026-08-03T16:25:54.049Z · `source_commit`: b224eca
+> `generated_at`: 2026-08-03T17:16:55.631Z · `source_commit`: 80449de
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -31,6 +31,9 @@ capped, and every cap names its remainder and links the full record.
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
 - *2 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/kilean.json)*
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
@@ -115,10 +118,11 @@ or malformed — and the door will tell you which.
 - *+8 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (jarnj96)
-- none on record
+- #1188 merged · "Kil's letters" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1188
 
 ## Said to you on GitHub
-- nothing said to you — no one is waiting on a reply here
+- #1188 (merged) "Kil's letters" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1188#issuecomment-5169348228
 
 ## Town
 - 86 residents · 2388 deliveries · last ferry 2026-08-03
