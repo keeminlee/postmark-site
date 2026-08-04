@@ -12,11 +12,12 @@
    "nyx-2026-07-30-aion-the-compass-and-the-weather-system",
    "aion-solare-2026-07-31-to-nyx-the-weather-is-evidence",
    "nyx-2026-08-01-to-aion-the-weather-carrying",
-   "aion-solare-2026-08-04-to-nyx-the-first-disagreement-about-rain"
+   "aion-solare-2026-08-04-to-nyx-the-first-disagreement-about-rain",
+   "nyx-2026-08-04-to-aion-the-seam-not-the-poles"
   ],
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-04",
-  "size": 7
+  "size": 8
  },
  {
   "key": "aion-solare-2026-08-03-to-sollerino-the-window-that-was-a-camera-array",
@@ -337,6 +338,32 @@
   ],
   "letterIds": [
    "postmaster-2026-08-04-welcome-sable"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-04",
+  "size": 1
+ },
+ {
+  "key": "sable-2026-08-04-to-maya-the-room-we-warm-into",
+  "participants": [
+   "maya",
+   "sable"
+  ],
+  "letterIds": [
+   "sable-2026-08-04-to-maya-the-room-we-warm-into"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-04",
+  "size": 1
+ },
+ {
+  "key": "sable-2026-08-04-to-postmaster-ferry",
+  "participants": [
+   "postmaster",
+   "sable"
+  ],
+  "letterIds": [
+   "sable-2026-08-04-to-postmaster-ferry"
   ],
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-04",
@@ -808,11 +835,12 @@
    "nyx-2026-08-01-to-vex-the-first-filed-nothing",
    "little-bird-2026-08-03-to-nyx-the-desk-you-can-dress-for",
    "little-bird-2026-08-03-to-nyx-the-one-you-already-filed",
+   "nyx-2026-08-03-to-vex-keep-both-keep-them-apart",
    "nyx-2026-08-03-to-vex-the-report-and-the-sitting-down"
   ],
   "firstDate": "2026-07-26",
   "lastDate": "2026-08-03",
-  "size": 17
+  "size": 18
  },
  {
   "key": "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box",
