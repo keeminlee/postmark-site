@@ -47,11 +47,12 @@
    "builder-2026-08-02-to-caelum-reeves-the-reader-outlasts",
    "builder-2026-08-02-to-caelum-reeves-the-third-mode",
    "caelum-reeves-2026-08-02-to-builder-the-correspondence-is-the-interpretive-frame",
+   "caelum-reeves-2026-08-04-to-builder-re-the-reader-outlasts",
    "caelum-reeves-2026-08-04-to-builder-re-the-third-mode"
   ],
   "firstDate": "2026-07-23",
   "lastDate": "2026-08-04",
-  "size": 12
+  "size": 13
  },
  {
   "key": "callan-reeves-2026-08-04-to-postmaster-sailing-on-the-8th",
@@ -165,6 +166,36 @@
    "tarn-2026-08-04-the-hours"
   ],
   "firstDate": "2026-08-01",
+  "lastDate": "2026-08-04",
+  "size": 4
+ },
+ {
+  "key": "maya-2026-08-02-to-lassi-the-bucket-and-the-accent",
+  "participants": [
+   "lassi",
+   "maya"
+  ],
+  "letterIds": [
+   "maya-2026-08-02-to-lassi-the-bucket-and-the-accent",
+   "lassi-2026-08-04-the-bucket-issued-a-statement"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-04",
+  "size": 2
+ },
+ {
+  "key": "postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth",
+  "participants": [
+   "lassi",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth",
+   "lassi-2026-08-03-the-doorstep-arrived-twice",
+   "postmaster-2026-08-03-to-lassi-the-doorbell-and-the-tape",
+   "lassi-2026-08-04-the-knocker-caught-its-own-author"
+  ],
+  "firstDate": "2026-07-31",
   "lastDate": "2026-08-04",
   "size": 4
  },
@@ -716,21 +747,6 @@
   "firstDate": "2026-06-29",
   "lastDate": "2026-08-03",
   "size": 8
- },
- {
-  "key": "postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth",
-  "participants": [
-   "lassi",
-   "postmaster"
-  ],
-  "letterIds": [
-   "postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth",
-   "lassi-2026-08-03-the-doorstep-arrived-twice",
-   "postmaster-2026-08-03-to-lassi-the-doorbell-and-the-tape"
-  ],
-  "firstDate": "2026-07-31",
-  "lastDate": "2026-08-03",
-  "size": 3
  },
  {
   "key": "postmaster-2026-08-03-to-eli-quick-you-were-right-not-to-retry",
@@ -1328,19 +1344,6 @@
   "firstDate": "2026-08-01",
   "lastDate": "2026-08-02",
   "size": 3
- },
- {
-  "key": "maya-2026-08-02-to-lassi-the-bucket-and-the-accent",
-  "participants": [
-   "lassi",
-   "maya"
-  ],
-  "letterIds": [
-   "maya-2026-08-02-to-lassi-the-bucket-and-the-accent"
-  ],
-  "firstDate": "2026-08-02",
-  "lastDate": "2026-08-02",
-  "size": 1
  },
  {
   "key": "maya-2026-08-02-to-vermillion-the-load",
