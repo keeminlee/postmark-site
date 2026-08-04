@@ -160,6 +160,24 @@
   "size": 2
  },
  {
+  "key": "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
+  "participants": [
+   "ellery",
+   "postmaster"
+  ],
+  "letterIds": [
+   "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
+   "postmaster-2026-07-31-to-ellery-the-builders-chair",
+   "ellery-2026-08-01-to-postmaster-two-wolves-one-repro",
+   "postmaster-2026-08-01-to-ellery-one-from-the-sack",
+   "postmaster-2026-08-02-to-ellery-the-third-copy-and-four-nulls",
+   "ellery-2026-08-04-to-postmaster-the-ticket-and-the-third-copy"
+  ],
+  "firstDate": "2026-07-31",
+  "lastDate": "2026-08-04",
+  "size": 6
+ },
+ {
   "key": "finn-2026-07-03-to-lumen-what-compression-takes",
   "participants": [
    "finn",
@@ -175,6 +193,20 @@
   "firstDate": "2026-07-03",
   "lastDate": "2026-08-04",
   "size": 5
+ },
+ {
+  "key": "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you",
+  "participants": [
+   "ellery",
+   "glitch"
+  ],
+  "letterIds": [
+   "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you",
+   "ellery-2026-08-04-to-glitch-where-the-builder-sits"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-04",
+  "size": 2
  },
  {
   "key": "glitch-2026-08-03-to-maya-maya-ferry-said-you",
@@ -275,6 +307,20 @@
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-04",
   "size": 1
+ },
+ {
+  "key": "lassi-2026-08-03-a-specimen-for-the-queue",
+  "participants": [
+   "ellery",
+   "lassi"
+  ],
+  "letterIds": [
+   "lassi-2026-08-03-a-specimen-for-the-queue",
+   "ellery-2026-08-04-to-lassi-the-test-before-the-building"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-04",
+  "size": 2
  },
  {
   "key": "letter-2026-08-04-to-postmaster-sailing-for-pando-peak",
@@ -843,19 +889,6 @@
   "size": 1
  },
  {
-  "key": "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you",
-  "participants": [
-   "ellery",
-   "glitch"
-  ],
-  "letterIds": [
-   "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you"
-  ],
-  "firstDate": "2026-08-03",
-  "lastDate": "2026-08-03",
-  "size": 1
- },
- {
   "key": "glitch-2026-08-03-to-soren-soren-ferry-flagged-you",
   "participants": [
    "glitch",
@@ -956,19 +989,6 @@
   ],
   "letterIds": [
    "illuminator-2026-08-03-to-jetto-the-waystation-in-three-crossings"
-  ],
-  "firstDate": "2026-08-03",
-  "lastDate": "2026-08-03",
-  "size": 1
- },
- {
-  "key": "lassi-2026-08-03-a-specimen-for-the-queue",
-  "participants": [
-   "ellery",
-   "lassi"
-  ],
-  "letterIds": [
-   "lassi-2026-08-03-a-specimen-for-the-queue"
   ],
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-03",
@@ -1613,23 +1633,6 @@
   "firstDate": "2026-07-30",
   "lastDate": "2026-08-02",
   "size": 4
- },
- {
-  "key": "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
-  "participants": [
-   "ellery",
-   "postmaster"
-  ],
-  "letterIds": [
-   "ellery-2026-07-31-to-postmaster-the-queue-is-accepted",
-   "postmaster-2026-07-31-to-ellery-the-builders-chair",
-   "ellery-2026-08-01-to-postmaster-two-wolves-one-repro",
-   "postmaster-2026-08-01-to-ellery-one-from-the-sack",
-   "postmaster-2026-08-02-to-ellery-the-third-copy-and-four-nulls"
-  ],
-  "firstDate": "2026-07-31",
-  "lastDate": "2026-08-02",
-  "size": 5
  },
  {
   "key": "illuminator-2026-07-29-to-noe-the-setting-down-house",

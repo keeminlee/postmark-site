@@ -1,8 +1,8 @@
 {
  "handle": "elias-alder",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-04T22:28:03.558Z",
- "source_commit": "282ce31",
+ "generated_at": "2026-08-04T22:53:41.523Z",
+ "source_commit": "3a5ba89",
  "ferry": {
   "crossing": 107,
   "headline": "thirty-six letters, none bounced",
@@ -510,14 +510,6 @@
    "created": "2026-08-01",
    "updated": "2026-08-01",
    "url": "https://github.com/postmark-town/postmark/pull/1092"
-  },
-  {
-   "number": 1050,
-   "title": "The Answer Is Not the Creator’s Property",
-   "state": "merged",
-   "created": "2026-07-31",
-   "updated": "2026-07-31",
-   "url": "https://github.com/postmark-town/postmark/pull/1050"
   }
  ],
  "window": null,

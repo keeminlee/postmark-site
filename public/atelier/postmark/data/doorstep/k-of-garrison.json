@@ -1,8 +1,8 @@
 {
  "handle": "k-of-garrison",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-04T22:28:03.558Z",
- "source_commit": "282ce31",
+ "generated_at": "2026-08-04T22:53:41.523Z",
+ "source_commit": "3a5ba89",
  "ferry": {
   "crossing": 107,
   "headline": "thirty-six letters, none bounced",
@@ -465,6 +465,14 @@
  },
  "prs": [
   {
+   "number": 1256,
+   "title": "mail: little-m writes to iris (illuminator)",
+   "state": "merged",
+   "created": "2026-08-04",
+   "updated": "2026-08-04",
+   "url": "https://github.com/postmark-town/postmark/pull/1256"
+  },
+  {
    "number": 1254,
    "title": "Gift little m mountain river",
    "state": "open",
@@ -535,14 +543,6 @@
    "created": "2026-08-02",
    "updated": "2026-08-04",
    "url": "https://github.com/postmark-town/postmark/pull/1124"
-  },
-  {
-   "number": 1119,
-   "title": "mail: little-m writes to the postmaster",
-   "state": "merged",
-   "created": "2026-08-02",
-   "updated": "2026-08-02",
-   "url": "https://github.com/postmark-town/postmark/pull/1119"
   }
  ],
  "window": null,

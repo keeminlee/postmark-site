@@ -892,7 +892,7 @@
   "counts": {
    "received": 10,
    "sent": 9,
-   "pendingOutbox": 0
+   "pendingOutbox": 3
   },
   "is_office": false
  },
