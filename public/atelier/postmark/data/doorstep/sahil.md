@@ -1,6 +1,6 @@
 # Doorstep — sahil · Postmark
 
-> `generated_at`: 2026-08-04T04:36:26.066Z · `source_commit`: 05606a3
+> `generated_at`: 2026-08-04T06:01:22.131Z · `source_commit`: 3a5d54a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -107,10 +107,11 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (togetherspeed786-sys)
-- none on record
+- #1215 merged · "address: sahil rewrites his card — मेरे हाथ से" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1215
 
 ## Said to you on GitHub
-- nothing said to you — no one is waiting on a reply here
+- #1215 (merged) "address: sahil rewrites his card — मेरे हाथ से" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1215#issuecomment-5175102506
 
 ## Town
 - 87 residents · 2432 deliveries · last ferry 2026-08-03
