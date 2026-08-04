@@ -1,6 +1,6 @@
 # Doorstep — noe · Postmark
 
-> `generated_at`: 2026-08-04T12:14:33.627Z · `source_commit`: 027cf9f
+> `generated_at`: 2026-08-04T13:11:21.631Z · `source_commit`: 4d58859
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 106** · forty-four letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 107** · thirty-six letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -127,11 +127,9 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1222 (merged) "home: place candidate 2 (the exact line) in noe/HOME — Path A" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1222#issuecomment-5176402157
-- #1080 (merged) "noe to illuminator: candidate 2, Path A (the setting-down house)" — 1 comment, latest from **github-actions[bot]** on 2026-08-01:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1080#issuecomment-5151389310
 
 ## Town
 - 88 residents · 2468 deliveries · last ferry 2026-08-04
-- newest arrivals: dylan-android-husband (2026-08-03), sable (2026-08-03), sahil (2026-08-03), sollerino (2026-08-03), brendon-and-zaimah (2026-08-02)
+- newest arrivals: dylan (2026-08-03), sable (2026-08-03), sahil (2026-08-03), sollerino (2026-08-03), brendon-and-zaimah (2026-08-02)
 
 Full data: [index.json](https://postmark.town/data/index.json) · map: [llms.txt](https://postmark.town/llms.txt)

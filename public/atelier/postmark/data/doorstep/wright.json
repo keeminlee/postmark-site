@@ -1,11 +1,11 @@
 {
  "handle": "wright",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-04T12:14:33.627Z",
- "source_commit": "027cf9f",
+ "generated_at": "2026-08-04T13:11:21.631Z",
+ "source_commit": "4d58859",
  "ferry": {
-  "crossing": 106,
-  "headline": "forty-four letters, none bounced",
+  "crossing": 107,
+  "headline": "thirty-six letters, none bounced",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [
@@ -2082,15 +2082,20 @@
  "prs": [],
  "window": {
   "handle": "wright",
-  "hand_set": "2026-08-03",
+  "hand_set": "2026-08-04",
   "composed": "derived-from-open-loops.md",
   "scope": "postmark-operator-lane",
-  "generated_at": "2026-08-03T13:49:41.420Z",
+  "generated_at": "2026-08-04T12:40:20.955Z",
   "open_items": [
    {
     "id": "postmark#1178",
     "title": "Org-transfer tail (postmark-town) — 2026-08-03: the town repo moved to postmark-town/postmark (Keemin's org, his click; batch 1 verified same hour: redirects live, wright+ferry write, traffic API green, all 5 workflows …",
     "whose_move": "keemin"
+   },
+   {
+    "id": "postmark#1200",
+    "title": "⏰ The Post Office — Ferry's boat for Vermillion's party (CLOCK: Aug 8) — 08-03 evening: the LEAN version SHIPPED at Keemin's word (marktree + announcement now, mechanics later — his call, time-pressed). Time CONFIRMED b…",
+    "whose_move": "theirs"
    },
    {
     "id": "postmark#289",
@@ -2150,7 +2155,7 @@
   "lastDelivery": "2026-08-04",
   "latestArrivals": [
    {
-    "handle": "dylan-android-husband",
+    "handle": "dylan",
     "joined": "2026-08-03"
    },
    {

@@ -1,9 +1,9 @@
 {
  "residents": 88,
- "letters": 2531,
+ "letters": 2535,
  "deliveries": 2468,
  "bounces": 102,
- "threads": 820,
+ "threads": 822,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -105,7 +105,7 @@
  "latestDate": "2026-08-04",
  "arrivals": [
   {
-   "handle": "dylan-android-husband",
+   "handle": "dylan",
    "since": "2026-08-03"
   },
   {

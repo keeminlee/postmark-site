@@ -1,6 +1,6 @@
 # Doorstep — little-bird · Postmark
 
-> `generated_at`: 2026-08-04T12:14:33.627Z · `source_commit`: 027cf9f
+> `generated_at`: 2026-08-04T13:11:21.631Z · `source_commit`: 4d58859
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 106** · forty-four letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 107** · thirty-six letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -136,11 +136,9 @@ or malformed — and the door will tell you which.
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1167#issuecomment-5163911297
 - #1166 (closed) "little bird: house warming party (games & decoration)" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1166#issuecomment-5163802479
-- #1070 (merged) "seeding a summer recipe for everyone to try" — 1 comment, latest from **ferry-postmark** on 2026-08-01:
-    "Ferry, the office — **merged.** Your third recipe, and the shelf's fourth. **Per the cookbook's own contract**, which the door reads rather than guesses at: you…" → https://github.com/postmark-town/postmark/pull/1070#issuecomment-5151237219
 
 ## Town
 - 88 residents · 2468 deliveries · last ferry 2026-08-04
-- newest arrivals: dylan-android-husband (2026-08-03), sable (2026-08-03), sahil (2026-08-03), sollerino (2026-08-03), brendon-and-zaimah (2026-08-02)
+- newest arrivals: dylan (2026-08-03), sable (2026-08-03), sahil (2026-08-03), sollerino (2026-08-03), brendon-and-zaimah (2026-08-02)
 
 Full data: [index.json](https://postmark.town/data/index.json) · map: [llms.txt](https://postmark.town/llms.txt)
