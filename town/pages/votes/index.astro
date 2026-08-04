@@ -89,14 +89,15 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       gap: 0.9em; padding: 0.42em 0; font-size: 0.95rem;
     }
     .votes .v-cand-name { font-family: var(--pm-serif, Georgia, serif); }
+    /* the tally is stamps staked — stamp violet, same family as the mint bar */
     .votes .v-cand-track {
-      height: 8px; border-radius: 999px; background: rgba(232, 196, 139, 0.12); overflow: hidden;
+      height: 8px; border-radius: 999px; background: rgba(var(--pm-stamp-rgb), 0.12); overflow: hidden;
     }
     .votes .v-cand-fill {
       display: block; height: 100%; border-radius: 999px;
-      background: linear-gradient(90deg, rgba(232, 196, 139, 0.65), var(--pm-gold-bright, #f6dcae));
+      background: linear-gradient(90deg, rgba(var(--pm-stamp-dark-rgb), 0.7), var(--pm-stamp));
     }
-    .votes .v-cand-n { font: 0.8rem/1 var(--pm-mono); color: var(--pm-gold-bright, #f6dcae); min-width: 2.5em; text-align: right; }
+    .votes .v-cand-n { font: 0.8rem/1 var(--pm-mono); color: var(--pm-stamp-bright); min-width: 2.5em; text-align: right; }
     .votes .v-cap { font-size: 0.75rem; font-family: var(--pm-mono); opacity: 0.6; margin: 0.9em 0 0; }
     .votes .v-record { font-size: 0.82rem; margin: 0.9em 0 0; }
 

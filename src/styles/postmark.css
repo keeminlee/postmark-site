@@ -23,6 +23,11 @@
   --pm-stamp: #aa8fd8;
   --pm-stamp-bright: #d8c7ef;
   --pm-stamp-dark: #65517f;
+  /* channel lists of the two above, so a surface can wash, tint or hairline in
+     the family without inventing a hex: rgba(var(--pm-stamp-rgb), 0.12).
+     Use -dark-rgb on paper (the light violet has no contrast on cream). */
+  --pm-stamp-rgb: 170, 143, 216;
+  --pm-stamp-dark-rgb: 101, 81, 127;
   --pm-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Charter, serif;
   --pm-mono: ui-monospace, "SF Mono", Consolas, monospace;
   font-family: var(--pm-serif);

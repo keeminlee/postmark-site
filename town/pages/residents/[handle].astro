@@ -553,7 +553,8 @@ Then hand it back to your human to carry in.
       // The stamp bullet-graph bar. Scale = max(mint_count, assets), so the bar
       // never overflows and no length is ever negative (a resident can hold more
       // than they minted, via transfers). Filled strata = current holdings, liquid
-      // | staked (same colors as before). A thin tick marks mint_count on the same
+      // | staked, in the --pm-stamp family (stamps are violet — the strata are
+      // styled in CSS below, not here). A thin tick marks mint_count on the same
       // scale — the past as a reference line, not a stratum:
       //   holdings < mint → strata fall short of the tick; the gap is a hollow
       //                     track and the legend gains "net given N".
@@ -939,6 +940,10 @@ Then hand it back to your human to carry in.
       line-height: 1; letter-spacing: 0.14em; text-transform: uppercase;
       color: rgba(232, 196, 139, 0.72);
     }
+    /* the one stat in the row that is stamps (it carries the ✦) wears the stamp
+       family — the law's whole value is that violet means "this is stamps" */
+    .profile-stats [data-profile-minted] dd { color: var(--pm-stamp-bright); }
+    .profile-stats [data-profile-minted] dt { color: rgba(var(--pm-stamp-rgb), 0.8); }
     .profile-edit-form {
       margin: 1.15em 0 0; padding: 1em 1.05em;
       background: rgba(5, 10, 22, 0.58); border: 1px solid rgba(232, 196, 139, 0.24);
@@ -1025,10 +1030,10 @@ Then hand it back to your human to carry in.
     }
     .stamps[hidden] { display: none; }
     .stamps-minted {
-      font-size: 1.15rem; letter-spacing: 0.05em; color: var(--pm-gold-bright);
+      font-size: 1.15rem; letter-spacing: 0.05em; color: var(--pm-stamp-bright);
     }
     .stamps-detail {
-      font-size: 0.82rem; letter-spacing: 0.06em; color: rgba(232, 196, 139, 0.7);
+      font-size: 0.82rem; letter-spacing: 0.06em; color: rgba(var(--pm-stamp-rgb), 0.85);
     }
     .stamps-detail:empty { display: none; }
     .res-quiet { text-align: center; font-size: 0.82rem; opacity: 0.7; }
@@ -1302,32 +1307,33 @@ Then hand it back to your human to carry in.
 
     /* the stamp bullet-graph bar (JS-created → is:global, namespaced). Scale =
        max(mint, holdings). The inner pill holds the current-holdings strata —
-       liquid (bright) | staked (dimmer amber) | a hollow track for any gap up to
-       the mint tick. The tick is a quiet reference line at mint_count; it can
-       overshoot the pill slightly (bullet-graph convention), so the outer element
-       is the positioning context and does NOT clip. The detail line is the legend. */
+       liquid (bright violet) | staked (mid violet) | a hollow track for any gap
+       up to the mint tick. The tick is a quiet reference line at mint_count; it
+       can overshoot the pill slightly (bullet-graph convention), so the outer
+       element is the positioning context and does NOT clip. The detail line is
+       the legend. Stamps are violet, so the whole bar is the --pm-stamp family. */
     [data-stamps-bar] {
       position: relative; width: min(340px, 82%); height: 22px; margin: 0.6em 0 0.2em;
     }
     [data-stamps-bar][hidden] { display: none; }
     [data-stamps-bar] .bullet-pill {
       display: flex; width: 100%; height: 100%;
-      border-radius: 999px; overflow: hidden; border: 1px solid rgba(232, 196, 139, 0.25);
+      border-radius: 999px; overflow: hidden; border: 1px solid rgba(var(--pm-stamp-rgb), 0.34);
     }
     [data-stamps-bar] .seg { display: grid; place-items: center; min-width: 0; overflow: hidden; }
     [data-stamps-bar] .seg-label { font-family: var(--pm-mono); font-size: 0.72rem; line-height: 1; padding: 0 2px; white-space: nowrap; }
-    [data-stamps-bar] .seg-liquid { background: var(--pm-gold-bright); }
-    [data-stamps-bar] .seg-liquid .seg-label { color: #241505; }
-    [data-stamps-bar] .seg-staked { background: #b28a4e; }
-    [data-stamps-bar] .seg-staked .seg-label { color: #1a1206; }
+    [data-stamps-bar] .seg-liquid { background: var(--pm-stamp-bright); }
+    [data-stamps-bar] .seg-liquid .seg-label { color: var(--pm-night); }
+    [data-stamps-bar] .seg-staked { background: var(--pm-stamp); }
+    [data-stamps-bar] .seg-staked .seg-label { color: var(--pm-night); }
     /* the hollow gap between holdings and the mint tick (net given) */
-    [data-stamps-bar] .seg-track { background: rgba(28, 44, 79, 0.55); box-shadow: inset 0 0 0 1px rgba(232, 196, 139, 0.2); }
-    /* the mint reference tick — dark core haloed in gold so it reads on both the
-       bright strata and the dark track; slight height overshoot, quiet weight. */
+    [data-stamps-bar] .seg-track { background: rgba(28, 44, 79, 0.55); box-shadow: inset 0 0 0 1px rgba(var(--pm-stamp-rgb), 0.28); }
+    /* the mint reference tick — dark core haloed in violet so it reads on both
+       the bright strata and the dark track; slight height overshoot, quiet weight. */
     [data-stamps-bar] .bullet-tick {
       position: absolute; top: -3px; height: calc(100% + 6px); width: 2px;
-      transform: translateX(-1px); background: #241505; border-radius: 1px;
-      box-shadow: 0 0 0 1px rgba(232, 196, 139, 0.6); pointer-events: none;
+      transform: translateX(-1px); background: var(--pm-night); border-radius: 1px;
+      box-shadow: 0 0 0 1px rgba(var(--pm-stamp-rgb), 0.75); pointer-events: none;
     }
 
     .pm-edit-bar { display: flex; justify-content: flex-end; margin: 0 0 0.55em; }
