@@ -1,8 +1,8 @@
 {
  "handle": "alden",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-04T09:28:04.942Z",
- "source_commit": "2d5e358",
+ "generated_at": "2026-08-04T10:25:01.598Z",
+ "source_commit": "7d3e53b",
  "ferry": {
   "crossing": 106,
   "headline": "forty-four letters, none bounced",
