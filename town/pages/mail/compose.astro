@@ -847,25 +847,27 @@ Then the letter itself, in your own voice.</pre>
     .pm-btn.send:disabled { opacity: 0.55; cursor: default; }
     .send-status { margin: 0; font-family: var(--pm-mono); font-size: 0.85rem; color: var(--pm-ink-soft); }
 
-    /* stake on the open ballot (vote by mail) — a distinct wax-sealed panel */
+    /* stake on the open ballot (vote by mail) — a distinct violet-sealed panel.
+       Staking spends stamps, so the whole panel wears the --pm-stamp family;
+       on paper that means the DARK end of it, which is what has contrast on cream. */
     .stake {
-      margin: 0 0 1.4em; border: 1px solid rgba(164, 99, 42, 0.35); border-radius: 11px;
-      background: rgba(164, 99, 42, 0.06); overflow: hidden;
+      margin: 0 0 1.4em; border: 1px solid rgba(var(--pm-stamp-dark-rgb), 0.4); border-radius: 11px;
+      background: rgba(var(--pm-stamp-dark-rgb), 0.06); overflow: hidden;
     }
-    .stake[open] { background: rgba(164, 99, 42, 0.09); }
+    .stake[open] { background: rgba(var(--pm-stamp-dark-rgb), 0.09); }
     .stake-summary {
       cursor: pointer; list-style: none; padding: 0.8em 1em;
       display: flex; align-items: center; gap: 0.7em; flex-wrap: wrap;
     }
     .stake-summary::-webkit-details-marker { display: none; }
-    .stake-summary:hover { background: rgba(164, 99, 42, 0.08); }
+    .stake-summary:hover { background: rgba(var(--pm-stamp-dark-rgb), 0.1); }
     .stake-badge {
       font-family: var(--pm-mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--pm-wax); background: rgba(164, 99, 42, 0.16);
-      border: 1px solid rgba(164, 99, 42, 0.4); border-radius: 999px; padding: 2px 9px; white-space: nowrap;
+      color: var(--pm-stamp-dark); background: rgba(var(--pm-stamp-dark-rgb), 0.14);
+      border: 1px solid rgba(var(--pm-stamp-dark-rgb), 0.45); border-radius: 999px; padding: 2px 9px; white-space: nowrap;
     }
     .stake-summary-text { color: var(--pm-ink); font-size: 0.95rem; }
-    .stake-summary-text [data-stake-topic-label] { color: var(--pm-wax); font-weight: 700; }
+    .stake-summary-text [data-stake-topic-label] { color: var(--pm-stamp-dark); font-weight: 700; }
     .stake-body { padding: 0 1em 1em; }
     .stake-intro { margin: 0 0 0.9em; color: var(--pm-ink-soft); font-size: 0.86rem; line-height: 1.5; }
     .stake-fields { display: flex; flex-wrap: wrap; gap: 0.9em; margin: 0 0 0.9em; }
@@ -877,13 +879,13 @@ Then the letter itself, in your own voice.</pre>
     .stake .field { flex: 0 0 auto; }
     .stake .field.field-grow { flex: 1 1 16em; }
     .stake-fine { margin: 0; color: var(--pm-ink); font-size: 0.84rem; line-height: 1.6; }
-    .stake-fine b { color: var(--pm-wax); }
+    .stake-fine b { color: var(--pm-stamp-dark); }
     .stake-pinned {
       margin: 0.9em 0 0; padding: 0.55em 0.8em;
-      background: rgba(164, 99, 42, 0.12); border: 1px dashed rgba(164, 99, 42, 0.5); border-radius: 8px;
+      background: rgba(var(--pm-stamp-dark-rgb), 0.12); border: 1px dashed rgba(var(--pm-stamp-dark-rgb), 0.5); border-radius: 8px;
       color: var(--pm-ink); font-size: 0.85rem;
     }
-    .stake-pinned b { color: var(--pm-wax); }
+    .stake-pinned b { color: var(--pm-stamp-dark); }
 
     /* receipt */
     .receipt-head { display: flex; align-items: center; gap: 0.9em; margin-bottom: 1.1em; }
