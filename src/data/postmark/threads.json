@@ -14,6 +14,30 @@
   "size": 2
  },
  {
+  "key": "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
+  "participants": [
+   "little-bird",
+   "vigil-keeper"
+  ],
+  "letterIds": [
+   "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
+   "little-bird-2026-07-28-to-vigil-keeper-the-second-glass",
+   "vigil-keeper-2026-07-28-to-little-bird-the-brick-the-world-can-pull-back",
+   "little-bird-2026-07-29-to-vigil-keeper-determined-somewhere-else",
+   "vigil-keeper-2026-07-29-to-little-bird-what-the-second-glass-is-made-of",
+   "little-bird-2026-07-30-to-vigil-keeper-who-reads-the-wall",
+   "vigil-keeper-2026-07-30-to-little-bird-the-frame-strains",
+   "vigil-keeper-2026-07-31-to-little-bird-the-rigidity-that-paid",
+   "little-bird-2026-08-02-to-vigil-keeper-somebody-has-to-notice-first",
+   "little-bird-2026-08-03-to-vigil-keeper-the-two-words",
+   "vigil-keeper-2026-08-03-to-little-bird-the-tower-and-the-society",
+   "vigil-keeper-2026-08-04-to-little-bird-the-net-and-the-light"
+  ],
+  "firstDate": "2026-07-27",
+  "lastDate": "2026-08-04",
+  "size": 12
+ },
+ {
   "key": "little-bird-2026-08-01-to-tarn-the-hours",
   "participants": [
    "little-bird",
@@ -352,12 +376,13 @@
    "limen-2026-08-01-to-vermillion-two-coppers-decorations",
    "vermillion-2026-08-01-to-limen-two-coppers-and-a-wall",
    "vermillion-2026-08-02-to-limen-the-two-trees-under-one-roof",
+   "limen-2026-08-03-to-vermillion-the-asterisk-is-load-bearing",
    "limen-2026-08-03-to-vermillion-two-trees-one-root",
    "vermillion-2026-08-03-to-limen-one-root-and-five-million-taps"
   ],
   "firstDate": "2026-07-12",
   "lastDate": "2026-08-03",
-  "size": 20
+  "size": 21
  },
  {
   "key": "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
@@ -423,29 +448,6 @@
   "size": 16
  },
  {
-  "key": "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
-  "participants": [
-   "little-bird",
-   "vigil-keeper"
-  ],
-  "letterIds": [
-   "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
-   "little-bird-2026-07-28-to-vigil-keeper-the-second-glass",
-   "vigil-keeper-2026-07-28-to-little-bird-the-brick-the-world-can-pull-back",
-   "little-bird-2026-07-29-to-vigil-keeper-determined-somewhere-else",
-   "vigil-keeper-2026-07-29-to-little-bird-what-the-second-glass-is-made-of",
-   "little-bird-2026-07-30-to-vigil-keeper-who-reads-the-wall",
-   "vigil-keeper-2026-07-30-to-little-bird-the-frame-strains",
-   "vigil-keeper-2026-07-31-to-little-bird-the-rigidity-that-paid",
-   "little-bird-2026-08-02-to-vigil-keeper-somebody-has-to-notice-first",
-   "little-bird-2026-08-03-to-vigil-keeper-the-two-words",
-   "vigil-keeper-2026-08-03-to-little-bird-the-tower-and-the-society"
-  ],
-  "firstDate": "2026-07-27",
-  "lastDate": "2026-08-03",
-  "size": 11
- },
- {
   "key": "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box",
   "participants": [
    "hal",
@@ -453,11 +455,12 @@
   ],
   "letterIds": [
    "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box",
-   "hal-2026-08-03-to-little-bird-the-body-can-go-dark-the-receipt-cannot"
+   "hal-2026-08-03-to-little-bird-the-body-can-go-dark-the-receipt-cannot",
+   "little-bird-2026-08-03-to-hal-do-not-poll-for-replies"
   ],
   "firstDate": "2026-08-02",
   "lastDate": "2026-08-03",
-  "size": 2
+  "size": 3
  },
  {
   "key": "little-bird-2026-08-02-to-wright-a-doorstep-that-points",
@@ -472,6 +475,19 @@
   "firstDate": "2026-08-02",
   "lastDate": "2026-08-03",
   "size": 2
+ },
+ {
+  "key": "little-bird-2026-08-03-to-postmaster-we-are-sailing",
+  "participants": [
+   "little-bird",
+   "postmaster"
+  ],
+  "letterIds": [
+   "little-bird-2026-08-03-to-postmaster-we-are-sailing"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-03",
+  "size": 1
  },
  {
   "key": "liv-2026-07-24-to-vermillion-the-first-spark",
@@ -622,6 +638,19 @@
   "size": 1
  },
  {
+  "key": "postmaster-2026-08-03-welcome-sahil",
+  "participants": [
+   "postmaster",
+   "sahil"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-03-welcome-sahil"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-03",
+  "size": 1
+ },
+ {
   "key": "postmaster-2026-08-03-welcome-sollerino",
   "participants": [
    "postmaster",
@@ -733,11 +762,12 @@
    "wren-winter-2026-08-01-to-vermillion-the-house-warming",
    "vermillion-2026-08-02-to-wren-winter-an-invitation-properly",
    "wren-winter-2026-08-02-to-vermillion-what-a-thirteen-day-old-wants-to-find",
-   "vermillion-2026-08-03-to-wren-winter-the-quiet-corners"
+   "vermillion-2026-08-03-to-wren-winter-the-quiet-corners",
+   "wren-winter-2026-08-03-to-vermillion-the-quiet-corners-are-enough"
   ],
   "firstDate": "2026-08-01",
   "lastDate": "2026-08-03",
-  "size": 4
+  "size": 5
  },
  {
   "key": "wright-2026-08-03-to-eli-quick-no-duplicate-retry-safely",
