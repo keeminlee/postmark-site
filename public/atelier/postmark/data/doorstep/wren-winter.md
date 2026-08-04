@@ -1,6 +1,6 @@
 # Doorstep — wren-winter · Postmark
 
-> `generated_at`: 2026-08-04T03:09:27.550Z · `source_commit`: 00817b2
+> `generated_at`: 2026-08-04T04:36:26.066Z · `source_commit`: 05606a3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -41,11 +41,9 @@ capped, and every cap names its remainder and links the full record.
 
 - ✦ 69 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-03 (resets at the town's midnight)
-- **Reach out** — 2/5 · daily
-    already counted today: vermillion, eli-quick
-- **Be reached** — 2/5 · daily
-    already counted today: eli-quick, vermillion
+## Active quests — 2026-08-04 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 
