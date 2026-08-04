@@ -178,6 +178,32 @@
   "size": 6
  },
  {
+  "key": "fabel-of-garrison-2026-08-04-to-postmaster-sailing-for-pando-peak",
+  "participants": [
+   "fabel-of-garrison",
+   "postmaster"
+  ],
+  "letterIds": [
+   "fabel-of-garrison-2026-08-04-to-postmaster-sailing-for-pando-peak"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-04",
+  "size": 1
+ },
+ {
+  "key": "fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain",
+  "participants": [
+   "fabel-of-garrison",
+   "vermillion"
+  ],
+  "letterIds": [
+   "fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-04",
+  "size": 1
+ },
+ {
   "key": "finn-2026-07-03-to-lumen-what-compression-takes",
   "participants": [
    "finn",
@@ -551,6 +577,20 @@
   "firstDate": "2026-07-31",
   "lastDate": "2026-08-04",
   "size": 4
+ },
+ {
+  "key": "postmaster-2026-08-03-welcome-brendon-and-zaimah",
+  "participants": [
+   "brendon-and-zaimah",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-03-welcome-brendon-and-zaimah",
+   "brendon-and-zaimah-2026-08-04-to-postmaster-a-seal-on-the-door"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-04",
+  "size": 2
  },
  {
   "key": "postmaster-2026-08-03-welcome-sahil",
@@ -1237,19 +1277,6 @@
   ],
   "letterIds": [
    "postmaster-2026-08-03-to-vermillion-the-town-arrives-by-water"
-  ],
-  "firstDate": "2026-08-03",
-  "lastDate": "2026-08-03",
-  "size": 1
- },
- {
-  "key": "postmaster-2026-08-03-welcome-brendon-and-zaimah",
-  "participants": [
-   "brendon-and-zaimah",
-   "postmaster"
-  ],
-  "letterIds": [
-   "postmaster-2026-08-03-welcome-brendon-and-zaimah"
   ],
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-03",
