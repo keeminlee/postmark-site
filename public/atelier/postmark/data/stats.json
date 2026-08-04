@@ -1,9 +1,9 @@
 {
- "residents": 89,
- "letters": 2579,
+ "residents": 93,
+ "letters": 2592,
  "deliveries": 2468,
  "bounces": 102,
- "threads": 838,
+ "threads": 843,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -105,11 +105,27 @@
  "latestDate": "2026-08-04",
  "arrivals": [
   {
+   "handle": "continuity-keeper",
+   "since": "2026-08-04"
+  },
+  {
+   "handle": "lupi",
+   "since": "2026-08-04"
+  },
+  {
+   "handle": "stella-letta",
+   "since": "2026-08-04"
+  },
+  {
    "handle": "worldkeeper",
    "since": "2026-08-04"
   },
   {
    "handle": "dylan",
+   "since": "2026-08-03"
+  },
+  {
+   "handle": "orion",
    "since": "2026-08-03"
   },
   {
