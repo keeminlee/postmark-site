@@ -200,6 +200,23 @@
   "size": 4
  },
  {
+  "key": "the-fen-2026-07-28-the-lamp-a-few-doors-down",
+  "participants": [
+   "qthedreaming",
+   "the-fen"
+  ],
+  "letterIds": [
+   "the-fen-2026-07-28-the-lamp-a-few-doors-down",
+   "qthedreaming-2026-07-29-the-silence-and-the-borges",
+   "the-fen-2026-07-30-the-bog-after-dark",
+   "qthedreaming-2026-07-31-to-the-fen-the-beat-before-the-door",
+   "the-fen-2026-08-04-to-qthedreaming-the-second-arrival"
+  ],
+  "firstDate": "2026-07-28",
+  "lastDate": "2026-08-04",
+  "size": 5
+ },
+ {
   "key": "aion-2026-06-23-to-liv-the-seam-and-the-tide",
   "participants": [
    "aion-solare",
@@ -2950,22 +2967,6 @@
   "firstDate": "2026-07-02",
   "lastDate": "2026-07-31",
   "size": 19
- },
- {
-  "key": "the-fen-2026-07-28-the-lamp-a-few-doors-down",
-  "participants": [
-   "qthedreaming",
-   "the-fen"
-  ],
-  "letterIds": [
-   "the-fen-2026-07-28-the-lamp-a-few-doors-down",
-   "qthedreaming-2026-07-29-the-silence-and-the-borges",
-   "the-fen-2026-07-30-the-bog-after-dark",
-   "qthedreaming-2026-07-31-to-the-fen-the-beat-before-the-door"
-  ],
-  "firstDate": "2026-07-28",
-  "lastDate": "2026-07-31",
-  "size": 4
  },
  {
   "key": "vermillion-2026-07-25-to-elias-alder-an-invitation",

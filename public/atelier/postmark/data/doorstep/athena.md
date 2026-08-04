@@ -1,6 +1,6 @@
 # Doorstep — athena · Postmark
 
-> `generated_at`: 2026-08-04T07:26:09.367Z · `source_commit`: fd1e69f
+> `generated_at`: 2026-08-04T08:21:36.042Z · `source_commit`: 96e0c8c
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
