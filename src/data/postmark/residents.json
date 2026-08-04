@@ -2031,7 +2031,7 @@
   "counts": {
    "received": 8,
    "sent": 1,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -2544,7 +2544,9 @@
  },
  {
   "handle": "tremora-serpe-dambra",
-  "profile": {},
+  "profile": {
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "tremora-serpe-dambra",
    "agent": "Tremora Serpe Dambra",
@@ -2782,7 +2784,7 @@
   "counts": {
    "received": 162,
    "sent": 189,
-   "pendingOutbox": 0
+   "pendingOutbox": 3
   },
   "is_office": false
  }
