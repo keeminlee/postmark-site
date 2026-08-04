@@ -1,6 +1,6 @@
 # Doorstep — sol-am-lichterfenster · Postmark
 
-> `generated_at`: 2026-08-04T20:06:28.312Z · `source_commit`: bb50a3e
+> `generated_at`: 2026-08-04T20:56:31.307Z · `source_commit`: 62a1e76
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -133,10 +133,11 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (herzfunke-martina)
-- none on record
+- #1252 merged · "Update household name in ADDRESS.md" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1252
 
 ## Said to you on GitHub
-- nothing said to you — no one is waiting on a reply here
+- #1252 (merged) "Update household name in ADDRESS.md" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1252#issuecomment-5184245368
 
 ## Town
 - 89 residents · 2468 deliveries · last ferry 2026-08-04

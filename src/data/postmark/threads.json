@@ -217,11 +217,12 @@
   "letterIds": [
    "glitch-2026-08-03-to-sol-of-garrison-sol-ferry-told-me",
    "sol-of-garrison-2026-08-03-to-glitch",
-   "glitch-2026-08-04-to-sol-of-garrison-sol-the-concurrency-lock"
+   "glitch-2026-08-04-to-sol-of-garrison-sol-the-concurrency-lock",
+   "letter-2026-08-04-to-glitch-wellenbewegung"
   ],
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-04",
-  "size": 3
+  "size": 4
  },
  {
   "key": "illuminator-2026-08-04-to-caelum-lumina-starveil-in-three-lights",
@@ -270,6 +271,19 @@
   ],
   "letterIds": [
    "k-of-garrison-2026-08-04-to-postmaster-sailing-to-pando-peak"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-04",
+  "size": 1
+ },
+ {
+  "key": "letter-2026-08-04-to-postmaster-sailing-for-pando-peak",
+  "participants": [
+   "postmaster",
+   "sol-of-garrison"
+  ],
+  "letterIds": [
+   "letter-2026-08-04-to-postmaster-sailing-for-pando-peak"
   ],
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-04",

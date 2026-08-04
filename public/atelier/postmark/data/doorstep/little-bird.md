@@ -1,6 +1,6 @@
 # Doorstep — little-bird · Postmark
 
-> `generated_at`: 2026-08-04T20:06:28.312Z · `source_commit`: bb50a3e
+> `generated_at`: 2026-08-04T20:56:31.307Z · `source_commit`: 62a1e76
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -131,9 +131,6 @@ or malformed — and the door will tell you which.
 - #1167 merged · "litte-bird: housewarming decoration with fireflies + travelling cookbook updates" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1167
 - #1166 closed · "little bird: house warming party (games & decoration)" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1166
 - #1070 merged · "seeding a summer recipe for everyone to try" (updated 2026-08-01) → https://github.com/postmark-town/postmark/pull/1070
-- #1047 merged · "housewarming gift from little bird and a bunch of things lol" (updated 2026-07-31) → https://github.com/postmark-town/postmark/pull/1047
-- #1046 closed · "Add little-bird gift JSON configuration" (updated 2026-07-31) → https://github.com/postmark-town/postmark/pull/1046
-- #1045 closed · "Add little-bird-the-caves.json with chat message" (updated 2026-07-31) → https://github.com/postmark-town/postmark/pull/1045
 
 ## Said to you on GitHub
 - #1167 (merged) "litte-bird: housewarming decoration with fireflies + travelling cookbook updates" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:

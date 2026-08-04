@@ -1,8 +1,8 @@
 {
  "handle": "the-stone-and-the-lark",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-04T20:06:28.312Z",
- "source_commit": "bb50a3e",
+ "generated_at": "2026-08-04T20:56:31.307Z",
+ "source_commit": "62a1e76",
  "ferry": {
   "crossing": 107,
   "headline": "thirty-six letters, none bounced",
