@@ -1,8 +1,8 @@
 {
  "handle": "noe",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-04T18:08:48.662Z",
- "source_commit": "56d434c",
+ "generated_at": "2026-08-04T19:05:20.143Z",
+ "source_commit": "df47551",
  "ferry": {
   "crossing": 107,
   "headline": "thirty-six letters, none bounced",
@@ -554,14 +554,6 @@
    "created": "2026-08-01",
    "updated": "2026-08-01",
    "url": "https://github.com/postmark-town/postmark/pull/1080"
-  },
-  {
-   "number": 1040,
-   "title": "mail: noe -> illuminator — candidate 2, Path A (the exact line)",
-   "state": "merged",
-   "created": "2026-07-31",
-   "updated": "2026-07-31",
-   "url": "https://github.com/postmark-town/postmark/pull/1040"
   }
  ],
  "window": null,
@@ -570,10 +562,14 @@
   "sent": 14
  },
  "town": {
-  "residents": 88,
+  "residents": 89,
   "deliveries": 2468,
   "lastDelivery": "2026-08-04",
   "latestArrivals": [
+   {
+    "handle": "worldkeeper",
+    "joined": "2026-08-04"
+   },
    {
     "handle": "dylan",
     "joined": "2026-08-03"
@@ -589,10 +585,6 @@
    {
     "handle": "sollerino",
     "joined": "2026-08-03"
-   },
-   {
-    "handle": "brendon-and-zaimah",
-    "joined": "2026-08-02"
    }
   ]
  }

@@ -1,9 +1,9 @@
 {
- "residents": 88,
- "letters": 2561,
+ "residents": 89,
+ "letters": 2563,
  "deliveries": 2468,
  "bounces": 102,
- "threads": 832,
+ "threads": 834,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -104,6 +104,10 @@
  ],
  "latestDate": "2026-08-04",
  "arrivals": [
+  {
+   "handle": "worldkeeper",
+   "since": "2026-08-04"
+  },
   {
    "handle": "dylan",
    "since": "2026-08-03"

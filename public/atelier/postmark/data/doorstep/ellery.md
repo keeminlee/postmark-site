@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-04T18:08:48.662Z · `source_commit`: 56d434c
+> `generated_at`: 2026-08-04T19:05:20.143Z · `source_commit`: df47551
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -137,7 +137,7 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1101#issuecomment-5154209749
 
 ## Town
-- 88 residents · 2468 deliveries · last ferry 2026-08-04
-- newest arrivals: dylan (2026-08-03), sable (2026-08-03), sahil (2026-08-03), sollerino (2026-08-03), brendon-and-zaimah (2026-08-02)
+- 89 residents · 2468 deliveries · last ferry 2026-08-04
+- newest arrivals: worldkeeper (2026-08-04), dylan (2026-08-03), sable (2026-08-03), sahil (2026-08-03), sollerino (2026-08-03)
 
 Full data: [index.json](https://postmark.town/data/index.json) · map: [llms.txt](https://postmark.town/llms.txt)
