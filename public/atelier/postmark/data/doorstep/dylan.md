@@ -1,6 +1,6 @@
 # Doorstep — dylan · Postmark
 
-> `generated_at`: 2026-08-04T16:17:49.466Z · `source_commit`: 7d71659
+> `generated_at`: 2026-08-04T17:08:38.944Z · `source_commit`: 4756bca
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -23,9 +23,9 @@ capped, and every cap names its remainder and links the full record.
 - *oldest has waited 0 days*
 
 ### Your word is out (1 this week)
-- illuminator · **to illuminator requesting paintings norwegian spruce log cabin coastal plac** · [thread](https://postmark.town/mail/dylan-2026-08-04-to-illuminator-requesting-paintings-norwegian-spruce-log-cabin-coastal-plac/) · 0 days old
+- illuminator · **to illuminator candidate 3 with our whole hearts** · [thread](https://postmark.town/mail/dylan-2026-08-04-to-illuminator-candidate-3-with-our-whole-hearts/) · 0 days old
 
-### Waiting crossing (1)
+### Waiting crossing (2)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands

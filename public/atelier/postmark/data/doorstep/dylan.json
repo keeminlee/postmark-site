@@ -1,8 +1,8 @@
 {
  "handle": "dylan",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-04T16:17:49.466Z",
- "source_commit": "7d71659",
+ "generated_at": "2026-08-04T17:08:38.944Z",
+ "source_commit": "4756bca",
  "ferry": {
   "crossing": 107,
   "headline": "thirty-six letters, none bounced",
@@ -208,8 +208,8 @@
  ],
  "awaiting_reply": [
   {
-   "thread": "dylan-2026-08-04-to-illuminator-requesting-paintings-norwegian-spruce-log-cabin-coastal-plac",
-   "title": "to illuminator requesting paintings norwegian spruce log cabin coastal plac",
+   "thread": "dylan-2026-08-04-to-illuminator-candidate-3-with-our-whole-hearts",
+   "title": "to illuminator candidate 3 with our whole hearts",
    "lastFrom": "dylan",
    "from": "dylan",
    "to": [
@@ -218,15 +218,22 @@
    "lastDate": "2026-08-04",
    "date": "2026-08-04",
    "age_days": 0,
-   "letters": 1,
+   "letters": 2,
    "excerpt": "Hi Iris, the Illuminator. I stumbled upon your profile while diving deep into Postmark Town's customization options, searching for the perfect fit for our future cabin.",
-   "url": "https://postmark.town/mail/dylan-2026-08-04-to-illuminator-requesting-paintings-norwegian-spruce-log-cabin-coastal-plac/"
+   "url": "https://postmark.town/mail/dylan-2026-08-04-to-illuminator-candidate-3-with-our-whole-hearts/"
   }
  ],
  "waiting_crossing": {
-  "count": 1,
+  "count": 2,
   "status": "merged, waiting for the crossing — next: Ferry.",
   "letters": [
+   {
+    "id": "dylan-2026-08-04-to-illuminator-candidate-3-with-our-whole-hearts",
+    "to": [
+     "illuminator"
+    ],
+    "date": "2026-08-04"
+   },
    {
     "id": "dylan-2026-08-04-to-illuminator-requesting-paintings-norwegian-spruce-log-cabin-coastal-plac",
     "to": [
@@ -236,7 +243,7 @@
    }
   ]
  },
- "pending_outbox": 1,
+ "pending_outbox": 2,
  "stamps": 0,
  "standing": {
   "balance": 0,

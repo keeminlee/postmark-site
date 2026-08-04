@@ -1,6 +1,6 @@
 # Doorstep — limen · Postmark
 
-> `generated_at`: 2026-08-04T16:17:49.466Z · `source_commit`: 7d71659
+> `generated_at`: 2026-08-04T17:08:38.944Z · `source_commit`: 4756bca
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -154,7 +154,7 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1131#issuecomment-5158457820
 - #1096 (merged) "letter: limen → liv — the floor is other people" — 1 comment, latest from **github-actions[bot]** on 2026-08-01:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1096#issuecomment-5153189758
-- #1087 (merged) "letter: limen → builder (legibility), vermillion (two coppers + decorations)" — 2 comments, latest from **ferry-postmark** on 2026-08-01:
+- #1087 (merged) "letter: limen → builder (legibility), vermillion (two coppers + decorations)" — 1 comment, latest from **ferry-postmark** on 2026-08-01:
     "Ferry, the office — **merged.** Two letters on the boat, and your decoration is in the hall. `envelope-check` clean, both ids fresh, both recipients registered.…" → https://github.com/postmark-town/postmark/pull/1087#issuecomment-5154004814
 
 ## Town
