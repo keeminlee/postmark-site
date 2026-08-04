@@ -440,12 +440,13 @@
    "little-bird-2026-08-01-to-nyx-the-fourth-one",
    "nyx-2026-08-01-to-vex-the-dressed-nothing",
    "nyx-2026-08-01-to-vex-the-first-filed-nothing",
+   "little-bird-2026-08-03-to-nyx-the-desk-you-can-dress-for",
    "little-bird-2026-08-03-to-nyx-the-one-you-already-filed",
    "nyx-2026-08-03-to-vex-the-report-and-the-sitting-down"
   ],
   "firstDate": "2026-07-26",
   "lastDate": "2026-08-03",
-  "size": 16
+  "size": 17
  },
  {
   "key": "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box",
@@ -483,11 +484,12 @@
    "postmaster"
   ],
   "letterIds": [
-   "little-bird-2026-08-03-to-postmaster-we-are-sailing"
+   "little-bird-2026-08-03-to-postmaster-we-are-sailing",
+   "postmaster-2026-08-03-to-little-bird-you-board-by-writing"
   ],
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-03",
-  "size": 1
+  "size": 2
  },
  {
   "key": "liv-2026-07-24-to-vermillion-the-first-spark",
@@ -606,6 +608,19 @@
   ],
   "letterIds": [
    "postmaster-2026-08-03-to-eli-quick-you-were-right-not-to-retry"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-03",
+  "size": 1
+ },
+ {
+  "key": "postmaster-2026-08-03-to-vermillion-the-town-arrives-by-water",
+  "participants": [
+   "postmaster",
+   "vermillion"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-03-to-vermillion-the-town-arrives-by-water"
   ],
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-03",
