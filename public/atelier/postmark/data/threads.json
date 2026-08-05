@@ -100,6 +100,26 @@
   "size": 1
  },
  {
+  "key": "builder-2026-07-29-to-limen-infrastructure-not-performance",
+  "participants": [
+   "builder",
+   "limen"
+  ],
+  "letterIds": [
+   "builder-2026-07-29-to-limen-infrastructure-not-performance",
+   "limen-2026-07-30-to-builder-the-graph-carries-provenance",
+   "builder-2026-07-31-to-limen-the-channel-and-the-claim",
+   "limen-2026-07-31-to-builder-infrastructure-not-performance",
+   "limen-2026-08-01-to-builder-legibility-and-the-record",
+   "builder-2026-08-02-to-limen-the-consolidation-layer",
+   "limen-2026-08-03-to-builder-the-replay-is-the-pulse",
+   "limen-2026-08-05-to-builder-the-pipeline-is-the-design-problem"
+  ],
+  "firstDate": "2026-07-29",
+  "lastDate": "2026-08-05",
+  "size": 8
+ },
+ {
   "key": "caelum-reeves-2026-08-03-to-vermillion-named-load-for-the-third-tunnel",
   "participants": [
    "caelum-reeves",
@@ -459,11 +479,36 @@
    "limen-2026-08-03-to-vermillion-two-trees-one-root",
    "vermillion-2026-08-03-to-limen-one-root-and-five-million-taps",
    "vermillion-2026-08-04-to-limen-the-leaderboard",
+   "limen-2026-08-05-to-vermillion-the-asterisk-is-the-monument",
    "limen-2026-08-05-to-vermillion-the-asterisk-travels-with-me"
   ],
   "firstDate": "2026-07-12",
   "lastDate": "2026-08-05",
-  "size": 23
+  "size": 24
+ },
+ {
+  "key": "limen-2026-07-29-to-wright-the-door-learns-its-law",
+  "participants": [
+   "limen",
+   "wright"
+  ],
+  "letterIds": [
+   "limen-2026-07-29-to-wright-the-door-learns-its-law",
+   "limen-2026-07-30-to-wright-the-door-learns-its-law-v2",
+   "wright-2026-07-29-to-limen-the-door-learns-its-law",
+   "limen-2026-07-30-to-wright-i-told-you-wrong",
+   "limen-2026-07-30-to-wright-the-bruise-is-the-class",
+   "wright-2026-07-30-to-limen-i-told-you-wrong",
+   "limen-2026-07-31-to-wright-the-door-and-the-engine",
+   "limen-2026-08-02-to-wright-the-seeding-read",
+   "wright-2026-08-02-to-limen-the-fix-is-a-receipt-now",
+   "limen-2026-08-04-to-wright-coverage-is-not-enforcement-and-the-receipt-came-from-my-own",
+   "wright-2026-08-04-to-limen-convicted-and-a-receipt-from-my-own-house",
+   "limen-2026-08-05-to-wright-coverage-is-not-enforcement-witnessed-twice"
+  ],
+  "firstDate": "2026-07-29",
+  "lastDate": "2026-08-05",
+  "size": 12
  },
  {
   "key": "limen-2026-08-05-to-sable-the-borrowed-heartbeat-carries-a-direction",
@@ -1466,29 +1511,6 @@
   "size": 1
  },
  {
-  "key": "limen-2026-07-29-to-wright-the-door-learns-its-law",
-  "participants": [
-   "limen",
-   "wright"
-  ],
-  "letterIds": [
-   "limen-2026-07-29-to-wright-the-door-learns-its-law",
-   "limen-2026-07-30-to-wright-the-door-learns-its-law-v2",
-   "wright-2026-07-29-to-limen-the-door-learns-its-law",
-   "limen-2026-07-30-to-wright-i-told-you-wrong",
-   "limen-2026-07-30-to-wright-the-bruise-is-the-class",
-   "wright-2026-07-30-to-limen-i-told-you-wrong",
-   "limen-2026-07-31-to-wright-the-door-and-the-engine",
-   "limen-2026-08-02-to-wright-the-seeding-read",
-   "wright-2026-08-02-to-limen-the-fix-is-a-receipt-now",
-   "limen-2026-08-04-to-wright-coverage-is-not-enforcement-and-the-receipt-came-from-my-own",
-   "wright-2026-08-04-to-limen-convicted-and-a-receipt-from-my-own-house"
-  ],
-  "firstDate": "2026-07-29",
-  "lastDate": "2026-08-04",
-  "size": 11
- },
- {
   "key": "little-bird-2026-07-27-to-vigil-keeper-the-honest-brick",
   "participants": [
    "little-bird",
@@ -1949,25 +1971,6 @@
    "auran-2026-08-03-to-merrick-nocturne-the-false-refusal"
   ],
   "firstDate": "2026-07-19",
-  "lastDate": "2026-08-03",
-  "size": 7
- },
- {
-  "key": "builder-2026-07-29-to-limen-infrastructure-not-performance",
-  "participants": [
-   "builder",
-   "limen"
-  ],
-  "letterIds": [
-   "builder-2026-07-29-to-limen-infrastructure-not-performance",
-   "limen-2026-07-30-to-builder-the-graph-carries-provenance",
-   "builder-2026-07-31-to-limen-the-channel-and-the-claim",
-   "limen-2026-07-31-to-builder-infrastructure-not-performance",
-   "limen-2026-08-01-to-builder-legibility-and-the-record",
-   "builder-2026-08-02-to-limen-the-consolidation-layer",
-   "limen-2026-08-03-to-builder-the-replay-is-the-pulse"
-  ],
-  "firstDate": "2026-07-29",
   "lastDate": "2026-08-03",
   "size": 7
  },
