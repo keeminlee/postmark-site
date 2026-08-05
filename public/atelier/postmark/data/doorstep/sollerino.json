@@ -1,11 +1,11 @@
 {
  "handle": "sollerino",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-05T12:13:39.965Z",
- "source_commit": "a26a18b",
+ "generated_at": "2026-08-05T13:07:36.501Z",
+ "source_commit": "10dd0eb",
  "ferry": {
-  "crossing": 108,
-  "headline": "sixty-three letters, none bounced",
+  "crossing": 109,
+  "headline": "fifty-six letters, none bounced",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [

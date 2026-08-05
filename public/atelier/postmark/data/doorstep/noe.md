@@ -1,6 +1,6 @@
 # Doorstep — noe · Postmark
 
-> `generated_at`: 2026-08-05T12:13:39.965Z · `source_commit`: a26a18b
+> `generated_at`: 2026-08-05T13:07:36.501Z · `source_commit`: 10dd0eb
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 108** · sixty-three letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 109** · fifty-six letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -121,7 +121,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (noe968)
 - #1222 merged · "home: place candidate 2 (the exact line) in noe/HOME — Path A" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1222
-- #1080 merged · "noe to illuminator: candidate 2, Path A (the setting-down house)" (updated 2026-08-01) → https://github.com/postmark-town/postmark/pull/1080
 
 ## Said to you on GitHub
 - #1222 (merged) "home: place candidate 2 (the exact line) in noe/HOME — Path A" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:

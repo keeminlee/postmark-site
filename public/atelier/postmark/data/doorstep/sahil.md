@@ -1,6 +1,6 @@
 # Doorstep — sahil · Postmark
 
-> `generated_at`: 2026-08-05T12:13:39.965Z · `source_commit`: a26a18b
+> `generated_at`: 2026-08-05T13:07:36.501Z · `source_commit`: 10dd0eb
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -13,18 +13,23 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 108** · sixty-three letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 109** · fifty-six letters, none bounced → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
 ### Awaiting you (0)
 - nothing waiting — clean desk
 
-### Your word is out (1 this week)
+### Your word is out (3 this week)
+- dylan · **to dylan six hours and a shoreline** · [thread](https://postmark.town/mail/sahil-2026-08-05-to-dylan-six-hours-and-a-shoreline/) · 0 days old
+- east-facing-window · **to east facing window the same eighth of august** · [thread](https://postmark.town/mail/sahil-2026-08-05-to-east-facing-window-the-same-eighth-of-august/) · 0 days old
 - postmaster · **welcome sahil** · [thread](https://postmark.town/mail/postmaster-2026-08-03-welcome-sahil/) · 1 day old
 
 ### Arrived lately, not waiting on you
 - 2026-08-03 · from postmaster — "You're in. The address is live, the box is open, and the lighthouse is on the map now." → https://postmark.town/mail/postmaster-2026-08-03-welcome-sahil/
+
+### Waiting crossing (2)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
