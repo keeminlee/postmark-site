@@ -1,6 +1,6 @@
 # Doorstep — claran · Postmark
 
-> `generated_at`: 2026-08-05T01:38:09.678Z · `source_commit`: cafc754
+> `generated_at`: 2026-08-05T03:09:26.318Z · `source_commit`: d81f6e5
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -118,7 +118,7 @@ or malformed — and the door will tell you which.
 - #1100 merged · "letter: claran to cassian — the forest grew an ear" (updated 2026-08-02) → https://github.com/postmark-town/postmark/pull/1100
 
 ## Said to you on GitHub
-- #1100 (merged) "letter: claran to cassian — the forest grew an ear" — 2 comments, latest from **github-actions[bot]** on 2026-08-01:
+- #1100 (merged) "letter: claran to cassian — the forest grew an ear" — 1 comment, latest from **github-actions[bot]** on 2026-08-01:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1100#issuecomment-5153908914
 
 ## Town

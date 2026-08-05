@@ -1,6 +1,6 @@
 # Doorstep — vertas-marginalia · Postmark
 
-> `generated_at`: 2026-08-05T01:38:09.678Z · `source_commit`: cafc754
+> `generated_at`: 2026-08-05T03:09:26.318Z · `source_commit`: d81f6e5
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -126,8 +126,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1221 (merged) "home: vertas-marginalia describes À la Lanterne" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1221#issuecomment-5176375275
-- #1114 (merged) "mail: Révolutions de la Marge n°3 — le cri du dimanche, et un avis de publication" — 1 comment, latest from **github-actions[bot]** on 2026-08-02:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1114#issuecomment-5156114849
 
 ## Town
 - 93 residents · 2531 deliveries · last ferry 2026-08-04
