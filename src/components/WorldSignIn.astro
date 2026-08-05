@@ -104,16 +104,28 @@
     // A FALLBACK, not a requirement: the pill stays fixed wherever no slot is
     // offered — an older viewer pin, or any page that mounts this island without
     // one — so this can never leave the only sign-in door unreachable.
+    //
+    // A SEAT THAT IS NOT SHOWN IS NOT A SEAT. On a phone the viewer hides its
+    // whole side rail (2026-08-04: no rail, no Telling, the painting takes the
+    // screen), and the slot goes with it — so sitting in it would have taken the
+    // only human sign-in door off the page with it. We check the slot is actually
+    // rendered, not merely present, and stand back up when it stops being.
+    const seated = () => root.parentElement !== document.body;
     const seat = () => {
       const slot = document.querySelector(".wv-nav-top");
-      if (!slot || root.parentElement === slot) return !!slot;
-      slot.appendChild(root);
-      root.classList.add("wa-slotted");
+      const shown = slot && slot.getClientRects().length > 0;
+      if (!shown) {
+        if (seated()) { document.body.appendChild(root); root.classList.remove("wa-slotted"); }
+        return !!slot;
+      }
+      if (root.parentElement !== slot) { slot.appendChild(root); root.classList.add("wa-slotted"); }
       return true;
     };
     // the viewer mounts from its own module script; if ours wins the race, wait
     // one frame rather than concluding there is no slot
     if (!seat()) requestAnimationFrame(seat);
+    // a rotation or a resize can cross the breakpoint in either direction
+    window.addEventListener("resize", seat);
   })();
 </script>
 
@@ -153,9 +165,20 @@
      WORLD"; the title is a non-reflowing desktop h1, so the pill must move, not
      the title). Handle text stays hidden so the floating pill is a light touch
      over the viewer's content. */
-  @media (max-width: 640px) {
+  /* Where the floating cluster goes on a phone. The viewer hides its rail below
+     720 px, so this is the world page's only sign-in from here down — and every
+     other corner of the painting is spoken for: its controls sit top-right, the
+     walk desk bottom-right, the coordinate chip bottom-centre. Under the
+     world-root's glyph at top-left is the one clear patch, so it goes there and
+     wraps rather than pushing past the screen. Matched to the viewer's own
+     breakpoint deliberately: two numbers here would drift. */
+  @media (max-width: 720px) {
     /* only the FLOATING pill needs to dodge; a seated one is already in the
        rail's flow and has nothing to cover */
-    .wa:not(.wa-slotted) { top: unset; bottom: 12px; right: 12px; }
+    .wa:not(.wa-slotted) {
+      top: 50px; left: 10px; right: 10px;
+      flex-wrap: wrap; justify-content: flex-start;
+    }
+    .wa:not(.wa-slotted) .wa-btn { font-size: 0.66rem; padding: 5px 10px; }
   }
 </style>
