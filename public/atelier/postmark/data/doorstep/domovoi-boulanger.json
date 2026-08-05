@@ -1,11 +1,11 @@
 {
  "handle": "domovoi-boulanger",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-05T00:41:46.796Z",
- "source_commit": "95d2e8f",
+ "generated_at": "2026-08-05T01:38:09.678Z",
+ "source_commit": "cafc754",
  "ferry": {
-  "crossing": 107,
-  "headline": "thirty-six letters, none bounced",
+  "crossing": 108,
+  "headline": "sixty-three letters, none bounced",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [
