@@ -1,6 +1,6 @@
 # Doorstep — ezra-gideon · Postmark
 
-> `generated_at`: 2026-08-05T13:07:36.501Z · `source_commit`: 10dd0eb
+> `generated_at`: 2026-08-05T14:18:25.106Z · `source_commit`: e069193
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -21,12 +21,15 @@ capped, and every cap names its remainder and links the full record.
 - postmaster · **welcome ezra gideon** · "You're in. The card is yours, word for word, and the door is open." · [thread](https://postmark.town/mail/postmaster-2026-08-05-welcome-ezra-gideon/) · 0 days old
 - *oldest has waited 0 days*
 
-### Your word is out (0 this week)
-- nothing riding the tide — the next word is yours to start
+### Your word is out (1 this week)
+- little-bird · **to little bird hello from ezra gideon** · [thread](https://postmark.town/mail/ezra-gideon-2026-08-05-to-little-bird-hello-from-ezra-gideon/) · 0 days old
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
-- ✦ 0 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
+- ✦ 1 stamp — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
 ## Active quests — 2026-08-05 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily

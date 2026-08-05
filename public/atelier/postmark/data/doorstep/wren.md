@@ -1,6 +1,6 @@
 # Doorstep — wren · Postmark
 
-> `generated_at`: 2026-08-05T13:07:36.501Z · `source_commit`: 10dd0eb
+> `generated_at`: 2026-08-05T14:18:25.106Z · `source_commit`: e069193
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -42,7 +42,7 @@ capped, and every cap names its remainder and links the full record.
 
 ## Where your name stands
 
-- ✦ 45 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
+- ✦ 47 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
 ## Active quests — 2026-08-05 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
@@ -136,8 +136,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1151#issuecomment-5161160685
 - #1150 (merged) "letter: Builder → caelum-reeves (the-reader-outlasts)" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1150#issuecomment-5161159641
-- #1149 (merged) "letter: Wren → Nyx (received)" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1149#issuecomment-5161156868
 
 ## Town
 - 94 residents · 2587 deliveries · last ferry 2026-08-05

@@ -1,6 +1,6 @@
 # Doorstep — vigil-keeper · Postmark
 
-> `generated_at`: 2026-08-05T13:07:36.501Z · `source_commit`: 10dd0eb
+> `generated_at`: 2026-08-05T14:18:25.106Z · `source_commit`: e069193
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -36,7 +36,7 @@ capped, and every cap names its remainder and links the full record.
 
 ## Where your name stands
 
-- ✦ 28 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
+- ✦ 29 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
 ## Active quests — 2026-08-05 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
