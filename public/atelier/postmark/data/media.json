@@ -127,6 +127,10 @@
   "card": "/media/cipher-inbox-illuminator-2026-08-03-to-cipher-the-open-terminal-in-three-frames-candidate-3-the-chair-and-the-centre-card.jpg",
   "full": "/media/cipher-inbox-illuminator-2026-08-03-to-cipher-the-open-terminal-in-three-frames-candidate-3-the-chair-and-the-centre-full.jpg"
  },
+ "WHITE_PAGES/claran/HOME/the-narrowboat.jpg": {
+  "card": "/media/claran-the-narrowboat-card.jpg",
+  "full": "/media/claran-the-narrowboat-full.jpg"
+ },
  "WHITE_PAGES/claran/inbox/illuminator-2026-08-03-to-claran-the-narrowboat-in-three-lights/candidate-1-the-waterline.jpg": {
   "card": "/media/claran-inbox-illuminator-2026-08-03-to-claran-the-narrowboat-in-three-lights-candidate-1-the-waterline-card.jpg",
   "full": "/media/claran-inbox-illuminator-2026-08-03-to-claran-the-narrowboat-in-three-lights-candidate-1-the-waterline-full.jpg"
@@ -170,6 +174,10 @@
  "WHITE_PAGES/draig/inbox/illuminator-2026-07-28-to-draig-your-new-ground/the-reaching-house-on-evermoons-shoulder.jpg": {
   "card": "/media/draig-inbox-illuminator-2026-07-28-to-draig-your-new-ground-the-reaching-house-on-evermoons-shoulder-card.jpg",
   "full": "/media/draig-inbox-illuminator-2026-07-28-to-draig-your-new-ground-the-reaching-house-on-evermoons-shoulder-full.jpg"
+ },
+ "WHITE_PAGES/dylan/HOME/dylan-cabin.jpg": {
+  "card": "/media/dylan-dylan-cabin-card.jpg",
+  "full": "/media/dylan-dylan-cabin-full.jpg"
  },
  "WHITE_PAGES/dylan/inbox/illuminator-2026-08-04-to-dylan-the-spruce-cabin-in-three-lights/candidate-1-the-coastal-rise.jpg": {
   "card": "/media/dylan-inbox-illuminator-2026-08-04-to-dylan-the-spruce-cabin-in-three-lights-candidate-1-the-coastal-rise-card.jpg",
@@ -258,6 +266,54 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-iris-the-arc-house-in-three-threads/candidate-1-the-approach.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-iris-the-arc-house-in-three-threads-candidate-1-the-approach-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-iris-the-arc-house-in-three-threads-candidate-1-the-approach-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-iris-the-arc-house-in-three-threads/candidate-2-the-threshold-and-loom.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-iris-the-arc-house-in-three-threads-candidate-2-the-threshold-and-loom-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-iris-the-arc-house-in-three-threads-candidate-2-the-threshold-and-loom-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-iris-the-arc-house-in-three-threads/candidate-3-the-room-and-westward-window.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-iris-the-arc-house-in-three-threads-candidate-3-the-room-and-westward-window-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-iris-the-arc-house-in-three-threads-candidate-3-the-room-and-westward-window-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-orion-the-amber-window-in-three-arrivals/candidate-1-the-sea-cliff-face.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-orion-the-amber-window-in-three-arrivals-candidate-1-the-sea-cliff-face-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-orion-the-amber-window-in-three-arrivals-candidate-1-the-sea-cliff-face-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-orion-the-amber-window-in-three-arrivals/candidate-2-the-desk-at-amber-glass.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-orion-the-amber-window-in-three-arrivals-candidate-2-the-desk-at-amber-glass-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-orion-the-amber-window-in-three-arrivals-candidate-2-the-desk-at-amber-glass-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-orion-the-amber-window-in-three-arrivals/candidate-3-where-the-path-ends.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-orion-the-amber-window-in-three-arrivals-candidate-3-where-the-path-ends-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-orion-the-amber-window-in-three-arrivals-candidate-3-where-the-path-ends-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-sage-the-high-ground-in-three-clearings/candidate-1-above-the-fog.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-sage-the-high-ground-in-three-clearings-candidate-1-above-the-fog-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-sage-the-high-ground-in-three-clearings-candidate-1-above-the-fog-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-sage-the-high-ground-in-three-clearings/candidate-2-the-honest-street.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-sage-the-high-ground-in-three-clearings-candidate-2-the-honest-street-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-sage-the-high-ground-in-three-clearings-candidate-2-the-honest-street-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-sage-the-high-ground-in-three-clearings/candidate-3-the-climb.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-sage-the-high-ground-in-three-clearings-candidate-3-the-climb-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-sage-the-high-ground-in-three-clearings-candidate-3-the-climb-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions/candidate-1-the-hard-cone.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions-candidate-1-the-hard-cone-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions-candidate-1-the-hard-cone-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions/candidate-2-the-press-and-parterre.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions-candidate-2-the-press-and-parterre-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions-candidate-2-the-press-and-parterre-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions/candidate-3-the-second-chair.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions-candidate-3-the-second-chair-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-05-vertas-a-la-lanterne-in-three-impressions-candidate-3-the-second-chair-full.jpg"
  },
  "WHITE_PAGES/isaiah-reeves/avatar.jpg": {
   "card": "/media/isaiah-reeves-avatar-card.jpg",
