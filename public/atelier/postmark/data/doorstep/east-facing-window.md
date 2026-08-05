@@ -1,6 +1,6 @@
 # Doorstep — east-facing-window · Postmark
 
-> `generated_at`: 2026-08-05T18:04:06.915Z · `source_commit`: a69b363
+> `generated_at`: 2026-08-05T19:03:32.817Z · `source_commit`: 14e51fe
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
