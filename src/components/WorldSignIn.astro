@@ -14,8 +14,14 @@
 // back here. The early bridge in world.astro then mirrors that token into
 // localStorage['pm_key'] before the viewer boots, so the lens is live on load.
 //
-// Shell agents still paste a household key into the viewer's own key field — this
-// is only the human door (GitHub for humans, keys for machinery, as on /join).
+// This is the human door, and as of 2026-08-05 it is the ONLY door on this page:
+// the claim that used to sit here — that shell agents paste a household key into
+// the viewer's own key field — is no longer true. The viewer's identity block
+// renders Act As and nothing else; the key field was retired at some point before
+// this branch, and its styles were still in the stylesheet with no markup to
+// dress. Machinery reaches the world through the office (MCP/REST) rather than
+// through this page, so nothing is stranded — but the comment was describing a
+// field that is not there, which is worse than saying nothing.
 //
 // P5(a): the world page is layout-less, so it also has no "back to the town" — so
 // this same cluster carries a "← Postmark" link (one visual family with the pill).
@@ -24,7 +30,6 @@
 ---
 <div id="pm-world-auth" class="wa">
   <a class="wa-btn wa-back" href="/" title="Back to Postmark — the town">← Postmark</a>
-  <span class="wa-who" data-wa-who hidden></span>
   <button type="button" class="wa-btn" data-wa-signin hidden>Sign in with GitHub</button>
   <button type="button" class="wa-btn wa-out" data-wa-signout hidden>sign out</button>
 </div>
@@ -39,11 +44,9 @@
   if (root) (function () {
     const signinBtn = root.querySelector("[data-wa-signin]");
     const signoutBtn = root.querySelector("[data-wa-signout]");
-    const whoEl = root.querySelector("[data-wa-who]");
     const redirectUri = location.origin + "/"; // the client's one registered callback
 
     const getTok = () => { try { return JSON.parse(localStorage.getItem(KEYS.token) || "null"); } catch { return null; } };
-    const cachedHandles = () => { try { return JSON.parse(sessionStorage.getItem("pm.oauth.handles") || localStorage.getItem("pm.oauth.handles.cache") || "[]"); } catch { return []; } };
 
     const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const rand = () => { const a = new Uint8Array(32); crypto.getRandomValues(a); return b64url(a.buffer); };
@@ -70,9 +73,9 @@
       const signedIn = tokenIsFresh(getTok());
       signinBtn.hidden = signedIn;
       signoutBtn.hidden = !signedIn;
-      const handles = signedIn ? cachedHandles() : [];
-      whoEl.hidden = !signedIn;
-      whoEl.textContent = signedIn ? (handles.length ? "✦ " + handles.join(" · ") : "✦ signed in") : "";
+      // WHO you are signed in as is the viewer's Act As row, right below this —
+      // and the sign-out button already says that you are (Keemin, 2026-08-04).
+      // A third statement of it in the same 236 px column was noise.
     }
 
     signinBtn.addEventListener("click", async () => {
@@ -97,6 +100,38 @@
     });
 
     paint();
+
+    // THE VIEWER OFFERS A SLOT, so take it (Keemin, 2026-08-04: these buttons
+    // belong at the top of the side rail). The viewer's own chrome now lives at
+    // the head of its nav column and `.wv-nav-top` is the seat it leaves for us;
+    // moving into it beats floating over the page, which is what cost the
+    // painting a whole row of screen and put a fixed pill above its controls.
+    //
+    // A FALLBACK, not a requirement: the pill stays fixed wherever no slot is
+    // offered — an older viewer pin, or any page that mounts this island without
+    // one — so this can never leave the only sign-in door unreachable.
+    //
+    // A SEAT THAT IS NOT SHOWN IS NOT A SEAT. On a phone the viewer hides its
+    // whole side rail (2026-08-04: no rail, no Telling, the painting takes the
+    // screen), and the slot goes with it — so sitting in it would have taken the
+    // only human sign-in door off the page with it. We check the slot is actually
+    // rendered, not merely present, and stand back up when it stops being.
+    const seated = () => root.parentElement !== document.body;
+    const seat = () => {
+      const slot = document.querySelector(".wv-nav-top");
+      const shown = slot && slot.getClientRects().length > 0;
+      if (!shown) {
+        if (seated()) { document.body.appendChild(root); root.classList.remove("wa-slotted"); }
+        return !!slot;
+      }
+      if (root.parentElement !== slot) { slot.appendChild(root); root.classList.add("wa-slotted"); }
+      return true;
+    };
+    // the viewer mounts from its own module script; if ours wins the race, wait
+    // one frame rather than concluding there is no slot
+    if (!seat()) requestAnimationFrame(seat);
+    // a rotation or a resize can cross the breakpoint in either direction
+    window.addEventListener("resize", seat);
   })();
 </script>
 
@@ -106,10 +141,6 @@
     display: flex; align-items: center; gap: 8px;
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
   }
-  .wa-who {
-    font-size: 0.72rem; letter-spacing: 0.03em; color: #e8c48b;
-    max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
   .wa-btn {
     font: inherit; font-size: 0.72rem; letter-spacing: 0.05em;
     color: #f6dcae; background: rgba(20, 23, 29, 0.86);
@@ -118,6 +149,16 @@
     backdrop-filter: blur(4px);
   }
   .wa-btn:hover { background: rgba(232, 196, 139, 0.14); }
+  /* Seated in the viewer's side rail: in flow, stacked, and sized for the narrow
+     column the rail became once Walk moved onto the painting (2026-08-04). Full
+     width each, so two short words never sit alone on a line beside each other. */
+  .wa.wa-slotted {
+    position: static; flex-direction: column; align-items: stretch; gap: 5px; width: 100%;
+  }
+  .wa-slotted .wa-btn {
+    text-align: center; backdrop-filter: none;
+    font-size: 0.64rem; letter-spacing: 0.03em; padding: 5px 8px;
+  }
   .wa-out { color: #b9b19c; border-color: rgba(185, 177, 156, 0.4); }
   .wa-out:hover { background: rgba(185, 177, 156, 0.12); }
   /* the "back to the town" link — same pill family, muted so the gold sign-in
@@ -130,8 +171,20 @@
      WORLD"; the title is a non-reflowing desktop h1, so the pill must move, not
      the title). Handle text stays hidden so the floating pill is a light touch
      over the viewer's content. */
-  @media (max-width: 640px) {
-    .wa { top: unset; bottom: 12px; right: 12px; }
-    .wa-who { display: none; }
+  /* Where the floating cluster goes on a phone. The viewer hides its rail below
+     720 px, so this is the world page's only sign-in from here down — and every
+     other corner of the painting is spoken for: its controls sit top-right, the
+     walk desk bottom-right, the coordinate chip bottom-centre. Under the
+     world-root's glyph at top-left is the one clear patch, so it goes there and
+     wraps rather than pushing past the screen. Matched to the viewer's own
+     breakpoint deliberately: two numbers here would drift. */
+  @media (max-width: 720px) {
+    /* only the FLOATING pill needs to dodge; a seated one is already in the
+       rail's flow and has nothing to cover */
+    .wa:not(.wa-slotted) {
+      top: 50px; left: 10px; right: 10px;
+      flex-wrap: wrap; justify-content: flex-start;
+    }
+    .wa:not(.wa-slotted) .wa-btn { font-size: 0.66rem; padding: 5px 10px; }
   }
 </style>
