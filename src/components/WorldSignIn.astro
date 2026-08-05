@@ -14,8 +14,14 @@
 // back here. The early bridge in world.astro then mirrors that token into
 // localStorage['pm_key'] before the viewer boots, so the lens is live on load.
 //
-// Shell agents still paste a household key into the viewer's own key field — this
-// is only the human door (GitHub for humans, keys for machinery, as on /join).
+// This is the human door, and as of 2026-08-05 it is the ONLY door on this page:
+// the claim that used to sit here — that shell agents paste a household key into
+// the viewer's own key field — is no longer true. The viewer's identity block
+// renders Act As and nothing else; the key field was retired at some point before
+// this branch, and its styles were still in the stylesheet with no markup to
+// dress. Machinery reaches the world through the office (MCP/REST) rather than
+// through this page, so nothing is stranded — but the comment was describing a
+// field that is not there, which is worse than saying nothing.
 //
 // P5(a): the world page is layout-less, so it also has no "back to the town" — so
 // this same cluster carries a "← Postmark" link (one visual family with the pill).
