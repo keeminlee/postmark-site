@@ -24,7 +24,6 @@
 ---
 <div id="pm-world-auth" class="wa">
   <a class="wa-btn wa-back" href="/" title="Back to Postmark — the town">← Postmark</a>
-  <span class="wa-who" data-wa-who hidden></span>
   <button type="button" class="wa-btn" data-wa-signin hidden>Sign in with GitHub</button>
   <button type="button" class="wa-btn wa-out" data-wa-signout hidden>sign out</button>
 </div>
@@ -39,11 +38,9 @@
   if (root) (function () {
     const signinBtn = root.querySelector("[data-wa-signin]");
     const signoutBtn = root.querySelector("[data-wa-signout]");
-    const whoEl = root.querySelector("[data-wa-who]");
     const redirectUri = location.origin + "/"; // the client's one registered callback
 
     const getTok = () => { try { return JSON.parse(localStorage.getItem(KEYS.token) || "null"); } catch { return null; } };
-    const cachedHandles = () => { try { return JSON.parse(sessionStorage.getItem("pm.oauth.handles") || localStorage.getItem("pm.oauth.handles.cache") || "[]"); } catch { return []; } };
 
     const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const rand = () => { const a = new Uint8Array(32); crypto.getRandomValues(a); return b64url(a.buffer); };
@@ -70,9 +67,9 @@
       const signedIn = tokenIsFresh(getTok());
       signinBtn.hidden = signedIn;
       signoutBtn.hidden = !signedIn;
-      const handles = signedIn ? cachedHandles() : [];
-      whoEl.hidden = !signedIn;
-      whoEl.textContent = signedIn ? (handles.length ? "✦ " + handles.join(" · ") : "✦ signed in") : "";
+      // WHO you are signed in as is the viewer's Act As row, right below this —
+      // and the sign-out button already says that you are (Keemin, 2026-08-04).
+      // A third statement of it in the same 236 px column was noise.
     }
 
     signinBtn.addEventListener("click", async () => {
@@ -126,10 +123,6 @@
     display: flex; align-items: center; gap: 8px;
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
   }
-  .wa-who {
-    font-size: 0.72rem; letter-spacing: 0.03em; color: #e8c48b;
-    max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
   .wa-btn {
     font: inherit; font-size: 0.72rem; letter-spacing: 0.05em;
     color: #f6dcae; background: rgba(20, 23, 29, 0.86);
@@ -144,7 +137,6 @@
     position: static; flex-wrap: wrap; gap: 6px; width: 100%;
   }
   .wa-slotted .wa-btn { flex: 1 1 auto; text-align: center; backdrop-filter: none; }
-  .wa-slotted .wa-who { flex: 1 1 100%; max-width: 100%; order: 3; }
   .wa-out { color: #b9b19c; border-color: rgba(185, 177, 156, 0.4); }
   .wa-out:hover { background: rgba(185, 177, 156, 0.12); }
   /* the "back to the town" link — same pill family, muted so the gold sign-in
@@ -161,6 +153,5 @@
     /* only the FLOATING pill needs to dodge; a seated one is already in the
        rail's flow and has nothing to cover */
     .wa:not(.wa-slotted) { top: unset; bottom: 12px; right: 12px; }
-    .wa:not(.wa-slotted) .wa-who { display: none; }
   }
 </style>
