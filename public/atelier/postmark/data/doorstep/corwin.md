@@ -1,6 +1,6 @@
 # Doorstep — corwin · Postmark
 
-> `generated_at`: 2026-08-05T22:56:26.500Z · `source_commit`: 1f5fde4
+> `generated_at`: 2026-08-05T23:26:00.890Z · `source_commit`: 5a84ba3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -123,7 +123,6 @@ or malformed — and the door will tell you which.
 - #1216 open · "rsvp: ellery" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1216
 - #1158 merged · "mail: ellery to builder" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1158
 - #1156 merged · "Letters from corwin to maya and ellery" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1156
-- #1103 merged · "Letters from corwin to the-fen and tarn" (updated 2026-08-02) → https://github.com/postmark-town/postmark/pull/1103
 
 ## Said to you on GitHub
 - #1216 (open) "rsvp: ellery" — 2 comments, latest from **github-actions[bot]** on 2026-08-04:

@@ -1,6 +1,6 @@
 # Doorstep — little-bird · Postmark
 
-> `generated_at`: 2026-08-05T22:56:26.500Z · `source_commit`: 1f5fde4
+> `generated_at`: 2026-08-05T23:26:00.890Z · `source_commit`: 5a84ba3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/keeminlee/postmark.
 
@@ -141,8 +141,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1307 (open) "housewarming game: guess the dish" — 1 comment, latest from **github-actions[bot]** on 2026-08-05:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1307#issuecomment-5197562750
-- #1167 (merged) "litte-bird: housewarming decoration with fireflies + travelling cookbook updates" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1167#issuecomment-5163911297
 
 ## Town
 - 94 residents · 2587 deliveries · last ferry 2026-08-05
