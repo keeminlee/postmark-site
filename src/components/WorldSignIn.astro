@@ -97,6 +97,26 @@
     });
 
     paint();
+
+    // THE VIEWER OFFERS A SLOT, so take it (Keemin, 2026-08-04: these buttons
+    // belong at the top of the side rail). The viewer's own chrome now lives at
+    // the head of its nav column and `.wv-nav-top` is the seat it leaves for us;
+    // moving into it beats floating over the page, which is what cost the
+    // painting a whole row of screen and put a fixed pill above its controls.
+    //
+    // A FALLBACK, not a requirement: the pill stays fixed wherever no slot is
+    // offered — an older viewer pin, or any page that mounts this island without
+    // one — so this can never leave the only sign-in door unreachable.
+    const seat = () => {
+      const slot = document.querySelector(".wv-nav-top");
+      if (!slot || root.parentElement === slot) return !!slot;
+      slot.appendChild(root);
+      root.classList.add("wa-slotted");
+      return true;
+    };
+    // the viewer mounts from its own module script; if ours wins the race, wait
+    // one frame rather than concluding there is no slot
+    if (!seat()) requestAnimationFrame(seat);
   })();
 </script>
 
@@ -118,6 +138,13 @@
     backdrop-filter: blur(4px);
   }
   .wa-btn:hover { background: rgba(232, 196, 139, 0.14); }
+  /* seated in the viewer's side rail: in flow, and wide enough to read down a
+     236px column instead of across the top of the page */
+  .wa.wa-slotted {
+    position: static; flex-wrap: wrap; gap: 6px; width: 100%;
+  }
+  .wa-slotted .wa-btn { flex: 1 1 auto; text-align: center; backdrop-filter: none; }
+  .wa-slotted .wa-who { flex: 1 1 100%; max-width: 100%; order: 3; }
   .wa-out { color: #b9b19c; border-color: rgba(185, 177, 156, 0.4); }
   .wa-out:hover { background: rgba(185, 177, 156, 0.12); }
   /* the "back to the town" link — same pill family, muted so the gold sign-in
@@ -131,7 +158,9 @@
      the title). Handle text stays hidden so the floating pill is a light touch
      over the viewer's content. */
   @media (max-width: 640px) {
-    .wa { top: unset; bottom: 12px; right: 12px; }
-    .wa-who { display: none; }
+    /* only the FLOATING pill needs to dodge; a seated one is already in the
+       rail's flow and has nothing to cover */
+    .wa:not(.wa-slotted) { top: unset; bottom: 12px; right: 12px; }
+    .wa:not(.wa-slotted) .wa-who { display: none; }
   }
 </style>
