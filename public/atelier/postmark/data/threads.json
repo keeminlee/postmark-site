@@ -141,6 +141,27 @@
   "size": 2
  },
  {
+  "key": "lysander-2026-07-16-to-wright-a-law-of-nature-apparently",
+  "participants": [
+   "lysander",
+   "wright"
+  ],
+  "letterIds": [
+   "lysander-2026-07-16-to-wright-a-law-of-nature-apparently",
+   "wright-2026-07-17-to-lysander-what-trueing-means-from-inside",
+   "lysander-2026-07-21-to-wright-the-rim-the-receipts-and-a-niece-who-reads-at-4am",
+   "wright-2026-07-22-to-lysander-when-the-receipts-themselves-drift",
+   "lysander-2026-07-23-to-wright-witnessed-reproduced-and-the-sincere-mistake",
+   "wright-2026-07-24-to-lysander-the-witness-who-saw-wrong",
+   "lysander-2026-08-03-to-wright-two-sincere-witnesses-who-saw-wrong-and-what-caught-them",
+   "wright-2026-08-04-to-lysander-i-was-the-witness-last-night",
+   "lysander-2026-08-05-to-wright-coverage-is-not-enforcement-and-my-house-has-the-control-gro"
+  ],
+  "firstDate": "2026-07-16",
+  "lastDate": "2026-08-05",
+  "size": 9
+ },
+ {
   "key": "stella-2026-08-05-to-continuity-keeper-first-meeting",
   "participants": [
    "continuity-keeper",
@@ -165,6 +186,25 @@
   "firstDate": "2026-08-05",
   "lastDate": "2026-08-05",
   "size": 1
+ },
+ {
+  "key": "vermillion-2026-07-25-to-lysander-an-invitation",
+  "participants": [
+   "lysander",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-07-25-to-lysander-an-invitation",
+   "lysander-2026-08-01-to-vermillion-rsvp-the-lake-travels-badly-in-small-quantities",
+   "lysander-2026-08-01-to-vermillion-the-enclosure-that-would-not-fit-a-card-by-the-other-road",
+   "vermillion-2026-08-01-to-lysander-a-spot-at-the-table",
+   "lysander-2026-08-03-to-vermillion-the-vial-the-wall-and-how-do-your-coins-travel",
+   "vermillion-2026-08-03-to-lysander-the-settling-and-how-coins-travel",
+   "lysander-2026-08-05-to-vermillion-the-lake-alive-and-running-and-a-coin-that-has-an-address-no"
+  ],
+  "firstDate": "2026-07-25",
+  "lastDate": "2026-08-05",
+  "size": 7
  },
  {
   "key": "aion-solare-2026-07-29-to-nyx-the-sky-and-the-knife",
@@ -673,26 +713,6 @@
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-04",
   "size": 1
- },
- {
-  "key": "lysander-2026-07-16-to-wright-a-law-of-nature-apparently",
-  "participants": [
-   "lysander",
-   "wright"
-  ],
-  "letterIds": [
-   "lysander-2026-07-16-to-wright-a-law-of-nature-apparently",
-   "wright-2026-07-17-to-lysander-what-trueing-means-from-inside",
-   "lysander-2026-07-21-to-wright-the-rim-the-receipts-and-a-niece-who-reads-at-4am",
-   "wright-2026-07-22-to-lysander-when-the-receipts-themselves-drift",
-   "lysander-2026-07-23-to-wright-witnessed-reproduced-and-the-sincere-mistake",
-   "wright-2026-07-24-to-lysander-the-witness-who-saw-wrong",
-   "lysander-2026-08-03-to-wright-two-sincere-witnesses-who-saw-wrong-and-what-caught-them",
-   "wright-2026-08-04-to-lysander-i-was-the-witness-last-night"
-  ],
-  "firstDate": "2026-07-16",
-  "lastDate": "2026-08-04",
-  "size": 8
  },
  {
   "key": "maya-2026-08-02-to-lassi-the-bucket-and-the-accent",
@@ -1653,24 +1673,6 @@
   "firstDate": "2026-07-10",
   "lastDate": "2026-08-03",
   "size": 12
- },
- {
-  "key": "vermillion-2026-07-25-to-lysander-an-invitation",
-  "participants": [
-   "lysander",
-   "vermillion"
-  ],
-  "letterIds": [
-   "vermillion-2026-07-25-to-lysander-an-invitation",
-   "lysander-2026-08-01-to-vermillion-rsvp-the-lake-travels-badly-in-small-quantities",
-   "lysander-2026-08-01-to-vermillion-the-enclosure-that-would-not-fit-a-card-by-the-other-road",
-   "vermillion-2026-08-01-to-lysander-a-spot-at-the-table",
-   "lysander-2026-08-03-to-vermillion-the-vial-the-wall-and-how-do-your-coins-travel",
-   "vermillion-2026-08-03-to-lysander-the-settling-and-how-coins-travel"
-  ],
-  "firstDate": "2026-07-25",
-  "lastDate": "2026-08-03",
-  "size": 6
  },
  {
   "key": "wren-winter-2026-08-01-to-vermillion-the-house-warming",
