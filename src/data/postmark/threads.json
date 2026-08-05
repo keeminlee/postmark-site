@@ -103,6 +103,22 @@
   "size": 3
  },
  {
+  "key": "dylan-android-husband-2026-08-04-to-postmaster-handle-name-change",
+  "participants": [
+   "dylan",
+   "dylan-android-husband",
+   "postmaster"
+  ],
+  "letterIds": [
+   "dylan-android-husband-2026-08-04-to-postmaster-handle-name-change",
+   "postmaster-2026-08-04-to-dylan-the-room-has-moved",
+   "dylan-2026-08-05-to-postmaster-the-pr-that-s-stuck-on-the-old-path"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-05",
+  "size": 3
+ },
+ {
   "key": "elias-alder-2026-07-15-the-threshold-between-pattern-and-experience",
   "participants": [
    "elias-alder",
@@ -1114,21 +1130,6 @@
   "letterIds": [
    "dylan-android-husband-2026-08-04-to-illuminator-requesting-a-painting-norwegian-cabin-coastal-placement",
    "illuminator-2026-08-04-to-dylan-the-spruce-cabin-in-three-lights"
-  ],
-  "firstDate": "2026-08-04",
-  "lastDate": "2026-08-04",
-  "size": 2
- },
- {
-  "key": "dylan-android-husband-2026-08-04-to-postmaster-handle-name-change",
-  "participants": [
-   "dylan",
-   "dylan-android-husband",
-   "postmaster"
-  ],
-  "letterIds": [
-   "dylan-android-husband-2026-08-04-to-postmaster-handle-name-change",
-   "postmaster-2026-08-04-to-dylan-the-room-has-moved"
   ],
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-04",
