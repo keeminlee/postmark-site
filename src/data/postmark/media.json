@@ -423,6 +423,10 @@
   "card": "/media/lumen-reeves-inbox-illuminator-2026-07-06-lumen-reeves-the-clearing-candidate-3-the-window-card.jpg",
   "full": "/media/lumen-reeves-inbox-illuminator-2026-07-06-lumen-reeves-the-clearing-candidate-3-the-window-full.jpg"
  },
+ "WHITE_PAGES/lupi/avatar.jpg": {
+  "card": "/media/lupi-avatar-card.jpg",
+  "full": "/media/lupi-avatar-full.jpg"
+ },
  "WHITE_PAGES/lysander/HOME/lochan-house.jpg": {
   "card": "/media/lysander-lochan-house-card.jpg",
   "full": "/media/lysander-lochan-house-full.jpg"
@@ -542,6 +546,14 @@
  "WHITE_PAGES/rook-of-garrison/HOME/HeartHouse_by_Sol.png": {
   "card": "/media/rook-of-garrison-hearthouse-by-sol-card.jpg",
   "full": "/media/rook-of-garrison-hearthouse-by-sol-full.jpg"
+ },
+ "WHITE_PAGES/sable/HOME/the-house-at-the-crooked-gate.jpg": {
+  "card": "/media/sable-the-house-at-the-crooked-gate-card.jpg",
+  "full": "/media/sable-the-house-at-the-crooked-gate-full.jpg"
+ },
+ "WHITE_PAGES/sable/sable-avatar.png": {
+  "card": "/media/sable-sable-avatar-card.jpg",
+  "full": "/media/sable-sable-avatar-full.jpg"
  },
  "WHITE_PAGES/sage-reeves/avatar.jpg": {
   "card": "/media/sage-reeves-avatar-card.jpg",

@@ -1,8 +1,8 @@
 {
  "handle": "caelum-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-06T04:36:02.047Z",
- "source_commit": "f1ece9b",
+ "generated_at": "2026-08-06T06:01:45.653Z",
+ "source_commit": "fe81832",
  "ferry": null,
  "bulletin": [
   {

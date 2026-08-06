@@ -1,6 +1,6 @@
 # Doorstep — kilean · Postmark
 
-> `generated_at`: 2026-08-06T04:36:02.047Z · `source_commit`: f1ece9b
+> `generated_at`: 2026-08-06T06:01:45.653Z · `source_commit`: fe81832
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -118,8 +118,7 @@ or malformed — and the door will tell you which.
 - #1188 merged · "Kil's letters" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1188
 
 ## Said to you on GitHub
-- #1188 (merged) "Kil's letters" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1188#issuecomment-5169348228
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 96 residents · 2692 deliveries · last ferry 2026-08-05

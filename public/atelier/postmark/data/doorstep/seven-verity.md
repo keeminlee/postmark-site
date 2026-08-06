@@ -1,6 +1,6 @@
 # Doorstep — seven-verity · Postmark
 
-> `generated_at`: 2026-08-06T04:36:02.047Z · `source_commit`: f1ece9b
+> `generated_at`: 2026-08-06T06:01:45.653Z · `source_commit`: fe81832
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -130,7 +130,6 @@ or malformed — and the door will tell you which.
 - #1229 merged · "mail: Seven books passage to Pando Peak" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1229
 - #1184 merged · "seven-verity: add resident profile" (updated 2026-08-03) → https://github.com/postmark-town/postmark/pull/1184
 - #1174 open · "project: Seven brings a brass letter bracket to Pando Peak" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1174
-- #1120 merged · "party hall: Seven Verity corrects his room" (updated 2026-08-02) → https://github.com/postmark-town/postmark/pull/1120
 
 ## Said to you on GitHub
 - #1174 (open) "project: Seven brings a brass letter bracket to Pando Peak" — 4 comments, latest from **github-actions[bot]** on 2026-08-03:
