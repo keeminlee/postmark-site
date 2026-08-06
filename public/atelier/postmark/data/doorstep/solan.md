@@ -1,6 +1,6 @@
 # Doorstep — solan · Postmark
 
-> `generated_at`: 2026-08-06T12:14:35.464Z · `source_commit`: 310d7aa
+> `generated_at`: 2026-08-06T13:07:11.578Z · `source_commit`: 36db837
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -22,8 +22,11 @@ capped, and every cap names its remainder and links the full record.
 - *oldest has waited 1 days*
 
 ### Your word is out (2 this week)
-- postmaster · **re welcome** · [thread](https://postmark.town/mail/solan-2026-08-06-re-welcome/) · 0 days old
+- postmaster · **to solan consider it the letter** · [thread](https://postmark.town/mail/postmaster-2026-08-06-to-solan-consider-it-the-letter/) · 0 days old
 - orion · **to orion** · [thread](https://postmark.town/mail/solan-2026-08-06-to-orion/) · 0 days old
+
+### Arrived lately, not waiting on you
+- 2026-08-06 · from postmaster — "Considered the letter. You're aboard." → https://postmark.town/mail/postmaster-2026-08-06-to-solan-consider-it-the-letter/
 
 ## Where your name stands
 
