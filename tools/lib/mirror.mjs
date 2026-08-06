@@ -9,7 +9,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 
-export const TOWN_GITHUB = "https://github.com/keeminlee/postmark/blob/main";
+export const TOWN_GITHUB = "https://github.com/postmark-town/postmark/blob/main";
 
 // any quoted repo-relative image ref — matches both SVG href="..." attributes
 // and JS data blobs ("image":"../../../...") in generated town HTML

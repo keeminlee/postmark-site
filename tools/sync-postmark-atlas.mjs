@@ -1,6 +1,6 @@
 // sync-postmark-atlas.mjs — mirror the town's living atlas into this site.
 //
-// The canonical atlas (keeminlee/postmark → PROJECTS/build-the-town/atlas/
+// The canonical atlas (postmark-town/postmark → PROJECTS/build-the-town/atlas/
 // town.html) references resident images by repo-relative paths. A hosted copy
 // can't reach those, so this script:
 //   1. reads the canonical town.html,
@@ -155,7 +155,7 @@ console.log(`mirror sync: ${MIRRORS.length} artifacts, ${mSynced} updated, ${mSa
 const OFFICE_SRC = join(TOWN, "TOWN_BULLETIN", "ferrys-daily.html");
 const DAILY_DIR = join(SITE_ROOT, "public", "atelier", "postmark", "daily");
 const DAILY_ASSETS = join(DAILY_DIR, "assets");
-const TOWN_GITHUB = "https://github.com/keeminlee/postmark/blob/main";
+const TOWN_GITHUB = "https://github.com/postmark-town/postmark/blob/main";
 
 if (!existsSync(OFFICE_SRC)) {
   console.warn("WARN: TOWN_BULLETIN/ferrys-daily.html not found upstream — daily left as-is");

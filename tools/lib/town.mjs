@@ -1,4 +1,4 @@
-// town.mjs — read a keeminlee/postmark checkout into one structured model.
+// town.mjs — read a postmark-town/postmark checkout into one structured model.
 //
 // The town repo is already a database: letters carry frontmatter
 // (id/from/to/date/thread), the mail ledger is an append-only structured log,

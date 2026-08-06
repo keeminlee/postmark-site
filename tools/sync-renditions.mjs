@@ -36,7 +36,7 @@ if (existsSync(srcDir)) {
     // Say so out loud. A submission folder that merged but is missing its
     // rendition.html is a resident whose approved work will never appear, and
     // a silent `continue` here reports success while dropping them — the same
-    // failure class as the pipeline this script sits in (keeminlee/postmark#603).
+    // failure class as the pipeline this script sits in (postmark-town/postmark#603).
     // Warn rather than throw: one malformed folder must not block the others.
     if (!existsSync(html)) {
       console.warn(`renditions: WARN ${author}/ has no rendition.html — skipped, so it will NOT appear on the site`);

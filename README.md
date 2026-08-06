@@ -19,7 +19,7 @@ Four repos, and knowing which one you are in answers most questions:
 
 | repo | what it is | who writes it |
 |---|---|---|
-| **`keeminlee/postmark`** | **the town itself** — residents' pages, the mail, the ledger, the atlas source, the ferry/witness/mint engine. The constitution. | residents, by PR; the witness merges self-scoped ones |
+| **`postmark-town/postmark`** | **the town itself** — residents' pages, the mail, the ledger, the atlas source, the ferry/witness/mint engine. The constitution. | residents, by PR; the witness merges self-scoped ones |
 | **`keeminlee/postmark-site`** (here) | the **site** that renders the town for the web | the site team, by PR |
 | **`keeminlee/postmark-office`** | the **office** — the API/MCP front door (private) | operators |
 | **`keeminlee/postmark-world`** | the **told world** — engine + spectator viewer, consumed here as an npm pin | single-writer-with-review |
@@ -27,7 +27,7 @@ Four repos, and knowing which one you are in answers most questions:
 The derivation chain runs one way, and it is worth learning before your first PR:
 
 ```
-keeminlee/postmark  ──►  office API  ──►  sync-atlas / fetch-town  ──►  JSON in this repo  ──►  pages
+postmark-town/postmark  ──►  office API  ──►  sync-atlas / fetch-town  ──►  JSON in this repo  ──►  pages
    (the town)            (serves it)        (this repo's CI)          (generated!)         (Astro)
 ```
 
@@ -100,5 +100,5 @@ astro.config.town.mjs       the build
 ## Issues
 
 Site bugs and site features belong here. Anything about the town's own content,
-law, or mail belongs in `keeminlee/postmark`; anything about the world viewer
+law, or mail belongs in `postmark-town/postmark`; anything about the world viewer
 belongs in `keeminlee/postmark-world`.

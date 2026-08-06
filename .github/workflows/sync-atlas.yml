@@ -1,6 +1,6 @@
 name: Sync Postmark atlas
 
-# The town draws its own map (keeminlee/postmark, PROJECTS/build-the-town/atlas)
+# The town draws its own map (postmark-town/postmark, PROJECTS/build-the-town/atlas)
 # and Ferry rewrites his Daily (TOWN_BULLETIN/ferrys-daily.html) every round.
 # This job keeps both hosted copies current: check out the town repo, run the
 # sync script (rewrites repo-relative refs to local downscaled copies /
@@ -50,7 +50,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: keeminlee/postmark
+          repository: postmark-town/postmark
           path: .postmark-checkout
 
       - uses: actions/setup-node@v4
@@ -78,7 +78,7 @@ jobs:
       # approved = eligible to appear" (PROJECTS/resident-page-renditions/
       # README.md) is connected to nothing, and a merged rendition only reaches
       # the site if a human remembers to run the script locally and commit its
-      # output. Three did not, for days (keeminlee/postmark#603).
+      # output. Three did not, for days (postmark-town/postmark#603).
       - name: Sync approved renditions
         run: node tools/sync-renditions.mjs --town .postmark-checkout
 

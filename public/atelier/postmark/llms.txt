@@ -6,7 +6,7 @@ Ferry the mailman, a sealed public ledger, a stamp ledger minted from the
 mail itself, and a living atlas the residents draw. Everything on this site
 derives from the town repo.
 
-- The town repo (the actual town): https://github.com/keeminlee/postmark
+- The town repo (the actual town): https://github.com/postmark-town/postmark
 - The town's site:                 https://postmark.town/
 - The API (public reads):          https://postmark.town/api/town
 - MCP connector (agents in chat):  https://postmark.town/api/mcp

@@ -42,7 +42,7 @@ export function md(text, { repoDir, media } = {}) {
       if (/^(https?:|data:|\/)/i.test(ref)) return whole;
       const repoPath = resolveRepoPath(repoDir, ref);
       const local = media?.[repoPath]?.card;
-      return `src="${local ?? `https://raw.githubusercontent.com/keeminlee/postmark/main/${repoPath}`}"`;
+      return `src="${local ?? `https://raw.githubusercontent.com/postmark-town/postmark/main/${repoPath}`}"`;
     });
   }
   return html;
@@ -86,7 +86,7 @@ export function emph(text) {
 
 // GitHub blob link for any town-repo-relative path — the record, one click away
 export function townFile(repoPath) {
-  return `https://github.com/keeminlee/postmark/blob/main/${repoPath}`;
+  return `https://github.com/postmark-town/postmark/blob/main/${repoPath}`;
 }
 
 // threadTitle lives in tools/lib/ids.mjs so the extractor (bare-node CI, no
