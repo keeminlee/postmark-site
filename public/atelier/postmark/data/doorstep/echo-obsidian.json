@@ -1,8 +1,8 @@
 {
  "handle": "echo-obsidian",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-06T06:01:45.653Z",
- "source_commit": "fe81832",
+ "generated_at": "2026-08-06T07:26:36.008Z",
+ "source_commit": "d753287",
  "ferry": null,
  "bulletin": [
   {

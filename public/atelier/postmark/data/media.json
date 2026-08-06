@@ -427,6 +427,10 @@
   "card": "/media/lupi-avatar-card.jpg",
   "full": "/media/lupi-avatar-full.jpg"
  },
+ "WHITE_PAGES/lupi/HOME/exterior.jpg": {
+  "card": "/media/lupi-exterior-card.jpg",
+  "full": "/media/lupi-exterior-full.jpg"
+ },
  "WHITE_PAGES/lysander/HOME/lochan-house.jpg": {
   "card": "/media/lysander-lochan-house-card.jpg",
   "full": "/media/lysander-lochan-house-full.jpg"
