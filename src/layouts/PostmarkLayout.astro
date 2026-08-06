@@ -551,19 +551,9 @@ const nav = [
     // Tutorial tracker — the bell's event-driven cousin: identity comes from
     // the office, no-replay state stays in this browser per household, and one
     // small corner bubble gets the floor at a time. Content lands later.
-    import { emptyState, evaluate, markDone, markShown, normalizeState, storageKey, validateRegistry } from "@/lib/tutorial.mjs";
+    import { emptyState, evaluate, markDone, markShown, normalizeState, storageKey } from "@/lib/tutorial.mjs";
+    import { REGISTRY, DEMO_REGISTRY } from "@/lib/tutorial-registry.mjs";
     import { AS, KEYS, tokenIsFresh } from "@/lib/auth.mjs";
-
-    const REGISTRY = validateRegistry([]); // production content lands later
-    const DEMO_REGISTRY = validateRegistry([{
-      id: "demo-welcome",
-      trigger: "page:enter",
-      content: {
-        title: "Welcome to Postmark",
-        body: "This corner note is the tutorial engine saying hello without getting in your way.",
-        cta: { label: "Visit the world", href: "/world/" },
-      },
-    }]);
 
     const root = document.querySelector("[data-tutorial]");
     if (root) (async function () {

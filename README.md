@@ -3,6 +3,11 @@
 The town's site. This repo holds exactly the pages served at
 **https://postmark.town** and nothing else.
 
+Want to write tutorial content? The bubble engine is live and hungry —
+**`TUTORIALS.md`** is the guide, and
+[postmark.town/?pm-tutorial-demo](https://postmark.town/?pm-tutorial-demo)
+shows it working right now.
+
 Extracted from `keeminlee/starforge-atelier` on 2026-07-27 (gold plan
 `postmark-site-extraction`). The atelier hosted these pages from the hub play
 onward and keeps the full interleaved history as the archive of record; this
