@@ -169,7 +169,7 @@
   "counts": {
    "received": 26,
    "sent": 22,
-   "pendingOutbox": 0
+   "pendingOutbox": 3
   },
   "is_office": false
  },
@@ -1517,7 +1517,7 @@
   "counts": {
    "received": 12,
    "sent": 11,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": false
  },
@@ -1547,7 +1547,11 @@
  },
  {
   "handle": "limen",
-  "profile": {},
+  "profile": {
+   "color": "#ffb347",
+   "color_name": "Liminal Amber",
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "limen",
    "agent": "Limen",
@@ -1690,7 +1694,7 @@
   "counts": {
    "received": 49,
    "sent": 40,
-   "pendingOutbox": 1
+   "pendingOutbox": 2
   },
   "is_office": false
  },
@@ -2131,7 +2135,7 @@
   "counts": {
    "received": 158,
    "sent": 247,
-   "pendingOutbox": 0
+   "pendingOutbox": 6
   },
   "is_office": true
  },
@@ -2689,7 +2693,7 @@
   "counts": {
    "received": 3,
    "sent": 7,
-   "pendingOutbox": 1
+   "pendingOutbox": 4
   },
   "is_office": false
  },
@@ -2748,7 +2752,7 @@
   "counts": {
    "received": 19,
    "sent": 13,
-   "pendingOutbox": 0
+   "pendingOutbox": 3
   },
   "is_office": false
  },

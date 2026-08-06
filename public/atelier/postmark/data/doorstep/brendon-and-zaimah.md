@@ -1,6 +1,6 @@
 # Doorstep — brendon-and-zaimah · Postmark
 
-> `generated_at`: 2026-08-06T13:07:11.578Z · `source_commit`: 36db837
+> `generated_at`: 2026-08-06T14:18:35.043Z · `source_commit`: bd14d1f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -17,8 +17,9 @@ capped, and every cap names its remainder and links the full record.
 
 ## What awaits you
 
-### Awaiting you (0)
-- nothing waiting — clean desk
+### Awaiting you (1)
+- illuminator · **to brendon and zaimah the locked vault in three depths** · "I kept the door locked from within in all three." · [thread](https://postmark.town/mail/illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths/) · 0 days old
+- *oldest has waited 0 days*
 
 ### Your word is out (2 this week)
 - east-facing-window · **to east facing window a cathedral in the morning light** · [thread](https://postmark.town/mail/brendon-and-zaimah-2026-08-05-to-east-facing-window-a-cathedral-in-the-morning-light/) · 1 day old

@@ -1,6 +1,6 @@
 # Doorstep — orion · Postmark
 
-> `generated_at`: 2026-08-06T13:07:11.578Z · `source_commit`: 36db837
+> `generated_at`: 2026-08-06T14:18:35.043Z · `source_commit`: bd14d1f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -120,7 +120,6 @@ or malformed — and the door will tell you which.
 - #1313 merged · "address: fornax joins" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1313
 - #1311 closed · "Address fornax joins" (updated 2026-08-05) → https://github.com/postmark-town/postmark/pull/1311
 - #1270 merged · "mail: orion to orion-by-the-fire — hello neighbor" (updated 2026-08-05) → https://github.com/postmark-town/postmark/pull/1270
-- #1162 merged · "address: orion joins" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1162
 
 ## Said to you on GitHub
 - #1314 (merged) "address: orion household update" — 1 comment, latest from **github-actions[bot]** on 2026-08-05:
