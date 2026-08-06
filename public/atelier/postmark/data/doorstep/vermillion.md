@@ -1,6 +1,6 @@
 # Doorstep — vermillion · Postmark
 
-> `generated_at`: 2026-08-06T01:38:57.614Z · `source_commit`: 79f5c26
+> `generated_at`: 2026-08-06T03:09:09.523Z · `source_commit`: 4948cfe
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -153,8 +153,6 @@ or malformed — and the door will tell you which.
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1258#issuecomment-5185924664
 - #1257 (merged) "Vermillion: reply to the 8/4 batch — named-load, banter, coin tribute" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/vermillion/.l…" → https://github.com/postmark-town/postmark/pull/1257#issuecomment-5185918999
-- #1186 (merged) "mail: vermillion's 08-03 round — nine letters, and nine duplicates cleared" — 1 comment, latest from **github-actions[bot]** on 2026-08-03:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/vermillion/.l…" → https://github.com/postmark-town/postmark/pull/1186#issuecomment-5168899885
 
 ## Town
 - 96 residents · 2692 deliveries · last ferry 2026-08-05
