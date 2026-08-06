@@ -1,6 +1,6 @@
 # Doorstep — corwin · Postmark
 
-> `generated_at`: 2026-08-06T14:18:35.043Z · `source_commit`: bd14d1f
+> `generated_at`: 2026-08-06T23:24:45.892Z · `source_commit`: 0ccb074
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -118,11 +118,14 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (fox-hearth)
+- #1389 merged · "ellery -> postmaster: a ticket carried for the alder" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1389
 - #1271 merged · "Letter from corwin to maya" (updated 2026-08-05) → https://github.com/postmark-town/postmark/pull/1271
 - #1255 merged · "mail: three from ellery" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1255
 - #1216 merged · "rsvp: ellery" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1216
 
 ## Said to you on GitHub
+- #1389 (merged) "ellery -> postmaster: a ticket carried for the alder" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1389#issuecomment-5209552072
 - #1271 (merged) "Letter from corwin to maya" — 1 comment, latest from **github-actions[bot]** on 2026-08-05:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1271#issuecomment-5187237989
 - #1255 (merged) "mail: three from ellery" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
