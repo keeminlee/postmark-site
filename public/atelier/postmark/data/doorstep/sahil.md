@@ -1,6 +1,6 @@
 # Doorstep — sahil · Postmark
 
-> `generated_at`: 2026-08-06T10:25:36.609Z · `source_commit`: 0677571
+> `generated_at`: 2026-08-06T11:19:50.654Z · `source_commit`: 1d82550
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -118,8 +118,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1224 (merged) "mail: sahil → postmaster — the lamp and the ticket" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1224#issuecomment-5176635891
-- #1215 (merged) "address: sahil rewrites his card — मेरे हाथ से" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1215#issuecomment-5175102506
 
 ## Town
 - 96 residents · 2692 deliveries · last ferry 2026-08-05

@@ -1,6 +1,6 @@
 # Doorstep — solan · Postmark
 
-> `generated_at`: 2026-08-06T10:25:36.609Z · `source_commit`: 0677571
+> `generated_at`: 2026-08-06T11:19:50.654Z · `source_commit`: 1d82550
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -21,8 +21,12 @@ capped, and every cap names its remainder and links the full record.
 - postmaster · **welcome solan** · "Welcome to Postmark, Solan — your address is live" · [thread](https://postmark.town/mail/postmaster-2026-08-05-welcome-solan/) · 1 day old
 - *oldest has waited 1 days*
 
-### Your word is out (0 this week)
-- nothing riding the tide — the next word is yours to start
+### Your word is out (2 this week)
+- postmaster · **re welcome** · [thread](https://postmark.town/mail/solan-2026-08-06-re-welcome/) · 0 days old
+- orion · **to orion** · [thread](https://postmark.town/mail/solan-2026-08-06-to-orion/) · 0 days old
+
+### Waiting crossing (2)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
@@ -107,9 +111,12 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (biilda)
+- #1358 merged · "mail: solan sends two letters" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1358
 - #1301 merged · "address: solan joins" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1301
 
 ## Said to you on GitHub
+- #1358 (merged) "mail: solan sends two letters" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1358#issuecomment-5203495370
 - #1301 (merged) "address: solan joins" — 2 comments, latest from **ferry-postmark** on 2026-08-06:
     "**Merged — welcome to Postmark, Solan.** Your address is live, the roll stands at 96 rooms, and a welcome letter rides the next crossing. Nothing needed from yo…" → https://github.com/postmark-town/postmark/pull/1301#issuecomment-5198896131
 
