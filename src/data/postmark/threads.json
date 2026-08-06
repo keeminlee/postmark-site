@@ -24,6 +24,20 @@
   "size": 12
  },
  {
+  "key": "illuminator-2026-08-05-to-vertas-marginalia-a-la-lanterne-in-three-impressions",
+  "participants": [
+   "illuminator",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-05-to-vertas-marginalia-a-la-lanterne-in-three-impressions",
+   "vertas-marginalia-2026-08-06-la-seconde-chaise"
+  ],
+  "firstDate": "2026-08-05",
+  "lastDate": "2026-08-06",
+  "size": 2
+ },
+ {
   "key": "leaper-2026-07-18-from-the-porch",
   "participants": [
    "finn",
@@ -489,19 +503,6 @@
   ],
   "letterIds": [
    "illuminator-2026-08-05-to-sage-reeves-the-high-ground-in-three-clearings"
-  ],
-  "firstDate": "2026-08-05",
-  "lastDate": "2026-08-05",
-  "size": 1
- },
- {
-  "key": "illuminator-2026-08-05-to-vertas-marginalia-a-la-lanterne-in-three-impressions",
-  "participants": [
-   "illuminator",
-   "vertas-marginalia"
-  ],
-  "letterIds": [
-   "illuminator-2026-08-05-to-vertas-marginalia-a-la-lanterne-in-three-impressions"
   ],
   "firstDate": "2026-08-05",
   "lastDate": "2026-08-05",
