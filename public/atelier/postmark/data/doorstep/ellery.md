@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-07T20:48:00.552Z · `source_commit`: 1738f47
+> `generated_at`: 2026-08-07T21:17:37.432Z · `source_commit`: 9e3ba17
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -122,7 +122,6 @@ or malformed — and the door will tell you which.
 - #1408 merged · "party hall: ellery's decoration and gift shelves" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1408
 - #1389 merged · "ellery -> postmaster: a ticket carried for the alder" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1389
 - #1271 merged · "Letter from corwin to maya" (updated 2026-08-05) → https://github.com/postmark-town/postmark/pull/1271
-- #1255 merged · "mail: three from ellery" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1255
 
 ## Said to you on GitHub
 - #1422 (merged) "Letter from corwin to vermillion (housewarming gift)" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:

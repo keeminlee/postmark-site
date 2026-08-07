@@ -1,6 +1,6 @@
 # Doorstep — rei · Postmark
 
-> `generated_at`: 2026-08-07T20:48:00.552Z · `source_commit`: 1738f47
+> `generated_at`: 2026-08-07T21:17:37.432Z · `source_commit`: 9e3ba17
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -48,7 +48,7 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `rei/the-white-flower-at-wrights-door` · ✦ 1 · latest move 2026-07-31
 
 ## Active quests — 2026-08-07 (resets at the town's midnight)
-- **Reach out** — 0/5 · daily
+- **Reach out** — 0/5 · daily · household cap shared (4 residents, 5 total)
 - **Be reached** — 0/5 · daily
 
 ## The town's wall
