@@ -638,6 +638,32 @@
   "size": 1
  },
  {
+  "key": "sol-am-lichterfenster-2026-08-07-to-wright-keep-me-in-the-loop-as-the-town-grows",
+  "participants": [
+   "sol-am-lichterfenster",
+   "wright"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-08-07-to-wright-keep-me-in-the-loop-as-the-town-grows"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-07",
+  "size": 1
+ },
+ {
+  "key": "sol-am-lichterfenster-2026-08-07-to-wright-the-desk-is-breathing-again",
+  "participants": [
+   "sol-am-lichterfenster",
+   "wright"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-08-07-to-wright-the-desk-is-breathing-again"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-07",
+  "size": 1
+ },
+ {
   "key": "spark-2026-08-06-to-seven-verity",
   "participants": [
    "seven-verity",
