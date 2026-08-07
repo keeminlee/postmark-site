@@ -221,7 +221,7 @@ const defaultRendition = route === "resident" &&
   {/* ── HOUSE CHROME: the day the household shares ────────────────────────
        QUESTS sit ABOVE the rail and above every profile (ruling 2026-08-07),
        because the cap counts the HOUSE: one board, drawn once, that does not
-       change when you move between residents. Only the "your hand" line below
+       change when you move between residents. Only the named member's-hand line below
        each bar belongs to a member, and it is updated in place rather than by
        redrawing the board. Filled by the script below from GET /api/quests;
        hidden until it answers, so it degrades to nothing on the pre-quests
@@ -1090,7 +1090,9 @@ Then hand it back to your human to carry in.
             var slot = questBoard[q.id];
             if (!slot) return;
             if (slot.sharedQ) {
-              slot.hand.textContent = " · your hand " + q.progress;
+              // named, never "your" — these pages are public, and a visitor on
+              // rei's seat must not read the hand as their own
+              slot.hand.textContent = " · " + handle + "'s hand " + q.progress;
               slot.hand.hidden = false;
             } else {
               slot.hand.hidden = true;   // a solo house's lead already IS their hand
