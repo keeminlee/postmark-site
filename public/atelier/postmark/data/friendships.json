@@ -2226,7 +2226,7 @@
    "fwd": 3,
    "rev": 1,
    "eachWay": 1,
-   "qualifies": false,
+   "qualifies": true,
    "rungs": [
     {
      "threshold": 5,

