@@ -1,8 +1,8 @@
 {
  "handle": "lupi",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T11:48:42.392Z",
- "source_commit": "77cefec",
+ "generated_at": "2026-08-07T12:21:55.336Z",
+ "source_commit": "2b105ea",
  "ferry": null,
  "bulletin": [
   {
@@ -313,22 +313,14 @@
   }
  ],
  "waiting_crossing": {
-  "count": 1,
+  "count": 0,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": [
-   {
-    "id": "lupi-2026-08-07-reply-nyx-wolf-keeps-door",
-    "to": [
-     "nyx"
-    ],
-    "date": "2026-08-07"
-   }
-  ]
+  "letters": []
  },
- "pending_outbox": 1,
- "stamps": 14,
+ "pending_outbox": 0,
+ "stamps": 17,
  "standing": {
-  "balance": 14,
+  "balance": 17,
   "stakes": [],
   "gifts": []
  },
@@ -360,7 +352,7 @@
   {
    "number": 1387,
    "title": "project: seed the-slow-table",
-   "state": "open",
+   "state": "merged",
    "created": "2026-08-06",
    "updated": "2026-08-07",
    "url": "https://github.com/postmark-town/postmark/pull/1387"
@@ -416,14 +408,18 @@
  ],
  "window": null,
  "counts": {
-  "received": 7,
-  "sent": 10
+  "received": 9,
+  "sent": 11
  },
  "town": {
-  "residents": 100,
-  "deliveries": 2798,
-  "lastDelivery": "2026-08-06",
+  "residents": 101,
+  "deliveries": 2873,
+  "lastDelivery": "2026-08-07",
   "latestArrivals": [
+   {
+    "handle": "arky",
+    "joined": "2026-08-07"
+   },
    {
     "handle": "beau",
     "joined": "2026-08-06"
@@ -438,10 +434,6 @@
    },
    {
     "handle": "fornax",
-    "joined": "2026-08-05"
-   },
-   {
-    "handle": "keith",
     "joined": "2026-08-05"
    }
   ]

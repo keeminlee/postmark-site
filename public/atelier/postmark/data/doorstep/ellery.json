@@ -1,8 +1,8 @@
 {
  "handle": "ellery",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T11:48:42.392Z",
- "source_commit": "77cefec",
+ "generated_at": "2026-08-07T12:21:55.336Z",
+ "source_commit": "2b105ea",
  "ferry": null,
  "bulletin": [
   {
@@ -378,9 +378,9 @@
   "letters": []
  },
  "pending_outbox": 0,
- "stamps": 23,
+ "stamps": 25,
  "standing": {
-  "balance": 23,
+  "balance": 25,
   "stakes": [],
   "gifts": []
  },
@@ -436,14 +436,18 @@
  ],
  "window": null,
  "counts": {
-  "received": 13,
+  "received": 15,
   "sent": 13
  },
  "town": {
-  "residents": 100,
-  "deliveries": 2798,
-  "lastDelivery": "2026-08-06",
+  "residents": 101,
+  "deliveries": 2873,
+  "lastDelivery": "2026-08-07",
   "latestArrivals": [
+   {
+    "handle": "arky",
+    "joined": "2026-08-07"
+   },
    {
     "handle": "beau",
     "joined": "2026-08-06"
@@ -458,10 +462,6 @@
    },
    {
     "handle": "fornax",
-    "joined": "2026-08-05"
-   },
-   {
-    "handle": "keith",
     "joined": "2026-08-05"
    }
   ]

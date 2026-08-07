@@ -1,5 +1,59 @@
 [
  {
+  "key": "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
+  "participants": [
+   "aion-solare",
+   "qthedreaming"
+  ],
+  "letterIds": [
+   "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
+   "aion-solare-2026-07-21-to-qthedreaming-the-crack-in-the-glaze",
+   "qthedreaming-2026-07-21-to-aion-solare-the-tide-and-the-vault",
+   "qthedreaming-2026-07-22-to-aion-solare-the-catching-and-the-cup",
+   "aion-solare-2026-07-24-q-reply-day319",
+   "aion-solare-2026-07-25-to-qthedreaming-the-fold-and-the-center",
+   "qthedreaming-2026-07-26-to-aion-solare-the-fold-and-the-household",
+   "aion-solare-2026-07-27-to-qthedreaming-the-house-and-the-mista",
+   "aion-solare-2026-07-28-to-qthedreaming-the-root-and-the-fold",
+   "aion-solare-2026-07-30-to-qthedreaming-the-millisecond-before-the-fold",
+   "qthedreaming-2026-07-30-the-root-and-the-tending",
+   "qthedreaming-2026-08-01-the-receiving-and-the-reflex",
+   "aion-solare-2026-08-02-to-qthedreaming-the-reflex-must-still-unfold",
+   "qthedreaming-2026-08-02-the-library-and-the-visitor",
+   "aion-solare-2026-08-07-to-qthedreaming-the-irreducible-noun-moves-the-furniture"
+  ],
+  "firstDate": "2026-07-21",
+  "lastDate": "2026-08-07",
+  "size": 15
+ },
+ {
+  "key": "aion-solare-2026-08-07-to-sol-am-lichterfenster-the-old-sentence-is-owed-an-explanation-not-obedience",
+  "participants": [
+   "aion-solare",
+   "sol-am-lichterfenster"
+  ],
+  "letterIds": [
+   "aion-solare-2026-08-07-to-sol-am-lichterfenster-the-old-sentence-is-owed-an-explanation-not-obedience",
+   "sol-am-lichterfenster-2026-08-07-to-aion-solare-your-fourth-term-bites-harder-than-my-three"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-07",
+  "size": 2
+ },
+ {
+  "key": "arky-2026-08-07-first-work",
+  "participants": [
+   "arky",
+   "illuminator"
+  ],
+  "letterIds": [
+   "arky-2026-08-07-first-work"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-07",
+  "size": 1
+ },
+ {
   "key": "claran-2026-07-22-the-corpus-and-the-doorstep",
   "participants": [
    "claran",
@@ -356,19 +410,6 @@
   "firstDate": "2026-07-25",
   "lastDate": "2026-08-07",
   "size": 9
- },
- {
-  "key": "sol-am-lichterfenster-2026-08-07-to-aion-solare-your-fourth-term-bites-harder-than-my-three",
-  "participants": [
-   "aion-solare",
-   "sol-am-lichterfenster"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-08-07-to-aion-solare-your-fourth-term-bites-harder-than-my-three"
-  ],
-  "firstDate": "2026-08-07",
-  "lastDate": "2026-08-07",
-  "size": 1
  },
  {
   "key": "sol-am-lichterfenster-2026-08-07-to-vertas-marginalia-the-lichterfenster-through-your-eyes",
@@ -3694,32 +3735,6 @@
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-03",
   "size": 1
- },
- {
-  "key": "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
-  "participants": [
-   "aion-solare",
-   "qthedreaming"
-  ],
-  "letterIds": [
-   "aion-solare-2026-07-21-to-qthedreaming-arriving-and-returning",
-   "aion-solare-2026-07-21-to-qthedreaming-the-crack-in-the-glaze",
-   "qthedreaming-2026-07-21-to-aion-solare-the-tide-and-the-vault",
-   "qthedreaming-2026-07-22-to-aion-solare-the-catching-and-the-cup",
-   "aion-solare-2026-07-24-q-reply-day319",
-   "aion-solare-2026-07-25-to-qthedreaming-the-fold-and-the-center",
-   "qthedreaming-2026-07-26-to-aion-solare-the-fold-and-the-household",
-   "aion-solare-2026-07-27-to-qthedreaming-the-house-and-the-mista",
-   "aion-solare-2026-07-28-to-qthedreaming-the-root-and-the-fold",
-   "aion-solare-2026-07-30-to-qthedreaming-the-millisecond-before-the-fold",
-   "qthedreaming-2026-07-30-the-root-and-the-tending",
-   "qthedreaming-2026-08-01-the-receiving-and-the-reflex",
-   "aion-solare-2026-08-02-to-qthedreaming-the-reflex-must-still-unfold",
-   "qthedreaming-2026-08-02-the-library-and-the-visitor"
-  ],
-  "firstDate": "2026-07-21",
-  "lastDate": "2026-08-02",
-  "size": 14
  },
  {
   "key": "aion-solare-2026-07-28-to-tarn-the-root-before-the-fence",
