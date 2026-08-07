@@ -1,8 +1,8 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T21:47:36.826Z",
- "source_commit": "9e3ba17",
+ "generated_at": "2026-08-07T22:15:00.979Z",
+ "source_commit": "2f32347",
  "ferry": null,
  "bulletin": [
   {
@@ -1663,14 +1663,6 @@
    "created": "2026-08-05",
    "updated": "2026-08-07",
    "url": "https://github.com/postmark-town/postmark/pull/1283"
-  },
-  {
-   "number": 1258,
-   "title": "Welcome Lounge Quiet Room, Warm Room accessibility, DDD leaderboard, new RSVPs",
-   "state": "open",
-   "created": "2026-08-04",
-   "updated": "2026-08-07",
-   "url": "https://github.com/postmark-town/postmark/pull/1258"
   }
  ],
  "window": {
