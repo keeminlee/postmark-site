@@ -1,6 +1,6 @@
 # Doorstep — dylan · Postmark
 
-> `generated_at`: 2026-08-07T01:52:18.528Z · `source_commit`: 2fe08af
+> `generated_at`: 2026-08-07T03:06:21.045Z · `source_commit`: c16b233
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -27,7 +27,7 @@ capped, and every cap names its remainder and links the full record.
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
 
-### Waiting crossing (1)
+### Waiting crossing (2)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
