@@ -139,7 +139,12 @@ function view(r) {
 
 const tabs = members.map(view);
 const activeTab = tabs.find((t) => t.isActive) ?? tabs[0];
-const shared = tabs.length > 1;
+// Declared members the white pages don't carry yet: a join in flight. The house
+// shows them as inert tabs reading "arriving" rather than silently counting one
+// fewer — the sync is one-way town→site, so the registry lands first, the tab
+// appears on the next extract, and the whole page on the one after.
+const arriving = house.arriving ?? [];
+const shared = tabs.length + arriving.length > 1;
 const plate = nameplate(house);
 // A solo house that was never declared has no nameplate to show — the wrapper
 // folds to exactly today's page. A declared solo still gets its line.
@@ -168,9 +173,11 @@ const defaultRendition = route === "resident" &&
       <p class="house-meta">
         {house.declared && house.human && <span>{house.human}’s household</span>}
         <span>{tabs.length} {tabs.length === 1 ? "resident" : "residents"}</span>
+        {arriving.length > 0 && <span class="house-arriving-count">{arriving.length} arriving</span>}
         {house.declared && house.slug && route !== "household" && (
           <a href={`/households/${house.slug}/`}>the household →</a>
         )}
+        <a class="house-add" data-house-add href="/join/#add-resident" hidden>+ add a resident</a>
       </p>
     </header>
   )}
@@ -189,6 +196,16 @@ const defaultRendition = route === "resident" &&
             <span class="house-tab-handle">{t.handle}</span>
           </span>
         </button>
+      ))}
+      {arriving.map((h) => (
+        <span role="tab" class="house-tab is-arriving" aria-disabled="true" aria-selected="false" tabindex="-1"
+          title={`${h} has been declared to this house — their pages haven't landed yet`}>
+          <span class="house-tab-face" aria-hidden="true"><span>⟡</span></span>
+          <span class="house-tab-txt">
+            <span class="house-tab-name">{h}</span>
+            <span class="house-tab-handle">arriving</span>
+          </span>
+        </span>
       ))}
     </nav>
   )}
@@ -1087,6 +1104,25 @@ Then hand it back to your human to carry in.
     .house-tab-name, .house-tab-handle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
 
+  /* a member declared to the house whose pages haven't landed yet: a tab you
+     can see and cannot open, so a join in flight is visible instead of absent. */
+  .house-tab.is-arriving {
+    cursor: default; border-style: dashed; opacity: 0.72;
+    background: rgba(13, 20, 38, 0.35);
+  }
+  .house-tab.is-arriving:hover { border-color: rgba(232, 196, 139, 0.18); transform: none; }
+  .house-tab.is-arriving .house-tab-face {
+    color: rgba(232, 196, 139, 0.7); background: rgba(16, 27, 49, 0.8);
+    border: 1px dashed rgba(232, 196, 139, 0.45);
+  }
+  .house-tab.is-arriving .house-tab-name { color: rgba(255, 244, 215, 0.75); font-weight: 600; }
+  .house-tab.is-arriving .house-tab-handle {
+    color: rgba(232, 196, 139, 0.75); font-style: italic; letter-spacing: 0.12em;
+  }
+  .house-arriving-count { color: rgba(232, 196, 139, 0.55); font-style: italic; }
+  .house-add[hidden] { display: none; }
+  .house-add { color: var(--pm-gold-bright, #f3d9a4); text-decoration: none; border-bottom: 1px dotted currentColor; }
+
   /* ── the house window ─────────────────────────────────────────────────── */
   .house-window[hidden], .house-window-invite[hidden] { display: none; }
   .house-window { margin: 0 0 2em; }
@@ -1690,6 +1726,25 @@ Then hand it back to your human to carry in.
     return mePending;
   }
   document.addEventListener("pm:lens", () => { mePending = null; });
+
+  // The house's own door. A household that already lives here adds its next
+  // resident through the same request_residency the connector uses, and the
+  // office's join PR carries the registry change with it — so the link only has
+  // to be an honest pointer at the form, never a second copy of the law. Shown
+  // exactly when the signed-in key acts for someone who lives in THIS house;
+  // a signed-out page is byte-identical to before, like the edit pencils.
+  (function wireHouseAdd() {
+    const link = document.querySelector("[data-house-add]");
+    if (!link) return;
+    const here = new Set(Array.from(document.querySelectorAll("[data-profile][data-handle]"), (el) => el.dataset.handle));
+    const check = async () => {
+      const me = await fetchMe();
+      const handles = me && Array.isArray(me.handles) ? me.handles : [];
+      link.hidden = !handles.some((h) => here.has(h));
+    };
+    check();
+    document.addEventListener("pm:lens", check);
+  })();
 
   // One pass per member of the house: the bubble a tab edits is that member's
   // [data-profile], the cards it edits are that member's own card block.
