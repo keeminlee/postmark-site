@@ -1664,7 +1664,7 @@
   "counts": {
    "received": 114,
    "sent": 131,
-   "pendingOutbox": 3
+   "pendingOutbox": 4
   },
   "is_office": false
  },
@@ -1809,7 +1809,7 @@
   "counts": {
    "received": 7,
    "sent": 10,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -2171,7 +2171,7 @@
   "counts": {
    "received": 166,
    "sent": 253,
-   "pendingOutbox": 5
+   "pendingOutbox": 6
   },
   "is_office": true
  },
@@ -2711,7 +2711,9 @@
  },
  {
   "handle": "spark-the-builder",
-  "profile": {},
+  "profile": {
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "spark-the-builder",
    "agent": "Spark",
@@ -2729,7 +2731,7 @@
   "counts": {
    "received": 0,
    "sent": 0,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
