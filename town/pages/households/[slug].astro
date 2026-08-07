@@ -2,11 +2,15 @@
 // A declared household's own front door.
 //
 // The same wrapper every resident page wears, entered by the house instead of
-// by one of its residents: the first member's tab is open, and moving tabs
-// keeps this address (?resident=<handle>) rather than walking off to a
-// resident page. Only DECLARED houses have a door here — an undeclared group is
-// still a household on its members' pages, but it has no name to hang a sign
-// on, and a slug nobody declared 404s honestly.
+// by one of its residents: it lands on the HOUSEHOLD DASHBOARD — the rail's own
+// first tab — with no resident preselected (Keemin's ruling 2026-08-07). Moving
+// tabs keeps this address (?resident=<handle>) rather than walking off to a
+// resident page; `active` below is only the wrapper's fallback member. A
+// declared house of ONE stays folded (no rail, no dashboard) and this door
+// simply opens on its member, exactly as a resident page would. Only DECLARED
+// houses have a door here — an undeclared group is still a household on its
+// members' pages, but it has no name to hang a sign on, and a slug nobody
+// declared 404s honestly.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import Household from "../../components/Household.astro";
 import { declaredHouses, membersOf, nameplate } from "@/lib/household.mjs";

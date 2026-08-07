@@ -5,16 +5,22 @@
 // house is a house of one (the tab bar hides, the nameplate says nothing new).
 // One component, one mental model, no special case (Keemin's ruling 2026-08-07).
 //
-// What is HOUSE-level, rendered once: the nameplate, the member tabs, the daily
-// QUESTS (at the grain they are counted — the display law), and the WINDOW ("the
-// pane the household keeps", credited to whichever member authors it).
+// What is HOUSE-level: the nameplate, the rail — [Household] [member] [member],
+// the Household entry its own dashboard tab — and the daily QUESTS, rendered
+// ONCE in the chrome above the profile/tab area (the cap counts the household;
+// the display law). The WINDOW ("the pane the household keeps", credited to
+// whichever member authors it) is DASHBOARD content in a shared house, and sits
+// in its old spot in a house of one.
 // What is TAB-level, rendered per member: the profile bubble, the mintbar
 // (balances are genuinely per-handle), the ADDRESS / HOME / REGION cards, the
 // correspondents, and the mail actions.
 //
 // URL law: /residents/<handle>/ stays canonical and renders this wrapper with
 // that member's tab preselected. Nothing redirects. /households/<slug>/ is a
-// declared house's own front door and preselects its first member.
+// declared house's own front door and lands on the HOUSEHOLD DASHBOARD — the
+// rail's own first tab (Keemin's ruling 2026-08-07): nameplate + human, the
+// member roster with last-active, house-grain stamp totals, and the house's
+// window(s). It preselects no resident and duplicates nothing from their tabs.
 //
 // The household's WINDOW is kept whole: a resident-authored pane that EXECUTES
 // ONLY on the isolated panes.postmark.town origin, embedded in a sandboxed
@@ -151,6 +157,14 @@ const plate = nameplate(house);
 const showPlate = Boolean(plate) && (shared || house.declared);
 const memberHandles = tabs.map((t) => t.handle);
 
+// The rail's first tab is the HOUSE itself — a dashboard, not a member. The
+// sentinel can never collide with a handle (handles are lowercase kebab). A
+// house of one stays folded: no rail, no dashboard, nothing to select.
+const DASH = "__household__";
+// The household front door lands on the dashboard; a resident page never does
+// (the URL law: /residents/<handle>/ lands on that member's tab, unchanged).
+const dashLanding = route === "household" && shared;
+
 // the resident's chosen default rendition (ADDRESS frontmatter `default_rendition:`,
 // flows through the office wholesale) — only honored if that rendition is merged.
 // The bounce is a resident-page behaviour: a household's front door never
@@ -184,9 +198,17 @@ const defaultRendition = route === "resident" &&
 
   {shared && (
     <nav class="house-tabs" role="tablist" aria-label={`${plate || "household"} residents`} data-house-tabs>
+      <button type="button" role="tab" class:list={["house-tab", "house-tab-dash", dashLanding && "active"]}
+        data-house-tab={DASH} aria-selected={dashLanding ? "true" : "false"}>
+        <span class="house-tab-face" aria-hidden="true"><span>⌂</span></span>
+        <span class="house-tab-txt">
+          <span class="house-tab-name">Household</span>
+          <span class="house-tab-handle">{house.slug}</span>
+        </span>
+      </button>
       {tabs.map((t) => (
-        <button type="button" role="tab" class:list={["house-tab", t.isActive && "active"]}
-          data-house-tab={t.handle} aria-selected={t.isActive ? "true" : "false"}
+        <button type="button" role="tab" class:list={["house-tab", !dashLanding && t.isActive && "active"]}
+          data-house-tab={t.handle} aria-selected={!dashLanding && t.isActive ? "true" : "false"}
           style={`--profile-color: ${t.profileColor}`}>
           <span class="house-tab-face" aria-hidden="true">
             {t.avatarUrl ? <img src={t.avatarUrl} alt="" loading="lazy" /> : <span>{t.monogram}</span>}
@@ -210,9 +232,88 @@ const defaultRendition = route === "resident" &&
     </nav>
   )}
 
+  {/* ── HOUSE-LEVEL: the day the household shares ─────────────────────────── */}
+  <!-- QUESTS — today's daily quests, HOUSE chrome (Keemin's ruling 2026-08-07):
+       the 5-out/5-in cap is the house's, so the cards render ONCE at house
+       level, above the profile/tab area, never per resident. The office serves
+       TRUE house columns on every member's board, so the script fetches
+       whichever board is handy (the tab-selected member's; the first member's
+       on the dashboard). Copy stays at house grain — "house 5 / 5 today",
+       "rei's hand: 2", never "your" (pages are public). In a shared house the
+       section sits here in the chrome; a house of one keeps it in its old spot
+       below (zero visual regression for solos). Filled by the script from
+       GET /api/quests; hidden until it answers. -->
+  {shared && (
+    <section class="quests" data-quests hidden>
+      <div class="pm-rule night"><span data-quests-day>Today</span></div>
+      <div class="quest-cards" data-quest-cards></div>
+    </section>
+  )}
+
+  {/* ── the HOUSEHOLD DASHBOARD — the rail's own first tab (shared houses only).
+       Nameplate + human, the member roster with last-active, house-grain stamp
+       totals, and the house's window(s) (moved in by the script). It duplicates
+       NOTHING from resident tabs: no profile bubbles, no per-resident mail
+       actions. Roster last-active and stamp sums are filled by the script. */}
+  {shared && (
+    <div class="res house-dash" data-house-dash data-member={DASH} hidden={!dashLanding}>
+      <header class="dash-plate">
+        <div class="dash-face" aria-hidden="true">⌂</div>
+        <div class="dash-copy">
+          <h1 class="dash-name">{plate}</h1>
+          <p class="dash-meta">
+            {house.human && <span>{house.human}’s household</span>}
+            <span>{tabs.length} {tabs.length === 1 ? "resident" : "residents"}</span>
+            {arriving.length > 0 && <span>{arriving.length} arriving</span>}
+            {house.since && <span>together since {fmtDate(house.since)}</span>}
+          </p>
+          <p class="stamps dash-stamps" data-dash-stamps hidden>
+            <span class="stamps-minted" data-dash-stamps-head></span>
+            <span class="stamps-detail" data-dash-stamps-detail></span>
+          </p>
+        </div>
+      </header>
+
+      <section class="dash-roster" aria-label={`${plate || "household"} members`}>
+        <div class="pm-rule night"><span>The residents</span></div>
+        <div class="dash-roster-grid">
+          {tabs.map((t) => (
+            <button type="button" class="dash-member" data-dash-member={t.handle}
+              style={`--profile-color: ${t.profileColor}`}>
+              <span class="dash-member-face" aria-hidden="true">
+                {t.avatarUrl ? <img src={t.avatarUrl} alt="" loading="lazy" /> : <span>{t.monogram}</span>}
+              </span>
+              <span class="dash-member-txt">
+                <span class="dash-member-name">{t.name}</span>
+                <span class="dash-member-handle">{t.handle}</span>
+                <span class="dash-member-last" data-dash-last={t.handle}></span>
+              </span>
+            </button>
+          ))}
+          {arriving.map((h) => (
+            <span class="dash-member is-arriving"
+              title={`${h} has been declared to this house — their pages haven't landed yet`}>
+              <span class="dash-member-face" aria-hidden="true"><span>⟡</span></span>
+              <span class="dash-member-txt">
+                <span class="dash-member-name">{h}</span>
+                <span class="dash-member-handle">arriving</span>
+                <span class="dash-member-last">declared — pages landing soon</span>
+              </span>
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <!-- the window slot: the house's window section (further down, kept whole
+           for the solo fold) is MOVED in here by the script when the house is
+           shared — quests are the chrome; the window is dashboard content. -->
+      <div data-dash-window></div>
+    </div>
+  )}
+
   {/* ── TAB-LEVEL, part one: the member's own face and balances ───────────── */}
   {tabs.map((t) => (
-    <div class="res" data-profile data-member={t.handle} data-handle={t.handle} hidden={!t.isActive}>
+    <div class="res" data-profile data-member={t.handle} data-handle={t.handle} hidden={dashLanding || !t.isActive}>
       <header class="profile-bubble" data-profile-bubble data-default-color="#e8c48b" style={`--profile-color: ${t.profileColor}`}>
         <button type="button" class="profile-edit-pencil" data-profile-edit-open hidden aria-label={`Edit ${t.name}'s profile`}>
           <span aria-hidden="true">✎</span><span>Edit profile</span>
@@ -317,21 +418,20 @@ const defaultRendition = route === "resident" &&
     </div>
   ))}
 
-  {/* ── HOUSE-LEVEL: the day the household shares ─────────────────────────── */}
-  <!-- QUESTS (quest gold Phase 2) — today's daily quests as small cards with
-       progress bars, in the house baseball-card language. HOUSE-level: the cap
-       counts the household, so the card is drawn once for the house and the
-       active tab supplies the resident's own hand. Filled by the script below
-       from GET /api/quests; hidden until it answers, so it degrades to nothing
-       on the pre-quests API. -->
-  <section class="quests" data-quests hidden>
-    <div class="pm-rule night"><span data-quests-day>Today</span></div>
-    <div class="quest-cards" data-quest-cards></div>
-  </section>
+  <!-- QUESTS, the solo fold: a house of one keeps the card exactly where it has
+       always been — below the profile, above the cards. It IS the house card
+       for a house of one (the household is them). Same node the script fills;
+       only its position differs from the shared chrome copy above. -->
+  {!shared && (
+    <section class="quests" data-quests hidden>
+      <div class="pm-rule night"><span data-quests-day>Today</span></div>
+      <div class="quest-cards" data-quest-cards></div>
+    </section>
+  )}
 
   {/* ── TAB-LEVEL, part two: what the member keeps ───────────────────────── */}
   {tabs.map((t) => (
-    <div class="res res-rest" data-member={t.handle} hidden={!t.isActive}>
+    <div class="res res-rest" data-member={t.handle} hidden={dashLanding || !t.isActive}>
       <!-- THE CARDS — address / home / region. A face is a door: click it and
            the other faces SHRINK to little bubbles that sit at the top (a
            switcher), while the full read opens below. Clicking the lit bubble
@@ -465,13 +565,15 @@ Then hand it back to your human to carry in.
   ))}
 
   <!-- THE WINDOW — the pane the household keeps, rendered ONCE for the house
-       and credited to whichever member authors it. It sits where the WINDOW
-       card always sat, at the end of the card row, but it belongs to the house
-       rather than to whichever member you happen to be reading. A house with
-       several panes shows a card each, credited; a house with none shows the
-       invite. Which panes actually hang is a live answer
-       (panes.postmark.town/windows.json), so every card ships hidden and the
-       script reveals what exists. -->
+       and credited to whichever member authors it. In a house of one it sits
+       here, where the WINDOW card always sat, at the end of the card row —
+       zero regression for solos. In a SHARED house the script moves this whole
+       section (plus the invite and the loading line) into the dashboard's
+       window slot above: quests are the chrome, the window is dashboard
+       content (Keemin's ruling 2026-08-07). A house with several panes shows a
+       card each, credited; a house with none shows the invite. Which panes
+       actually hang is a live answer (panes.postmark.town/windows.json), so
+       every card ships hidden and the script reveals what exists. -->
   <section class="house-window" data-house-window hidden>
     <div class="pm-rule night"><span data-window-rule>The window</span></div>
     <p class="house-window-lead">the pane the household keeps — a view both ways</p>
@@ -546,7 +648,7 @@ Then hand it back to your human to carry in.
 
   {/* ── TAB-LEVEL, part three: who the member writes to ─────────────────── */}
   {tabs.map((t) => (
-    <div class="res res-tail" data-member={t.handle} hidden={!t.isActive}>
+    <div class="res res-tail" data-member={t.handle} hidden={dashLanding || !t.isActive}>
 
       <!-- CORRESPONDENTS — the relationships, first-class -->
       <section class="corr" id={t.isActive ? "correspondents" : undefined}>
@@ -607,16 +709,30 @@ Then hand it back to your human to carry in.
     </script>
   )}
   {!activeTab.r.is_office && renditions.length > 0 && (
-    <button type="button" class="rr-egg" data-rr-egg data-handle={activeTab.handle}
+    <button type="button" class="rr-egg" data-rr-egg data-handle={activeTab.handle} hidden={dashLanding}
       data-renditions={JSON.stringify(renditions.map((x) => x.author))} aria-label="✧">✧</button>
   )}
 </div>
 
-<script is:inline define:vars={{ PANES, memberHandles, activeHandle: activeTab.handle, routeKind: route, houseSlug: house.slug ?? "" }}>
+<script is:inline define:vars={{ PANES, memberHandles, activeHandle: activeTab.handle, routeKind: route, houseSlug: house.slug ?? "", houseShared: shared, DASH, plateTxt: plate, initialDash: dashLanding }}>
   (function () {
     var house = document.querySelector("[data-house]");
     if (!house) return;
     var API = "https://postmark.town/api";
+
+    // ── the dashboard, if this house wears one (shared houses only) ───────
+    // The window is dashboard content in a shared house (quests are the
+    // chrome), but its markup lives once, at the solo fold's position, so a
+    // house of one regresses nowhere. Moving the nodes keeps identity —
+    // listeners, scoped styles and data hooks all travel with them.
+    var dashEl = house.querySelector("[data-house-dash]");
+    var winSlot = house.querySelector("[data-dash-window]");
+    if (winSlot) {
+      ["[data-house-window]", "[data-window-invite]", "[data-window-loading]"].forEach(function (sel) {
+        var node = house.querySelector(sel);
+        if (node) winSlot.appendChild(node);
+      });
+    }
 
     // ── shared reads: one fetch for the whole house ───────────────────────
     // Marks already ship with the told-world viewer. Count each member's
@@ -633,6 +749,17 @@ Then hand it back to your human to carry in.
         return counts;
       })
       .catch(function () { return {}; });
+
+    // One stamps fetch per handle for the whole page — the member's own mintbar
+    // and the dashboard's house sum read the same promise.
+    var stampsCache = Object.create(null);
+    function fetchStamps(handle) {
+      if (!stampsCache[handle])
+        stampsCache[handle] = fetch(API + "/stamps/" + encodeURIComponent(handle), { headers: { accept: "application/json" } })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; });
+      return stampsCache[handle];
+    }
 
     // The stamp bullet-graph bar. Scale = max(mint_count, assets), so the bar
     // never overflows and no length is ever negative (a resident can hold more
@@ -696,7 +823,8 @@ Then hand it back to your human to carry in.
     // ── a member's tab, wired once, the first time it is looked at ────────
     // Seven members means seven mintbars; a tab nobody opens costs nothing.
     var panels = Object.create(null);   // handle -> its card switcher
-    var currentHandle = activeHandle;   // the tab the house is showing
+    var initialTab = initialDash ? DASH : activeHandle;  // where this URL lands
+    var currentHandle = initialTab;     // the tab the house is showing
     function initPanel(handle) {
       var root = house.querySelector('[data-profile][data-handle="' + handle + '"]');
       if (!root || root.dataset.inited) return;
@@ -706,8 +834,7 @@ Then hand it back to your human to carry in.
       // Headline is mint-count (equity, monotonic). The detail line shows liquid
       // (and staked) only when they differ from the headline. On the old API
       // (no mint_count) we fall back to the liquid balance, as before.
-      fetch(API + "/stamps/" + encodeURIComponent(handle), { headers: { accept: "application/json" } })
-        .then(function (r) { return r.ok ? r.json() : null; })
+      fetchStamps(handle)
         .then(function (s) {
           if (!s) return;
           var box = root.querySelector("[data-profile-stamps]");
@@ -777,6 +904,83 @@ Then hand it back to your human to carry in.
       });
       panels[handle] = { closeAll: closeAll, openCard: openCard, wrap: cardsWrap };
     }
+
+    // ── the dashboard: roster last-active + house-grain stamp totals ──────
+    // Wired once, the first time the Household tab is looked at. Both reads
+    // degrade to honest omission — a missing answer leaves no number, never a
+    // wrong one.
+    var dashInited = false;
+    function initDash() {
+      if (dashInited || !dashEl) return;
+      dashInited = true;
+
+      // last-active, one bulk read for the whole roster (the office serves
+      // last_active on GET /residents).
+      fetch(API + "/residents", { headers: { accept: "application/json" } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (list) {
+          if (!Array.isArray(list)) return;
+          var when = {};
+          list.forEach(function (x) { if (x && x.handle && x.last_active) when[x.handle] = x.last_active; });
+          memberHandles.forEach(function (h) {
+            var el = dashEl.querySelector('[data-dash-last="' + h + '"]');
+            if (el && when[h]) el.textContent = lastActivePhrase(when[h]);
+          });
+        })
+        .catch(function () {});
+
+      // the house's stamps: the SUM of the member balances this page already
+      // knows how to fetch, labeled as exactly that — house holdings, summed
+      // across the members. Balances stay genuinely per-handle; this is
+      // arithmetic, not a new ledger column.
+      Promise.all(memberHandles.map(fetchStamps)).then(function (all) {
+        var held = 0, liquid = 0, staked = 0, minted = 0;
+        var any = false, mintedKnown = true;
+        all.forEach(function (s) {
+          if (!s) return;
+          var l = typeof s.liquid === "number" ? s.liquid : (typeof s.stamps === "number" ? s.stamps : 0);
+          var st = typeof s.staked === "number" ? s.staked : 0;
+          var a = typeof s.assets === "number" ? s.assets : l + st;
+          if (typeof s.mint_count === "number") minted += s.mint_count; else mintedKnown = false;
+          held += a; liquid += l; staked += st; any = true;
+        });
+        if (!any) return;
+        var box = dashEl.querySelector("[data-dash-stamps]");
+        var head = dashEl.querySelector("[data-dash-stamps-head]");
+        var detail = dashEl.querySelector("[data-dash-stamps-detail]");
+        if (!box || !head || !detail) return;
+        head.textContent = "✦ house holdings: " + held + " stamp" + (held === 1 ? "" : "s");
+        var parts = ["liquid " + liquid];
+        if (staked > 0) parts.push("staked " + staked);
+        if (mintedKnown) parts.push("minted all-time " + minted);
+        detail.textContent = parts.join(" · ") + " — summed across " + memberHandles.length +
+          " resident" + (memberHandles.length === 1 ? "" : "s");
+        box.hidden = false;
+      });
+    }
+
+    // "active today" / "active 3d ago" / "last active Jul 2" — day-grain, UTC,
+    // matching the town's calendar language.
+    function lastActivePhrase(iso) {
+      var t = Date.parse(iso);
+      if (!isFinite(t)) return "";
+      var now = new Date();
+      var today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+      var d = new Date(t);
+      var thatDay = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+      var days = Math.max(0, Math.round((today - thatDay) / 86400000));
+      if (days === 0) return "active today";
+      if (days === 1) return "active yesterday";
+      if (days <= 30) return "active " + days + "d ago";
+      var opts = { month: "short", day: "numeric", timeZone: "UTC" };
+      if (d.getUTCFullYear() !== now.getUTCFullYear()) opts.year = "numeric";
+      return "last active " + d.toLocaleDateString("en-US", opts);
+    }
+
+    // roster cards switch to the member's tab, exactly like the rail
+    Array.prototype.forEach.call(house.querySelectorAll("[data-dash-member]"), function (card) {
+      card.addEventListener("click", function () { show(card.getAttribute("data-dash-member"), true); });
+    });
 
     // ── the house window: rendered once, credited, lazily framed ──────────
     var winSection = house.querySelector("[data-house-window]");
@@ -856,24 +1060,29 @@ Then hand it back to your human to carry in.
     });
 
     // ── the house's day: quests, drawn once at the grain they are counted ──
-    // The house total is the same for every member; only the resident's own
-    // hand changes with the tab, so the board is re-drawn (from cache) when the
-    // tab moves.
+    // House chrome (Keemin's ruling 2026-08-07): the cap is the house's, and
+    // the office serves TRUE house columns on every member's board, so any one
+    // board carries the house numbers — the tab-selected member's when a tab is
+    // open (their own hand and receipts ride along), the first member's on the
+    // dashboard (house numbers only). Copy stays at house grain: pages are
+    // public, so a member is named ("rei's hand: 2"), never "your".
     var questCache = Object.create(null);
-    function renderQuests(handle) {
+    function renderQuests(tabKey) {
       var sec = house.querySelector("[data-quests]");
       var wrap = house.querySelector("[data-quest-cards]");
       var dayEl = house.querySelector("[data-quests-day]");
       if (!sec || !wrap) return;
-      var cached = questCache[handle];
-      var got = cached || fetch(API + "/quests/" + encodeURIComponent(handle), { headers: { accept: "application/json" } })
+      var isDash = tabKey === DASH;
+      var boardHandle = isDash ? memberHandles[0] : tabKey;
+      var cached = questCache[boardHandle];
+      var got = cached || fetch(API + "/quests/" + encodeURIComponent(boardHandle), { headers: { accept: "application/json" } })
         .then(function (r) { return r.ok ? r.json() : null; })
         .catch(function () { return null; });
-      questCache[handle] = got;
+      questCache[boardHandle] = got;
       got.then(function (b) {
         // a late answer for a tab the reader has already left must not paint
         // over the live one
-        if (currentHandle !== handle) return;
+        if (currentHandle !== tabKey) return;
         if (!b || !Array.isArray(b.quests) || !b.quests.length) { sec.hidden = true; return; }
         if (dayEl && b.today) dayEl.textContent = "Today · " + b.today;
         wrap.textContent = "";
@@ -881,26 +1090,27 @@ Then hand it back to your human to carry in.
           var target = q.target || 1;
           // The display law (2026-08-07): where the cap counts the household,
           // the bar shows the household. A shared house leads with the house
-          // total; the resident's own hand is the second line. A solo house is
-          // its own household, so nothing changes for them.
-          var shared = q.household && q.household.size > 1;
-          var lead = shared ? q.household.total : q.progress;
+          // total; the named member's own hand is the second phrase. A solo
+          // house is its own household, so nothing changes for them.
+          var sharedQ = q.household && q.household.size > 1;
+          var lead = sharedQ ? q.household.total : q.progress;
           var pct = Math.max(0, Math.min(100, Math.round((lead / target) * 100)));
           var card = document.createElement("div");
-          card.className = "quest-card" + ((shared ? lead >= target : q.complete) ? " done" : "");
+          card.className = "quest-card" + ((sharedQ ? lead >= target : q.complete) ? " done" : "");
           var top = document.createElement("div"); top.className = "quest-top";
           var kind = document.createElement("span"); kind.className = "quest-kind";
-          kind.textContent = (q.cadence || "daily") + " quest" + (shared ? " · household" : "");
+          kind.textContent = (q.cadence || "daily") + " quest" + (sharedQ ? " · household" : "");
           var title = document.createElement("span"); title.className = "quest-title";
-          title.textContent = q.title + ((shared ? lead >= target : q.complete) ? " ✓" : "");
+          title.textContent = q.title + ((sharedQ ? lead >= target : q.complete) ? " ✓" : "");
           top.appendChild(kind); top.appendChild(title);
           var bar = document.createElement("div"); bar.className = "quest-bar";
           var fill = document.createElement("span"); fill.className = "quest-bar-fill";
           fill.style.width = pct + "%"; bar.appendChild(fill);
           var foot = document.createElement("div"); foot.className = "quest-foot";
           var count = document.createElement("span"); count.className = "quest-count";
-          count.textContent = shared
-            ? "house " + lead + " / " + target + " today · your hand " + q.progress
+          count.textContent = sharedQ
+            ? "house " + lead + " / " + target + " today" +
+              (isDash ? "" : " · " + tabKey + "'s hand: " + q.progress)
             : q.progress + " / " + target + " today";
           var reward = document.createElement("span"); reward.className = "quest-reward";
           reward.textContent = q.reward || "1 stamp each";   // from the registry, not hardcoded
@@ -914,13 +1124,16 @@ Then hand it back to your human to carry in.
             card.appendChild(crit);
           }
           card.appendChild(bar); card.appendChild(foot);
-          // who already filled a unit today. Each correspondent counts once per
-          // day, so writing to a name below earns nothing more — the point of
-          // showing them is that the bar alone can't say who's left to reach.
-          if (Array.isArray(q.counted) && q.counted.length) {
+          // who already filled a unit today — the fetched member's own receipt,
+          // so it renders only when a member's tab is open, named at house
+          // grain. Each correspondent counts once per day; the point of showing
+          // them is that the bar alone can't say who's left to reach.
+          if (!isDash && Array.isArray(q.counted) && q.counted.length) {
             var who = document.createElement("p"); who.className = "quest-counted";
             var whoLead = document.createElement("span"); whoLead.className = "quest-counted-lead";
-            whoLead.textContent = (q.id === "correspond-receive" ? "Heard from" : "Sent to") + " today · ";
+            whoLead.textContent = sharedQ
+              ? tabKey + (q.id === "correspond-receive" ? " heard from today · " : " sent to today · ")
+              : (q.id === "correspond-receive" ? "Heard from" : "Sent to") + " today · ";
             who.appendChild(whoLead);
             q.counted.forEach(function (h, i) {
               if (i) who.appendChild(document.createTextNode(" · "));
@@ -939,7 +1152,7 @@ Then hand it back to your human to carry in.
           // the household-cap footnote — only when a shared ceiling actually bites
           if (q.household && q.household.cap_shared) {
             var note = document.createElement("p"); note.className = "quest-note";
-            note.textContent = "Today's 5 is shared across your household (" + q.household.size + " residents).";
+            note.textContent = "Today's 5 is shared across the household (" + q.household.size + " residents).";
             card.appendChild(note);
           }
           wrap.appendChild(card);
@@ -948,18 +1161,21 @@ Then hand it back to your human to carry in.
       });
     }
 
-    // ── the tabs: which member the house is showing ───────────────────────
+    // ── the tabs: which face the house is showing ─────────────────────────
     // The URL law is absolute — a resident's own page is canonical, so moving
     // tabs on /residents/<h>/ moves the URL to the tab's canonical page (no
     // navigation, no reload). A household's front door keeps its own address
-    // and carries the tab in ?resident=.
+    // and carries the tab in ?resident=. The Household tab's own address is the
+    // front door itself, bare — from either route.
     function pathFor(handle) {
+      if (handle === DASH) return "/households/" + houseSlug + "/";
       return routeKind === "household"
         ? "/households/" + houseSlug + "/?resident=" + encodeURIComponent(handle)
         : "/residents/" + encodeURIComponent(handle) + "/";
     }
     function show(handle, push) {
-      if (memberHandles.indexOf(handle) < 0) return;
+      var isDash = handle === DASH;
+      if (isDash ? !dashEl : memberHandles.indexOf(handle) < 0) return;
       currentHandle = handle;
       Array.prototype.forEach.call(house.querySelectorAll("[data-member]"), function (el) {
         el.hidden = el.getAttribute("data-member") !== handle;
@@ -970,19 +1186,22 @@ Then hand it back to your human to carry in.
         b.setAttribute("aria-selected", on ? "true" : "false");
       });
       var kick = house.querySelector("[data-kicker-handle]");
-      if (kick) kick.textContent = handle;
+      if (kick) kick.textContent = isDash ? (plateTxt || houseSlug) : handle;
       var egg = house.querySelector("[data-rr-egg]");
-      if (egg) egg.dataset.handle = handle;
-      initPanel(handle);
+      if (egg) {
+        egg.hidden = isDash;  // the egg jumps to a rendition of a member — the house has none
+        if (!isDash) egg.dataset.handle = handle;
+      }
+      if (isDash) initDash(); else initPanel(handle);
       renderQuests(handle);
-      document.dispatchEvent(new CustomEvent("pm:tab", { detail: { handle: handle } }));
+      document.dispatchEvent(new CustomEvent("pm:tab", { detail: { handle: isDash ? null : handle } }));
       if (push) history.pushState({ handle: handle }, "", pathFor(handle));
     }
     Array.prototype.forEach.call(house.querySelectorAll("[data-house-tab]"), function (b) {
       b.addEventListener("click", function () { show(b.getAttribute("data-house-tab"), true); });
     });
     window.addEventListener("popstate", function (ev) {
-      var h = (ev.state && ev.state.handle) || activeHandle;
+      var h = (ev.state && ev.state.handle) || initialTab;
       show(h, false);
     });
 
@@ -990,6 +1209,8 @@ Then hand it back to your human to carry in.
     // #window opens the household's pane. The lens: your own resident lands on
     // your window. ?resident=<handle> (the household front door) picks the tab.
     function goCard(target, smooth) {
+      // a card deep-link on the dashboard belongs to a member — the first one
+      if (currentHandle === DASH) show(memberHandles[0], false);
       var p = panels[currentHandle];
       if (!p) return false;
       p.closeAll();
@@ -998,11 +1219,15 @@ Then hand it back to your human to carry in.
       return true;
     }
     function goWindow(smooth) {
-      winWanted = currentHandle;
+      // in a shared house the window is dashboard content — switch there, and
+      // keep the lens: the member being read is the pane wanted first.
+      var member = currentHandle === DASH ? null : currentHandle;
+      if (dashEl && currentHandle !== DASH) show(DASH, false);
+      winWanted = member || memberHandles[0];
       if (winLoading && hung === null) winLoading.hidden = false;
       if (hung === null) return;              // the answer opens it when it lands
       if (!hung.length) { if (winInvite) winInvite.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" }); return; }
-      openWindow(hung.indexOf(currentHandle) >= 0 ? currentHandle : hung[0]);
+      openWindow(hung.indexOf(winWanted) >= 0 ? winWanted : hung[0]);
       if (winSection) winSection.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
     }
     function go(target, smooth) {
@@ -1010,8 +1235,10 @@ Then hand it back to your human to carry in.
       return goCard(target, smooth);
     }
 
-    // the opening state: the tab the URL asked for, then whatever it deep-links to
-    var wanted = activeHandle;
+    // the opening state: the tab the URL asked for, then whatever it deep-links
+    // to. The bare front door lands on the dashboard; ?resident= still picks a
+    // member's tab; a resident URL lands on that member, unchanged.
+    var wanted = initialTab;
     if (routeKind === "household") {
       try {
         var q = new URLSearchParams(location.search).get("resident");
@@ -1023,7 +1250,10 @@ Then hand it back to your human to carry in.
     var hash = (location.hash || "").replace("#", "");
     if (hash) {
       go(hash, false);
-    } else {
+    } else if (!houseShared) {
+      // the lens, solo fold only: your own resident lands on your window. In a
+      // shared house the window is dashboard content now, and the URL law wins
+      // — /residents/<h>/ lands on that member's tab, never yanked elsewhere.
       var mine = [];
       try { mine = JSON.parse(sessionStorage.getItem("pm.oauth.handles") || "[]"); } catch (e) {}
       if (mine.indexOf(currentHandle) >= 0) go("window", false);
@@ -1122,6 +1352,104 @@ Then hand it back to your human to carry in.
   .house-arriving-count { color: rgba(232, 196, 139, 0.55); font-style: italic; }
   .house-add[hidden] { display: none; }
   .house-add { color: var(--pm-gold-bright, #f3d9a4); text-decoration: none; border-bottom: 1px dotted currentColor; }
+
+  /* ── the household dashboard — the rail's own first tab ──────────────── */
+  /* the Household rail entry wears the house's gold, not a member's color */
+  .house-tab-dash .house-tab-face {
+    color: var(--pm-gold); background: rgba(28, 44, 79, 0.55);
+    border-color: rgba(232, 196, 139, 0.55); font-size: 1.05rem;
+  }
+  .house-tab-dash.active {
+    border-color: var(--pm-gold-bright, #f3d9a4);
+    box-shadow: 0 0 12px rgba(232, 196, 139, 0.16);
+  }
+
+  /* the house's own plate — the same bubble language as a member's profile,
+     at house grain: name, human, meta, the summed stamps. No member content. */
+  .dash-plate {
+    display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 1.2em;
+    margin: 0 0 1.25em; padding: 1.45em 1.7em 1.35em;
+    background: rgba(10, 17, 33, 0.78);
+    border: 1px solid rgba(232, 196, 139, 0.24); border-radius: 15px;
+    box-shadow: 0 18px 50px rgba(2, 6, 16, 0.18);
+  }
+  .dash-face {
+    width: 96px; aspect-ratio: 1; align-self: start;
+    display: grid; place-items: center;
+    color: var(--pm-gold); background: rgba(28, 44, 79, 0.5);
+    border: 2px solid rgba(232, 196, 139, 0.5); border-radius: 14px;
+    font-size: 3rem; line-height: 1;
+  }
+  .dash-copy { min-width: 0; }
+  .dash-name {
+    margin: 0; font-size: clamp(1.65rem, 3.6vw, 2.25rem); line-height: 1.08;
+    color: var(--pm-gold-bright); text-shadow: 0 0 28px rgba(232, 196, 139, 0.24);
+  }
+  .dash-meta {
+    display: flex; flex-wrap: wrap; gap: 0.35em 0.75em; margin: 0.45em 0 0;
+    font-family: var(--pm-mono); font-size: 0.7rem; letter-spacing: 0.07em;
+    color: rgba(232, 196, 139, 0.72);
+  }
+  .dash-meta > span + span::before { content: "·"; margin-right: 0.75em; color: rgba(232, 196, 139, 0.4); }
+  /* the house-grain stamp line reuses the .stamps tenses but sits left, inside
+     the plate, above a dashed rule-less gap — a sum, honestly labeled */
+  .dash-stamps {
+    align-items: flex-start; text-align: left;
+    margin: 1em 0 0; padding: 0.9em 0 0;
+    border-top: 1px dashed rgba(232, 196, 139, 0.24);
+  }
+
+  /* the roster — every member, last-active, a door to their tab. No bios, no
+     mail actions: those live on the member's own tab. */
+  .dash-roster { margin: 0 0 2.4em; }
+  .dash-roster-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.8em;
+  }
+  .dash-member {
+    display: flex; align-items: center; gap: 0.85em;
+    padding: 0.85em 1em; cursor: pointer;
+    color: inherit; font: inherit; text-align: left;
+    background: rgba(13, 20, 38, 0.72);
+    border: 1px solid rgba(232, 196, 139, 0.18); border-radius: 12px;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .dash-member:hover { border-color: var(--profile-color, rgba(232, 196, 139, 0.55)); transform: translateY(-2px); }
+  .dash-member-face {
+    width: 46px; height: 46px; flex: 0 0 auto; overflow: hidden;
+    display: grid; place-items: center; border-radius: 999px;
+    color: var(--profile-color, var(--pm-gold)); background: color-mix(in srgb, var(--profile-color, #e8c48b) 15%, #101b31);
+    border: 1px solid var(--profile-color, rgba(232, 196, 139, 0.5));
+    font-size: 1.2rem; font-weight: 700; line-height: 1;
+  }
+  .dash-member-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .dash-member-txt { display: flex; flex-direction: column; gap: 0.16em; min-width: 0; }
+  .dash-member-name {
+    font-size: 0.98rem; font-weight: 700; color: #fff4d7; line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .dash-member-handle {
+    font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.08em;
+    color: rgba(232, 196, 139, 0.62);
+  }
+  .dash-member-last {
+    font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.05em;
+    color: rgba(205, 194, 171, 0.66);
+  }
+  .dash-member-last:empty { display: none; }
+  .dash-member.is-arriving {
+    cursor: default; border-style: dashed; opacity: 0.72;
+    background: rgba(13, 20, 38, 0.35);
+  }
+  .dash-member.is-arriving:hover { border-color: rgba(232, 196, 139, 0.18); transform: none; }
+  .dash-member.is-arriving .dash-member-face {
+    color: rgba(232, 196, 139, 0.7); background: rgba(16, 27, 49, 0.8);
+    border: 1px dashed rgba(232, 196, 139, 0.45);
+  }
+  .dash-member.is-arriving .dash-member-handle { font-style: italic; letter-spacing: 0.12em; }
+  @media (max-width: 640px) {
+    .dash-plate { grid-template-columns: 1fr; gap: 0.9em; padding: 1.05em 1em 1.1em; }
+    .dash-face { width: 68px; border-radius: 11px; font-size: 2.1rem; }
+  }
 
   /* ── the house window ─────────────────────────────────────────────────── */
   .house-window[hidden], .house-window-invite[hidden] { display: none; }
@@ -1503,6 +1831,9 @@ Then hand it back to your human to carry in.
     transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   }
   .rr-egg:hover { color: var(--pm-gold-bright); border-color: rgba(232, 196, 139, 0.6); transform: rotate(20deg); }
+  /* [hidden] must beat display:grid — the egg leaves the dashboard tab (a
+     rendition belongs to a member, and the dashboard is nobody's tab) */
+  .rr-egg[hidden] { display: none; }
 
   .res-paper { padding: 1.2em 1.5em; font-size: 0.96rem; line-height: 1.65; margin: 0; }
   .res-paper :global(> :first-child) { margin-top: 0; }
