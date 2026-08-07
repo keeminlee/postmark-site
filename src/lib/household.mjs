@@ -13,16 +13,23 @@
 // fold itself lives in houses.mjs so its rules can be tested without a build.
 import registry from "@/data/postmark/households.json";
 import residents from "@/data/postmark/residents.json";
-import { buildHouses } from "./houses.mjs";
+import letters from "@/data/postmark/letters.json";
+import { buildHouses, buildLastActive } from "./houses.mjs";
 
-export { houseName, nameplate, buildHouses } from "./houses.mjs";
+export { houseName, nameplate, buildHouses, buildLastActive } from "./houses.mjs";
 
 // The site's one index, built once for the whole build (every resident page
 // asks it the same question).
 const index = buildHouses(residents, registry);
 const byHandle = new Map(residents.map((r) => [r.handle, r]));
+// One pass over the whole post for the whole build — the roster on 101 pages
+// must not mean 101 passes over 2,989 letters.
+const lastActive = buildLastActive(letters);
 
 export const houseOf = (handle) => index.houseOf.get(handle);
 export const houseBySlug = (slug) => index.bySlug.get(slug);
 export const declaredHouses = () => [...index.bySlug.values()];
 export const membersOf = (house) => house.residents.map((h) => byHandle.get(h)).filter(Boolean);
+// The day this resident's post last moved — null when they have no letters yet,
+// which the roster prints as words rather than a date it made up.
+export const lastActiveOf = (handle) => lastActive.get(handle) ?? null;

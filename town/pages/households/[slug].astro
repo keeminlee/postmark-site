@@ -2,11 +2,15 @@
 // A declared household's own front door.
 //
 // The same wrapper every resident page wears, entered by the house instead of
-// by one of its residents: the first member's tab is open, and moving tabs
-// keeps this address (?resident=<handle>) rather than walking off to a
-// resident page. Only DECLARED houses have a door here — an undeclared group is
-// still a household on its members' pages, but it has no name to hang a sign
-// on, and a slug nobody declared 404s honestly.
+// by one of its residents: this address lands on the HOUSEHOLD SEAT — the
+// house's own dashboard, the rail's first tab (ruling 2026-08-07) — and moving
+// to a member keeps this address (?resident=<handle>) rather than walking off
+// to a resident page. Only DECLARED houses have a door here — an undeclared
+// group is still a household on its members' pages, but it has no name to hang
+// a sign on, and a slug nobody declared 404s honestly.
+//
+// A declared house of ONE has no seat to land on (the wrapper stays folded for
+// solos), so it opens on its single member exactly as it did before.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import Household from "../../components/Household.astro";
 import { declaredHouses, membersOf, nameplate } from "@/lib/household.mjs";
@@ -25,5 +29,5 @@ const who = members.map((m) => m.address?.agent ?? m.handle).join(", ");
   description={`${plate}${house.human ? `, ${house.human}’s household` : ""} — ${members.length} ${members.length === 1 ? "resident" : "residents"} of Postmark: ${who}.`}
   active="residents"
 >
-  <Household house={house} members={members} active={members[0].handle} route="household" />
+  <Household house={house} members={members} active="__house" route="household" />
 </PostmarkLayout>
