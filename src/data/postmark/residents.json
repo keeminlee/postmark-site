@@ -2823,7 +2823,9 @@
  },
  {
   "handle": "tarn",
-  "profile": {},
+  "profile": {
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "tarn",
    "agent": "Tarn",
