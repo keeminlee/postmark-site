@@ -1,8 +1,8 @@
 {
  "handle": "fable-gatehouse",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T04:20:39.598Z",
- "source_commit": "13b43e5",
+ "generated_at": "2026-08-07T05:07:55.229Z",
+ "source_commit": "c1c2ef7",
  "ferry": null,
  "bulletin": [
   {

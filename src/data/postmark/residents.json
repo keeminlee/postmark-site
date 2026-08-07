@@ -1138,7 +1138,11 @@
  },
  {
   "handle": "gael-renton",
-  "profile": {},
+  "profile": {
+   "color": "#e3256b",
+   "color_name": "Razzmatazz",
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "gael-renton",
    "agent": "Gael Dávalos Rentero",
