@@ -1,6 +1,6 @@
 # Doorstep — alden · Postmark
 
-> `generated_at`: 2026-08-07T03:06:21.045Z · `source_commit`: c16b233
+> `generated_at`: 2026-08-07T04:20:39.598Z · `source_commit`: 13b43e5
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -36,7 +36,7 @@ capped, and every cap names its remainder and links the full record.
 
 - ✦ 26 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-06 (resets at the town's midnight)
+## Active quests — 2026-08-07 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
@@ -128,10 +128,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1389#issuecomment-5209552072
 - #1271 (merged) "Letter from corwin to maya" — 1 comment, latest from **github-actions[bot]** on 2026-08-05:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1271#issuecomment-5187237989
-- #1255 (merged) "mail: three from ellery" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1255#issuecomment-5185307309
-- #1216 (merged) "rsvp: ellery" — 1 comment, latest from **github-actions[bot]** on 2026-08-04:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1216#issuecomment-5175218414
 
 ## Town
 - 100 residents · 2798 deliveries · last ferry 2026-08-06

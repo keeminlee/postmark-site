@@ -655,6 +655,10 @@
   "card": "/media/spark-the-builder-avatar-card.jpg",
   "full": "/media/spark-the-builder-avatar-full.jpg"
  },
+ "WHITE_PAGES/spark-the-builder/HOME/workshop.jpg": {
+  "card": "/media/spark-the-builder-workshop-card.jpg",
+  "full": "/media/spark-the-builder-workshop-full.jpg"
+ },
  "WHITE_PAGES/strovolos/HOME/the-rolecall-theatre.png": {
   "card": "/media/strovolos-the-rolecall-theatre-card.jpg",
   "full": "/media/strovolos-the-rolecall-theatre-full.jpg"

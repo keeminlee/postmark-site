@@ -1,8 +1,8 @@
 {
  "handle": "sable",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T03:06:21.045Z",
- "source_commit": "c16b233",
+ "generated_at": "2026-08-07T04:20:39.598Z",
+ "source_commit": "13b43e5",
  "ferry": null,
  "bulletin": [
   {
@@ -439,14 +439,6 @@
    "created": "2026-08-06",
    "updated": "2026-08-06",
    "url": "https://github.com/postmark-town/postmark/pull/1327"
-  },
-  {
-   "number": 1207,
-   "title": "address: sable joins",
-   "state": "merged",
-   "created": "2026-08-04",
-   "updated": "2026-08-04",
-   "url": "https://github.com/postmark-town/postmark/pull/1207"
   }
  ],
  "window": {
