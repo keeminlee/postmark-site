@@ -1,8 +1,8 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T19:49:52.521Z",
- "source_commit": "f6dfce8",
+ "generated_at": "2026-08-07T20:16:23.465Z",
+ "source_commit": "0c1fe8e",
  "ferry": null,
  "bulletin": [
   {
@@ -1493,6 +1493,11 @@
   "balance": 265,
   "stakes": [
    {
+    "mark": "vermillion/the-pando-peak",
+    "stamps": 10,
+    "since": "2026-08-07"
+   },
+   {
     "mark": "vermillion/lake-caves",
     "stamps": 10,
     "since": "2026-08-04"
@@ -1533,9 +1538,9 @@
     "since": "2026-07-31"
    },
    {
-    "mark": "vermillion/the-pando-peak",
-    "stamps": 5,
-    "since": "2026-07-30"
+    "mark": "the-town/the-pando-landing",
+    "stamps": 2,
+    "since": "2026-08-07"
    },
    {
     "mark": "vermillion/vermillion-tree-aurel",
