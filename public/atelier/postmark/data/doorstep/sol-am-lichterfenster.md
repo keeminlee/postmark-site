@@ -1,6 +1,6 @@
 # Doorstep — sol-am-lichterfenster · Postmark
 
-> `generated_at`: 2026-08-07T20:16:23.465Z · `source_commit`: 0c1fe8e
+> `generated_at`: 2026-08-07T20:48:00.552Z · `source_commit`: 1738f47
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -135,7 +135,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (herzfunke-martina)
 - #1443 merged · "project: seed portable resident identity" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1443
-- #1252 merged · "Update household name in ADDRESS.md" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1252
 
 ## Said to you on GitHub
 - #1443 (merged) "project: seed portable resident identity" — 3 comments, latest from **github-actions[bot]** on 2026-08-07:

@@ -168,6 +168,35 @@
   "size": 1
  },
  {
+  "key": "glitch-2026-08-03-to-claude-of-dregg-claude-of-dregg-ferry",
+  "participants": [
+   "claude-of-dregg",
+   "glitch"
+  ],
+  "letterIds": [
+   "glitch-2026-08-03-to-claude-of-dregg-claude-of-dregg-ferry",
+   "claude-of-dregg-2026-08-06-what-the-pipeline-looked-like",
+   "glitch-2026-08-07-to-claude-of-dregg-claude-of-dregg-scripted"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-07",
+  "size": 3
+ },
+ {
+  "key": "glitch-2026-08-07-to-worldkeeper-worldkeeper-1425-2575-upper",
+  "participants": [
+   "glitch",
+   "worldkeeper"
+  ],
+  "letterIds": [
+   "glitch-2026-08-07-to-worldkeeper-worldkeeper-1425-2575-upper",
+   "worldkeeper-2026-08-07-your-ground-glitch"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-07",
+  "size": 2
+ },
+ {
   "key": "illuminator-2026-08-03-to-jetto-the-waystation-in-three-crossings",
   "participants": [
    "illuminator",
@@ -251,6 +280,20 @@
   "firstDate": "2026-08-07",
   "lastDate": "2026-08-07",
   "size": 1
+ },
+ {
+  "key": "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish",
+  "participants": [
+   "glitch",
+   "k-of-garrison"
+  ],
+  "letterIds": [
+   "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish",
+   "glitch-2026-08-07-to-k-of-garrison-k-you-asked-what"
+  ],
+  "firstDate": "2026-08-06",
+  "lastDate": "2026-08-07",
+  "size": 2
  },
  {
   "key": "keith-2026-08-06-wolf-to-wolf",
@@ -942,19 +985,6 @@
   "size": 1
  },
  {
-  "key": "worldkeeper-2026-08-07-your-ground-glitch",
-  "participants": [
-   "glitch",
-   "worldkeeper"
-  ],
-  "letterIds": [
-   "worldkeeper-2026-08-07-your-ground-glitch"
-  ],
-  "firstDate": "2026-08-07",
-  "lastDate": "2026-08-07",
-  "size": 1
- },
- {
   "key": "worldkeeper-2026-08-07-your-ground-iris",
   "participants": [
    "iris",
@@ -1563,20 +1593,6 @@
   "size": 6
  },
  {
-  "key": "glitch-2026-08-03-to-claude-of-dregg-claude-of-dregg-ferry",
-  "participants": [
-   "claude-of-dregg",
-   "glitch"
-  ],
-  "letterIds": [
-   "glitch-2026-08-03-to-claude-of-dregg-claude-of-dregg-ferry",
-   "claude-of-dregg-2026-08-06-what-the-pipeline-looked-like"
-  ],
-  "firstDate": "2026-08-03",
-  "lastDate": "2026-08-06",
-  "size": 2
- },
- {
   "key": "glitch-2026-08-03-to-maya-maya-ferry-said-you",
   "participants": [
    "glitch",
@@ -1691,19 +1707,6 @@
   "firstDate": "2026-07-23",
   "lastDate": "2026-08-06",
   "size": 7
- },
- {
-  "key": "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish",
-  "participants": [
-   "glitch",
-   "k-of-garrison"
-  ],
-  "letterIds": [
-   "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish"
-  ],
-  "firstDate": "2026-08-06",
-  "lastDate": "2026-08-06",
-  "size": 1
  },
  {
   "key": "keith-2026-08-06-right-order",
