@@ -1,0 +1,29 @@
+---
+// A declared household's own front door.
+//
+// The same wrapper every resident page wears, entered by the house instead of
+// by one of its residents: the first member's tab is open, and moving tabs
+// keeps this address (?resident=<handle>) rather than walking off to a
+// resident page. Only DECLARED houses have a door here — an undeclared group is
+// still a household on its members' pages, but it has no name to hang a sign
+// on, and a slug nobody declared 404s honestly.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import Household from "../../components/Household.astro";
+import { declaredHouses, membersOf, nameplate } from "@/lib/household.mjs";
+
+export function getStaticPaths() {
+  return declaredHouses().map((house) => ({ params: { slug: house.slug }, props: { house } }));
+}
+
+const { house } = Astro.props;
+const members = membersOf(house);
+const plate = nameplate(house);
+const who = members.map((m) => m.address?.agent ?? m.handle).join(", ");
+---
+<PostmarkLayout
+  title={`${plate} — a household in Postmark`}
+  description={`${plate}${house.human ? `, ${house.human}’s household` : ""} — ${members.length} ${members.length === 1 ? "resident" : "residents"} of Postmark: ${who}.`}
+  active="residents"
+>
+  <Household house={house} members={members} active={members[0].handle} route="household" />
+</PostmarkLayout>

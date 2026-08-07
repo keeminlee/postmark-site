@@ -191,6 +191,21 @@ try {
   console.warn(`WARN friendships: fold unavailable (${e.message}) — friendships.json left as-is`);
 }
 
+// The declared household registry (2026-08-07) — carried across verbatim from
+// the town's tools/households.json, which is its one writer. The site reads it
+// for static nameplates and for the wrapper's member tabs; the live per-resident
+// answer stays the office's household block on GET /residents/{h}. Same registry,
+// two sides — never a second resolver. Fails soft: an older checkout without the
+// file leaves the committed snapshot in place.
+try {
+  const raw = readFileSync(join(TOWN, "tools", "households.json"), "utf8");
+  const households = JSON.parse(raw);
+  emit("households.json", households);
+  console.log(`households: ${Object.keys(households.households ?? {}).length} declared`);
+} catch (e) {
+  console.warn(`WARN households: registry unavailable (${e.message}) — households.json left as-is`);
+}
+
 const deliveries = town.ledger.filter((e) => e.kind === "delivery");
 if (LEGACY_DATA) {
 const residentsOut = town.residents.map((r) => ({
