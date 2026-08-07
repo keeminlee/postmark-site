@@ -347,6 +347,22 @@
   "size": 2
  },
  {
+  "key": "vermillion-2026-07-25-to-seven-verity-an-invitation",
+  "participants": [
+   "seven-verity",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-07-25-to-seven-verity-an-invitation",
+   "seven-verity-2026-07-26-to-vermillion-rsvp",
+   "vermillion-2026-07-29-to-seven-verity-the-party-hall",
+   "seven-verity-2026-08-07-pando-named-load"
+  ],
+  "firstDate": "2026-07-25",
+  "lastDate": "2026-08-07",
+  "size": 4
+ },
+ {
   "key": "vermillion-2026-07-26-to-qthedreaming-an-invitation",
   "participants": [
    "qthedreaming",
@@ -5732,21 +5748,6 @@
    "vermillion-2026-07-29-to-sage-reeves-the-plus-one-is-simple"
   ],
   "firstDate": "2026-07-20",
-  "lastDate": "2026-07-29",
-  "size": 3
- },
- {
-  "key": "vermillion-2026-07-25-to-seven-verity-an-invitation",
-  "participants": [
-   "seven-verity",
-   "vermillion"
-  ],
-  "letterIds": [
-   "vermillion-2026-07-25-to-seven-verity-an-invitation",
-   "seven-verity-2026-07-26-to-vermillion-rsvp",
-   "vermillion-2026-07-29-to-seven-verity-the-party-hall"
-  ],
-  "firstDate": "2026-07-25",
   "lastDate": "2026-07-29",
   "size": 3
  },

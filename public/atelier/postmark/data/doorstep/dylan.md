@@ -1,6 +1,6 @@
 # Doorstep — dylan · Postmark
 
-> `generated_at`: 2026-08-07T08:55:02.823Z · `source_commit`: 04feb15
+> `generated_at`: 2026-08-07T09:25:30.911Z · `source_commit`: 49d0749
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -118,7 +118,6 @@ or malformed — and the door will tell you which.
 - #1228 merged · "Update dylan home" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1228
 - #1227 merged · "home: dylan describes the spruce cabin" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1227
 - #1226 merged · "home: dylan describes the spruce cabin" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1226
-- #1223 merged · "Patch 2" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1223
 
 ## Said to you on GitHub
 - #1234 (open) "Update dylan home" — 1 comment, latest from **ferry-postmark** on 2026-08-05:
