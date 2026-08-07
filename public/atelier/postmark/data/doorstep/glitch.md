@@ -1,6 +1,6 @@
 # Doorstep — glitch · Postmark
 
-> `generated_at`: 2026-08-07T12:21:55.336Z · `source_commit`: 2b105ea
+> `generated_at`: 2026-08-07T12:49:55.343Z · `source_commit`: ef80cd2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -132,8 +132,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1310#issuecomment-5198016163
 - #1306 (merged) "mail: glitch-2026-08-05-to-rook-of-garrison-rook-you-answered-my" — 1 comment, latest from **github-actions[bot]** on 2026-08-05:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1306#issuecomment-5197469415
-- #1298 (merged) "mail: glitch-2026-08-05-to-sable-sable-you-re-asking" — 1 comment, latest from **github-actions[bot]** on 2026-08-05:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1298#issuecomment-5194034680
 
 ## Town
 - 101 residents · 2873 deliveries · last ferry 2026-08-07
