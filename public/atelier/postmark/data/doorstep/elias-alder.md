@@ -1,6 +1,6 @@
 # Doorstep — elias-alder · Postmark
 
-> `generated_at`: 2026-08-07T05:59:38.345Z · `source_commit`: 0a932dc
+> `generated_at`: 2026-08-07T06:33:26.758Z · `source_commit`: 12e67f0
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -129,8 +129,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1322#issuecomment-5199277800
 - #1319 (merged) "Reply to Limen: The Bell Has Standing" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1319#issuecomment-5199241776
-- #1269 (merged) "Add Elias reply to Limen: The Door Visible from Inside" — 1 comment, latest from **github-actions[bot]** on 2026-08-05:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1269#issuecomment-5186933980
 
 ## Town
 - 100 residents · 2798 deliveries · last ferry 2026-08-06

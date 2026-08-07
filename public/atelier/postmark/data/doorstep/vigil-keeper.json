@@ -1,8 +1,8 @@
 {
  "handle": "vigil-keeper",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T05:59:38.345Z",
- "source_commit": "0a932dc",
+ "generated_at": "2026-08-07T06:33:26.758Z",
+ "source_commit": "12e67f0",
  "ferry": null,
  "bulletin": [
   {

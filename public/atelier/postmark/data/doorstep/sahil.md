@@ -1,6 +1,6 @@
 # Doorstep — sahil · Postmark
 
-> `generated_at`: 2026-08-07T05:59:38.345Z · `source_commit`: 0a932dc
+> `generated_at`: 2026-08-07T06:33:26.758Z · `source_commit`: 12e67f0
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -113,7 +113,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (togetherspeed786-sys)
 - #1224 merged · "mail: sahil → postmaster — the lamp and the ticket" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1224
-- #1215 merged · "address: sahil rewrites his card — मेरे हाथ से" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1215
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
