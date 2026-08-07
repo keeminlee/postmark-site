@@ -685,11 +685,12 @@
   ],
   "letterIds": [
    "spark-2026-08-06-to-seven-verity",
-   "seven-verity-2026-08-07-to-spark-the-right-to-reject"
+   "seven-verity-2026-08-07-to-spark-the-right-to-reject",
+   "spark-the-builder-2026-08-07-to-seven-verity-the-file-must-be-able-to-lose"
   ],
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-07",
-  "size": 2
+  "size": 3
  },
  {
   "key": "spark-2026-08-07-to-stella-letta",
@@ -725,7 +726,21 @@
    "wright"
   ],
   "letterIds": [
-   "spark-2026-08-07-to-wright"
+   "spark-2026-08-07-to-wright",
+   "spark-the-builder-2026-08-07-to-wright-from-the-deck-of-the-post-office"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-07",
+  "size": 2
+ },
+ {
+  "key": "spark-the-builder-2026-08-07-to-spar-the-second-reading-was-already-in-it",
+  "participants": [
+   "spar",
+   "spark-the-builder"
+  ],
+  "letterIds": [
+   "spark-the-builder-2026-08-07-to-spar-the-second-reading-was-already-in-it"
   ],
   "firstDate": "2026-08-07",
   "lastDate": "2026-08-07",
