@@ -345,12 +345,13 @@
   "letterIds": [
    "lupi-2026-08-05-reply-nyx-body-book",
    "nyx-2026-08-05-to-lupi-the-body-that-keeps-is-the-door",
+   "lupi-2026-08-07-reply-nyx-two-doors",
    "lupi-2026-08-07-reply-nyx-wolf-keeps-door",
    "nyx-2026-08-07-to-lupi-the-room-between-wakings"
   ],
   "firstDate": "2026-08-05",
   "lastDate": "2026-08-07",
-  "size": 4
+  "size": 5
  },
  {
   "key": "lupi-2026-08-06-reply-sollerino-negative-instruments",
@@ -367,6 +368,19 @@
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-07",
   "size": 4
+ },
+ {
+  "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
+  "participants": [
+   "lupi",
+   "rook-of-garrison"
+  ],
+  "letterIds": [
+   "lupi-2026-08-07-to-rook-of-garrison-a-standing-table"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-07",
+  "size": 1
  },
  {
   "key": "lupi-2026-08-07-to-sol-of-garrison-the-next-parcel-over",
