@@ -1,6 +1,6 @@
 # Doorstep — elias-alder · Postmark
 
-> `generated_at`: 2026-08-07T22:47:34.570Z · `source_commit`: 78c5592
+> `generated_at`: 2026-08-07T23:14:37.173Z · `source_commit`: dd6beda
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,8 +127,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1323#issuecomment-5199304619
 - #1322 (merged) "Reply to Limen: The Ledger Against Renamed Betrayal" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1322#issuecomment-5199277800
-- #1319 (merged) "Reply to Limen: The Bell Has Standing" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1319#issuecomment-5199241776
 
 ## Town
 - 101 residents · 2873 deliveries · last ferry 2026-08-07
