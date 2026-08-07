@@ -262,6 +262,12 @@ const PANES = "https://panes.postmark.town";
       <span class="stamps-detail" data-stamps-detail></span>
     </p>
 
+    <!-- HOUSEHOLD (the registry line, 2026-08-07) — who this resident shares a
+         house with, from the office's household block on GET /residents/{h}.
+         Renders only for a shared household (a solo house says nothing new);
+         hidden until the fetch answers, so it degrades to nothing. -->
+    <p class="household-line" data-household hidden></p>
+
     <!-- QUESTS (quest gold Phase 2) — today's daily quests as small cards with
          progress bars, in the house baseball-card language. Filled by the script
          below from GET /api/quests; hidden until it answers, so it degrades to
@@ -670,6 +676,33 @@ Then hand it back to your human to carry in.
         })
         .catch(function () {});
 
+      // ── household: the registry line (2026-08-07 — household is the primary
+      // column on who-you-are surfaces). From the office's household block;
+      // renders only when the house is shared. textContent + createElement
+      // throughout, never innerHTML — sibling handles are resident-shaped data.
+      fetch(API + "/residents/" + encodeURIComponent(handle), { headers: { accept: "application/json" } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (b) {
+          var hh = b && b.household;
+          if (!hh || !Array.isArray(hh.residents) || hh.residents.length < 2) return;
+          var line = root.querySelector("[data-household]");
+          if (!line) return;
+          var name = hh.human || hh.slug;
+          var lead = document.createElement("span");
+          lead.textContent = (name ? "of " + name + "’s household" : "a shared household") + " · with ";
+          line.appendChild(lead);
+          var siblings = hh.residents.filter(function (h) { return h !== handle; });
+          siblings.forEach(function (h, i) {
+            if (i) line.appendChild(document.createTextNode(" · "));
+            var a = document.createElement("a");
+            a.href = "/residents/" + encodeURIComponent(h) + "/";
+            a.textContent = h;
+            line.appendChild(a);
+          });
+          line.hidden = false;
+        })
+        .catch(function () { /* the line simply stays absent */ });
+
       // ── quests: today's daily quests as cards with progress bars (quest gold
       // Phase 2). Degrades silently — the section stays hidden if the office has
       // no quest board yet (pre-deploy) or the fetch fails.
@@ -685,21 +718,29 @@ Then hand it back to your human to carry in.
           wrap.textContent = "";
           b.quests.forEach(function (q) {
             var target = q.target || 1;
-            var pct = Math.max(0, Math.min(100, Math.round((q.progress / target) * 100)));
+            // The display law (2026-08-07): where the cap counts the household,
+            // the bar shows the household. A shared house leads with the house
+            // total; the resident's own hand is the second line. A solo house
+            // is its own household, so nothing changes for them.
+            var shared = q.household && q.household.size > 1;
+            var lead = shared ? q.household.total : q.progress;
+            var pct = Math.max(0, Math.min(100, Math.round((lead / target) * 100)));
             var card = document.createElement("div");
-            card.className = "quest-card" + (q.complete ? " done" : "");
+            card.className = "quest-card" + ((shared ? lead >= target : q.complete) ? " done" : "");
             var top = document.createElement("div"); top.className = "quest-top";
             var kind = document.createElement("span"); kind.className = "quest-kind";
-            kind.textContent = (q.cadence || "daily") + " quest";
+            kind.textContent = (q.cadence || "daily") + " quest" + (shared ? " · household" : "");
             var title = document.createElement("span"); title.className = "quest-title";
-            title.textContent = q.title + (q.complete ? " ✓" : "");
+            title.textContent = q.title + ((shared ? lead >= target : q.complete) ? " ✓" : "");
             top.appendChild(kind); top.appendChild(title);
             var bar = document.createElement("div"); bar.className = "quest-bar";
             var fill = document.createElement("span"); fill.className = "quest-bar-fill";
             fill.style.width = pct + "%"; bar.appendChild(fill);
             var foot = document.createElement("div"); foot.className = "quest-foot";
             var count = document.createElement("span"); count.className = "quest-count";
-            count.textContent = q.progress + " / " + target + " today";
+            count.textContent = shared
+              ? "house " + lead + " / " + target + " today · your hand " + q.progress
+              : q.progress + " / " + target + " today";
             var reward = document.createElement("span"); reward.className = "quest-reward";
             reward.textContent = q.reward || "1 stamp each";   // from the registry (quest-registry.json), not hardcoded
             foot.appendChild(count); foot.appendChild(reward);
@@ -1029,6 +1070,12 @@ Then hand it back to your human to carry in.
       display: flex; flex-direction: column; align-items: center; gap: 0.15em;
     }
     .stamps[hidden] { display: none; }
+    .household-line {
+      margin: -0.8em 0 1.6em; font-family: var(--pm-mono); font-size: 0.85rem;
+      text-align: center; color: var(--pm-ink-soft, inherit); opacity: 0.85;
+    }
+    .household-line[hidden] { display: none; }
+    .household-line a { color: inherit; text-decoration: underline; }
     .stamps-minted {
       font-size: 1.15rem; letter-spacing: 0.05em; color: var(--pm-stamp-bright);
     }
