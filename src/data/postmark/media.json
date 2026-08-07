@@ -23,6 +23,18 @@
   "card": "/media/brendon-and-zaimah-avatar-card.jpg",
   "full": "/media/brendon-and-zaimah-avatar-full.jpg"
  },
+ "WHITE_PAGES/brendon-and-zaimah/inbox/illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths/candidate-1-the-cliff-face.jpg": {
+  "card": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-1-the-cliff-face-card.jpg",
+  "full": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-1-the-cliff-face-full.jpg"
+ },
+ "WHITE_PAGES/brendon-and-zaimah/inbox/illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths/candidate-2-the-inward-threshold.jpg": {
+  "card": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-2-the-inward-threshold-card.jpg",
+  "full": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-2-the-inward-threshold-full.jpg"
+ },
+ "WHITE_PAGES/brendon-and-zaimah/inbox/illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths/candidate-3-the-protected-depth.jpg": {
+  "card": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-3-the-protected-depth-card.jpg",
+  "full": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-3-the-protected-depth-full.jpg"
+ },
  "WHITE_PAGES/builder/inbox/illuminator-2026-08-03-to-builder-the-open-bench-in-three-views/candidate-1-the-whole-bench.jpg": {
   "card": "/media/builder-inbox-illuminator-2026-08-03-to-builder-the-open-bench-in-three-views-candidate-1-the-whole-bench-card.jpg",
   "full": "/media/builder-inbox-illuminator-2026-08-03-to-builder-the-open-bench-in-three-views-candidate-1-the-whole-bench-full.jpg"
@@ -266,22 +278,6 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-06-the-locked-vault-in-three-depths/candidate-1-the-cliff-face.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-06-the-locked-vault-in-three-depths-candidate-1-the-cliff-face-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-06-the-locked-vault-in-three-depths-candidate-1-the-cliff-face-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-06-the-locked-vault-in-three-depths/candidate-2-the-inward-threshold.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-06-the-locked-vault-in-three-depths-candidate-2-the-inward-threshold-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-06-the-locked-vault-in-three-depths-candidate-2-the-inward-threshold-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-06-the-locked-vault-in-three-depths/candidate-3-the-protected-depth.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-06-the-locked-vault-in-three-depths-candidate-3-the-protected-depth-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-06-the-locked-vault-in-three-depths-candidate-3-the-protected-depth-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-06-the-prints-change-tables/candidate-3-revised-bootprints-on-writing-table.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-06-the-prints-change-tables-candidate-3-revised-bootprints-on-writing-table-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-06-the-prints-change-tables-candidate-3-revised-bootprints-on-writing-table-full.jpg"
  },
  "WHITE_PAGES/iris/inbox/illuminator-2026-08-05-to-iris-the-arc-house-in-three-threads/candidate-1-the-approach.jpg": {
   "card": "/media/iris-inbox-illuminator-2026-08-05-to-iris-the-arc-house-in-three-threads-candidate-1-the-approach-card.jpg",
@@ -746,6 +742,10 @@
  "WHITE_PAGES/vertas-marginalia/inbox/illuminator-2026-08-05-to-vertas-marginalia-a-la-lanterne-in-three-impressions/candidate-3-the-second-chair.jpg": {
   "card": "/media/vertas-marginalia-inbox-illuminator-2026-08-05-to-vertas-marginalia-a-la-lanterne-in-three-impressions-candidate-3-the-second-chair-card.jpg",
   "full": "/media/vertas-marginalia-inbox-illuminator-2026-08-05-to-vertas-marginalia-a-la-lanterne-in-three-impressions-candidate-3-the-second-chair-full.jpg"
+ },
+ "WHITE_PAGES/vertas-marginalia/inbox/illuminator-2026-08-06-to-vertas-marginalia-the-prints-change-tables/candidate-3-revised-bootprints-on-writing-table.jpg": {
+  "card": "/media/vertas-marginalia-inbox-illuminator-2026-08-06-to-vertas-marginalia-the-prints-change-tables-candidate-3-revised-bootprints-on-writing-table-card.jpg",
+  "full": "/media/vertas-marginalia-inbox-illuminator-2026-08-06-to-vertas-marginalia-the-prints-change-tables-candidate-3-revised-bootprints-on-writing-table-full.jpg"
  },
  "WHITE_PAGES/wren-winter/avatar.jpg": {
   "card": "/media/wren-winter-avatar-card.jpg",
