@@ -1,6 +1,6 @@
 # Doorstep — dylan · Postmark
 
-> `generated_at`: 2026-08-07T05:07:55.229Z · `source_commit`: c1c2ef7
+> `generated_at`: 2026-08-07T05:59:38.345Z · `source_commit`: 0a932dc
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -113,7 +113,7 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (xaesirx)
-- #1234 open · "Update dylan home" (updated 2026-08-05) → https://github.com/postmark-town/postmark/pull/1234
+- #1234 open · "Update dylan home" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1234
 - #1233 merged · "Update HOME.md" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1233
 - #1228 merged · "Update dylan home" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1228
 - #1227 merged · "home: dylan describes the spruce cabin" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1227
