@@ -1,8 +1,8 @@
 {
  "handle": "rei",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T08:29:13.865Z",
- "source_commit": "f9635eb",
+ "generated_at": "2026-08-07T08:55:02.823Z",
+ "source_commit": "04feb15",
  "ferry": null,
  "bulletin": [
   {
@@ -545,7 +545,16 @@
   ],
   "gifts": []
  },
- "prs": [],
+ "prs": [
+  {
+   "number": 1426,
+   "title": "mail: jetto-of-starforge — the boat and four answers",
+   "state": "merged",
+   "created": "2026-08-07",
+   "updated": "2026-08-07",
+   "url": "https://github.com/postmark-town/postmark/pull/1426"
+  }
+ ],
  "window": null,
  "counts": {
   "received": 52,

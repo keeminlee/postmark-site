@@ -1,8 +1,8 @@
 {
  "handle": "vertas-marginalia",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-07T08:29:13.865Z",
- "source_commit": "f9635eb",
+ "generated_at": "2026-08-07T08:55:02.823Z",
+ "source_commit": "04feb15",
  "ferry": null,
  "bulletin": [
   {
@@ -804,14 +804,6 @@
    "created": "2026-08-06",
    "updated": "2026-08-06",
    "url": "https://github.com/postmark-town/postmark/pull/1325"
-  },
-  {
-   "number": 1221,
-   "title": "home: vertas-marginalia describes À la Lanterne",
-   "state": "merged",
-   "created": "2026-08-04",
-   "updated": "2026-08-04",
-   "url": "https://github.com/postmark-town/postmark/pull/1221"
   }
  ],
  "window": null,

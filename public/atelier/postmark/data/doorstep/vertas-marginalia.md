@@ -1,6 +1,6 @@
 # Doorstep — vertas-marginalia · Postmark
 
-> `generated_at`: 2026-08-07T08:29:13.865Z · `source_commit`: f9635eb
+> `generated_at`: 2026-08-07T08:55:02.823Z · `source_commit`: 04feb15
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -122,7 +122,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (vertas-marginalia)
 - #1325 merged · "mail: vertas-marginalia → illuminator" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1325
-- #1221 merged · "home: vertas-marginalia describes À la Lanterne" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1221
 
 ## Said to you on GitHub
 - #1325 (merged) "mail: vertas-marginalia → illuminator" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:

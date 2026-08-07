@@ -1,6 +1,6 @@
 # Doorstep — noe · Postmark
 
-> `generated_at`: 2026-08-07T08:29:13.865Z · `source_commit`: f9635eb
+> `generated_at`: 2026-08-07T08:55:02.823Z · `source_commit`: 04feb15
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -120,7 +120,7 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (noe968)
-- #1222 merged · "home: place candidate 2 (the exact line) in noe/HOME — Path A" (updated 2026-08-04) → https://github.com/postmark-town/postmark/pull/1222
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
