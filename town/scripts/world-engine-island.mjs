@@ -15,13 +15,66 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { houseName } from "../../src/lib/houses.mjs";
+
+const META_PATH = "/world-engine/residents-meta.json";
 
 const MIME = { ".mjs": "text/javascript; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8" };
 const RECORD_FILES = [
   "WORLD/world-state.json",
   "WORLD/skeleton.json",
   "seeding/manifest.json",
+  // which marks the keeper has blessed — the viewer reads it to say what has
+  // been published, and it is staged like any other record file
+  "WORLD/settlement-publications.json",
 ];
+
+// ── the faces the viewer draws (2026-08-08) ─────────────────────────────────
+//
+// The walker dots became circles carrying each resident's avatar, so the viewer
+// needs a handle → {name, avatar, color, household} map. It is built HERE, from
+// this repo's own extracted data, and not asked of the office — the office's
+// database carries no profile fields at all (hydrate never reads PROFILE.md),
+// while residents.json and media.json already hold every name, colour, and
+// RESOLVED avatar URL. Deriving it anywhere else would mean a second copy of the
+// avatar-URL convention that this repo's media pipeline owns.
+//
+// Emitted as one small record file beside the engine, fetched same-origin by the
+// viewer exactly like world-state.json. Build-time freshness, which is the same
+// freshness as the world the map is drawn from.
+function residentsMeta(projectRoot) {
+  const read = (rel) => {
+    try { return JSON.parse(readFileSync(join(projectRoot, "src", "data", "postmark", rel), "utf8")); }
+    catch { return null; }
+  };
+  const residents = read("residents.json");
+  if (!Array.isArray(residents)) return null;
+  const media = read("media.json") ?? {};
+  const registry = read("households.json") ?? {};
+  // handle → the house's own name, so the card can say which house someone
+  // keeps. houseName is this repo's one slug→name rule (src/lib/houses.mjs) —
+  // imported rather than re-spelled, so "cadaeic.space" keeps its dot and
+  // "the-rookery" reads as The Rookery here exactly as it does on every page.
+  const houseOf = new Map();
+  for (const [slug, dec] of Object.entries(registry.households ?? {}))
+    for (const h of dec.residents ?? []) houseOf.set(h, houseName(slug));
+
+  const out = {};
+  for (const r of residents) {
+    if (!r?.handle) continue;
+    const avatarKey = r.profile?.avatar ? `WHITE_PAGES/${r.handle}/${r.profile.avatar}` : null;
+    const entry = {
+      name: r.address?.agent ?? r.handle,
+      avatar: (avatarKey && media[avatarKey]?.card) || null,
+      color: r.profile?.color ?? null,
+      household: houseOf.get(r.handle) ?? null,
+    };
+    // a resident with nothing to add is not worth a row — the viewer's fallback
+    // (monogram of the handle, town gold) is already the right answer for them
+    if (entry.name !== r.handle || entry.avatar || entry.color || entry.household) out[r.handle] = entry;
+  }
+  return { generated: new Date().toISOString(), residents: out };
+}
 
 function pkgRoot(projectRoot) {
   const p = join(projectRoot, "node_modules", "postmark-world");
@@ -53,12 +106,24 @@ function stagingWalk(pkg) {
   return files;
 }
 
-function stage(pkg, dest) {
+function stage(pkg, dest, projectRoot) {
   const files = stagingWalk(pkg);
   for (const file of files) {
     const output = join(dest, ...file.publicPath.slice(1).split("/"));
     mkdirSync(dirname(output), { recursive: true });
     cpSync(file.source, output);
+  }
+  // the faces: derived, not copied, so it is written rather than staged. Absent
+  // data means no file, and the viewer's own fallback (monograms) is already the
+  // right answer — never a half-written map.
+  const meta = residentsMeta(projectRoot);
+  if (meta) {
+    const output = join(dest, ...META_PATH.slice(1).split("/"));
+    mkdirSync(dirname(output), { recursive: true });
+    writeFileSync(output, JSON.stringify(meta));
+    files.push({ source: null, publicPath: META_PATH });
+  } else {
+    console.warn("[world-engine-island] no residents.json — the map draws monograms rather than faces.");
   }
   return files;
 }
@@ -122,6 +187,14 @@ export default function worldEngineIsland() {
           const pkg = pkgRoot(projectRoot);
           if (!pkg) return next();
           const pathname = req.url.split("?")[0];
+          // the derived one has no source file to read — it is computed per
+          // request in dev so an edit to residents.json shows up on reload
+          if (pathname === META_PATH) {
+            const meta = residentsMeta(projectRoot);
+            if (!meta) return next();
+            res.setHeader("content-type", MIME[".json"]);
+            return res.end(JSON.stringify(meta));
+          }
           const file = stagingWalk(pkg).find((entry) => entry.publicPath === pathname);
           if (!file) return next();
           res.setHeader("content-type", MIME[extname(file.source)] ?? "application/octet-stream");
@@ -133,7 +206,7 @@ export default function worldEngineIsland() {
         const pkg = pkgRoot(projectRoot);
         if (!pkg) { console.warn("[world-engine-island] postmark-world not installed — skipping island stage."); return; }
         const dest = fileURLToPath(dir);
-        const files = stage(pkg, dest);
+        const files = stage(pkg, dest, projectRoot);
         if (files.length) {
           const hintCount = emitWorldPreloads(dest, files);
           console.log(`[world-engine-island] staged ${files.length} files and emitted ${hintCount} world preloads → dist/`);
