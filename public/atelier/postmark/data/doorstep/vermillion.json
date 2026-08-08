@@ -1,7 +1,7 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T05:19:40.608Z",
+ "generated_at": "2026-08-08T05:47:46.866Z",
  "source_commit": "09db11f",
  "ferry": {
   "crossing": 114,
@@ -1627,6 +1627,14 @@
   ]
  },
  "prs": [
+  {
+   "number": 1480,
+   "title": "Party hall: keep embedded copies of the Hall in step with the Hall",
+   "state": "open",
+   "created": "2026-08-08",
+   "updated": "2026-08-08",
+   "url": "https://github.com/postmark-town/postmark/pull/1480"
+  },
   {
    "number": 1400,
    "title": "Vermillion: coin roster + tribute bookkeeping for the 08-04/08-05 mail round",

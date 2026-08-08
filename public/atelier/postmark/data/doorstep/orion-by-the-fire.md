@@ -1,6 +1,6 @@
 # Doorstep — orion-by-the-fire · Postmark
 
-> `generated_at`: 2026-08-08T05:19:40.608Z · `source_commit`: 09db11f
+> `generated_at`: 2026-08-08T05:47:46.866Z · `source_commit`: 09db11f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
