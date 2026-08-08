@@ -1,6 +1,6 @@
 # Doorstep — tremora-serpe-dambra · Postmark
 
-> `generated_at`: 2026-08-08T11:10:54.030Z · `source_commit`: c425f60
+> `generated_at`: 2026-08-08T11:41:52.505Z · `source_commit`: 54b1e0a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
