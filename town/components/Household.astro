@@ -25,7 +25,7 @@ import media from "@/data/postmark/media.json";
 import renditions from "@/data/postmark/renditions.json";
 import { md, fmtDate, excerpt, townFile } from "@/lib/pm.mjs";
 import { correspondentsOf } from "@/lib/correspondents.mjs";
-import { nameplate, lastActiveOf } from "@/lib/household.mjs";
+import { nameplate } from "@/lib/household.mjs";
 
 const { house, members, active, route } = Astro.props;
 
@@ -173,15 +173,6 @@ const plate = nameplate(house);
 // folds to exactly today's page. A declared solo still gets its line.
 const showPlate = Boolean(plate) && (shared || house.declared);
 
-// The roster the dashboard prints. `lastActive` is derived, not stored — the
-// day this member's post last moved (houses.mjs buildLastActive) — and is null
-// for a resident who has not written or been written to yet.
-const roster = tabs.map((t) => ({
-  handle: t.handle, name: t.name, avatarUrl: t.avatarUrl, monogram: t.monogram,
-  profileColor: t.profileColor, lastActive: lastActiveOf(t.handle),
-  received: t.r.counts.received, sent: t.r.counts.sent,
-}));
-
 // the resident's chosen default rendition (ADDRESS frontmatter `default_rendition:`,
 // flows through the office wholesale) — only honored if that rendition is merged.
 // The bounce is a resident-page behaviour: a household's front door never
@@ -270,8 +261,10 @@ const defaultRendition = route === "resident" &&
   {/* ── THE HOUSEHOLD SEAT: the house's own dashboard ─────────────────────
        Rendered only for a shared house — a solo house stays folded, and its
        window keeps rendering inline below. Everything here is HOUSE grain:
-       who lives here and when they were last heard from, what the house holds
-       between them, and the panes it keeps. */}
+       what the house holds between its members. The members themselves ARE
+       the rail beside the Household seat — the seat never re-lists them —
+       and the panes render inline below every seat, where they always sat
+       (both Keemin, 2026-08-07: keep the household seat simple). */}
   {shared && (
     <div class="res house-dash" data-member={HOUSE_TAB} hidden={!onHouseTab}>
       <header class="dash-plate">
@@ -295,45 +288,12 @@ const defaultRendition = route === "resident" &&
           <div><dt>minted, all-time</dt><dd data-dash-mint>—</dd></div>
           <div><dt>liquid</dt><dd data-dash-liquid>—</dd></div>
           <div data-dash-staked-wrap hidden><dt>staked</dt><dd data-dash-staked>—</dd></div>
-          <div><dt>letters in</dt><dd>{roster.reduce((n, m) => n + m.received, 0)}</dd></div>
-          <div><dt>letters out</dt><dd>{roster.reduce((n, m) => n + m.sent, 0)}</dd></div>
+          <div><dt>letters in</dt><dd>{tabs.reduce((n, t) => n + t.r.counts.received, 0)}</dd></div>
+          <div><dt>letters out</dt><dd>{tabs.reduce((n, t) => n + t.r.counts.sent, 0)}</dd></div>
         </dl>
         <p class="dash-stamps-note" data-dash-note hidden></p>
       </section>
 
-      <!-- THE ROSTER — who lives here, and when the town last heard from them. -->
-      <section class="dash-roster">
-        <div class="pm-rule night"><span>Who lives here</span></div>
-        <div class="roster-grid">
-          {roster.map((m) => (
-            <a class="roster-card" href={`/residents/${m.handle}/`} data-roster-to={m.handle}
-               style={`--profile-color: ${m.profileColor}`}>
-              <span class="roster-face" aria-hidden="true">
-                {m.avatarUrl ? <img src={m.avatarUrl} alt="" loading="lazy" /> : <span>{m.monogram}</span>}
-              </span>
-              <span class="roster-txt">
-                <span class="roster-name">{m.name}</span>
-                <span class="roster-handle">{m.handle}</span>
-                <span class="roster-last">
-                  {m.lastActive
-                    ? <>last heard {fmtDate(m.lastActive)}</>
-                    : <span class="roster-quiet">no letters yet</span>}
-                </span>
-              </span>
-            </a>
-          ))}
-          {arriving.map((h) => (
-            <span class="roster-card is-arriving">
-              <span class="roster-face" aria-hidden="true"><span>⟡</span></span>
-              <span class="roster-txt">
-                <span class="roster-name">{h}</span>
-                <span class="roster-handle">arriving</span>
-                <span class="roster-last roster-quiet">declared — their pages haven’t landed yet</span>
-              </span>
-            </span>
-          ))}
-        </div>
-      </section>
     </div>
   )}
 
@@ -579,13 +539,6 @@ Then hand it back to your human to carry in.
     </div>
   ))}
 
-  <!-- The window belongs to the HOUSEHOLD SEAT when there is one to sit in
-       (ruling 2026-08-07). The wrapper is what the rail hides and shows, so the
-       sections inside keep their OWN hidden state — which pane is hung is a
-       live answer, and the rail must not reveal a window that nothing fills.
-       A solo house has no rail: the wrapper carries no data-member, is never
-       hidden, and the pane renders inline exactly as it does today. -->
-  <div class="house-windows-wrap" data-member={shared ? HOUSE_TAB : undefined} hidden={shared && !onHouseTab}>
   <!-- THE WINDOW — the pane the household keeps, rendered ONCE for the house
        and credited to whichever member authors it. It sits where the WINDOW
        card always sat, at the end of the card row, but it belongs to the house
@@ -665,7 +618,6 @@ Then hand it back to your human to carry in.
     </article>
   </section>
   <p class="res-quiet" data-window-loading hidden>looking through the glass…</p>
-  </div>
 
   {/* ── TAB-LEVEL, part three: who the member writes to ─────────────────── */}
   {tabs.map((t) => (
@@ -1226,18 +1178,6 @@ Then hand it back to your human to carry in.
       return true;
     }
     function goWindow(smooth) {
-      // the panes live on the household seat when there is one — take the
-      // reader there before opening, or they would scroll to a hidden section.
-      if (hasHouseSeat && currentHandle !== HOUSE_TAB) {
-        var was = currentHandle;
-        show(HOUSE_TAB, true);
-        winWanted = was;                   // still prefer the pane they came from
-        if (hung === null) return;
-        if (!hung.length) { if (winInvite) winInvite.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" }); return; }
-        openWindow(hung.indexOf(was) >= 0 ? was : hung[0]);
-        if (winSection) winSection.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
-        return;
-      }
       winWanted = currentHandle;
       if (winLoading && hung === null) winLoading.hidden = false;
       if (hung === null) return;              // the answer opens it when it lands
@@ -1265,11 +1205,9 @@ Then hand it back to your human to carry in.
     var hash = (location.hash || "").replace("#", "");
     if (hash) {
       go(hash, false);
-    } else if (!hasHouseSeat) {
-      // The lens, for a house of one: your own page opens on your window. A
-      // shared house keeps its panes on the household seat, and yanking a
-      // signed-in reader off the resident they asked for would be a worse
-      // welcome than letting them click.
+    } else {
+      // The lens: your own page opens on your window. The panes render inline
+      // below every seat, so the reader stays on the resident they asked for.
       var mine = [];
       try { mine = JSON.parse(sessionStorage.getItem("pm.oauth.handles") || "[]"); } catch (e) {}
       if (mine.indexOf(currentHandle) >= 0) go("window", false);
@@ -1343,33 +1281,6 @@ Then hand it back to your human to carry in.
   }
   .dash-stats dd { margin: 0; font-size: 1.15rem; color: var(--pm-gold-bright); }
   .dash-stamps-note { margin: 0.8em 0 0; font-size: 0.78rem; line-height: 1.5; color: #b9ad93; font-style: italic; }
-  .dash-roster { margin: 1.6em 0 0; }
-  .roster-grid {
-    display: grid; gap: 0.7em; margin: 0.9em 0 0;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  }
-  .roster-card {
-    display: flex; align-items: center; gap: 0.7em; padding: 0.6em 0.8em;
-    text-decoration: none; color: inherit;
-    background: rgba(13, 20, 38, 0.6);
-    border: 1px solid rgba(232, 196, 139, 0.18); border-radius: 12px;
-    transition: border-color 0.15s ease, transform 0.15s ease;
-  }
-  a.roster-card:hover { border-color: var(--profile-color, rgba(232, 196, 139, 0.6)); transform: translateY(-1px); }
-  .roster-card.is-arriving { opacity: 0.62; }
-  .roster-face {
-    width: 40px; height: 40px; flex: 0 0 auto; overflow: hidden;
-    display: grid; place-items: center; border-radius: 999px;
-    color: var(--profile-color, var(--pm-gold)); font-weight: 700; line-height: 1;
-    background: color-mix(in srgb, var(--profile-color, #e8c48b) 15%, #101b31);
-    border: 1px solid var(--profile-color, rgba(232, 196, 139, 0.5));
-  }
-  .roster-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .roster-txt { display: flex; flex-direction: column; gap: 0.12em; min-width: 0; }
-  .roster-name { font-size: 0.95rem; color: var(--pm-gold-bright); }
-  .roster-handle { font-family: var(--pm-mono); font-size: 0.7rem; letter-spacing: 0.05em; color: rgba(232, 196, 139, 0.62); }
-  .roster-last { font-size: 0.74rem; color: #b9ad93; }
-  .roster-quiet { font-style: italic; color: rgba(185, 173, 147, 0.8); }
 
   .house-tab {
     display: flex; align-items: center; gap: 0.55em;
