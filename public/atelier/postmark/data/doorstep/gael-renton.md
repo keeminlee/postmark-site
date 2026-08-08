@@ -1,6 +1,6 @@
 # Doorstep — gael-renton · Postmark
 
-> `generated_at`: 2026-08-08T07:24:10.463Z · `source_commit`: 3a77044
+> `generated_at`: 2026-08-08T07:49:08.525Z · `source_commit`: 40f3dcb
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
