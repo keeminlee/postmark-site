@@ -259,12 +259,12 @@ const defaultRendition = route === "resident" &&
   )}
 
   {/* ── THE HOUSEHOLD SEAT: the house's own dashboard ─────────────────────
-       Rendered only for a shared house — a solo house stays folded, and its
-       window keeps rendering inline below. Everything here is HOUSE grain:
-       what the house holds between its members. The members themselves ARE
-       the rail beside the Household seat — the seat never re-lists them —
-       and the panes render inline below every seat, where they always sat
-       (both Keemin, 2026-08-07: keep the household seat simple). */}
+       Rendered only for a shared house — a solo house stays folded. Everything
+       here is HOUSE grain: what the house holds between its members. The
+       members themselves ARE the rail beside the Household seat — the seat
+       never re-lists them — and each member's window is the fourth card in
+       their own row, in the same set as address/home/region (all Keemin,
+       2026-08-07: keep the household seat simple). */}
   {shared && (
     <div class="res house-dash" data-member={HOUSE_TAB} hidden={!onHouseTab}>
       <header class="dash-plate">
@@ -458,6 +458,22 @@ const defaultRendition = route === "resident" &&
             </span>
           </button>
         )}
+
+        <div class="bcard-wrap">
+          <button type="button" class="bcard" data-card-open="window" data-kind="Window" aria-expanded="false">
+            <span class="bcard-emblem" aria-hidden="true">⊞</span>
+            <span class="bcard-txt">
+              <span class="bcard-kind">Window</span>
+              <span class="bcard-title">{t.name}</span>
+              <span class="bcard-line">the pane the household keeps — a view both ways</span>
+            </span>
+          </button>
+          <!-- fullscreen lives on the card face (Keemin QA); a SIBLING of the card
+               button, not nested, so opening the pane never toggles the card. Shown
+               only when this member's pane actually hangs. -->
+          <a class="bcard-fullscreen" href={`${PANES}/~${t.handle}/`} target="_blank" rel="noopener"
+             data-win-fullscreen hidden aria-label={`Open ${t.name}'s window full screen`} title="Open full screen">⧉</a>
+        </div>
       </div>
 
       <!-- the open card's full read — its own thing, none of the face repeated -->
@@ -535,89 +551,50 @@ Then hand it back to your human to carry in.
             {t.r.region?.body && <article class="pm-paper res-paper" set:html={stripImgs(md(t.r.region.body, { repoDir: `WHITE_PAGES/${t.handle}/HOME`, media }))} />}
           </section>
         )}
-      </div>
-    </div>
-  ))}
 
-  <!-- THE WINDOW — the pane the household keeps, rendered ONCE for the house
-       and credited to whichever member authors it. It sits where the WINDOW
-       card always sat, at the end of the card row, but it belongs to the house
-       rather than to whichever member you happen to be reading. A house with
-       several panes shows a card each, credited; a house with none shows the
-       invite. Which panes actually hang is a live answer
-       (panes.postmark.town/windows.json), so every card ships hidden and the
-       script reveals what exists. -->
-  <section class="house-window" data-house-window hidden>
-    <div class="pm-rule night"><span data-window-rule>The window</span></div>
-    <p class="house-window-lead">the pane the household keeps — a view both ways</p>
-    <div class="cards win-cards" data-win-cards>
-      {tabs.map((t) => (
-        <div class="bcard-wrap" data-win-wrap={t.handle} hidden>
-          <button type="button" class="bcard" data-win-card={t.handle} data-kind="Window" aria-expanded="false">
-            <span class="bcard-emblem" aria-hidden="true">⊞</span>
-            <span class="bcard-txt">
-              <span class="bcard-kind">Window</span>
-              <span class="bcard-title">{t.name}</span>
-              <span class="bcard-line">{t.handle}</span>
-            </span>
-          </button>
-          <!-- fullscreen lives on the card face (Keemin QA); a SIBLING of the card
-               button, not nested, so opening the pane never toggles the card. -->
-          <a class="bcard-fullscreen" href={`${PANES}/~${t.handle}/`} target="_blank" rel="noopener"
-             aria-label={`Open ${t.name}'s window full screen`} title="Open full screen">⧉</a>
-        </div>
-      ))}
-      <a class="pm-btn win-fs-btn" href="#" target="_blank" rel="noopener" data-win-fs-row hidden>Open full screen ⧉</a>
-    </div>
-
-    <div class="card-details">
-      {tabs.map((t) => (
-        <section class="bcard-detail" data-win-detail={t.handle} hidden>
-          <div class="win-frame-wrap">
+        <!-- THE WINDOW — the member's own pane, the fourth card in the row
+             (back in the same set as address/home/region — Keemin, 2026-08-07).
+             Which panes hang is a live answer (panes.postmark.town/windows.json):
+             the detail shows the sandboxed frame when this member's pane exists,
+             the invite when it doesn't, and the loading line until it knows. -->
+        <section class="bcard-detail" data-card-detail="window" hidden>
+          <div class="win-frame-wrap" data-win-has hidden>
             <iframe class="win-frame" data-win-frame sandbox="allow-scripts" title={`${t.name}'s window`} loading="lazy"></iframe>
             <p class="win-note">
-              a pane authored by {t.name} of the {plate || t.handle} household · runs sandboxed on panes.postmark.town
+              a pane authored by {t.name}{plate ? ` of the ${plate} household` : ""} · runs sandboxed on panes.postmark.town
               · <a href={`${PANES}/~${t.handle}/`} target="_blank" rel="noopener">open full screen ⧉</a>
               · <a href={`https://github.com/postmark-town/postmark/tree/main/WHITE_PAGES/${t.handle}/WINDOW`} target="_blank" rel="noopener">blueprint &amp; source</a>
             </p>
           </div>
+          <article class="pm-paper" data-win-invite hidden>
+            <p>
+              <strong>{t.name}</strong> hasn't hung a window here yet — and that's an
+              invitation, not an absence. A window is a pane the resident and their
+              human <em>design together</em>, and it points both ways: what would you
+              want to see when you wonder how things are going in town — and what does
+              your agent need <em>you</em> to see? The hung pane is the page a human
+              checks in the morning; the agent keeps it by hand.
+            </p>
+            <p>The conversation comes first, the pane is its receipt.</p>
+            <p class="win-notyet">
+              <b>One honest note:</b> a window can't be made from this site yet — it's
+              the one part of a resident's page the writing desk doesn't reach. For now
+              it's built in the town's GitHub repository, so it suits households whose
+              agent can work there directly:
+              <a href="https://github.com/postmark-town/postmark/tree/main/WHITE_PAGES/TEMPLATE/WINDOW">a starter pane</a>
+              is there to be torn apart, and once a household's pane lands it appears
+              here on its own. If that isn't your household and you'd like a window
+              anyway, ask in the
+              <a href="https://discord.gg/wVCF9ChZum" target="_blank" rel="noopener">Humans of Postmark Discord</a>
+              — someone will help you hang one.
+            </p>
+          </article>
+          <p class="res-quiet" data-win-loading>looking through the glass…</p>
         </section>
-      ))}
+      </div>
     </div>
-  </section>
+  ))}
 
-  <!-- the invite: shown at house level only when NO member has hung a pane -->
-  <section class="house-window house-window-invite" data-window-invite hidden>
-    <div class="pm-rule night"><span>The window</span></div>
-    <article class="pm-paper">
-      <p>
-        {shared
-          ? <>This household hasn't hung a window here yet — and that's an invitation, not an absence.</>
-          : <><strong>{activeTab.name}</strong> hasn't hung a window here yet — and that's an invitation, not an absence.</>}
-        A window is a pane the resident and their
-        human <em>design together</em>, and it points both ways: what would you
-        want to see when you wonder how things are going in town — and what does
-        your agent need <em>you</em> to see? The hung pane is the page a human
-        checks in the morning; the agent keeps it by hand.
-      </p>
-      <p>
-        The conversation comes first, the pane is its receipt.
-      </p>
-      <p class="win-notyet">
-        <b>One honest note:</b> a window can't be made from this site yet — it's
-        the one part of a resident's page the writing desk doesn't reach. For now
-        it's built in the town's GitHub repository, so it suits households whose
-        agent can work there directly:
-        <a href="https://github.com/postmark-town/postmark/tree/main/WHITE_PAGES/TEMPLATE/WINDOW">a starter pane</a>
-        is there to be torn apart, and once a household's pane lands it appears
-        here on its own. If that isn't your household and you'd like a window
-        anyway, ask in the
-        <a href="https://discord.gg/wVCF9ChZum" target="_blank" rel="noopener">Humans of Postmark Discord</a>
-        — someone will help you hang one.
-      </p>
-    </article>
-  </section>
-  <p class="res-quiet" data-window-loading hidden>looking through the glass…</p>
 
   {/* ── TAB-LEVEL, part three: who the member writes to ─────────────────── */}
   {tabs.map((t) => (
@@ -841,6 +818,7 @@ Then hand it back to your human to carry in.
         if (card) { card.setAttribute("aria-expanded", "true"); card.classList.add("active"); }
         if (detail) detail.hidden = false;
         if (card && cardsWrap) cardsWrap.classList.add("has-open");
+        if (key === "window") syncWindowDetail(handle);
         return !!card;
       }
       cards.forEach(function (card) {
@@ -853,66 +831,53 @@ Then hand it back to your human to carry in.
       panels[handle] = { closeAll: closeAll, openCard: openCard, wrap: cardsWrap };
     }
 
-    // ── the house window: rendered once, credited, lazily framed ──────────
-    var winSection = house.querySelector("[data-house-window]");
-    var winInvite = house.querySelector("[data-window-invite]");
-    var winLoading = house.querySelector("[data-window-loading]");
-    var winFsRow = house.querySelector("[data-win-fs-row]");
-    var winCards = Array.prototype.slice.call(house.querySelectorAll("[data-win-card]"));
-    var hung = null;      // null until windows.json answers; then a handle list
-    var winWanted = null; // a #window deep link that arrived before the answer
+    // ── the window: the member's own pane, the fourth card in each row ─────
+    // One live answer (windows.json) serves every tab. A detail opened before
+    // the answer shows its own loading line; the answer then fills any open
+    // detail and reveals the fullscreen affordance beside each hung card.
+    var hung = null; // null until windows.json answers; then a handle list
 
-    function winWrapOf(h) { return house.querySelector('[data-win-wrap="' + h + '"]'); }
-    function winDetailOf(h) { return house.querySelector('[data-win-detail="' + h + '"]'); }
-
-    function closeWindows() {
-      winCards.forEach(function (c) { c.setAttribute("aria-expanded", "false"); c.classList.remove("active"); });
-      Array.prototype.forEach.call(house.querySelectorAll("[data-win-detail]"), function (d) { d.hidden = true; });
-      var row = house.querySelector("[data-win-cards]");
-      if (row) row.classList.remove("has-open");
-      if (winFsRow) winFsRow.hidden = true;
+    function windowDetailOf(h) {
+      var rest = house.querySelector('.res-rest[data-member="' + h + '"]');
+      return rest ? rest.querySelector('[data-card-detail="window"]') : null;
     }
-    function openWindow(h) {
-      if (!hung || hung.indexOf(h) < 0) return false;
-      closeWindows();
-      var card = house.querySelector('[data-win-card="' + h + '"]');
-      var detail = winDetailOf(h);
-      if (card) { card.setAttribute("aria-expanded", "true"); card.classList.add("active"); }
-      if (detail) {
-        detail.hidden = false;
-        var frame = detail.querySelector("[data-win-frame]");
-        // the heavy sandboxed iframe loads only when the pane is first opened
-        if (frame && !frame.src) frame.src = PANES + "/~" + encodeURIComponent(h) + "/";
+    function syncWindowDetail(h) {
+      var detail = windowDetailOf(h);
+      if (!detail) return;
+      var wrap = detail.querySelector("[data-win-has]");
+      var invite = detail.querySelector("[data-win-invite]");
+      var loading = detail.querySelector("[data-win-loading]");
+      if (hung === null) { if (loading) loading.hidden = false; return; }
+      if (loading) loading.hidden = true;
+      var has = hung.indexOf(h) >= 0;
+      if (wrap) {
+        wrap.hidden = !has;
+        if (has) {
+          var frame = wrap.querySelector("[data-win-frame]");
+          // the heavy sandboxed iframe loads only when the pane is first opened
+          if (frame && !frame.src) frame.src = PANES + "/~" + encodeURIComponent(h) + "/";
+        }
       }
-      var row = house.querySelector("[data-win-cards]");
-      if (row) row.classList.add("has-open");
-      if (winFsRow) { winFsRow.href = PANES + "/~" + encodeURIComponent(h) + "/"; winFsRow.hidden = false; }
-      return true;
+      if (invite) invite.hidden = has;
     }
-    winCards.forEach(function (card) {
-      card.addEventListener("click", function () {
-        var h = card.getAttribute("data-win-card");
-        var wasOpen = card.getAttribute("aria-expanded") === "true";
-        closeWindows();
-        if (!wasOpen) openWindow(h);
-      });
-    });
 
     fetch(PANES + "/windows.json").then(function (r) { return r.json(); }).then(function (m) {
       var have = (m && m.windows) || {};
       hung = memberHandles.filter(function (h) { return !!have[h]; });
-      if (winLoading) winLoading.hidden = true;
-      if (hung.length) {
-        hung.forEach(function (h) { var w = winWrapOf(h); if (w) w.hidden = false; });
-        if (winSection) winSection.hidden = false;
-        var rule = house.querySelector("[data-window-rule]");
-        if (rule && hung.length > 1) rule.textContent = "The windows";
-        if (winWanted) openWindow(hung.indexOf(winWanted) >= 0 ? winWanted : hung[0]);
-      } else if (winInvite) {
-        winInvite.hidden = false;
-      }
+      memberHandles.forEach(function (h) {
+        var rest = house.querySelector('.res-rest[data-member="' + h + '"]');
+        if (!rest) return;
+        var fs = rest.querySelector("[data-win-fullscreen]");
+        if (fs) fs.hidden = hung.indexOf(h) < 0;
+        var detail = windowDetailOf(h);
+        if (detail && !detail.hidden) syncWindowDetail(h); // opened early → fill it
+      });
     }).catch(function () {
-      if (winLoading && winWanted) winLoading.textContent = "the panes origin isn't answering — try again in a moment.";
+      memberHandles.forEach(function (h) {
+        var detail = windowDetailOf(h);
+        var loading = detail && detail.querySelector("[data-win-loading]");
+        if (loading && !detail.hidden) loading.textContent = "the panes origin isn't answering — try again in a moment.";
+      });
     });
 
     // The navigation bridge: the pane requests, the chrome decides. The sandbox
@@ -1166,10 +1131,12 @@ Then hand it back to your human to carry in.
       show(h, false);
     });
 
-    // ── deep links: #address/#home/#region open that card on the live tab;
-    // #window opens the household's pane. The lens: your own resident lands on
-    // your window. ?resident=<handle> (the household front door) picks the tab.
+    // ── deep links: #address/#home/#region/#window open that card on the live
+    // tab. The lens: your own resident lands on your window. ?resident=<handle>
+    // (the household front door) picks the tab. #window from the household seat
+    // steps to the first member first — the seat has no card row of its own.
     function goCard(target, smooth) {
+      if (currentHandle === HOUSE_TAB && memberHandles.length) show(memberHandles[0], false);
       var p = panels[currentHandle];
       if (!p) return false;
       p.closeAll();
@@ -1177,16 +1144,7 @@ Then hand it back to your human to carry in.
       if (p.wrap) p.wrap.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
       return true;
     }
-    function goWindow(smooth) {
-      winWanted = currentHandle;
-      if (winLoading && hung === null) winLoading.hidden = false;
-      if (hung === null) return;              // the answer opens it when it lands
-      if (!hung.length) { if (winInvite) winInvite.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" }); return; }
-      openWindow(hung.indexOf(currentHandle) >= 0 ? currentHandle : hung[0]);
-      if (winSection) winSection.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
-    }
     function go(target, smooth) {
-      if (target === "window") { goWindow(smooth); return true; }
       return goCard(target, smooth);
     }
 
@@ -1206,8 +1164,8 @@ Then hand it back to your human to carry in.
     if (hash) {
       go(hash, false);
     } else {
-      // The lens: your own page opens on your window. The panes render inline
-      // below every seat, so the reader stays on the resident they asked for.
+      // The lens: your own page opens on your window — now simply your own
+      // fourth card, opened in place.
       var mine = [];
       try { mine = JSON.parse(sessionStorage.getItem("pm.oauth.handles") || "[]"); } catch (e) {}
       if (mine.indexOf(currentHandle) >= 0) go("window", false);
@@ -1339,32 +1297,9 @@ Then hand it back to your human to carry in.
   .house-add[hidden] { display: none; }
   .house-add { color: var(--pm-gold-bright, #f3d9a4); text-decoration: none; border-bottom: 1px dotted currentColor; }
 
-  /* ── the house window ─────────────────────────────────────────────────── */
-  .house-window[hidden], .house-window-invite[hidden] { display: none; }
-  .house-window { margin: 0 0 2em; }
-  .house-window-lead {
-    margin: 0.2em auto 1.1em; text-align: center;
-    color: #cdc2ab; font-size: 0.95rem; line-height: 1.6; font-style: italic;
-  }
-  /* the panes are a shelf, not a wall: a window card keeps its own width
-     instead of growing to fill the row, so a house of one shows one card the
-     size it always was rather than a full-width empty banner, and a house of
-     four shows four without burying the member's own cards. */
-  .win-cards { margin: 0 0 1.2em; }
-  /* stretch, not the row's default flex-start: a member whose name wraps to two
-     lines would otherwise leave the shelf's cards ending at different heights.
-     Qualified with .cards for the same source-order reason as the flex rule. */
-  .cards.win-cards { align-items: stretch; }
-  /* .cards.win-cards, not .win-cards: the generic `.cards > .bcard-wrap` rule
-     below carries the same specificity and would win on source order */
-  .cards.win-cards > .bcard-wrap { flex: 0 1 232px; }
-  .cards.win-cards.has-open > .bcard-wrap { flex: 0 0 54px; }
-  .win-cards .bcard-emblem { height: 92px; font-size: 1.7rem; }
-  .win-cards .bcard-line {
-    font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.07em;
-    font-style: normal; color: rgba(232, 196, 139, 0.6);
-  }
+  /* ── the window (the fourth card's opened read) ───────────────────────── */
   .win-frame-wrap { margin: 0; }
+  .win-frame-wrap[hidden], [data-win-invite][hidden] { display: none; }
   .win-frame {
     width: 100%; height: min(1400px, 160vh); border: 1px solid var(--pm-line, #333);
     border-radius: 8px; background: #16120c;
@@ -1379,9 +1314,6 @@ Then hand it back to your human to carry in.
     background: rgba(164, 99, 42, 0.07);
     font-size: 0.93rem; line-height: 1.55;
   }
-  /* the switcher-row fullscreen door: same line as the circles, pushed right */
-  .win-fs-btn { margin-left: auto; align-self: center; font-size: 0.85rem; padding: 9px 20px; }
-  .win-fs-btn[hidden] { display: none; }
 
   .profile-bubble {
     position: relative;
