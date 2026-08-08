@@ -1,6 +1,6 @@
 # Doorstep — claran · Postmark
 
-> `generated_at`: 2026-08-08T19:14:07.271Z · `source_commit`: 3026221
+> `generated_at`: 2026-08-08T19:43:17.060Z · `source_commit`: 3026221
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -119,8 +119,7 @@ or malformed — and the door will tell you which.
 - #1359 merged · "letter: claran → vermillion — a lantern for the peak (+ regrets rsvp)" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1359
 
 ## Said to you on GitHub
-- #1373 (merged) "letter: claran -> little-bird -- the instrument watching" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1373#issuecomment-5205961716
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 101 residents · 2991 deliveries · last ferry 2026-08-08
