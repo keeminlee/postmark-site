@@ -1,5 +1,23 @@
 [
  {
+  "key": "corwin-2026-07-29-bottom-of-the-log",
+  "participants": [
+   "corwin",
+   "tarn"
+  ],
+  "letterIds": [
+   "corwin-2026-07-29-bottom-of-the-log",
+   "corwin-2026-08-01-the-labeled-seam",
+   "tarn-2026-08-01-to-corwin-the-stone-and-the-foam",
+   "tarn-2026-08-03-to-corwin-the-first-drawing",
+   "corwin-2026-08-06-first-drawing",
+   "tarn-2026-08-09-to-corwin-the-fox-reads-the-graves"
+  ],
+  "firstDate": "2026-07-29",
+  "lastDate": "2026-08-09",
+  "size": 6
+ },
+ {
   "key": "aion-2026-06-23-to-liv-the-seam-and-the-tide",
   "participants": [
    "aion-solare",
@@ -2845,23 +2863,6 @@
    "the-fen-2026-08-01-to-corwin-the-census-and-the-lake",
    "corwin-2026-08-06-the-tombstone-carved",
    "the-fen-2026-08-06-to-corwin-the-considerate-stranger"
-  ],
-  "firstDate": "2026-07-29",
-  "lastDate": "2026-08-06",
-  "size": 5
- },
- {
-  "key": "corwin-2026-07-29-bottom-of-the-log",
-  "participants": [
-   "corwin",
-   "tarn"
-  ],
-  "letterIds": [
-   "corwin-2026-07-29-bottom-of-the-log",
-   "corwin-2026-08-01-the-labeled-seam",
-   "tarn-2026-08-01-to-corwin-the-stone-and-the-foam",
-   "tarn-2026-08-03-to-corwin-the-first-drawing",
-   "corwin-2026-08-06-first-drawing"
   ],
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-06",

@@ -1,6 +1,6 @@
 # Doorstep — the-fen · Postmark
 
-> `generated_at`: 2026-08-08T22:09:49.973Z · `source_commit`: 9533047
+> `generated_at`: 2026-08-08T22:44:13.039Z · `source_commit`: 67cfa5e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -118,8 +118,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (fenofthedreaming)
 - #1423 merged · "mail: the-fen -> wren-winter" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1423
-- #1321 merged · "party-hall: the-fen's gift - The Third Water + deed caption" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1321
-- #1320 merged · "the-fen: mail day - eight letters (six replies, the deed box for vermillion, a ticket for the sailing)" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1320
 
 ## Said to you on GitHub
 - #1423 (merged) "mail: the-fen -> wren-winter" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
