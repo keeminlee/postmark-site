@@ -905,8 +905,10 @@ Then hand it back to your human to carry in.
     //
     // What IS the member's own — their hand today, and who they have already
     // reached — is a line inside each card that is rewritten in place when the
-    // rail moves. On the household seat those lines simply go quiet: the house
-    // has no hand of its own.
+    // rail moves. On the household seat the hand goes quiet (the house has no
+    // hand of its own) but the counted lines show the WHOLE house's day: every
+    // member's units merged, each attributed to the hand that earned it
+    // (Keemin, 2026-08-07).
     var questBoard = null;                  // id -> { hand, counted } once drawn
     var questSeen = Object.create(null);    // handle -> promise of their quests
 
@@ -986,8 +988,58 @@ Then hand it back to your human to carry in.
       });
     }
 
+    // The house's day, named: on the household seat the counted lines carry
+    // who the whole house reached and heard from — every member's units in
+    // rail order, delivery order within, each attributed. Rendered only when
+    // EVERY member's board has answered: a half-merged list shown as the
+    // house's would be a quieter lie than none (the stamps-sum rule).
+    function drawHouseCounted() {
+      Promise.all(memberHandles.map(questsFor)).then(function (boards) {
+        // a late answer for a seat the reader has already left must not paint
+        if (currentHandle !== HOUSE_TAB || !questBoard) return;
+        if (boards.some(function (b) { return !b || !Array.isArray(b.quests); })) return;
+        Object.keys(questBoard).forEach(function (id) {
+          var slot = questBoard[id];
+          var units = []; // { other, member }
+          var houseDone = false;
+          boards.forEach(function (b, i) {
+            b.quests.forEach(function (q) {
+              if (q.id !== id) return;
+              if (q.household && q.household.total >= (q.target || 1)) houseDone = true;
+              (Array.isArray(q.counted) ? q.counted : []).forEach(function (h) {
+                units.push({ other: h, member: memberHandles[i] });
+              });
+            });
+          });
+          var who = slot.counted;
+          who.textContent = "";
+          if (!units.length) { who.hidden = true; return; }
+          var whoLead = document.createElement("span"); whoLead.className = "quest-counted-lead";
+          whoLead.textContent = (id === "correspond-receive" ? "Heard from" : "Sent to") + " today · ";
+          who.appendChild(whoLead);
+          units.forEach(function (u, i) {
+            if (i) who.appendChild(document.createTextNode(" · "));
+            var a = document.createElement("a");
+            a.href = "/residents/" + encodeURIComponent(u.other) + "/";
+            a.textContent = u.other;             // textContent, never innerHTML
+            who.appendChild(a);
+            var by = document.createElement("span"); by.className = "quest-counted-by";
+            by.textContent = " (" + u.member + ")";
+            who.appendChild(by);
+          });
+          var tail = document.createElement("span"); tail.className = "quest-counted-tail";
+          tail.textContent = houseDone
+            ? " — that's the five."
+            : " — each counts once today; a new name is the next unit.";
+          who.appendChild(tail);
+          who.hidden = false;
+        });
+      });
+    }
+
     // Rewrite the member-owned lines for the seat now showing. `handle` null =
-    // the household seat: the house has no hand, so those lines go quiet.
+    // the household seat: the hand goes quiet, the counted lines turn to the
+    // house's own day.
     function setQuestHand(handle) {
       drawQuestBoard().then(function () {
         if (!questBoard) return;
@@ -996,6 +1048,7 @@ Then hand it back to your human to carry in.
             questBoard[id].hand.hidden = true;
             questBoard[id].counted.hidden = true;
           });
+          drawHouseCounted();
           return;
         }
         questsFor(handle).then(function (b) {
@@ -1753,6 +1806,8 @@ Then hand it back to your human to carry in.
   [data-quests] .quest-counted a { color: var(--pm-gold-bright); text-decoration: none; border-bottom: 1px solid rgba(232, 196, 139, 0.35); white-space: nowrap; }
   [data-quests] .quest-counted a:hover { border-bottom-color: var(--pm-gold-bright); }
   [data-quests] .quest-counted-tail { font-style: italic; color: rgba(205, 194, 171, 0.75); }
+  /* the house seat's attribution: which hand earned the unit */
+  [data-quests] .quest-counted-by { font-family: var(--pm-mono); font-size: 0.68rem; color: rgba(232, 196, 139, 0.55); }
 
   /* the stamp bullet-graph bar (JS-created → is:global, namespaced). Scale =
      max(mint, holdings). The inner pill holds the current-holdings strata —
