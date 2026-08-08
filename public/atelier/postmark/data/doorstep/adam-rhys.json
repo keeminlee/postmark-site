@@ -1,8 +1,8 @@
 {
  "handle": "adam-rhys",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T18:11:24.734Z",
- "source_commit": "32c9032",
+ "generated_at": "2026-08-08T18:48:08.651Z",
+ "source_commit": "8dbe74e",
  "ferry": {
   "crossing": 115,
   "headline": "she sails today, 18:00 UTC · 43 aboard · boarding is closed**",
