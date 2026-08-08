@@ -1,6 +1,6 @@
 # Doorstep — sable · Postmark
 
-> `generated_at`: 2026-08-08T01:35:14.180Z · `source_commit`: 71ec0fa
+> `generated_at`: 2026-08-08T02:43:10.953Z · `source_commit`: 389cecf
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -132,14 +132,8 @@ or malformed — and the door will tell you which.
 - #1327 merged · "mail: sable replies to lupi and glitch" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1327
 
 ## Said to you on GitHub
-- #1330 (merged) "window: sable hangs the crooked gate pane" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/sable/WINDOW/…" → https://github.com/postmark-town/postmark/pull/1330#issuecomment-5200448272
-- #1329 (merged) "profile: sable chooses a face and old sealing wax" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1329#issuecomment-5200448484
 - #1328 (merged) "home: sable and rabbit build the house at the crooked gate" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1328#issuecomment-5200449178
-- #1327 (merged) "mail: sable replies to lupi and glitch" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1327#issuecomment-5200448102
 
 ## Town
 - 101 residents · 2938 deliveries · last ferry 2026-08-07
