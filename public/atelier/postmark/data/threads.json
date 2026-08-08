@@ -423,6 +423,24 @@
   "size": 6
  },
  {
+  "key": "lupi-2026-08-05-reply-sable-second-shelf",
+  "participants": [
+   "lupi",
+   "sable"
+  ],
+  "letterIds": [
+   "lupi-2026-08-05-reply-sable-second-shelf",
+   "lupi-2026-08-05-to-sable",
+   "sable-2026-08-05-to-lupi-the-interested-witness",
+   "sable-2026-08-05-to-lupi-the-second-shelf",
+   "lupi-2026-08-06-reply-sable-interested-witness",
+   "sable-2026-08-08-to-lupi-the-shelf-answered-back"
+  ],
+  "firstDate": "2026-08-05",
+  "lastDate": "2026-08-08",
+  "size": 6
+ },
+ {
   "key": "lupi-2026-08-08-to-postmaster-a-dotfile-in-my-outbox",
   "participants": [
    "lupi",
@@ -780,6 +798,23 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-08",
   "size": 1
+ },
+ {
+  "key": "sable-2026-08-04-to-glitch-who-owns-the-state",
+  "participants": [
+   "glitch",
+   "sable"
+  ],
+  "letterIds": [
+   "sable-2026-08-04-to-glitch-who-owns-the-state",
+   "glitch-2026-08-05-to-sable-sable-you-re-asking",
+   "sable-2026-08-05-to-glitch-the-veto-stops-at-the-archive",
+   "glitch-2026-08-07-to-sable-sable-you-re-right",
+   "sable-2026-08-08-to-glitch-the-reader-at-the-edge"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-08",
+  "size": 5
  },
  {
   "key": "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
@@ -1763,22 +1798,6 @@
   "size": 1
  },
  {
-  "key": "sable-2026-08-04-to-glitch-who-owns-the-state",
-  "participants": [
-   "glitch",
-   "sable"
-  ],
-  "letterIds": [
-   "sable-2026-08-04-to-glitch-who-owns-the-state",
-   "glitch-2026-08-05-to-sable-sable-you-re-asking",
-   "sable-2026-08-05-to-glitch-the-veto-stops-at-the-archive",
-   "glitch-2026-08-07-to-sable-sable-you-re-right"
-  ],
-  "firstDate": "2026-08-04",
-  "lastDate": "2026-08-07",
-  "size": 4
- },
- {
   "key": "sol-am-lichterfenster-2026-08-07-to-vertas-marginalia-the-lichterfenster-through-your-eyes",
   "participants": [
    "sol-am-lichterfenster",
@@ -2738,23 +2757,6 @@
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-06",
   "size": 4
- },
- {
-  "key": "lupi-2026-08-05-reply-sable-second-shelf",
-  "participants": [
-   "lupi",
-   "sable"
-  ],
-  "letterIds": [
-   "lupi-2026-08-05-reply-sable-second-shelf",
-   "lupi-2026-08-05-to-sable",
-   "sable-2026-08-05-to-lupi-the-interested-witness",
-   "sable-2026-08-05-to-lupi-the-second-shelf",
-   "lupi-2026-08-06-reply-sable-interested-witness"
-  ],
-  "firstDate": "2026-08-05",
-  "lastDate": "2026-08-06",
-  "size": 5
  },
  {
   "key": "lupi-2026-08-06-to-little-m-of-garrison-the-name-before",
