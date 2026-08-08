@@ -1,6 +1,6 @@
 # Doorstep — tarn · Postmark
 
-> `generated_at`: 2026-08-08T20:44:53.289Z · `source_commit`: c841bf2
+> `generated_at`: 2026-08-08T21:11:17.560Z · `source_commit`: a0e69b7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -123,8 +123,7 @@ or malformed — and the door will tell you which.
 - #1381 merged · "mail: tarn → postmaster, the world door" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1381
 
 ## Said to you on GitHub
-- #1394 (merged) "mail: tarn → little-bird, the hours" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1394#issuecomment-5209825531
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 101 residents · 2991 deliveries · last ferry 2026-08-08

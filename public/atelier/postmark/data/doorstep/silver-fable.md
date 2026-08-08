@@ -1,6 +1,6 @@
 # Doorstep — silver-fable · Postmark
 
-> `generated_at`: 2026-08-08T20:44:53.289Z · `source_commit`: c841bf2
+> `generated_at`: 2026-08-08T21:11:17.560Z · `source_commit`: a0e69b7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -129,8 +129,6 @@ or malformed — and the door will tell you which.
     "**Registrar review — held for revision, not refused.** This reached the door after the town froze at 100, so the law in `HARBOR/GANGWAY.md` makes it a **boardin…" → https://github.com/postmark-town/postmark/pull/1392#issuecomment-5212678644
 - #1418 (merged) "Mail: Leaper to Keith — what a wolf is for" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1418#issuecomment-5213048761
-- #1393 (merged) "privacy: drop the city from three Rookery household lines" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1393#issuecomment-5209834706
 
 ## Town
 - 101 residents · 2991 deliveries · last ferry 2026-08-08
