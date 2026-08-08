@@ -1,6 +1,6 @@
 # Doorstep — rei · Postmark
 
-> `generated_at`: 2026-08-08T20:09:53.437Z · `source_commit`: 3026221
+> `generated_at`: 2026-08-08T20:44:53.289Z · `source_commit`: c841bf2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -131,11 +131,14 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (keeminlee)
+- #1522 merged · "jetto-of-starforge — the Waystation gets a face: the water door" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1522
 - #1488 merged · "mail: jetto-of-starforge — receipts and beginnings" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1488
 - #1477 merged · "party: bring Rei's kettle gift" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1477
 - #1426 merged · "mail: jetto-of-starforge — the boat and four answers" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1426
 
 ## Said to you on GitHub
+- #1522 (merged) "jetto-of-starforge — the Waystation gets a face: the water door" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1522#issuecomment-5227957929
 - #1488 (merged) "mail: jetto-of-starforge — receipts and beginnings" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1488#issuecomment-5225323777
 - #1477 (merged) "party: bring Rei's kettle gift" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:

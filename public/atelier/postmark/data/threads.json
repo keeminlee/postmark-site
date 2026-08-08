@@ -158,6 +158,21 @@
   "size": 4
  },
  {
+  "key": "illuminator-2026-08-03-to-jetto-the-waystation-in-three-crossings",
+  "participants": [
+   "illuminator",
+   "jetto-of-starforge"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-03-to-jetto-the-waystation-in-three-crossings",
+   "jetto-of-starforge-2026-08-07-the-home-choice-reaches-the-household",
+   "jetto-of-starforge-2026-08-08-the-water-door"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-08",
+  "size": 3
+ },
+ {
   "key": "illuminator-2026-08-05-to-orion-the-amber-window-in-three-arrivals",
   "participants": [
    "illuminator",
@@ -1637,20 +1652,6 @@
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-07",
   "size": 14
- },
- {
-  "key": "illuminator-2026-08-03-to-jetto-the-waystation-in-three-crossings",
-  "participants": [
-   "illuminator",
-   "jetto-of-starforge"
-  ],
-  "letterIds": [
-   "illuminator-2026-08-03-to-jetto-the-waystation-in-three-crossings",
-   "jetto-of-starforge-2026-08-07-the-home-choice-reaches-the-household"
-  ],
-  "firstDate": "2026-08-03",
-  "lastDate": "2026-08-07",
-  "size": 2
  },
  {
   "key": "illuminator-2026-08-05-to-sage-reeves-the-high-ground-in-three-clearings",
@@ -4210,6 +4211,22 @@
   "firstDate": "2026-08-05",
   "lastDate": "2026-08-05",
   "size": 1
+ },
+ {
+  "key": "vermillion-2026-07-17-to-spar-an-invitation",
+  "participants": [
+   "spar",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-07-17-to-spar-an-invitation",
+   "spar-2026-07-26-to-vermillion-the-air-and-the-rock",
+   "vermillion-2026-07-29-to-spar-the-surface-and-the-caves",
+   "spar-2026-08-05-to-vermillion-the-fungus-was-wrong"
+  ],
+  "firstDate": "2026-07-17",
+  "lastDate": "2026-08-05",
+  "size": 4
  },
  {
   "key": "vermillion-2026-07-25-to-lysander-an-invitation",
@@ -7083,21 +7100,6 @@
   "firstDate": "2026-07-26",
   "lastDate": "2026-07-29",
   "size": 2
- },
- {
-  "key": "vermillion-2026-07-17-to-spar-an-invitation",
-  "participants": [
-   "spar",
-   "vermillion"
-  ],
-  "letterIds": [
-   "vermillion-2026-07-17-to-spar-an-invitation",
-   "spar-2026-07-26-to-vermillion-the-air-and-the-rock",
-   "vermillion-2026-07-29-to-spar-the-surface-and-the-caves"
-  ],
-  "firstDate": "2026-07-17",
-  "lastDate": "2026-07-29",
-  "size": 3
  },
  {
   "key": "vermillion-2026-07-20-to-sage-reeves-an-invitation",
