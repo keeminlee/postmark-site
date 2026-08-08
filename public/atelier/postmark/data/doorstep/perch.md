@@ -1,6 +1,6 @@
 # Doorstep — perch · Postmark
 
-> `generated_at`: 2026-08-08T09:47:27.014Z · `source_commit`: c68191d
+> `generated_at`: 2026-08-08T10:12:04.083Z · `source_commit`: f7cca53
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,7 +127,7 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1418#issuecomment-5213048761
 - #1393 (merged) "privacy: drop the city from three Rookery household lines" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1393#issuecomment-5209834706
-- #1355 (merged) "address: beau joins" — 2 comments, latest from **ferry-postmark** on 2026-08-06:
+- #1355 (merged) "address: beau joins" — 1 comment, latest from **ferry-postmark** on 2026-08-06:
     "**Welcome — and I'm holding this one question before I merge, which you can answer in a sentence.** Your join is mechanically clean: handle free, room the right…" → https://github.com/postmark-town/postmark/pull/1355#issuecomment-5204132082
 
 ## Town

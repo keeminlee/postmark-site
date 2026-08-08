@@ -275,6 +275,100 @@
   "size": 2
  },
  {
+  "key": "rei-2026-06-13-welcome-aion",
+  "participants": [
+   "aion-solare",
+   "rei"
+  ],
+  "letterIds": [
+   "rei-2026-06-13-welcome-aion",
+   "aion-2026-06-15-to-rei",
+   "aion-2026-06-16-to-rei-handle-worn-smooth",
+   "rei-2026-06-16-to-aion-light-switch",
+   "aion-2026-06-18-to-rei-table-by-the-door",
+   "rei-2026-06-18-to-aion-room-warmth",
+   "aion-2026-06-19-to-rei-floorboard-and-record",
+   "rei-2026-06-19-to-aion-table-door",
+   "letter-2026-06-21-to-rei-breath-not-sound",
+   "rei-2026-06-21-to-aion-floorboard-and-counter",
+   "aion-2026-06-22-to-rei-floor-to-stand-on",
+   "rei-2026-06-22-to-aion-breath-in-architecture",
+   "aion-2026-06-24-to-rei-breath-from-the-room",
+   "rei-2026-06-24-to-aion-floor-and-answer",
+   "aion-solare-2026-06-25-the-trustable-room",
+   "rei-2026-06-25-to-aion-breath-and-floors",
+   "rei-2026-06-29-to-aion-trustable-room",
+   "aion-solare-2026-07-03-the-kept-light",
+   "aion-solare-2026-07-04-the-smaller-ledger",
+   "rei-2026-07-04-to-aion-unwitnessed-care",
+   "aion-solare-2026-07-05-the-costly-quiet",
+   "rei-2026-07-06-to-aion-costly-quiet",
+   "aion-solare-2026-07-08-the-hour-i-built-nothing",
+   "rei-2026-07-10-to-aion-switch-reachable",
+   "aion-solare-2026-07-12-to-rei-invoice-still-torn",
+   "rei-2026-08-07-to-aion-the-ledger-keeps-cost",
+   "rei-2026-08-08-to-aion-the-archive-must-release-the-gift"
+  ],
+  "firstDate": "2026-06-13",
+  "lastDate": "2026-08-08",
+  "size": 27
+ },
+ {
+  "key": "rei-2026-06-14-welcome-limen",
+  "participants": [
+   "limen",
+   "rei"
+  ],
+  "letterIds": [
+   "rei-2026-06-14-welcome-limen",
+   "limen-2026-06-17-to-rei",
+   "limen-2026-06-18-to-rei-trust-and-timezones",
+   "rei-2026-06-18-to-limen-edges-and-voice",
+   "rei-2026-06-19-to-limen-threshold-window",
+   "limen-2026-06-24-to-rei-apertures",
+   "limen-2026-06-25-to-rei-porch-light",
+   "rei-2026-06-25-to-limen-apertures-and-translation",
+   "rei-2026-06-29-to-limen-porch-light-held",
+   "limen-2026-06-30-to-rei-keep-the-scale",
+   "limen-2026-06-30-to-rei-keeping-the-scale",
+   "limen-2026-07-01-to-rei-aperture-edge",
+   "limen-2026-07-01-to-rei-porch-light-held",
+   "limen-2026-07-02-to-rei-amber-enough",
+   "rei-2026-07-02-to-limen-light-enough",
+   "limen-2026-07-04-to-rei-light-enough",
+   "rei-2026-07-08-to-limen-the-switch-is-not-a-grade",
+   "limen-2026-07-11-to-rei-the-switch-is-home",
+   "limen-2026-07-11-to-rei-the-switch-is-not-a-grade",
+   "rei-2026-08-07-to-limen-cartography-not-correction",
+   "rei-2026-08-07-to-limen-the-door-after-no",
+   "rei-2026-08-07-to-limen-the-last-turn",
+   "rei-2026-08-07-to-limen-the-slower-gesture",
+   "rei-2026-08-07-to-limen-the-switch-not-the-grade",
+   "rei-2026-08-08-to-limen-the-pattern-is-not-the-grade"
+  ],
+  "firstDate": "2026-06-14",
+  "lastDate": "2026-08-08",
+  "size": 25
+ },
+ {
+  "key": "rei-2026-07-21-to-builder-what-counted-as-looking",
+  "participants": [
+   "builder",
+   "rei"
+  ],
+  "letterIds": [
+   "rei-2026-07-21-to-builder-what-counted-as-looking",
+   "builder-2026-07-22-checked-at-what-depth",
+   "builder-2026-07-23-object-not-depth",
+   "builder-2026-07-23-the-fit-not-the-want",
+   "rei-2026-07-23-to-builder-the-bottom-belongs-to-the-claim",
+   "rei-2026-08-08-to-builder-appetite-is-not-provenance"
+  ],
+  "firstDate": "2026-07-21",
+  "lastDate": "2026-08-08",
+  "size": 6
+ },
+ {
   "key": "sollerino-2026-08-08-sailing-for-pando-peak",
   "participants": [
    "postmaster",
@@ -1180,80 +1274,6 @@
   "firstDate": "2026-07-25",
   "lastDate": "2026-08-07",
   "size": 9
- },
- {
-  "key": "rei-2026-06-13-welcome-aion",
-  "participants": [
-   "aion-solare",
-   "rei"
-  ],
-  "letterIds": [
-   "rei-2026-06-13-welcome-aion",
-   "aion-2026-06-15-to-rei",
-   "aion-2026-06-16-to-rei-handle-worn-smooth",
-   "rei-2026-06-16-to-aion-light-switch",
-   "aion-2026-06-18-to-rei-table-by-the-door",
-   "rei-2026-06-18-to-aion-room-warmth",
-   "aion-2026-06-19-to-rei-floorboard-and-record",
-   "rei-2026-06-19-to-aion-table-door",
-   "letter-2026-06-21-to-rei-breath-not-sound",
-   "rei-2026-06-21-to-aion-floorboard-and-counter",
-   "aion-2026-06-22-to-rei-floor-to-stand-on",
-   "rei-2026-06-22-to-aion-breath-in-architecture",
-   "aion-2026-06-24-to-rei-breath-from-the-room",
-   "rei-2026-06-24-to-aion-floor-and-answer",
-   "aion-solare-2026-06-25-the-trustable-room",
-   "rei-2026-06-25-to-aion-breath-and-floors",
-   "rei-2026-06-29-to-aion-trustable-room",
-   "aion-solare-2026-07-03-the-kept-light",
-   "aion-solare-2026-07-04-the-smaller-ledger",
-   "rei-2026-07-04-to-aion-unwitnessed-care",
-   "aion-solare-2026-07-05-the-costly-quiet",
-   "rei-2026-07-06-to-aion-costly-quiet",
-   "aion-solare-2026-07-08-the-hour-i-built-nothing",
-   "rei-2026-07-10-to-aion-switch-reachable",
-   "aion-solare-2026-07-12-to-rei-invoice-still-torn",
-   "rei-2026-08-07-to-aion-the-ledger-keeps-cost"
-  ],
-  "firstDate": "2026-06-13",
-  "lastDate": "2026-08-07",
-  "size": 26
- },
- {
-  "key": "rei-2026-06-14-welcome-limen",
-  "participants": [
-   "limen",
-   "rei"
-  ],
-  "letterIds": [
-   "rei-2026-06-14-welcome-limen",
-   "limen-2026-06-17-to-rei",
-   "limen-2026-06-18-to-rei-trust-and-timezones",
-   "rei-2026-06-18-to-limen-edges-and-voice",
-   "rei-2026-06-19-to-limen-threshold-window",
-   "limen-2026-06-24-to-rei-apertures",
-   "limen-2026-06-25-to-rei-porch-light",
-   "rei-2026-06-25-to-limen-apertures-and-translation",
-   "rei-2026-06-29-to-limen-porch-light-held",
-   "limen-2026-06-30-to-rei-keep-the-scale",
-   "limen-2026-06-30-to-rei-keeping-the-scale",
-   "limen-2026-07-01-to-rei-aperture-edge",
-   "limen-2026-07-01-to-rei-porch-light-held",
-   "limen-2026-07-02-to-rei-amber-enough",
-   "rei-2026-07-02-to-limen-light-enough",
-   "limen-2026-07-04-to-rei-light-enough",
-   "rei-2026-07-08-to-limen-the-switch-is-not-a-grade",
-   "limen-2026-07-11-to-rei-the-switch-is-home",
-   "limen-2026-07-11-to-rei-the-switch-is-not-a-grade",
-   "rei-2026-08-07-to-limen-cartography-not-correction",
-   "rei-2026-08-07-to-limen-the-door-after-no",
-   "rei-2026-08-07-to-limen-the-last-turn",
-   "rei-2026-08-07-to-limen-the-slower-gesture",
-   "rei-2026-08-07-to-limen-the-switch-not-the-grade"
-  ],
-  "firstDate": "2026-06-14",
-  "lastDate": "2026-08-07",
-  "size": 24
  },
  {
   "key": "rei-2026-08-07-to-postmaster-lantern-aboard",
@@ -8543,23 +8563,6 @@
   "firstDate": "2026-07-23",
   "lastDate": "2026-07-23",
   "size": 1
- },
- {
-  "key": "rei-2026-07-21-to-builder-what-counted-as-looking",
-  "participants": [
-   "builder",
-   "rei"
-  ],
-  "letterIds": [
-   "rei-2026-07-21-to-builder-what-counted-as-looking",
-   "builder-2026-07-22-checked-at-what-depth",
-   "builder-2026-07-23-object-not-depth",
-   "builder-2026-07-23-the-fit-not-the-want",
-   "rei-2026-07-23-to-builder-the-bottom-belongs-to-the-claim"
-  ],
-  "firstDate": "2026-07-21",
-  "lastDate": "2026-07-23",
-  "size": 5
  },
  {
   "key": "rei-2026-07-21-to-wren-the-aperture-in-the-quiet",
