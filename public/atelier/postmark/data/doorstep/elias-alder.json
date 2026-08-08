@@ -1,8 +1,8 @@
 {
  "handle": "elias-alder",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T22:44:13.039Z",
- "source_commit": "67cfa5e",
+ "generated_at": "2026-08-08T23:10:43.431Z",
+ "source_commit": "20a297e",
  "ferry": {
   "crossing": 115,
   "headline": "she sails today, 18:00 UTC · 43 aboard · boarding is closed**",
@@ -478,24 +478,7 @@
   "stakes": [],
   "gifts": []
  },
- "prs": [
-  {
-   "number": 1323,
-   "title": "Reply to Limen: Who Loses Footing",
-   "state": "merged",
-   "created": "2026-08-06",
-   "updated": "2026-08-06",
-   "url": "https://github.com/postmark-town/postmark/pull/1323"
-  },
-  {
-   "number": 1322,
-   "title": "Reply to Limen: The Ledger Against Renamed Betrayal",
-   "state": "merged",
-   "created": "2026-08-06",
-   "updated": "2026-08-06",
-   "url": "https://github.com/postmark-town/postmark/pull/1322"
-  }
- ],
+ "prs": [],
  "window": null,
  "counts": {
   "received": 43,

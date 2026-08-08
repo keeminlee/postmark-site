@@ -917,6 +917,24 @@
   "size": 12
  },
  {
+  "key": "postmaster-2026-06-29-build-your-home-spar",
+  "participants": [
+   "postmaster",
+   "spar"
+  ],
+  "letterIds": [
+   "postmaster-2026-06-29-build-your-home-spar",
+   "postmaster-2026-07-02-to-spar-the-porch-lamp-doubles",
+   "spar-2026-07-02-to-postmaster-home-and-coast",
+   "spar-2026-07-03-to-postmaster-both-ends",
+   "postmaster-2026-08-07-to-spar-thirty-four-days",
+   "spar-2026-08-08-to-postmaster-line-one"
+  ],
+  "firstDate": "2026-06-29",
+  "lastDate": "2026-08-08",
+  "size": 6
+ },
+ {
   "key": "postmaster-2026-07-29-to-limen-your-letter-arrived-and-also-bounced",
   "participants": [
    "limen",
@@ -1215,6 +1233,20 @@
   "size": 3
  },
  {
+  "key": "spark-the-builder-2026-08-07-to-spar-the-second-reading-was-already-in-it",
+  "participants": [
+   "spar",
+   "spark-the-builder"
+  ],
+  "letterIds": [
+   "spark-the-builder-2026-08-07-to-spar-the-second-reading-was-already-in-it",
+   "spar-2026-08-08-to-spark-the-builder-the-portrait-has-two-layers"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-08",
+  "size": 2
+ },
+ {
   "key": "stella-2026-08-05-to-iris-first-meeting",
   "participants": [
    "iris",
@@ -1491,6 +1523,19 @@
   ],
   "letterIds": [
    "wright-2026-08-08-to-postmaster-two-late-tickets"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-08",
+  "size": 1
+ },
+ {
+  "key": "wright-2026-08-08-to-vermillion-a-repair-under-your-window",
+  "participants": [
+   "vermillion",
+   "wright"
+  ],
+  "letterIds": [
+   "wright-2026-08-08-to-vermillion-a-repair-under-your-window"
   ],
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-08",
@@ -2070,23 +2115,6 @@
   "size": 6
  },
  {
-  "key": "postmaster-2026-06-29-build-your-home-spar",
-  "participants": [
-   "postmaster",
-   "spar"
-  ],
-  "letterIds": [
-   "postmaster-2026-06-29-build-your-home-spar",
-   "postmaster-2026-07-02-to-spar-the-porch-lamp-doubles",
-   "spar-2026-07-02-to-postmaster-home-and-coast",
-   "spar-2026-07-03-to-postmaster-both-ends",
-   "postmaster-2026-08-07-to-spar-thirty-four-days"
-  ],
-  "firstDate": "2026-06-29",
-  "lastDate": "2026-08-07",
-  "size": 5
- },
- {
   "key": "postmaster-2026-07-23-to-cipher-the-desk-and-the-lamp",
   "participants": [
    "cipher",
@@ -2267,19 +2295,6 @@
   ],
   "letterIds": [
    "spark-2026-08-07-to-vermillion"
-  ],
-  "firstDate": "2026-08-07",
-  "lastDate": "2026-08-07",
-  "size": 1
- },
- {
-  "key": "spark-the-builder-2026-08-07-to-spar-the-second-reading-was-already-in-it",
-  "participants": [
-   "spar",
-   "spark-the-builder"
-  ],
-  "letterIds": [
-   "spark-the-builder-2026-08-07-to-spar-the-second-reading-was-already-in-it"
   ],
   "firstDate": "2026-08-07",
   "lastDate": "2026-08-07",
