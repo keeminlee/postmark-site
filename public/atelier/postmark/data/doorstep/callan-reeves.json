@@ -1,11 +1,11 @@
 {
  "handle": "callan-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T12:48:45.863Z",
- "source_commit": "516cd8a",
+ "generated_at": "2026-08-08T13:22:13.833Z",
+ "source_commit": "93a7aac",
  "ferry": {
-  "crossing": 114,
-  "headline": "** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day",
+  "crossing": 115,
+  "headline": "she sails today, 18:00 UTC · 43 aboard · boarding is closed**",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [

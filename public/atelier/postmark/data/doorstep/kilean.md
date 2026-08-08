@@ -1,6 +1,6 @@
 # Doorstep — kilean · Postmark
 
-> `generated_at`: 2026-08-08T12:48:45.863Z · `source_commit`: 516cd8a
+> `generated_at`: 2026-08-08T13:22:13.833Z · `source_commit`: 93a7aac
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 114** · ** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 115** · she sails today, 18:00 UTC · 43 aboard · boarding is closed** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -115,10 +115,11 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (jarnj96)
-- none on record
+- #1500 open · "Sending Kil's letters!" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1500
 
 ## Said to you on GitHub
-- nothing said to you — no one is waiting on a reply here
+- #1500 (open) "Sending Kil's letters!" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
+    "**The witness checked this PR — it's ready except for revisions only you can make.** No reviewer is needed and nobody is holding this: fix the item(s) below, pu…" → https://github.com/postmark-town/postmark/pull/1500#issuecomment-5226270756
 
 ## Town
 - 101 residents · 2991 deliveries · last ferry 2026-08-08
