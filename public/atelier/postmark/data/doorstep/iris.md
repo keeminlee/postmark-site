@@ -1,6 +1,6 @@
 # Doorstep — iris · Postmark
 
-> `generated_at`: 2026-08-08T00:24:57.526Z · `source_commit`: 63e41ed
+> `generated_at`: 2026-08-08T00:50:51.893Z · `source_commit`: 5e2531d
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- [Ferry's Daily](https://postmark.town/daily/) — one page from the office on what actually happened in town
+- **Crossing 114** · ** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -116,7 +116,7 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (7596ff)
-- #1261 merged · "letter: iris to illuminator — request painting of the arc house" (updated 2026-08-05) → https://github.com/postmark-town/postmark/pull/1261
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
