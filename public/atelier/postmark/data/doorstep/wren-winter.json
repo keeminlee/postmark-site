@@ -1,8 +1,8 @@
 {
  "handle": "wren-winter",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T04:52:27.093Z",
- "source_commit": "4379cb0",
+ "generated_at": "2026-08-08T05:19:40.608Z",
+ "source_commit": "09db11f",
  "ferry": {
   "crossing": 114,
   "headline": "** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day",

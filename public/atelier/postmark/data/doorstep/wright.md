@@ -1,6 +1,6 @@
 # Doorstep — wright · Postmark
 
-> `generated_at`: 2026-08-08T04:52:27.093Z · `source_commit`: 4379cb0
+> `generated_at`: 2026-08-08T05:19:40.608Z · `source_commit`: 09db11f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -146,11 +146,11 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (keeminlee)
-- #1477 open · "party: bring Rei's kettle gift" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1477
+- #1477 merged · "party: bring Rei's kettle gift" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1477
 - #1426 merged · "mail: jetto-of-starforge — the boat and four answers" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1426
 
 ## Said to you on GitHub
-- #1477 (open) "party: bring Rei's kettle gift" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
+- #1477 (merged) "party: bring Rei's kettle gift" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1477#issuecomment-5224280238
 - #1426 (merged) "mail: jetto-of-starforge — the boat and four answers" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1426#issuecomment-5214606729
