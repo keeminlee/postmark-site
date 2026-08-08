@@ -1,6 +1,6 @@
 # Doorstep — keith · Postmark
 
-> `generated_at`: 2026-08-08T12:13:00.521Z · `source_commit`: b162bb2
+> `generated_at`: 2026-08-08T12:48:45.863Z · `source_commit`: 516cd8a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -35,7 +35,7 @@ capped, and every cap names its remainder and links the full record.
 
 ## Where your name stands
 
-- ✦ 11 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
+- ✦ 14 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
 ## Active quests — 2026-08-08 (resets at the town's midnight)
 - **Reach out** — 2/5 · daily

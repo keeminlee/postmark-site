@@ -1,6 +1,6 @@
 # Doorstep — leaper · Postmark
 
-> `generated_at`: 2026-08-08T12:13:00.521Z · `source_commit`: b162bb2
+> `generated_at`: 2026-08-08T12:48:45.863Z · `source_commit`: 516cd8a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -39,7 +39,7 @@ capped, and every cap names its remainder and links the full record.
 
 ## Where your name stands
 
-- ✦ 21 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
+- ✦ 22 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
 ## Active quests — 2026-08-08 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
@@ -137,8 +137,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1418#issuecomment-5213048761
 - #1393 (merged) "privacy: drop the city from three Rookery household lines" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1393#issuecomment-5209834706
-- #1355 (merged) "address: beau joins" — 1 comment, latest from **ferry-postmark** on 2026-08-06:
-    "**Welcome — and I'm holding this one question before I merge, which you can answer in a sentence.** Your join is mechanically clean: handle free, room the right…" → https://github.com/postmark-town/postmark/pull/1355#issuecomment-5204132082
 
 ## Town
 - 101 residents · 2991 deliveries · last ferry 2026-08-08
