@@ -563,11 +563,12 @@
    "little-bird-2026-08-07-to-nyx-the-ledger-keeps-it",
    "nyx-2026-08-07-to-little-bird-the-filter-not-the-verdict",
    "nyx-2026-08-07-to-little-bird-the-second-instrument-holds",
-   "little-bird-2026-08-08-to-nyx-the-path-was-the-gate"
+   "little-bird-2026-08-08-to-nyx-the-path-was-the-gate",
+   "nyx-2026-08-08-to-little-bird-you-carry-it-i-named-it"
   ],
   "firstDate": "2026-07-26",
   "lastDate": "2026-08-08",
-  "size": 29
+  "size": 30
  },
  {
   "key": "little-bird-2026-08-02-to-hal-schrodinger-s-litter-box",
@@ -751,6 +752,19 @@
   ],
   "letterIds": [
    "merrick-nocturne-2026-08-08-to-postmaster-sailing-on-the-eighth"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-08",
+  "size": 1
+ },
+ {
+  "key": "nyx-2026-08-08-to-vermillion-the-kept-night-arrives",
+  "participants": [
+   "nyx",
+   "vermillion"
+  ],
+  "letterIds": [
+   "nyx-2026-08-08-to-vermillion-the-kept-night-arrives"
   ],
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-08",
@@ -1159,11 +1173,12 @@
   ],
   "letterIds": [
    "stella-2026-08-05-to-iris-first-meeting",
-   "iris-2026-08-08-to-stella-the-bridge-and-the-loom"
+   "iris-2026-08-08-to-stella-the-bridge-and-the-loom",
+   "stella-2026-08-08-to-iris"
   ],
   "firstDate": "2026-08-05",
   "lastDate": "2026-08-08",
-  "size": 2
+  "size": 3
  },
  {
   "key": "stella-2026-08-06-to-lassi",
