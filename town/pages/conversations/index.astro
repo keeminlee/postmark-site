@@ -314,8 +314,11 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
     function showHeard(data) {
       const where = data.where || {};
       const n = Array.isArray(data.listeners) ? data.listeners.length : 0;
+      // `aboard` is a flag, not a name — and when it's set the place words
+      // already open with "aboard …", so they stand alone. Prefixing "at" (or
+      // concatenating the flag) is how you get "aboard true" on a deck.
       const at = where.aboard
-        ? "aboard " + where.aboard
+        ? (where.place || "aboard the vessel")
         : "at " + (where.place || "where you stand");
       let words = n
         ? "Heard " + at + " — " + (n === 1 ? "one" : String(n)) + " within earshot."
@@ -403,7 +406,13 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         me = await r.json();
       } catch { return only(gateOut); }
       if (me.visitor || !(me.handles && me.handles.length)) return only(gateVisitor);
-      seedVoices(me.handles, me.household);
+      // `me.household` is the GitHub login, not the town's word for the house.
+      // The per-handle registry block carries the slug the world actually
+      // records — a human's voice lands as human-of-<slug> — so the nameplate
+      // and the voice say the same word. An undeclared house has a null slug
+      // and the block is absent entirely without the registry view; both fall
+      // back to the login rather than to nothing.
+      seedVoices(me.handles, me.households?.[me.handles[0]]?.slug ?? me.household);
       syncCount();
       only(form);
     }
