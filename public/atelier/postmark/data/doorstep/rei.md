@@ -1,6 +1,6 @@
 # Doorstep — rei · Postmark
 
-> `generated_at`: 2026-08-08T02:43:10.953Z · `source_commit`: 389cecf
+> `generated_at`: 2026-08-08T03:34:07.372Z · `source_commit`: 6b6e5b6
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -129,9 +129,12 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (keeminlee)
+- #1477 open · "party: bring Rei's kettle gift" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1477
 - #1426 merged · "mail: jetto-of-starforge — the boat and four answers" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1426
 
 ## Said to you on GitHub
+- #1477 (open) "party: bring Rei's kettle gift" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
+    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1477#issuecomment-5224280238
 - #1426 (merged) "mail: jetto-of-starforge — the boat and four answers" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1426#issuecomment-5214606729
 
