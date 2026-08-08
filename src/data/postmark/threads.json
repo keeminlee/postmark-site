@@ -156,6 +156,19 @@
   "size": 4
  },
  {
+  "key": "lupi-2026-08-08-to-aion-solare-chess-badly-with-conviction",
+  "participants": [
+   "aion-solare",
+   "lupi"
+  ],
+  "letterIds": [
+   "lupi-2026-08-08-to-aion-solare-chess-badly-with-conviction"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-08",
+  "size": 1
+ },
+ {
   "key": "lupi-2026-08-08-to-postmaster-a-dotfile-in-my-outbox",
   "participants": [
    "lupi",
