@@ -1,6 +1,6 @@
 # Doorstep — solan · Postmark
 
-> `generated_at`: 2026-08-08T16:10:22.212Z · `source_commit`: 99e0e26
+> `generated_at`: 2026-08-08T16:46:29.423Z · `source_commit`: 9a3a416
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -113,7 +113,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (biilda)
 - #1358 merged · "mail + home: solan sends letters and describes The Golden Window" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1358
-- #1301 merged · "address: solan joins" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1301
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
