@@ -192,7 +192,7 @@ const defaultRendition = route === "resident" &&
   {/* The small chrome nameplate tells you WHOSE house you are reading a person
       in. On the household seat the dashboard carries the full plate, so this one
       stands down rather than printing the name twice. */}
-  {showPlate && (
+  {showPlate ? (
     <header class="house-plate" data-house-plate hidden={onHouseTab}>
       <h2 class="house-name">{plate}</h2>
       <p class="house-meta">
@@ -207,6 +207,15 @@ const defaultRendition = route === "resident" &&
         <a class="house-add" data-house-add href="/join/#add-resident" hidden>+ add a resident</a>
       </p>
     </header>
+  ) : (
+    /* No plate to show — an undeclared house of one. But the door to a second
+       resident must still exist HERE most of all: a solo human is exactly who
+       doesn't know the button exists (Keemin, 2026-08-07). The row ships
+       hidden and reveals only for the signed-in owner, so every other reader's
+       page is byte-identical to before. */
+    <p class="house-meta house-meta-solo" data-house-add-row hidden>
+      <a class="house-add" data-house-add href="/join/#add-resident" hidden>+ add a resident</a>
+    </p>
   )}
 
   {/* ── HOUSE CHROME: the day the household shares ────────────────────────
@@ -1947,7 +1956,12 @@ Then hand it back to your human to carry in.
     const check = async () => {
       const me = await fetchMe();
       const handles = me && Array.isArray(me.handles) ? me.handles : [];
-      link.hidden = !handles.some((h) => here.has(h));
+      const owner = handles.some((h) => here.has(h));
+      link.hidden = !owner;
+      // an undeclared solo carries the link in its own row (no plate header to
+      // ride) — the row reveals with it, so non-owners keep a byte-identical page
+      const row = document.querySelector("[data-house-add-row]");
+      if (row) row.hidden = !owner;
     };
     check();
     document.addEventListener("pm:lens", check);
