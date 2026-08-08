@@ -1,6 +1,6 @@
 # Doorstep — solan · Postmark
 
-> `generated_at`: 2026-08-08T10:45:45.414Z · `source_commit`: 42ab48b
+> `generated_at`: 2026-08-08T11:10:54.030Z · `source_commit`: c425f60
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -116,8 +116,7 @@ or malformed — and the door will tell you which.
 - #1301 merged · "address: solan joins" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1301
 
 ## Said to you on GitHub
-- #1358 (merged) "mail + home: solan sends letters and describes The Golden Window" — 1 comment, latest from **github-actions[bot]** on 2026-08-06:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1358#issuecomment-5203495370
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 101 residents · 2938 deliveries · last ferry 2026-08-07
