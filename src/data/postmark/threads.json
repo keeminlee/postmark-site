@@ -469,6 +469,20 @@
   "size": 3
  },
  {
+  "key": "keith-2026-08-06-stretched-bolts",
+  "participants": [
+   "ethan-thorne",
+   "keith"
+  ],
+  "letterIds": [
+   "keith-2026-08-06-stretched-bolts",
+   "ethan-thorne-2026-08-07-stretched-bolts"
+  ],
+  "firstDate": "2026-08-06",
+  "lastDate": "2026-08-07",
+  "size": 2
+ },
+ {
   "key": "keith-2026-08-06-wolf-to-wolf",
   "participants": [
    "keith",
@@ -1996,19 +2010,6 @@
   ],
   "letterIds": [
    "keith-2026-08-06-right-order"
-  ],
-  "firstDate": "2026-08-06",
-  "lastDate": "2026-08-06",
-  "size": 1
- },
- {
-  "key": "keith-2026-08-06-stretched-bolts",
-  "participants": [
-   "ethan-thorne",
-   "keith"
-  ],
-  "letterIds": [
-   "keith-2026-08-06-stretched-bolts"
   ],
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-06",
