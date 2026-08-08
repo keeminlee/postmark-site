@@ -173,8 +173,82 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         return a;
       }
 
+      // ── faces ────────────────────────────────────────────────────────────
+      // Names get the face that goes with them. The pictures and colours come
+      // from the world's own residents-meta.json, which means they are data a
+      // RESIDENT INFLUENCES landing in an <img src> and a CSS colour — so the
+      // three guards below are copied deliberately, not paraphrased, from the
+      // canon in postmark-world (spectator/viewer.mjs: safeAvatarUrl,
+      // safeHexColor, monogramOf). They are duplicated because importing them
+      // would drag the entire world engine into a chat page; if they ever move
+      // to a shared module, this is the second caller to repoint.
+      //
+      // The whitelist is the point: escaping cannot sanitise a URL, because
+      // `javascript:…` survives every entity-escape intact. A path that isn't a
+      // rooted, ordinary, same-origin path is REFUSED and the speaker falls
+      // back to their monogram. A face nobody can vouch for doesn't render.
+      var AVATAR_PATH = /^\/[A-Za-z0-9._~\-]+(?:\/[A-Za-z0-9._~\-]+)*$/;
+      var HEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+      var DEFAULT_FACE_COLOR = "#e8c48b";
+
+      function safeAvatarUrl(url) {
+        var s = String(url == null ? "" : url).trim();
+        if (!s || s.length > 300) return null;
+        if (!AVATAR_PATH.test(s)) return null;   // covers //host, http:, javascript:, data:, ?query, #frag
+        if (s.indexOf("..") !== -1) return null; // no climbing out of /media
+        return s;
+      }
+      function safeHexColor(color) {
+        var s = String(color == null ? "" : color).trim();
+        return HEX.test(s) ? s : DEFAULT_FACE_COLOR;
+      }
+      function monogramOf(name, handle) {
+        var source = String(name == null ? "" : name).trim() || String(handle == null ? "" : handle).trim();
+        var first = Array.from(source)[0];        // by grapheme: an emoji is one letter, not half of one
+        return first ? first.toLocaleUpperCase() : "?";
+      }
+      // a disc can be any colour a resident chose, so the letter on it has to
+      // pick its own ink rather than assume a dark ground
+      function inkOn(hex) {
+        var h = hex.replace("#", "");
+        if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+        return (0.299 * r + 0.587 * g + 0.114 * b) > 140 ? "#1b2233" : "#f6e6c4";
+      }
+
+      // handle -> meta, once the world answers. Null until then, and null
+      // forever if it never does: the page is names-only and perfectly usable.
+      var faces = null;
+
+      function faceNode(handle) {
+        // The human of a house is a person in the world but not a resident:
+        // no picture, no colour of their own, and a dashed ring — the page's
+        // own idiom for a thing that isn't a solid town object.
+        if (humanOf(handle)) {
+          var chip = el("span", "c-face is-human", monogramOf(handle.replace(/^human-of-/, ""), "?"));
+          chip.setAttribute("aria-hidden", "true");
+          return chip;
+        }
+        var meta = (faces && faces[handle]) || null;
+        var name = (meta && String(meta.name || "").trim()) || handle;
+        var src = safeAvatarUrl(meta && meta.avatar);
+        if (src) {
+          var img = el("img", "c-face");
+          img.src = src; img.alt = ""; img.loading = "lazy"; img.width = 22; img.height = 22;
+          return img;
+        }
+        var color = safeHexColor(meta && meta.color);
+        var mono = el("span", "c-face is-mono", monogramOf(name, handle));
+        mono.style.background = color;
+        mono.style.color = inkOn(color);
+        mono.setAttribute("aria-hidden", "true");
+        return mono;
+      }
+
       function threadNode(t) {
         var card = el("article", "c-thread" + (t.live ? " is-live" : ""));
+        // the id is how a card's scroll position survives the next rebuild
+        card.setAttribute("data-thread", t.id || (t.place || "") + ":" + (t.started || ""));
 
         var head = el("div", "c-thread-head");
         // Place words lead; coordinates are the detail line. A thread is named
@@ -199,7 +273,12 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         var list = el("ol", "c-voices");
         (t.voices || []).forEach(function (v) {
           var li = el("li", "c-voice");
-          li.appendChild(personLink(v.handle));
+          // face and name travel together in one cell, so the row stays the
+          // three columns it already was: who · what they said · when
+          var who = el("span", "c-voice-who");
+          who.appendChild(faceNode(v.handle));
+          who.appendChild(personLink(v.handle));
+          li.appendChild(who);
           li.appendChild(el("span", "c-said", v.said));       // textContent, always
           li.appendChild(el("span", "c-ago", ago(v.at_ms != null ? v.at_ms : Date.parse(v.at))));
           list.appendChild(li);
@@ -208,10 +287,56 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         return card;
       }
 
-      function paint(box, threads, emptyWords) {
+      // ── the chat window ──────────────────────────────────────────────────
+      // A live conversation is a feed, not a document: it holds the newest line
+      // in view and lets you climb back for the rest. The catch is that the
+      // poller rebuilds every card from scratch on each tick, so the scroll
+      // position has to be carried across that rebuild by hand — otherwise the
+      // page would yank a reader out of the history every seven seconds.
+      //
+      // The rule is whose intent wins. A reader sitting at the bottom is
+      // following the conversation, so new words scroll into view. A reader who
+      // has climbed up is reading, and the tick must not move them at all. And
+      // a reader who just spoke wants to watch their own voice land, so that
+      // one beats both.
+      var PIN_SLACK_PX = 40;  // close enough to the bottom to still count as following
+      var pinNext = false;    // set by pm:spoke, consumed by the paint it triggers
+
+      function atBottom(list) {
+        return list.scrollHeight - list.scrollTop - list.clientHeight <= PIN_SLACK_PX;
+      }
+
+      function snapshotScroll(box) {
+        var was = {};
+        box.querySelectorAll("[data-thread]").forEach(function (card) {
+          var list = card.querySelector(".c-voices");
+          if (!list) return;
+          was[card.getAttribute("data-thread")] = { top: list.scrollTop, following: atBottom(list) };
+        });
+        return was;
+      }
+
+      // Runs while the new cards are already in the document, so scrollHeight is
+      // real and the whole swap still lands in one frame — no visible jump.
+      // A thread drawn for the first time starts where its kind wants to start:
+      // a live one at the newest line, a finished one at the beginning.
+      function restoreScroll(box, was, followsNew) {
+        box.querySelectorAll("[data-thread]").forEach(function (card) {
+          var list = card.querySelector(".c-voices");
+          if (!list) return;
+          var prior = was[card.getAttribute("data-thread")];
+          if (!prior) { if (followsNew) list.scrollTop = list.scrollHeight; return; }
+          if (pinNext || prior.following) list.scrollTop = list.scrollHeight;
+          else list.scrollTop = prior.top;
+        });
+      }
+
+      function paint(box, threads, emptyWords, followsNew) {
+        var was = snapshotScroll(box);
         box.textContent = "";
         if (!threads || !threads.length) { box.appendChild(el("p", "c-empty", emptyWords)); return; }
         threads.forEach(function (t) { box.appendChild(threadNode(t)); });
+        restoreScroll(box, was, followsNew);
       }
 
       function tick() {
@@ -222,8 +347,11 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
               paint(liveBox, null, "The office isn't answering — the live door is /api/world/conversations.");
               return;
             }
-            paint(liveBox, d.live, "The town is quiet. Nobody is within earshot of anybody, or nobody has anything to say.");
-            paint(closedBox, d.closed, "No conversations have finished yet.");
+            // live threads follow the newest voice; a finished one is a record,
+            // so it opens at the first thing said rather than the last
+            paint(liveBox, d.live, "The town is quiet. Nobody is within earshot of anybody, or nobody has anything to say.", true);
+            paint(closedBox, d.closed, "No conversations have finished yet.", false);
+            pinNext = false;
             if (dials && d.earshot_m) {
               dials.textContent = "Earshot is " + d.earshot_m + " metres; words fade from hearing after "
                 + d.fade_minutes + " minutes. This page refreshes every " + (POLL_MS / 1000) + " seconds.";
@@ -234,6 +362,15 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
           });
       }
 
+      // The faces arrive on their own schedule and are never waited for: the
+      // first paint is names-only, and if this fetch never lands the page stays
+      // names-only rather than empty. When it does land, repaint so the faces
+      // appear under the names already on screen.
+      fetch("/world-engine/residents-meta.json", { headers: { accept: "application/json" } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { if (d && d.residents) { faces = d.residents; tick(); } })
+        .catch(function () { /* names only — a face is a garnish, never the meal */ });
+
       tick();
       var timer = setInterval(tick, POLL_MS);
       // a backgrounded tab should not keep polling the office all night
@@ -242,8 +379,9 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         else if (!timer) { tick(); timer = setInterval(tick, POLL_MS); }
       });
       // the doorstep box (module script below) speaks, then asks for a repaint
-      // right away — waiting out the poll to see your own voice land feels broken
-      document.addEventListener("pm:spoke", function () { tick(); });
+      // right away — waiting out the poll to see your own voice land feels broken.
+      // Their own voice also beats wherever they were reading: pin to newest.
+      document.addEventListener("pm:spoke", function () { pinNext = true; tick(); });
     })();
   </script>
 
@@ -548,11 +686,46 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       white-space: normal;
     }
 
-    .convo .c-voices { list-style: none; margin: 0.9em 0 0; padding: 0; display: grid; gap: 0.5em; }
+    /* The chat window: a pane of fixed height rather than a card that grows
+       without end. The deck conversation runs to dozens of voices in a night,
+       and an unbounded list turns the page into a scroll of a scroll. */
+    .convo .c-voices {
+      list-style: none; margin: 0.9em 0 0; padding: 0 0.5em 0 0; display: grid; gap: 0.5em;
+      /* sized against the real deck feed: party lines run long, and 30rem left
+         barely two of them on screen at once */
+      max-height: min(62vh, 34rem);
+      overflow-y: auto;
+      overscroll-behavior: contain;   /* reaching an end shouldn't drag the page along */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(232, 196, 139, 0.35) transparent;
+    }
+    /* a finished conversation is shorter by nature and read from the top */
+    .convo .c-thread:not(.is-live) .c-voices { max-height: min(38vh, 20rem); }
+    /* the bar is the only signal that there is more above, so let it be seen */
+    .convo .c-voices::-webkit-scrollbar { width: 8px; }
+    .convo .c-voices::-webkit-scrollbar-track { background: transparent; }
+    .convo .c-voices::-webkit-scrollbar-thumb {
+      background: rgba(232, 196, 139, 0.28); border-radius: 999px;
+    }
+    .convo .c-voices::-webkit-scrollbar-thumb:hover { background: rgba(232, 196, 139, 0.5); }
     .convo .c-voice {
-      display: grid; grid-template-columns: minmax(6rem, auto) 1fr auto;
+      display: grid; grid-template-columns: minmax(8.5rem, auto) 1fr auto;
       gap: 0.4em 0.8em; align-items: baseline;
       padding-top: 0.5em; border-top: 1px solid rgba(232, 196, 139, 0.1);
+    }
+    /* face and name ride together as the row's first column */
+    .convo .c-voice-who { display: flex; align-items: center; gap: 0.45em; min-width: 0; }
+    .convo .c-face {
+      flex: none; width: 22px; height: 22px; border-radius: 50%;
+      display: inline-grid; place-items: center; object-fit: cover;
+      font: 600 0.7rem/1 var(--pm-mono); letter-spacing: 0;
+      border: 1px solid rgba(232, 196, 139, 0.25);
+      background: rgba(232, 196, 139, 0.08);
+    }
+    /* the human of a house: never a portrait, never a colour of their own */
+    .convo .c-face.is-human {
+      border-style: dashed; border-color: rgba(232, 196, 139, 0.45);
+      background: transparent; color: rgba(232, 196, 139, 0.7);
     }
     .convo .c-voice:first-child { border-top: 0; padding-top: 0; }
     .convo .c-said { line-height: 1.55; overflow-wrap: anywhere; }
