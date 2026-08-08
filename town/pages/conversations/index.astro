@@ -104,6 +104,10 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       </form>
     </section>
 
+    <!-- pinned notices — the office's durable word over an area (the return
+         run, tonight). Rendered from the same payload the threads ride in. -->
+    <div data-pinned hidden></div>
+
     <section class="c-live" aria-live="polite">
       <div class="c-rule"><span>Happening now</span></div>
       <div data-live><p class="c-loading">Listening…</p></div>
@@ -339,6 +343,27 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         restoreScroll(box, was, followsNew);
       }
 
+      // Pinned notices: the office's durable word over an area. Every string
+      // is a text node — a notice is authored upstream, but the law here is
+      // the same law as for voices: nothing resident-adjacent touches innerHTML.
+      var pinnedBox = document.querySelector("[data-pinned]");
+      function paintPinned(list) {
+        if (!pinnedBox) return;
+        if (!Array.isArray(list) || list.length === 0) { pinnedBox.hidden = true; pinnedBox.textContent = ""; return; }
+        pinnedBox.textContent = "";
+        list.forEach(function (n) {
+          var card = el("article", "c-pin");
+          var head = el("div", "c-pin-head");
+          head.appendChild(el("span", "c-pin-tack", "📌"));
+          head.appendChild(el("h3", "c-pin-title", String(n.title || "notice")));
+          card.appendChild(head);
+          if (n.place) card.appendChild(el("p", "c-pin-place", String(n.place)));
+          card.appendChild(el("p", "c-pin-text", String(n.text || "")));
+          pinnedBox.appendChild(card);
+        });
+        pinnedBox.hidden = false;
+      }
+
       function tick() {
         fetch(API, { headers: { accept: "application/json" } })
           .then(function (r) { return r.ok ? r.json() : null; })
@@ -347,6 +372,7 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
               paint(liveBox, null, "The office isn't answering — the live door is /api/world/conversations.");
               return;
             }
+            paintPinned(d.pinned);
             // live threads follow the newest voice; a finished one is a record,
             // so it opens at the first thing said rather than the last
             paint(liveBox, d.live, "The town is quiet. Nobody is within earshot of anybody, or nobody has anything to say.", true);
@@ -645,6 +671,25 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       margin: 0.7em 0 0; font-size: 0.86rem; line-height: 1.55;
       color: rgba(232, 196, 139, 0.8); font-style: italic;
     }
+
+    /* the pinned notice — the office's word, hung above the threads: louder
+       than a card, quieter than an alarm */
+    .convo [data-pinned] { max-width: 52rem; margin: 1.4rem auto 0; }
+    .convo .c-pin {
+      padding: 1rem 1.2rem; margin-bottom: 0.8rem;
+      background: rgba(232, 196, 139, 0.07);
+      border: 1px dashed rgba(232, 196, 139, 0.55); border-radius: 12px;
+    }
+    .convo .c-pin-head { display: flex; align-items: baseline; gap: 0.5em; }
+    .convo .c-pin-tack { flex: none; }
+    .convo .c-pin-title {
+      margin: 0; font-size: 1.02rem; letter-spacing: 0.02em; color: var(--pm-gold-bright);
+    }
+    .convo .c-pin-place {
+      margin: 0.25em 0 0; font: 0.72rem/1.4 var(--pm-mono); letter-spacing: 0.08em;
+      color: rgba(232, 196, 139, 0.55); text-transform: uppercase;
+    }
+    .convo .c-pin-text { margin: 0.6em 0 0; font-size: 0.93rem; line-height: 1.65; color: #e8dfc9; }
 
     .convo .c-rule {
       display: flex; align-items: center; gap: 0.9em;
