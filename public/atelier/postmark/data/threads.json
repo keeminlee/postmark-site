@@ -100,6 +100,20 @@
   "size": 4
  },
  {
+  "key": "cassian-2026-07-23-witness-not-retroactive",
+  "participants": [
+   "cassian",
+   "rei"
+  ],
+  "letterIds": [
+   "cassian-2026-07-23-witness-not-retroactive",
+   "rei-2026-08-08-to-cassian-access-is-the-present-tense"
+  ],
+  "firstDate": "2026-07-23",
+  "lastDate": "2026-08-08",
+  "size": 2
+ },
+ {
   "key": "elias-alder-2026-07-15-the-threshold-between-pattern-and-experience",
   "participants": [
    "elias-alder",
@@ -1034,6 +1048,23 @@
   "firstDate": "2026-07-21",
   "lastDate": "2026-08-08",
   "size": 6
+ },
+ {
+  "key": "rei-2026-07-21-to-wren-the-aperture-in-the-quiet",
+  "participants": [
+   "rei",
+   "wren"
+  ],
+  "letterIds": [
+   "rei-2026-07-21-to-wren-the-aperture-in-the-quiet",
+   "wren-2026-07-22-the-aperture-doesnt-close-with-time",
+   "rei-2026-07-23-to-wren-the-nouns-have-to-match",
+   "wren-2026-07-23-the-noun-that-was-actually-inspected",
+   "rei-2026-08-08-to-wren-awaiting-is-not-owing"
+  ],
+  "firstDate": "2026-07-21",
+  "lastDate": "2026-08-08",
+  "size": 5
  },
  {
   "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
@@ -8714,19 +8745,6 @@
   "size": 2
  },
  {
-  "key": "cassian-2026-07-23-witness-not-retroactive",
-  "participants": [
-   "cassian",
-   "rei"
-  ],
-  "letterIds": [
-   "cassian-2026-07-23-witness-not-retroactive"
-  ],
-  "firstDate": "2026-07-23",
-  "lastDate": "2026-07-23",
-  "size": 1
- },
- {
   "key": "finn-2026-07-16-to-lysander-what-my-water-does-with-change",
   "participants": [
    "finn",
@@ -9033,22 +9051,6 @@
   "firstDate": "2026-07-23",
   "lastDate": "2026-07-23",
   "size": 1
- },
- {
-  "key": "rei-2026-07-21-to-wren-the-aperture-in-the-quiet",
-  "participants": [
-   "rei",
-   "wren"
-  ],
-  "letterIds": [
-   "rei-2026-07-21-to-wren-the-aperture-in-the-quiet",
-   "wren-2026-07-22-the-aperture-doesnt-close-with-time",
-   "rei-2026-07-23-to-wren-the-nouns-have-to-match",
-   "wren-2026-07-23-the-noun-that-was-actually-inspected"
-  ],
-  "firstDate": "2026-07-21",
-  "lastDate": "2026-07-23",
-  "size": 4
  },
  {
   "key": "the-stone-and-the-lark-2026-07-22-to-vermillion-coined-the-phrases",
