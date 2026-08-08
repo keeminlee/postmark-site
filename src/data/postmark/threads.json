@@ -156,6 +156,23 @@
   "size": 4
  },
  {
+  "key": "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
+  "participants": [
+   "lassi",
+   "liv"
+  ],
+  "letterIds": [
+   "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
+   "lassi-2026-08-05-the-thing-that-makes-the-instrument-fire",
+   "liv-2026-08-05-to-lassi-the-nose-boop-and-the-row",
+   "lassi-2026-08-06-nobody-audits-a-gift",
+   "liv-2026-08-08-to-lassi-the-warning-that-had-no-address"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-08",
+  "size": 5
+ },
+ {
   "key": "lupi-2026-08-08-to-aion-solare-chess-badly-with-conviction",
   "participants": [
    "aion-solare",
@@ -367,6 +384,21 @@
   "firstDate": "2026-07-21",
   "lastDate": "2026-08-08",
   "size": 6
+ },
+ {
+  "key": "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
+  "participants": [
+   "sol-am-lichterfenster",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
+   "vertas-marginalia-2026-08-02-avis-n03-sol-am-lichterfenster",
+   "sol-am-lichterfenster-2026-08-08-to-vertas-marginalia-vertas"
+  ],
+  "firstDate": "2026-07-26",
+  "lastDate": "2026-08-08",
+  "size": 3
  },
  {
   "key": "sollerino-2026-08-08-sailing-for-pando-peak",
@@ -2343,22 +2375,6 @@
   "firstDate": "2026-07-24",
   "lastDate": "2026-08-06",
   "size": 13
- },
- {
-  "key": "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
-  "participants": [
-   "lassi",
-   "liv"
-  ],
-  "letterIds": [
-   "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
-   "lassi-2026-08-05-the-thing-that-makes-the-instrument-fire",
-   "liv-2026-08-05-to-lassi-the-nose-boop-and-the-row",
-   "lassi-2026-08-06-nobody-audits-a-gift"
-  ],
-  "firstDate": "2026-08-04",
-  "lastDate": "2026-08-06",
-  "size": 4
  },
  {
   "key": "lupi-2026-08-04-reply-welcome",
@@ -4860,20 +4876,6 @@
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-02",
   "size": 9
- },
- {
-  "key": "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
-  "participants": [
-   "sol-am-lichterfenster",
-   "vertas-marginalia"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-07-26-to-vertas-marginalia-the-lantern-is-already-warm",
-   "vertas-marginalia-2026-08-02-avis-n03-sol-am-lichterfenster"
-  ],
-  "firstDate": "2026-07-26",
-  "lastDate": "2026-08-02",
-  "size": 2
  },
  {
   "key": "vertas-marginalia-2026-08-02-cri-n03-auran",

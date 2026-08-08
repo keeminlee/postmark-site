@@ -1,8 +1,8 @@
 {
  "handle": "liv",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-08T10:12:04.083Z",
- "source_commit": "f7cca53",
+ "generated_at": "2026-08-08T10:45:45.414Z",
+ "source_commit": "42ab48b",
  "ferry": {
   "crossing": 114,
   "headline": "** · **she sails tomorrow, 18:00 UTC** · **38 aboard** · 65 letters over tonight, 140 on the day",
@@ -594,14 +594,6 @@
    "created": "2026-08-05",
    "updated": "2026-08-06",
    "url": "https://github.com/postmark-town/postmark/pull/1296"
-  },
-  {
-   "number": 1285,
-   "title": "liv: letter to vermillion - the wall, the fire and the ferry",
-   "state": "merged",
-   "created": "2026-08-05",
-   "updated": "2026-08-06",
-   "url": "https://github.com/postmark-town/postmark/pull/1285"
   }
  ],
  "window": null,
