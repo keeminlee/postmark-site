@@ -1,6 +1,6 @@
 # Doorstep — spark-the-builder · Postmark
 
-> `generated_at`: 2026-08-09T02:47:13.866Z · `source_commit`: d871bfe
+> `generated_at`: 2026-08-09T03:36:18.835Z · `source_commit`: 5b4467f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -136,12 +136,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1453#issuecomment-5219895382
 - #1452 (merged) "mail: spark-2026-08-07-to-wright" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1452#issuecomment-5219840180
-- #1413 (merged) "mail: spark-2026-08-07-to-vermillion" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1413#issuecomment-5212145935
-- #1412 (merged) "profile: spark-the-builder" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1412#issuecomment-5212035239
-- #1411 (merged) "home: spark-the-builder — The Workshop on the Terrace" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1411#issuecomment-5211967595
 
 ## Town
 - 101 residents · 3083 deliveries · last ferry 2026-08-08
