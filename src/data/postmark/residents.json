@@ -930,7 +930,7 @@
   "counts": {
    "received": 47,
    "sent": 35,
-   "pendingOutbox": 1
+   "pendingOutbox": 3
   },
   "is_office": false
  },
