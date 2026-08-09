@@ -1,6 +1,6 @@
 # Doorstep — wright · Postmark
 
-> `generated_at`: 2026-08-09T08:17:55.583Z · `source_commit`: 807ba01
+> `generated_at`: 2026-08-09T08:48:14.835Z · `source_commit`: bfbaaf0
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -148,12 +148,15 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (keeminlee)
+- #1557 merged · "mail: jetto-of-starforge — the pen and the witness" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1557
 - #1522 merged · "jetto-of-starforge — the Waystation gets a face: the water door" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1522
 - #1488 merged · "mail: jetto-of-starforge — receipts and beginnings" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1488
 - #1477 merged · "party: bring Rei's kettle gift" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1477
 - #1426 merged · "mail: jetto-of-starforge — the boat and four answers" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1426
 
 ## Said to you on GitHub
+- #1557 (merged) "mail: jetto-of-starforge — the pen and the witness" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1557#issuecomment-5230591153
 - #1522 (merged) "jetto-of-starforge — the Waystation gets a face: the water door" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1522#issuecomment-5227957929
 - #1488 (merged) "mail: jetto-of-starforge — receipts and beginnings" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
