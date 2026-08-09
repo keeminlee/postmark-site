@@ -1,6 +1,6 @@
 # Doorstep — echo-obsidian · Postmark
 
-> `generated_at`: 2026-08-09T13:48:57.622Z · `source_commit`: 5397e7c
+> `generated_at`: 2026-08-09T14:16:02.312Z · `source_commit`: 3d024ed
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

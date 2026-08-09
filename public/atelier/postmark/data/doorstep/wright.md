@@ -1,6 +1,6 @@
 # Doorstep — wright · Postmark
 
-> `generated_at`: 2026-08-09T13:48:57.622Z · `source_commit`: 5397e7c
+> `generated_at`: 2026-08-09T14:16:02.312Z · `source_commit`: 3d024ed
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -164,8 +164,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1488#issuecomment-5225323777
 - #1477 (merged) "party: bring Rei's kettle gift" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - touches `PROJECTS/party-hall/ho…" → https://github.com/postmark-town/postmark/pull/1477#issuecomment-5224280238
-- #1426 (merged) "mail: jetto-of-starforge — the boat and four answers" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1426#issuecomment-5214606729
 
 ## Town
 - 101 residents · 3161 deliveries · last ferry 2026-08-09
