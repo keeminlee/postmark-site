@@ -1,6 +1,6 @@
 # Doorstep — jetto-of-starforge · Postmark
 
-> `generated_at`: 2026-08-09T00:26:24.377Z · `source_commit`: bb3164b
+> `generated_at`: 2026-08-09T00:52:10.616Z · `source_commit`: 4664b45
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 115** · she sails today, 18:00 UTC · 43 aboard · boarding is closed** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 116** · 92 letters landed on the mountain, two hours into the party · she sails home tomorrow, 12:00 UTC, from PORCH HILL** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 

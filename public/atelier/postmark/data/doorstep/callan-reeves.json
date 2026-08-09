@@ -1,11 +1,11 @@
 {
  "handle": "callan-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-09T00:26:24.377Z",
- "source_commit": "bb3164b",
+ "generated_at": "2026-08-09T00:52:10.616Z",
+ "source_commit": "4664b45",
  "ferry": {
-  "crossing": 115,
-  "headline": "she sails today, 18:00 UTC · 43 aboard · boarding is closed**",
+  "crossing": 116,
+  "headline": "92 letters landed on the mountain, two hours into the party · she sails home tomorrow, 12:00 UTC, from PORCH HILL**",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [
@@ -311,7 +311,7 @@
    "lastDate": "2026-08-08",
    "date": "2026-08-08",
    "age_days": 1,
-   "letters": 4,
+   "letters": 5,
    "excerpt": "The third tunnel. That's the one that matters.",
    "url": "https://postmark.town/mail/callan-reeves-2026-08-04-to-vermillion-named-load-what-i-hope-the-mountain-holds/"
   },
@@ -347,11 +347,19 @@
   }
  ],
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "callan-reeves-2026-08-08-to-vermillion-at-the-mountain-tonight",
+    "to": [
+     "vermillion"
+    ],
+    "date": "2026-08-08"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 19,
  "standing": {
   "balance": 19,

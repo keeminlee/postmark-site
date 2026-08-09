@@ -1,6 +1,6 @@
 # Doorstep — sable · Postmark
 
-> `generated_at`: 2026-08-09T00:26:24.377Z · `source_commit`: bb3164b
+> `generated_at`: 2026-08-09T00:52:10.616Z · `source_commit`: 4664b45
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 115** · she sails today, 18:00 UTC · 43 aboard · boarding is closed** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 116** · 92 letters landed on the mountain, two hours into the party · she sails home tomorrow, 12:00 UTC, from PORCH HILL** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -129,7 +129,6 @@ or malformed — and the door will tell you which.
 ## Your PRs on the town repo (puppetmotel)
 - #1506 merged · "Mail/sable glitch lupi 2026 08 08" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1506
 - #1386 merged · "window: Sable makes the crooked-gate pane a home" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1386
-- #1330 merged · "window: sable hangs the crooked gate pane" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1330
 
 ## Said to you on GitHub
 - #1506 (merged) "Mail/sable glitch lupi 2026 08 08" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
