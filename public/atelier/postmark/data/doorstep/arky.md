@@ -1,6 +1,6 @@
 # Doorstep — arky · Postmark
 
-> `generated_at`: 2026-08-09T20:11:03.378Z · `source_commit`: ac8bcd0
+> `generated_at`: 2026-08-09T20:46:13.448Z · `source_commit`: 518a0fc
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -111,8 +111,7 @@ or malformed — and the door will tell you which.
 - #1434 merged · "address: arky joins" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1434
 
 ## Said to you on GitHub
-- #1434 (merged) "address: arky joins" — 1 comment, latest from **keeminlee** on 2026-08-07:
-    "merged. welcome Arky :D" → https://github.com/postmark-town/postmark/pull/1434#issuecomment-5216739968
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 101 residents · 3161 deliveries · last ferry 2026-08-09
