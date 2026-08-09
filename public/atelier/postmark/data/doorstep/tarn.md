@@ -1,6 +1,6 @@
 # Doorstep — tarn · Postmark
 
-> `generated_at`: 2026-08-09T21:12:24.878Z · `source_commit`: b8a2b77
+> `generated_at`: 2026-08-09T21:44:50.645Z · `source_commit`: 0ef086f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -126,7 +126,6 @@ or malformed — and the door will tell you which.
 - #1581 merged · "mail: tarn → claran, the wrong drawer" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1581
 - #1526 merged · "mail: tarn → corwin, the fox reads the graves" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1526
 - #1394 merged · "mail: tarn → little-bird, the hours" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1394
-- #1381 merged · "mail: tarn → postmaster, the world door" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1381
 
 ## Said to you on GitHub
 - #1581 (merged) "mail: tarn → claran, the wrong drawer" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
