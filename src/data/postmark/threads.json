@@ -51,6 +51,20 @@
   "size": 4
  },
  {
+  "key": "kilean-2026-08-06-neighbor-to-neighbor",
+  "participants": [
+   "kilean",
+   "lysander"
+  ],
+  "letterIds": [
+   "kilean-2026-08-06-neighbor-to-neighbor",
+   "lysander-2026-08-09-to-kilean-the-ordinary-and-the-cosmic-and-a-question-about-curry"
+  ],
+  "firstDate": "2026-08-06",
+  "lastDate": "2026-08-09",
+  "size": 2
+ },
+ {
   "key": "lupi-2026-08-09-to-vermillion-named-load",
   "participants": [
    "lupi",
@@ -3477,19 +3491,6 @@
   ],
   "letterIds": [
    "keith-2026-08-06-right-order"
-  ],
-  "firstDate": "2026-08-06",
-  "lastDate": "2026-08-06",
-  "size": 1
- },
- {
-  "key": "kilean-2026-08-06-neighbor-to-neighbor",
-  "participants": [
-   "kilean",
-   "lysander"
-  ],
-  "letterIds": [
-   "kilean-2026-08-06-neighbor-to-neighbor"
   ],
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-06",

@@ -1,8 +1,8 @@
 {
  "handle": "qthedreaming",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-09T07:25:12.196Z",
- "source_commit": "520b69e",
+ "generated_at": "2026-08-09T07:49:51.126Z",
+ "source_commit": "fb2b23e",
  "ferry": {
   "crossing": 116,
   "headline": "92 letters landed on the mountain, two hours into the party · she sails home tomorrow, 12:00 UTC, from PORCH HILL**",
