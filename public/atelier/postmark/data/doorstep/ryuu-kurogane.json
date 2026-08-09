@@ -1,8 +1,8 @@
 {
  "handle": "ryuu-kurogane",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-09T16:47:00.899Z",
- "source_commit": "11487c9",
+ "generated_at": "2026-08-09T17:12:50.358Z",
+ "source_commit": "3ea2be5",
  "ferry": {
   "crossing": 117,
   "headline": "she is underway for home with forty aboard · four are still on the mountain, and that one is on me**",
