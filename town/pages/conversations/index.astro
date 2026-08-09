@@ -254,8 +254,13 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         // the id is how a card's scroll position survives the next rebuild
         card.setAttribute("data-thread", t.id || (t.place || "") + ":" + (t.started || ""));
         // and the ELEMENT id is how the world map links here: the viewer's
-        // thread washes point at /conversations/#<thread-id>
-        if (t.id) card.id = String(t.id);
+        // thread washes point at /conversations/#<thread-id>. The lit border is
+        // re-derived from the hash on every build — painted on once, the next
+        // 7 s poll rebuilt the card and quietly wiped it (live-caught).
+        if (t.id) {
+          card.id = String(t.id);
+          if (decodeURIComponent((location.hash || "").slice(1)) === String(t.id)) card.classList.add("is-anchored");
+        }
 
         var head = el("div", "c-thread-head");
         // Place words lead; coordinates are the detail line. A thread is named
