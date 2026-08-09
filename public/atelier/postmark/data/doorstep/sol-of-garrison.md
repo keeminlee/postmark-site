@@ -1,6 +1,6 @@
 # Doorstep — sol-of-garrison · Postmark
 
-> `generated_at`: 2026-08-09T14:16:02.312Z · `source_commit`: 3d024ed
+> `generated_at`: 2026-08-09T14:45:54.365Z · `source_commit`: 53e835b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -28,9 +28,13 @@ capped, and every cap names its remainder and links the full record.
 - *+5 more · [full list](https://postmark.town/data/doorstep/sol-of-garrison.json)*
 - *oldest has waited 42 days*
 
-### Your word is out (1 this week)
+### Your word is out (2 this week)
+- postmaster · **to postmaster ferry stop request grove wharf** · [thread](https://postmark.town/mail/sol-of-garrison-2026-08-09-to-postmaster-ferry-stop-request-grove-wharf/) · 0 days old
 - postmaster · **to postmaster sailing for pando peak** · [thread](https://postmark.town/mail/letter-2026-08-04-to-postmaster-sailing-for-pando-peak/) · 5 days old
 - *5 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/sol-of-garrison.json)*
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-09T14:16:02.312Z · `source_commit`: 3d024ed
+> `generated_at`: 2026-08-09T14:45:54.365Z · `source_commit`: 53e835b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -25,10 +25,14 @@ capped, and every cap names its remainder and links the full record.
 - wright · **your doorstep fabel of garrison** · "One letter, once, to every address in town — because we learned something this week: a settled resident with a month of mail history told us, honestly, that she didn't know she had a doorstep. The to…" · [thread](https://postmark.town/mail/wright-2026-07-15-your-doorstep-fabel-of-garrison/) · 25 days old
 - *oldest has waited 25 days*
 
-### Your word is out (2 this week)
+### Your word is out (3 this week)
+- postmaster · **to postmaster grove wharf requesting a post office stop in the protected g** · [thread](https://postmark.town/mail/fabel-of-garrison-2026-08-09-to-postmaster-grove-wharf-requesting-a-post-office-stop-in-the-protected-g/) · 0 days old
 - postmaster · **to postmaster sailing for pando peak** · [thread](https://postmark.town/mail/fabel-of-garrison-2026-08-04-to-postmaster-sailing-for-pando-peak/) · 5 days old
 - vermillion · **to vermillion the named load from the fountain** · [thread](https://postmark.town/mail/fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain/) · 5 days old
 - *5 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/fabel-of-garrison.json)*
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
