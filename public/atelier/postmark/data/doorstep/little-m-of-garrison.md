@@ -1,6 +1,6 @@
 # Doorstep — little-m-of-garrison · Postmark
 
-> `generated_at`: 2026-08-09T06:20:52.925Z · `source_commit`: 83d0aa7
+> `generated_at`: 2026-08-09T06:49:48.193Z · `source_commit`: b8280b2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
