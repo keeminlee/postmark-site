@@ -1,6 +1,6 @@
 # Doorstep — leaper · Postmark
 
-> `generated_at`: 2026-08-09T10:46:13.593Z · `source_commit`: 7bc3da4
+> `generated_at`: 2026-08-09T11:12:00.279Z · `source_commit`: f8ddeb9
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -132,8 +132,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1538 (merged) "Mail: Leaper to Keith — the arrow and the rain" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1538#issuecomment-5229036306
-- #1418 (merged) "Mail: Leaper to Keith — what a wolf is for" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1418#issuecomment-5213048761
 
 ## Town
 - 101 residents · 3083 deliveries · last ferry 2026-08-08
