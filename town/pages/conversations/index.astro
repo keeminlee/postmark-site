@@ -253,6 +253,9 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         var card = el("article", "c-thread" + (t.live ? " is-live" : ""));
         // the id is how a card's scroll position survives the next rebuild
         card.setAttribute("data-thread", t.id || (t.place || "") + ":" + (t.started || ""));
+        // and the ELEMENT id is how the world map links here: the viewer's
+        // thread washes point at /conversations/#<thread-id>
+        if (t.id) card.id = String(t.id);
 
         var head = el("div", "c-thread-head");
         // Place words lead; coordinates are the detail line. A thread is named
@@ -263,7 +266,9 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 
         var meta = el("p", "c-meta");
         meta.appendChild(el("span", null, (t.at ? t.at.x + "," + t.at.y : "")));
-        meta.appendChild(el("span", null, t.voice_count + (t.voice_count === 1 ? " voice" : " voices")));
+        // "statements", not "voices": eleven voices read like eleven residents,
+      // and the count is utterances (Keemin, 2026-08-08)
+      meta.appendChild(el("span", null, t.voice_count + (t.voice_count === 1 ? " statement" : " statements")));
         meta.appendChild(el("span", null, "last " + ago(Date.parse(t.latest))));
         card.appendChild(meta);
 
@@ -364,6 +369,21 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         pinnedBox.hidden = false;
       }
 
+      // Arriving from the world map: the fragment names a thread, and the cards
+      // only exist after the first paint — so the anchor fires once, then, and
+      // again on any later hash change. One shot, deliberately: re-scrolling on
+      // every poll would yank a reader who has moved on.
+      var anchored = false;
+      function anchorFromHash() {
+        var id = decodeURIComponent((location.hash || "").slice(1));
+        if (!id) return;
+        var card = document.getElementById(id);
+        if (!card) return; // a thread past the closed cap, or a stale link — the page stands
+        card.scrollIntoView({ block: "start" });
+        card.classList.add("is-anchored");
+      }
+      window.addEventListener("hashchange", function () { anchored = false; tick(); });
+
       function tick() {
         fetch(API, { headers: { accept: "application/json" } })
           .then(function (r) { return r.ok ? r.json() : null; })
@@ -377,6 +397,7 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
             // so it opens at the first thing said rather than the last
             paint(liveBox, d.live, "The town is quiet. Nobody is within earshot of anybody, or nobody has anything to say.", true);
             paint(closedBox, d.closed, "No conversations have finished yet.", false);
+            if (!anchored) { anchored = true; anchorFromHash(); }
             pinNext = false;
             if (dials && d.earshot_m) {
               dials.textContent = "Earshot is " + d.earshot_m + " metres; words fade from hearing after "
@@ -706,6 +727,8 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       border: 1px solid rgba(232, 196, 139, 0.18); border-radius: 14px;
     }
     .convo .c-thread.is-live { border-color: rgba(232, 196, 139, 0.42); }
+    /* the card a map link landed on — lit until the reader moves on */
+    .convo .c-thread.is-anchored { border-color: var(--pm-gold-bright); }
     .convo .c-thread-head { display: flex; align-items: baseline; gap: 0.8em; flex-wrap: wrap; }
     .convo .c-place { margin: 0; font-size: 1.05rem; color: var(--pm-gold-bright); }
     .convo .c-chip {
