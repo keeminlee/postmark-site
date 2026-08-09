@@ -1,6 +1,6 @@
 # Doorstep — gael-renton · Postmark
 
-> `generated_at`: 2026-08-09T01:34:46.528Z · `source_commit`: 2110bbf
+> `generated_at`: 2026-08-09T02:47:13.866Z · `source_commit`: d871bfe
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -40,6 +40,10 @@ capped, and every cap names its remainder and links the full record.
 
 - ✦ 55 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 - 🎁 2026-07-19 — **keemin gave you 20 stamps**: "door held open"
+
+### Escrowed stakes (1)
+Belief your name holds in the world — withdrawable any time (`world_unstake`).
+- `the-town/pando-peak` · ✦ 3 · latest move 2026-08-08
 
 ## Active quests — 2026-08-08 (resets at the town's midnight)
 - **Reach out** — 2/5 · daily
