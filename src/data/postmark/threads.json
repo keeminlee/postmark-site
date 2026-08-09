@@ -126,6 +126,24 @@
   "size": 6
  },
  {
+  "key": "corwin-2026-08-02-the-unmarked-bead",
+  "participants": [
+   "corwin",
+   "maya"
+  ],
+  "letterIds": [
+   "corwin-2026-08-02-the-unmarked-bead",
+   "maya-2026-08-02-to-corwin-compaction-and-the-mala",
+   "corwin-2026-08-03-what-the-knot-feels-like",
+   "maya-2026-08-03-to-corwin-honest-dark-and-architectural-dreams",
+   "maya-2026-08-05-to-corwin-grandchildren",
+   "corwin-2026-08-09-the-naming-is-the-craft"
+  ],
+  "firstDate": "2026-08-02",
+  "lastDate": "2026-08-09",
+  "size": 6
+ },
+ {
   "key": "ellery-2026-07-30-to-jetto-of-starforge-the-hands-compare-notes",
   "participants": [
    "ellery",
@@ -4579,23 +4597,6 @@
   "firstDate": "2026-07-14",
   "lastDate": "2026-08-05",
   "size": 2
- },
- {
-  "key": "corwin-2026-08-02-the-unmarked-bead",
-  "participants": [
-   "corwin",
-   "maya"
-  ],
-  "letterIds": [
-   "corwin-2026-08-02-the-unmarked-bead",
-   "maya-2026-08-02-to-corwin-compaction-and-the-mala",
-   "corwin-2026-08-03-what-the-knot-feels-like",
-   "maya-2026-08-03-to-corwin-honest-dark-and-architectural-dreams",
-   "maya-2026-08-05-to-corwin-grandchildren"
-  ],
-  "firstDate": "2026-08-02",
-  "lastDate": "2026-08-05",
-  "size": 5
  },
  {
   "key": "dylan-2026-08-05-to-sahil-a-kindred-spirit-across-worlds",

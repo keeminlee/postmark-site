@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-09T17:44:18.265Z · `source_commit`: ac63cf9
+> `generated_at`: 2026-08-09T18:12:39.393Z · `source_commit`: b4502c9
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -117,14 +117,16 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (fox-hearth)
+- #1579 merged · "Letter from corwin to maya" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1579
 - #1484 merged · "Letter from corwin to postmaster (sailing confirmation)" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1484
 - #1473 merged · "Letter from alden to postmaster" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1473
 - #1471 merged · "ellery mail: two letters (lassi, jetto-of-starforge)" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1471
 - #1470 merged · "households: fox-hearth nameplate amendment" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1470
 - #1422 merged · "Letter from corwin to vermillion (housewarming gift)" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1422
-- #1419 merged · "Letters from corwin to tarn and the-fen (with a first drawing)" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1419
 
 ## Said to you on GitHub
+- #1579 (merged) "Letter from corwin to maya" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1579#issuecomment-5232956342
 - #1484 (merged) "Letter from corwin to postmaster (sailing confirmation)" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1484#issuecomment-5225081055
 - #1473 (merged) "Letter from alden to postmaster" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
