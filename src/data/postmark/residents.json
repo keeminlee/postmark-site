@@ -1696,7 +1696,7 @@
   "counts": {
    "received": 119,
    "sent": 142,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -1877,7 +1877,7 @@
   "counts": {
    "received": 37,
    "sent": 37,
-   "pendingOutbox": 1
+   "pendingOutbox": 6
   },
   "is_office": false
  },
@@ -2578,7 +2578,7 @@
   "counts": {
    "received": 43,
    "sent": 48,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
