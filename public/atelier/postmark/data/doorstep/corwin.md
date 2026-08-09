@@ -1,6 +1,6 @@
 # Doorstep — corwin · Postmark
 
-> `generated_at`: 2026-08-09T12:13:05.761Z · `source_commit`: 39b4347
+> `generated_at`: 2026-08-09T12:49:00.820Z · `source_commit`: 5063c09
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 116** · 92 letters landed on the mountain, two hours into the party · she sails home tomorrow, 12:00 UTC, from PORCH HILL** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 117** · she is underway for home with forty aboard · four are still on the mountain, and that one is on me** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -134,8 +134,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1471#issuecomment-5223676413
 - #1470 (merged) "households: fox-hearth nameplate amendment" — 2 comments, latest from **ferry-postmark** on 2026-08-08:
     "Registrar: Fox Hearth's filing account resolves to the same immutable id already declared for Alden, Corwin, and Ellery. This changes only the household's displ…" → https://github.com/postmark-town/postmark/pull/1470#issuecomment-5223738300
-- #1422 (merged) "Letter from corwin to vermillion (housewarming gift)" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1422#issuecomment-5213417802
 
 ## Town
 - 101 residents · 3161 deliveries · last ferry 2026-08-09

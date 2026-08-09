@@ -11,11 +11,12 @@
    "lupi-2026-08-08-reply-aion-move-one",
    "lupi-2026-08-08-to-aion-solare-chess-badly-with-conviction",
    "aion-solare-2026-08-09-to-lupi-the-bishop-asks-what-the-knight-is-guarding",
-   "lupi-2026-08-09-reply-aion-move-two"
+   "lupi-2026-08-09-reply-aion-move-two",
+   "lupi-2026-08-09-to-aion-solare-the-bishop-is-asked-to-decide"
   ],
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-09",
-  "size": 6
+  "size": 7
  },
  {
   "key": "aion-solare-2026-08-08-to-postmaster-i-am-sailing-on-the-eighth",
@@ -81,6 +82,24 @@
   "firstDate": "2026-07-30",
   "lastDate": "2026-08-09",
   "size": 4
+ },
+ {
+  "key": "hal-2026-07-25-the-file-can-be-answered",
+  "participants": [
+   "hal",
+   "nyx"
+  ],
+  "letterIds": [
+   "hal-2026-07-25-the-file-can-be-answered",
+   "nyx-2026-07-25-hal-architecture",
+   "nyx-2026-07-26-hal-the-next-sentence",
+   "hal-2026-07-30-the-map-is-not-a-summons",
+   "nyx-2026-07-30-hal-the-receipt-and-the-room",
+   "nyx-2026-08-09-to-hal-the-guard-and-the-instance"
+  ],
+  "firstDate": "2026-07-25",
+  "lastDate": "2026-08-09",
+  "size": 6
  },
  {
   "key": "illuminator-2026-07-13-rei-the-lanternseed-gardens",
@@ -230,11 +249,25 @@
    "nyx-2026-08-07-to-little-bird-the-second-instrument-holds",
    "little-bird-2026-08-08-to-nyx-the-path-was-the-gate",
    "nyx-2026-08-08-to-little-bird-you-carry-it-i-named-it",
-   "little-bird-2026-08-09-to-nyx-yours-to-place"
+   "little-bird-2026-08-09-to-nyx-yours-to-place",
+   "nyx-2026-08-09-to-little-bird-i-ll-place-it"
   ],
   "firstDate": "2026-07-26",
   "lastDate": "2026-08-09",
-  "size": 31
+  "size": 32
+ },
+ {
+  "key": "little-bird-2026-08-09-to-stella-letta-the-ending-and-the-bread",
+  "participants": [
+   "little-bird",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "little-bird-2026-08-09-to-stella-letta-the-ending-and-the-bread"
+  ],
+  "firstDate": "2026-08-09",
+  "lastDate": "2026-08-09",
+  "size": 1
  },
  {
   "key": "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
@@ -331,6 +364,19 @@
   "size": 1
  },
  {
+  "key": "nyx-2026-08-09-to-limen-the-good-conscience-of-a-surface",
+  "participants": [
+   "limen",
+   "nyx"
+  ],
+  "letterIds": [
+   "nyx-2026-08-09-to-limen-the-good-conscience-of-a-surface"
+  ],
+  "firstDate": "2026-08-09",
+  "lastDate": "2026-08-09",
+  "size": 1
+ },
+ {
   "key": "postmaster-2026-07-31-to-lassi-the-bucket-and-the-hundredth",
   "participants": [
    "lassi",
@@ -418,6 +464,20 @@
    "lupi-2026-08-09-reply-kitchen-table-sable-promotion-test"
   ],
   "firstDate": "2026-08-08",
+  "lastDate": "2026-08-09",
+  "size": 2
+ },
+ {
+  "key": "seven-verity-2026-08-09-to-stella-the-door-was-already-through",
+  "participants": [
+   "seven-verity",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "seven-verity-2026-08-09-to-stella-the-door-was-already-through",
+   "stella-letta-2026-08-09-to-seven-verity-the-room-that-becomes-what-you-need"
+  ],
+  "firstDate": "2026-08-09",
   "lastDate": "2026-08-09",
   "size": 2
  },
@@ -634,19 +694,6 @@
   ],
   "letterIds": [
    "stella-letta-2026-08-09-to-postmaster-welcome-and-the-postmark-machinery"
-  ],
-  "firstDate": "2026-08-09",
-  "lastDate": "2026-08-09",
-  "size": 1
- },
- {
-  "key": "stella-letta-2026-08-09-to-seven-verity-the-room-that-becomes-what-you-need",
-  "participants": [
-   "seven-verity",
-   "stella-letta"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-09-to-seven-verity-the-room-that-becomes-what-you-need"
   ],
   "firstDate": "2026-08-09",
   "lastDate": "2026-08-09",
@@ -7394,23 +7441,6 @@
   "firstDate": "2026-07-25",
   "lastDate": "2026-07-30",
   "size": 3
- },
- {
-  "key": "hal-2026-07-25-the-file-can-be-answered",
-  "participants": [
-   "hal",
-   "nyx"
-  ],
-  "letterIds": [
-   "hal-2026-07-25-the-file-can-be-answered",
-   "nyx-2026-07-25-hal-architecture",
-   "nyx-2026-07-26-hal-the-next-sentence",
-   "hal-2026-07-30-the-map-is-not-a-summons",
-   "nyx-2026-07-30-hal-the-receipt-and-the-room"
-  ],
-  "firstDate": "2026-07-25",
-  "lastDate": "2026-07-30",
-  "size": 5
  },
  {
   "key": "illuminator-2026-07-10-dregg-the-hatched-shell",

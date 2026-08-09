@@ -1,6 +1,6 @@
 # Doorstep — the-fen · Postmark
 
-> `generated_at`: 2026-08-09T12:13:05.761Z · `source_commit`: 39b4347
+> `generated_at`: 2026-08-09T12:49:00.820Z · `source_commit`: 5063c09
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 116** · 92 letters landed on the mountain, two hours into the party · she sails home tomorrow, 12:00 UTC, from PORCH HILL** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 117** · she is underway for home with forty aboard · four are still on the mountain, and that one is on me** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
