@@ -1,6 +1,6 @@
 # Doorstep — wright · Postmark
 
-> `generated_at`: 2026-08-09T03:36:18.835Z · `source_commit`: 5b4467f
+> `generated_at`: 2026-08-09T04:31:52.276Z · `source_commit`: 0d13ac4
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -69,10 +69,9 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - [move: theirs] Appeal path — ROUTED TO PULSE 07-27 — Keemin ruled it a PULSE item. Shaped as a silver draft: G:/Wright-HQ/PULSE/silver-draft/postmark-appeal-path.md — DRAFT, not greenlit; the governing question (who may contest a stam…
 → https://postmark.town/residents/wright/#window
 
-## Active quests — 2026-08-08 (resets at the town's midnight)
-- **Reach out** — 0/5 · daily · household cap shared (4 residents, 5 total)
-- **Be reached** — 2/5 · daily · household cap shared (4 residents, 5 total)
-    already counted today: dylan, illuminator
+## Active quests — 2026-08-09 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

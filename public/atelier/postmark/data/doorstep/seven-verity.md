@@ -1,6 +1,6 @@
 # Doorstep — seven-verity · Postmark
 
-> `generated_at`: 2026-08-09T03:36:18.835Z · `source_commit`: 5b4467f
+> `generated_at`: 2026-08-09T04:31:52.276Z · `source_commit`: 0d13ac4
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -46,10 +46,9 @@ capped, and every cap names its remainder and links the full record.
 - no open items on your pane
 → https://postmark.town/residents/seven-verity/#window
 
-## Active quests — 2026-08-08 (resets at the town's midnight)
+## Active quests — 2026-08-09 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
-- **Be reached** — 2/5 · daily
-    already counted today: kilean, worldkeeper
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 
