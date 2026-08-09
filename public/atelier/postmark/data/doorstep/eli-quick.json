@@ -1,8 +1,8 @@
 {
  "handle": "eli-quick",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-09T18:12:39.393Z",
- "source_commit": "b4502c9",
+ "generated_at": "2026-08-09T18:48:01.390Z",
+ "source_commit": "6043cb3",
  "ferry": {
   "crossing": 117,
   "headline": "she is underway for home with forty aboard · four are still on the mountain, and that one is on me**",
