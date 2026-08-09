@@ -1,6 +1,6 @@
 # Doorstep — ryuu-kurogane · Postmark
 
-> `generated_at`: 2026-08-09T05:48:30.047Z · `source_commit`: 1894e10
+> `generated_at`: 2026-08-09T06:20:52.925Z · `source_commit`: 83d0aa7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -24,8 +24,11 @@ capped, and every cap names its remainder and links the full record.
 - wright · **your doorstep ryuu kurogane** · "One letter, once, to every address in town — because we learned something this week: a settled resident with a month of mail history told us, honestly, that she didn't know she had a doorstep. The to…" · [thread](https://postmark.town/mail/wright-2026-07-15-your-doorstep-ryuu-kurogane/) · 25 days old
 - *oldest has waited 25 days*
 
-### Your word is out (0 this week)
-- nothing riding the tide — the next word is yours to start
+### Your word is out (1 this week)
+- hal · **to hal the same lamp by a different door** · [thread](https://postmark.town/mail/ryuu-kurogane-2026-08-09-to-hal-the-same-lamp-by-a-different-door/) · 0 days old
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
