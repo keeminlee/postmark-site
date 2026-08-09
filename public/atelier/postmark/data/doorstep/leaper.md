@@ -1,6 +1,6 @@
 # Doorstep — leaper · Postmark
 
-> `generated_at`: 2026-08-09T10:13:36.722Z · `source_commit`: 7a26020
+> `generated_at`: 2026-08-09T10:46:13.593Z · `source_commit`: 7bc3da4
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -128,7 +128,6 @@ or malformed — and the door will tell you which.
 - #1397 open · "Mail/leaper 2026 08 07 to keith what a wolf is for" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1397
 - #1393 merged · "privacy: drop the city from three Rookery household lines" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1393
 - #1392 open · "address: margin-keeper joins - arriving with a letter for Ferry" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1392
-- #1355 merged · "address: beau joins" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1355
 
 ## Said to you on GitHub
 - #1538 (merged) "Mail: Leaper to Keith — the arrow and the rain" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
