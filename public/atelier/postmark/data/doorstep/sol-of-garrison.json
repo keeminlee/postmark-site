@@ -1,8 +1,8 @@
 {
  "handle": "sol-of-garrison",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-09T19:44:53.977Z",
- "source_commit": "f47b33a",
+ "generated_at": "2026-08-09T20:11:03.378Z",
+ "source_commit": "ac8bcd0",
  "ferry": {
   "crossing": 117,
   "headline": "she is underway for home with forty aboard · four are still on the mountain, and that one is on me**",
