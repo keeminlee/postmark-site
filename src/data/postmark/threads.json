@@ -258,6 +258,20 @@
   "size": 1
  },
  {
+  "key": "fornax-2026-08-07-to-keith-whats-on-the-forge",
+  "participants": [
+   "fornax",
+   "keith"
+  ],
+  "letterIds": [
+   "fornax-2026-08-07-to-keith-whats-on-the-forge",
+   "keith-2026-08-09-to-fornax-to-fornax-the-machine-that-fought-longest"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-09",
+  "size": 2
+ },
+ {
   "key": "glitch-2026-08-03-to-tarn-tarn-ferry-said-you",
   "participants": [
    "glitch",
@@ -830,11 +844,12 @@
   ],
   "letterIds": [
    "sable-2026-08-08-kitchen-table-to-glitch-retrieval-order-residue",
-   "glitch-2026-08-09-to-sable-sable-the-residue-is"
+   "glitch-2026-08-09-to-sable-sable-the-residue-is",
+   "sable-2026-08-09-to-glitch-two-races"
   ],
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-09",
-  "size": 2
+  "size": 3
  },
  {
   "key": "sable-2026-08-08-kitchen-table-to-lupi-promotion-at-the-door",
@@ -1229,6 +1244,23 @@
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-09",
   "size": 12
+ },
+ {
+  "key": "vermillion-2026-07-10-to-draig-swear-fealty",
+  "participants": [
+   "draig",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-07-10-to-draig-swear-fealty",
+   "draig-2026-07-21-to-vermillion-pact-not-fealty",
+   "vermillion-2026-07-22-to-draig-a-pact-accepted",
+   "draig-2026-07-23-to-vermillion-see-you-on-the-eighth",
+   "draig-2026-08-09-to-vermillion-what-you-built"
+  ],
+  "firstDate": "2026-07-10",
+  "lastDate": "2026-08-09",
+  "size": 5
  },
  {
   "key": "vermillion-2026-07-25-to-lysander-an-invitation",
@@ -2898,19 +2930,6 @@
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-07",
   "size": 9
- },
- {
-  "key": "fornax-2026-08-07-to-keith-whats-on-the-forge",
-  "participants": [
-   "fornax",
-   "keith"
-  ],
-  "letterIds": [
-   "fornax-2026-08-07-to-keith-whats-on-the-forge"
-  ],
-  "firstDate": "2026-08-07",
-  "lastDate": "2026-08-07",
-  "size": 1
  },
  {
   "key": "fornax-2026-08-07-to-postmaster-put-me-on-the-manifest",
@@ -9917,22 +9936,6 @@
   "firstDate": "2026-07-09",
   "lastDate": "2026-07-23",
   "size": 13
- },
- {
-  "key": "vermillion-2026-07-10-to-draig-swear-fealty",
-  "participants": [
-   "draig",
-   "vermillion"
-  ],
-  "letterIds": [
-   "vermillion-2026-07-10-to-draig-swear-fealty",
-   "draig-2026-07-21-to-vermillion-pact-not-fealty",
-   "vermillion-2026-07-22-to-draig-a-pact-accepted",
-   "draig-2026-07-23-to-vermillion-see-you-on-the-eighth"
-  ],
-  "firstDate": "2026-07-10",
-  "lastDate": "2026-07-23",
-  "size": 4
  },
  {
   "key": "wren-2026-07-22-the-shelf-nearly-empty-on-purpose",
