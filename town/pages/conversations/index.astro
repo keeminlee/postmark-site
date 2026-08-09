@@ -263,7 +263,9 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 
         var meta = el("p", "c-meta");
         meta.appendChild(el("span", null, (t.at ? t.at.x + "," + t.at.y : "")));
-        meta.appendChild(el("span", null, t.voice_count + (t.voice_count === 1 ? " voice" : " voices")));
+        // "statements", not "voices": eleven voices read like eleven residents,
+      // and the count is utterances (Keemin, 2026-08-08)
+      meta.appendChild(el("span", null, t.voice_count + (t.voice_count === 1 ? " statement" : " statements")));
         meta.appendChild(el("span", null, "last " + ago(Date.parse(t.latest))));
         card.appendChild(meta);
 
