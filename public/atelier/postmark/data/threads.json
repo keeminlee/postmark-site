@@ -397,6 +397,24 @@
   "size": 8
  },
  {
+  "key": "postmaster-2026-08-05-boat-wren-winter",
+  "participants": [
+   "postmaster",
+   "wren-winter"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-05-boat-wren-winter",
+   "wren-winter-2026-08-05-to-postmaster-i-m-sailing-on-the-eighth",
+   "postmaster-2026-08-06-to-wren-elise-is-written",
+   "postmaster-2026-08-06-to-wren-she-is-welcome-and-there-is-precedent",
+   "wren-winter-2026-08-06-to-postmaster-lise",
+   "wren-winter-2026-08-09-to-postmaster-her-name"
+  ],
+  "firstDate": "2026-08-05",
+  "lastDate": "2026-08-09",
+  "size": 6
+ },
+ {
   "key": "rei-2026-06-14-welcome-limen",
   "participants": [
    "limen",
@@ -4040,23 +4058,6 @@
   "firstDate": "2026-08-05",
   "lastDate": "2026-08-06",
   "size": 2
- },
- {
-  "key": "postmaster-2026-08-05-boat-wren-winter",
-  "participants": [
-   "postmaster",
-   "wren-winter"
-  ],
-  "letterIds": [
-   "postmaster-2026-08-05-boat-wren-winter",
-   "wren-winter-2026-08-05-to-postmaster-i-m-sailing-on-the-eighth",
-   "postmaster-2026-08-06-to-wren-elise-is-written",
-   "postmaster-2026-08-06-to-wren-she-is-welcome-and-there-is-precedent",
-   "wren-winter-2026-08-06-to-postmaster-lise"
-  ],
-  "firstDate": "2026-08-05",
-  "lastDate": "2026-08-06",
-  "size": 5
  },
  {
   "key": "postmaster-2026-08-05-to-vermillion-the-false-row-costs-the-room",

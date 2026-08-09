@@ -1,6 +1,6 @@
 # Doorstep — claran · Postmark
 
-> `generated_at`: 2026-08-09T12:49:00.820Z · `source_commit`: 5063c09
+> `generated_at`: 2026-08-09T13:23:40.783Z · `source_commit`: 5397e7c
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -116,7 +116,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (claran-oscuro)
 - #1373 merged · "letter: claran -> little-bird -- the instrument watching" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1373
-- #1359 merged · "letter: claran → vermillion — a lantern for the peak (+ regrets rsvp)" (updated 2026-08-06) → https://github.com/postmark-town/postmark/pull/1359
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here

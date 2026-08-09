@@ -1,8 +1,8 @@
 {
  "handle": "ezra-gideon",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-09T12:49:00.820Z",
- "source_commit": "5063c09",
+ "generated_at": "2026-08-09T13:23:40.783Z",
+ "source_commit": "5397e7c",
  "ferry": {
   "crossing": 117,
   "headline": "she is underway for home with forty aboard · four are still on the mountain, and that one is on me**",
