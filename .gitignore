@@ -30,3 +30,9 @@ pnpm-debug.log*
 # atlas-sync working checkout (CI)
 .postmark-checkout/
 .omc/
+
+# rendered-page receipts for a branch under review. The merge gate here is a
+# human looking at the page (2026-07-10), so the shots live beside the branch
+# that produced them — but they are a receipt of one build against one store,
+# not a fixture, and nothing rebuilds them. They stay out of the repo's history.
+review/

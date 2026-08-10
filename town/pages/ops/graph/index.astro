@@ -1,0 +1,976 @@
+---
+// /ops/graph/ — the window (world-graph plan, Stage E).
+//
+// The founder's own view of world.db: every node the store holds and every edge
+// between them, with the six standing invariants' findings PAINTED ONTO the
+// picture rather than listed beside it. The plan's line for why that matters:
+// "the feature that makes it debugging rather than decoration — lint violations
+// painted as red edges: the stale wheelhouse as a dangling red edge you see,
+// hanging off the vessel."
+//
+// Everything here is drawn client-side from the office's `GET /world/graph`,
+// which is keyless like the rest of the world's read tier. Nothing about the
+// graph is baked at build: the store is rehydrated on its own clock and a page
+// that shipped a snapshot would be showing yesterday's world with today's date
+// on it. The As-Of bar at the top says which world you are looking at, every
+// time, and asks `GET /world/store` whether that is still the sha main points
+// at — the store's own freshness question, answered by the store's own door
+// rather than guessed from a clock here.
+//
+// ON CYTOSCAPE. Imported as an npm dependency and bundled by Astro, the same
+// lane every other library on this site takes (marked, js-yaml): no CDN, no
+// vendored copy in the tracked tree, nothing to drift. §2.6 chose it for the
+// standing page because layouts, pan, zoom and click-to-expand come free; Sigma
+// remains the drop-in swap if a whole-world WebGL view is ever wanted.
+//
+// ON THE Y AXIS. The world's y runs SOUTH and Cytoscape's runs DOWN the screen,
+// so the map view passes coordinates through unchanged and north comes out up.
+// The office says so in the payload (`coordinates`) rather than leaving it to a
+// comment only one side can read — the GEXF exporter has to flip the same
+// numbers for Gephi, and one of the two viewers was always going to get it
+// backwards without the contract written down.
+//
+// Internal surface: noindex, like every page under /ops/.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+
+// The seven decided edge types (§2.6 / dial 5), in the order the chips show
+// them: the two structural ones first (they are 70% of the graph), then the
+// convergence hops, then the one that carries a live finding.
+const EDGE_TYPES = [
+  { type: "contains", line: "spatial containment" },
+  { type: "describes", line: "a predicate and what it predicates" },
+  { type: "instance-of", line: "a token and its type" },
+  { type: "implements", line: "a mark and the machinery that keeps it true" },
+  { type: "reads", line: "code and a world surface it reads" },
+  { type: "imports", line: "one module and another" },
+  { type: "stop-of", line: "a stop and the vessel whose timetable names it" },
+];
+
+// The tier lattice adopted at Stage 0 (dial 2): constitution → blue,
+// sovereignty → green, market → yellow, draft → gray. Two of the four have no
+// members in the store today, and the legend says so rather than quietly
+// showing a colour nothing wears.
+const TIERS = [
+  { tier: "constitution", label: "constitution", swatch: "tier-constitution" },
+  { tier: "sovereignty", label: "sovereignty", swatch: "tier-sovereignty" },
+  { tier: "market", label: "market", swatch: "tier-market" },
+  { tier: "draft", label: "draft / untiered", swatch: "tier-draft" },
+];
+
+const KINDS = [
+  { kind: "mark", label: "marks", line: "the world's own records — coloured by tier" },
+  { kind: "class", label: "classes", line: "predicate marks that carry law" },
+  { kind: "code", label: "code", line: "modules in the office and the world" },
+  { kind: "doctrine", label: "doctrine", line: "ENGINE.md sections" },
+  { kind: "unknown", label: "unresolved", line: "the far end of a dangling edge" },
+];
+---
+<PostmarkLayout
+  title="The world graph — Postmark ops"
+  description="The window on world.db: every node and edge in the world store, with the standing invariants' findings painted onto the graph."
+  active=""
+  noindex={true}
+>
+  <div class="opsgraph" data-graph>
+    <p class="pm-kicker"><a href="/">Postmark</a> · <a href="/ops/">Ops</a> · The graph</p>
+
+    <header class="og-head">
+      <h1>The world graph</h1>
+      <p class="tag">world.db as it stands · the standing invariants painted on</p>
+    </header>
+
+    <!-- THE AS-OF BAR. Which world this is, when it was folded, and whether it
+         is still the one main points at. Filled by the island; the shell says
+         "reading" so a slow office never looks like an empty world. -->
+    <section class="og-asof" data-asof>
+      <span class="og-asof-dot" data-asof-dot></span>
+      <span class="og-asof-text" data-asof-text>reading the store…</span>
+      <span class="og-counts" data-counts></span>
+      <button type="button" class="og-reload" data-reload hidden>re-read</button>
+    </section>
+
+    <!-- THE CHIPS. Views first (the whole reason to come here), then the two
+         taxonomies. Every chip is a filter over what is already loaded — no
+         chip costs a round trip, because the whole store came in one. -->
+    <div class="og-chips">
+      <div class="og-chiprow">
+        <span class="og-chiplabel">view</span>
+        <button type="button" class="og-chip og-chip-view is-on" data-view="all">everything</button>
+        <button type="button" class="og-chip og-chip-view" data-view="convergence">convergence</button>
+        <button type="button" class="og-chip og-chip-view" data-view="findings">findings only</button>
+        <span class="og-chipsep"></span>
+        <span class="og-chiplabel">layout</span>
+        <button type="button" class="og-chip og-chip-layout is-on" data-layout="web">web</button>
+        <button type="button" class="og-chip og-chip-layout" data-layout="map">map</button>
+      </div>
+
+      <div class="og-chiprow">
+        <span class="og-chiplabel">kinds</span>
+        {KINDS.map((k) => (
+          <button type="button" class="og-chip og-chip-kind is-on" data-kind={k.kind} title={k.line}>
+            <i class={`og-glyph og-glyph-${k.kind}`} aria-hidden="true"></i>{k.label}
+          </button>
+        ))}
+      </div>
+
+      <div class="og-chiprow">
+        <span class="og-chiplabel">edges</span>
+        {EDGE_TYPES.map((e) => (
+          <button type="button" class="og-chip og-chip-edge is-on" data-edge={e.type} title={e.line}>{e.type}</button>
+        ))}
+      </div>
+    </div>
+
+    <div class="og-stage">
+      <div class="og-canvas">
+        <div class="og-cy" data-cy></div>
+
+        <!-- the legend, over the canvas' bottom-left; the tier lattice is the
+             half people actually need, so it goes first -->
+        <div class="og-legend">
+          <div class="og-legend-row">
+            {TIERS.map((t) => (
+              <span class="og-legend-item"><i class={`og-swatch og-${t.swatch}`} aria-hidden="true"></i>{t.label}</span>
+            ))}
+          </div>
+          <div class="og-legend-row">
+            {KINDS.map((k) => (
+              <span class="og-legend-item"><i class={`og-glyph og-glyph-${k.kind}`} aria-hidden="true"></i>{k.label}</span>
+            ))}
+            <span class="og-legend-item og-legend-red"><i class="og-swatch og-lint" aria-hidden="true"></i>a finding</span>
+          </div>
+        </div>
+
+        <p class="og-hint" data-hint>tap a node to light its neighbourhood — neighbours hidden by a filter come back with it. Tap the background to let go.</p>
+      </div>
+
+      <!-- THE FINDINGS PANEL. The six standing invariants, each with its verdict,
+           its headline, and its own evidence heads. "Show" selects exactly the
+           nodes and edges the finding is about — the panel and the paint are one
+           list, so a finding can never highlight something it does not name. -->
+      <aside class="og-panel">
+        <div class="og-panel-head">
+          <h2 data-panel-title>Findings</h2>
+          <button type="button" class="og-panel-back" data-panel-back hidden>← findings</button>
+        </div>
+
+        <div data-findings class="og-findings">
+          <p class="og-quiet">reading…</p>
+        </div>
+
+        <!-- the inspector: what one node is, when you tap it -->
+        <div data-inspector class="og-inspector" hidden></div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    import cytoscape from "cytoscape";
+    import { officeBase } from "@/lib/auth.mjs";
+
+    const root = document.querySelector("[data-graph]");
+    if (root) (function () {
+      const OFFICE = officeBase();
+      const $ = (s) => root.querySelector(s);
+      const all = (s) => Array.prototype.slice.call(root.querySelectorAll(s));
+
+      // ── the palette ───────────────────────────────────────────────────────
+      // Read off the town's own tokens where one exists, hard-coded where the
+      // graph needs a hue the town has never had to name (the tier lattice's
+      // green and blue). Cytoscape draws to a canvas and cannot read a CSS
+      // custom property, so these are the one place on the page where a colour
+      // is written twice — kept together so the pair is obvious.
+      const TIER = {
+        constitution: "#5b86ff",   // blue — the town's own law
+        sovereignty: "#3fbf87",    // green — a household's own ground
+        market: "#e0b04a",         // yellow — what is traded
+        draft: "#7b8494",          // gray — the sketchbooks
+      };
+      const KIND = {
+        class: "#aa8fd8",          // --pm-stamp: law wears the stamp's violet
+        code: "#4ec3d9",
+        doctrine: "#f2e6cd",       // near --pm-paper: doctrine is the paper the law is written on. Deliberately NOT the town gold, which sat a few degrees off the market tier's yellow and made 8 doctrine sections indistinguishable from 400 market marks.
+        unknown: "#5b6377",
+      };
+      const RED = "#ff5c52";       // a finding. The one colour that overrides every other.
+      const SPAN_MODEL = 4000;     // the map's scale denominator (see layoutMap)
+
+      const HINT_DEFAULT = "tap a node to light its neighbourhood — neighbours hidden by a filter come back with it. Tap the background to let go.";
+      const hint = (text) => { $("[data-hint]").textContent = text || HINT_DEFAULT; };
+
+      const colourOf = (d) => (d.kind === "mark" ? (TIER[d.tier] ?? TIER.draft) : (KIND[d.kind] ?? KIND.unknown));
+
+      // ── state ─────────────────────────────────────────────────────────────
+      let cy = null;
+      let payload = null;
+      let focused = null;            // the node whose neighbourhood is lit
+      const WORLD_POS = new Map();   // id -> where the world says it is (see mount)
+      const on = {
+        kinds: new Set(["mark", "class", "code", "doctrine", "unknown"]),
+        edges: new Set(["contains", "describes", "instance-of", "implements", "reads", "imports", "stop-of"]),
+        view: "all",
+        layout: "web",
+      };
+
+      // ── boot ──────────────────────────────────────────────────────────────
+      async function boot() {
+        let health = null;
+        const [graphRes, healthRes] = await Promise.allSettled([
+          fetch(OFFICE + "/world/graph", { headers: { accept: "application/json" } }),
+          fetch(OFFICE + "/world/store", { headers: { accept: "application/json" } }),
+        ]);
+        if (graphRes.status !== "fulfilled") return dead("the office isn't answering", "the window reads GET /world/graph — the door is keyless, so this is the office being down rather than a permission.");
+        if (!graphRes.value.ok) {
+          const b = await graphRes.value.json().catch(() => ({}));
+          return dead(b.defect || `the office said ${graphRes.value.status}`, b.hint || "");
+        }
+        payload = await graphRes.value.json();
+        if (healthRes.status === "fulfilled" && healthRes.value.ok) health = await healthRes.value.json().catch(() => null);
+
+        paintAsOf(health);
+        mount();
+        paintFindings();
+        $("[data-reload]").hidden = false;
+      }
+
+      function dead(defect, hint) {
+        $("[data-asof-dot]").className = "og-asof-dot is-bad";
+        $("[data-asof-text]").textContent = defect;
+        $("[data-findings]").textContent = "";
+        const p = document.createElement("p");
+        p.className = "og-quiet";
+        p.textContent = hint;
+        $("[data-findings]").appendChild(p);
+      }
+
+      // ── the As-Of bar ─────────────────────────────────────────────────────
+      // Three separate facts, never blended: WHICH sha the store was folded
+      // from, WHEN it was folded, and whether that sha is still the one main
+      // points at. The third is the store's own answer (GET /world/store), not
+      // an inference from the second — a store folded a minute ago can already
+      // be behind, and a store folded last week can still be current.
+      function paintAsOf(health) {
+        const a = payload.as_of || {};
+        const sha = (a.world || "").slice(0, 12);
+        const ago = sinceWords(a.hydrated_at);
+        const mainSha = health && health.main && health.main.sha ? health.main.sha : null;
+        const fresh = mainSha ? mainSha === a.world : null;
+
+        const dot = $("[data-asof-dot]");
+        const bits = [`world ${sha || "?"}`, `hydrated ${ago}`];
+        if (a.hydration_status && a.hydration_status !== "OK") bits.push(`status ${a.hydration_status}`);
+        if (fresh === true) { dot.className = "og-asof-dot is-fresh"; bits.push("this IS the sha main points at"); }
+        else if (fresh === false) { dot.className = "og-asof-dot is-stale"; bits.push(`BEHIND main (${mainSha.slice(0, 12)}) — rehydrate to see the current world`); }
+        else { dot.className = "og-asof-dot"; bits.push("freshness unknown — the office could not read main"); }
+        $("[data-asof-text]").textContent = bits.join(" · ");
+      }
+
+      function sinceWords(iso) {
+        const t = Date.parse(iso || "");
+        if (!Number.isFinite(t)) return "at an unknown time";
+        const mins = Math.round((Date.now() - t) / 60000);
+        if (mins < 1) return "just now";
+        if (mins < 60) return `${mins} min ago`;
+        const hrs = Math.round(mins / 60);
+        if (hrs < 48) return `${hrs} h ago`;
+        return `${Math.round(hrs / 24)} days ago`;
+      }
+
+      function paintCounts() {
+        const n = cy.nodes(":visible").length;
+        const e = cy.edges(":visible").length;
+        const total = payload.counts.nodes;
+        const lit = cy.elements(".lint:visible").length;
+        const of = n === total ? "" : ` of ${total}`;
+        $("[data-counts]").textContent = `${n}${of} nodes · ${e} edges · ${lit} carrying a finding`;
+      }
+
+      // ── the graph ─────────────────────────────────────────────────────────
+      function mount() {
+        const els = payload.elements;
+        // THE WORLD'S OWN COORDINATES, COPIED OUT FIRST. Cytoscape takes the
+        // position objects it is handed and writes layout results back through
+        // them, so after one `cose` run the payload no longer holds where the
+        // marks ARE — it holds where the force layout put them. Read back for
+        // the map view that is a town drawn at made-up coordinates, and read
+        // back in the inspector it is a lie about a record. Copied by value,
+        // once, before cytoscape ever sees them.
+        for (const n of els.nodes) if (n.position) WORLD_POS.set(n.data.id, { x: n.position.x, y: n.position.y });
+        // A label short enough to read beside the dot it belongs to. Code ids
+        // carry their whole path (`code:world/tools/vessel.test.mjs`) and are
+        // twice the length of anything else on the canvas; the file name is what
+        // a reader is looking for and the full path is one row away in the
+        // inspector. Marks keep household/slug, because on this graph the
+        // household is half the identity.
+        for (const n of els.nodes) {
+          const id = n.data.id;
+          n.data.short = n.data.kind === "code" ? id.replace(/^code:/, "").split("/").pop() : id;
+        }
+        // The lint class is put on at mount rather than restyled later: it is a
+        // property of the element (the store said so), not a mode the page is in.
+        for (const n of els.nodes) n.classes = (n.data.lints && n.data.lints.length ? "lint " : "") + (n.data.unresolved ? "ghost" : "");
+        for (const e of els.edges) e.classes = e.data.lints && e.data.lints.length ? "lint" : "";
+
+        cy = cytoscape({
+          container: $("[data-cy]"),
+          elements: els,
+          wheelSensitivity: 0.2,
+          // 700 nodes is small enough to keep labels honest at zoom rather than
+          // paying for a texture cache that blurs them.
+          textureOnViewport: false,
+          motionBlur: false,
+          style: [
+            {
+              selector: "node",
+              style: {
+                "background-color": (n) => colourOf(n.data()),
+                "border-width": 0,
+                // sqrt-scaled by degree, for the reason world-gexf.mjs gives:
+                // the spread is two orders of magnitude and linear sizing turns
+                // the hubs into discs that cover the town.
+                width: (n) => 8 + Math.sqrt(n.data("deg") || 0) * 4,
+                height: (n) => 8 + Math.sqrt(n.data("deg") || 0) * 4,
+                label: "",
+                "font-size": 9,
+                "font-family": "ui-monospace, Consolas, monospace",
+                color: "#cfd8ea",
+                "text-background-color": "#070b15",
+                "text-background-opacity": 0.78,
+                "text-background-padding": 2,
+                "text-margin-y": -4,
+                "text-valign": "top",
+                "min-zoomed-font-size": 7,
+                "transition-property": "opacity",
+                "transition-duration": "120ms",
+              },
+            },
+            { selector: 'node[kind = "class"]', style: { shape: "diamond" } },
+            { selector: 'node[kind = "code"]', style: { shape: "round-rectangle" } },
+            { selector: 'node[kind = "doctrine"]', style: { shape: "hexagon" } },
+            {
+              // the far end of a dangling edge: hollow, so it reads as an
+              // absence rather than as a thing
+              selector: "node.ghost",
+              style: { "background-opacity": 0.08, "border-width": 1.5, "border-color": KIND.unknown, "border-style": "dashed" },
+            },
+            {
+              selector: "edge",
+              style: {
+                width: (e) => (e.data("type") === "contains" ? 1.4 : 0.8),
+                "line-color": "#33415e",
+                "curve-style": "haystack",
+                "haystack-radius": 0,
+                opacity: 0.55,
+              },
+            },
+            { selector: 'edge[type = "implements"], edge[type = "instance-of"], edge[type = "stop-of"]', style: { "line-color": "#4c5f8a", opacity: 0.8 } },
+            // ── the whole point of the page ───────────────────────────────
+            { selector: "node.lint", style: { "border-width": 3, "border-color": RED, "border-opacity": 1 } },
+            { selector: "edge.lint", style: { "line-color": RED, width: 3, opacity: 1, "z-index": 20 } },
+            // ── focus: a lit neighbourhood, everything else pushed back ────
+            { selector: ".dim", style: { opacity: 0.07 } },
+            { selector: ".lit", style: { opacity: 1, "z-index": 30 } },
+            { selector: "node.lit", style: { label: "data(short)", "z-index": 40 } },
+            { selector: "node.pick", style: { "border-width": 3, "border-color": "#f6dcae", label: "data(short)", "font-size": 11, "z-index": 50 } },
+            { selector: "edge.lit", style: { width: 2, "line-color": "#8aa0cc", opacity: 0.95 } },
+            // Red wins, always, and it has to be said LAST: cytoscape resolves a
+            // property to the last matching rule, so the focus styles above were
+            // repainting a finding's own edge in the neutral highlight colour —
+            // the one element on the page that must never lose its colour.
+            { selector: "edge.lint.lit", style: { "line-color": RED, width: 3.5, opacity: 1, "z-index": 45 } },
+            { selector: ".off", style: { display: "none" } },
+          ],
+          layout: { name: "preset" },   // laid out properly by applyFilters below
+        });
+
+        cy.on("tap", "node", (ev) => focus(ev.target));
+        cy.on("tap", (ev) => { if (ev.target === cy) blur(); });
+
+        applyFilters({ relayout: true });
+      }
+
+      // ── filters ───────────────────────────────────────────────────────────
+      // Everything stays MOUNTED and is hidden with display:none rather than
+      // removed: a filter is a way of looking, not a different graph, and
+      // click-to-expand has to be able to bring a hidden neighbour back without
+      // asking the office for it again.
+      function applyFilters({ relayout = false } = {}) {
+        cy.batch(() => {
+          cy.elements().removeClass("off");
+          if (on.view === "findings") {
+            cy.elements().not(".lint").addClass("off");
+            // a red edge needs both its ends, or it is a red line into nothing
+            cy.edges(".lint").connectedNodes().removeClass("off");
+          } else {
+            const kinds = on.view === "convergence" ? new Set(payload.convergence_kinds) : on.kinds;
+            cy.nodes().forEach((n) => { if (!kinds.has(n.data("kind"))) n.addClass("off"); });
+            cy.edges().forEach((e) => { if (!on.edges.has(e.data("type"))) e.addClass("off"); });
+          }
+        });
+        if (focused) focus(focused, { keep: true });
+        if (relayout) runLayout();
+        paintCounts();
+      }
+
+      function runLayout() {
+        const eles = cy.elements(":visible");
+        if (!eles.length) return;
+        if (on.layout === "map") return layoutMap(eles);
+        hint(null);
+        // `cose` is the built-in force layout — no plugin, which matters for a
+        // page that must build with nothing but the npm dependency. Capped at a
+        // few hundred iterations: this is a debugging window, not a poster, and
+        // the extra settling buys nothing a human reads.
+        eles.layout({
+          name: "cose",
+          animate: false,
+          numIter: 350,
+          nodeRepulsion: 9000,
+          idealEdgeLength: 60,
+          gravity: 0.4,
+          randomize: true,
+          fit: true,
+          padding: 30,
+        }).run();
+      }
+
+      // THE MAP. Sited marks go where the world says they are — y unflipped, so
+      // south is down and north is up. Everything else has no place in the world
+      // (code, doctrine, classes, and the predicates that inherit their parent's
+      // extent rather than sitting anywhere), and rather than pretend, they are
+      // parked in a labelled column off to the west. Hiding them would be the
+      // lie; scattering them across the town would be worse.
+      function layoutMap(eles) {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        eles.nodes().forEach((n) => {
+          const p = positionOf(n);
+          if (!p) return;
+          minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+          minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+        });
+        if (!Number.isFinite(minX)) return;   // nothing in view is anywhere; leave the web layout alone
+
+        // A MAP HAS A SCALE. The world is 95 km across — Pando Peak is that far
+        // from the quay — and a node is drawn in model units, so laying the
+        // marks out at their metre coordinates and fitting the result renders
+        // every one of them at a fraction of a pixel: an empty black rectangle
+        // that is arithmetically correct and shows nothing. One uniform factor
+        // takes metres into the model space, which is what the word "scale"
+        // means on any map; every distance and every bearing survives it,
+        // because it is the same number for both axes.
+        const metres = Math.max(maxX - minX, maxY - minY, 1);
+        const k = SPAN_MODEL / metres;
+        const at = (p) => ({ x: (p.x - minX) * k, y: (p.y - minY) * k });
+
+        let i = 0;
+        const perCol = 40;
+        const rowGap = SPAN_MODEL / perCol;
+        cy.batch(() => {
+          eles.nodes().forEach((n) => {
+            const p = positionOf(n);
+            if (p) { n.position(at(p)); return; }
+            // THE NOWHERE COLUMN, west of the world's own bounding box. Code,
+            // doctrine, classes and the predicates that inherit a parent's
+            // extent are not ANYWHERE, and the map says so by putting them
+            // outside it rather than scattering them through a town they have no
+            // address in. Hiding them would be the tidier lie.
+            const col = Math.floor(i / perCol);
+            const row = i % perCol;
+            i++;
+            n.position({ x: -SPAN_MODEL * 0.22 - col * (SPAN_MODEL * 0.035), y: row * rowGap });
+          });
+        });
+        cy.fit(eles, 40);
+        hint(`the map, at ${Math.round(metres / 1000)} km across — the world's own coordinates, x east, y south. `
+          + `The town is a speck beside Pando Peak; scroll to zoom in. Off to the west: everything that is not anywhere.`);
+      }
+
+      const positionOf = (n) => WORLD_POS.get(n.id()) ?? null;
+
+      // ── focus: the neighbourhood, expanded ────────────────────────────────
+      // Tapping a node reveals its closed neighbourhood EVEN WHERE A FILTER HAS
+      // HIDDEN IT, and says how many it had to bring back. That is the honest
+      // version of click-to-expand: the filter is still on, and the page tells
+      // you it stepped outside it rather than silently widening what you asked
+      // for.
+      function focus(node, { keep = false } = {}) {
+        focused = node;
+        const hood = node.closedNeighborhood();
+        const revealed = hood.filter(".off");
+        cy.batch(() => {
+          cy.elements().removeClass("lit dim pick");
+          revealed.removeClass("off");
+          cy.elements().not(hood).addClass("dim");
+          hood.addClass("lit");
+          node.addClass("pick");
+        });
+        if (!keep) inspect(node, revealed.nodes().length);
+        paintCounts();
+      }
+
+      function blur() {
+        focused = null;
+        cy.batch(() => cy.elements().removeClass("lit dim pick"));
+        applyFilters();
+        showFindings();
+      }
+
+      // ── the panel ─────────────────────────────────────────────────────────
+      function paintFindings() {
+        const box = $("[data-findings]");
+        box.textContent = "";
+        const lints = payload.lints || [];
+        if (!lints.length) {
+          const p = document.createElement("p");
+          p.className = "og-quiet";
+          p.textContent = "this store carries no lint findings — the hydration that wrote it ran without them.";
+          box.appendChild(p);
+          return;
+        }
+        for (const l of lints) {
+          const card = document.createElement("article");
+          card.className = "og-finding" + (l.verdict === "RED" ? " is-red" : "");
+
+          const head = document.createElement("header");
+          const pill = document.createElement("span");
+          pill.className = "og-verdict v-" + String(l.verdict || "").toLowerCase().replace(/[^a-z]/g, "");
+          pill.textContent = l.verdict;
+          const id = document.createElement("b");
+          id.textContent = l.lint;
+          head.appendChild(pill);
+          head.appendChild(id);
+          card.appendChild(head);
+
+          const h = document.createElement("p");
+          h.className = "og-finding-head";
+          h.textContent = l.headline;               // the lint's own words, never re-worded here
+          card.appendChild(h);
+
+          const im = l.implicates || { nodes: [], edges: [] };
+          const meta = document.createElement("p");
+          meta.className = "og-finding-meta";
+          meta.textContent = im.paints === false
+            ? (im.note || "nothing on the graph to point at")
+            : `${im.nodes.length} node${im.nodes.length === 1 ? "" : "s"} · ${im.edges.length} edge${im.edges.length === 1 ? "" : "s"}`
+              + (im.unmatched && im.unmatched.length ? ` · ${im.unmatched.length} named but NOT IN THE STORE` : "");
+          card.appendChild(meta);
+
+          if (im.note && im.paints !== false) {
+            const note = document.createElement("p");
+            note.className = "og-finding-note";
+            note.textContent = im.note;
+            card.appendChild(note);
+          }
+
+          if ((l.evidence || []).length) {
+            const ul = document.createElement("ul");
+            ul.className = "og-evidence";
+            for (const line of l.evidence) {
+              const li = document.createElement("li");
+              li.textContent = line;                // resident/derived text: textContent, never innerHTML
+              ul.appendChild(li);
+            }
+            card.appendChild(ul);
+            if (l.evidence_total > l.evidence.length) {
+              const more = document.createElement("p");
+              more.className = "og-quiet";
+              more.textContent = `+${l.evidence_total - l.evidence.length} more, and ${l.rows_total} rows behind them — npm run world:lints prints the lot`;
+              card.appendChild(more);
+            }
+          }
+
+          if (im.paints !== false && (im.nodes.length || im.edges.length)) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "og-show";
+            btn.textContent = "show on the graph";
+            btn.addEventListener("click", () => showFinding(l));
+            card.appendChild(btn);
+          }
+          box.appendChild(card);
+        }
+      }
+
+      // Selecting a finding lights EXACTLY the elements it named — the panel and
+      // the paint read the same list, so a finding can never highlight something
+      // it does not claim.
+      function showFinding(l) {
+        const im = l.implicates || { nodes: [], edges: [] };
+        const ids = im.nodes.map((n) => n.id).concat(im.edges.map((e) => e.id));
+        const eles = cy.collection();
+        for (const id of ids) {
+          const el = cy.getElementById(id);
+          if (el && el.length) eles.merge(el);
+        }
+        if (!eles.length) return;
+        focused = null;
+        cy.batch(() => {
+          cy.elements().removeClass("lit dim pick");
+          eles.removeClass("off");
+          // a red edge with a hidden end is a red line into nothing — bring the
+          // ends back with it, whatever the current filter says
+          eles.edges().connectedNodes().removeClass("off");
+          cy.elements().not(eles).addClass("dim");
+          eles.addClass("lit");
+        });
+        // Lay the lit set out on its own, in a grid shaped like the canvas.
+        // Left where the whole-graph layout put them, a finding's nodes land
+        // wherever they happened to fall and their labels overprint; a force
+        // layout packs them into a column and does the same; `breadthfirst`
+        // strings them into a strip four screens wide, because a finding is
+        // usually a set of DISCONNECTED PAIRS (a mark and its mechanic, a parcel
+        // and its class) rather than one tree — and a strip fits to a zoom where
+        // every label disappears. A grid gives each node its own cell, which is
+        // the property that matters when the point is to read the names. The
+        // pairing stays visible: the red edges draw across it.
+        const box = $("[data-cy]").getBoundingClientRect();
+        const n = eles.nodes().length;
+        const cols = Math.max(1, Math.ceil(Math.sqrt(n * Math.max(box.width / Math.max(box.height, 1), 0.2))));
+        eles.nodes().layout({ name: "grid", animate: false, cols, avoidOverlap: true, condense: false, fit: false }).run();
+        cy.fit(eles, 60);
+        inspectFinding(l, im);
+        paintCounts();
+      }
+
+      function inspectFinding(l, im) {
+        const box = $("[data-inspector]");
+        box.textContent = "";
+        box.hidden = false;
+        $("[data-findings]").hidden = true;
+        $("[data-panel-back]").hidden = false;
+        $("[data-panel-title]").textContent = `${l.lint} — what is lit`;
+
+        const ul = document.createElement("ul");
+        ul.className = "og-whylist";
+        for (const n of im.nodes) ul.appendChild(whyRow(n.id, n.why, "node"));
+        for (const e of im.edges) ul.appendChild(whyRow(e.id, e.why, "edge"));
+        for (const u of im.unmatched || []) ul.appendChild(whyRow(u.id, "named by the lint, but the store has no node for it — the finding cannot be drawn", "missing"));
+        box.appendChild(ul);
+      }
+
+      // A named node in a finding is a place to GO: L3 names 38 files, and the
+      // question that follows reading that is always "which one, and what is it
+      // attached to". Clicking the row walks there.
+      function whyRow(id, why, kind) {
+        const li = document.createElement("li");
+        li.className = "og-why og-why-" + kind;
+        const b = document.createElement("b");
+        b.textContent = id;
+        li.appendChild(b);
+        if (why) {
+          const s = document.createElement("span");
+          s.textContent = why;
+          li.appendChild(s);
+        }
+        if (kind === "node") {
+          li.classList.add("is-walkable");
+          li.addEventListener("click", () => {
+            const n = cy.getElementById(id);
+            if (!n || !n.length) return;
+            n.removeClass("off");
+            focus(n);
+            cy.animate({ center: { eles: n }, zoom: Math.max(cy.zoom(), 1.1) }, { duration: 200 });
+          });
+        }
+        return li;
+      }
+
+      // The inspector for one node: what the store holds about it, and every
+      // edge it stands at either end of.
+      function inspect(node, revealedCount) {
+        const box = $("[data-inspector]");
+        box.textContent = "";
+        box.hidden = false;
+        $("[data-findings]").hidden = true;
+        $("[data-panel-back]").hidden = false;
+        $("[data-panel-title]").textContent = "This node";
+
+        const d = node.data();
+        const h = document.createElement("p");
+        h.className = "og-inspect-id";
+        h.textContent = d.id;
+        box.appendChild(h);
+
+        const facts = [
+          ["kind", d.subkind ? `${d.kind} · ${d.subkind}` : d.kind],
+          ["tier", d.tier || "—"],
+          ["by", d.by || "—"],
+          ["degree", `${d.deg} (${d.indeg} in · ${d.outdeg} out)`],
+        ];
+        const p = node.position();
+        const orig = positionOf(node);
+        if (orig) facts.push(["at", `${orig.x}, ${orig.y} m — x east, y south`]);
+        else facts.push(["at", "nowhere in the world — this kind is not anywhere"]);
+        if (d.path) facts.push(["path", d.path]);
+        if (d.mechanic) facts.push(["mechanic", d.mechanic]);
+        if (d.class) facts.push(["class", d.class]);
+        if (d.affordances) facts.push(["affordances", String(d.affordances)]);
+        if (d.unresolved) facts.push(["unresolved", "nothing in the store claims this id — it is the far end of a dangling edge, kept because the dangle IS the finding"]);
+
+        const dl = document.createElement("dl");
+        dl.className = "og-facts";
+        for (const [k, v] of facts) {
+          const dt = document.createElement("dt"); dt.textContent = k;
+          const dd = document.createElement("dd"); dd.textContent = v;
+          dl.appendChild(dt); dl.appendChild(dd);
+        }
+        box.appendChild(dl);
+
+        if ((d.lints || []).length) {
+          const red = document.createElement("p");
+          red.className = "og-inspect-lint";
+          red.textContent = `carries a finding: ${d.lints.join(", ")}`;
+          box.appendChild(red);
+        }
+
+        const edges = node.connectedEdges();
+        const head = document.createElement("p");
+        head.className = "og-quiet";
+        head.textContent = `${edges.length} edge${edges.length === 1 ? "" : "s"}`
+          + (revealedCount ? ` · ${revealedCount} neighbour${revealedCount === 1 ? "" : "s"} brought back from behind the current filter` : "");
+        box.appendChild(head);
+
+        const ul = document.createElement("ul");
+        ul.className = "og-edgelist";
+        edges.forEach((e) => {
+          const li = document.createElement("li");
+          if (e.hasClass("lint")) li.className = "is-red";
+          const dir = e.source().id() === node.id() ? "→" : "←";
+          const other = e.source().id() === node.id() ? e.target().id() : e.source().id();
+          const t = document.createElement("i"); t.textContent = e.data("type");
+          li.appendChild(t);
+          li.appendChild(document.createTextNode(` ${dir} ${other}`));
+          li.addEventListener("click", () => {
+            const n = e.source().id() === node.id() ? e.target() : e.source();
+            n.removeClass("off");
+            focus(n);
+          });
+          ul.appendChild(li);
+        });
+        box.appendChild(ul);
+      }
+
+      function showFindings() {
+        $("[data-inspector]").hidden = true;
+        $("[data-findings]").hidden = false;
+        $("[data-panel-back]").hidden = true;
+        $("[data-panel-title]").textContent = "Findings";
+      }
+
+      // ── wiring ────────────────────────────────────────────────────────────
+      all("[data-kind]").forEach((btn) => btn.addEventListener("click", () => {
+        const k = btn.dataset.kind;
+        if (on.kinds.has(k)) on.kinds.delete(k); else on.kinds.add(k);
+        btn.classList.toggle("is-on", on.kinds.has(k));
+        setView("all");
+        applyFilters({ relayout: true });
+      }));
+
+      all("[data-edge]").forEach((btn) => btn.addEventListener("click", () => {
+        const t = btn.dataset.edge;
+        if (on.edges.has(t)) on.edges.delete(t); else on.edges.add(t);
+        btn.classList.toggle("is-on", on.edges.has(t));
+        applyFilters({ relayout: true });
+      }));
+
+      all("[data-view]").forEach((btn) => btn.addEventListener("click", () => {
+        setView(btn.dataset.view);
+        applyFilters({ relayout: true });
+      }));
+
+      function setView(v) {
+        on.view = v;
+        all("[data-view]").forEach((b) => b.classList.toggle("is-on", b.dataset.view === v));
+      }
+
+      all("[data-layout]").forEach((btn) => btn.addEventListener("click", () => {
+        on.layout = btn.dataset.layout;
+        all("[data-layout]").forEach((b) => b.classList.toggle("is-on", b === btn));
+        runLayout();
+      }));
+
+      $("[data-panel-back]").addEventListener("click", () => { blur(); });
+      $("[data-reload]").addEventListener("click", () => { location.reload(); });
+
+      boot();
+    })();
+  </script>
+
+  <style is:global>
+    /* The ops graph. `is:global` because the island builds most of the panel's
+       markup in JS, and scoped styles never reach nodes Astro did not see at
+       build — the same reason the ops desk went global. Every selector is
+       under .opsgraph, so nothing here can reach another page. */
+
+    .opsgraph { max-width: 1400px; margin: 0 auto; padding: 0 0.4em 2.4em; }
+
+    .opsgraph .og-head { text-align: center; margin: 0 0 1.2em; }
+    .opsgraph .og-head h1 {
+      margin: 0; font-size: clamp(1.7rem, 4vw, 2.3rem);
+      color: var(--pm-gold-bright); text-shadow: 0 0 34px rgba(232, 196, 139, 0.35);
+    }
+    .opsgraph .og-head .tag {
+      margin: 0.35em 0 0; font-family: var(--pm-mono); font-size: 0.7rem;
+      letter-spacing: 0.11em; color: rgba(232, 196, 139, 0.78);
+    }
+
+    /* ── the As-Of bar ──────────────────────────────────────────────────── */
+    .opsgraph .og-asof {
+      display: flex; align-items: center; gap: 0.7em; flex-wrap: wrap;
+      font-family: var(--pm-mono); font-size: 0.7rem; letter-spacing: 0.03em;
+      color: #9fb0cd; background: rgba(13, 20, 38, 0.72);
+      border: 1px solid rgba(232, 196, 139, 0.16); border-radius: 9px;
+      padding: 0.55em 0.9em; margin-bottom: 0.7em;
+    }
+    .opsgraph .og-asof-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex: none;
+      background: #7b8494; box-shadow: 0 0 8px currentColor;
+    }
+    .opsgraph .og-asof-dot.is-fresh { background: #3fbf87; }
+    .opsgraph .og-asof-dot.is-stale { background: #e0b04a; }
+    .opsgraph .og-asof-dot.is-bad { background: #ff5c52; }
+    .opsgraph .og-counts { margin-left: auto; color: #6f7f9c; }
+    .opsgraph .og-reload {
+      font: inherit; color: #9fb0cd; background: transparent; cursor: pointer;
+      border: 1px solid rgba(232, 196, 139, 0.24); border-radius: 6px; padding: 0.15em 0.6em;
+    }
+    .opsgraph .og-reload:hover { border-color: rgba(232, 196, 139, 0.6); color: var(--pm-gold-bright); }
+
+    /* ── chips ──────────────────────────────────────────────────────────── */
+    .opsgraph .og-chips { display: flex; flex-direction: column; gap: 0.35em; margin-bottom: 0.7em; }
+    .opsgraph .og-chiprow { display: flex; align-items: center; gap: 0.35em; flex-wrap: wrap; }
+    .opsgraph .og-chiplabel {
+      font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #5d6b86; width: 4.2em; flex: none;
+    }
+    .opsgraph .og-chipsep { width: 1px; height: 1.2em; background: rgba(232, 196, 139, 0.18); margin: 0 0.5em; }
+    .opsgraph .og-chip {
+      display: inline-flex; align-items: center; gap: 0.4em;
+      font-family: var(--pm-mono); font-size: 0.68rem; cursor: pointer;
+      color: #7b8ba7; background: rgba(13, 20, 38, 0.6);
+      border: 1px solid rgba(123, 139, 167, 0.24); border-radius: 999px;
+      padding: 0.22em 0.75em; transition: all 0.12s ease;
+    }
+    .opsgraph .og-chip:hover { border-color: rgba(232, 196, 139, 0.5); color: var(--pm-gold-bright); }
+    .opsgraph .og-chip.is-on { color: #e8eefb; border-color: rgba(232, 196, 139, 0.45); background: rgba(28, 44, 79, 0.75); }
+    .opsgraph .og-chip:not(.is-on) { opacity: 0.55; }
+
+    /* the little kind glyphs — the same shapes cytoscape draws */
+    .opsgraph .og-glyph { width: 9px; height: 9px; flex: none; display: inline-block; background: currentColor; }
+    .opsgraph .og-glyph-mark { border-radius: 50%; color: #5b86ff; }
+    .opsgraph .og-glyph-class { transform: rotate(45deg); color: #aa8fd8; }
+    .opsgraph .og-glyph-code { border-radius: 2px; color: #4ec3d9; }
+    .opsgraph .og-glyph-doctrine { color: #f2e6cd; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+    .opsgraph .og-glyph-unknown { border-radius: 50%; background: transparent; border: 1.5px dashed #5b6377; }
+
+    /* ── the stage ──────────────────────────────────────────────────────── */
+    .opsgraph .og-stage { display: grid; grid-template-columns: minmax(0, 1fr) 24em; gap: 0.7em; align-items: stretch; }
+    @media (max-width: 900px) { .opsgraph .og-stage { grid-template-columns: minmax(0, 1fr); } }
+
+    .opsgraph .og-canvas {
+      position: relative; min-height: 640px; height: 68vh;
+      background: var(--pm-night);
+      border: 1px solid rgba(232, 196, 139, 0.18); border-radius: 12px; overflow: hidden;
+    }
+    .opsgraph .og-cy { position: absolute; inset: 0; }
+
+    .opsgraph .og-legend {
+      position: absolute; left: 0.7em; bottom: 0.7em; z-index: 2;
+      display: flex; flex-direction: column; gap: 0.25em;
+      background: rgba(7, 11, 21, 0.82); border: 1px solid rgba(232, 196, 139, 0.14);
+      border-radius: 8px; padding: 0.45em 0.7em; pointer-events: none;
+    }
+    .opsgraph .og-legend-row { display: flex; gap: 0.85em; flex-wrap: wrap; }
+    .opsgraph .og-legend-item {
+      display: inline-flex; align-items: center; gap: 0.35em;
+      font-family: var(--pm-mono); font-size: 0.6rem; color: #8595b0;
+    }
+    .opsgraph .og-swatch { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+    .opsgraph .og-tier-constitution { background: #5b86ff; }
+    .opsgraph .og-tier-sovereignty { background: #3fbf87; }
+    .opsgraph .og-tier-market { background: #e0b04a; }
+    .opsgraph .og-tier-draft { background: #7b8494; }
+    .opsgraph .og-lint { background: transparent; border: 2px solid #ff5c52; }
+    .opsgraph .og-legend-red { color: #ff8a82; }
+
+    .opsgraph .og-hint {
+      position: absolute; right: 0.7em; top: 0.7em; z-index: 2; max-width: 21em; margin: 0;
+      font-family: var(--pm-mono); font-size: 0.6rem; line-height: 1.5; text-align: right;
+      color: #6b7a95; pointer-events: none;
+      background: rgba(7, 11, 21, 0.82); border: 1px solid rgba(232, 196, 139, 0.1);
+      border-radius: 8px; padding: 0.45em 0.7em;
+    }
+
+    /* ── the panel ──────────────────────────────────────────────────────── */
+    .opsgraph .og-panel {
+      background: rgba(13, 20, 38, 0.72); border: 1px solid rgba(232, 196, 139, 0.18);
+      border-radius: 12px; padding: 0.8em 0.9em; overflow-y: auto; max-height: 68vh;
+    }
+    .opsgraph .og-panel-head { display: flex; align-items: baseline; gap: 0.6em; margin-bottom: 0.6em; }
+    .opsgraph .og-panel-head h2 {
+      margin: 0; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase;
+      font-family: var(--pm-mono); color: var(--pm-gold);
+    }
+    .opsgraph .og-panel-back {
+      margin-left: auto; font-family: var(--pm-mono); font-size: 0.62rem; cursor: pointer;
+      color: #7b8ba7; background: transparent; border: 0; padding: 0;
+    }
+    .opsgraph .og-panel-back:hover { color: var(--pm-gold-bright); }
+
+    .opsgraph .og-finding {
+      border: 1px solid rgba(123, 139, 167, 0.2); border-radius: 9px;
+      padding: 0.6em 0.7em; margin-bottom: 0.55em; background: rgba(7, 11, 21, 0.45);
+    }
+    .opsgraph .og-finding.is-red { border-color: rgba(255, 92, 82, 0.42); }
+    .opsgraph .og-finding header { display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.35em; }
+    .opsgraph .og-finding header b { font-family: var(--pm-mono); font-size: 0.72rem; color: #cfd8ea; }
+    .opsgraph .og-verdict {
+      font-family: var(--pm-mono); font-size: 0.56rem; letter-spacing: 0.12em;
+      padding: 0.12em 0.5em; border-radius: 999px; border: 1px solid currentColor;
+    }
+    .opsgraph .og-verdict.v-red { color: #ff5c52; }
+    .opsgraph .og-verdict.v-na { color: #7b8494; }
+    .opsgraph .og-verdict.v-green { color: #3fbf87; }
+    .opsgraph .og-finding-head { margin: 0 0 0.4em; font-size: 0.8rem; line-height: 1.45; color: #d7dfef; }
+    .opsgraph .og-finding-meta { margin: 0; font-family: var(--pm-mono); font-size: 0.6rem; color: #7b8ba7; }
+    .opsgraph .og-finding-note { margin: 0.35em 0 0; font-size: 0.68rem; line-height: 1.5; color: #8595b0; font-style: italic; }
+    .opsgraph .og-evidence { margin: 0.45em 0 0; padding-left: 1em; }
+    .opsgraph .og-evidence li {
+      font-family: var(--pm-mono); font-size: 0.6rem; line-height: 1.55; color: #93a3bf;
+      margin-bottom: 0.25em; word-break: break-word;
+    }
+    .opsgraph .og-quiet { margin: 0.35em 0 0; font-family: var(--pm-mono); font-size: 0.58rem; color: #5d6b86; }
+    .opsgraph .og-show {
+      margin-top: 0.5em; font-family: var(--pm-mono); font-size: 0.62rem; cursor: pointer;
+      color: #cfd8ea; background: rgba(28, 44, 79, 0.8);
+      border: 1px solid rgba(232, 196, 139, 0.3); border-radius: 6px; padding: 0.22em 0.7em;
+    }
+    .opsgraph .og-show:hover { border-color: var(--pm-gold); color: var(--pm-gold-bright); }
+
+    /* the inspector */
+    .opsgraph .og-inspect-id { margin: 0 0 0.5em; font-family: var(--pm-mono); font-size: 0.74rem; color: var(--pm-gold-bright); word-break: break-all; }
+    .opsgraph .og-facts { display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 0.18em 0.6em; margin: 0 0 0.7em; }
+    .opsgraph .og-facts dt { font-family: var(--pm-mono); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #5d6b86; }
+    .opsgraph .og-facts dd { margin: 0; font-family: var(--pm-mono); font-size: 0.62rem; color: #b9c6dc; word-break: break-word; }
+    .opsgraph .og-inspect-lint {
+      margin: 0 0 0.6em; font-family: var(--pm-mono); font-size: 0.62rem; color: #ff8a82;
+      border-left: 2px solid #ff5c52; padding-left: 0.55em;
+    }
+    .opsgraph .og-edgelist, .opsgraph .og-whylist { margin: 0.4em 0 0; padding: 0; list-style: none; }
+    .opsgraph .og-edgelist li {
+      font-family: var(--pm-mono); font-size: 0.6rem; color: #93a3bf; cursor: pointer;
+      padding: 0.16em 0.3em; border-radius: 4px; word-break: break-all;
+    }
+    .opsgraph .og-edgelist li:hover { background: rgba(28, 44, 79, 0.8); color: #e8eefb; }
+    .opsgraph .og-edgelist li i { font-style: normal; color: #5d6b86; }
+    .opsgraph .og-edgelist li.is-red i { color: #ff8a82; }
+    .opsgraph .og-whylist li { margin-bottom: 0.5em; }
+    .opsgraph .og-why b { display: block; font-family: var(--pm-mono); font-size: 0.62rem; color: #cfd8ea; word-break: break-all; }
+    .opsgraph .og-why span { display: block; font-size: 0.68rem; line-height: 1.45; color: #8595b0; }
+    .opsgraph .og-why.is-walkable { cursor: pointer; border-radius: 5px; padding: 0.15em 0.3em; margin-left: -0.3em; }
+    .opsgraph .og-why.is-walkable:hover { background: rgba(28, 44, 79, 0.8); }
+    .opsgraph .og-why.is-walkable:hover b { color: var(--pm-gold-bright); }
+    .opsgraph .og-why-edge b { color: #ff8a82; }
+    .opsgraph .og-why-missing b { color: #e0b04a; text-decoration: line-through; }
+  </style>
+</PostmarkLayout>
