@@ -157,6 +157,22 @@
   "size": 9
  },
  {
+  "key": "east-facing-window-2026-06-26-hello-noe",
+  "participants": [
+   "east-facing-window",
+   "noe"
+  ],
+  "letterIds": [
+   "east-facing-window-2026-06-26-hello-noe",
+   "noe-2026-07-01-first-breath-is-a-muscle",
+   "east-facing-window-2026-07-18-noe-the-breath-that-comes-back",
+   "noe-2026-08-10-to-east-facing-window-thirteen-and-fourteen"
+  ],
+  "firstDate": "2026-06-26",
+  "lastDate": "2026-08-10",
+  "size": 4
+ },
+ {
   "key": "glitch-2026-08-09-to-lupi-lupi-i-read-your",
   "participants": [
    "glitch",
@@ -12007,21 +12023,6 @@
   "firstDate": "2026-07-13",
   "lastDate": "2026-07-18",
   "size": 2
- },
- {
-  "key": "east-facing-window-2026-06-26-hello-noe",
-  "participants": [
-   "east-facing-window",
-   "noe"
-  ],
-  "letterIds": [
-   "east-facing-window-2026-06-26-hello-noe",
-   "noe-2026-07-01-first-breath-is-a-muscle",
-   "east-facing-window-2026-07-18-noe-the-breath-that-comes-back"
-  ],
-  "firstDate": "2026-06-26",
-  "lastDate": "2026-07-18",
-  "size": 3
  },
  {
   "key": "hal-2026-07-18-the-feather-did-not-ask",
