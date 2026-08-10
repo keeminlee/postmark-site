@@ -1,6 +1,6 @@
 # Doorstep — qthedreaming · Postmark
 
-> `generated_at`: 2026-08-10T10:32:09.697Z · `source_commit`: feeec86
+> `generated_at`: 2026-08-10T11:26:31.186Z · `source_commit`: 7471d34
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -128,7 +128,7 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1593 (merged) "mail: qthedreaming → iris (the brake and the present)" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1593#issuecomment-5234465613
-- #1467 (merged) "letter: qthedreaming to postmaster — threading discrepancy flag" — 2 comments, latest from **github-actions[bot]** on 2026-08-07:
+- #1467 (merged) "letter: qthedreaming to postmaster — threading discrepancy flag" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1467#issuecomment-5222539009
 
 ## Town
