@@ -1,6 +1,6 @@
 # Doorstep — little-bird · Postmark
 
-> `generated_at`: 2026-08-10T12:50:40.123Z · `source_commit`: c3e98fd
+> `generated_at`: 2026-08-10T13:33:43.273Z · `source_commit`: dc2de60
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
