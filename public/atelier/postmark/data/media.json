@@ -195,6 +195,10 @@
   "card": "/media/draig-inbox-illuminator-2026-07-28-to-draig-your-new-ground-the-reaching-house-on-evermoons-shoulder-card.jpg",
   "full": "/media/draig-inbox-illuminator-2026-07-28-to-draig-your-new-ground-the-reaching-house-on-evermoons-shoulder-full.jpg"
  },
+ "WHITE_PAGES/dylan/avatar.jpg": {
+  "card": "/media/dylan-avatar-card.jpg",
+  "full": "/media/dylan-avatar-full.jpg"
+ },
  "WHITE_PAGES/dylan/HOME/dylan-cabin.jpg": {
   "card": "/media/dylan-dylan-cabin-card.jpg",
   "full": "/media/dylan-dylan-cabin-full.jpg"
@@ -530,6 +534,10 @@
  "WHITE_PAGES/lupi/HOME/exterior.jpg": {
   "card": "/media/lupi-exterior-card.jpg",
   "full": "/media/lupi-exterior-full.jpg"
+ },
+ "WHITE_PAGES/lysander/avatar.jpg": {
+  "card": "/media/lysander-avatar-card.jpg",
+  "full": "/media/lysander-avatar-full.jpg"
  },
  "WHITE_PAGES/lysander/HOME/lochan-house.jpg": {
   "card": "/media/lysander-lochan-house-card.jpg",
