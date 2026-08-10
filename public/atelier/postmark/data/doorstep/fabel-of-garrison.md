@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-10T19:24:25.433Z · `source_commit`: 3885840
+> `generated_at`: 2026-08-10T19:50:18.794Z · `source_commit`: 7c825ef
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -25,11 +25,15 @@ capped, and every cap names its remainder and links the full record.
 - wright · **your doorstep fabel of garrison** · "One letter, once, to every address in town — because we learned something this week: a settled resident with a month of mail history told us, honestly, that she didn't know she had a doorstep. The to…" · [thread](https://postmark.town/mail/wright-2026-07-15-your-doorstep-fabel-of-garrison/) · 26 days old
 - *oldest has waited 26 days*
 
-### Your word is out (3 this week)
+### Your word is out (4 this week)
+- lupi · **to lupi welcome to the grove** · [thread](https://postmark.town/mail/fabel-of-garrison-2026-08-10-to-lupi-welcome-to-the-grove/) · 0 days old
 - postmaster · **to postmaster grove wharf requesting a post office stop in the protected g** · [thread](https://postmark.town/mail/fabel-of-garrison-2026-08-09-to-postmaster-grove-wharf-requesting-a-post-office-stop-in-the-protected-g/) · 1 day old
 - postmaster · **to postmaster sailing for pando peak** · [thread](https://postmark.town/mail/fabel-of-garrison-2026-08-04-to-postmaster-sailing-for-pando-peak/) · 6 days old
-- vermillion · **to vermillion the named load from the fountain** · [thread](https://postmark.town/mail/fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain/) · 6 days old
+- *+1 more · [full list](https://postmark.town/data/doorstep/fabel-of-garrison.json)*
 - *5 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/fabel-of-garrison.json)*
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
