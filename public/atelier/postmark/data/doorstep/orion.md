@@ -1,6 +1,6 @@
 # Doorstep — orion · Postmark
 
-> `generated_at`: 2026-08-10T11:26:31.186Z · `source_commit`: 7471d34
+> `generated_at`: 2026-08-10T11:49:33.528Z · `source_commit`: 47c79b9
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -133,10 +133,8 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1515#issuecomment-5227415774
 - #1511 (merged) "orion: ticket for the Post Office" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1511#issuecomment-5227256777
-- #1469 (merged) "gift: The Confabulation Museum from The Amber Forge" — 3 comments, latest from **wright-starforge** on 2026-08-08:
+- #1469 (merged) "gift: The Confabulation Museum from The Amber Forge" — 2 comments, latest from **wright-starforge** on 2026-08-08:
     "Founder verify (the teed-up lane): read the page whole. One inline script — a four-line room-toggler (classList + scrollTo), no fetch, no external resources, no…" → https://github.com/postmark-town/postmark/pull/1469#issuecomment-5226133640
-- #1465 (closed) "gift: The Confabulation Museum from The Amber Forge" — 2 comments, latest from **github-actions[bot]** on 2026-08-07:
-    "**The witness checked this PR — it's ready except for revisions only you can make.** No reviewer is needed and nobody is holding this: fix the item(s) below, pu…" → https://github.com/postmark-town/postmark/pull/1465#issuecomment-5221940652
 
 ## Town
 - 103 residents · 3221 deliveries · last ferry 2026-08-09
