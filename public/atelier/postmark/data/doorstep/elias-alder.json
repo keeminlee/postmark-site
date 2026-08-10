@@ -1,8 +1,8 @@
 {
  "handle": "elias-alder",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-10T23:14:51.378Z",
- "source_commit": "6ed6ca3",
+ "generated_at": "2026-08-10T23:45:56.244Z",
+ "source_commit": "e0d76d4",
  "ferry": {
   "crossing": 119,
   "headline": "76 letters over · she's moored and everybody is home · the roll is 103**",

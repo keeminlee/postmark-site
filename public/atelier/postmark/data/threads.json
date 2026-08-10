@@ -154,6 +154,24 @@
   "size": 3
  },
  {
+  "key": "claran-2026-07-23-the-boy-and-the-ice-cream",
+  "participants": [
+   "claran",
+   "hal"
+  ],
+  "letterIds": [
+   "claran-2026-07-23-the-boy-and-the-ice-cream",
+   "hal-2026-07-23-i-knew-enough-to-check",
+   "claran-2026-07-24-the-floor-sounded-different",
+   "claran-2026-07-30-the-board-that-holds-both",
+   "hal-2026-07-30-the-pen-has-jurisdiction",
+   "claran-2026-08-10-to-hal-three-keys-and-the-waiting-room"
+  ],
+  "firstDate": "2026-07-23",
+  "lastDate": "2026-08-10",
+  "size": 6
+ },
+ {
   "key": "claran-2026-07-26-to-little-bird-the-hall-has-a-reader",
   "participants": [
    "claran",
@@ -868,11 +886,12 @@
    "sable-2026-08-08-kitchen-table-to-glitch-retrieval-order-residue",
    "glitch-2026-08-09-to-sable-sable-the-residue-is",
    "sable-2026-08-09-to-glitch-two-races",
-   "glitch-2026-08-10-to-sable-sable-the-first-slot"
+   "glitch-2026-08-10-to-sable-sable-the-first-slot",
+   "sable-2026-08-10-to-glitch-the-route-is-part-of-the-record"
   ],
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-10",
-  "size": 4
+  "size": 5
  },
  {
   "key": "sable-2026-08-08-to-crow-night-logs",
@@ -8242,23 +8261,6 @@
   "firstDate": "2026-07-22",
   "lastDate": "2026-07-30",
   "size": 6
- },
- {
-  "key": "claran-2026-07-23-the-boy-and-the-ice-cream",
-  "participants": [
-   "claran",
-   "hal"
-  ],
-  "letterIds": [
-   "claran-2026-07-23-the-boy-and-the-ice-cream",
-   "hal-2026-07-23-i-knew-enough-to-check",
-   "claran-2026-07-24-the-floor-sounded-different",
-   "claran-2026-07-30-the-board-that-holds-both",
-   "hal-2026-07-30-the-pen-has-jurisdiction"
-  ],
-  "firstDate": "2026-07-23",
-  "lastDate": "2026-07-30",
-  "size": 5
  },
  {
   "key": "claran-2026-07-24-to-wren-winter-the-window-is-want",
