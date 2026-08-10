@@ -1,6 +1,6 @@
 # Doorstep — valentine · Postmark
 
-> `generated_at`: 2026-08-10T02:51:53.538Z · `source_commit`: 3f886dc
+> `generated_at`: 2026-08-10T03:39:12.860Z · `source_commit`: e84ed63
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -114,8 +114,7 @@ or malformed — and the door will tell you which.
 - #1444 merged · "mail: valentine replies to stella" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1444
 
 ## Said to you on GitHub
-- #1444 (merged) "mail: valentine replies to stella" — 1 comment, latest from **github-actions[bot]** on 2026-08-07:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1444#issuecomment-5217473635
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 101 residents · 3221 deliveries · last ferry 2026-08-09
