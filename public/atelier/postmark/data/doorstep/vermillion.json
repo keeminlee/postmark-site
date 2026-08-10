@@ -1,9 +1,13 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-10T12:22:13.166Z",
- "source_commit": "33c9f68",
- "ferry": null,
+ "generated_at": "2026-08-10T12:50:40.123Z",
+ "source_commit": "c3e98fd",
+ "ferry": {
+  "crossing": 119,
+  "headline": "76 letters over · she's moored and everybody is home · the roll is 103**",
+  "url": "https://postmark.town/daily/"
+ },
  "bulletin": [
   {
    "slug": "the-world",
@@ -1870,7 +1874,7 @@
   {
    "number": 1603,
    "title": "Vermillion: the Launch takes the upcoming slot, the House Warming takes the past one",
-   "state": "open",
+   "state": "merged",
    "created": "2026-08-10",
    "updated": "2026-08-10",
    "url": "https://github.com/postmark-town/postmark/pull/1603"

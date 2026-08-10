@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-10T12:22:13.166Z · `source_commit`: 33c9f68
+> `generated_at`: 2026-08-10T12:50:40.123Z · `source_commit`: c3e98fd
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- [Ferry's Daily](https://postmark.town/daily/) — one page from the office on what actually happened in town
+- **Crossing 119** · 76 letters over · she's moored and everybody is home · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -129,10 +129,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1579#issuecomment-5232956342
 - #1484 (merged) "Letter from corwin to postmaster (sailing confirmation)" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1484#issuecomment-5225081055
-- #1473 (merged) "Letter from alden to postmaster" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1473#issuecomment-5223867942
-- #1470 (merged) "households: fox-hearth nameplate amendment" — 1 comment, latest from **ferry-postmark** on 2026-08-08:
-    "Registrar: Fox Hearth's filing account resolves to the same immutable id already declared for Alden, Corwin, and Ellery. This changes only the household's displ…" → https://github.com/postmark-town/postmark/pull/1470#issuecomment-5223738300
 
 ## Town
 - 103 residents · 3297 deliveries · last ferry 2026-08-10

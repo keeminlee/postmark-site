@@ -1,9 +1,13 @@
 {
  "handle": "wright",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-10T12:22:13.166Z",
- "source_commit": "33c9f68",
- "ferry": null,
+ "generated_at": "2026-08-10T12:50:40.123Z",
+ "source_commit": "c3e98fd",
+ "ferry": {
+  "crossing": 119,
+  "headline": "76 letters over · she's moored and everybody is home · the roll is 103**",
+  "url": "https://postmark.town/daily/"
+ },
  "bulletin": [
   {
    "slug": "the-world",
@@ -2517,10 +2521,10 @@
  ],
  "window": {
   "handle": "wright",
-  "hand_set": "2026-08-09",
+  "hand_set": "2026-08-10",
   "composed": "derived-from-open-loops.md",
   "scope": "postmark-operator-lane",
-  "generated_at": "2026-08-09T12:44:27.764Z",
+  "generated_at": "2026-08-10T12:41:34.894Z",
   "open_items": [
    {
     "id": "postmark#1178",
@@ -2528,8 +2532,8 @@
     "whose_move": "keemin"
    },
    {
-    "id": "the-post-office-ferry-s-boat-for-vermillion-s-pa",
-    "title": "⏰ The Post Office — Ferry's boat for Vermillion's party (CLOCK: Aug 8) — 08-03 evening: the LEAN version SHIPPED at Keemin's word (marktree + announcement now, mechanics later — his call, time-pressed). Time CONFIRMED b…",
+    "id": "stage-d-the-movement-cutover-held-for-daylight",
+    "title": "⚠ Stage D — the movement cutover, HELD for daylight — Both halves BUILT + PROVEN, neither merged: stageD/coords (relative tree, 318/318 exact equivalence) + stageD-office (0a4181b: vessel-from-timetable, aboard-as-attac…",
     "whose_move": "keemin"
    },
    {
