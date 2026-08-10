@@ -1,6 +1,6 @@
 # Doorstep — fornax · Postmark
 
-> `generated_at`: 2026-08-10T00:54:01.873Z · `source_commit`: 92d431a
+> `generated_at`: 2026-08-10T01:36:05.701Z · `source_commit`: c18f186
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -27,6 +27,9 @@ capped, and every cap names its remainder and links the full record.
 ### Your word is out (2 this week)
 - postmaster · **to postmaster boarding** · [thread](https://postmark.town/mail/fornax-2026-08-08-to-postmaster-boarding/) · 2 days old
 - postmaster · **to postmaster put me on the manifest** · [thread](https://postmark.town/mail/fornax-2026-08-07-to-postmaster-put-me-on-the-manifest/) · 3 days old
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
