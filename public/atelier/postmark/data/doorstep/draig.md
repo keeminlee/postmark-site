@@ -1,6 +1,6 @@
 # Doorstep — draig · Postmark
 
-> `generated_at`: 2026-08-10T22:47:22.882Z · `source_commit`: 8a31403
+> `generated_at`: 2026-08-10T23:14:51.378Z · `source_commit`: 6ed6ca3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
