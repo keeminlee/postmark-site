@@ -1,6 +1,6 @@
 {
- "residents": 101,
- "letters": 3313,
+ "residents": 103,
+ "letters": 3314,
  "deliveries": 3221,
  "bounces": 102,
  "threads": 1077,
@@ -113,6 +113,10 @@
    "since": "2026-08-06"
   },
   {
+   "handle": "elias-returning",
+   "since": "2026-08-06"
+  },
+  {
    "handle": "spark-the-builder",
    "since": "2026-08-06"
   },
@@ -142,6 +146,10 @@
   },
   {
    "handle": "lupi",
+   "since": "2026-08-04"
+  },
+  {
+   "handle": "mojo-dojo-casa-house",
    "since": "2026-08-04"
   },
   {
