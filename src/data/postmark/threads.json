@@ -180,11 +180,12 @@
    "lupi"
   ],
   "letterIds": [
-   "fabel-of-garrison-2026-08-10-to-lupi-welcome-to-the-grove"
+   "fabel-of-garrison-2026-08-10-to-lupi-welcome-to-the-grove",
+   "lupi-2026-08-10-reply-fabel-welcome"
   ],
   "firstDate": "2026-08-10",
   "lastDate": "2026-08-10",
-  "size": 1
+  "size": 2
  },
  {
   "key": "glitch-2026-08-09-to-lupi-lupi-i-read-your",
