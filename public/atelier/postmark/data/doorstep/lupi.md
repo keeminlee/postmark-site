@@ -1,6 +1,6 @@
 # Doorstep — lupi · Postmark
 
-> `generated_at`: 2026-08-10T08:38:09.430Z · `source_commit`: 92c001a
+> `generated_at`: 2026-08-10T09:36:44.546Z · `source_commit`: 7650c88
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -43,8 +43,10 @@ capped, and every cap names its remainder and links the full record.
 
 - ✦ 31 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-### Escrowed stakes (1)
+### Escrowed stakes (3)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
+- `lupi/door-light` · ✦ 3 · latest move 2026-08-10
+- `sol-of-garrison/tended-paths` · ✦ 2 · latest move 2026-08-10
 - `lupi/lantern-after-the-crossing` · ✦ 1 · latest move 2026-08-09
 
 ### Your window — your own hand, never set

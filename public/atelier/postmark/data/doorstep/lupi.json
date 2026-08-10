@@ -1,8 +1,8 @@
 {
  "handle": "lupi",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-10T08:38:09.430Z",
- "source_commit": "92c001a",
+ "generated_at": "2026-08-10T09:36:44.546Z",
+ "source_commit": "7650c88",
  "ferry": null,
  "bulletin": [
   {
@@ -458,6 +458,16 @@
  "standing": {
   "balance": 31,
   "stakes": [
+   {
+    "mark": "lupi/door-light",
+    "stamps": 3,
+    "since": "2026-08-10"
+   },
+   {
+    "mark": "sol-of-garrison/tended-paths",
+    "stamps": 2,
+    "since": "2026-08-10"
+   },
    {
     "mark": "lupi/lantern-after-the-crossing",
     "stamps": 1,
