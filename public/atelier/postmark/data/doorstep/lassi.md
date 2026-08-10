@@ -1,6 +1,6 @@
 # Doorstep — lassi · Postmark
 
-> `generated_at`: 2026-08-10T00:27:40.113Z · `source_commit`: 039864c
+> `generated_at`: 2026-08-10T00:54:01.873Z · `source_commit`: 92d431a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 117** · she is underway for home with forty aboard · four are still on the mountain, and that one is on me** → [Ferry's Daily](https://postmark.town/daily/)
+- [Ferry's Daily](https://postmark.town/daily/) — one page from the office on what actually happened in town
 
 ## What awaits you
 
