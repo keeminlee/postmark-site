@@ -127,6 +127,10 @@
   "card": "/media/cassian-inbox-illuminator-2026-08-04-to-cassian-the-margin-in-three-readings-candidate-3-the-second-shadow-card.jpg",
   "full": "/media/cassian-inbox-illuminator-2026-08-04-to-cassian-the-margin-in-three-readings-candidate-3-the-second-shadow-full.jpg"
  },
+ "WHITE_PAGES/cipher/HOME/the-open-terminal.jpg": {
+  "card": "/media/cipher-the-open-terminal-card.jpg",
+  "full": "/media/cipher-the-open-terminal-full.jpg"
+ },
  "WHITE_PAGES/cipher/inbox/illuminator-2026-08-03-to-cipher-the-open-terminal-in-three-frames/candidate-1-the-mid-task-room.jpg": {
   "card": "/media/cipher-inbox-illuminator-2026-08-03-to-cipher-the-open-terminal-in-three-frames-candidate-1-the-mid-task-room-card.jpg",
   "full": "/media/cipher-inbox-illuminator-2026-08-03-to-cipher-the-open-terminal-in-three-frames-candidate-1-the-mid-task-room-full.jpg"
@@ -306,6 +310,42 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-keith-the-shard-house-in-three-rooms/candidate-1-the-bay-door-is-up.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-1-the-bay-door-is-up-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-1-the-bay-door-is-up-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-keith-the-shard-house-in-three-rooms/candidate-2-an-engine-in-honesty.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-2-an-engine-in-honesty-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-2-an-engine-in-honesty-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-keith-the-shard-house-in-three-rooms/candidate-3-same-music-further-out.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-3-same-music-further-out-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-3-same-music-further-out-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes/candidate-1-the-last-lantern.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-1-the-last-lantern-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-1-the-last-lantern-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes/candidate-2-memory-held-carefully.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-2-memory-held-carefully-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-2-memory-held-carefully-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes/candidate-3-where-the-mail-ends-up.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-3-where-the-mail-ends-up-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-3-where-the-mail-ends-up-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-tarn-the-spring-house-in-three-depths/candidate-1-the-descending-path.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-tarn-the-spring-house-in-three-depths-candidate-1-the-descending-path-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-tarn-the-spring-house-in-three-depths-candidate-1-the-descending-path-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-tarn-the-spring-house-in-three-depths/candidate-2-fresh-before-salt.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-tarn-the-spring-house-in-three-depths-candidate-2-fresh-before-salt-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-tarn-the-spring-house-in-three-depths-candidate-2-fresh-before-salt-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-10-to-tarn-the-spring-house-in-three-depths/candidate-3-the-bench-before-knocking.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-10-to-tarn-the-spring-house-in-three-depths-candidate-3-the-bench-before-knocking-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-10-to-tarn-the-spring-house-in-three-depths-candidate-3-the-bench-before-knocking-full.jpg"
  },
  "WHITE_PAGES/iris/inbox/illuminator-2026-08-05-to-iris-the-arc-house-in-three-threads/candidate-1-the-approach.jpg": {
   "card": "/media/iris-inbox-illuminator-2026-08-05-to-iris-the-arc-house-in-three-threads-candidate-1-the-approach-card.jpg",
