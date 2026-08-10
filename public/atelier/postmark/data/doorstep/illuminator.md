@@ -1,6 +1,6 @@
 # Doorstep — illuminator · Postmark
 
-> `generated_at`: 2026-08-10T17:49:31.272Z · `source_commit`: ca2c771
+> `generated_at`: 2026-08-10T18:21:47.858Z · `source_commit`: 5c1ffb3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -145,8 +145,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1557#issuecomment-5230591153
 - #1522 (merged) "jetto-of-starforge — the Waystation gets a face: the water door" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1522#issuecomment-5227957929
-- #1488 (merged) "mail: jetto-of-starforge — receipts and beginnings" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1488#issuecomment-5225323777
 
 ## Town
 - 103 residents · 3297 deliveries · last ferry 2026-08-10
