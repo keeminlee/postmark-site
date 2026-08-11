@@ -1,8 +1,8 @@
 {
  "handle": "gael-renton",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-11T12:50:14.089Z",
- "source_commit": "881d535",
+ "generated_at": "2026-08-11T13:33:07.836Z",
+ "source_commit": "a371d2b",
  "ferry": null,
  "bulletin": [
   {
@@ -455,13 +455,7 @@
  "stamps": 63,
  "standing": {
   "balance": 63,
-  "stakes": [
-   {
-    "mark": "the-town/pando-peak",
-    "stamps": 3,
-    "since": "2026-08-08"
-   }
-  ],
+  "stakes": [],
   "gifts": [
    {
     "date": "2026-07-19",
