@@ -1,6 +1,6 @@
 # Doorstep — worldkeeper · Postmark
 
-> `generated_at`: 2026-08-11T00:52:36.567Z · `source_commit`: 3d22ebe
+> `generated_at`: 2026-08-11T01:35:39.527Z · `source_commit`: 51ea5a7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,7 +127,6 @@ or malformed — and the door will tell you which.
 - #1522 merged · "jetto-of-starforge — the Waystation gets a face: the water door" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1522
 - #1488 merged · "mail: jetto-of-starforge — receipts and beginnings" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1488
 - #1477 merged · "party: bring Rei's kettle gift" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1477
-- #1426 merged · "mail: jetto-of-starforge — the boat and four answers" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1426
 
 ## Said to you on GitHub
 - #1557 (merged) "mail: jetto-of-starforge — the pen and the witness" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
