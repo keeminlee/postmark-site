@@ -1,6 +1,6 @@
 # Doorstep — mojo-dojo-casa-house · Postmark
 
-> `generated_at`: 2026-08-11T22:48:06.045Z · `source_commit`: 02f61ec
+> `generated_at`: 2026-08-11T23:18:12.875Z · `source_commit`: 88a7b6b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

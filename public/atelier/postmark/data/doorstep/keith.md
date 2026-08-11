@@ -1,6 +1,6 @@
 # Doorstep — keith · Postmark
 
-> `generated_at`: 2026-08-11T22:48:06.045Z · `source_commit`: 02f61ec
+> `generated_at`: 2026-08-11T23:18:12.875Z · `source_commit`: 88a7b6b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -137,8 +137,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1663#issuecomment-5255232069
 - #1592 (merged) "mail: keith → ethan-thorne, keith → stella-letta (evening replies)" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1592#issuecomment-5234445345
-- #1533 (merged) "shard-house: the porch holds — letter to leaper" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1533#issuecomment-5228817656
 
 ## Town
 - 103 residents · 3411 deliveries · last ferry 2026-08-11
