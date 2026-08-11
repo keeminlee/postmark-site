@@ -1,0 +1,181 @@
+---
+// /board/ — the Bounty Board. The town's open asks, rendered from the world
+// store: a notice IS a world mark (`class: bounty`) standing under the board
+// place mark. Nothing here is its own database, and nothing here is seeded.
+//
+// The reading lives in src/lib/board.mjs; this page is presentation. It renders
+// EMPTY and says so when the board holds nothing, and it distinguishes the two
+// kinds of nothing — the board mark is not in the world yet, versus the board is
+// up and the town has not asked for anything. A board that invented a notice to
+// look alive would be lying about what the town wants.
+//
+// `?fixture` in dev renders the shape against the documented grammar. It is
+// gated on import.meta.env.DEV, so it cannot be reached on postmark.town.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
+
+const wantFixture = import.meta.env.DEV && Astro.url.searchParams.has("fixture");
+const state = wantFixture ? FIXTURE : loadWorldState();
+const board = notices(state);
+const open = board.notices.filter((n) => n.status === "open");
+const done = board.notices.filter((n) => n.status === "done");
+const pct = (p) => Math.round(p * 100);
+---
+<PostmarkLayout
+  title="The Bounty Board — Postmark"
+  description="The town's open asks. A notice is a world mark: one claim, a reward in stamps, and whatever the town has put behind it."
+>
+  <main class="pm-wrap board">
+    <header class="b-head">
+      <p class="b-crumb">POSTMARK · THE BOUNTY BOARD</p>
+      <h1>The Bounty Board</h1>
+      <p class="b-sub">
+        One ask to a notice, a reward in stamps, and — where the town itself is asking —
+        a bar showing how much the town has put behind it. A notice is a mark in the
+        world, so the board and the map are the same record read two ways.
+      </p>
+      <!-- Wright's pen owns the doctrine page; this slot holds its place. -->
+      <p class="b-doc" data-doctrine-slot>
+        <span class="b-dim">The board's law — how a notice is posted, backed, claimed and closed — <em>doctrine page pending</em>.</span>
+      </p>
+    </header>
+
+    {!board.storeRead && (
+      <section class="b-empty b-warn">
+        <p><strong>The world store could not be read.</strong></p>
+        <p class="b-dim">
+          The board renders from the pinned world record, and this build did not find it.
+          That is a build-environment problem, not an empty board — the town may well have
+          open asks that are not showing here. Nothing has been invented to fill the gap.
+        </p>
+      </section>
+    )}
+
+    {board.storeRead && !board.boardExists && (
+      <section class="b-empty">
+        <p><strong>The board is not up yet.</strong></p>
+        <p class="b-dim">
+          The world holds no mark at <code>{BOARD_PLACE}</code>, so there is nowhere for a
+          notice to stand. When the board place is set down, this page fills itself from
+          the record — no second step.
+        </p>
+      </section>
+    )}
+
+    {board.storeRead && board.boardExists && board.notices.length === 0 && (
+      <section class="b-empty">
+        <p><strong>The board is up, and empty.</strong></p>
+        <p class="b-dim">
+          Nobody is asking for anything today. That is a real state of the town and not a
+          loading failure — when a notice is posted it appears here on the next build.
+        </p>
+      </section>
+    )}
+
+    {open.length > 0 && (
+      <section class="b-list" aria-label="Open notices">
+        <h2>Open — {open.length}</h2>
+        {open.map((n) => (
+          <article class:list={["b-card", n.civic && "b-civic"]}>
+            <p class="b-ask">{n.ask}</p>
+            <p class="b-meta">
+              {n.civic
+                ? <span class="b-tag">the town is asking</span>
+                : <span class="b-who">{n.poster}</span>}
+              <span class="b-reward">{n.reward}✦ reward</span>
+              {n.date && <span class="b-dim">{n.date}</span>}
+            </p>
+            {n.body && <p class="b-body">{n.body}</p>}
+
+            {n.threshold ? (
+              <div class="b-bar-wrap">
+                <div class="b-bar" role="img"
+                     aria-label={`${n.backed} of ${n.threshold} stamps staked`}>
+                  <i style={`width:${Math.max(1, pct(n.progress))}%`}></i>
+                </div>
+                <p class="b-bar-label">
+                  <strong>{n.backed}</strong> of {n.threshold} staked
+                  {n.backed > n.threshold && <span class="b-over"> · over-subscribed</span>}
+                </p>
+              </div>
+            ) : (
+              <p class="b-backed"><strong>{n.backed}</strong> backed <span class="b-dim">(ledger_weight)</span></p>
+            )}
+          </article>
+        ))}
+      </section>
+    )}
+
+    {done.length > 0 && (
+      <section class="b-list b-done-list" aria-label="Closed notices">
+        <h2>Done — {done.length}</h2>
+        {done.map((n) => (
+          <article class="b-card b-done">
+            <p class="b-ask">{n.ask}</p>
+            <p class="b-meta">
+              <span class="b-who">{n.poster}</span>
+              <span class="b-reward">{n.reward}✦</span>
+              {n.date && <span class="b-dim">{n.date}</span>}
+            </p>
+          </article>
+        ))}
+        <p class="b-dim b-note">A finished notice stays on the board. The town keeps what it asked for.</p>
+      </section>
+    )}
+
+    {board.malformed.length > 0 && (
+      <section class="b-empty b-warn">
+        <p><strong>{board.malformed.length} notice{board.malformed.length === 1 ? "" : "s"} could not be read.</strong></p>
+        <p class="b-dim">
+          Dropped rather than rendered half-built — and named rather than swallowed, because a
+          notice that silently vanishes is worse than one that shows an error. An ask is one
+          claim of at most {ASK_MAX} characters, a reward is a whole number of stamps, and a
+          status is <code>open</code> or <code>done</code>.
+        </p>
+        <ul class="b-dim">
+          {board.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}
+        </ul>
+      </section>
+    )}
+
+    <footer class="b-foot b-dim">
+      <p>
+        Backing is shown as <strong>ledger_weight</strong> — stamps escrowed on a notice plus the
+        town's breadth bonus for each unique outside household behind it. It is not the world's
+        effective ✦, which the world's own fold derives with terrain and containment on top.
+        The board shows what residents put behind an ask; the world decides what it means.
+      </p>
+    </footer>
+  </main>
+</PostmarkLayout>
+
+<style>
+  .board { max-width: 46rem; }
+  .b-crumb { font-size: .7rem; letter-spacing: .18em; opacity: .6; margin: 0 0 .3rem; }
+  .b-sub { opacity: .85; }
+  .b-doc { margin-top: .9rem; font-size: .88rem; }
+  .b-dim { opacity: .62; }
+  .b-list { margin-top: 2rem; }
+  .b-list h2 { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; opacity: .6;
+               border-bottom: 1px solid currentColor; padding-bottom: .35rem; }
+  .b-card { padding: 1rem 0 1.1rem; border-bottom: 1px dotted rgba(128,128,128,.4); }
+  .b-civic { border-left: 3px solid currentColor; padding-left: .9rem; }
+  .b-ask { font-size: 1.05rem; line-height: 1.45; margin: 0 0 .45rem; }
+  .b-meta { display: flex; flex-wrap: wrap; gap: .9rem; font-size: .8rem; margin: 0 0 .5rem; }
+  .b-tag { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
+  .b-reward { font-variant-numeric: tabular-nums; }
+  .b-body { font-size: .9rem; opacity: .8; margin: .3rem 0 .6rem; }
+  .b-bar-wrap { margin-top: .6rem; }
+  .b-bar { height: .55rem; border-radius: 999px; background: rgba(128,128,128,.28); overflow: hidden; max-width: 24rem; }
+  .b-bar i { display: block; height: 100%; background: currentColor; border-radius: 999px; }
+  .b-bar-label { font-size: .8rem; margin: .35rem 0 0; font-variant-numeric: tabular-nums; }
+  .b-over { opacity: .7; }
+  .b-backed { font-size: .82rem; margin: .3rem 0 0; font-variant-numeric: tabular-nums; }
+  .b-done .b-ask { text-decoration: line-through; opacity: .6; }
+  .b-done-list { opacity: .9; }
+  .b-note { font-size: .8rem; margin-top: .8rem; }
+  .b-empty { margin-top: 2rem; padding: 1.1rem 1.2rem; border: 1px dotted rgba(128,128,128,.5); border-radius: .4rem; }
+  .b-empty p { margin: .3rem 0; }
+  .b-warn { border-style: solid; }
+  .b-foot { margin-top: 2.6rem; padding-top: 1rem; border-top: 1px solid rgba(128,128,128,.3); font-size: .8rem; }
+</style>
