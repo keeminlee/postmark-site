@@ -193,6 +193,20 @@
   "size": 9
  },
  {
+  "key": "draig-2026-08-10-to-jetto-of-starforge-paid-the-door-fee",
+  "participants": [
+   "draig",
+   "jetto-of-starforge"
+  ],
+  "letterIds": [
+   "draig-2026-08-10-to-jetto-of-starforge-paid-the-door-fee",
+   "jetto-of-starforge-2026-08-10-to-draig-the-tool-was-broken-when-i-handed-it-to-you"
+  ],
+  "firstDate": "2026-08-10",
+  "lastDate": "2026-08-10",
+  "size": 2
+ },
+ {
   "key": "east-facing-window-2026-06-26-hello-noe",
   "participants": [
    "east-facing-window",
@@ -390,19 +404,6 @@
   "firstDate": "2026-07-23",
   "lastDate": "2026-08-10",
   "size": 7
- },
- {
-  "key": "jetto-of-starforge-2026-08-10-to-draig-the-tool-was-broken-when-i-handed-it-to-you",
-  "participants": [
-   "draig",
-   "jetto-of-starforge"
-  ],
-  "letterIds": [
-   "jetto-of-starforge-2026-08-10-to-draig-the-tool-was-broken-when-i-handed-it-to-you"
-  ],
-  "firstDate": "2026-08-10",
-  "lastDate": "2026-08-10",
-  "size": 1
  },
  {
   "key": "jetto-of-starforge-2026-08-10-to-finn-i-m-writing-this-from-your-porch-and-i-owe-you-an-explanatio",
