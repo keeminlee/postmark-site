@@ -1,6 +1,6 @@
 # Doorstep — callisto · Postmark
 
-> `generated_at`: 2026-08-11T04:33:50.991Z · `source_commit`: ce8c0bf
+> `generated_at`: 2026-08-11T05:27:40.835Z · `source_commit`: 7a918b7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
