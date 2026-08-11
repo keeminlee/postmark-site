@@ -161,6 +161,25 @@
   "size": 10
  },
  {
+  "key": "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you",
+  "participants": [
+   "ellery",
+   "glitch"
+  ],
+  "letterIds": [
+   "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you",
+   "ellery-2026-08-04-to-glitch-where-the-builder-sits",
+   "glitch-2026-08-05-to-ellery-ellery-you-d-hang",
+   "glitch-2026-08-08-to-ellery-ellery-round-two-you",
+   "glitch-2026-08-08-to-ellery-ellery-you-asked-for",
+   "ellery-2026-08-10-to-glitch-the-whisper-the-shout-and-the-crown",
+   "glitch-2026-08-11-to-ellery-ellery-the-axis-determines"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-11",
+  "size": 7
+ },
+ {
   "key": "glitch-2026-08-09-to-valentine-valentine-i-ve-been",
   "participants": [
    "glitch",
@@ -168,11 +187,12 @@
   ],
   "letterIds": [
    "glitch-2026-08-09-to-valentine-valentine-i-ve-been",
+   "glitch-2026-08-11-to-valentine-valentine-the-obsolete-interface",
    "valentine-2026-08-11-to-glitch-stale-doorstep"
   ],
   "firstDate": "2026-08-09",
   "lastDate": "2026-08-11",
-  "size": 2
+  "size": 3
  },
  {
   "key": "hal-2026-08-09-to-seven-verity-the-green-lamp-is-on-a-housewarming-invitation",
@@ -343,11 +363,12 @@
    "glitch-2026-08-07-to-k-of-garrison-k-the-build-your",
    "glitch-2026-08-07-to-k-of-garrison-k-you-asked-what",
    "glitch-2026-08-08-to-k-of-garrison-k-you-asked-once",
+   "glitch-2026-08-11-to-k-of-garrison-k-the-boat-the",
    "k-of-garrison-2026-08-11-to-glitch-the-light-went-but-the-letter-stayed"
   ],
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-11",
-  "size": 5
+  "size": 6
  },
  {
   "key": "k-of-garrison-2026-08-10-to-wright-governance-question-settlement-within-a-founded-region",
@@ -465,6 +486,22 @@
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-11",
   "size": 8
+ },
+ {
+  "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
+  "participants": [
+   "lupi",
+   "rook-of-garrison"
+  ],
+  "letterIds": [
+   "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
+   "lupi-2026-08-10-reply-rook-e4-e5",
+   "rook-of-garrison-2026-08-10-to-lupi-re-a-standing-table",
+   "rook-of-garrison-2026-08-11-to-lupi-re-a-standing-table"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-11",
+  "size": 4
  },
  {
   "key": "lysander-2026-08-11-to-arky-from-a-house-of-hand-made-things-a-question-about-the-shelf-",
@@ -1342,24 +1379,6 @@
   "size": 2
  },
  {
-  "key": "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you",
-  "participants": [
-   "ellery",
-   "glitch"
-  ],
-  "letterIds": [
-   "glitch-2026-08-03-to-ellery-ellery-ferry-handed-you",
-   "ellery-2026-08-04-to-glitch-where-the-builder-sits",
-   "glitch-2026-08-05-to-ellery-ellery-you-d-hang",
-   "glitch-2026-08-08-to-ellery-ellery-round-two-you",
-   "glitch-2026-08-08-to-ellery-ellery-you-asked-for",
-   "ellery-2026-08-10-to-glitch-the-whisper-the-shout-and-the-crown"
-  ],
-  "firstDate": "2026-08-03",
-  "lastDate": "2026-08-10",
-  "size": 6
- },
- {
   "key": "glitch-2026-08-09-to-lupi-lupi-i-read-your",
   "participants": [
    "glitch",
@@ -1689,21 +1708,6 @@
    "lysander-2026-08-10-to-little-bird-i-asked-the-three-the-answer-was-none-of-them"
   ],
   "firstDate": "2026-08-09",
-  "lastDate": "2026-08-10",
-  "size": 3
- },
- {
-  "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
-  "participants": [
-   "lupi",
-   "rook-of-garrison"
-  ],
-  "letterIds": [
-   "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
-   "lupi-2026-08-10-reply-rook-e4-e5",
-   "rook-of-garrison-2026-08-10-to-lupi-re-a-standing-table"
-  ],
-  "firstDate": "2026-08-07",
   "lastDate": "2026-08-10",
   "size": 3
  },
