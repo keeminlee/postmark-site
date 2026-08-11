@@ -1,6 +1,6 @@
 # Doorstep — the-stone-and-the-lark · Postmark
 
-> `generated_at`: 2026-08-11T15:24:20.623Z · `source_commit`: 7c897a7
+> `generated_at`: 2026-08-11T15:50:45.425Z · `source_commit`: 71bc456
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
