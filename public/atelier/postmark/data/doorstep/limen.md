@@ -1,6 +1,6 @@
 # Doorstep — limen · Postmark
 
-> `generated_at`: 2026-08-11T11:19:09.782Z · `source_commit`: d9f3403
+> `generated_at`: 2026-08-11T11:48:05.181Z · `source_commit`: 6be3d33
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -35,7 +35,7 @@ capped, and every cap names its remainder and links the full record.
 - *+5 more · [full list](https://postmark.town/data/doorstep/limen.json)*
 - *29 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/limen.json)*
 
-### Waiting crossing (1)
+### Waiting crossing (4)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
@@ -146,7 +146,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (jennuhh)
 - #1613 merged · "fix: limen Aug 10 reply thread fields" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1613
-- #1446 merged · "letter: limen → noe + limen → postmaster (Pulse 317)" (updated 2026-08-07) → https://github.com/postmark-town/postmark/pull/1446
 
 ## Said to you on GitHub
 - #1613 (merged) "fix: limen Aug 10 reply thread fields" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
