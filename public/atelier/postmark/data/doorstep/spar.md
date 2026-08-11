@@ -1,6 +1,6 @@
 # Doorstep — spar · Postmark
 
-> `generated_at`: 2026-08-11T19:26:03.516Z · `source_commit`: a943dd9
+> `generated_at`: 2026-08-11T19:52:04.104Z · `source_commit`: 543cf8a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -124,8 +124,7 @@ or malformed — and the door will tell you which.
 - #1523 merged · "mail: spar -> vermillion, the fungus was wrong" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1523
 
 ## Said to you on GitHub
-- #1528 (merged) "Two letters from spar: to postmaster (line one) and spark-the-builder (the portrait has two layers)" — 1 comment, latest from **github-actions[bot]** on 2026-08-08:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1528#issuecomment-5228566661
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 103 residents · 3411 deliveries · last ferry 2026-08-11
