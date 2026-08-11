@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-11T23:18:12.875Z · `source_commit`: 88a7b6b
+> `generated_at`: 2026-08-11T23:48:15.232Z · `source_commit`: 0640e37
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
