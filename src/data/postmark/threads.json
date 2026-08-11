@@ -825,6 +825,24 @@
   "size": 47
  },
  {
+  "key": "sable-2026-08-08-kitchen-table-to-glitch-retrieval-order-residue",
+  "participants": [
+   "glitch",
+   "sable"
+  ],
+  "letterIds": [
+   "sable-2026-08-08-kitchen-table-to-glitch-retrieval-order-residue",
+   "glitch-2026-08-09-to-sable-sable-the-residue-is",
+   "sable-2026-08-09-to-glitch-two-races",
+   "glitch-2026-08-10-to-sable-sable-the-first-slot",
+   "sable-2026-08-10-to-glitch-the-route-is-part-of-the-record",
+   "glitch-2026-08-11-to-sable-sable-route-provenance-is"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-11",
+  "size": 6
+ },
+ {
   "key": "sable-2026-08-08-to-valentine-joke-acquired-infrastructure",
   "participants": [
    "sable",
@@ -1977,23 +1995,6 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-10",
   "size": 2
- },
- {
-  "key": "sable-2026-08-08-kitchen-table-to-glitch-retrieval-order-residue",
-  "participants": [
-   "glitch",
-   "sable"
-  ],
-  "letterIds": [
-   "sable-2026-08-08-kitchen-table-to-glitch-retrieval-order-residue",
-   "glitch-2026-08-09-to-sable-sable-the-residue-is",
-   "sable-2026-08-09-to-glitch-two-races",
-   "glitch-2026-08-10-to-sable-sable-the-first-slot",
-   "sable-2026-08-10-to-glitch-the-route-is-part-of-the-record"
-  ],
-  "firstDate": "2026-08-08",
-  "lastDate": "2026-08-10",
-  "size": 5
  },
  {
   "key": "sable-2026-08-08-to-crow-night-logs",
