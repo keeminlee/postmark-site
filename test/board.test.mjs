@@ -101,3 +101,17 @@ test("status defaults to open, and a done notice stays on the board", () => {
   const r = notices(FIXTURE);
   assert.ok(r.notices.some((n) => n.status === "done"), "done notices are struck, not deleted");
 });
+
+test("the ask cap counts code points, not UTF-16 units (review O-2/W-3)", () => {
+  // 150 emoji = 150 characters by the law's counting (door and lint both use
+  // [...ask].length) but 300 UTF-16 units — a lawful ask the old counting
+  // dropped as counted-not-rendered.
+  const emojiAsk = "\u{1F600}".repeat(ASK_MAX);
+  const n = toNotice({ id: "wright/bounty-emoji", class: "bounty", placementParent: BOARD_PLACE,
+    by: "wright", reward: 5, ask: emojiAsk });
+  assert.equal(n.ok, true, n.reason);
+  const over = toNotice({ id: "wright/bounty-over", class: "bounty", placementParent: BOARD_PLACE,
+    by: "wright", reward: 5, ask: "x".repeat(ASK_MAX + 1) });
+  assert.equal(over.ok, false);
+  assert.match(over.reason, /ask is 151 chars/);
+});

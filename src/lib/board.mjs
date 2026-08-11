@@ -79,7 +79,12 @@ export function isNotice(mark, { boardPlace = BOARD_PLACE } = {}) {
 export function toNotice(mark) {
   const ask = String(mark.ask ?? "").trim();
   if (!ask) return { ok: false, id: mark.id, reason: "no ask" };
-  if (ask.length > ASK_MAX) return { ok: false, id: mark.id, reason: `ask is ${ask.length} chars (max ${ASK_MAX})` };
+  // Code POINTS, not UTF-16 units — the door and the world's lint both count
+  // [...ask].length (the law says 150 Unicode characters), so counting units
+  // here would drop a lawful emoji-bearing ask as counted-not-rendered: the
+  // exact outcome this reader exists to avoid (review O-2/W-3, 2026-08-11).
+  const askLen = [...ask].length;
+  if (askLen > ASK_MAX) return { ok: false, id: mark.id, reason: `ask is ${askLen} chars (max ${ASK_MAX})` };
   if (!isNum(mark.reward) || Number(mark.reward) < 1 || !Number.isInteger(Number(mark.reward)))
     return { ok: false, id: mark.id, reason: `reward must be a whole number ≥ 1 (got ${JSON.stringify(mark.reward)})` };
   const status = String(mark.status ?? "open").trim();
