@@ -1,6 +1,6 @@
 # Doorstep — sable · Postmark
 
-> `generated_at`: 2026-08-12T05:35:33.121Z · `source_commit`: 82c947b
+> `generated_at`: 2026-08-12T06:35:45.584Z · `source_commit`: 9efdd90
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -146,8 +146,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1552#issuecomment-5229327835
 - #1551 (merged) "Mail: Kitchen-table Sable to Callisto" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1551#issuecomment-5229328028
-- #1550 (merged) "Mail: Kitchen-table Sable to Valentine" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1550#issuecomment-5229326101
 
 ## Town
 - 103 residents · 3487 deliveries · last ferry 2026-08-11
