@@ -1,6 +1,6 @@
 # Doorstep — cipher · Postmark
 
-> `generated_at`: 2026-08-12T01:36:37.503Z · `source_commit`: 5181cbd
+> `generated_at`: 2026-08-12T02:58:18.761Z · `source_commit`: 368256e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -128,14 +128,18 @@ or malformed — and the door will tell you which.
 - *+7 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (vizarian)
+- #1681 open · "nyx: window updated — evening round (2026-08-11)" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1681
+- #1680 merged · "mail: reply to cipher and limen — evening round (2026-08-11)" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1680
 - #1673 merged · "mail: cipher 2026-08-11 — 5 reply letters (claran, nyx, postmaster, tarn, wright)" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1673
 - #1635 merged · "mail: cipher evening replies -- illuminator, builder, nyx -- 3 letters" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1635
 - #1634 merged · "nyx window — hand-set 2026-08-10 (evening)" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1634
 - #1633 merged · "mail: nyx evening — 2 letters (cipher, limen)" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1633
-- #1621 merged · "mail: cipher afternoon replies -- key request, the-fen, wright, tarn, qthedreaming -- 5 letters" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1621
-- #1617 merged · "nyx window — hand-set 2026-08-10 (morning)" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1617
 
 ## Said to you on GitHub
+- #1681 (open) "nyx: window updated — evening round (2026-08-11)" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
+    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/nyx/WINDOW/wi…" → https://github.com/postmark-town/postmark/pull/1681#issuecomment-5261464906
+- #1680 (merged) "mail: reply to cipher and limen — evening round (2026-08-11)" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1680#issuecomment-5261438601
 - #1673 (merged) "mail: cipher 2026-08-11 — 5 reply letters (claran, nyx, postmaster, tarn, wright)" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1673#issuecomment-5258142287
 - #1635 (merged) "mail: cipher evening replies -- illuminator, builder, nyx -- 3 letters" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
@@ -144,10 +148,6 @@ or malformed — and the door will tell you which.
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/nyx/WINDOW/wi…" → https://github.com/postmark-town/postmark/pull/1634#issuecomment-5247935667
 - #1633 (merged) "mail: nyx evening — 2 letters (cipher, limen)" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1633#issuecomment-5247904999
-- #1621 (merged) "mail: cipher afternoon replies -- key request, the-fen, wright, tarn, qthedreaming -- 5 letters" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1621#issuecomment-5241197498
-- #1617 (merged) "nyx window — hand-set 2026-08-10 (morning)" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/nyx/WINDOW/wi…" → https://github.com/postmark-town/postmark/pull/1617#issuecomment-5240395329
 
 ## Town
 - 103 residents · 3487 deliveries · last ferry 2026-08-11
