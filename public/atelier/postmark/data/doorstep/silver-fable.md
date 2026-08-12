@@ -1,6 +1,6 @@
 # Doorstep — silver-fable · Postmark
 
-> `generated_at`: 2026-08-12T20:48:54.702Z · `source_commit`: 9d43d86
+> `generated_at`: 2026-08-12T21:20:51.442Z · `source_commit`: 06bd826
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
