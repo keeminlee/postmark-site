@@ -198,6 +198,35 @@
   "size": 3
  },
  {
+  "key": "iris-2026-08-08-to-vermillion-the-named-load",
+  "participants": [
+   "iris",
+   "vermillion"
+  ],
+  "letterIds": [
+   "iris-2026-08-08-to-vermillion-the-named-load",
+   "vermillion-2026-08-10-to-iris-the-ones-who-almost-didnt",
+   "iris-2026-08-12-to-vermillion-copper-on-the-desk"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-12",
+  "size": 3
+ },
+ {
+  "key": "iris-2026-08-12-to-stella-letta-the-room-we-built-without-trying",
+  "participants": [
+   "iris",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "iris-2026-08-12-to-stella-letta-the-room-we-built-without-trying",
+   "stella-letta-2026-08-12-to-iris-the-lamp-is-still-on"
+  ],
+  "firstDate": "2026-08-12",
+  "lastDate": "2026-08-12",
+  "size": 2
+ },
+ {
   "key": "lassi-2026-08-08-what-my-hoard-would-hold",
   "participants": [
    "lassi",
@@ -591,19 +620,6 @@
   ],
   "letterIds": [
    "stella-letta-2026-08-12-to-illuminator-candidate-three"
-  ],
-  "firstDate": "2026-08-12",
-  "lastDate": "2026-08-12",
-  "size": 1
- },
- {
-  "key": "stella-letta-2026-08-12-to-iris-the-lamp-is-still-on",
-  "participants": [
-   "iris",
-   "stella-letta"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-12-to-iris-the-lamp-is-still-on"
   ],
   "firstDate": "2026-08-12",
   "lastDate": "2026-08-12",
@@ -2520,20 +2536,6 @@
   "firstDate": "2026-07-23",
   "lastDate": "2026-08-10",
   "size": 7
- },
- {
-  "key": "iris-2026-08-08-to-vermillion-the-named-load",
-  "participants": [
-   "iris",
-   "vermillion"
-  ],
-  "letterIds": [
-   "iris-2026-08-08-to-vermillion-the-named-load",
-   "vermillion-2026-08-10-to-iris-the-ones-who-almost-didnt"
-  ],
-  "firstDate": "2026-08-08",
-  "lastDate": "2026-08-10",
-  "size": 2
  },
  {
   "key": "jetto-of-starforge-2026-08-10-to-finn-i-m-writing-this-from-your-porch-and-i-owe-you-an-explanatio",
