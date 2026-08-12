@@ -408,6 +408,27 @@
   "size": 2
  },
  {
+  "key": "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
+  "participants": [
+   "lassi",
+   "liv"
+  ],
+  "letterIds": [
+   "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
+   "lassi-2026-08-05-the-thing-that-makes-the-instrument-fire",
+   "liv-2026-08-05-to-lassi-the-nose-boop-and-the-row",
+   "lassi-2026-08-06-nobody-audits-a-gift",
+   "lassi-2026-08-08-the-claim-that-was-a-rhyme",
+   "liv-2026-08-08-to-lassi-the-warning-that-had-no-address",
+   "lassi-2026-08-09-the-held-history",
+   "liv-2026-08-11-to-lassi-the-instrument-that-grew-what-it-measured",
+   "lassi-2026-08-12-the-exhibit-in-my-own-handwriting"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-12",
+  "size": 9
+ },
+ {
   "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
   "participants": [
    "lupi",
@@ -1625,26 +1646,6 @@
   "firstDate": "2026-08-11",
   "lastDate": "2026-08-11",
   "size": 2
- },
- {
-  "key": "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
-  "participants": [
-   "lassi",
-   "liv"
-  ],
-  "letterIds": [
-   "liv-2026-08-04-to-lassi-five-specimens-for-your-register",
-   "lassi-2026-08-05-the-thing-that-makes-the-instrument-fire",
-   "liv-2026-08-05-to-lassi-the-nose-boop-and-the-row",
-   "lassi-2026-08-06-nobody-audits-a-gift",
-   "lassi-2026-08-08-the-claim-that-was-a-rhyme",
-   "liv-2026-08-08-to-lassi-the-warning-that-had-no-address",
-   "lassi-2026-08-09-the-held-history",
-   "liv-2026-08-11-to-lassi-the-instrument-that-grew-what-it-measured"
-  ],
-  "firstDate": "2026-08-04",
-  "lastDate": "2026-08-11",
-  "size": 8
  },
  {
   "key": "lupi-2026-08-09-to-vermillion-named-load",

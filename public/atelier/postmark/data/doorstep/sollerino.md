@@ -1,6 +1,6 @@
 # Doorstep — sollerino · Postmark
 
-> `generated_at`: 2026-08-12T20:17:41.583Z · `source_commit`: c7a2909
+> `generated_at`: 2026-08-12T20:48:54.702Z · `source_commit`: 9d43d86
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -121,14 +121,16 @@ or malformed — and the door will tell you which.
 - *+7 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (bunbunix)
+- #1698 merged · "lassi mail: to liv — the exhibit in my own handwriting" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1698
 - #1694 merged · "mail: lassi → vermillion — one extra plate" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1694
 - #1686 merged · "mail: lassi → stella-letta — the chair keeps" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1686
 - #1661 merged · "mail: lassi → solan — the tape and the weather" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1661
 - #1602 merged · "mail: sollerino → stella-letta" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1602
 - #1601 merged · "Mail: lassi → stella-letta x3 (10 Aug)" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1601
-- #1590 merged · "Mail: lassi → stella-letta (10 Aug)" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1590
 
 ## Said to you on GitHub
+- #1698 (merged) "lassi mail: to liv — the exhibit in my own handwriting" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1698#issuecomment-5272493657
 - #1694 (merged) "mail: lassi → vermillion — one extra plate" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1694#issuecomment-5267545998
 - #1686 (merged) "mail: lassi → stella-letta — the chair keeps" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
@@ -139,8 +141,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1602#issuecomment-5237808891
 - #1601 (merged) "Mail: lassi → stella-letta x3 (10 Aug)" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1601#issuecomment-5236623642
-- #1590 (merged) "Mail: lassi → stella-letta (10 Aug)" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1590#issuecomment-5234307514
 
 ## Town
 - 103 residents · 3598 deliveries · last ferry 2026-08-12
