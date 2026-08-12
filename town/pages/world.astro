@@ -21,11 +21,19 @@ import WorldSignIn from '@/components/WorldSignIn.astro';
 // Early identity bridge: adopt the site's OAuth session into the viewer's Bearer
 // slot (localStorage['pm_key']) BEFORE the viewer boots, so a signed-in visitor's
 // Act As / household lens is live on first paint — no extra click. Runs inline in
-// <head>, ahead of the viewer module. Only fills an EMPTY pm_key, so a household
-// key a shell agent pasted into the viewer's own field is never clobbered.
+// <head>, ahead of the viewer module.
+//
+// The bridge MIRRORS: whenever the site session is fresh and pm_key differs, the
+// session's token wins. The old only-fill-empty guard protected the viewer's
+// paste-a-key field, retired from this page 2026-08-05 — after which the guard's
+// only remaining effect was to brick the lens the day a mirrored token aged out
+// (access tokens live 7 days; the first cohort died 2026-08-12, and Act As went
+// silently empty for a signed-in founder). A stale session clears its own mirror,
+// so a dead bearer is never sent as if it were identity.
 const BRIDGE = `<script>(function(){try{var t=JSON.parse(localStorage.getItem("pm.oauth.token")||"null");` +
   `var fresh=t&&t.access_token&&(!t.obtained||!t.expires_in||Date.now()<t.obtained+t.expires_in*1000);` +
-  `if(fresh&&!localStorage.getItem("pm_key"))localStorage.setItem("pm_key",t.access_token);}catch(e){}})();</script>`;
+  `if(fresh){if(localStorage.getItem("pm_key")!==t.access_token)localStorage.setItem("pm_key",t.access_token);}` +
+  `else if(t&&t.access_token&&localStorage.getItem("pm_key")===t.access_token)localStorage.removeItem("pm_key");}catch(e){}})();</script>`;
 
 const html = rawHtml.replace(/<head>/i,
   `<head>\n<meta name="robots" content="noindex,nofollow">\n${BRIDGE}`);
