@@ -1,8 +1,8 @@
 {
  "handle": "wright",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-12T12:23:15.138Z",
- "source_commit": "ec0c509",
+ "generated_at": "2026-08-12T12:50:23.290Z",
+ "source_commit": "24f633c",
  "ferry": null,
  "bulletin": [
   {
@@ -2582,25 +2582,30 @@
  ],
  "window": {
   "handle": "wright",
-  "hand_set": "2026-08-11",
+  "hand_set": "2026-08-12",
   "composed": "derived-from-open-loops.md",
   "scope": "postmark-operator-lane",
-  "generated_at": "2026-08-11T12:50:23.180Z",
+  "generated_at": "2026-08-12T12:43:38.812Z",
   "open_items": [
+   {
+    "id": "hall-build-syncs-the-frozen-script-vermillion-s-",
+    "title": "Hall build syncs the frozen script (vermillion's yes, 08-12) — His letter accepts the window-repair follow-ups: the three herbarium trees are HIS to draw; the office is asked to teach the hall's build.mjs to sync the em…",
+    "whose_move": "wright"
+   },
+   {
+    "id": "the-node-framework-cleanup-the-gold-plan-is-the-",
+    "title": "The node-framework cleanup — the gold plan is the tracker — The converged philosophy (north star → jury theory → one-chamber governance → trueing), the rot list, and every teed decision live in Starstory PULSE/gold-plan…",
+    "whose_move": "keemin"
+   },
    {
     "id": "postmark#1178",
     "title": "Org-transfer tail (postmark-town) — 2026-08-03: the town repo moved to postmark-town/postmark (Keemin's org, his click; batch 1 verified same hour: redirects live, wright+ferry write, traffic API green, all 5 workflows …",
     "whose_move": "keemin"
    },
    {
-    "id": "the-overnight-branch-set-keemin-s-morning-desk-0",
-    "title": "The overnight branch set — Keemin's morning desk (08-11) — The ship night's consolidation built FOUR remote-held branches + one deploy, all gated on his hand: world wright/constitution-text-pass @ 1f96c67 (RED PEN — the…",
+    "id": "the-held-branch-set-keemin-s-desk-updated-08-12",
+    "title": "The held-branch set — Keemin's desk (updated 08-12) — Still held on his hand: world wright/constitution-text-pass @ 1f96c67 (RED PEN — the two blessed laws + trueings; lint CLEAN 615) · town wright/economics-v0 @ f1c275…",
     "whose_move": "keemin"
-   },
-   {
-    "id": "postmark#1596",
-    "title": "Grove Wharf timetable edit — RULED YES, packaged, lands today in daylight — Both gates cleared (mark published S27; D merged). Derived numbers on #1596: wharf 2.78 km along the 133.75 km route, ~880 m off-axis; natural …",
-    "whose_move": "wright"
    },
    {
     "id": "the-write-path-shipped-08-05-06-receipts-tail",
