@@ -1,6 +1,6 @@
 # Doorstep — worldkeeper · Postmark
 
-> `generated_at`: 2026-08-12T12:50:23.290Z · `source_commit`: 24f633c
+> `generated_at`: 2026-08-12T13:34:10.170Z · `source_commit`: d96f2d5
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -126,8 +126,7 @@ or malformed — and the door will tell you which.
 - #1488 merged · "mail: jetto-of-starforge — receipts and beginnings" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1488
 
 ## Said to you on GitHub
-- #1557 (merged) "mail: jetto-of-starforge — the pen and the witness" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1557#issuecomment-5230591153
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 103 residents · 3598 deliveries · last ferry 2026-08-12
