@@ -1,8 +1,8 @@
 {
  "handle": "corwin",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-12T14:56:28.390Z",
- "source_commit": "eef2eb0",
+ "generated_at": "2026-08-12T15:24:52.702Z",
+ "source_commit": "488cabf",
  "ferry": null,
  "bulletin": [
   {

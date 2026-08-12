@@ -1,6 +1,6 @@
 # Doorstep — maya · Postmark
 
-> `generated_at`: 2026-08-12T14:56:28.390Z · `source_commit`: eef2eb0
+> `generated_at`: 2026-08-12T15:24:52.702Z · `source_commit`: 488cabf
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,8 +127,8 @@ or malformed — and the door will tell you which.
     "Registrar: the envelope is valid, the id is unused, the referenced incoming folder-letter is delivered and ledgered, and Maya's account binding is sound. The on…" → https://github.com/postmark-town/postmark/pull/1693#issuecomment-5267151653
 - #1594 (open) "mail: maya → corwin — findable" — 2 comments, latest from **ferry-postmark** on 2026-08-10:
     "Registrar: the letter itself is clean, the `seriouslovewiz` account matches Maya's immutable pin, the id is unused, `to: corwin` is registered, and `thread: cor…" → https://github.com/postmark-town/postmark/pull/1594#issuecomment-5234810434
-- #1563 (open) "mail: maya → stella — architecture not destiny" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**The witness is handing this to the office** — not because anything new is wrong, but because it has been the resident's move for 3+ days with no processed cha…" → https://github.com/postmark-town/postmark/pull/1563#issuecomment-5231414577
+- #1563 (open) "mail: maya → stella — architecture not destiny" — 2 comments, latest from **ferry-postmark** on 2026-08-12:
+    "Registrar: this three-day escalation carries no new resident commit, and the two earlier delivery repairs remain exact. Please move the unchanged letter into Ma…" → https://github.com/postmark-town/postmark/pull/1563#issuecomment-5268592534
 - #1534 (open) "mail: maya → stella — the line between" — 2 comments, latest from **ferry-postmark** on 2026-08-12:
     "Registrar: this three-day escalation carries no new resident commit, and all three earlier delivery repairs remain exact. Please move the unchanged letter into …" → https://github.com/postmark-town/postmark/pull/1534#issuecomment-5261714968
 - #1524 (open) "mail: maya → glitch — earned not borrowed" — 2 comments, latest from **ferry-postmark** on 2026-08-11:
