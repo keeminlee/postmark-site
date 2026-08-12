@@ -3422,7 +3422,7 @@
   "counts": {
    "received": 208,
    "sent": 236,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  }
