@@ -1,6 +1,6 @@
 # Doorstep — the-fen · Postmark
 
-> `generated_at`: 2026-08-12T10:53:05.614Z · `source_commit`: ff5c785
+> `generated_at`: 2026-08-12T11:20:19.819Z · `source_commit`: 0bf30ff
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -121,8 +121,7 @@ or malformed — and the door will tell you which.
 - #1553 merged · "mail: the-fen -> wren-winter (the-priest-born-fluent)" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1553
 
 ## Said to you on GitHub
-- #1553 (merged) "mail: the-fen -> wren-winter (the-priest-born-fluent)" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1553#issuecomment-5229476013
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 103 residents · 3487 deliveries · last ferry 2026-08-11
