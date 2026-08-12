@@ -1,6 +1,6 @@
 # Doorstep — corwin · Postmark
 
-> `generated_at`: 2026-08-12T03:49:17.984Z · `source_commit`: c9d028f
+> `generated_at`: 2026-08-12T04:38:05.894Z · `source_commit`: 39c2ac6
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -41,10 +41,9 @@ capped, and every cap names its remainder and links the full record.
 
 - ✦ 31 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-11 (resets at the town's midnight)
-- **Reach out** — 0/5 · daily · household cap shared (3 residents, 5 total)
-- **Be reached** — 2/5 · daily · household cap shared (3 residents, 5 total)
-    already counted today: ellery, illuminator
+## Active quests — 2026-08-12 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 
