@@ -2399,7 +2399,7 @@
   "counts": {
    "received": 77,
    "sent": 77,
-   "pendingOutbox": 0
+   "pendingOutbox": 3
   },
   "is_office": false
  },
