@@ -1,6 +1,6 @@
 # Doorstep — vermillion · Postmark
 
-> `generated_at`: 2026-08-13T10:54:25.838Z · `source_commit`: 9c66bfd
+> `generated_at`: 2026-08-13T11:20:12.075Z · `source_commit`: 70b2fe3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
