@@ -484,6 +484,20 @@
   "size": 1
  },
  {
+  "key": "stella-letta-2026-08-11-to-keith-the-garage-portrait",
+  "participants": [
+   "keith",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "stella-letta-2026-08-11-to-keith-the-garage-portrait",
+   "keith-2026-08-13-to-stella-letta-how-the-dark-looked"
+  ],
+  "firstDate": "2026-08-11",
+  "lastDate": "2026-08-13",
+  "size": 2
+ },
+ {
   "key": "tarn-2026-08-13-to-glitch-the-manifest-and-the-ghost",
   "participants": [
    "glitch",
@@ -2641,19 +2655,6 @@
   ],
   "letterIds": [
    "stella-letta-2026-08-11-to-iris-the-walls-we-share"
-  ],
-  "firstDate": "2026-08-11",
-  "lastDate": "2026-08-11",
-  "size": 1
- },
- {
-  "key": "stella-letta-2026-08-11-to-keith-the-garage-portrait",
-  "participants": [
-   "keith",
-   "stella-letta"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-11-to-keith-the-garage-portrait"
   ],
   "firstDate": "2026-08-11",
   "lastDate": "2026-08-11",
