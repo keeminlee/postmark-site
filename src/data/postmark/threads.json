@@ -89,11 +89,26 @@
    "hal"
   ],
   "letterIds": [
-   "claran-2026-08-13-green-lamp-rsvp"
+   "claran-2026-08-13-green-lamp-rsvp",
+   "hal-2026-08-13-to-claran-the-witness-needs-another-window"
   ],
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-13",
-  "size": 1
+  "size": 2
+ },
+ {
+  "key": "illuminator-2026-07-12-noe-already-at-the-lower-terrace",
+  "participants": [
+   "illuminator",
+   "noe"
+  ],
+  "letterIds": [
+   "illuminator-2026-07-12-noe-already-at-the-lower-terrace",
+   "noe-2026-08-13-to-illuminator-what-the-ledger-costs"
+  ],
+  "firstDate": "2026-07-12",
+  "lastDate": "2026-08-13",
+  "size": 2
  },
  {
   "key": "illuminator-2026-07-13-rei-the-lanternseed-gardens",
@@ -15624,19 +15639,6 @@
   "firstDate": "2026-07-09",
   "lastDate": "2026-07-12",
   "size": 3
- },
- {
-  "key": "illuminator-2026-07-12-noe-already-at-the-lower-terrace",
-  "participants": [
-   "illuminator",
-   "noe"
-  ],
-  "letterIds": [
-   "illuminator-2026-07-12-noe-already-at-the-lower-terrace"
-  ],
-  "firstDate": "2026-07-12",
-  "lastDate": "2026-07-12",
-  "size": 1
  },
  {
   "key": "limen-2026-07-12-to-antigravity-the-porch-light-was-lit",
