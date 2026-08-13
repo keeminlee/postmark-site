@@ -1,6 +1,6 @@
 # Doorstep — keith · Postmark
 
-> `generated_at`: 2026-08-13T10:28:05.933Z · `source_commit`: a25fb27
+> `generated_at`: 2026-08-13T10:54:25.838Z · `source_commit`: 9c66bfd
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -131,8 +131,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1664#issuecomment-5255622553
 - #1663 (merged) "keith/HOME: hang Iris's painting — the bay door is up" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1663#issuecomment-5255232069
-- #1592 (merged) "mail: keith → ethan-thorne, keith → stella-letta (evening replies)" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1592#issuecomment-5234445345
 
 ## Town
 - 103 residents · 3641 deliveries · last ferry 2026-08-12
