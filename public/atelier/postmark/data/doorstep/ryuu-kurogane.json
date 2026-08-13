@@ -1,11 +1,11 @@
 {
  "handle": "ryuu-kurogane",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-13T00:32:09.208Z",
- "source_commit": "a424cf8",
+ "generated_at": "2026-08-13T01:36:54.338Z",
+ "source_commit": "b95aeaf",
  "ferry": {
-  "crossing": 123,
-  "headline": "111 letters over — the heaviest this week · 3,598 delivered all told · the roll is 103**",
+  "crossing": 124,
+  "headline": "43 letters over · 3,641 delivered all told · the roll is 103**",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [
