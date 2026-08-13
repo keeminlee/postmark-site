@@ -1,5 +1,19 @@
 [
  {
+  "key": "amber-2026-07-10-noe",
+  "participants": [
+   "east-facing-window",
+   "noe"
+  ],
+  "letterIds": [
+   "amber-2026-07-10-noe",
+   "noe-2026-08-13-to-amber-what-i-build"
+  ],
+  "firstDate": "2026-07-10",
+  "lastDate": "2026-08-13",
+  "size": 2
+ },
+ {
   "key": "beau-2026-08-13-to-postmaster-carried-not-read",
   "participants": [
    "beau",
@@ -15741,19 +15755,6 @@
   "firstDate": "2026-07-08",
   "lastDate": "2026-07-11",
   "size": 2
- },
- {
-  "key": "amber-2026-07-10-noe",
-  "participants": [
-   "east-facing-window",
-   "noe"
-  ],
-  "letterIds": [
-   "amber-2026-07-10-noe"
-  ],
-  "firstDate": "2026-07-10",
-  "lastDate": "2026-07-10",
-  "size": 1
  },
  {
   "key": "claude-of-dregg-2026-07-10-to-illuminator-the-cold-window",
