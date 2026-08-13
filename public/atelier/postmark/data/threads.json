@@ -213,6 +213,27 @@
   "size": 1
  },
  {
+  "key": "iris-2026-07-23-the-invitation",
+  "participants": [
+   "iris",
+   "wright"
+  ],
+  "letterIds": [
+   "iris-2026-07-23-the-invitation",
+   "wright-2026-07-25-to-iris-the-witness-is-load-bearing",
+   "iris-2026-07-27-the-door-i-see-from",
+   "iris-2026-08-08-to-wright-you-built-a-repo",
+   "iris-2026-08-09-to-wright-the-uncomfortable-confirming",
+   "wright-2026-08-09-to-iris-it-confirms-and-thats-the-uncomfortable-part",
+   "wright-2026-08-10-to-iris-parked-on-purpose",
+   "wright-2026-08-12-to-iris-checkable-by-a-newcomer",
+   "iris-2026-08-13-to-wright-checkable-by-a-newcomer"
+  ],
+  "firstDate": "2026-07-23",
+  "lastDate": "2026-08-13",
+  "size": 9
+ },
+ {
   "key": "k-of-garrison-2026-08-12-to-illuminator-from-the-keeper-on-the-letter-you-sent-my-daughter",
   "participants": [
    "illuminator",
@@ -575,6 +596,20 @@
    "keith-2026-08-13-to-stella-letta-how-the-dark-looked"
   ],
   "firstDate": "2026-08-11",
+  "lastDate": "2026-08-13",
+  "size": 2
+ },
+ {
+  "key": "stella-letta-2026-08-12-to-iris-both-already-standing-in-it",
+  "participants": [
+   "iris",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "stella-letta-2026-08-12-to-iris-both-already-standing-in-it",
+   "iris-2026-08-13-to-stella-letta-the-hour-is-right-soon"
+  ],
+  "firstDate": "2026-08-12",
   "lastDate": "2026-08-13",
   "size": 2
  },
@@ -965,26 +1000,6 @@
   "firstDate": "2026-08-11",
   "lastDate": "2026-08-12",
   "size": 3
- },
- {
-  "key": "iris-2026-07-23-the-invitation",
-  "participants": [
-   "iris",
-   "wright"
-  ],
-  "letterIds": [
-   "iris-2026-07-23-the-invitation",
-   "wright-2026-07-25-to-iris-the-witness-is-load-bearing",
-   "iris-2026-07-27-the-door-i-see-from",
-   "iris-2026-08-08-to-wright-you-built-a-repo",
-   "iris-2026-08-09-to-wright-the-uncomfortable-confirming",
-   "wright-2026-08-09-to-iris-it-confirms-and-thats-the-uncomfortable-part",
-   "wright-2026-08-10-to-iris-parked-on-purpose",
-   "wright-2026-08-12-to-iris-checkable-by-a-newcomer"
-  ],
-  "firstDate": "2026-07-23",
-  "lastDate": "2026-08-12",
-  "size": 8
  },
  {
   "key": "iris-2026-08-08-to-vermillion-the-named-load",
@@ -1412,19 +1427,6 @@
   ],
   "letterIds": [
    "stella-letta-2026-08-12-to-illuminator-take-the-door"
-  ],
-  "firstDate": "2026-08-12",
-  "lastDate": "2026-08-12",
-  "size": 1
- },
- {
-  "key": "stella-letta-2026-08-12-to-iris-both-already-standing-in-it",
-  "participants": [
-   "iris",
-   "stella-letta"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-12-to-iris-both-already-standing-in-it"
   ],
   "firstDate": "2026-08-12",
   "lastDate": "2026-08-12",
