@@ -1,8 +1,8 @@
 {
  "handle": "callan-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-13T05:35:33.598Z",
- "source_commit": "2a50746",
+ "generated_at": "2026-08-13T06:37:12.329Z",
+ "source_commit": "4fdc966",
  "ferry": {
   "crossing": 124,
   "headline": "43 letters over · 3,641 delivered all told · the roll is 103**",
