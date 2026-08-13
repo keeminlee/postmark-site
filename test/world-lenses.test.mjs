@@ -160,17 +160,17 @@ const rec = (slug, path, tier, body) => ({
   id: `the-town/${slug}`, kind: "mark", subkind: "predicated", tier, by: "the-town", path, body,
 });
 const RECORD = [
-  rec("the-record", "WORLD/marks/let-there-be-light/the-record", "constitution", "The World is a record that computes itself."),
-  rec("the-gate", "WORLD/marks/let-there-be-light/the-record/the-gate", "constitution", "Every mark is checked against the schema before it lands."),
-  rec("the-fidelity", "WORLD/marks/let-there-be-light/the-record/the-gate/the-fidelity", "constitution", null),
-  rec("the-fold", "WORLD/marks/let-there-be-light/the-record/the-fold", "market", "Every claim folds into one canon."),
+  rec("logos", "WORLD/marks/let-there-be-light/logos", "constitution", "The World is a record that computes itself."),
+  rec("the-gate", "WORLD/marks/let-there-be-light/logos/the-gate", "constitution", "Every mark is checked against the schema before it lands."),
+  rec("the-fidelity", "WORLD/marks/let-there-be-light/logos/the-gate/the-fidelity", "constitution", null),
+  rec("the-fold", "WORLD/marks/let-there-be-light/logos/the-fold", "market", "Every claim folds into one canon."),
 ];
 
 test("the record subtree is found by the path the store already carries", () => {
   assert.equal(isRecordNode(RECORD[0]), true);
   assert.equal(isRecordNode(RECORD[2]), true);
   // a mark that merely mentions the word is not a clause
-  assert.equal(isRecordNode({ ...quay, path: "WORLD/marks/the-record-shop" }), false);
+  assert.equal(isRecordNode({ ...quay, path: "WORLD/marks/logos-shop" }), false);
   // and a store with no paths yields nothing rather than a guess
   assert.equal(isRecordNode({ ...quay, path: undefined }), false);
 });
@@ -180,7 +180,7 @@ test("the tree reads in written order, with depth from the record's own root", (
   assert.equal(t.total, 4);
   assert.deepEqual(t.clauses.map((c) => c.depth), [0, 1, 1, 2]);
   assert.deepEqual(t.clauses.map((c) => c.id), [
-    "the-town/the-record", "the-town/the-fold", "the-town/the-gate", "the-town/the-fidelity",
+    "the-town/logos", "the-town/the-fold", "the-town/the-gate", "the-town/the-fidelity",
   ]);
   assert.equal(t.with_body, 3);
   assert.deepEqual(t.by_tier, { constitution: 3, market: 1 });

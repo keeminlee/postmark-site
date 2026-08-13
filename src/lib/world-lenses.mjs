@@ -266,7 +266,7 @@ const sortedPairs = (m) => [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompa
 // ── the record's law ─────────────────────────────────────────────────────────
 //
 // The piecewise LOGOS: the constitution written as real predicated marks under
-// `let-there-be-light/the-record`, each one a clause whose body IS the law's
+// `let-there-be-light/logos` (the-record, renamed by the seed act 2026-08-13), each one a clause whose body IS the law's
 // sentence. The hub counted them ("nodes under the-record", WRITE-REGISTRY row
 // "the-record renderings"); this reads the same subtree out of the payload so
 // the lens can light it on the graph and list it beside.
@@ -277,7 +277,7 @@ const sortedPairs = (m) => [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompa
 // A lens that drew law nodes the store does not hold would be the one failure
 // this page cannot survive.
 
-export const RECORD_SEGMENT = "/the-record";
+export const RECORD_SEGMENT = "/logos";
 
 /** Is this node datum a clause of the written record? */
 export const isRecordNode = (d) =>

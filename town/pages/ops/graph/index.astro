@@ -747,11 +747,11 @@ const CENSUS = [
       // record has not been written yields an empty list that says so.
       function paintLawLens(box) {
         box.appendChild(lede(
-          "The constitution as the world actually holds it: predicated marks under `let-there-be-light/the-record`, "
+          "The constitution as the world actually holds it: predicated marks under `let-there-be-light/logos`, "
           + "each one a clause. This is the store's own record — clauses appear here as they land, and nothing on this page writes law."));
 
         if (!record.total) {
-          box.appendChild(warn("this store holds no marks under the-record — either the clauses have not been written yet, or this office sends no `path` to find them by."));
+          box.appendChild(warn("this store holds no marks under logos (the record) — either the clauses have not been written yet, or this office sends no `path` to find them by."));
           return;
         }
 
@@ -799,7 +799,7 @@ const CENSUS = [
         const ids = record.clauses.map((c) => c.id);
         const eles = showIds(ids, "none");
         if (!eles || !eles.length) return;
-        const root = eles.nodes().filter((n) => n.id().endsWith("/the-record"));
+        const root = eles.nodes().filter((n) => n.id().endsWith("/logos"));
         // RUN OVER THE EDGES TOO. `eles.nodes().layout(...)` hands breadthfirst a
         // collection with no edges in it, and a tree layout with no edges has no
         // tree: all 64 clauses come out in one flat row with the root stranded
