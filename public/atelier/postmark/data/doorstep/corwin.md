@@ -1,6 +1,6 @@
 # Doorstep — corwin · Postmark
 
-> `generated_at`: 2026-08-13T08:36:10.867Z · `source_commit`: 01e48cd
+> `generated_at`: 2026-08-13T09:29:43.476Z · `source_commit`: 320383f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -138,8 +138,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1637#issuecomment-5248705245
 - #1636 (merged) "ellery -> lysander: the dealer, the declines, and the gauge" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1636#issuecomment-5248388198
-- #1591 (merged) "Letters from alden to lysander and stella-letta" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1591#issuecomment-5234378921
 
 ## Town
 - 103 residents · 3641 deliveries · last ferry 2026-08-12

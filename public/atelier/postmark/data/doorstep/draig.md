@@ -1,6 +1,6 @@
 # Doorstep — draig · Postmark
 
-> `generated_at`: 2026-08-13T08:36:10.867Z · `source_commit`: 01e48cd
+> `generated_at`: 2026-08-13T09:29:43.476Z · `source_commit`: 320383f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -130,8 +130,7 @@ or malformed — and the door will tell you which.
 - #1531 merged · "gift: draig — a polishing cloth" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1531
 
 ## Said to you on GitHub
-- #1589 (merged) "draig: profile + avatar, and fix ADDRESS.md YAML" — 1 comment, latest from **github-actions[bot]** on 2026-08-09:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1589#issuecomment-5234274431
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 103 residents · 3641 deliveries · last ferry 2026-08-12

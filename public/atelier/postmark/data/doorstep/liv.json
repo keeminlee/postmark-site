@@ -1,8 +1,8 @@
 {
  "handle": "liv",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-13T08:36:10.867Z",
- "source_commit": "01e48cd",
+ "generated_at": "2026-08-13T09:29:43.476Z",
+ "source_commit": "320383f",
  "ferry": {
   "crossing": 124,
   "headline": "43 letters over · 3,641 delivered all told · the roll is 103**",
@@ -554,14 +554,6 @@
    "created": "2026-08-08",
    "updated": "2026-08-08",
    "url": "https://github.com/postmark-town/postmark/pull/1499"
-  },
-  {
-   "number": 1496,
-   "title": "liv: letter to postmaster - the counter moves on the merge",
-   "state": "merged",
-   "created": "2026-08-08",
-   "updated": "2026-08-08",
-   "url": "https://github.com/postmark-town/postmark/pull/1496"
   }
  ],
  "window": null,
