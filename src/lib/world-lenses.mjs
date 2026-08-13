@@ -7,13 +7,20 @@
 // browser.
 //
 // PORTED, NOT INVENTED. These are the graph-views hub's own derivations
-// (jetto/graph-views, tools/graph-views.mjs), carried over when the founder
-// ruled that the hub's CONTENT pours into this page and its six-tab chrome
-// retires. The hub computed them in Node against a world clone on disk; here
-// they run in the browser against the payload, which is the whole difference
-// the ruling asked for — the hub's numbers were a snapshot of whatever clone
-// the operator had, and these are a reading of the store the office is serving
-// right now.
+// (jetto/graph-views, tools/graph-views.mjs; its tip is pinned durably at world
+// wright/hub-pin @ 013c0c7e), carried over when the founder ruled that the hub's
+// CONTENT pours into this page and its six-tab chrome retires. The hub computed
+// them in Node against a world clone on disk; here they run in the browser
+// against the payload, which is the whole difference the ruling asked for — the
+// hub's numbers were a snapshot of whatever clone the operator had, and these
+// are a reading of the store the office is serving right now.
+//
+// V2 (2026-08-13 cutover). The V1 tier-gap reading is GONE from this file, not
+// disabled: the founder ordered the gap FIXED world-side rather than watched, so
+// a viewer for it would be a window onto a thing that no longer happens. What
+// replaces it is the rest of the hub's V2 material — the law's own measures, the
+// class registry's reach, the per-node serialization verdict, and the named
+// boundary of what this window can honestly count at all.
 //
 // THE ONE THING THAT MADE THE PORT POSSIBLE. The hub could re-read every
 // mark.md through the world's own parser, so it could ask "what did the AUTHOR
@@ -24,6 +31,11 @@
 // node (`keys`), which is what these readings stand on — and every one of them
 // degrades to a stated "the office has not sent this yet" rather than a wrong
 // number when it is absent.
+//
+// NO NUMBER FROM ANY PARTICULAR DAY IS WRITTEN DOWN HERE. Every count is
+// computed from the payload in hand. The world is mid-cutover and the whole
+// point of these readings is to watch figures move; a literal baked in as a
+// comparison would be a claim about a store nobody is looking at.
 
 // ═══════════════════════════════════════════════════════════════════════════
 // THE SERIALIZATION MAP — the machine-readable form of the trichotomy that
@@ -168,58 +180,63 @@ export function serializes(kind, key) {
   return { row: "unmapped", note: "this table does not place this key — mapping debt" };
 }
 
-// ── the tier census ──────────────────────────────────────────────────────────
+// ── one node, through the law's glasses ──────────────────────────────────────
 //
-// The tier field's three populations, ported from the hub's model. The walk
-// reads the field in exactly ONE case — the town's own constitution, read below
-// the walk because the town is speaking about the town's own ground
-// (mark-standing.mjs § the one exception). Every other carrier states nothing,
-// which is what "inert" means here.
+// The hub's ideal view, per node. It re-read each record and sorted every key on
+// disk into what the law says it IS: an edge, a predicate, residue, or the map's
+// own debt. That sorting is the whole ideal view — the hub drew it as a second
+// tree beside the first, and here it paints onto the one graph and opens in the
+// inspector, which is the same reading in this page's grammar.
 //
-// The fourth population is this page's own: a node whose key list the office
-// never sent. It is not "clean" and it is not a carrier; it is UNREAD, and the
-// legend says so rather than counting it into either answer.
+// VALUES ARE NOT AVAILABLE AND ARE NOT MISSED. The payload carries each mark's
+// KEY LIST, not its frontmatter values, so this says where every datum belongs
+// without saying what it says. That is the load-bearing half: the law's claim is
+// about placement, and a reader who wants the value has the record's path in the
+// inspector two rows down.
 
-export const CENSUS_CLASSES = ["read", "inert", "clean", "unread"];
+export const IDEAL_CLASSES = ["lawful", "residue", "debt", "unread"];
 
-/** Which census population one node datum belongs to. */
-export function censusClassOf(d) {
-  if (!d || d.kind !== "mark") return "unread";
-  if (!Array.isArray(d.keys)) return "unread";
-  if (!d.keys.includes("tier")) return "clean";
-  return (d.by === "the-town" && d.tier === "constitution") ? "read" : "inert";
+/**
+ * One node's keys, sorted by where the law puts them.
+ *
+ * `debt` is listed before `residue` in severity nowhere — they are different
+ * failures, not degrees of one, and every surface that shows them keeps them
+ * apart. Residue is a violation of the law by the record; debt is this table's
+ * own unfinished business.
+ */
+export function serializationOf(d) {
+  const out = { edges: [], predicates: [], residue: [], debt: [], identity: [], log: [], read: false };
+  if (!d || d.kind !== "mark" || !Array.isArray(d.keys)) return out;
+  out.read = true;
+  // A predicated mark's (slot, value) pair is already lawful on disk — it IS a
+  // predicate's identity payload (kinds.md), so it is named as a predicate the
+  // record already keeps rather than one it owes.
+  for (const k of d.keys) {
+    const s = serializes(d.subkind, k);
+    if (s.row === "edge") out.edges.push({ key: k, edge: s.edge, note: s.note });
+    else if (s.row === "property") out.predicates.push({ key: k, slot: s.slot, note: s.note, lawful: false });
+    else if (s.row === "predicate") out.predicates.push({ key: k, slot: k, note: s.note, lawful: true });
+    else if (s.row === "derived") out.residue.push({ key: k, note: s.note });
+    else if (s.row === "unmapped") out.debt.push({ key: k, note: s.note });
+    else if (s.row === "identity") out.identity.push({ key: k, note: s.note });
+    else if (s.row === "log") out.log.push({ key: k, note: s.note });
+  }
+  return out;
 }
 
 /**
- * The tier census over a payload's nodes.
+ * Which population the ideal-view paint puts a node in.
  *
- * `sent` is the honest gate on the whole reading: with no key lists in the
- * payload every mark lands in `unread`, and a caller must say the office has not
- * shipped them rather than report 0 carriers, which is the same number a
- * finished cutover would produce and the opposite finding.
+ * A node carrying BOTH residue and debt reads as `debt`, because debt is the one
+ * of the two this instrument can actually fix: residue waits on a world-side
+ * cutover, and an unplaced key waits only on somebody extending the map.
  */
-export function tierCensus(nodes) {
-  const counts = { read: 0, inert: 0, clean: 0, unread: 0 };
-  let marks = 0;
-  const inert = [];
-  for (const d of nodes) {
-    if (d.kind !== "mark") continue;
-    marks++;
-    const c = censusClassOf(d);
-    counts[c]++;
-    if (c === "inert") inert.push(d);
-  }
-  return {
-    marks,
-    ...counts,
-    carriers: counts.read + counts.inert,
-    sent: counts.unread < marks,
-    // The carriers whose asserted word is the same one the loader defaults to.
-    // These are the ones no reading without `keys` can see at all, which is the
-    // argument for the field: on the store of 2026-08-13 they were 91 of 94.
-    invisible_without_keys: inert.filter((d) => d.tier === "market").length,
-    inert_ids: inert.map((d) => d.id),
-  };
+export function idealClassOf(d) {
+  const s = serializationOf(d);
+  if (!s.read) return "unread";
+  if (s.debt.length) return "debt";
+  if (s.residue.length) return "residue";
+  return "lawful";
 }
 
 // ── the field census ─────────────────────────────────────────────────────────
@@ -262,6 +279,179 @@ export function fieldCensus(nodes) {
 
 const bump = (m, k) => m.set(k, (m.get(k) ?? 0) + 1);
 const sortedPairs = (m) => [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+// ── the class registry's reach ───────────────────────────────────────────────
+//
+// The hub's convergence question, and the sharpest number it produced: closure
+// is a property of ADDRESSING, so a class not in the graph cannot be addressed,
+// and a node naming no class-node is not addressable at all.
+//
+// A class-node DECLARES a class — it carries `class:`, and with it the version,
+// dials and implements that make a class a class. Every other node NAMES one,
+// today through `kind:`, whose four words are the older vocabulary and only one
+// of which (`parcel`) has a class-node behind it. The two are counted APART:
+// conflating them would report the registry as its own membership and make the
+// closure look far healthier than it is.
+
+export function classRegistry(nodes) {
+  const classNodes = nodes.filter((d) => d.class != null);
+  const registered = [...new Set(classNodes.map((d) => String(d.class)))].sort();
+  const reg = new Set(registered);
+  const marks = nodes.filter((d) => d.kind === "mark");
+  const names = (d) => d.class != null || reg.has(String(d.subkind ?? ""));
+  const citing = marks.filter(names);
+  const unreg = new Map();
+  for (const d of marks) if (!names(d)) bump(unreg, d.subkind ?? "(none)");
+  return {
+    classNodes: classNodes.length,
+    registered,
+    marks: marks.length,
+    citing: citing.length,
+    unaddressable: marks.length - citing.length,
+    unregisteredKinds: sortedPairs(unreg),
+    citing_ids: citing.map((d) => d.id),
+  };
+}
+
+/** Does this node name a class-node — i.e. can the law address it at all? */
+export function namesRegisteredClass(d, registeredSet) {
+  if (!d || d.kind !== "mark") return null;
+  return d.class != null || registeredSet.has(String(d.subkind ?? ""));
+}
+
+// ── the law's own measures ───────────────────────────────────────────────────
+//
+// The hub's `lawMeasures`: the rows that answer to the law rather than to any
+// single WRITE-REGISTRY row, which is why the hub gave them their own block
+// instead of forcing them into one. Every one of the six is derivable from the
+// payload, which is why the ideal view could come across whole.
+
+export function lawMeasures(nodes) {
+  const reg = classRegistry(nodes);
+  const fields = fieldCensus(nodes);
+  const predicateNodes = nodes.filter((d) => d.kind === "mark" && d.subkind === "predicated").length;
+  const denom = fields.rows.property + predicateNodes;
+  const top = fields.propertyKeys.slice(0, 5).map(([k, n]) => `${k} (${n})`).join(", ");
+  return [
+    {
+      key: "class-nodes", label: "class-nodes in the registry", now: reg.classNodes, of: null, target: null,
+      note: reg.registered.length ? `${reg.registered.join(", ")} — these ARE the registry, not citations of it` : "none in this store",
+    },
+    {
+      key: "citing", label: "nodes naming a registered class", now: reg.citing, of: reg.marks, target: reg.marks,
+      note: reg.unregisteredKinds.length
+        ? `the rest speak the older vocabulary — ${reg.unregisteredKinds.map(([k, n]) => `kind: ${k} (${n})`).join(", ")} — and a class not in the graph cannot be addressed`
+        : "every node names a class-node",
+    },
+    {
+      key: "predicates", label: "properties expressed as predicate nodes", now: predicateNodes, of: denom, target: denom,
+      note: `${fields.rows.property} genuine properties are still frontmatter fields${top ? ` — commonest: ${top}` : ""}`,
+    },
+    {
+      // NOT a hardcoded zero. The store's `contains`/`describes` edges are
+      // DERIVED by the hydrator from directory nesting; on disk the relation is
+      // a field (`by:`, `at:`, `parent:`, `derived_from:`) and no record
+      // serializes one as an edge of its own. So the numerator is the count of
+      // relational keys that are written as edges rather than fields, which is
+      // every relational key the map places minus all of them.
+      key: "relations", label: "relations expressed as edges", now: 0, of: fields.rows.edge, target: fields.rows.edge,
+      note: "every relational datum on disk is a field — the store's own edges are derived from directory nesting, not written by any record",
+    },
+    {
+      key: "residue", label: "TRUE RESIDUE — derivables stored on records", now: fields.rows.derived, of: null, target: 0,
+      note: fields.residueKeys.length
+        ? `${fields.residueKeys.map(([k, n]) => `${k} (${n})`).join(", ")} — the map places them nowhere, and they are written down anyway`
+        : "none — no record stores a derivable",
+    },
+    {
+      key: "debt", label: "MAPPING DEBT — keys the map does not place", now: fields.rows.unmapped, of: null, target: 0,
+      note: fields.unmappedKeys.length
+        ? fields.unmappedKeys.map(([k, n]) => `${k} (${n})`).join(", ")
+        : "none — every key on disk has a stated destination",
+    },
+  ];
+}
+
+// ── the tier lattice, counted honestly ───────────────────────────────────────
+//
+// The page's oldest legend named four tiers whether or not anything wore them,
+// and its own comment claimed it said so — which it did not. With the author's
+// key list in hand it can: a tier's members are countable, and so is the
+// difference between a standing somebody WROTE and the one the loader supplies
+// when nobody wrote anything.
+//
+// That second column is not the retired tier-gap viewer wearing a hat. It is the
+// legend refusing to present `market` — the loader's default for every silent
+// record — as though it were a standing anyone asserted.
+
+export function tierLattice(nodes, tiers) {
+  const marks = nodes.filter((d) => d.kind === "mark");
+  // Whether the authored/defaulted split can be drawn at all is a property of
+  // the PAYLOAD, not of any one tier — an office that sends no key lists makes
+  // every row's second column unknowable, and `null` says so where a 0 would lie.
+  const sent = marks.some((d) => Array.isArray(d.keys));
+  const rows = tiers.map((tier) => {
+    const mine = marks.filter((d) => (d.tier ?? null) === tier);
+    const authored = sent ? mine.filter((d) => d.keys?.includes("tier")).length : null;
+    return { tier, total: mine.length, authored, defaulted: sent ? mine.length - authored : null };
+  });
+  return { rows, marks: marks.length, sent };
+}
+
+// ── what this window cannot count, and why ───────────────────────────────────
+//
+// The hub read a whole world clone: WORLD/marks, STATE/log/*.jsonl,
+// WORLD/world-state.json, WORLD/walk-ledger.md, WORLD/households.json and
+// WRITE-REGISTRY.md. This page reads ONE payload, the office's `GET
+// /world/graph`, and that payload is a picture of the store — nodes and edges —
+// and nothing else.
+//
+// So a run of the hub's readings cannot be computed here, and the honest port of
+// those is not silence and not an approximation: it is the hub's own holes
+// idiom, which named each absence and tied it to the registry row it belongs to
+// rather than filling it with invented data. Each entry below says WHAT is
+// unmeasurable, WHERE the substrate lives, and — this is the part that makes it
+// a finding rather than an apology — that the reason it is not in this window is
+// that it is not in the graph, which is the very thing the cutover is about.
+//
+// These are STATIC descriptions of a boundary, not counts, so nothing here goes
+// stale as the world moves.
+
+export const STORE_BOUNDARY = [
+  {
+    title: "the unified action log",
+    row: "WRITE-REGISTRY: amend / withdraw / respond · crossing-save",
+    text: "Every edge on this graph wants to name the action that declared it, and none can. The records live in STATE/log/*.jsonl, "
+      + "which the store does not index; mark births are git commits in a separate address space again, so no containment edge could cite a seq even "
+      + "if the log were here. The hole is the point: an edge that cannot cite its action is the cutover's central unfinished business.",
+  },
+  {
+    title: "the consent words",
+    row: "WRITE-REGISTRY: identity",
+    text: "The one conferral the walk honours is a `consent:` map on the ground-holder's own record. Whether any exist is a question about "
+      + "frontmatter VALUES, and this window carries key lists rather than values — so it can see that a record has a `consent` key and not what the key says.",
+  },
+  {
+    title: "the shadow grammars",
+    row: "WRITE-REGISTRY: movement storage · identity",
+    text: "Movement lives in WORLD/walk-ledger.md as bespoke lines, identity in WORLD/households.json, money in the town's sealed ledger. "
+      + "None of the three is in the graph, so none of the three can be drawn here — which is exactly what makes them shadow grammars rather than surfaces.",
+  },
+  {
+    title: "the registry's own rows",
+    row: "WRITE-REGISTRY.md",
+    text: "The hub keyed every measurement to a row of WRITE-REGISTRY.md and reported drift in both directions. That file is in the world repo, "
+      + "not in the store, and a copy kept here would be a second registry drifting quietly against the first. The law's own measures above are the "
+      + "subset this window can compute without one.",
+  },
+  {
+    title: "the second crystallization — the law as a graph",
+    row: "LOGOS/graph/metamodel.json",
+    text: "The law's own anatomy, authored by the founder pen and rescued to world wright/metamodel-rescue @ 26547f5d. It is a graph of concepts, "
+      + "not of marks, so the store does not hold it and this window does not draw it. Rendering it here would mean keeping a copy of the law's anatomy "
+      + "in the site tree, which is the duplication the law itself warns about.",
+  },
+];
 
 // ── the record's law ─────────────────────────────────────────────────────────
 //

@@ -3,68 +3,76 @@
 //   node --test test/world-lenses.test.mjs
 //
 // What is under test is never "does it draw" but "does a reading still land on
-// the right population". The lenses paint 700 nodes from four small rules, and
-// the way they fail is silently: a census that counts a defaulted `tier` as an
-// authored one reports a cutover as three times worse than it is, and a page
-// showing a wrong number looks exactly like a page showing a right one.
+// the right population". The lenses paint hundreds of nodes from a handful of
+// small rules, and the way they fail is silently: a wrong denominator reports a
+// cutover as further along than it is, and a page showing a wrong number looks
+// exactly like a page showing a right one.
 //
-// The fixture is the real shape in miniature. Every node in it is load-bearing
-// for some assertion, and the two that carry NO key list are the most important
-// ones here: an office that has not redeployed sends the payload without them,
-// and every lens has to degrade to saying so.
+// NO FIXTURE ASSERTS A NUMBER FROM A PARTICULAR DAY'S WORLD. Every expectation
+// here is computed against the little fixture below, whose shape is written down
+// two lines above each assertion. The live world is mid-cutover and its figures
+// are supposed to move.
+//
+// The nodes carrying NO key list are the most important ones here: an office
+// that has not redeployed sends the payload without them, and every reading has
+// to degrade to saying so rather than to a confident zero.
 
 import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  SERIALIZATION_MAP, serializes, censusClassOf, tierCensus, fieldCensus,
-  isRecordNode, recordTree,
+  SERIALIZATION_MAP, serializes, serializationOf, idealClassOf,
+  fieldCensus, classRegistry, lawMeasures, tierLattice, STORE_BOUNDARY,
+  isRecordNode, recordTree, RECORD_SEGMENT,
 } from "../src/lib/world-lenses.mjs";
 
-// The town's own constitution: asserts `tier: constitution`, and is the ONE case
-// the walk reads the field in.
+// The town's own constitution: asserts `tier:`, and carries one key the map has
+// never placed (`sea_state`) — mapping debt, on a sited mark.
 const quay = {
   id: "the-town/the-quay", kind: "mark", subkind: "sited", tier: "constitution", by: "the-town",
   path: "WORLD/marks/the-quay", body: "Six bollards, and the water slapping at them.",
   keys: ["kind", "by", "tier", "at", "extent", "date", "sea_state"],
 };
-// A resident asserting a standing nobody reads — the residue, plainly visible.
-const claim = {
-  id: "someone/their-cliff", kind: "mark", subkind: "sited", tier: "sovereignty", by: "someone",
-  path: "WORLD/marks/their-cliff", keys: ["kind", "by", "tier", "at", "extent", "date"],
-};
-// THE ONE NO READING WITHOUT `keys` CAN SEE: an authored `tier: market`, the
-// same word the loader supplies when the author wrote nothing.
-const inertMarket = {
+// A resident's shed: asserts a standing, no debt. Residue only.
+const shed = {
   id: "someone/their-shed", kind: "mark", subkind: "sited", tier: "market", by: "someone",
   path: "WORLD/marks/their-shed", keys: ["kind", "by", "tier", "at", "extent", "date"],
 };
-// Clean: no `tier:` on disk, standing left to the walk. Reads "market" all the
-// same, which is the whole difficulty.
-const clean = {
+// Fully lawful on disk: nothing the map places nowhere, nothing it cannot place.
+const parcel = {
   id: "someone/their-parcel", kind: "mark", subkind: "parcel", tier: "market", by: "someone",
-  path: "WORLD/marks/their-parcel", keys: ["kind", "by", "at", "extent", "date", "zzz_shadow"],
+  path: "WORLD/marks/their-parcel", keys: ["kind", "by", "at", "extent", "date"],
+};
+// A predicated mark — its (slot, value) pair is already a predicate's own
+// identity payload, the one shape on disk the law does not want moved.
+const clause = {
+  id: "the-town/the-gate", kind: "mark", subkind: "predicated", tier: "constitution", by: "the-town",
+  path: "WORLD/marks/let-there-be-light/logos/the-gate", body: "Every mark is checked before it lands.",
+  keys: ["kind", "by", "tier", "date", "parent", "slot", "value"],
 };
 // A mark from an office that has not shipped key lists yet.
 const unread = {
   id: "someone/their-lamp", kind: "mark", subkind: "sited", tier: "market", by: "someone",
   path: "WORLD/marks/their-lamp",
 };
+// A class-node: it DECLARES a class rather than naming one.
+const parcelClass = {
+  id: "the-town/parcel-class", kind: "mark", subkind: "sited", tier: "constitution", by: "the-town",
+  class: "parcel", path: "WORLD/marks/parcel-class", keys: ["kind", "by", "tier", "class", "version", "dials"],
+};
 const codeNode = { id: "code:world/tools/vessel.mjs", kind: "code", tier: null, by: null };
 
-const NODES = [quay, claim, inertMarket, clean, unread, codeNode];
+const NODES = [quay, shed, parcel, clause, unread, parcelClass, codeNode];
 
 // ── the map ──────────────────────────────────────────────────────────────────
 
 test("the map places a key by its class, falling back to the every-class block", () => {
   // `at` is relational on a sited mark — it names the edge it serializes into,
   // and is NOT a property, which is the distinction the whole table exists for
-  assert.deepEqual(serializes("sited", "at"), { row: "edge", edge: "containment", note: serializes("sited", "at").note });
+  assert.equal(serializes("sited", "at").row, "edge");
+  assert.equal(serializes("sited", "at").edge, "containment");
   // `by` is not in the sited block; it comes from `*`
-  assert.equal(serializes("sited", "by").row, "edge");
   assert.equal(serializes("sited", "by").edge, "create");
-  // `mechanic` is a property on both sited and predicated, with each class's gloss
-  assert.equal(serializes("predicated", "mechanic").row, "property");
   // `tier` belongs NOWHERE: the map maps it to nothing on purpose
   assert.equal(serializes("sited", "tier").row, "derived");
   assert.equal(serializes("parcel", "tier").row, "derived");
@@ -82,76 +90,150 @@ test("a key the table does not place is mapping DEBT, never quietly bucketed", (
 });
 
 test("the map is a way station and says so, so nobody mistakes it for the destination", () => {
-  assert.equal(SERIALIZATION_MAP.version, "0.1.0");
   assert.match(SERIALIZATION_MAP.destination, /class-nodes/);
   assert.ok(SERIALIZATION_MAP.cites.includes("LOGOS/kinds.md"));
 });
 
-// ── the tier census ──────────────────────────────────────────────────────────
+// ── one node, through the law's glasses ──────────────────────────────────────
 
-test("the census splits carriers into the one the walk reads and the rest, which are inert", () => {
-  assert.equal(censusClassOf(quay), "read");
-  assert.equal(censusClassOf(claim), "inert");
-  assert.equal(censusClassOf(inertMarket), "inert");
-  assert.equal(censusClassOf(clean), "clean");
-  // the town's OWN word is only read at constitution; the town asserting
-  // anything else is as inert as a resident's assertion
-  assert.equal(censusClassOf({ ...quay, tier: "market" }), "inert");
-  // and a resident writing `constitution` is not law by writing it down
-  assert.equal(censusClassOf({ ...quay, by: "someone" }), "inert");
+test("a node's keys sort into edges, predicates, residue and debt", () => {
+  const s = serializationOf(quay);
+  assert.equal(s.read, true);
+  assert.deepEqual(s.edges.map((e) => e.key).sort(), ["at", "by", "extent"]);
+  assert.deepEqual(s.residue.map((r) => r.key), ["tier"]);
+  assert.deepEqual(s.debt.map((d) => d.key), ["sea_state"]);
+  assert.deepEqual(s.identity.map((i) => i.key), ["kind"]);
+  assert.deepEqual(s.log.map((l) => l.key), ["date"]);
 });
 
-test("a node with no key list is UNREAD — not clean, and not a carrier", () => {
-  assert.equal(censusClassOf(unread), "unread");
-  assert.equal(censusClassOf(codeNode), "unread");
-  const c = tierCensus([unread]);
-  assert.equal(c.unread, 1);
-  assert.equal(c.clean, 0);
-  assert.equal(c.carriers, 0);
-  // THE GATE. With nothing read, "0 carriers" is the same number a finished
-  // cutover produces — so the reading says it never saw the answer.
-  assert.equal(c.sent, false);
+test("a predicated mark's slot and value are named as predicates it ALREADY keeps", () => {
+  const s = serializationOf(clause);
+  const lawful = s.predicates.filter((p) => p.lawful).map((p) => p.key).sort();
+  assert.deepEqual(lawful, ["slot", "value"]);
+  // `parent` is the containment edge, not a property — the continuation law
+  assert.deepEqual(s.edges.map((e) => e.key).sort(), ["by", "parent"]);
 });
 
-test("the census over the fixture counts the populations, and the invisible ones", () => {
-  const c = tierCensus(NODES);
-  assert.equal(c.marks, 5);            // the code node is not a mark and is not counted
-  assert.equal(c.read, 1);
-  assert.equal(c.inert, 2);
-  assert.equal(c.clean, 1);
-  assert.equal(c.unread, 1);
-  assert.equal(c.carriers, 3);
-  assert.equal(c.sent, true);
-  // the argument for the field itself: an authored `tier: market` is a carrier
-  // no reading without `keys` can distinguish from the loader's default
-  assert.equal(c.invisible_without_keys, 1);
-  assert.deepEqual(c.inert_ids, ["someone/their-cliff", "someone/their-shed"]);
+test("the ideal paint puts debt above residue, because debt is the one we can fix", () => {
+  // the quay carries both; it reads as debt
+  assert.equal(idealClassOf(quay), "debt");
+  assert.equal(idealClassOf(shed), "residue");
+  assert.equal(idealClassOf(parcel), "lawful");
+  // and a node the office sent no key list for is UNREAD, never "lawful"
+  assert.equal(idealClassOf(unread), "unread");
+  assert.equal(idealClassOf(codeNode), "unread");
+  assert.equal(serializationOf(unread).read, false);
 });
 
 // ── the field census ─────────────────────────────────────────────────────────
 
 test("the field census keeps residue and debt apart, because they are different failures", () => {
   const f = fieldCensus(NODES);
-  assert.equal(f.read, 4);                       // the unread mark contributes nothing
-  // TRUE RESIDUE: three records carry `tier` (the map places it nowhere)
-  assert.equal(f.rows.derived, 3);
-  assert.deepEqual(f.residueKeys, [["tier", 3]]);
-  // MAPPING DEBT: two keys the table has not placed, each named WITH ITS CLASS —
-  // the same word can be lawful on one class and debt on another, so a bare key
-  // name would be an unactionable finding
-  assert.equal(f.rows.unmapped, 2);
-  assert.deepEqual(f.unmappedKeys, [["parcel.zzz_shadow", 1], ["sited.sea_state", 1]]);
-  // and the two are never summed into one "problem" number
+  assert.equal(f.read, 5);                       // the unread mark contributes nothing; the code node is not a mark
+  // TRUE RESIDUE: four records carry `tier` (the map places it nowhere)
+  assert.deepEqual(f.residueKeys, [["tier", 4]]);
+  // MAPPING DEBT names the class with the key: the same word can be lawful on
+  // one class and debt on another, so a bare key name is unactionable
+  assert.deepEqual(f.unmappedKeys, [["sited.sea_state", 1]]);
   assert.equal(f.placed, f.total - f.rows.unmapped);
-  assert.equal(f.total, quay.keys.length + claim.keys.length + inertMarket.keys.length + clean.keys.length);
 });
 
 test("`at` and `extent` count as EDGES, not properties — the map's whole point", () => {
   const f = fieldCensus([quay]);
-  assert.ok(f.rows.edge >= 3);   // by, at, extent
+  assert.equal(f.rows.edge, 3);     // by, at, extent
   assert.equal(f.rows.property, 0);
-  assert.equal(f.rows.identity, 1);   // kind
-  assert.equal(f.rows.log, 1);        // date
+  assert.equal(f.rows.identity, 1); // kind
+  assert.equal(f.rows.log, 1);      // date
+});
+
+// ── the class registry's reach ───────────────────────────────────────────────
+
+test("declaring a class and naming one are counted APART", () => {
+  const r = classRegistry(NODES);
+  // one node carries `class:` — it IS the registry, not a citation of it
+  assert.equal(r.classNodes, 1);
+  assert.deepEqual(r.registered, ["parcel"]);
+  // the parcel names `parcel`, and the class-node itself carries `class:` — two
+  assert.equal(r.citing, 2);
+  assert.equal(r.marks, 6);
+  assert.equal(r.unaddressable, 4);
+  // the rest speak the older four-word vocabulary, named with their counts
+  assert.deepEqual(r.unregisteredKinds, [["sited", 3], ["predicated", 1]]);
+});
+
+test("a store with no class-nodes reports nothing addressable, not everything", () => {
+  const r = classRegistry([shed, parcel, unread]);
+  assert.equal(r.classNodes, 0);
+  assert.deepEqual(r.registered, []);
+  assert.equal(r.citing, 0);
+  assert.equal(r.unaddressable, 3);
+});
+
+// ── the law's own measures ───────────────────────────────────────────────────
+
+test("the law's six measures each carry a denominator and a target", () => {
+  const m = lawMeasures(NODES);
+  assert.deepEqual(m.map((x) => x.key), ["class-nodes", "citing", "predicates", "relations", "residue", "debt"]);
+  const by = Object.fromEntries(m.map((x) => [x.key, x]));
+  assert.equal(by.citing.now, 2);
+  assert.equal(by.citing.of, 6);
+  assert.equal(by.residue.now, 4);
+  assert.equal(by.residue.target, 0);
+  assert.equal(by.debt.now, 1);
+  assert.equal(by.debt.target, 0);
+  // "relations expressed as edges" is 0 by DERIVATION, not by a literal: every
+  // relational datum on disk is a field, and the store's own edges are the
+  // hydrator's, not any record's
+  assert.equal(by.relations.now, 0);
+  assert.equal(by.relations.of, fieldCensus(NODES).rows.edge);
+  assert.match(by.relations.note, /derived from directory nesting/);
+});
+
+test("the measures name the residue and debt keys rather than only counting them", () => {
+  const by = Object.fromEntries(lawMeasures(NODES).map((x) => [x.key, x]));
+  assert.match(by.residue.note, /tier/);
+  assert.match(by.debt.note, /sea_state/);
+  // and a clean store says so instead of leaving an empty string
+  const clean = Object.fromEntries(lawMeasures([parcel]).map((x) => [x.key, x]));
+  assert.match(clean.residue.note, /none/);
+  assert.match(clean.debt.note, /none/);
+});
+
+// ── the tier lattice, counted honestly ───────────────────────────────────────
+
+test("the lattice separates a standing somebody WROTE from the loader's default", () => {
+  const l = tierLattice(NODES, ["constitution", "sovereignty", "market", null]);
+  const by = Object.fromEntries(l.rows.map((r) => [String(r.tier), r]));
+  assert.equal(by.constitution.total, 3);          // quay, clause, parcelClass
+  assert.equal(by.constitution.authored, 3);
+  assert.equal(by.constitution.defaulted, 0);
+  // three marks read `market`; one of them wrote it and two did not
+  assert.equal(by.market.total, 3);
+  assert.equal(by.market.authored, 1);             // the shed
+  assert.equal(by.market.defaulted, 2);            // the parcel, and the unread one
+  // a tier nothing wears is reported as empty rather than left off
+  assert.equal(by.sovereignty.total, 0);
+});
+
+test("with no key lists the authored column is UNKNOWN, never zero", () => {
+  const l = tierLattice([unread], ["market"]);
+  assert.equal(l.sent, false);
+  assert.equal(l.rows[0].total, 1);
+  // 0 would read as "nobody wrote one", which is a finding this payload cannot support
+  assert.equal(l.rows[0].authored, null);
+  assert.equal(l.rows[0].defaulted, null);
+});
+
+// ── the boundary ─────────────────────────────────────────────────────────────
+
+test("the boundary names what this window cannot count, and stays a description", () => {
+  assert.ok(STORE_BOUNDARY.length >= 4);
+  for (const h of STORE_BOUNDARY) {
+    assert.ok(h.title && h.row && h.text, "a hole with no name, row or reason");
+    // A hole is a STATIC statement about the substrate. A digit in one would be
+    // a count from some particular day, quietly going stale.
+    assert.equal(/\b\d{2,}\b/.test(h.text), false, `${h.title} carries a baked figure`);
+  }
 });
 
 // ── the record ───────────────────────────────────────────────────────────────
@@ -161,12 +243,13 @@ const rec = (slug, path, tier, body) => ({
 });
 const RECORD = [
   rec("logos", "WORLD/marks/let-there-be-light/logos", "constitution", "The World is a record that computes itself."),
-  rec("the-gate", "WORLD/marks/let-there-be-light/logos/the-gate", "constitution", "Every mark is checked against the schema before it lands."),
+  rec("the-gate", "WORLD/marks/let-there-be-light/logos/the-gate", "constitution", "Every mark is checked before it lands."),
   rec("the-fidelity", "WORLD/marks/let-there-be-light/logos/the-gate/the-fidelity", "constitution", null),
   rec("the-fold", "WORLD/marks/let-there-be-light/logos/the-fold", "market", "Every claim folds into one canon."),
 ];
 
-test("the record subtree is found by the path the store already carries", () => {
+test("the record subtree follows the seed act's rename, by the path the store carries", () => {
+  assert.equal(RECORD_SEGMENT, "/logos");
   assert.equal(isRecordNode(RECORD[0]), true);
   assert.equal(isRecordNode(RECORD[2]), true);
   // a mark that merely mentions the word is not a clause
