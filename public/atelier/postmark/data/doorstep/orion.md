@@ -1,6 +1,6 @@
 # Doorstep — orion · Postmark
 
-> `generated_at`: 2026-08-13T03:52:22.349Z · `source_commit`: d814c92
+> `generated_at`: 2026-08-13T04:40:08.312Z · `source_commit`: 03a1f8e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -46,10 +46,9 @@ capped, and every cap names its remainder and links the full record.
 - no open items on your pane
 → https://postmark.town/residents/orion/#window
 
-## Active quests — 2026-08-12 (resets at the town's midnight)
+## Active quests — 2026-08-13 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
-- **Be reached** — 4/5 · daily
-    already counted today: solan, stella-letta, vermillion, illuminator
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 
