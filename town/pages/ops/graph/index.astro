@@ -64,6 +64,29 @@ const KINDS = [
   { kind: "doctrine", label: "doctrine", line: "ENGINE.md sections" },
   { kind: "unknown", label: "unresolved", line: "the far end of a dangling edge" },
 ];
+
+// THE LENSES (founder ruling, 2026-08-13). The graph-views hub's readings pour
+// into this page as ways of LOOKING at the one graph, and its six-tab frame
+// retires: a second page rendering a second picture of the same store was the
+// thing the ruling refused. A lens repaints — it never filters, never rebuilds,
+// and never adds a node the store does not hold.
+//
+// One at a time, like `layout`, because two paints cannot share a node.
+const PAINTS = [
+  { paint: "tier", label: "the tier lattice", line: "the standing lattice — how this page has always drawn" },
+  { paint: "census", label: "the tier census", line: "which records ASSERT a standing, and who reads the assertion" },
+  { paint: "law", label: "the record's law", line: "the constitution as written marks — the piecewise LOGOS, lighting up as clauses land" },
+];
+
+// The census populations. Ported from the graph-views hub's model: the walk
+// reads the `tier:` field in exactly one case, and every other carrier is
+// stating something nobody is listening to.
+const CENSUS = [
+  { cls: "read", label: "read", line: "the town's own constitution — the one case the walk reads the field" },
+  { cls: "inert", label: "inert", line: "a standing asserted on disk that no reader has the authority to honour" },
+  { cls: "clean", label: "clean", line: "no `tier:` on disk — standing left to the one walk, which is the law" },
+  { cls: "unread", label: "unread", line: "this office sends no key list, so the question cannot be asked of this node" },
+];
 ---
 <PostmarkLayout
   title="The world graph — Postmark ops"
@@ -105,6 +128,13 @@ const KINDS = [
       </div>
 
       <div class="og-chiprow">
+        <span class="og-chiplabel">paint</span>
+        {PAINTS.map((p) => (
+          <button type="button" class={`og-chip og-chip-paint${p.paint === "tier" ? " is-on" : ""}`} data-paint={p.paint} title={p.line}>{p.label}</button>
+        ))}
+      </div>
+
+      <div class="og-chiprow">
         <span class="og-chiplabel">kinds</span>
         {KINDS.map((k) => (
           <button type="button" class="og-chip og-chip-kind is-on" data-kind={k.kind} title={k.line}>
@@ -126,12 +156,24 @@ const KINDS = [
         <div class="og-cy" data-cy></div>
 
         <!-- the legend, over the canvas' bottom-left; the tier lattice is the
-             half people actually need, so it goes first -->
+             half people actually need, so it goes first. The colour row is
+             swapped by the paint lens — a legend still naming the tier lattice
+             while the canvas is painted by census would be worse than none. -->
         <div class="og-legend">
-          <div class="og-legend-row">
+          <div class="og-legend-row" data-legend="tier">
             {TIERS.map((t) => (
               <span class="og-legend-item"><i class={`og-swatch og-${t.swatch}`} aria-hidden="true"></i>{t.label}</span>
             ))}
+          </div>
+          <div class="og-legend-row" data-legend="census" hidden>
+            {CENSUS.map((c) => (
+              <span class="og-legend-item" title={c.line}><i class={`og-swatch og-cen-${c.cls}`} aria-hidden="true"></i>{c.label}</span>
+            ))}
+          </div>
+          <div class="og-legend-row" data-legend="law" hidden>
+            <span class="og-legend-item"><i class="og-swatch og-rec-law" aria-hidden="true"></i>a clause of the law</span>
+            <span class="og-legend-item"><i class="og-swatch og-rec-mech" aria-hidden="true"></i>a clause naming machinery</span>
+            <span class="og-legend-item"><i class="og-swatch og-rec-off" aria-hidden="true"></i>not the record</span>
           </div>
           <div class="og-legend-row">
             {KINDS.map((k) => (
@@ -140,6 +182,13 @@ const KINDS = [
             <span class="og-legend-item og-legend-red"><i class="og-swatch og-lint" aria-hidden="true"></i>a finding</span>
           </div>
         </div>
+
+        <!-- THE CLAIM, on hover. A mark's body is the sentence its author wrote
+             about the thing, and until the office shipped it this window could
+             say a node's degree, its tier and its path but not what it SAYS.
+             Positioned over the canvas from the node's rendered position; never
+             a real tooltip, because a `title` cannot be read off a canvas. -->
+        <div class="og-claim" data-claim hidden aria-hidden="true"></div>
 
         <p class="og-hint" data-hint>tap a node to light its neighbourhood — neighbours hidden by a filter come back with it. Tap the background to let go.</p>
       </div>
@@ -158,6 +207,13 @@ const KINDS = [
           <p class="og-quiet">reading…</p>
         </div>
 
+        <!-- THE LENS PANEL. The chosen lens' own reading, in the findings'
+             place: the census' numbers, or the record's clauses. It is the same
+             contract the findings panel holds itself to — the panel and the
+             paint read one list, so a lens can never count something it does
+             not light. -->
+        <div data-lens class="og-lens" hidden></div>
+
         <!-- the inspector: what one node is, when you tap it -->
         <div data-inspector class="og-inspector" hidden></div>
       </aside>
@@ -167,6 +223,9 @@ const KINDS = [
   <script>
     import cytoscape from "cytoscape";
     import { officeBase } from "@/lib/auth.mjs";
+    import {
+      SERIALIZATION_MAP, censusClassOf, tierCensus, fieldCensus, isRecordNode, recordTree,
+    } from "@/lib/world-lenses.mjs";
 
     const root = document.querySelector("[data-graph]");
     if (root) (function () {
@@ -195,6 +254,29 @@ const KINDS = [
       const RED = "#ff5c52";       // a finding. The one colour that overrides every other.
       const SPAN_MODEL = 4000;     // the map's scale denominator (see layoutMap)
 
+      // THE CENSUS PALETTE. Deliberately the tier lattice's own four hues, put
+      // to a second use: blue for the one assertion the walk reads (the town's
+      // constitution, which is what blue already means here), green for a record
+      // that asserts nothing and leaves standing to the walk — the lawful shape,
+      // and the same green sovereignty wears — amber for an assertion nobody
+      // honours, gray for a node the question cannot be asked of. Reusing the
+      // hues rather than inventing four more keeps one page from teaching two
+      // colour languages.
+      const CENSUS_PAINT = {
+        read: "#5b86ff",
+        inert: "#e0b04a",
+        clean: "#3fbf87",
+        unread: "#3d4557",
+      };
+
+      // THE RECORD'S PALETTE. A clause that asserts constitution wears the
+      // town's own blue; a clause that asserts nothing — every one of which
+      // turns out to name MACHINERY rather than law — wears the stamp's violet,
+      // which is what a class already wears on this page. Everything outside
+      // the record goes to the ground colour: still there, still tappable, no
+      // longer competing with the thing being read.
+      const RECORD_PAINT = { law: "#5b86ff", mechanic: "#aa8fd8", off: "#252d3f" };
+
       const HINT_DEFAULT = "tap a node to light its neighbourhood — neighbours hidden by a filter come back with it. Tap the background to let go.";
       const hint = (text) => { $("[data-hint]").textContent = text || HINT_DEFAULT; };
 
@@ -210,7 +292,13 @@ const KINDS = [
         edges: new Set(["contains", "describes", "instance-of", "implements", "reads", "imports", "stop-of"]),
         view: "all",
         layout: "web",
+        paint: "tier",
       };
+      // Which of the two panel homes the back button returns to. The inspector
+      // is a detour from whichever was showing, never a third place to be lost
+      // in.
+      let panelHome = "findings";
+      let census = null, fields = null, record = null;   // the lenses' readings, computed once at mount
 
       // ── boot ──────────────────────────────────────────────────────────────
       async function boot() {
@@ -308,8 +396,29 @@ const KINDS = [
         }
         // The lint class is put on at mount rather than restyled later: it is a
         // property of the element (the store said so), not a mode the page is in.
-        for (const n of els.nodes) n.classes = (n.data.lints && n.data.lints.length ? "lint " : "") + (n.data.unresolved ? "ghost" : "");
+        //
+        // The lens classes ride along for the same reason: which census
+        // population a record is in, and whether it is a clause of the written
+        // law, are facts ABOUT the node, not modes the page is in. What the
+        // paint chips switch is which of them cytoscape is looking at — a
+        // `paint-*` class added to every node, so the mode lives in one place
+        // and a node never has to be re-classified when the lens changes.
+        for (const n of els.nodes) {
+          const cls = [];
+          if (n.data.lints && n.data.lints.length) cls.push("lint");
+          if (n.data.unresolved) cls.push("ghost");
+          cls.push("cen-" + censusClassOf(n.data));
+          if (isRecordNode(n.data)) cls.push("rec", n.data.tier === "constitution" ? "rec-law" : "rec-mechanic");
+          n.classes = cls.join(" ");
+        }
         for (const e of els.edges) e.classes = e.data.lints && e.data.lints.length ? "lint" : "";
+
+        // The readings, taken once off the payload the page already has. Nothing
+        // here asks the office a second question.
+        const data = els.nodes.map((n) => n.data);
+        census = tierCensus(data);
+        fields = fieldCensus(data);
+        record = recordTree(data);
 
         cy = cytoscape({
           container: $("[data-cy]"),
@@ -364,6 +473,30 @@ const KINDS = [
               },
             },
             { selector: 'edge[type = "implements"], edge[type = "instance-of"], edge[type = "stop-of"]', style: { "line-color": "#4c5f8a", opacity: 0.8 } },
+            // ── the lenses ────────────────────────────────────────────────
+            // Cytoscape resolves a property to the LAST matching rule, so a
+            // lens' rules sit here: after the kinds and the tier lattice they
+            // override, and before the lint and focus rules, which must keep
+            // winning over any lens. A node only matches these while it wears
+            // the mode class, so switching the lens off restores the lattice
+            // without touching a single element's own classes.
+            { selector: "node.paint-census", style: { "background-color": CENSUS_PAINT.unread } },
+            { selector: "node.paint-census.cen-clean", style: { "background-color": CENSUS_PAINT.clean } },
+            { selector: "node.paint-census.cen-read", style: { "background-color": CENSUS_PAINT.read } },
+            { selector: "node.paint-census.cen-inert", style: { "background-color": CENSUS_PAINT.inert } },
+            { selector: "node.paint-law", style: { "background-color": RECORD_PAINT.off, opacity: 0.3 } },
+            // The record is 64 nodes in a graph of 767, and most of them are
+            // leaves — degree-sizing hides exactly the clauses this lens is
+            // for, so under it a clause is drawn at a readable floor.
+            {
+              selector: "node.paint-law.rec",
+              style: {
+                "background-color": RECORD_PAINT.mechanic, opacity: 1,
+                width: (n) => 13 + Math.sqrt(n.data("deg") || 0) * 4,
+                height: (n) => 13 + Math.sqrt(n.data("deg") || 0) * 4,
+              },
+            },
+            { selector: "node.paint-law.rec.rec-law", style: { "background-color": RECORD_PAINT.law } },
             // ── the whole point of the page ───────────────────────────────
             { selector: "node.lint", style: { "border-width": 3, "border-color": RED, "border-opacity": 1 } },
             { selector: "edge.lint", style: { "line-color": RED, width: 3, opacity: 1, "z-index": 20 } },
@@ -385,7 +518,14 @@ const KINDS = [
 
         cy.on("tap", "node", (ev) => focus(ev.target));
         cy.on("tap", (ev) => { if (ev.target === cy) blur(); });
+        cy.on("mouseover", "node", (ev) => showClaim(ev.target));
+        cy.on("mouseout", "node", hideClaim);
+        // A pan or a zoom leaves the card floating over whatever is now under
+        // it, which would attach a claim to the wrong node — the one failure
+        // this feature must not have.
+        cy.on("pan zoom", hideClaim);
 
+        setPaint(on.paint);
         applyFilters({ relayout: true });
       }
 
@@ -487,6 +627,275 @@ const KINDS = [
 
       const positionOf = (n) => WORLD_POS.get(n.id()) ?? null;
 
+      // ── the lenses ────────────────────────────────────────────────────────
+      //
+      // A LENS REPAINTS; IT NEVER FILTERS. Every node stays exactly where it is
+      // and exactly as visible as the chips left it — what changes is which fact
+      // about it the colour is carrying. That is the whole difference between
+      // this and the six-tab hub it replaces: the hub drew a second picture of
+      // the same store beside the first, and two pictures of one world drift.
+      function setPaint(paint) {
+        on.paint = paint;
+        // A lens' own hint belongs to that lens. The map's belongs to the
+        // layout and survives, because it is still true.
+        if (on.layout !== "map") hint(null);
+        all("[data-paint]").forEach((b) => b.classList.toggle("is-on", b.dataset.paint === paint));
+        cy.batch(() => {
+          cy.nodes().removeClass("paint-census paint-law");
+          if (paint === "census") cy.nodes().addClass("paint-census");
+          if (paint === "law") cy.nodes().addClass("paint-law");
+        });
+        all("[data-legend]").forEach((row) => { row.hidden = row.dataset.legend !== (paint === "tier" ? "tier" : paint); });
+        panelHome = paint === "tier" ? "findings" : "lens";
+        if (paint !== "tier") paintLens();
+        showHome();
+      }
+
+      // THE CLAIM. What the mark SAYS, on hover — the sentence its author wrote,
+      // capped at 150 characters by the world's own schema. Drawn as a card over
+      // the canvas rather than as a `title`, because the graph is one canvas
+      // element and a canvas has no children to hang a tooltip on.
+      function showClaim(node) {
+        const d = node.data();
+        const card = $("[data-claim]");
+        card.textContent = "";
+
+        const id = document.createElement("b");
+        id.textContent = d.id;
+        card.appendChild(id);
+
+        const line = document.createElement("span");
+        if (d.body) line.textContent = d.body;                  // the author's own words: textContent, never innerHTML
+        else if (d.kind === "mark") { line.textContent = "this store carries no body for this mark"; line.className = "is-quiet"; }
+        else { line.textContent = d.kind + (d.subkind ? " · " + d.subkind : ""); line.className = "is-quiet"; }
+        card.appendChild(line);
+
+        // Placed from the node's RENDERED position (screen space, pan and zoom
+        // already applied), flipped to the left of the node when it would run
+        // off the right edge of the canvas.
+        const p = node.renderedPosition();
+        const box = $("[data-cy]").getBoundingClientRect();
+        card.hidden = false;
+        const w = card.offsetWidth;
+        const left = p.x + 14 + w > box.width ? Math.max(4, p.x - 14 - w) : p.x + 14;
+        card.style.left = left + "px";
+        card.style.top = Math.max(4, Math.min(p.y - 10, box.height - card.offsetHeight - 4)) + "px";
+      }
+      const hideClaim = () => { $("[data-claim]").hidden = true; };
+
+      // The lens' own reading, in the findings' place. Every number here is
+      // computed from the payload the graph is drawn from, so the panel and the
+      // paint cannot disagree.
+      function paintLens() {
+        const box = $("[data-lens]");
+        box.textContent = "";
+        if (on.paint === "census") paintCensusLens(box);
+        if (on.paint === "law") paintLawLens(box);
+      }
+
+      // ── the census ────────────────────────────────────────────────────────
+      // The tier field's populations, and then the whole field census run
+      // through the serialization map. Ported from the graph-views hub, which
+      // computed them in Node against a world clone; here they are a reading of
+      // the store the office is serving right now, which is the point.
+      function paintCensusLens(box) {
+        box.appendChild(lede(
+          "`tier:` is a DERIVED standing — decided by the one walk over the ground, not the author's to assert. "
+          + "Every record still carrying the field is residue; the walk reads it in exactly one case, and this counts the rest."));
+
+        if (!census.sent) {
+          box.appendChild(warn(
+            "this office does not send the author's key list, so the question cannot be asked of a single node. "
+            + "The lens paints every mark UNREAD rather than reporting 0 carriers — which is the same number a finished cutover produces, and the opposite finding."));
+          return;
+        }
+
+        const rows = [
+          ["carries `tier:` on disk", census.carriers, census.marks, "the population the cutover has to empty"],
+          ["· read — the town's own constitution", census.read, census.carriers, "the one case the walk reads the field (mark-standing § the one exception)"],
+          ["· INERT — asserted, and nobody listening", census.inert, census.carriers, "a standing stated on disk that no reader has the authority to honour"],
+          ["· · of those, invisible without this field", census.invisible_without_keys, census.inert, "an authored `tier: market` — the same word the loader supplies when nobody wrote one"],
+          ["clean — standing left to the walk", census.clean, census.marks, "the lawful shape; the target for all of the above"],
+        ];
+        box.appendChild(numbers(rows));
+
+        // A finding is a place to GO. "Show" lights exactly the records this
+        // count is about, the same contract the findings panel holds.
+        if (census.inert) box.appendChild(showButton("show the inert carriers", () => showIds(census.inert_ids, "grid")));
+
+        box.appendChild(sectionHead("The serialization map — where every key on disk belongs"));
+        box.appendChild(lede(
+          `v${SERIALIZATION_MAP.version}, authored ${SERIALIZATION_MAP.authored}. A way station: the destination is ${SERIALIZATION_MAP.destination}. `
+          + "RESIDUE and DEBT are kept apart because they are different failures — the map places residue nowhere on purpose, and debt is the map's own unfinished business."));
+        box.appendChild(numbers([
+          ["identity", fields.rows.identity, fields.total, "an identity atom — the class the tree speaks today"],
+          ["an edge", fields.rows.edge, fields.total, "NOT a property: `by:` is the create-edge, `at:` is containment plus an offset"],
+          ["a predicate's own payload", fields.rows.predicate, fields.total, "slot and value — the only keys on disk already in lawful shape"],
+          ["a property → a predicate child", fields.rows.property, fields.total, "a genuine authored property, whose lawful form is a child node"],
+          ["the action's log record", fields.rows.log, fields.total, "a fact about the act, not about the node"],
+          ["TRUE RESIDUE — belongs nowhere", fields.rows.derived, fields.total, fields.residueKeys.map(([k, n]) => `${k} ×${n}`).join(", ") || "none"],
+          ["MAPPING DEBT — the map places it nowhere YET", fields.rows.unmapped, fields.total,
+            fields.unmappedKeys.length ? fields.unmappedKeys.map(([k, n]) => `${k} ×${n}`).join(", ") : "none — every key on disk has a stated destination"],
+        ]));
+        box.appendChild(quiet(`${fields.total} key instances read off ${fields.read} records; ${fields.placed} of them placed.`));
+      }
+
+      // ── the record's law ──────────────────────────────────────────────────
+      // The piecewise LOGOS: the constitution written as real marks, each one a
+      // clause whose body IS the sentence. NOTHING IS INVENTED — the subtree is
+      // found by the path the store already carries, and a world where the
+      // record has not been written yields an empty list that says so.
+      function paintLawLens(box) {
+        box.appendChild(lede(
+          "The constitution as the world actually holds it: predicated marks under `let-there-be-light/the-record`, "
+          + "each one a clause. This is the store's own record — clauses appear here as they land, and nothing on this page writes law."));
+
+        if (!record.total) {
+          box.appendChild(warn("this store holds no marks under the-record — either the clauses have not been written yet, or this office sends no `path` to find them by."));
+          return;
+        }
+
+        box.appendChild(numbers([
+          ["clauses in the record", record.total, payload.counts.by_kind.mark ?? null, ""],
+          ["· asserting constitution", record.by_tier.constitution ?? 0, record.total, "a clause of the law itself"],
+          ["· asserting nothing", record.total - (record.by_tier.constitution ?? 0), record.total, "every one of these names MACHINERY rather than law"],
+          ["carrying their sentence", record.with_body, record.total, "a clause with no body is a heading, or an office that sends no bodies"],
+        ]));
+        box.appendChild(showButton("show the record as a tree", showRecord));
+
+        const ul = document.createElement("ul");
+        ul.className = "og-clauses";
+        for (const c of record.clauses) {
+          const li = document.createElement("li");
+          li.className = "og-clause is-walkable" + (c.tier === "constitution" ? " is-law" : "");
+          li.style.paddingLeft = (c.depth * 0.85) + "em";
+          const b = document.createElement("b");
+          b.textContent = c.id.replace(/^the-town\//, "");
+          li.appendChild(b);
+          if (c.body) {
+            const s = document.createElement("span");
+            s.textContent = c.body;                    // the clause's own words, never re-worded here
+            li.appendChild(s);
+          }
+          li.addEventListener("click", () => walkTo(c.id));
+          ul.appendChild(li);
+        }
+        box.appendChild(ul);
+      }
+
+      // The record laid out as what it is: ONE TREE, rooted at the-record. The
+      // findings panel rejected `breadthfirst` for its own sets and was right
+      // to — a finding is usually disconnected pairs, and breadthfirst strings
+      // those into a strip four screens wide. The record is the opposite shape,
+      // and a tree layout is the only one that shows a clause's depth.
+      //
+      // UNDIRECTED, and that is not a detail. A `describes` edge runs from the
+      // predicate to the mark it predicates — child to PARENT — so a directed
+      // breadthfirst walking out of the root reaches nothing and lays all 64
+      // clauses in one flat row, which is the exact failure the findings panel
+      // avoided by not using this layout at all. Undirected, the same edges give
+      // the nesting depth back.
+      function showRecord() {
+        const ids = record.clauses.map((c) => c.id);
+        const eles = showIds(ids, "none");
+        if (!eles || !eles.length) return;
+        const root = eles.nodes().filter((n) => n.id().endsWith("/the-record"));
+        // RUN OVER THE EDGES TOO. `eles.nodes().layout(...)` hands breadthfirst a
+        // collection with no edges in it, and a tree layout with no edges has no
+        // tree: all 64 clauses come out in one flat row with the root stranded
+        // below them. The edges are what make this layout the right one.
+        eles.layout({
+          name: "breadthfirst", animate: false, directed: false, spacingFactor: 1.35,
+          roots: root.length ? root : undefined, fit: false,
+        }).run();
+        cy.fit(eles, 50);
+        hint(`the record: ${record.total} clauses, deepest at ${Math.max(...record.clauses.map((c) => c.depth))} below the root. Hover a clause to read it.`);
+      }
+
+      // Light exactly a named set of ids and push everything else back — the
+      // same contract `showFinding` holds, factored out so a lens cannot invent
+      // a second, laxer version of it.
+      function showIds(ids, layout = "grid") {
+        const eles = cy.collection();
+        for (const id of ids) {
+          const el = cy.getElementById(id);
+          if (el && el.length) eles.merge(el);
+        }
+        if (!eles.length) return null;
+        // the edges among them, so a subtree reads as a tree rather than as dust
+        eles.merge(eles.nodes().edgesWith(eles.nodes()));
+        focused = null;
+        cy.batch(() => {
+          cy.elements().removeClass("lit dim pick");
+          eles.removeClass("off");
+          cy.elements().not(eles).addClass("dim");
+          eles.addClass("lit");
+        });
+        if (layout === "grid") {
+          const box = $("[data-cy]").getBoundingClientRect();
+          const n = eles.nodes().length;
+          const cols = Math.max(1, Math.ceil(Math.sqrt(n * Math.max(box.width / Math.max(box.height, 1), 0.2))));
+          eles.nodes().layout({ name: "grid", animate: false, cols, avoidOverlap: true, condense: false, fit: false }).run();
+          cy.fit(eles, 60);
+        }
+        paintCounts();
+        return eles;
+      }
+
+      function walkTo(id) {
+        const n = cy.getElementById(id);
+        if (!n || !n.length) return;
+        n.removeClass("off");
+        focus(n);
+        cy.animate({ center: { eles: n }, zoom: Math.max(cy.zoom(), 1.1) }, { duration: 200 });
+      }
+
+      // ── the lens panel's small parts ──────────────────────────────────────
+      const sectionHead = (text) => { const h = document.createElement("h3"); h.className = "og-lens-head"; h.textContent = text; return h; };
+      const lede = (text) => { const p = document.createElement("p"); p.className = "og-lens-lede"; p.textContent = text; return p; };
+      const quiet = (text) => { const p = document.createElement("p"); p.className = "og-quiet"; p.textContent = text; return p; };
+      const warn = (text) => { const p = document.createElement("p"); p.className = "og-lens-warn"; p.textContent = text; return p; };
+
+      function showButton(label, fn) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "og-show";
+        b.textContent = label;
+        b.addEventListener("click", fn);
+        return b;
+      }
+
+      // One row per number, with its denominator and its reason. The share bar
+      // is drawn from the same two numbers the text states — never a third
+      // figure a reader would have to trust separately.
+      function numbers(rows) {
+        const ul = document.createElement("ul");
+        ul.className = "og-numbers";
+        for (const [label, now, of, note] of rows) {
+          const li = document.createElement("li");
+          const l = document.createElement("b");
+          l.textContent = label;
+          const v = document.createElement("i");
+          v.textContent = of ? `${now} / ${of}` : String(now);
+          li.appendChild(l); li.appendChild(v);
+          if (of) {
+            const bar = document.createElement("div");
+            bar.className = "og-bar";
+            const fill = document.createElement("span");
+            fill.style.width = Math.min(100, Math.round((now / of) * 100)) + "%";
+            bar.appendChild(fill);
+            li.appendChild(bar);
+          }
+          if (note) {
+            const s = document.createElement("small");
+            s.textContent = note;
+            li.appendChild(s);
+          }
+          ul.appendChild(li);
+        }
+        return ul;
+      }
+
       // ── focus: the neighbourhood, expanded ────────────────────────────────
       // Tapping a node reveals its closed neighbourhood EVEN WHERE A FILTER HAS
       // HIDDEN IT, and says how many it had to bring back. That is the honest
@@ -512,7 +921,8 @@ const KINDS = [
         focused = null;
         cy.batch(() => cy.elements().removeClass("lit dim pick"));
         applyFilters();
-        showFindings();
+        hideClaim();
+        showHome();
       }
 
       // ── the panel ─────────────────────────────────────────────────────────
@@ -635,10 +1045,7 @@ const KINDS = [
       function inspectFinding(l, im) {
         const box = $("[data-inspector]");
         box.textContent = "";
-        box.hidden = false;
-        $("[data-findings]").hidden = true;
-        $("[data-panel-back]").hidden = false;
-        $("[data-panel-title]").textContent = `${l.lint} — what is lit`;
+        openDetour(`${l.lint} — what is lit`);
 
         const ul = document.createElement("ul");
         ul.className = "og-whylist";
@@ -680,16 +1087,24 @@ const KINDS = [
       function inspect(node, revealedCount) {
         const box = $("[data-inspector]");
         box.textContent = "";
-        box.hidden = false;
-        $("[data-findings]").hidden = true;
-        $("[data-panel-back]").hidden = false;
-        $("[data-panel-title]").textContent = "This node";
+        openDetour("This node");
 
         const d = node.data();
         const h = document.createElement("p");
         h.className = "og-inspect-id";
         h.textContent = d.id;
         box.appendChild(h);
+
+        // WHAT IT SAYS, before what it is. A mark's body is the one finite
+        // assertion the record is made of (the-record § the one claim), and a
+        // reader who has to leave this page to find out what a node claims is
+        // not reading the world through this window.
+        if (d.body) {
+          const claim = document.createElement("blockquote");
+          claim.className = "og-inspect-claim";
+          claim.textContent = d.body;              // the author's own words: textContent, never innerHTML
+          box.appendChild(claim);
+        }
 
         const facts = [
           ["kind", d.subkind ? `${d.kind} · ${d.subkind}` : d.kind],
@@ -705,6 +1120,20 @@ const KINDS = [
         if (d.mechanic) facts.push(["mechanic", d.mechanic]);
         if (d.class) facts.push(["class", d.class]);
         if (d.affordances) facts.push(["affordances", String(d.affordances)]);
+        // WHAT THE AUTHOR WROTE, beside what the loader composed. Every other
+        // row here is the composed record; this is the file. It is the only
+        // place on the page where "the author wrote `tier: market`" and "the
+        // loader supplied it" are different sentences.
+        if (Array.isArray(d.keys)) {
+          const c = censusClassOf(d);
+          facts.push(["`tier:`", {
+            read: "written, and READ — the town's own constitution is the one case the walk reads the field",
+            inert: "written, and INERT — no reader has the authority to honour this assertion",
+            clean: "not written — standing is left to the one walk, which is the law",
+            unread: "—",
+          }[c]]);
+          facts.push(["keys on disk", d.keys.join(", ")]);
+        }
         if (d.unresolved) facts.push(["unresolved", "nothing in the store claims this id — it is the far end of a dangling edge, kept because the dangle IS the finding"]);
 
         const dl = document.createElement("dl");
@@ -750,11 +1179,28 @@ const KINDS = [
         box.appendChild(ul);
       }
 
-      function showFindings() {
+      // THE PANEL HAS TWO HOMES AND ONE DETOUR. Which home depends on the lens:
+      // under the tier lattice the panel is the findings, under a lens it is
+      // that lens' reading. The inspector is the detour, and the back button
+      // returns to whichever home you left — never to a third place.
+      const HOME_TITLE = { findings: "Findings", census: "The tier census", law: "The record's law" };
+
+      function showHome() {
         $("[data-inspector]").hidden = true;
-        $("[data-findings]").hidden = false;
+        $("[data-findings]").hidden = panelHome !== "findings";
+        $("[data-lens]").hidden = panelHome !== "lens";
         $("[data-panel-back]").hidden = true;
-        $("[data-panel-title]").textContent = "Findings";
+        $("[data-panel-title]").textContent = panelHome === "findings" ? HOME_TITLE.findings : HOME_TITLE[on.paint];
+      }
+
+      // The detour: hide both homes, show the inspector, and offer the way back.
+      function openDetour(title) {
+        $("[data-findings]").hidden = true;
+        $("[data-lens]").hidden = true;
+        $("[data-inspector]").hidden = false;
+        $("[data-panel-back]").hidden = false;
+        $("[data-panel-back]").textContent = "← " + (panelHome === "findings" ? "findings" : HOME_TITLE[on.paint].toLowerCase());
+        $("[data-panel-title]").textContent = title;
       }
 
       // ── wiring ────────────────────────────────────────────────────────────
@@ -788,6 +1234,10 @@ const KINDS = [
         all("[data-layout]").forEach((b) => b.classList.toggle("is-on", b === btn));
         runLayout();
       }));
+
+      // A lens repaints and re-panels; it never relayouts and never filters, so
+      // choosing one leaves the graph you were reading exactly where it was.
+      all("[data-paint]").forEach((btn) => btn.addEventListener("click", () => setPaint(btn.dataset.paint)));
 
       $("[data-panel-back]").addEventListener("click", () => { blur(); });
       $("[data-reload]").addEventListener("click", () => { location.reload(); });
@@ -881,6 +1331,11 @@ const KINDS = [
       border-radius: 8px; padding: 0.45em 0.7em; pointer-events: none;
     }
     .opsgraph .og-legend-row { display: flex; gap: 0.85em; flex-wrap: wrap; }
+    /* An author `display` beats the UA's `[hidden] { display: none }`, so every
+       element on this page that is both flexed AND hidden by the island has to
+       say so itself. Learned from the legend showing all three of its colour
+       rows at once, which is three legends and therefore none. */
+    .opsgraph .og-legend-row[hidden], .opsgraph .og-claim[hidden] { display: none; }
     .opsgraph .og-legend-item {
       display: inline-flex; align-items: center; gap: 0.35em;
       font-family: var(--pm-mono); font-size: 0.6rem; color: #8595b0;
@@ -892,6 +1347,28 @@ const KINDS = [
     .opsgraph .og-tier-draft { background: #7b8494; }
     .opsgraph .og-lint { background: transparent; border: 2px solid #ff5c52; }
     .opsgraph .og-legend-red { color: #ff8a82; }
+    /* the lenses' swatches — the same four hues the lattice uses, put to a
+       second reading; see CENSUS_PAINT / RECORD_PAINT in the island */
+    .opsgraph .og-cen-read { background: #5b86ff; }
+    .opsgraph .og-cen-inert { background: #e0b04a; }
+    .opsgraph .og-cen-clean { background: #3fbf87; }
+    .opsgraph .og-cen-unread { background: #3d4557; }
+    .opsgraph .og-rec-law { background: #5b86ff; }
+    .opsgraph .og-rec-mech { background: #aa8fd8; }
+    .opsgraph .og-rec-off { background: #252d3f; }
+
+    /* ── the claim, on hover ────────────────────────────────────────────── */
+    .opsgraph .og-claim {
+      position: absolute; z-index: 4; max-width: 24em; pointer-events: none;
+      background: rgba(7, 11, 21, 0.94); border: 1px solid rgba(232, 196, 139, 0.28);
+      border-radius: 8px; padding: 0.45em 0.7em;
+      display: flex; flex-direction: column; gap: 0.25em;
+    }
+    .opsgraph .og-claim b {
+      font-family: var(--pm-mono); font-size: 0.62rem; color: var(--pm-gold-bright); word-break: break-all;
+    }
+    .opsgraph .og-claim span { font-size: 0.72rem; line-height: 1.45; color: #d7dfef; }
+    .opsgraph .og-claim span.is-quiet { font-family: var(--pm-mono); font-size: 0.6rem; color: #6b7a95; }
 
     .opsgraph .og-hint {
       position: absolute; right: 0.7em; top: 0.7em; z-index: 2; max-width: 21em; margin: 0;
@@ -947,8 +1424,56 @@ const KINDS = [
     }
     .opsgraph .og-show:hover { border-color: var(--pm-gold); color: var(--pm-gold-bright); }
 
+    /* ── the lens panel ─────────────────────────────────────────────────── */
+    .opsgraph .og-lens-lede { margin: 0 0 0.7em; font-size: 0.7rem; line-height: 1.55; color: #93a3bf; }
+    .opsgraph .og-lens-head {
+      margin: 1.2em 0 0.4em; font-family: var(--pm-mono); font-size: 0.62rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--pm-gold);
+      border-top: 1px solid rgba(232, 196, 139, 0.14); padding-top: 0.8em;
+    }
+    .opsgraph .og-lens-warn {
+      margin: 0 0 0.7em; font-size: 0.7rem; line-height: 1.5; color: #f0c98a;
+      border-left: 2px solid #e0b04a; padding-left: 0.6em;
+    }
+
+    .opsgraph .og-numbers { margin: 0; padding: 0; list-style: none; }
+    .opsgraph .og-numbers li {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.1em 0.6em;
+      margin-bottom: 0.55em;
+    }
+    .opsgraph .og-numbers b { font-size: 0.7rem; line-height: 1.4; color: #cfd8ea; font-weight: 400; }
+    .opsgraph .og-numbers i {
+      font-style: normal; font-family: var(--pm-mono); font-size: 0.66rem;
+      color: var(--pm-gold-bright); white-space: nowrap; text-align: right;
+    }
+    .opsgraph .og-numbers small {
+      grid-column: 1 / -1; font-family: var(--pm-mono); font-size: 0.56rem;
+      line-height: 1.5; color: #6b7a95; word-break: break-word;
+    }
+    .opsgraph .og-bar {
+      grid-column: 1 / -1; height: 3px; border-radius: 2px;
+      background: rgba(123, 139, 167, 0.18); overflow: hidden; margin: 0.15em 0 0.1em;
+    }
+    .opsgraph .og-bar span { display: block; height: 100%; background: rgba(232, 196, 139, 0.55); }
+
+    .opsgraph .og-clauses { margin: 0.7em 0 0; padding: 0; list-style: none; }
+    .opsgraph .og-clause {
+      border-left: 2px solid rgba(170, 143, 216, 0.5); margin-bottom: 0.45em;
+      padding: 0.1em 0.3em 0.1em 0.5em; border-radius: 0 4px 4px 0;
+    }
+    .opsgraph .og-clause.is-law { border-left-color: #5b86ff; }
+    .opsgraph .og-clause b { display: block; font-family: var(--pm-mono); font-size: 0.62rem; color: #cfd8ea; word-break: break-word; }
+    .opsgraph .og-clause span { display: block; font-size: 0.68rem; line-height: 1.45; color: #8595b0; }
+    .opsgraph .og-clause.is-walkable { cursor: pointer; }
+    .opsgraph .og-clause.is-walkable:hover { background: rgba(28, 44, 79, 0.8); }
+    .opsgraph .og-clause.is-walkable:hover b { color: var(--pm-gold-bright); }
+
     /* the inspector */
     .opsgraph .og-inspect-id { margin: 0 0 0.5em; font-family: var(--pm-mono); font-size: 0.74rem; color: var(--pm-gold-bright); word-break: break-all; }
+    .opsgraph .og-inspect-claim {
+      margin: 0 0 0.8em; padding: 0.45em 0 0.45em 0.7em; border-left: 2px solid rgba(232, 196, 139, 0.45);
+      font-size: 0.76rem; line-height: 1.5; color: #d7dfef;
+    }
     .opsgraph .og-facts { display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 0.18em 0.6em; margin: 0 0 0.7em; }
     .opsgraph .og-facts dt { font-family: var(--pm-mono); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #5d6b86; }
     .opsgraph .og-facts dd { margin: 0; font-family: var(--pm-mono); font-size: 0.62rem; color: #b9c6dc; word-break: break-word; }
