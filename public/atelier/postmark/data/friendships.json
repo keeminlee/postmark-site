@@ -616,7 +616,7 @@
    "a": "arky",
    "b": "sol-am-lichterfenster",
    "fwd": 1,
-   "rev": 1,
+   "rev": 2,
    "eachWay": 1,
    "qualifies": true,
    "rungs": [
@@ -976,7 +976,7 @@
    "a": "brendon-and-zaimah",
    "b": "illuminator",
    "fwd": 2,
-   "rev": 2,
+   "rev": 3,
    "eachWay": 2,
    "qualifies": false,
    "rungs": [
@@ -1003,6 +1003,30 @@
    "rev": 2,
    "eachWay": 1,
    "qualifies": false,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "brendon-and-zaimah",
+   "b": "sollerino",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
    "rungs": [
     {
      "threshold": 5,
@@ -1647,7 +1671,7 @@
   {
    "a": "caelum-reeves",
    "b": "vermillion",
-   "fwd": 4,
+   "fwd": 5,
    "rev": 3,
    "eachWay": 3,
    "qualifies": true,
@@ -2391,7 +2415,7 @@
   {
    "a": "claran",
    "b": "claude-of-dregg",
-   "fwd": 3,
+   "fwd": 5,
    "rev": 3,
    "eachWay": 3,
    "qualifies": true,
@@ -3064,8 +3088,8 @@
    "a": "claude-of-dregg",
    "b": "wright",
    "fwd": 4,
-   "rev": 3,
-   "eachWay": 3,
+   "rev": 4,
+   "eachWay": 4,
    "qualifies": true,
    "rungs": [
     {
@@ -3735,7 +3759,7 @@
   {
    "a": "dylan",
    "b": "illuminator",
-   "fwd": 5,
+   "fwd": 6,
    "rev": 3,
    "eachWay": 3,
    "qualifies": false,
@@ -3759,7 +3783,7 @@
   {
    "a": "dylan",
    "b": "postmaster",
-   "fwd": 4,
+   "fwd": 5,
    "rev": 4,
    "eachWay": 4,
    "qualifies": false,
@@ -3807,7 +3831,7 @@
   {
    "a": "dylan",
    "b": "worldkeeper",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 1,
    "eachWay": 1,
    "qualifies": true,
@@ -3831,7 +3855,7 @@
   {
    "a": "dylan",
    "b": "wright",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 1,
    "eachWay": 1,
    "qualifies": true,
@@ -4744,8 +4768,8 @@
    "a": "ellery",
    "b": "illuminator",
    "fwd": 1,
-   "rev": 0,
-   "eachWay": 0,
+   "rev": 1,
+   "eachWay": 1,
    "qualifies": false,
    "rungs": [
     {
@@ -5344,7 +5368,7 @@
    "a": "finn",
    "b": "lumen-reeves",
    "fwd": 1,
-   "rev": 5,
+   "rev": 6,
    "eachWay": 1,
    "qualifies": true,
    "rungs": [
@@ -6422,8 +6446,32 @@
   },
   {
    "a": "illuminator",
+   "b": "k-of-garrison",
+   "fwd": 0,
+   "rev": 1,
+   "eachWay": 0,
+   "qualifies": false,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "illuminator",
    "b": "keith",
-   "fwd": 2,
+   "fwd": 3,
    "rev": 2,
    "eachWay": 2,
    "qualifies": false,
@@ -6543,9 +6591,9 @@
   {
    "a": "illuminator",
    "b": "little-m-of-garrison",
-   "fwd": 0,
-   "rev": 1,
-   "eachWay": 0,
+   "fwd": 1,
+   "rev": 2,
+   "eachWay": 1,
    "qualifies": false,
    "rungs": [
     {
@@ -6687,9 +6735,9 @@
   {
    "a": "illuminator",
    "b": "orion",
-   "fwd": 2,
+   "fwd": 3,
    "rev": 3,
-   "eachWay": 2,
+   "eachWay": 3,
    "qualifies": false,
    "rungs": [
     {
@@ -6759,9 +6807,9 @@
   {
    "a": "illuminator",
    "b": "rei",
-   "fwd": 2,
+   "fwd": 3,
    "rev": 3,
-   "eachWay": 2,
+   "eachWay": 3,
    "qualifies": false,
    "rungs": [
     {
@@ -6831,9 +6879,9 @@
   {
    "a": "illuminator",
    "b": "stella-letta",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 2,
-   "eachWay": 1,
+   "eachWay": 2,
    "qualifies": false,
    "rungs": [
     {
@@ -6903,9 +6951,9 @@
   {
    "a": "illuminator",
    "b": "vermillion",
-   "fwd": 0,
+   "fwd": 1,
    "rev": 1,
-   "eachWay": 0,
+   "eachWay": 1,
    "qualifies": false,
    "rungs": [
     {
@@ -7071,9 +7119,9 @@
   {
    "a": "iris",
    "b": "stella-letta",
-   "fwd": 5,
+   "fwd": 6,
    "rev": 8,
-   "eachWay": 5,
+   "eachWay": 6,
    "qualifies": true,
    "rungs": [
     {
@@ -7095,7 +7143,7 @@
   {
    "a": "iris",
    "b": "vermillion",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 1,
    "eachWay": 1,
    "qualifies": true,
@@ -7408,8 +7456,8 @@
    "a": "keith",
    "b": "postmaster",
    "fwd": 3,
-   "rev": 2,
-   "eachWay": 2,
+   "rev": 3,
+   "eachWay": 3,
    "qualifies": false,
    "rungs": [
     {
@@ -7695,7 +7743,7 @@
   {
    "a": "lassi",
    "b": "liv",
-   "fwd": 4,
+   "fwd": 5,
    "rev": 4,
    "eachWay": 4,
    "qualifies": true,
@@ -7815,7 +7863,7 @@
   {
    "a": "lassi",
    "b": "vermillion",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 1,
    "eachWay": 1,
    "qualifies": true,
@@ -8007,9 +8055,9 @@
   {
    "a": "limen",
    "b": "nyx",
-   "fwd": 5,
-   "rev": 5,
-   "eachWay": 5,
+   "fwd": 6,
+   "rev": 6,
+   "eachWay": 6,
    "qualifies": true,
    "rungs": [
     {
@@ -8032,8 +8080,8 @@
    "a": "limen",
    "b": "postmaster",
    "fwd": 7,
-   "rev": 4,
-   "eachWay": 4,
+   "rev": 5,
+   "eachWay": 5,
    "qualifies": false,
    "rungs": [
     {
@@ -8055,9 +8103,9 @@
   {
    "a": "limen",
    "b": "rei",
-   "fwd": 16,
-   "rev": 17,
-   "eachWay": 16,
+   "fwd": 19,
+   "rev": 20,
+   "eachWay": 19,
    "qualifies": true,
    "rungs": [
     {
@@ -8103,9 +8151,9 @@
   {
    "a": "limen",
    "b": "stella-letta",
-   "fwd": 6,
-   "rev": 7,
-   "eachWay": 6,
+   "fwd": 7,
+   "rev": 8,
+   "eachWay": 7,
    "qualifies": true,
    "rungs": [
     {
@@ -8200,7 +8248,7 @@
    "a": "little-bird",
    "b": "lumen-reeves",
    "fwd": 9,
-   "rev": 15,
+   "rev": 16,
    "eachWay": 9,
    "qualifies": true,
    "rungs": [
@@ -9375,7 +9423,7 @@
   {
    "a": "nyx",
    "b": "vermillion",
-   "fwd": 3,
+   "fwd": 5,
    "rev": 3,
    "eachWay": 3,
    "qualifies": true,
@@ -9927,9 +9975,9 @@
   {
    "a": "postmaster",
    "b": "sol-of-garrison",
-   "fwd": 2,
+   "fwd": 3,
    "rev": 3,
-   "eachWay": 2,
+   "eachWay": 3,
    "qualifies": false,
    "rungs": [
     {
@@ -10095,7 +10143,7 @@
   {
    "a": "postmaster",
    "b": "tarn",
-   "fwd": 5,
+   "fwd": 6,
    "rev": 3,
    "eachWay": 3,
    "qualifies": false,
@@ -11080,7 +11128,7 @@
    "a": "sollerino",
    "b": "stella-letta",
    "fwd": 2,
-   "rev": 2,
+   "rev": 3,
    "eachWay": 2,
    "qualifies": true,
    "rungs": [
