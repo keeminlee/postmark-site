@@ -63,12 +63,23 @@ const TIERS = [
   { tier: "draft", label: "draft / untiered", swatch: "tier-draft" },
 ];
 
-const KINDS = [
-  { kind: "mark", label: "marks", line: "the world's own records — coloured by tier" },
-  { kind: "class", label: "classes", line: "predicate marks that carry law" },
-  { kind: "code", label: "code", line: "modules in the office and the world" },
-  { kind: "doctrine", label: "doctrine", line: "ENGINE.md sections" },
-  { kind: "unknown", label: "unresolved", line: "the far end of a dangling edge" },
+// ONE SPECIES OF DOT (v2, stage 1). The page used to draw four shapes — a
+// circle, a diamond, a rounded box, a hexagon — which said in the only language
+// a graph has that the world holds four kinds of thing. It holds one. What
+// differs is what a node WEARS, and each of these is a derived fact rather than
+// a species: the standing lattice as colour, a badge where the registry lives,
+// a predicate drawn small and tight against the parent it continues, and the
+// machinery standing off the world's edge entirely.
+//
+// Lifetime rings are stage 2 and deliberately absent — the payload carries no
+// entities and no emissions, and a ring drawn for a lifetime nobody sent would
+// be the one thing this page must never do.
+const WEARINGS = [
+  { cls: "dot", label: "a node of the world", line: "one species; the colour is its derived standing" },
+  { cls: "badge", label: "declares a class", line: "the registry lives here — a derived fact, not a kind of thing" },
+  { cls: "cont", label: "a continuation", line: "a predicate is its parent continued: drawn small, tight against it" },
+  { cls: "shelf", label: "the machinery shelf", line: "binding-channel ends — code and doctrine, not nodes of the world" },
+  { cls: "ghost", label: "unresolved", line: "the far end of a dangling edge; nothing in the store claims it" },
 ];
 
 // THE LENSES (founder ruling, 2026-08-13). The graph-views hub's readings pour
@@ -152,13 +163,14 @@ const REGISTRY = [
         ))}
       </div>
 
-      <div class="og-chiprow">
-        <span class="og-chiplabel">kinds</span>
-        {KINDS.map((k) => (
-          <button type="button" class="og-chip og-chip-kind is-on" data-kind={k.kind} title={k.line}>
-            <i class={`og-glyph og-glyph-${k.kind}`} aria-hidden="true"></i>{k.label}
-          </button>
-        ))}
+      <!-- THE CLASS ROW, built by the island from the registry itself. Nothing
+           here is written down in advance: a class-node added tomorrow gets a
+           chip with no code change, and this row shrinks toward the classes as
+           the older vocabulary empties. A row of constants would have to be
+           edited to notice the cutover, which is a row that stops noticing. -->
+      <div class="og-chiprow" data-classrow>
+        <span class="og-chiplabel">classes</span>
+        <span class="og-quiet" data-classrow-empty>reading the registry…</span>
       </div>
 
       <div class="og-chiprow">
@@ -201,12 +213,18 @@ const REGISTRY = [
             <span class="og-legend-item"><i class="og-swatch og-rec-off" aria-hidden="true"></i>not the record</span>
           </div>
           <div class="og-legend-row">
-            {KINDS.map((k) => (
-              <span class="og-legend-item"><i class={`og-glyph og-glyph-${k.kind}`} aria-hidden="true"></i>{k.label}</span>
+            {WEARINGS.map((w) => (
+              <span class="og-legend-item" title={w.line}><i class={`og-wear og-wear-${w.cls}`} aria-hidden="true"></i>{w.label}</span>
             ))}
             <span class="og-legend-item og-legend-red"><i class="og-swatch og-lint" aria-hidden="true"></i>a finding</span>
           </div>
         </div>
+
+        <!-- THE SHELF'S OWN LABEL. The band at the east edge is not a corner of
+             the world the layout happened to use; it is a statement that code
+             and doctrine are not IN the world. A band with no caption would read
+             as the former. -->
+        <p class="og-shelf-label" data-shelf-label hidden>the machinery shelf ·<br />binding-channel ends —<br />not nodes of the world</p>
 
         <!-- THE CLAIM, on hover. A mark's body is the sentence its author wrote
              about the thing, and until the office shipped it this window could
@@ -252,6 +270,7 @@ const REGISTRY = [
     import {
       SERIALIZATION_MAP, STORE_BOUNDARY, serializationOf, idealClassOf, fieldCensus,
       classRegistry, lawMeasures, tierLattice, isRecordNode, recordTree,
+      isMachinery, wearsRegistryBadge, isContinuation, classFilters, filterBucketOf,
     } from "@/lib/world-lenses.mjs";
 
     const root = document.querySelector("[data-graph]");
@@ -316,6 +335,17 @@ const REGISTRY = [
       // longer competing with the thing being read.
       const RECORD_PAINT = { law: "#5b86ff", mechanic: "#aa8fd8", off: "#252d3f" };
 
+      // The registry badge, as a data URI so the page carries no asset request.
+      //
+      // PERCENT-ENCODED WHOLE, not by hand. A `background-image` value is a
+      // SPACE-SEPARATED LIST, so a raw SVG's spaces split one URI into a dozen
+      // relative paths and the browser goes looking for `/ops/graph/viewBox='0`
+      // — sixteen 404s and no badge. encodeURIComponent takes the spaces and the
+      // `#` in one pass, which hand-escaping the `#` alone did not.
+      const BADGE_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'>"
+        + "<path d='M6 0.5 L11.5 6 L6 11.5 L0.5 6 Z' fill='#e8c48b' stroke='#070b15' stroke-width='1.4'/></svg>");
+
       const HINT_DEFAULT = "tap a node to light its neighbourhood — neighbours hidden by a filter come back with it. Tap the background to let go.";
       const hint = (text) => { $("[data-hint]").textContent = text || HINT_DEFAULT; };
 
@@ -327,7 +357,9 @@ const REGISTRY = [
       let focused = null;            // the node whose neighbourhood is lit
       const WORLD_POS = new Map();   // id -> where the world says it is (see mount)
       const on = {
-        kinds: new Set(["mark", "class", "code", "doctrine", "unknown"]),
+        // Filled at mount from the registry, not written down here — see the
+        // class row. Until the payload arrives there is nothing to filter by.
+        classes: new Set(),
         edges: new Set(["contains", "describes", "instance-of", "implements", "reads", "imports", "stop-of"]),
         view: "all",
         layout: "web",
@@ -338,7 +370,7 @@ const REGISTRY = [
       // in.
       let panelHome = "findings";
       // The lenses' readings, computed once at mount off the one payload.
-      let fields = null, record = null, registry = null, measures = null, lattice = null;
+      let fields = null, record = null, registry = null, measures = null, lattice = null, filters = null;
       // The lattice's rows, in the order the legend draws them. `null` is the
       // untiered row: a node the store gives no tier at all, which is not the
       // same as one that reads "draft".
@@ -462,6 +494,11 @@ const REGISTRY = [
             : d.class != null ? "declares"
             : reg.has(String(d.subkind ?? "")) ? "names" : "unaddressable"));
           if (isRecordNode(d)) cls.push("rec", d.tier === "constitution" ? "rec-law" : "rec-mechanic");
+          // THE THREE WEARINGS. Facts about the node, put on once — the shape
+          // rules that used to say "this is a different kind of thing" are gone.
+          if (wearsRegistryBadge(d)) cls.push("badge");
+          if (isContinuation(d)) cls.push("cont");
+          if (isMachinery(d)) cls.push("shelf");
           n.classes = cls.join(" ");
         }
         for (const e of els.edges) e.classes = e.data.lints && e.data.lints.length ? "lint" : "";
@@ -472,6 +509,11 @@ const REGISTRY = [
         record = recordTree(data);
         measures = lawMeasures(data);
         lattice = tierLattice(data, TIER_ORDER);
+        filters = classFilters(data);
+        // Every chip starts on: the page opens on the whole world, and a filter
+        // row that arrived with something already hidden would be lying about
+        // what the store holds.
+        for (const c of filters.chips) on.classes.add(c.key);
 
         cy = cytoscape({
           container: $("[data-cy]"),
@@ -506,9 +548,58 @@ const REGISTRY = [
                 "transition-duration": "120ms",
               },
             },
-            { selector: 'node[kind = "class"]', style: { shape: "diamond" } },
-            { selector: 'node[kind = "code"]', style: { shape: "round-rectangle" } },
-            { selector: 'node[kind = "doctrine"]', style: { shape: "hexagon" } },
+            // ── one species of dot ────────────────────────────────────────
+            // The four shapes are gone. There is one node type, so there is one
+            // shape; what a node wears says the rest.
+            //
+            // A CONTINUATION IS DRAWN SMALL. A predicate is its parent continued
+            // — it inherits the parent's extent whole rather than sitting inside
+            // it — and drawing it at a sited mark's weight said the opposite.
+            // The layout pulls it tight against its parent (see runLayout).
+            {
+              selector: "node.cont",
+              style: {
+                width: (n) => 5 + Math.sqrt(n.data("deg") || 0) * 2.4,
+                height: (n) => 5 + Math.sqrt(n.data("deg") || 0) * 2.4,
+              },
+            },
+            // THE REGISTRY BADGE. A small diamond riding the dot's shoulder,
+            // drawn as an image rather than as a shape or a border: the shape is
+            // spoken for (one species) and the border is spoken for (a finding,
+            // and the focus pick). `background-clip: none` lets it overhang, so
+            // it reads as worn rather than as part of the dot.
+            {
+              selector: "node.badge",
+              style: {
+                "background-image": BADGE_SVG,
+                "background-image-containment": "over",
+                "background-clip": "none",
+                "background-fit": "none",
+                "background-width": 9,
+                "background-height": 9,
+                "background-position-x": "104%",
+                "background-position-y": "-14%",
+                "background-image-opacity": 1,
+              },
+            },
+            // THE MACHINERY SHELF. Code and doctrine are not nodes of the world;
+            // they are the far ends of binding channels. Square, hollow, and
+            // parked off the world's edge by the layout — still tappable, still
+            // reachable along their `implements`/`reads` edges, and still able
+            // to go red, which is why this rule touches neither border colour
+            // nor the lint rules that follow it.
+            {
+              selector: "node.shelf",
+              style: {
+                shape: "round-rectangle",
+                "background-opacity": 0.22,
+                "border-width": 1,
+                "border-color": "#4c5f8a",
+                "border-opacity": 0.7,
+                width: 9,
+                height: 9,
+              },
+            },
             {
               // the far end of a dangling edge: hollow, so it reads as an
               // absence rather than as a thing
@@ -594,8 +685,20 @@ const REGISTRY = [
         cy.on("pan zoom", hideClaim);
 
         paintLatticeLegend();
-        setPaint(on.paint);
+        paintClassRow();
+        // ?paint=<key> — a lens you can link to. Validated against the chips the
+        // page actually built, so a key that no longer exists (or never did)
+        // lands on the lattice rather than on a blank panel. Silent by design:
+        // a stale link in somebody's notes should open the graph, not an error.
+        setPaint(paintFromQuery() ?? on.paint);
         applyFilters({ relayout: true });
+      }
+
+      function paintFromQuery() {
+        let want = null;
+        try { want = new URLSearchParams(location.search).get("paint"); } catch { return null; }
+        if (!want) return null;
+        return all("[data-paint]").some((b) => b.dataset.paint === want) ? want : null;
       }
 
       // ── filters ───────────────────────────────────────────────────────────
@@ -610,9 +713,16 @@ const REGISTRY = [
             cy.elements().not(".lint").addClass("off");
             // a red edge needs both its ends, or it is a red line into nothing
             cy.edges(".lint").connectedNodes().removeClass("off");
-          } else {
-            const kinds = on.view === "convergence" ? new Set(payload.convergence_kinds) : on.kinds;
+          } else if (on.view === "convergence") {
+            const kinds = new Set(payload.convergence_kinds);
             cy.nodes().forEach((n) => { if (!kinds.has(n.data("kind"))) n.addClass("off"); });
+            cy.edges().forEach((e) => { if (!on.edges.has(e.data("type"))) e.addClass("off"); });
+          } else {
+            // The class row filters by the REGISTRY's own buckets now, not by a
+            // hardcoded kind. Same rule the row is built from, so a chip can
+            // never hide a node it did not count.
+            const reg = new Set(filters.registered);
+            cy.nodes().forEach((n) => { if (!on.classes.has(filterBucketOf(n.data(), reg))) n.addClass("off"); });
             cy.edges().forEach((e) => { if (!on.edges.has(e.data("type"))) e.addClass("off"); });
           }
         });
@@ -622,7 +732,16 @@ const REGISTRY = [
       }
 
       function runLayout() {
-        const eles = cy.elements(":visible");
+        // NOT `:visible`. Cytoscape recalculates style — and therefore the
+        // `display: none` that `.off` carries — lazily after a `cy.batch()`, so
+        // a `:visible` read taken straight after `applyFilters` still sees the
+        // world as it was BEFORE the filter. That was invisible while this
+        // function only fed the result to a force layout (laying out a few
+        // hidden nodes changes nothing anyone sees) and became a bug the moment
+        // it started BRANCHING on the answer: the machinery shelf's caption
+        // stayed up over an empty shelf. `.off` is a class, set synchronously,
+        // and it is the only thing on this page that hides an element.
+        const eles = cy.elements().not(".off");
         if (!eles.length) return;
         if (on.layout === "map") return layoutMap(eles);
         hint(null);
@@ -630,18 +749,55 @@ const REGISTRY = [
         // page that must build with nothing but the npm dependency. Capped at a
         // few hundred iterations: this is a debugging window, not a poster, and
         // the extra settling buys nothing a human reads.
-        eles.layout({
-          name: "cose",
-          animate: false,
-          numIter: 350,
-          nodeRepulsion: 9000,
-          idealEdgeLength: 60,
-          gravity: 0.4,
-          randomize: true,
-          fit: true,
-          padding: 30,
-        }).run();
+        // THE WORLD IS LAID OUT; THE MACHINERY IS SHELVED. Running cose over
+        // both would let 130 binding-channel ends push the town around, which is
+        // the force layout being asked to arrange things that are not in the
+        // world. So the force runs on the world's own nodes, and the shelf is
+        // placed against the result.
+        const world = eles.nodes().not(".shelf");
+        const shelf = eles.nodes(".shelf");
+        if (world.length) {
+          world.union(world.edgesWith(world)).layout({
+            name: "cose",
+            animate: false,
+            numIter: 350,
+            nodeRepulsion: 9000,
+            // A CONTINUATION SITS TIGHT AGAINST WHAT IT CONTINUES. `describes`
+            // is the predicate-to-parent edge, and giving it a short ideal
+            // length is how "a predicate is its parent continued" is said in
+            // the only language a force layout speaks. No edge is invented: this
+            // shortens the ones the store already sent.
+            idealEdgeLength: (e) => (e.data("type") === "describes" ? 16 : 60),
+            gravity: 0.4,
+            randomize: true,
+            fit: false,
+            padding: 30,
+          }).run();
+        }
+        placeShelf(world, shelf);
+        cy.fit(eles, 30);
       }
+
+      // The band at the east edge. Placed against the world's own bounding box
+      // rather than at fixed coordinates, so it stands beside whatever the force
+      // layout produced instead of landing on top of it.
+      function placeShelf(world, shelf) {
+        paintShelfLabel(shelf.length > 0);
+        if (!shelf.length) return;
+        const bb = world.length ? world.boundingBox() : { x1: 0, x2: 0, y1: 0, y2: 400 };
+        const span = Math.max(bb.y2 - bb.y1, 200);
+        const rows = Math.max(10, Math.ceil(Math.sqrt(shelf.length * 3)));
+        const step = span / rows;
+        const gap = Math.max(90, (bb.x2 - bb.x1) * 0.09);
+        let i = 0;
+        cy.batch(() => shelf.forEach((n) => {
+          const col = Math.floor(i / rows), row = i % rows;
+          i++;
+          n.position({ x: bb.x2 + gap + col * step, y: bb.y1 + row * step });
+        }));
+      }
+
+      const paintShelfLabel = (show) => { $("[data-shelf-label]").hidden = !show; };
 
       // THE MAP. Sited marks go where the world says they are — y unflipped, so
       // south is down and north is up. Everything else has no place in the world
@@ -671,18 +827,30 @@ const REGISTRY = [
         const k = SPAN_MODEL / metres;
         const at = (p) => ({ x: (p.x - minX) * k, y: (p.y - minY) * k });
 
-        let i = 0;
+        let i = 0, s = 0;
         const perCol = 40;
         const rowGap = SPAN_MODEL / perCol;
+        const shelfCount = eles.nodes(".shelf").length;
+        paintShelfLabel(shelfCount > 0);
         cy.batch(() => {
           eles.nodes().forEach((n) => {
             const p = positionOf(n);
             if (p) { n.position(at(p)); return; }
-            // THE NOWHERE COLUMN, west of the world's own bounding box. Code,
-            // doctrine, classes and the predicates that inherit a parent's
-            // extent are not ANYWHERE, and the map says so by putting them
-            // outside it rather than scattering them through a town they have no
-            // address in. Hiding them would be the tidier lie.
+            // THE SHELF, east of the world, exactly as in the web layout: code
+            // and doctrine are not merely unplaced, they are not OF the world,
+            // and the map keeps that distinction rather than pooling them with
+            // the marks that simply inherit a parent's extent.
+            if (n.hasClass("shelf")) {
+              const col = Math.floor(s / perCol), row = s % perCol;
+              s++;
+              n.position({ x: SPAN_MODEL * 1.16 + col * (SPAN_MODEL * 0.035), y: row * rowGap });
+              return;
+            }
+            // THE NOWHERE COLUMN, west of the world's own bounding box. Classes
+            // and the predicates that inherit a parent's extent are not
+            // ANYWHERE, and the map says so by putting them outside it rather
+            // than scattering them through a town they have no address in.
+            // Hiding them would be the tidier lie.
             const col = Math.floor(i / perCol);
             const row = i % perCol;
             i++;
@@ -691,7 +859,8 @@ const REGISTRY = [
         });
         cy.fit(eles, 40);
         hint(`the map, at ${Math.round(metres / 1000)} km across — the world's own coordinates, x east, y south. `
-          + `The town is a speck beside Pando Peak; scroll to zoom in. Off to the west: everything that is not anywhere.`);
+          + `The town is a speck beside Pando Peak; scroll to zoom in. West: everything that is not anywhere. `
+          + `East: the machinery, which is not of the world at all.`);
       }
 
       const positionOf = (n) => WORLD_POS.get(n.id()) ?? null;
@@ -760,6 +929,47 @@ const REGISTRY = [
         if (on.paint === "ideal") paintIdealLens(box);
         if (on.paint === "registry") paintRegistryLens(box);
         if (on.paint === "law") paintLawLens(box);
+      }
+
+      // THE CLASS ROW, built from the registry the store actually holds.
+      //
+      // A REGISTERED CLASS NOTHING NAMES KEEPS ITS CHIP. Eleven classes are
+      // declared and most are addressed by nothing; a row showing only the
+      // populated ones would hide exactly that. The empty chips are drawn dim
+      // and are not clickable, because a filter that hides nothing is a legend,
+      // not a control, and dressing it as a control would be the lie.
+      function paintClassRow() {
+        const row = $("[data-classrow]");
+        $("[data-classrow-empty]").hidden = filters.chips.length > 0;
+        for (const c of filters.chips) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "og-chip og-chip-class is-on"
+            + (c.group === "class" ? " og-chip-registered" : "")
+            + (c.group === "shelf" ? " og-chip-shelf" : "")
+            + (c.count ? "" : " is-empty");
+          btn.dataset.classKey = c.key;
+          btn.title = c.group === "class"
+            ? (c.count ? `a registered class, and what names it` : "declared, and addressed by nothing yet")
+            : c.key === "older-vocabulary" ? "marks naming no class-node — the law cannot address these yet"
+            : c.key === "registry-own" ? "the class-nodes themselves, which the law addresses through"
+            : c.key === "unresolved" ? "the far end of a dangling edge; nothing in the store claims it"
+            : "code and doctrine — binding-channel ends, shelved off the world's edge";
+          btn.appendChild(document.createTextNode(c.label));
+          const n = document.createElement("b");
+          n.textContent = String(c.count);
+          btn.appendChild(n);
+          if (!c.count) { btn.disabled = true; btn.classList.remove("is-on"); }
+          else btn.addEventListener("click", () => toggleClass(btn, c.key));
+          row.appendChild(btn);
+        }
+      }
+
+      function toggleClass(btn, key) {
+        if (on.classes.has(key)) on.classes.delete(key); else on.classes.add(key);
+        btn.classList.toggle("is-on", on.classes.has(key));
+        setView("all");
+        applyFilters({ relayout: true });
       }
 
       // THE LATTICE LEGEND, counted. The four tiers were named here whether or
@@ -1390,14 +1600,6 @@ const REGISTRY = [
       }
 
       // ── wiring ────────────────────────────────────────────────────────────
-      all("[data-kind]").forEach((btn) => btn.addEventListener("click", () => {
-        const k = btn.dataset.kind;
-        if (on.kinds.has(k)) on.kinds.delete(k); else on.kinds.add(k);
-        btn.classList.toggle("is-on", on.kinds.has(k));
-        setView("all");
-        applyFilters({ relayout: true });
-      }));
-
       all("[data-edge]").forEach((btn) => btn.addEventListener("click", () => {
         const t = btn.dataset.edge;
         if (on.edges.has(t)) on.edges.delete(t); else on.edges.add(t);
@@ -1492,12 +1694,39 @@ const REGISTRY = [
     .opsgraph .og-chip:not(.is-on) { opacity: 0.55; }
 
     /* the little kind glyphs — the same shapes cytoscape draws */
-    .opsgraph .og-glyph { width: 9px; height: 9px; flex: none; display: inline-block; background: currentColor; }
-    .opsgraph .og-glyph-mark { border-radius: 50%; color: #5b86ff; }
-    .opsgraph .og-glyph-class { transform: rotate(45deg); color: #aa8fd8; }
-    .opsgraph .og-glyph-code { border-radius: 2px; color: #4ec3d9; }
-    .opsgraph .og-glyph-doctrine { color: #f2e6cd; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
-    .opsgraph .og-glyph-unknown { border-radius: 50%; background: transparent; border: 1.5px dashed #5b6377; }
+    /* THE WEARINGS. Not four kinds of thing — one dot, and what it wears. Each
+       of these draws in HTML exactly what cytoscape draws on the canvas. */
+    .opsgraph .og-wear { width: 10px; height: 10px; flex: none; display: inline-block; position: relative; }
+    .opsgraph .og-wear-dot { border-radius: 50%; background: #5b86ff; }
+    .opsgraph .og-wear-badge { border-radius: 50%; background: #5b86ff; }
+    .opsgraph .og-wear-badge::after {
+      content: ""; position: absolute; right: -3px; top: -3px; width: 6px; height: 6px;
+      background: #e8c48b; transform: rotate(45deg); border: 0.5px solid #070b15;
+    }
+    .opsgraph .og-wear-cont { border-radius: 50%; background: #5b86ff; width: 6px; height: 6px; margin: 2px; }
+    .opsgraph .og-wear-shelf {
+      border-radius: 2px; background: rgba(91, 134, 255, 0.22); border: 1px solid #4c5f8a;
+      width: 9px; height: 9px;
+    }
+    .opsgraph .og-wear-ghost { border-radius: 50%; background: transparent; border: 1.5px dashed #5b6377; }
+
+    /* the class row's own counts, and the chips that are legend rather than
+       control — a registered class nothing names cannot filter anything */
+    .opsgraph .og-chip-class b { font-weight: 400; color: #6b7a95; margin-left: 0.15em; font-size: 0.95em; }
+    .opsgraph .og-chip-registered { border-style: solid; }
+    .opsgraph .og-chip-class.is-empty { opacity: 0.32; cursor: default; }
+    .opsgraph .og-chip-class.is-empty:hover { border-color: rgba(123, 139, 167, 0.24); color: #7b8ba7; }
+    .opsgraph .og-chip-shelf.is-on { border-color: rgba(76, 95, 138, 0.8); }
+
+    /* the shelf's own caption, against the canvas' east edge */
+    .opsgraph .og-shelf-label {
+      position: absolute; right: 0.7em; bottom: 0.7em; z-index: 3; margin: 0; max-width: 11em;
+      font-family: var(--pm-mono); font-size: 0.55rem; line-height: 1.6; text-align: right;
+      color: #8595b0; pointer-events: none; letter-spacing: 0.04em;
+      background: rgba(7, 11, 21, 0.86); border: 1px solid rgba(76, 95, 138, 0.45);
+      border-radius: 8px; padding: 0.45em 0.7em;
+    }
+    .opsgraph .og-shelf-label[hidden] { display: none; }
 
     /* ── the stage ──────────────────────────────────────────────────────── */
     .opsgraph .og-stage { display: grid; grid-template-columns: minmax(0, 1fr) 24em; gap: 0.7em; align-items: stretch; }
