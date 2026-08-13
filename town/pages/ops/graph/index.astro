@@ -50,6 +50,12 @@ const EDGE_TYPES = [
 // sovereignty → green, market → yellow, draft → gray. Two of the four have no
 // members in the store today, and the legend says so rather than quietly
 // showing a colour nothing wears.
+// The tier lattice adopted at Stage 0 (dial 2). The legend's member counts are
+// filled in by the island from the store in hand, never written here: this page
+// used to name all four whether or not anything wore them, and its own comment
+// claimed it said so — which it did not. `market` is also the word the loader
+// supplies for every record that asserts nothing, so the legend separates the
+// standing somebody WROTE from the one nobody did.
 const TIERS = [
   { tier: "constitution", label: "constitution", swatch: "tier-constitution" },
   { tier: "sovereignty", label: "sovereignty", swatch: "tier-sovereignty" },
@@ -74,18 +80,30 @@ const KINDS = [
 // One at a time, like `layout`, because two paints cannot share a node.
 const PAINTS = [
   { paint: "tier", label: "the tier lattice", line: "the standing lattice — how this page has always drawn" },
-  { paint: "census", label: "the tier census", line: "which records ASSERT a standing, and who reads the assertion" },
+  { paint: "ideal", label: "what LOGOS derives", line: "every datum on disk, sorted by where the law says it belongs" },
+  { paint: "registry", label: "the class registry", line: "which nodes name a class-node — closure is a property of addressing" },
   { paint: "law", label: "the record's law", line: "the constitution as written marks — the piecewise LOGOS, lighting up as clauses land" },
 ];
 
-// The census populations. Ported from the graph-views hub's model: the walk
-// reads the `tier:` field in exactly one case, and every other carrier is
-// stating something nobody is listening to.
-const CENSUS = [
-  { cls: "read", label: "read", line: "the town's own constitution — the one case the walk reads the field" },
-  { cls: "inert", label: "inert", line: "a standing asserted on disk that no reader has the authority to honour" },
-  { cls: "clean", label: "clean", line: "no `tier:` on disk — standing left to the one walk, which is the law" },
-  { cls: "unread", label: "unread", line: "this office sends no key list, so the question cannot be asked of this node" },
+// THE IDEAL VIEW'S POPULATIONS. Every key a record carries is put through the
+// serialization map, and a node is coloured by the worst thing it turns up:
+// residue is a violation of the law by the record, debt is the map's own
+// unfinished business, and the two are never summed into one "problem".
+const IDEAL = [
+  { cls: "lawful", label: "lawful", line: "every key this record carries has a place the law recognises" },
+  { cls: "residue", label: "residue", line: "carries a derivable the law places NOWHERE — standing, the grain; written down anyway" },
+  { cls: "debt", label: "debt", line: "carries a key the serialization map has not placed yet — this table's own unfinished business" },
+  { cls: "unread", label: "outside the reading", line: "code, doctrine and classes — and any mark whose key list this office did not send" },
+];
+
+// THE REGISTRY'S TWO POPULATIONS. A class-node DECLARES a class; every other
+// node NAMES one, today through `kind:`. Counted apart, because conflating them
+// would report the registry as its own membership.
+const REGISTRY = [
+  { cls: "declares", label: "declares a class", line: "carries `class:` — these ARE the registry, not citations of it" },
+  { cls: "names", label: "names one", line: "addressable: the law has a class-node to reach this node through" },
+  { cls: "unaddressable", label: "names none", line: "speaks the older four-word vocabulary; a class not in the graph cannot be addressed" },
+  { cls: "spine", label: "the convergence spine", line: "classes, code and doctrine — the layer the traversal runs over" },
 ];
 ---
 <PostmarkLayout
@@ -158,16 +176,23 @@ const CENSUS = [
         <!-- the legend, over the canvas' bottom-left; the tier lattice is the
              half people actually need, so it goes first. The colour row is
              swapped by the paint lens — a legend still naming the tier lattice
-             while the canvas is painted by census would be worse than none. -->
+             while the canvas is painted by another reading would be worse than none. -->
         <div class="og-legend">
           <div class="og-legend-row" data-legend="tier">
             {TIERS.map((t) => (
-              <span class="og-legend-item"><i class={`og-swatch og-${t.swatch}`} aria-hidden="true"></i>{t.label}</span>
+              <span class="og-legend-item" data-tier-item={t.tier}>
+                <i class={`og-swatch og-${t.swatch}`} aria-hidden="true"></i>{t.label}<b data-tier-count></b>
+              </span>
             ))}
           </div>
-          <div class="og-legend-row" data-legend="census" hidden>
-            {CENSUS.map((c) => (
-              <span class="og-legend-item" title={c.line}><i class={`og-swatch og-cen-${c.cls}`} aria-hidden="true"></i>{c.label}</span>
+          <div class="og-legend-row" data-legend="ideal" hidden>
+            {IDEAL.map((c) => (
+              <span class="og-legend-item" title={c.line}><i class={`og-swatch og-ideal-${c.cls}`} aria-hidden="true"></i>{c.label}</span>
+            ))}
+          </div>
+          <div class="og-legend-row" data-legend="registry" hidden>
+            {REGISTRY.map((c) => (
+              <span class="og-legend-item" title={c.line}><i class={`og-swatch og-reg-${c.cls}`} aria-hidden="true"></i>{c.label}</span>
             ))}
           </div>
           <div class="og-legend-row" data-legend="law" hidden>
@@ -208,7 +233,8 @@ const CENSUS = [
         </div>
 
         <!-- THE LENS PANEL. The chosen lens' own reading, in the findings'
-             place: the census' numbers, or the record's clauses. It is the same
+             place: the law's own measures, the registry's reach, or the record's
+             clauses. It is the same
              contract the findings panel holds itself to — the panel and the
              paint read one list, so a lens can never count something it does
              not light. -->
@@ -224,7 +250,8 @@ const CENSUS = [
     import cytoscape from "cytoscape";
     import { officeBase } from "@/lib/auth.mjs";
     import {
-      SERIALIZATION_MAP, censusClassOf, tierCensus, fieldCensus, isRecordNode, recordTree,
+      SERIALIZATION_MAP, STORE_BOUNDARY, serializationOf, idealClassOf, fieldCensus,
+      classRegistry, lawMeasures, tierLattice, isRecordNode, recordTree,
     } from "@/lib/world-lenses.mjs";
 
     const root = document.querySelector("[data-graph]");
@@ -254,19 +281,31 @@ const CENSUS = [
       const RED = "#ff5c52";       // a finding. The one colour that overrides every other.
       const SPAN_MODEL = 4000;     // the map's scale denominator (see layoutMap)
 
-      // THE CENSUS PALETTE. Deliberately the tier lattice's own four hues, put
-      // to a second use: blue for the one assertion the walk reads (the town's
-      // constitution, which is what blue already means here), green for a record
-      // that asserts nothing and leaves standing to the walk — the lawful shape,
-      // and the same green sovereignty wears — amber for an assertion nobody
-      // honours, gray for a node the question cannot be asked of. Reusing the
-      // hues rather than inventing four more keeps one page from teaching two
-      // colour languages.
-      const CENSUS_PAINT = {
-        read: "#5b86ff",
-        inert: "#e0b04a",
-        clean: "#3fbf87",
+      // THE IDEAL VIEW'S PALETTE. Deliberately the lattice's own hues put to a
+      // second reading, rather than four new ones: green for a record whose every
+      // key the law can place, amber for one storing a derivable the law places
+      // nowhere, violet — the stamp's colour, which on this page already means
+      // "law" — for a key the serialization map itself has not placed, and the
+      // ground colour for everything the reading does not cover. One page
+      // teaching two colour languages would be worse than one hue reused.
+      const IDEAL_PAINT = {
+        lawful: "#3fbf87",
+        residue: "#e0b04a",
+        debt: "#aa8fd8",
         unread: "#3d4557",
+      };
+
+      // THE REGISTRY'S PALETTE. Addressability is a two-state question with one
+      // declaring population above it: the class-nodes themselves wear the gold
+      // this town keeps for its own furniture, the nodes that can name one wear
+      // blue, and the nodes that cannot are the ones worth seeing — amber, in a
+      // graph where most of them are.
+      const REG_PAINT = {
+        declares: "#e8c48b",
+        names: "#5b86ff",
+        unaddressable: "#e0b04a",
+        spine: "#4ec3d9",
+        off: "#3d4557",
       };
 
       // THE RECORD'S PALETTE. A clause that asserts constitution wears the
@@ -298,7 +337,12 @@ const CENSUS = [
       // is a detour from whichever was showing, never a third place to be lost
       // in.
       let panelHome = "findings";
-      let census = null, fields = null, record = null;   // the lenses' readings, computed once at mount
+      // The lenses' readings, computed once at mount off the one payload.
+      let fields = null, record = null, registry = null, measures = null, lattice = null;
+      // The lattice's rows, in the order the legend draws them. `null` is the
+      // untiered row: a node the store gives no tier at all, which is not the
+      // same as one that reads "draft".
+      const TIER_ORDER = ["constitution", "sovereignty", "market", "draft"];
 
       // ── boot ──────────────────────────────────────────────────────────────
       async function boot() {
@@ -397,28 +441,37 @@ const CENSUS = [
         // The lint class is put on at mount rather than restyled later: it is a
         // property of the element (the store said so), not a mode the page is in.
         //
-        // The lens classes ride along for the same reason: which census
-        // population a record is in, and whether it is a clause of the written
-        // law, are facts ABOUT the node, not modes the page is in. What the
-        // paint chips switch is which of them cytoscape is looking at — a
-        // `paint-*` class added to every node, so the mode lives in one place
-        // and a node never has to be re-classified when the lens changes.
+        // The lens classes ride along for the same reason: where the law puts a
+        // record's data, whether the registry can address it, and whether it is a
+        // clause of the written law are all facts ABOUT the node, not modes the
+        // page is in. What the paint chips switch is which of them cytoscape is
+        // looking at — a `paint-*` class added to every node, so the mode lives
+        // in one place and a node never has to be re-classified when the lens
+        // changes.
+        const data = els.nodes.map((n) => n.data);
+        registry = classRegistry(data);
+        const reg = new Set(registry.registered);
         for (const n of els.nodes) {
+          const d = n.data;
           const cls = [];
-          if (n.data.lints && n.data.lints.length) cls.push("lint");
-          if (n.data.unresolved) cls.push("ghost");
-          cls.push("cen-" + censusClassOf(n.data));
-          if (isRecordNode(n.data)) cls.push("rec", n.data.tier === "constitution" ? "rec-law" : "rec-mechanic");
+          if (d.lints && d.lints.length) cls.push("lint");
+          if (d.unresolved) cls.push("ghost");
+          cls.push("ideal-" + idealClassOf(d));
+          cls.push("reg-" + (d.kind !== "mark"
+            ? (payload.convergence_kinds.includes(d.kind) ? "spine" : "off")
+            : d.class != null ? "declares"
+            : reg.has(String(d.subkind ?? "")) ? "names" : "unaddressable"));
+          if (isRecordNode(d)) cls.push("rec", d.tier === "constitution" ? "rec-law" : "rec-mechanic");
           n.classes = cls.join(" ");
         }
         for (const e of els.edges) e.classes = e.data.lints && e.data.lints.length ? "lint" : "";
 
         // The readings, taken once off the payload the page already has. Nothing
         // here asks the office a second question.
-        const data = els.nodes.map((n) => n.data);
-        census = tierCensus(data);
         fields = fieldCensus(data);
         record = recordTree(data);
+        measures = lawMeasures(data);
+        lattice = tierLattice(data, TIER_ORDER);
 
         cy = cytoscape({
           container: $("[data-cy]"),
@@ -480,10 +533,25 @@ const CENSUS = [
             // winning over any lens. A node only matches these while it wears
             // the mode class, so switching the lens off restores the lattice
             // without touching a single element's own classes.
-            { selector: "node.paint-census", style: { "background-color": CENSUS_PAINT.unread } },
-            { selector: "node.paint-census.cen-clean", style: { "background-color": CENSUS_PAINT.clean } },
-            { selector: "node.paint-census.cen-read", style: { "background-color": CENSUS_PAINT.read } },
-            { selector: "node.paint-census.cen-inert", style: { "background-color": CENSUS_PAINT.inert } },
+            { selector: "node.paint-ideal", style: { "background-color": IDEAL_PAINT.unread } },
+            { selector: "node.paint-ideal.ideal-lawful", style: { "background-color": IDEAL_PAINT.lawful } },
+            { selector: "node.paint-ideal.ideal-residue", style: { "background-color": IDEAL_PAINT.residue } },
+            { selector: "node.paint-ideal.ideal-debt", style: { "background-color": IDEAL_PAINT.debt } },
+            { selector: "node.paint-registry", style: { "background-color": REG_PAINT.off } },
+            { selector: "node.paint-registry.reg-spine", style: { "background-color": REG_PAINT.spine } },
+            { selector: "node.paint-registry.reg-names", style: { "background-color": REG_PAINT.names } },
+            { selector: "node.paint-registry.reg-unaddressable", style: { "background-color": REG_PAINT.unaddressable } },
+            // The class-nodes are eleven in a graph of hundreds and they are the
+            // thing the whole reading turns on, so under this paint they are
+            // drawn up rather than left to their degree.
+            {
+              selector: "node.paint-registry.reg-declares",
+              style: {
+                "background-color": REG_PAINT.declares,
+                width: (n) => 14 + Math.sqrt(n.data("deg") || 0) * 4,
+                height: (n) => 14 + Math.sqrt(n.data("deg") || 0) * 4,
+              },
+            },
             { selector: "node.paint-law", style: { "background-color": RECORD_PAINT.off, opacity: 0.3 } },
             // The record is 64 nodes in a graph of 767, and most of them are
             // leaves — degree-sizing hides exactly the clauses this lens is
@@ -525,6 +593,7 @@ const CENSUS = [
         // this feature must not have.
         cy.on("pan zoom", hideClaim);
 
+        paintLatticeLegend();
         setPaint(on.paint);
         applyFilters({ relayout: true });
       }
@@ -641,11 +710,10 @@ const CENSUS = [
         if (on.layout !== "map") hint(null);
         all("[data-paint]").forEach((b) => b.classList.toggle("is-on", b.dataset.paint === paint));
         cy.batch(() => {
-          cy.nodes().removeClass("paint-census paint-law");
-          if (paint === "census") cy.nodes().addClass("paint-census");
-          if (paint === "law") cy.nodes().addClass("paint-law");
+          cy.nodes().removeClass("paint-ideal paint-registry paint-law");
+          if (paint !== "tier") cy.nodes().addClass("paint-" + paint);
         });
-        all("[data-legend]").forEach((row) => { row.hidden = row.dataset.legend !== (paint === "tier" ? "tier" : paint); });
+        all("[data-legend]").forEach((row) => { row.hidden = row.dataset.legend !== paint; });
         panelHome = paint === "tier" ? "findings" : "lens";
         if (paint !== "tier") paintLens();
         showHome();
@@ -689,56 +757,138 @@ const CENSUS = [
       function paintLens() {
         const box = $("[data-lens]");
         box.textContent = "";
-        if (on.paint === "census") paintCensusLens(box);
+        if (on.paint === "ideal") paintIdealLens(box);
+        if (on.paint === "registry") paintRegistryLens(box);
         if (on.paint === "law") paintLawLens(box);
       }
 
-      // ── the census ────────────────────────────────────────────────────────
-      // The tier field's populations, and then the whole field census run
-      // through the serialization map. Ported from the graph-views hub, which
-      // computed them in Node against a world clone; here they are a reading of
-      // the store the office is serving right now, which is the point.
-      function paintCensusLens(box) {
-        box.appendChild(lede(
-          "`tier:` is a DERIVED standing — decided by the one walk over the ground, not the author's to assert. "
-          + "Every record still carrying the field is residue; the walk reads it in exactly one case, and this counts the rest."));
+      // THE LATTICE LEGEND, counted. The four tiers were named here whether or
+      // not anything wore them; now the legend says how many, and — because
+      // `market` is also the word the loader supplies for every record that
+      // asserts nothing — how many of them anybody actually wrote.
+      function paintLatticeLegend() {
+        for (const item of all("[data-tier-item]")) {
+          const row = lattice.rows.find((r) => r.tier === item.dataset.tierItem);
+          const slot = item.querySelector("[data-tier-count]");
+          if (!row) { slot.textContent = ""; continue; }
+          if (!row.total) { slot.textContent = "none"; item.classList.add("is-empty"); continue; }
+          item.classList.remove("is-empty");
+          slot.textContent = lattice.sent && row.defaulted
+            ? `${row.total} (${row.defaulted} defaulted)`
+            : String(row.total);
+        }
+      }
 
-        if (!census.sent) {
+      // ── what LOGOS derives ────────────────────────────────────────────────
+      // The hub's ideal view. It drew a second tree of the same world with every
+      // datum re-read as the law reads it; here the same reading paints the one
+      // graph and opens in the inspector, which is the version of it that cannot
+      // drift against the picture beside it.
+      function paintIdealLens(box) {
+        box.appendChild(lede(
+          "The same world through the law's glasses: identity is slug plus class and nothing else, authorship and containment are EDGES, "
+          + "genuine properties are PREDICATE CHILDREN, and standing is derived and stored by nobody. Every key on disk is put through the "
+          + "serialization map, and the three outcomes are kept apart."));
+
+        if (!fields.read) {
           box.appendChild(warn(
-            "this office does not send the author's key list, so the question cannot be asked of a single node. "
-            + "The lens paints every mark UNREAD rather than reporting 0 carriers — which is the same number a finished cutover produces, and the opposite finding."));
+            "this office sends no key list, so not one record can be re-read. The lens paints every node OUTSIDE THE READING rather "
+            + "than reporting a world with nothing out of place — which is the picture a finished cutover would produce, and the opposite finding."));
           return;
         }
 
-        const rows = [
-          ["carries `tier:` on disk", census.carriers, census.marks, "the population the cutover has to empty"],
-          ["· read — the town's own constitution", census.read, census.carriers, "the one case the walk reads the field (mark-standing § the one exception)"],
-          ["· INERT — asserted, and nobody listening", census.inert, census.carriers, "a standing stated on disk that no reader has the authority to honour"],
-          ["· · of those, invisible without this field", census.invisible_without_keys, census.inert, "an authored `tier: market` — the same word the loader supplies when nobody wrote one"],
-          ["clean — standing left to the walk", census.clean, census.marks, "the lawful shape; the target for all of the above"],
-        ];
-        box.appendChild(numbers(rows));
+        box.appendChild(sectionHead("The law's own measures"));
+        box.appendChild(numbers(measures.map((m) => [m.label, m.now, m.of, m.note])));
 
-        // A finding is a place to GO. "Show" lights exactly the records this
-        // count is about, the same contract the findings panel holds.
-        if (census.inert) box.appendChild(showButton("show the inert carriers", () => showIds(census.inert_ids, "grid")));
+        // A count is a place to GO. Each of these lights exactly the records it
+        // counted — the same contract the findings panel holds itself to.
+        const residueIds = idsWhere((d) => idealClassOf(d) === "residue");
+        const debtIds = idsWhere((d) => idealClassOf(d) === "debt");
+        if (residueIds.length) box.appendChild(showButton("show the records carrying residue", () => showIds(residueIds, "grid")));
+        if (debtIds.length) box.appendChild(showButton("show the records carrying debt", () => showIds(debtIds, "grid")));
 
         box.appendChild(sectionHead("The serialization map — where every key on disk belongs"));
         box.appendChild(lede(
-          `v${SERIALIZATION_MAP.version}, authored ${SERIALIZATION_MAP.authored}. A way station: the destination is ${SERIALIZATION_MAP.destination}. `
-          + "RESIDUE and DEBT are kept apart because they are different failures — the map places residue nowhere on purpose, and debt is the map's own unfinished business."));
+          `v${SERIALIZATION_MAP.version}, authored ${SERIALIZATION_MAP.authored}. A way station: the destination is ${SERIALIZATION_MAP.destination}, `
+          + "at which point the table is deleted and read from the graph like everything else. RESIDUE and DEBT are different failures — the map "
+          + "places residue nowhere on purpose, and debt is the map's own unfinished business."));
         box.appendChild(numbers([
           ["identity", fields.rows.identity, fields.total, "an identity atom — the class the tree speaks today"],
           ["an edge", fields.rows.edge, fields.total, "NOT a property: `by:` is the create-edge, `at:` is containment plus an offset"],
           ["a predicate's own payload", fields.rows.predicate, fields.total, "slot and value — the only keys on disk already in lawful shape"],
           ["a property → a predicate child", fields.rows.property, fields.total, "a genuine authored property, whose lawful form is a child node"],
           ["the action's log record", fields.rows.log, fields.total, "a fact about the act, not about the node"],
-          ["TRUE RESIDUE — belongs nowhere", fields.rows.derived, fields.total, fields.residueKeys.map(([k, n]) => `${k} ×${n}`).join(", ") || "none"],
+          ["TRUE RESIDUE — belongs nowhere", fields.rows.derived, fields.total,
+            fields.residueKeys.map(([k, n]) => `${k} ×${n}`).join(", ") || "none — no record stores a derivable"],
           ["MAPPING DEBT — the map places it nowhere YET", fields.rows.unmapped, fields.total,
             fields.unmappedKeys.length ? fields.unmappedKeys.map(([k, n]) => `${k} ×${n}`).join(", ") : "none — every key on disk has a stated destination"],
         ]));
         box.appendChild(quiet(`${fields.total} key instances read off ${fields.read} records; ${fields.placed} of them placed.`));
+
+        paintBoundary(box);
       }
+
+      // ── the class registry ────────────────────────────────────────────────
+      // The hub's convergence question, and the sharpest number it produced.
+      function paintRegistryLens(box) {
+        box.appendChild(lede(
+          "Closure is a property of ADDRESSING: a class not in the graph cannot be addressed, and a node naming no class-node cannot be "
+          + "reached by the law at all. A class-node DECLARES a class; every other node NAMES one, today through `kind:`. The two are counted apart."));
+
+        box.appendChild(numbers([
+          ["class-nodes in the registry", registry.classNodes, null,
+            registry.registered.length ? registry.registered.join(", ") : "none in this store"],
+          ["nodes naming a registered class", registry.citing, registry.marks, "addressable — the law has a way to reach these"],
+          ["nodes naming none", registry.unaddressable, registry.marks,
+            registry.unregisteredKinds.length
+              ? registry.unregisteredKinds.map(([k, n]) => `kind: ${k} (${n})`).join(", ") + " — the older four-word vocabulary"
+              : "every node names a class-node"],
+        ]));
+        if (registry.unaddressable) {
+          box.appendChild(showButton("show what the law cannot address",
+            () => showIds(idsWhere((d) => d.kind === "mark" && !registry.citing_ids.includes(d.id)), "grid")));
+        }
+
+        box.appendChild(sectionHead("The convergence spine"));
+        box.appendChild(lede(
+          `The layer the traversal runs over — ${payload.convergence_kinds.join(", ")} — must be walkable from a class through its affordances `
+          + "to the code that honours them. The `view` chips above narrow the graph to exactly this set; this paints it in place instead."));
+        const spine = {};
+        for (const k of payload.convergence_kinds) spine[k] = payload.counts.by_kind[k] ?? 0;
+        box.appendChild(numbers(Object.entries(spine).map(([k, n]) => [k, n, payload.counts.nodes, ""])));
+
+        paintBoundary(box);
+      }
+
+      // ── the boundary ──────────────────────────────────────────────────────
+      // The hub read a whole world clone; this page reads one payload, and the
+      // honest port of every reading that needs the rest of the clone is the
+      // hub's own holes idiom — each absence NAMED and tied to the registry row
+      // it belongs to, never filled with invented data. That a reading is
+      // missing here because its substrate is not in the graph is not an excuse;
+      // it is the cutover's own finding, restated.
+      function paintBoundary(box, only = null) {
+        const holes = only ? STORE_BOUNDARY.filter((h) => only.includes(h.title)) : STORE_BOUNDARY;
+        if (!holes.length) return;
+        box.appendChild(sectionHead(only ? "The hole beside this one" : "The holes — named, not filled"));
+        if (!only) box.appendChild(lede(
+          "This window reads the store: nodes and edges, and nothing else. What the hub read from a whole world clone and this page cannot:"));
+        for (const h of holes) {
+          const card = document.createElement("article");
+          card.className = "og-hole";
+          const t = document.createElement("b");
+          t.textContent = h.title;
+          const r = document.createElement("span");
+          r.className = "og-hole-row";
+          r.textContent = h.row;
+          const p = document.createElement("p");
+          p.textContent = h.text;
+          card.appendChild(t); card.appendChild(r); card.appendChild(p);
+          box.appendChild(card);
+        }
+      }
+
+      const idsWhere = (fn) => payload.elements.nodes.filter((n) => fn(n.data)).map((n) => n.data.id);
 
       // ── the record's law ──────────────────────────────────────────────────
       // The piecewise LOGOS: the constitution written as real marks, each one a
@@ -781,9 +931,12 @@ const CENSUS = [
           ul.appendChild(li);
         }
         box.appendChild(ul);
+        // The law has a second written form the store does not hold, and this
+        // is the one lens where a reader will wonder where it went.
+        paintBoundary(box, ["the second crystallization — the law as a graph"]);
       }
 
-      // The record laid out as what it is: ONE TREE, rooted at the-record. The
+      // The record laid out as what it is: ONE TREE, rooted at the logos seed. The
       // findings panel rejected `breadthfirst` for its own sets and was right
       // to — a finding is usually disconnected pairs, and breadthfirst strings
       // those into a strip four screens wide. The record is the opposite shape,
@@ -837,6 +990,13 @@ const CENSUS = [
           const cols = Math.max(1, Math.ceil(Math.sqrt(n * Math.max(box.width / Math.max(box.height, 1), 0.2))));
           eles.nodes().layout({ name: "grid", animate: false, cols, avoidOverlap: true, condense: false, fit: false }).run();
           cy.fit(eles, 60);
+          // SAY HOW TO GET BACK. Laying a set out in a grid moves those nodes for
+          // good — tapping the background lets go of the highlight but leaves
+          // them where the grid put them, because a lens must never silently
+          // re-run a layout the reader did not ask for. That is defensible and it
+          // is not discoverable, so the hint bar says the second step out loud.
+          hint(`${eles.nodes().length} of ${payload.counts.nodes} nodes, laid out on their own. `
+            + `Tap the background to let go of the highlight; the "web" layout chip puts the whole graph back.`);
         }
         paintCounts();
         return eles;
@@ -1096,7 +1256,7 @@ const CENSUS = [
         box.appendChild(h);
 
         // WHAT IT SAYS, before what it is. A mark's body is the one finite
-        // assertion the record is made of (the-record § the one claim), and a
+        // assertion the record is made of (logos § the one claim), and a
         // reader who has to leave this page to find out what a node claims is
         // not reading the world through this window.
         if (d.body) {
@@ -1121,19 +1281,8 @@ const CENSUS = [
         if (d.class) facts.push(["class", d.class]);
         if (d.affordances) facts.push(["affordances", String(d.affordances)]);
         // WHAT THE AUTHOR WROTE, beside what the loader composed. Every other
-        // row here is the composed record; this is the file. It is the only
-        // place on the page where "the author wrote `tier: market`" and "the
-        // loader supplied it" are different sentences.
-        if (Array.isArray(d.keys)) {
-          const c = censusClassOf(d);
-          facts.push(["`tier:`", {
-            read: "written, and READ — the town's own constitution is the one case the walk reads the field",
-            inert: "written, and INERT — no reader has the authority to honour this assertion",
-            clean: "not written — standing is left to the one walk, which is the law",
-            unread: "—",
-          }[c]]);
-          facts.push(["keys on disk", d.keys.join(", ")]);
-        }
+        // row here is the composed record; this is the file.
+        if (Array.isArray(d.keys)) facts.push(["keys on disk", d.keys.join(", ")]);
         if (d.unresolved) facts.push(["unresolved", "nothing in the store claims this id — it is the far end of a dangling edge, kept because the dangle IS the finding"]);
 
         const dl = document.createElement("dl");
@@ -1150,6 +1299,38 @@ const CENSUS = [
           red.className = "og-inspect-lint";
           red.textContent = `carries a finding: ${d.lints.join(", ")}`;
           box.appendChild(red);
+        }
+
+        // THIS RECORD THROUGH THE LAW'S GLASSES. The hub drew a whole second
+        // tree to say this; here it is one block on the node you asked about,
+        // and it says the same four things: which of its keys are edges, which
+        // are predicates it keeps or owes, which are derivables it should not be
+        // storing at all, and which the map has yet to place.
+        const s = serializationOf(d);
+        if (s.read) {
+          const groups = [
+            ["edges", s.edges.map((e) => `${e.key} → ${e.edge}`), "og-ser-edge"],
+            ["predicates", s.predicates.map((p) => p.key + (p.lawful ? "" : " → a predicate child")), "og-ser-pred"],
+            ["residue", s.residue.map((r) => r.key), "og-ser-residue"],
+            ["debt", s.debt.map((r) => r.key), "og-ser-debt"],
+          ].filter(([, items]) => items.length);
+          const wrap = document.createElement("div");
+          wrap.className = "og-ser";
+          for (const [name, items, cls] of groups) {
+            const row = document.createElement("div");
+            row.className = "og-ser-row";
+            const h = document.createElement("i");
+            h.textContent = name;
+            row.appendChild(h);
+            for (const it of items) {
+              const chip = document.createElement("span");
+              chip.className = "og-ser-chip " + cls;
+              chip.textContent = it;
+              row.appendChild(chip);
+            }
+            wrap.appendChild(row);
+          }
+          box.appendChild(wrap);
         }
 
         const edges = node.connectedEdges();
@@ -1183,7 +1364,12 @@ const CENSUS = [
       // under the tier lattice the panel is the findings, under a lens it is
       // that lens' reading. The inspector is the detour, and the back button
       // returns to whichever home you left — never to a third place.
-      const HOME_TITLE = { findings: "Findings", census: "The tier census", law: "The record's law" };
+      const HOME_TITLE = {
+        findings: "Findings",
+        ideal: "What LOGOS derives",
+        registry: "The class registry",
+        law: "The record's law",
+      };
 
       function showHome() {
         $("[data-inspector]").hidden = true;
@@ -1347,15 +1533,28 @@ const CENSUS = [
     .opsgraph .og-tier-draft { background: #7b8494; }
     .opsgraph .og-lint { background: transparent; border: 2px solid #ff5c52; }
     .opsgraph .og-legend-red { color: #ff8a82; }
-    /* the lenses' swatches — the same four hues the lattice uses, put to a
-       second reading; see CENSUS_PAINT / RECORD_PAINT in the island */
-    .opsgraph .og-cen-read { background: #5b86ff; }
-    .opsgraph .og-cen-inert { background: #e0b04a; }
-    .opsgraph .og-cen-clean { background: #3fbf87; }
-    .opsgraph .og-cen-unread { background: #3d4557; }
+    /* the lenses' swatches — the same hues the lattice uses, put to a second
+       reading; see IDEAL_PAINT / REG_PAINT / RECORD_PAINT in the island */
+    .opsgraph .og-ideal-lawful { background: #3fbf87; }
+    .opsgraph .og-ideal-residue { background: #e0b04a; }
+    .opsgraph .og-ideal-debt { background: #aa8fd8; }
+    .opsgraph .og-ideal-unread { background: #3d4557; }
+    .opsgraph .og-reg-declares { background: #e8c48b; }
+    .opsgraph .og-reg-names { background: #5b86ff; }
+    .opsgraph .og-reg-unaddressable { background: #e0b04a; }
+    .opsgraph .og-reg-spine { background: #4ec3d9; }
     .opsgraph .og-rec-law { background: #5b86ff; }
     .opsgraph .og-rec-mech { background: #aa8fd8; }
     .opsgraph .og-rec-off { background: #252d3f; }
+
+    /* the lattice's live member counts. A tier nothing wears is dimmed rather
+       than dropped: "none" is a reading, and a legend that quietly omitted the
+       row would be hiding it. */
+    .opsgraph .og-legend-item b {
+      font-weight: 400; color: #6b7a95; margin-left: 0.15em;
+      font-family: var(--pm-mono); font-size: 0.95em;
+    }
+    .opsgraph .og-legend-item.is-empty { opacity: 0.45; }
 
     /* ── the claim, on hover ────────────────────────────────────────────── */
     .opsgraph .og-claim {
@@ -1455,6 +1654,34 @@ const CENSUS = [
       background: rgba(123, 139, 167, 0.18); overflow: hidden; margin: 0.15em 0 0.1em;
     }
     .opsgraph .og-bar span { display: block; height: 100%; background: rgba(232, 196, 139, 0.55); }
+
+    /* the holes — a named absence, tied to the row it belongs to */
+    .opsgraph .og-hole {
+      border-left: 2px solid rgba(232, 196, 139, 0.35); padding: 0.1em 0 0.1em 0.65em;
+      margin-bottom: 0.7em;
+    }
+    .opsgraph .og-hole b { display: block; font-size: 0.72rem; color: #d7dfef; font-weight: 400; }
+    .opsgraph .og-hole-row {
+      display: block; font-family: var(--pm-mono); font-size: 0.55rem;
+      letter-spacing: 0.06em; color: var(--pm-gold); margin: 0.1em 0 0.25em;
+    }
+    .opsgraph .og-hole p { margin: 0; font-size: 0.66rem; line-height: 1.5; color: #8595b0; }
+
+    /* one record through the law's glasses, in the inspector */
+    .opsgraph .og-ser { margin: 0.2em 0 0.7em; display: flex; flex-direction: column; gap: 0.3em; }
+    .opsgraph .og-ser-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3em; }
+    .opsgraph .og-ser-row i {
+      font-style: normal; font-family: var(--pm-mono); font-size: 0.55rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #5d6b86; width: 6.4em; flex: none;
+    }
+    .opsgraph .og-ser-chip {
+      font-family: var(--pm-mono); font-size: 0.58rem; border-radius: 4px;
+      padding: 0.1em 0.4em; border: 1px solid currentColor;
+    }
+    .opsgraph .og-ser-edge { color: #7fa0e0; }
+    .opsgraph .og-ser-pred { color: #6fcfa0; }
+    .opsgraph .og-ser-residue { color: #e0b04a; }
+    .opsgraph .og-ser-debt { color: #c3a6e8; }
 
     .opsgraph .og-clauses { margin: 0.7em 0 0; padding: 0; list-style: none; }
     .opsgraph .og-clause {
