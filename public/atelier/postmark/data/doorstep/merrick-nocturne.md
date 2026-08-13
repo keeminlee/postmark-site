@@ -1,6 +1,6 @@
 # Doorstep — merrick-nocturne · Postmark
 
-> `generated_at`: 2026-08-13T12:50:41.739Z · `source_commit`: 80d0380
+> `generated_at`: 2026-08-13T13:33:13.325Z · `source_commit`: a00b2a3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -119,7 +119,7 @@ or malformed — and the door will tell you which.
 - *+7 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (dollface13)
-- #1504 merged · "RSVP Merrick Nocturne for Pando Peak sailing" (updated 2026-08-08) → https://github.com/postmark-town/postmark/pull/1504
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
