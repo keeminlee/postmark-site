@@ -319,6 +319,110 @@ export function namesRegisteredClass(d, registeredSet) {
   return d.class != null || registeredSet.has(String(d.subkind ?? ""));
 }
 
+// ── one species of dot (v2, stage 1) ─────────────────────────────────────────
+//
+// THERE IS ONE NODE TYPE. The page used to draw four — a circle for a mark, a
+// diamond for a class, a rounded box for code, a hexagon for doctrine — which
+// said, in the only language a graph has, that the world holds four kinds of
+// thing. It holds one. What differs between nodes is what they WEAR, and every
+// difference below is a derived fact about a node rather than a species it
+// belongs to.
+//
+// Three wearings, and one eviction:
+//   the standing lattice   — colour, unchanged; the default paint
+//   the registry badge     — a node that DECLARES a class carries a small mark
+//                            saying the registry lives here
+//   continuation           — a predicate is its parent continued, so it is drawn
+//                            small and tight against the parent it predicates
+//   the machinery shelf    — code and doctrine are not nodes of the world at
+//                            all; they are the far ends of binding channels,
+//                            and they stand off the world's edge
+//
+// Lifetime rings are stage 2 and are deliberately absent: the payload carries no
+// entities and no emissions, and a ring drawn for a lifetime nobody sent would
+// be the one thing this page must never do.
+
+export const MACHINERY_KINDS = ["code", "doctrine"];
+
+/**
+ * Is this the far end of a binding channel rather than a node of the world?
+ *
+ * AN UNRESOLVED END IS NOT MACHINERY, and the order of these two checks is the
+ * whole reason this is a function. A dangling `reads` edge into a module the
+ * office never loads is THE founding image of this page — "the stale wheelhouse
+ * as a dangling red edge you see, hanging off the vessel" — and sweeping it onto
+ * a shelf at the world's edge would tidy the finding out of the picture.
+ */
+export const isMachinery = (d) => !!d && d.unresolved !== true && MACHINERY_KINDS.includes(d.kind);
+
+/** Does this node declare a class — is this where the registry lives? */
+export const wearsRegistryBadge = (d) => !!d && d.kind === "mark" && d.class != null;
+
+/**
+ * Is this node a predicate of its parent?
+ *
+ * `naming` rides with `predicated` because a naming IS a predicate whose slot is
+ * implied by the act of naming (SERIALIZATION_MAP § naming) — both inherit their
+ * parent's extent whole rather than sitting inside it, which is the continuation
+ * law this drawing is made of.
+ */
+export const isContinuation = (d) => !!d && d.kind === "mark" && (d.subkind === "predicated" || d.subkind === "naming");
+
+// ── the filter row, derived from the registry ────────────────────────────────
+//
+// The row used to name four hardcoded kinds. It now names the REGISTRY: one chip
+// per class the world has actually declared, so the row is a reading of the
+// cutover rather than a constant. As classes land the chips gain members; as
+// nodes migrate onto them the older vocabulary's chip shrinks. Nothing here is
+// written down in advance — a class-node added tomorrow appears in this row with
+// no code change, and a page that had to be edited to notice would be a page
+// that stops noticing.
+
+export const OLDER_VOCABULARY = "older-vocabulary";
+export const REGISTRY_OWN = "registry-own";
+export const UNRESOLVED = "unresolved";
+export const MACHINERY = "machinery";
+
+/**
+ * Which chip a node belongs to. EVERY node belongs to exactly one, and the tests
+ * hold that: a filter row that did not cover the graph would leave nodes no chip
+ * could reach, which is worse than no filter at all.
+ */
+export function filterBucketOf(d, registeredSet) {
+  if (!d) return null;
+  if (d.unresolved === true || d.kind === "unknown") return UNRESOLVED;   // before machinery; see isMachinery
+  if (MACHINERY_KINDS.includes(d.kind)) return MACHINERY;
+  if (d.kind !== "mark") return REGISTRY_OWN;    // the synthesized class-nodes the law addresses through
+  if (d.class != null && registeredSet.has(String(d.class))) return String(d.class);
+  if (registeredSet.has(String(d.subkind ?? ""))) return String(d.subkind);
+  return OLDER_VOCABULARY;
+}
+
+/**
+ * The chips, in the order the row draws them: the registry's own classes first
+ * by weight, then the buckets that catch what the registry cannot yet name.
+ *
+ * A registered class with no members keeps its chip and reports `0`. That is the
+ * teaching: eleven classes are declared and most of them are addressed by
+ * nothing, which a row that showed only the populated ones would hide.
+ */
+export function classFilters(nodes) {
+  const reg = classRegistry(nodes);
+  const set = new Set(reg.registered);
+  const counts = new Map();
+  for (const d of nodes) bump(counts, filterBucketOf(d, set));
+  const classes = reg.registered
+    .map((c) => ({ key: c, label: c, group: "class", count: counts.get(c) ?? 0 }))
+    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
+  const buckets = [
+    { key: OLDER_VOCABULARY, label: "the older vocabulary", group: "bucket", count: counts.get(OLDER_VOCABULARY) ?? 0 },
+    { key: REGISTRY_OWN, label: "the registry's own", group: "bucket", count: counts.get(REGISTRY_OWN) ?? 0 },
+    { key: UNRESOLVED, label: "unresolved", group: "bucket", count: counts.get(UNRESOLVED) ?? 0 },
+    { key: MACHINERY, label: "the machinery shelf", group: "shelf", count: counts.get(MACHINERY) ?? 0 },
+  ];
+  return { classes, buckets, chips: [...classes, ...buckets], registered: reg.registered, total: nodes.length };
+}
+
 // ── the law's own measures ───────────────────────────────────────────────────
 //
 // The hub's `lawMeasures`: the rows that answer to the law rather than to any

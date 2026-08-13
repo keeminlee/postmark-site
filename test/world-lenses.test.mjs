@@ -24,6 +24,7 @@ import {
   SERIALIZATION_MAP, serializes, serializationOf, idealClassOf,
   fieldCensus, classRegistry, lawMeasures, tierLattice, STORE_BOUNDARY,
   isRecordNode, recordTree, RECORD_SEGMENT,
+  isMachinery, wearsRegistryBadge, isContinuation, classFilters, filterBucketOf,
 } from "../src/lib/world-lenses.mjs";
 
 // The town's own constitution: asserts `tier:`, and carries one key the map has
@@ -234,6 +235,80 @@ test("the boundary names what this window cannot count, and stays a description"
     // a count from some particular day, quietly going stale.
     assert.equal(/\b\d{2,}\b/.test(h.text), false, `${h.title} carries a baked figure`);
   }
+});
+
+// ── one species of dot ───────────────────────────────────────────────────────
+
+const doctrine = { id: "engine/files", kind: "doctrine", tier: null, by: null };
+const dangling = { id: "code:world/tools/vessel.mjs", kind: "code", unresolved: true };
+
+test("machinery is the far end of a binding channel — but a DANGLE never is", () => {
+  assert.equal(isMachinery(codeNode), true);
+  assert.equal(isMachinery(doctrine), true);
+  assert.equal(isMachinery(quay), false);
+  // THE FOUNDING IMAGE OF THIS PAGE. A dangling `reads` into a module the office
+  // never loads is the finding, and shelving it at the world's edge would tidy
+  // the finding out of the picture it exists to be in.
+  assert.equal(isMachinery(dangling), false);
+});
+
+test("the registry badge marks the nodes that DECLARE a class, not the ones that name one", () => {
+  assert.equal(wearsRegistryBadge(parcelClass), true);   // carries `class:`
+  assert.equal(wearsRegistryBadge(parcel), false);       // merely names one
+  assert.equal(wearsRegistryBadge(codeNode), false);
+  // and the synthesized class-node carries no `class:` of its own, so no badge
+  assert.equal(wearsRegistryBadge({ id: "mechanic:light", kind: "class", subkind: "mechanic" }), false);
+});
+
+test("a naming is a continuation too — both inherit the parent's extent whole", () => {
+  assert.equal(isContinuation(clause), true);                       // predicated
+  assert.equal(isContinuation({ ...clause, subkind: "naming" }), true);
+  assert.equal(isContinuation(quay), false);                        // sited stands somewhere
+  assert.equal(isContinuation(parcel), false);
+  assert.equal(isContinuation(codeNode), false);
+});
+
+// ── the filter row ───────────────────────────────────────────────────────────
+
+const ROW_NODES = [quay, shed, parcel, clause, unread, parcelClass, codeNode, doctrine, dangling,
+  { id: "mechanic:light", kind: "class", subkind: "mechanic" }];
+
+test("every node lands in exactly one chip — a filter that missed some would be worse than none", () => {
+  const f = classFilters(ROW_NODES);
+  const summed = f.chips.reduce((n, c) => n + c.count, 0);
+  assert.equal(summed, ROW_NODES.length, "the chips do not cover the graph");
+  assert.equal(f.total, ROW_NODES.length);
+});
+
+test("the chips come from the registry, not from a list written here", () => {
+  const f = classFilters(ROW_NODES);
+  // one chip per class the world actually declared — `parcel`, from parcelClass
+  assert.deepEqual(f.classes.map((c) => c.key), ["parcel"]);
+  assert.equal(f.classes[0].count, 2);          // the declaring node and the one naming it
+  // a world that declares nothing has no class chips at all, and says so through
+  // the older vocabulary rather than through an invented default
+  const bare = classFilters([quay, shed, clause]);
+  assert.deepEqual(bare.classes, []);
+  assert.equal(bare.buckets.find((b) => b.key === "older-vocabulary").count, 3);
+});
+
+test("the buckets catch what the registry cannot name, each by its own reason", () => {
+  const by = Object.fromEntries(classFilters(ROW_NODES).buckets.map((b) => [b.key, b.count]));
+  assert.equal(by["older-vocabulary"], 4);   // quay, shed, clause, unread — naming no class
+  assert.equal(by["registry-own"], 1);       // the synthesized mechanic:light
+  assert.equal(by.unresolved, 1);            // the dangle
+  assert.equal(by.machinery, 2);             // the code module and the doctrine section
+});
+
+test("a registered class nothing names keeps its chip and reports zero", () => {
+  // two declared classes, one of them addressed by nobody: the row must still
+  // show it, because "declared and reached by nothing" is the finding
+  const lightClass = { id: "the-town/light", kind: "mark", subkind: "sited", class: "light", by: "the-town" };
+  const f = classFilters([parcelClass, parcel, lightClass]);
+  const by = Object.fromEntries(f.classes.map((c) => [c.key, c.count]));
+  assert.equal(by.parcel, 2);
+  assert.equal(by.light, 1);                 // only its own declaring node
+  assert.deepEqual(f.classes.map((c) => c.key), ["parcel", "light"]);   // by weight, then name
 });
 
 // ── the record ───────────────────────────────────────────────────────────────
