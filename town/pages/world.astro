@@ -213,7 +213,34 @@ const html = rawHtml.replace(/<head>/i,
     var ready = armed
       ? real("/world-engine/replay/" + at + ".json").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
       : Promise.resolve(null);
-    ready.then(function (f) { if (f) lens.frame = f; });
+    ready.then(function (f) { if (!f) return; lens.frame = f; setViewerCrossing(f.crossing); });
+
+    // THE CAPTION MUST AGREE WITH THE MAP. Left alone the viewer reads the wall
+    // clock for its crossing number, so an armed page drew crossing 120's world
+    // under the words "crossing 127 · live" — caught in QA, and it is the kind of
+    // contradiction that costs a reader the whole surface. The viewer owns the
+    // fix: its dev-pane "crossover" dial flips the caption to "· time-travelling",
+    // which is exactly the right words. The pane is built lazily on first toggle,
+    // so the toggle is opened to build it and closed again. Driving the viewer
+    // through its own control beats reaching into its private state — and if that
+    // control ever moves, this no-ops visibly (the caption says "live") instead of
+    // lying quietly. Same approach, same reasoning, as /replay/.
+    function setViewerCrossing(n, tries) {
+      tries = tries == null ? 60 : tries;
+      var input = document.querySelector("input.crossover");
+      if (!input) {
+        var toggle = document.querySelector(".wv-dev-toggle");
+        if (toggle) {
+          toggle.click();
+          input = document.querySelector("input.crossover");
+          var pane = document.querySelector(".wv-dev");
+          if (pane) pane.hidden = true;
+        }
+      }
+      if (!input) { if (tries > 0) setTimeout(function () { setViewerCrossing(n, tries - 1); }, 100); return; }
+      input.value = String(n);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
 
     // ── the floating control ────────────────────────────────────────────────
     var index = null, panel, whenEl, backEl, prevEl, nextEl, openEl;
@@ -303,6 +330,7 @@ const html = rawHtml.replace(/<head>/i,
           if (!f) return;
           lens.frame = f;
           history.replaceState(null, "", "/world/?crossing=" + at);
+          setViewerCrossing(at);
           var v = window.__pmViewer;
           // The seam that makes this one renderer rather than two: re-pull the
           // record in place. Without it (an un-bumped postmark-world pin) the
