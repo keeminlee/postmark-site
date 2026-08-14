@@ -1,0 +1,316 @@
+{
+  "label": "pinned",
+  "base": "http://localhost:4321",
+  "steps": [
+    {
+      "tag": "pinned-desktop",
+      "step": 1,
+      "dir": "prev",
+      "from": 126,
+      "to": 125,
+      "ms": 2519,
+      "bytes": 786953,
+      "reqs": 2,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2519,
+        "crossing": 125,
+        "servedFromCache": false,
+        "stepFetches": 1,
+        "stepBytes": 778009,
+        "foldsWarm": 3,
+        "foldsWarmBefore": 2
+      }
+    },
+    {
+      "tag": "pinned-desktop",
+      "step": 2,
+      "dir": "prev",
+      "from": 125,
+      "to": 124,
+      "ms": 2165,
+      "bytes": 787640,
+      "reqs": 2,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2165,
+        "crossing": 124,
+        "servedFromCache": false,
+        "stepFetches": 1,
+        "stepBytes": 778009,
+        "foldsWarm": 4,
+        "foldsWarmBefore": 3
+      }
+    },
+    {
+      "tag": "pinned-desktop",
+      "step": 3,
+      "dir": "prev",
+      "from": 124,
+      "to": 123,
+      "ms": 2092,
+      "bytes": 787710,
+      "reqs": 2,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2092,
+        "crossing": 123,
+        "servedFromCache": false,
+        "stepFetches": 1,
+        "stepBytes": 778009,
+        "foldsWarm": 5,
+        "foldsWarmBefore": 4
+      }
+    },
+    {
+      "tag": "pinned-desktop",
+      "step": 4,
+      "dir": "next",
+      "from": 123,
+      "to": 124,
+      "ms": 2323,
+      "bytes": 0,
+      "reqs": 0,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2323,
+        "crossing": 124,
+        "servedFromCache": true,
+        "stepFetches": 0,
+        "stepBytes": 0,
+        "foldsWarm": 5,
+        "foldsWarmBefore": 5
+      }
+    },
+    {
+      "tag": "pinned-desktop",
+      "step": 5,
+      "dir": "next",
+      "from": 124,
+      "to": 125,
+      "ms": 2125,
+      "bytes": 0,
+      "reqs": 0,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2125,
+        "crossing": 125,
+        "servedFromCache": true,
+        "stepFetches": 0,
+        "stepBytes": 0,
+        "foldsWarm": 5,
+        "foldsWarmBefore": 5
+      }
+    },
+    {
+      "tag": "pinned-narrow",
+      "step": 1,
+      "dir": "prev",
+      "from": 126,
+      "to": 125,
+      "ms": 2647,
+      "bytes": 786953,
+      "reqs": 2,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2647,
+        "crossing": 125,
+        "servedFromCache": false,
+        "stepFetches": 1,
+        "stepBytes": 778009,
+        "foldsWarm": 3,
+        "foldsWarmBefore": 2
+      }
+    },
+    {
+      "tag": "pinned-narrow",
+      "step": 2,
+      "dir": "prev",
+      "from": 125,
+      "to": 124,
+      "ms": 2441,
+      "bytes": 787640,
+      "reqs": 2,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2441,
+        "crossing": 124,
+        "servedFromCache": false,
+        "stepFetches": 1,
+        "stepBytes": 778009,
+        "foldsWarm": 4,
+        "foldsWarmBefore": 3
+      }
+    },
+    {
+      "tag": "pinned-narrow",
+      "step": 3,
+      "dir": "prev",
+      "from": 124,
+      "to": 123,
+      "ms": 1985,
+      "bytes": 787710,
+      "reqs": 2,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 1985,
+        "crossing": 123,
+        "servedFromCache": false,
+        "stepFetches": 1,
+        "stepBytes": 778009,
+        "foldsWarm": 5,
+        "foldsWarmBefore": 4
+      }
+    },
+    {
+      "tag": "pinned-narrow",
+      "step": 4,
+      "dir": "next",
+      "from": 123,
+      "to": 124,
+      "ms": 2183,
+      "bytes": 0,
+      "reqs": 0,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2183,
+        "crossing": 124,
+        "servedFromCache": true,
+        "stepFetches": 0,
+        "stepBytes": 0,
+        "foldsWarm": 5,
+        "foldsWarmBefore": 5
+      }
+    },
+    {
+      "tag": "pinned-narrow",
+      "step": 5,
+      "dir": "next",
+      "from": 124,
+      "to": 125,
+      "ms": 2181,
+      "bytes": 0,
+      "reqs": 0,
+      "node": {
+        "present": true,
+        "sameObject": true,
+        "tokenSurvived": true,
+        "stillInDocument": true,
+        "mounts": 1
+      },
+      "tour": false,
+      "probe": {
+        "ms": 2181,
+        "crossing": 125,
+        "servedFromCache": true,
+        "stepFetches": 0,
+        "stepBytes": 0,
+        "foldsWarm": 5,
+        "foldsWarmBefore": 5
+      }
+    }
+  ],
+  "notes": [
+    "[pinned-desktop] /replay/ first paint: 3713 ms",
+    "[pinned-desktop] tour greeted an anonymous spectator on arrival: true (expected true — Keemin 2026-08-12)",
+    "[pinned-desktop] tagged viewer node: qa-r0kewr8t5ff",
+    "[pinned-desktop] step 1 prev 126→125: 2519 ms (in-page), 2 req / 769 KB in window | step's own fetch: 1 (760 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-desktop] step 2 prev 125→124: 2165 ms (in-page), 2 req / 769 KB in window | step's own fetch: 1 (760 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-desktop] step 3 prev 124→123: 2092 ms (in-page), 2 req / 769 KB in window | step's own fetch: 1 (760 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-desktop] step 4 next 123→124: 2323 ms (in-page), 0 req / 0 KB in window | step's own fetch: 0 (0 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-desktop] step 5 next 124→125: 2125 ms (in-page), 0 req / 0 KB in window | step's own fetch: 0 (0 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-desktop] VERDICT tour respawned during scrub: false (gate: false)",
+    "[pinned-desktop] VERDICT viewer re-mounted during scrub: false (gate: false)",
+    "[pinned-desktop] digest links: {\"speakers\":[\"/residents/fabel-of-garrison/\",\"/residents/rook-of-garrison/\",\"/residents/fabel-of-garrison/\"],\"places\":[\"/world/?at=-1381.5,-2510.3\",\"/world/?at=-1375,-2550\",\"/world/?at=-1375,-2545\"],\"moveTargets\":[\"/world/?at=-1375,-2545\"],\"convoRule\":null}",
+    "[pinned-narrow] /replay/ first paint: 3636 ms",
+    "[pinned-narrow] tour greeted an anonymous spectator on arrival: true (expected true — Keemin 2026-08-12)",
+    "[pinned-narrow] tagged viewer node: qa-ahu0glafpj7",
+    "[pinned-narrow] step 1 prev 126→125: 2647 ms (in-page), 2 req / 769 KB in window | step's own fetch: 1 (760 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-narrow] step 2 prev 125→124: 2441 ms (in-page), 2 req / 769 KB in window | step's own fetch: 1 (760 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-narrow] step 3 prev 124→123: 1985 ms (in-page), 2 req / 769 KB in window | step's own fetch: 1 (760 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-narrow] step 4 next 123→124: 2183 ms (in-page), 0 req / 0 KB in window | step's own fetch: 0 (0 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-narrow] step 5 next 124→125: 2181 ms (in-page), 0 req / 0 KB in window | step's own fetch: 0 (0 KB) | same viewer node: true | mounts: 1 | tour open: false",
+    "[pinned-narrow] VERDICT tour respawned during scrub: false (gate: false)",
+    "[pinned-narrow] VERDICT viewer re-mounted during scrub: false (gate: false)",
+    "[pinned-narrow] digest links: {\"speakers\":[\"/residents/fabel-of-garrison/\",\"/residents/rook-of-garrison/\",\"/residents/fabel-of-garrison/\"],\"places\":[\"/world/?at=-1381.5,-2510.3\",\"/world/?at=-1375,-2550\",\"/world/?at=-1375,-2545\"],\"moveTargets\":[\"/world/?at=-1375,-2545\"],\"convoRule\":null}"
+  ],
+  "links": {
+    "speakers": [
+      "/residents/fabel-of-garrison/",
+      "/residents/rook-of-garrison/",
+      "/residents/fabel-of-garrison/"
+    ],
+    "places": [
+      "/world/?at=-1381.5,-2510.3",
+      "/world/?at=-1375,-2550",
+      "/world/?at=-1375,-2545"
+    ],
+    "moveTargets": [
+      "/world/?at=-1375,-2545"
+    ],
+    "convoRule": null
+  }
+}
