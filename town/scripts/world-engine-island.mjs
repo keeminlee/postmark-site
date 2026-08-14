@@ -16,6 +16,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync
 import { dirname, join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { houseName } from "../../src/lib/houses.mjs";
+import { REPLAY_DIR, replayFiles } from "./replay-record.mjs";
 
 const META_PATH = "/world-engine/residents-meta.json";
 
@@ -125,6 +126,15 @@ function stage(pkg, dest, projectRoot) {
   } else {
     console.warn("[world-engine-island] no residents.json — the map draws monograms rather than faces.");
   }
+  // the replay's frames: derived from the package's own STATE record, same as the
+  // faces above — written, not copied, because the jsonl is an engine-internal
+  // format and staging it verbatim would freeze it into a public contract
+  for (const file of replayFiles(pkg)) {
+    const output = join(dest, ...file.publicPath.slice(1).split("/"));
+    mkdirSync(dirname(output), { recursive: true });
+    writeFileSync(output, file.body);
+    files.push({ source: null, publicPath: file.publicPath });
+  }
   return files;
 }
 
@@ -194,6 +204,14 @@ export default function worldEngineIsland() {
             if (!meta) return next();
             res.setHeader("content-type", MIME[".json"]);
             return res.end(JSON.stringify(meta));
+          }
+          // the replay frames are derived too, so dev computes them per request —
+          // a newly-saved crossing shows up on reload without a rebuild
+          if (pathname.startsWith(`${REPLAY_DIR}/`)) {
+            const file = replayFiles(pkg).find((entry) => entry.publicPath === pathname);
+            if (!file) return next();
+            res.setHeader("content-type", MIME[".json"]);
+            return res.end(file.body);
           }
           const file = stagingWalk(pkg).find((entry) => entry.publicPath === pathname);
           if (!file) return next();

@@ -40,3 +40,74 @@ const html = rawHtml.replace(/<head>/i,
 ---
 <Fragment set:html={html} />
 <WorldSignIn />
+
+<!-- ARRIVING AT A PLACE (2026-08-14). The world had no way to be linked INTO:
+     every other page could name a place in words but not show it, so the
+     conversations page could say "the Front Door, the Protected Grove" and leave
+     the reader to find it by hand. `/world/?at=<x>,<y>` now lands the camera
+     there.
+
+     It adds no new mechanism to the viewer. Clicking any `.ctl` carrying data-x
+     and data-y already sets the camera and re-tells — that is the viewer's own
+     delegated handler (postmark-world spectator/viewer.mjs:5595, the one the
+     telling's coordinate buttons use). This mints one such button, clicks it,
+     and removes it. If that handler ever moves, the link degrades to landing on
+     the ordinary world view, which is exactly what it did before this existed.
+
+     Inert without the parameter, so the page is byte-identical for every other
+     visitor. -->
+<script is:inline>
+  (function () {
+    var m = /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/.exec(
+      new URLSearchParams(location.search).get("at") || ""
+    );
+    if (!m) return;
+    var x = Number(m[1]), y = Number(m[2]);
+
+    // Wait for the thing that PROVES the viewer is ready, not a proxy for it.
+    // The map <svg> exists well before the world has loaded, and a standpoint
+    // set in that window is silently overwritten by the boot's own first render
+    // — which is exactly what happened here, and it failed invisibly. The
+    // spectator coordinate readout only exists once a telling has been rendered,
+    // so it is the honest signal.
+    var tries = 0;
+    (function arrive() {
+      var root = document.querySelector(".wv");
+      var overlay = root && root.querySelector("#wv-overlay");
+      // The map's own internals (mapCtx) are built when the painting finishes
+      // parsing, which is later than the telling. A drawn overlay is the first
+      // externally visible proof the map is real — and the follow click below
+      // re-checks its own effect anyway, because "an element exists" was already
+      // the wrong readiness signal once on this page.
+      if (!overlay || !overlay.childNodes.length) { if (tries++ < 200) setTimeout(arrive, 125); return; }
+
+      // 1. STAND there. Any `.ctl` carrying data-x/data-y sets the standpoint.
+      var b = document.createElement("button");
+      b.className = "ctl";
+      b.dataset.x = String(x);
+      b.dataset.y = String(y);
+      b.style.display = "none";
+      root.appendChild(b);
+      b.click();
+      b.remove();
+
+      // 2. then LOOK there. Standing and the camera are separate in this viewer,
+      // and the ordering here cost two wrong versions:
+      //   • following FIRST centres on wherever you already were and starts a
+      //     tween; the standpoint's own re-render then SKIPS its re-lock while
+      //     `_tweening` is true (viewer.mjs:3840), so the map zooms into the
+      //     town centre and stays there — which looks like it worked;
+      //   • capturing the follow button BEFORE the standpoint click leaves a
+      //     detached node, because that click re-renders the control bar, and a
+      //     detached node's click never reaches the delegated listener.
+      // So: stand, let the render land, re-query, then follow — and check that
+      // the follow actually engaged rather than trusting the click.
+      setTimeout(function engage(n) {
+        n = n || 0;
+        var f = document.querySelector(".wv .wv-map-follow");
+        if (f && !f.classList.contains("on")) f.click();
+        if ((!f || !f.classList.contains("on")) && n < 40) setTimeout(function () { engage(n + 1); }, 125);
+      }, 60);
+    })();
+  })();
+</script>

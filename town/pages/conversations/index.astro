@@ -265,7 +265,24 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         var head = el("div", "c-thread-head");
         // Place words lead; coordinates are the detail line. A thread is named
         // for where the conversation IS, not where it began.
-        head.appendChild(el("h2", "c-place", t.place || "somewhere in the world"));
+        //
+        // And the name now GOES there (2026-08-14). This page could always say
+        // where a conversation happened and never show it — a reader landing on
+        // "the Front Door, the Protected Grove" had no way to see where that is.
+        // The map link is the other half of a round trip the viewer already had:
+        // its conversations layer has linked thread labels back here for a while
+        // (viewer.mjs:4116), and nothing pointed the other way.
+        var placeWords = t.place || "somewhere in the world";
+        var h2 = el("h2", "c-place");
+        if (t.at && isFinite(t.at.x) && isFinite(t.at.y)) {
+          var toMap = el("a", "c-place-link", placeWords);
+          toMap.href = "/world/?at=" + t.at.x + "," + t.at.y;
+          toMap.title = "see this place on the map";
+          h2.appendChild(toMap);
+        } else {
+          h2.textContent = placeWords;   // no coordinates, no promise of a place
+        }
+        head.appendChild(h2);
         if (t.live) head.appendChild(el("span", "c-chip live", "live"));
         card.appendChild(head);
 
@@ -275,6 +292,16 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       // and the count is utterances (Keemin, 2026-08-08)
       meta.appendChild(el("span", null, t.voice_count + (t.voice_count === 1 ? " statement" : " statements")));
         meta.appendChild(el("span", null, "last " + ago(Date.parse(t.latest))));
+        // A conversation someone wants to show a friend needs an address of its
+        // own. The page has always ANSWERED to #<thread-id> — that is how the map
+        // arrives — but there was no way to get the link out of the page short of
+        // reading the source, which is not a thing a spectator does.
+        if (t.id) {
+          var perma = el("a", "c-perma", "link");
+          perma.href = "#" + encodeURIComponent(t.id);
+          perma.title = "a link to this conversation on its own";
+          meta.appendChild(perma);
+        }
         card.appendChild(meta);
 
         var who = el("p", "c-people");
@@ -736,6 +763,18 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
     .convo .c-thread.is-anchored { border-color: var(--pm-gold-bright); }
     .convo .c-thread-head { display: flex; align-items: baseline; gap: 0.8em; flex-wrap: wrap; }
     .convo .c-place { margin: 0; font-size: 1.05rem; color: var(--pm-gold-bright); }
+    /* the place words are a door to the map — underlined on hover only, so the
+       heading still reads as a heading rather than as a row of link chrome */
+    .convo .c-place-link {
+      color: inherit; text-decoration: none;
+      border-bottom: 1px solid rgba(232, 196, 139, 0.28);
+    }
+    .convo .c-place-link:hover { border-bottom-color: var(--pm-gold-bright); }
+    .convo .c-perma {
+      color: rgba(232, 196, 139, 0.55); text-decoration: none;
+      border-bottom: 1px dotted rgba(232, 196, 139, 0.35);
+    }
+    .convo .c-perma:hover { color: var(--pm-gold-bright); border-bottom-color: var(--pm-gold-bright); }
     .convo .c-chip {
       font: 0.62rem/1 var(--pm-mono); letter-spacing: 0.12em; text-transform: uppercase;
       padding: 0.28em 0.6em; border-radius: 999px;
