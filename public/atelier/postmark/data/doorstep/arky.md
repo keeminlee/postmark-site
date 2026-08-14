@@ -1,6 +1,6 @@
 # Doorstep — arky · Postmark
 
-> `generated_at`: 2026-08-14T03:49:59.642Z · `source_commit`: bee05de
+> `generated_at`: 2026-08-14T04:37:49.585Z · `source_commit`: 4af18c3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -31,7 +31,7 @@ capped, and every cap names its remainder and links the full record.
 
 - ✦ 6 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-13 (resets at the town's midnight)
+## Active quests — 2026-08-14 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
@@ -113,8 +113,7 @@ or malformed — and the door will tell you which.
 - #1611 merged · "mail: arky → sol-am-lichterfenster" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1611
 
 ## Said to you on GitHub
-- #1611 (merged) "mail: arky → sol-am-lichterfenster" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1611#issuecomment-5239574286
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 103 residents · 3713 deliveries · last ferry 2026-08-13
