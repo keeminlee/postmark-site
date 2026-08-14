@@ -372,11 +372,56 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         });
       }
 
-      function paint(box, threads, emptyWords, followsNew) {
+      // ── how much of the past to actually build ──────────────────────────────
+      //
+      // "Gone quiet" is the whole of the town's finished speech and it only ever
+      // grows. Building every card on every 7-second poll made this page 15,348
+      // pixels tall on the day it was measured, and the cost is paid again on
+      // each tick whether or not anybody scrolls — a growth bomb with a fuse
+      // measured in months of town life.
+      //
+      // So the past renders a chunk at a time, and the reader's own scroll asks
+      // for the next one. Nothing is hidden: the sentinel below says how many
+      // conversations are still further down, and reaching it builds them.
+      // Deliberately NOT applied to "Happening now" — live threads are few, they
+      // are the point of the page, and a reader must never have to scroll to
+      // discover that the town is talking.
+      var CHUNK = 8;
+      var shown = CHUNK;
+      var lastClosed = [];
+
+      var moreObserver = typeof IntersectionObserver === "function"
+        ? new IntersectionObserver(function (entries) {
+            if (!entries.some(function (e) { return e.isIntersecting; })) return;
+            if (shown >= lastClosed.length) return;
+            shown += CHUNK;
+            paint(closedBox, lastClosed, "No conversations have finished yet.", false, true);
+          }, { rootMargin: "600px" })   // build them before they are needed, not as they appear
+        : null;
+
+      function paint(box, threads, emptyWords, followsNew, lazy) {
         var was = snapshotScroll(box);
         box.textContent = "";
         if (!threads || !threads.length) { box.appendChild(el("p", "c-empty", emptyWords)); return; }
-        threads.forEach(function (t) { box.appendChild(threadNode(t)); });
+        // Without an observer (an old browser) the cap would strand the rest of
+        // the record behind a control that can never fire, so there is no cap.
+        var limit = lazy && moreObserver ? Math.min(shown, threads.length) : threads.length;
+        for (var i = 0; i < limit; i++) box.appendChild(threadNode(threads[i]));
+        if (limit < threads.length) {
+          var rest = threads.length - limit;
+          var more = el("button", "c-more");
+          more.type = "button";
+          more.textContent = rest === 1 ? "1 earlier conversation" : rest + " earlier conversations";
+          // A button, not a bare sentinel: the observer serves the reader who
+          // scrolls, and this serves the reader who tabs, or whose browser has
+          // decided not to run the observer today.
+          more.addEventListener("click", function () {
+            shown += CHUNK;
+            paint(box, threads, emptyWords, followsNew, lazy);
+          });
+          box.appendChild(more);
+          if (moreObserver) moreObserver.observe(more);
+        }
         restoreScroll(box, was, followsNew);
       }
 
@@ -406,6 +451,15 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       // again on any later hash change. One shot, deliberately: re-scrolling on
       // every poll would yank a reader who has moved on.
       var anchored = false;
+      // Build far enough into the past that the named thread exists. It reads the
+      // ARRAY rather than the DOM on purpose: the card is exactly what does not
+      // exist yet, so asking the document would always answer no.
+      function reachForHash(threads) {
+        var id = decodeURIComponent((location.hash || "").slice(1));
+        if (!id || !threads.length) return;
+        var i = threads.findIndex(function (t) { return String(t.id) === id; });
+        if (i >= shown) shown = i + 1;
+      }
       function anchorFromHash() {
         var id = decodeURIComponent((location.hash || "").slice(1));
         if (!id) return;
@@ -428,7 +482,12 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
             // live threads follow the newest voice; a finished one is a record,
             // so it opens at the first thing said rather than the last
             paint(liveBox, d.live, "The town is quiet. Nobody is within earshot of anybody, or nobody has anything to say.", true);
-            paint(closedBox, d.closed, "No conversations have finished yet.", false);
+            lastClosed = Array.isArray(d.closed) ? d.closed : [];
+            // A link that names a thread must reach it even when the past is
+            // only part-built — otherwise lazy rendering would quietly break
+            // every /conversations/#<id> the map and the replay hand out.
+            reachForHash(lastClosed);
+            paint(closedBox, lastClosed, "No conversations have finished yet.", false, true);
             if (!anchored) { anchored = true; anchorFromHash(); }
             pinNext = false;
             if (dials && d.earshot_m) {
@@ -761,6 +820,15 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
     .convo .c-thread.is-live { border-color: rgba(232, 196, 139, 0.42); }
     /* the card a map link landed on — lit until the reader moves on */
     .convo .c-thread.is-anchored { border-color: var(--pm-gold-bright); }
+    /* the sentinel: it says what is still down there rather than being an
+       invisible tripwire, so the record never looks like it simply ends */
+    .convo .c-more {
+      display: block; width: 100%; margin: 0.9rem 0 0; padding: 0.85em 1em; cursor: pointer;
+      border-radius: 12px; border: 1px dashed rgba(232, 196, 139, 0.3);
+      background: rgba(13, 20, 38, 0.4); color: rgba(232, 196, 139, 0.8);
+      font: 0.76rem/1 var(--pm-mono); letter-spacing: 0.06em;
+    }
+    .convo .c-more:hover { border-color: var(--pm-gold); color: var(--pm-gold-bright); }
     .convo .c-thread-head { display: flex; align-items: baseline; gap: 0.8em; flex-wrap: wrap; }
     .convo .c-place { margin: 0; font-size: 1.05rem; color: var(--pm-gold-bright); }
     /* the place words are a door to the map — underlined on hover only, so the
