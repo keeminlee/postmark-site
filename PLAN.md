@@ -33,9 +33,10 @@ already draws a conversations layer (`spectator/viewer.mjs:2687` the 💬 contro
 `:4094` the ground layer, `:4116` `convoHref = (id) => "/conversations/#" + id`)
 and the page catches that fragment (`index.astro:382` `anchorFromHash`).
 
-**So surface 2 is not a build. It is an audit plus one real gap** (§4 below).
-Rebuilding it would be the expensive kind of obedience — two implementations of a
-shipped surface, and a fork of a page Wright already merged.
+**So surface 2 is not a build. It is an audit plus a revamp in place** (§4, §4b) —
+same route, same URL, no parallel page. Rebuilding it would be the expensive kind
+of obedience: two implementations of a shipped surface, and a fork of a page
+Wright already merged.
 
 **The replay does not exist**: `https://postmark.town/replay/` → **HTTP 404**, no
 branch, no prior commit. That is the build.
@@ -80,8 +81,17 @@ same-origin fallback:
 | identity | `/ops/whoami`, `/world/my-marks` | `:5707`, `:5690` |
 
 There are **no URL parameters** in the viewer (`location.search` / `URLSearchParams`:
-zero hits) and `mountViewer` takes no options. The fetch layer is therefore the
-only seam — and it is a sufficient one.
+zero hits) and `mountViewer` takes no options, so the fetch layer is the seam the
+replay uses.
+
+> **Corrected later in the build:** "no URL parameters" is true and "therefore the
+> fetch layer is the ONLY seam" — which this section originally said — was wrong,
+> and it cost me a gap I first reported as unclosable. There is a second seam:
+> the viewer's **delegated click handlers** are a public interface too. Any `.ctl`
+> with `data-x`/`data-y` sets the standpoint (`:5595`); the follow control centres
+> the camera on it (`:5525`); the crossing time-travel dial takes a number
+> (`:5667`). All three are driven from site-side pages on this branch. **Absence
+> of the seam you looked for is not absence of a seam.**
 
 ---
 
@@ -260,27 +270,71 @@ Not a rebuild. What I will do:
 
 1. **Verify** it against the settled design with rendered eyes (screenshots,
    desktop + narrow), and report exactly what it can and cannot show.
-2. **The one real gap — reported, NOT closed.** The thread's place words are an
-   `<h2>` with no link (`index.astro:268`). The map→page direction exists; page→map
-   does not, so a reader who lands on *"the Front Door, the Protected Grove"* has
-   no way to see where that is.
+2. **The map link — NOW CLOSED, and I was wrong that it couldn't be.**
 
-   I said I would add the link only if the viewer accepts a coordinate entry point.
-   **It does not**: `viewer.mjs` has zero occurrences of `location.search`,
-   `URLSearchParams`, or `location.hash`, and `mountViewer(appEl)` takes no
-   options. A link to `/world/` carrying coordinates it cannot read would land the
-   reader on the fitted whole-world view — a link that looks like it works and
-   doesn't, which is worse than none.
+   My first reading said the round trip was impossible without a `postmark-world`
+   change: `viewer.mjs` has zero `location.search` / `URLSearchParams` /
+   `location.hash`, and `mountViewer(appEl)` takes no options. Both facts are true
+   and the conclusion was still wrong — I had checked for a URL entry point and
+   stopped, instead of asking whether the viewer could be *driven* to a place at
+   all. It can, through affordances it already publishes:
 
-   Closing it properly means a standpoint-from-URL entry in `postmark-world`,
-   which is read-only to me on this brief. **Wright's call**, and small: the
-   threads already carry `at{x,y}`, so the page half is one anchor once the viewer
-   can receive it.
+   - **`viewer.mjs:5595`** — any `.ctl` element carrying `data-x`/`data-y`, when
+     clicked, sets the standpoint and re-tells. It is the viewer's own delegated
+     handler, the one its coordinate buttons use.
+   - **`viewer.mjs:5525`** — the follow control (◎) calls `lockOn()` and centres
+     the camera on the standpoint.
 
-Anything beyond that is a change to a shipped, live, Wright-merged surface, and
-belongs to him to ask for.
+   So `/world/?at=<x>,<y>` is implemented **entirely site-side** in
+   `town/pages/world.astro`, composing those two. It is inert without the
+   parameter — a plain `/world/` is byte-identical and measurably untouched.
+
+   **Two wrong versions before the right one, both of which LOOKED like they
+   worked** (kept, because the shape recurs):
+   - Waiting for `#wv-map svg` before acting: the map element exists long before
+     the world loads, so the standpoint was set and then silently overwritten by
+     the boot's first render. Fixed by waiting on a drawn overlay *and* by
+     re-checking the follow click's own effect rather than trusting it.
+   - Following *first* and standing second: `lockOn()` starts a tween, and while
+     `_tweening` is true the standpoint's re-render skips its re-lock
+     (`viewer.mjs:3840`). The map zoomed decisively — to the town centre — and my
+     probe's "the camera moved" check passed, because a camera that goes to the
+     wrong place has still moved. The discriminating check is against the atlas
+     grid: `WORLD/skeleton.json` puts Ferry's crossing at atlas `(485,760)` at
+     5 m per px, so `-1375,-2545` must land at `(210,251)`. It now does.
+
+3. **What else changed on the page** — small, additive, no rewrite:
+   - Each thread now carries its **own permalink**. The page has always *answered*
+     to `#<thread-id>` (that is how the map arrives) but offered no way to get
+     that link out, which is precisely what a reader wants when they find one
+     conversation worth showing someone.
+   - The replay's spoken lines use the same `/world/?at=` door, so both surfaces
+     say "here is where that happened" the same way.
+
+Verified end-to-end by `qa-shots/verify-links.mjs` (6/6): 40 threads, 40
+well-formed place links, 40 permalinks, and following a link the page actually
+rendered lands the map at `(210,251)` with follow engaged — plus the
+discriminator that it is *not* parked on the town centre.
+
+Nothing else on this page was touched. It was already right.
 
 ---
+
+## 4b. The conversations page: what I found vs what I changed
+
+Asked for explicitly, since the brief was corrected mid-flight from "build one" to
+"revamp the existing one in place". **Same URL, same route, no parallel page.**
+
+| | |
+|---|---|
+| **Found** | `town/pages/conversations/index.astro`, 819 lines, on `origin/main`, live at postmark.town/conversations/ (HTTP 200). Already the full settled design: world-wide scope; threads derived by the office, never stored; live on top and "gone quiet" below, still browsable; place words leading with coords in the detail line; participants linked to resident pages; the exchange in order; faces with the three copied-not-paraphrased guards; the doorstep say-box with its own signed-out/no-handles gates; pinned notices; scroll-position preservation across the 7 s poll; ALPHA banner; `textContent` everywhere. |
+| **Changed** | Three things, ~40 lines total. (1) Place words became a link to `/world/?at=x,y` — the missing return half of a round trip the viewer already made in one direction. (2) Each thread gained a permalink. (3) Supporting CSS. |
+| **Deliberately not changed** | Everything else. The poll cadence, the say-box, the safety guards, the two-clocks prose, the empty-state wording, the layout. It was built right and re-doing it would only add risk. |
+
+One observation rather than a change: the page is **15,348 px tall** with 40
+threads and grows with the town, since closed threads stay forever by ruling. A
+"load more" or a date rule will be wanted eventually. Not mine to decide, and not
+urgent.
 
 ## 5. Lanes, and what I will not touch
 
@@ -326,6 +380,35 @@ instrument first):
    **0 walkers** — indistinguishable from a broken frame. Replaced with a
    `waitForFunction` on the thing actually being waited for.
 
+## 6b. Render weight and the O(viewport) constraint
+
+Full observation with receipts is in **`RENDER-NOTES.md`** on this branch. The
+short version, and where my surfaces stand against the constraint:
+
+- The render is **already closer to O(viewport) than O(world)** in DOM terms:
+  623 marks produce ~112 `[data-id]` elements and 1,710 SVG nodes total. The
+  heaviest derived layer is **walkers — 321 nodes for 49 people** — which scales
+  with residents, not marks.
+- **Pan is a `viewBox` camera** (`viewer.mjs:3441`), measured: node count
+  unchanged across a drag, only the camera moves. So every pan frame
+  re-rasterizes the whole painting (81 `<svg>`, 90 `<image>`) with no tiling and
+  no re-cull. That is the thing a tile pyramid fixes.
+- **`JSON.parse` of the 666 KB fold is 1.9 ms** — parsing is not the cost.
+
+**My data derivation is already separable**, per the constraint: the replay is
+per-crossing (`index.json` for the scrubber, one ~10 KB frame per crossing) and
+touches no world state; conversations are per-thread from the office.
+
+**Where I am coupled to the full-world load, forced not chosen:** `/replay/`
+mounts the existing viewer, so it inherits the whole-fold load — and pays it
+*per crossing*, since each frame loads a different 666 KB fold pinned to that
+crossing's sha, with a re-mount per step. A tiled renderer would need nothing
+from my derivation; only the ~60-line lens in `town/pages/replay/index.astro`
+would change, and it is already keyed on `frame.as_of_world`, which is the right
+seam. The open question a tile pyramid raises for the replay is whether tiles get
+cut **per settlement commit** or whether historical marks are drawn over today's
+tiles with that stated. Flagged in `RENDER-NOTES.md` §8.
+
 ## 7. Left undone, on purpose
 
 - **Time-lapse play** (stretch in the brief, not built). Each step re-mounts the
@@ -334,4 +417,6 @@ instrument first):
 - **Camera position is not preserved across a step.** `mountViewer`'s returned
   handle exposes `rerender` and `stop` but not the camera, so a re-mount refits.
   Worth a small viewer-side addition if scrubbing becomes central.
-- **The conversations page's place words still do not link into the map** — see §4.
+- **A "load more" for the conversations page's ever-growing closed list** — see §4b.
+- **Camera preservation across a replay step** — noted above; wants a viewer-side
+  addition, not a site one.

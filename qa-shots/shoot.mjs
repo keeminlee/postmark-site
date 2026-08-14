@@ -87,9 +87,22 @@ await shoot(browser, {
 
 await shoot(browser, { name: "replay-05-narrow", url: "/replay/#120", viewport: NARROW });
 
-// ── the conversations page (audit, not a build) ───────────────────────────────
+// ── the conversations page (revamp in place, same URL) ───────────────────────
 await shoot(browser, { name: "convo-01-desktop", url: "/conversations/", viewport: DESKTOP });
 await shoot(browser, { name: "convo-02-narrow", url: "/conversations/", viewport: NARROW });
+// the whole page, so the linked place words and per-thread permalinks are visible
+await shoot(browser, { name: "convo-03-desktop-threads-full", url: "/conversations/", viewport: DESKTOP, full: true });
+
+// ── arriving at a place: the other half of the round trip ────────────────────
+// /world/?at=x,y is what a linked place name now opens. The map should be
+// standing at the Front Door of the Protected Grove, not at the town centre.
+await shoot(browser, {
+  name: "world-04-arrive-at-a-place", url: "/world/?at=-1375,-2545", viewport: DESKTOP,
+  prepare: async (page) => {
+    await page.waitForFunction(() => !!document.querySelector(".wv-map-follow.on"), null, { timeout: 40000 }).catch(() => {});
+    await page.waitForTimeout(2500);
+  },
+});
 
 await browser.close();
 

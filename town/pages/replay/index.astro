@@ -286,7 +286,19 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
           const li = el("li", "r-voice");
           const head = el("p", "r-voice-head");
           head.appendChild(personLink(v.handle));
-          if (v.place) head.appendChild(el("span", "r-place", v.place));
+          // the place words go to the place, same door the conversations page
+          // now uses (/world/?at=x,y) — a spectator reading what was said should
+          // be one click from where it was said
+          if (v.place) {
+            if (isFinite(v.x) && isFinite(v.y)) {
+              const toMap = el("a", "r-place r-place-link", v.place);
+              toMap.href = `/world/?at=${v.x},${v.y}`;
+              toMap.title = "see this place on the map";
+              head.appendChild(toMap);
+            } else {
+              head.appendChild(el("span", "r-place", v.place));
+            }
+          }
           head.appendChild(el("span", "r-at", time(v.at) + " UTC"));
           li.appendChild(head);
           li.appendChild(el("p", "r-said", v.said));   // textContent, always
@@ -557,6 +569,10 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
     .replay .r-who:hover { border-bottom-color: var(--pm-gold-bright); }
     .replay .r-who.is-human { color: rgba(232, 196, 139, 0.75); border-bottom: 0; font-style: italic; white-space: normal; }
     .replay .r-place { color: rgba(232, 196, 139, 0.8); }
+    .replay .r-place-link {
+      text-decoration: none; border-bottom: 1px solid rgba(232, 196, 139, 0.28);
+    }
+    .replay .r-place-link:hover { border-bottom-color: var(--pm-gold-bright); }
     .replay .r-at, .replay .r-dist {
       font: 0.68rem/1 var(--pm-mono); letter-spacing: 0.04em; color: rgba(232, 196, 139, 0.5);
       margin-left: auto; white-space: nowrap;
