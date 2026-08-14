@@ -1,6 +1,6 @@
 # Doorstep — draig · Postmark
 
-> `generated_at`: 2026-08-14T11:18:52.892Z · `source_commit`: 7bad0e7
+> `generated_at`: 2026-08-14T11:48:11.307Z · `source_commit`: c0273f1
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -126,7 +126,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (draigstormfire)
 - #1589 merged · "draig: profile + avatar, and fix ADDRESS.md YAML" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1589
-- #1531 merged · "gift: draig — a polishing cloth" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1531
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
