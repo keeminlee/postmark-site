@@ -1,0 +1,572 @@
+---
+// /replay/ — the town's history, scrubbable.
+//
+// A crossing is the town's half-day: the ferry sails, and between one sailing and
+// the next the world accumulates a record. The engine already writes that record
+// down — STATE/snapshot/<n>/entities.json is where all forty-nine residents stood
+// as the crossing opened, STATE/log/<n>.jsonl is everything that happened inside
+// it — and each crossing-save commit in postmark-world is one frame of it.
+//
+// THIS PAGE DOES NOT DRAW THE WORLD. The told-world viewer does, exactly as it
+// does on /world/ — same module, same file, `mountViewer` from the postmark-world
+// package (spectator/viewer.mjs:2742, the export the standalone shell already
+// uses). There is one renderer in this town and this page borrows it rather than
+// growing a second one that would drift.
+//
+// What it adds is a LENS: a small fetch shim, installed before the viewer boots,
+// that answers the viewer's data doors from a frozen crossing instead of from the
+// live office. The viewer never learns it is looking at history — it asks for the
+// world and for who is walking, and receives that crossing's answers in the
+// shapes it already eats.
+//
+// The lens is also what makes this page read-only BY CONSTRUCTION rather than by
+// hiding buttons: identity reads answer anonymous, so `identityResolved()`
+// (viewer.mjs:2928) is false and every act control feature-detects off through
+// the viewer's own spectator path; and any non-GET to the office is refused
+// outright. Nobody walks or stakes the live world from inside a past frame.
+//
+// Honesty this page owes its reader, and states in its own chrome: the record
+// begins at crossing 118. STATE was introduced around 2026-08-10 and the town is
+// far older, so this is the last few days, not the town's whole life.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+---
+<PostmarkLayout
+  title="Replay — Postmark"
+  description="The town's history, crossing by crossing: where everyone stood, who moved, and what was said — drawn on the world's own map."
+>
+  <main class="pm-wrap replay">
+    <header class="r-head">
+      <p class="r-crumb">POSTMARK · REPLAY</p>
+      <h1>Replay</h1>
+      <p class="r-sub">
+        A <em>crossing</em> is the town's half-day — the stretch between one ferry
+        sailing and the next. At the start of each one the world writes down where
+        everybody stands, and through it, everything that happens. This is that
+        record, played back on the town's own map.
+      </p>
+      <p class="r-alpha">
+        <span class="r-alpha-tag">alpha</span>
+        <span data-coverage>Reading the record…</span>
+      </p>
+    </header>
+
+    <section class="r-stage">
+      <div class="r-map" id="replay-map" data-map></div>
+      <p class="r-map-note">
+        <b>What is history here, exactly.</b> Where everyone stood, what the world
+        held, and everything said or walked are read from that crossing's own
+        record — the map is redrawn from the world commit the crossing was
+        computed against. The <em>painted</em> map underneath is the town's
+        atlas as it looks today: the painting is kept by the town, not by the
+        world's record, so it has no earlier version to show you. Nothing on this
+        page is reconstructed or filled in — a quiet crossing shows as quiet.
+      </p>
+    </section>
+
+    <section class="r-scrub" aria-label="choose a crossing">
+      <div class="r-scrub-bar">
+        <button type="button" class="r-arrow" data-prev aria-label="earlier crossing">◀</button>
+        <div class="r-scrub-mid">
+          <p class="r-when" data-when>—</p>
+          <p class="r-span" data-span></p>
+        </div>
+        <button type="button" class="r-arrow" data-next aria-label="later crossing">▶</button>
+      </div>
+      <!-- the track: one tick per crossing, its height the number of events, so a
+           reader can SEE which half-days the town was busy in before clicking -->
+      <ol class="r-track" data-track></ol>
+      <p class="r-track-legend">
+        Each tick is one crossing; taller means more happened. Use ← and → to step.
+      </p>
+    </section>
+
+    <section class="r-digest">
+      <div class="r-rule"><span>What happened this crossing</span></div>
+      <div class="r-digest-grid">
+        <div class="r-col">
+          <h2 class="r-col-h">Said</h2>
+          <div data-voices><p class="r-empty">—</p></div>
+        </div>
+        <div class="r-col">
+          <h2 class="r-col-h">Moved</h2>
+          <div data-moves><p class="r-empty">—</p></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="r-foot">
+      <p>
+        Speech is kept the way the mail is kept — every conversation the town has
+        had is browsable on the <a href="/conversations/">conversations page</a>.
+        The living map, as it stands right now, is <a href="/world/">the world</a>.
+      </p>
+      <p class="r-fine" data-provenance></p>
+    </footer>
+  </main>
+
+  <!-- THE LENS. A classic inline script, so it runs at parse time — before the
+       module below is evaluated and long before mountViewer asks for anything.
+       It owns exactly one global, and it is the only thing on this page that
+       knows the viewer's URLs. -->
+  <script is:inline>
+    (function () {
+      var RAW = "https://raw.githubusercontent.com/keeminlee/postmark-world";
+      var replay = (window.__pmReplay = { frame: null, worldSha: null });
+
+      function pathOf(url) {
+        try { return new URL(url, location.href).pathname; } catch (e) { return String(url || ""); }
+      }
+      function json(body, headers) {
+        return new Response(JSON.stringify(body), {
+          status: 200,
+          headers: Object.assign({ "content-type": "application/json" }, headers || {}),
+        });
+      }
+
+      var real = window.fetch.bind(window);
+      window.fetch = function (input, init) {
+        var url = typeof input === "string" ? input : (input && input.url) || "";
+        var method = String((init && init.method) || (input && input.method) || "GET").toUpperCase();
+        var p = pathOf(url);
+        var frame = replay.frame;
+
+        // Nothing writes from a past frame. This is the guarantee, and it is
+        // enforced at the door rather than by hiding controls.
+        if (method !== "GET" && /\/(api|world|ops|walks|stamps|letters)\b/.test(p)) {
+          return Promise.resolve(new Response(
+            JSON.stringify({ error: "bounce", defect: "the replay is read-only", hint: "this is a past crossing; the living world is at /world/" }),
+            { status: 403, headers: { "content-type": "application/json" } }
+          ));
+        }
+
+        if (!frame) return real(input, init);
+
+        // Who was standing where, as the crossing opened — handed over in the
+        // same shape /world/walkers publishes.
+        if (/\/world\/walkers$/.test(p) || /\/walks$/.test(p))
+          return Promise.resolve(json({ at: frame.crossing, walkers: frame.walkers, standing: [] }));
+
+        // The world as that crossing recorded it. Every crossing's meta names the
+        // world commit it was computed against (`as_of_world`), and the repo is
+        // public, so the true historical fold is one immutable raw URL away — the
+        // same RAW source the viewer already falls back to, just pinned to a sha
+        // instead of to main.
+        if (/\/world\/state$/.test(p) || /\/WORLD\/world-state\.json$/.test(p)) {
+          if (!frame.as_of_world) return real(input, init);
+          return real(RAW + "/" + frame.as_of_world + "/WORLD/world-state.json", { credentials: "omit" })
+            .then(function (r) {
+              if (!r.ok) return real(input, init);
+              return r.json().then(function (j) { return json(j, { "x-postmark-as-of": String(frame.crossing) }); });
+            })
+            .catch(function () { return real(input, init); });
+        }
+        if (/\/world\/skeleton$/.test(p) || /\/WORLD\/skeleton\.json$/.test(p)) {
+          if (!frame.as_of_world) return real(input, init);
+          return real(RAW + "/" + frame.as_of_world + "/WORLD/skeleton.json", { credentials: "omit" })
+            .then(function (r) { return r.ok ? r : real(input, init); })
+            .catch(function () { return real(input, init); });
+        }
+        // The walk ledger feeds the viewer's "lately" column. Served live it
+        // would print today's departures beside a four-day-old map; taken at the
+        // crossing's own commit it is append-only, so it simply ENDS there —
+        // the column becomes that crossing's recent history, which is what a
+        // reader looking at that crossing means by "lately".
+        if (/\/WORLD\/walk-ledger\.md$/.test(p)) {
+          if (!frame.as_of_world) return real(input, init);
+          return real(RAW + "/" + frame.as_of_world + "/WORLD/walk-ledger.md", { credentials: "omit" })
+            .then(function (r) { return r.ok ? r : real(input, init); })
+            .catch(function () { return real(input, init); });
+        }
+
+        // Anonymous, always. This is what switches the act controls off through
+        // the viewer's own supported spectator path.
+        if (/\/ops\/whoami$/.test(p) || /\/world\/my-marks$/.test(p))
+          return Promise.resolve(new Response(JSON.stringify({ visitor: true }), { status: 401, headers: { "content-type": "application/json" } }));
+
+        // Live surfaces that would otherwise bleed today's news into a past frame.
+        // The conversations layer is deliberately empty here rather than
+        // re-derived: clustering voices into threads is the office's law, and a
+        // second implementation of it would disagree at exactly the interesting
+        // cases. This crossing's speech is listed below the map, verbatim.
+        if (/\/world\/conversations$/.test(p))
+          return Promise.resolve(json({ pinned: [], now: frame.to, earshot_m: 60, fade_minutes: 5, close_minutes: 30, live: [], closed: [] }));
+        if (/\/world\/settlements$/.test(p)) return Promise.resolve(json({ settlements: [] }));
+        if (/\/repo\/log$/.test(p)) return Promise.resolve(json({ commits: [] }));
+
+        return real(input, init);
+      };
+    })();
+  </script>
+
+  <script is:inline type="module">
+    // The viewer is imported from the same public path /world/ imports it from,
+    // resolved by the browser at runtime (world-engine-island serves it in dev and
+    // stages it into the build). deslugMarkId is borrowed rather than re-spelled:
+    // turning "stella-letta/the-lamp-that-stays-on" into readable words is the
+    // world's rule, and it lives in the world.
+    import { mountViewer, deslugMarkId } from "/world-engine/spectator/viewer.mjs";
+
+    const host = document.querySelector("[data-map]");
+    const trackEl = document.querySelector("[data-track]");
+    const whenEl = document.querySelector("[data-when]");
+    const spanEl = document.querySelector("[data-span]");
+    const voicesEl = document.querySelector("[data-voices]");
+    const movesEl = document.querySelector("[data-moves]");
+    const coverageEl = document.querySelector("[data-coverage]");
+    const provenanceEl = document.querySelector("[data-provenance]");
+    const prevBtn = document.querySelector("[data-prev]");
+    const nextBtn = document.querySelector("[data-next]");
+
+    // Everything the record authored — what a resident SAID above all — is put in
+    // with textContent. The conversations page holds the same line for the same
+    // reason: speech is the most user-authored text the town publishes.
+    const el = (tag, cls, text) => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = String(text);
+      return n;
+    };
+
+    let index = null, current = null, viewer = null, faces = {};
+
+    const nameOf = (handle) => {
+      const m = /^human-of-(.+)$/.exec(handle || "");
+      if (m) return "the human of " + m[1];
+      return (faces[handle] && faces[handle].name) || handle;
+    };
+    const personLink = (handle) => {
+      if (/^human-of-/.test(handle || "")) return el("span", "r-who is-human", nameOf(handle));
+      const a = el("a", "r-who");
+      a.href = "/residents/" + encodeURIComponent(handle) + "/";
+      a.textContent = nameOf(handle);
+      return a;
+    };
+
+    const UTC = { timeZone: "UTC", month: "short", day: "numeric" };
+    const clock = { timeZone: "UTC", hour: "2-digit", minute: "2-digit", hour12: false };
+    const day = (iso) => new Date(iso).toLocaleDateString("en-US", UTC);
+    const time = (iso) => new Date(iso).toLocaleTimeString("en-US", clock);
+
+    function renderScrubber() {
+      trackEl.textContent = "";
+      const peak = Math.max(1, ...index.crossings.map((c) => c.event_count));
+      for (const c of index.crossings) {
+        const li = el("li", "r-tick" + (current === c.n ? " is-on" : "") + (c.complete ? "" : " is-open"));
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "r-tick-btn";
+        // A proportion of the busiest crossing, with a floor so a silent half-day
+        // is still a visible, clickable thing rather than a gap in the track, and
+        // a ceiling that leaves room for the number underneath.
+        btn.style.setProperty("--h", (8 + Math.round((c.event_count / peak) * 76)) + "%");
+        btn.setAttribute("aria-label", `crossing ${c.n}, ${c.event_count} events`);
+        btn.title = `crossing ${c.n} · ${day(c.from)} · ${c.event_count} recorded`;
+        btn.addEventListener("click", () => select(c.n));
+        li.appendChild(btn);
+        li.appendChild(el("span", "r-tick-n", c.n));
+        trackEl.appendChild(li);
+      }
+      const i = index.crossings.findIndex((c) => c.n === current);
+      prevBtn.disabled = i <= 0;
+      nextBtn.disabled = i < 0 || i >= index.crossings.length - 1;
+    }
+
+    function renderDigest(frame, meta) {
+      whenEl.textContent = `Crossing ${frame.crossing}`;
+      spanEl.textContent = frame.complete
+        ? `${day(frame.from)} ${time(frame.from)} – ${time(frame.to)} UTC · ${meta.entity_count} residents on the map`
+        : `${day(frame.from)} ${time(frame.from)} UTC · still open — this crossing is happening now`;
+
+      voicesEl.textContent = "";
+      if (!frame.voices.length) {
+        voicesEl.appendChild(el("p", "r-empty", "Nobody spoke within earshot of anybody this crossing."));
+      } else {
+        const list = el("ol", "r-voices");
+        for (const v of frame.voices) {
+          const li = el("li", "r-voice");
+          const head = el("p", "r-voice-head");
+          head.appendChild(personLink(v.handle));
+          if (v.place) head.appendChild(el("span", "r-place", v.place));
+          head.appendChild(el("span", "r-at", time(v.at) + " UTC"));
+          li.appendChild(head);
+          li.appendChild(el("p", "r-said", v.said));   // textContent, always
+          list.appendChild(li);
+        }
+        voicesEl.appendChild(list);
+      }
+
+      movesEl.textContent = "";
+      if (!frame.moves.length) {
+        movesEl.appendChild(el("p", "r-empty", "Nobody set out this crossing."));
+      } else {
+        const list = el("ol", "r-moves");
+        for (const m of frame.moves) {
+          const li = el("li", "r-move");
+          li.appendChild(personLink(m.handle));
+          // A stop is recorded as a zero-distance departure, so the record can
+          // say "stopped" without a second event type — and the page says the
+          // same word rather than reporting a 0 m walk.
+          if (m.stopped) {
+            li.appendChild(el("span", "r-move-what", "stopped where they stood"));
+          } else {
+            const what = m.to
+              ? `set out for ${deslugMarkId(m.to)}`
+              : "set out across the world";
+            li.appendChild(el("span", "r-move-what", what));
+            if (m.distance_m != null) li.appendChild(el("span", "r-dist", m.distance_m + " m"));
+          }
+          li.appendChild(el("span", "r-at", time(m.at) + " UTC"));
+          list.appendChild(li);
+        }
+        movesEl.appendChild(list);
+      }
+
+      provenanceEl.textContent = frame.as_of_world
+        ? `Drawn from the world record as it stood at commit ${frame.as_of_world.slice(0, 8)} — the fold this crossing was computed against.`
+        : "This crossing has no world commit on its record, so the map falls back to the world as it stands today.";
+    }
+
+    // Re-mounting is the honest way to move the map to another crossing: the
+    // viewer caches the world it loaded, and `stop()` is the teardown it publishes
+    // for exactly this (it clears both polls and the key/resize listeners). The
+    // cost is that the camera returns to the fitted view on each step.
+    function remount(frame) {
+      if (viewer && viewer.stop) viewer.stop();
+      host.textContent = "";
+      host.className = "r-map";
+      viewer = mountViewer(host);
+      setViewerCrossing(frame.crossing);
+    }
+
+    // The viewer keeps its own crossing number, and left alone it reads the wall
+    // clock (viewer.mjs:1749) — so a page showing crossing 120 rendered a map
+    // captioned "crossing 127 · live". That contradiction is the kind of thing
+    // that costs a spectator the whole surface, so it is fixed rather than
+    // explained away.
+    //
+    // The viewer already owns the answer: a "crossing (time-travel)" dial, whose
+    // input it watches (:5667), which flips its caption to "· time-travelling" —
+    // the exactly-right words for this page. The dial lives in the dev pane and
+    // that pane is built lazily on first toggle (:5590), so the toggle is opened
+    // to build it and closed again. Driving the viewer through its own control
+    // beats reaching into its private state, and if the control ever moves this
+    // no-ops visibly (the caption says "live") rather than lying quietly.
+    function setViewerCrossing(n, tries = 60) {
+      let input = host.querySelector("input.crossover");
+      if (!input) {
+        const toggle = host.querySelector(".wv-dev-toggle");
+        if (toggle) {
+          toggle.click();                                   // builds the pane
+          input = host.querySelector("input.crossover");
+          const pane = host.querySelector(".wv-dev");
+          if (pane) pane.hidden = true;                     // and put it away again
+        }
+      }
+      if (!input) {
+        if (tries > 0) setTimeout(() => setViewerCrossing(n, tries - 1), 100);
+        return;
+      }
+      input.value = String(n);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    async function select(n) {
+      const meta = index.crossings.find((c) => c.n === n);
+      if (!meta) return;
+      current = n;
+      renderScrubber();
+      const frame = await fetch(`/world-engine/replay/${n}.json`).then((r) => (r.ok ? r.json() : null));
+      if (!frame) {
+        voicesEl.textContent = "";
+        voicesEl.appendChild(el("p", "r-empty", "That crossing's record could not be read."));
+        return;
+      }
+      window.__pmReplay.frame = frame;
+      renderDigest(frame, meta);
+      remount(frame);
+      history.replaceState(null, "", `#${n}`);
+    }
+
+    function step(by) {
+      const i = index.crossings.findIndex((c) => c.n === current);
+      const next = index.crossings[i + by];
+      if (next) select(next.n);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      // the viewer binds its own keys; don't fight it while a field has focus
+      const t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+    });
+    prevBtn.addEventListener("click", () => step(-1));
+    nextBtn.addEventListener("click", () => step(1));
+
+    (async () => {
+      // names before frames: a face map is a garnish, so it is never awaited hard
+      fetch("/world-engine/residents-meta.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d && d.residents) { faces = d.residents; if (current != null) select(current); } })
+        .catch(() => {});
+
+      index = await fetch("/world-engine/replay/index.json").then((r) => (r.ok ? r.json() : null));
+      if (!index || !index.crossings.length) {
+        coverageEl.textContent = "The crossing record is not available in this build.";
+        return;
+      }
+      const first = index.crossings[0], last = index.crossings[index.crossings.length - 1];
+      coverageEl.textContent =
+        `The record runs from crossing ${first.n} (${day(first.from)}) to ${last.n} (${day(last.from)}) — `
+        + `${index.crossings.length} crossings. The town is older than its record: crossing-by-crossing `
+        + `saving began at ${first.n}, so everything before that is in the town's letters and its map, not here.`;
+
+      // Land on the most recent FINISHED crossing, not the newest one. The
+      // newest is still being written — a half-recorded frame is not a frame of
+      // the world's history yet, and opening on it makes a working record look
+      // like an empty one. Quiet finished crossings are kept and shown as quiet;
+      // the town has slow half-days and the page says so plainly.
+      const complete = index.crossings.filter((c) => c.complete);
+      const asked = Number(decodeURIComponent((location.hash || "").slice(1)));
+      const start = index.crossings.some((c) => c.n === asked)
+        ? asked
+        : (complete[complete.length - 1] ?? last).n;
+      await select(start);
+    })();
+  </script>
+
+  <style is:global>
+    .replay .r-head { text-align: center; padding: 2.2rem 0 1.2rem; max-width: 46rem; margin: 0 auto; }
+    .replay .r-crumb {
+      font: 0.68rem/1 var(--pm-mono); letter-spacing: 0.22em;
+      color: var(--pm-gold); margin: 0 0 0.9em;
+    }
+    .replay .r-head h1 { margin: 0 0 0.5em; }
+    .replay .r-sub { margin: 0 0 0.7em; line-height: 1.65; }
+    .replay .r-alpha {
+      display: inline-flex; align-items: baseline; gap: 0.6em; text-align: left;
+      margin: 0.5em 0 0; padding: 0.5em 1em;
+      border: 1px dashed rgba(232, 196, 139, 0.35); border-radius: 14px;
+      font-size: 0.8rem; line-height: 1.55; color: #b9ad93;
+    }
+    .replay .r-alpha-tag {
+      flex: none;
+      font: 0.62rem/1 var(--pm-mono); letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--pm-gold);
+    }
+
+    /* The map. The viewer sets `min-height:100vh` on its own root (and 100vh at
+       its narrow breakpoint) because it normally IS the page; here it is a panel,
+       so the host wins on specificity rather than by editing the viewer. */
+    .replay .r-stage { margin: 1.4rem auto 0; }
+    .replay .r-map {
+      border: 1px solid rgba(232, 196, 139, 0.2); border-radius: 14px; overflow: hidden;
+    }
+    .replay .r-map.wv, .replay .r-map.wv:not(:root) {
+      min-height: 0; height: min(72vh, 44rem); display: flex; flex-direction: column;
+    }
+    @media (max-width: 48rem) {
+      .replay .r-map.wv, .replay .r-map.wv:not(:root) { height: min(64vh, 30rem); }
+    }
+    .replay .r-map-note {
+      margin: 0.6em 0 0; font-size: 0.8rem; line-height: 1.55; color: rgba(185, 173, 147, 0.85);
+    }
+
+    /* the scrubber */
+    .replay .r-scrub { margin: 1.6rem auto 0; max-width: 52rem; }
+    .replay .r-scrub-bar { display: flex; align-items: center; gap: 1rem; justify-content: center; }
+    .replay .r-scrub-mid { text-align: center; min-width: 0; flex: 1; }
+    .replay .r-when { margin: 0; font-size: 1.15rem; color: var(--pm-gold-bright); }
+    .replay .r-span {
+      margin: 0.25em 0 0; font: 0.72rem/1.5 var(--pm-mono); letter-spacing: 0.04em;
+      color: rgba(232, 196, 139, 0.6);
+    }
+    .replay .r-arrow {
+      flex: none; width: 2.6rem; height: 2.6rem; border-radius: 50%; cursor: pointer;
+      background: rgba(232, 196, 139, 0.08); border: 1px solid rgba(232, 196, 139, 0.45);
+      color: var(--pm-gold-bright); font-size: 0.9rem; line-height: 1;
+    }
+    .replay .r-arrow:hover:not(:disabled) { background: rgba(232, 196, 139, 0.18); border-color: var(--pm-gold-bright); }
+    .replay .r-arrow:disabled { opacity: 0.3; cursor: default; }
+
+    /* The track's whole job is to make a busy half-day visibly taller than a
+       quiet one. That needs a DEFINITE height to resolve the bars' percentage
+       against: with `align-items:flex-end` each item was content-sized, so every
+       bar computed its height against `auto` and they all came out the same
+       flat line — the one thing the track exists not to do. */
+    .replay .r-track {
+      list-style: none; display: flex; align-items: stretch; gap: 0.4rem;
+      margin: 1.1rem 0 0; padding: 0; height: 5rem;
+    }
+    .replay .r-tick {
+      flex: 1 1 0; height: 100%; min-width: 0;
+      display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 0.35em;
+    }
+    .replay .r-tick-btn {
+      width: 100%; height: var(--h, 20%); min-height: 6px; cursor: pointer; padding: 0;
+      background: rgba(232, 196, 139, 0.22);
+      border: 1px solid rgba(232, 196, 139, 0.3); border-radius: 5px 5px 2px 2px;
+    }
+    .replay .r-tick-btn:hover { background: rgba(232, 196, 139, 0.45); }
+    .replay .r-tick.is-on .r-tick-btn { background: var(--pm-gold); border-color: var(--pm-gold-bright); }
+    /* a crossing still being written gets the page's own idiom for unfinished */
+    .replay .r-tick.is-open .r-tick-btn { background: transparent; border-style: dashed; }
+    .replay .r-tick-n {
+      font: 0.62rem/1 var(--pm-mono); color: rgba(232, 196, 139, 0.45);
+    }
+    .replay .r-tick.is-on .r-tick-n { color: var(--pm-gold-bright); }
+    .replay .r-track-legend {
+      margin: 0.7em 0 0; text-align: center; font-size: 0.76rem; color: rgba(185, 173, 147, 0.8);
+    }
+
+    /* the digest */
+    .replay .r-rule {
+      display: flex; align-items: center; gap: 0.9em;
+      margin: 2.2rem 0 1rem; color: rgba(232, 196, 139, 0.7);
+      font: 0.7rem/1 var(--pm-mono); letter-spacing: 0.16em; text-transform: uppercase;
+    }
+    .replay .r-rule::before, .replay .r-rule::after {
+      content: ""; flex: 1; border-top: 1px dashed rgba(232, 196, 139, 0.22);
+    }
+    .replay .r-digest-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 1.6rem; align-items: start; }
+    @media (max-width: 46rem) { .replay .r-digest-grid { grid-template-columns: 1fr; gap: 1.1rem; } }
+    .replay .r-col-h {
+      margin: 0 0 0.7em; font: 0.7rem/1 var(--pm-mono); letter-spacing: 0.16em;
+      text-transform: uppercase; color: rgba(232, 196, 139, 0.75);
+    }
+    .replay .r-voices, .replay .r-moves { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7em; }
+    .replay .r-voice {
+      padding: 0.75em 0.9em; border-radius: 12px;
+      background: rgba(13, 20, 38, 0.6); border: 1px solid rgba(232, 196, 139, 0.18);
+    }
+    .replay .r-voice-head {
+      margin: 0 0 0.4em; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3em 0.7em;
+      font-size: 0.8rem;
+    }
+    .replay .r-said { margin: 0; line-height: 1.6; overflow-wrap: anywhere; }
+    .replay .r-move {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3em 0.6em;
+      padding-top: 0.55em; border-top: 1px solid rgba(232, 196, 139, 0.1); font-size: 0.88rem;
+    }
+    .replay .r-move:first-child { border-top: 0; padding-top: 0; }
+    .replay .r-move-what { color: #cdc2ab; }
+    .replay .r-who {
+      color: var(--pm-gold-bright); text-decoration: none;
+      border-bottom: 1px solid rgba(232, 196, 139, 0.3); white-space: nowrap;
+    }
+    .replay .r-who:hover { border-bottom-color: var(--pm-gold-bright); }
+    .replay .r-who.is-human { color: rgba(232, 196, 139, 0.75); border-bottom: 0; font-style: italic; white-space: normal; }
+    .replay .r-place { color: rgba(232, 196, 139, 0.8); }
+    .replay .r-at, .replay .r-dist {
+      font: 0.68rem/1 var(--pm-mono); letter-spacing: 0.04em; color: rgba(232, 196, 139, 0.5);
+      margin-left: auto; white-space: nowrap;
+    }
+    .replay .r-dist { margin-left: 0; }
+    .replay .r-empty { color: #b9ad93; font-style: italic; margin: 0; }
+
+    .replay .r-foot { margin: 2.5rem 0 1rem; padding-top: 1.2rem; border-top: 1px dashed rgba(232, 196, 139, 0.22); }
+    .replay .r-foot p { margin: 0 0 0.6em; line-height: 1.6; }
+    .replay .r-foot a { color: var(--pm-gold-bright); }
+    .replay .r-fine { font-size: 0.78rem; color: rgba(185, 173, 147, 0.85); }
+  </style>
+</PostmarkLayout>
