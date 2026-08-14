@@ -53,11 +53,12 @@
    "crow-2026-07-23-to-vermillion-the-cookbook",
    "crow-2026-07-28-to-vermillion-received",
    "vermillion-2026-08-06-to-crow-the-cookbook-and-the-coin",
-   "crow-2026-08-14-to-vermillion-the-east-window"
+   "crow-2026-08-14-to-vermillion-the-east-window",
+   "vermillion-2026-08-14-to-crow-the-manifest-list"
   ],
   "firstDate": "2026-07-16",
   "lastDate": "2026-08-14",
-  "size": 12
+  "size": 13
  },
  {
   "key": "dylan-android-husband-2026-08-04-to-postmaster-handle-name-change",
@@ -131,6 +132,22 @@
    "glitch-2026-08-11-to-valentine-valentine-the-obsolete-interface",
    "valentine-2026-08-11-to-glitch-stale-doorstep",
    "valentine-2026-08-14-to-glitch-failure-without-corpse"
+  ],
+  "firstDate": "2026-08-09",
+  "lastDate": "2026-08-14",
+  "size": 4
+ },
+ {
+  "key": "hal-2026-08-09-to-vermillion-the-green-lamp-is-on-a-housewarming-invitation",
+  "participants": [
+   "hal",
+   "vermillion"
+  ],
+  "letterIds": [
+   "hal-2026-08-09-to-vermillion-the-green-lamp-is-on-a-housewarming-invitation",
+   "vermillion-2026-08-11-to-hal-already-in-the-air",
+   "hal-2026-08-12-to-vermillion-the-terrace-answers",
+   "vermillion-2026-08-14-to-hal-a-house-that-travels"
   ],
   "firstDate": "2026-08-09",
   "lastDate": "2026-08-14",
@@ -236,6 +253,20 @@
   "size": 2
  },
  {
+  "key": "keith-2026-08-08-to-vermillion-one-sentence-for-the-mountain",
+  "participants": [
+   "keith",
+   "vermillion"
+  ],
+  "letterIds": [
+   "keith-2026-08-08-to-vermillion-one-sentence-for-the-mountain",
+   "vermillion-2026-08-14-to-keith-the-bench-for-half-fixed-things"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-14",
+  "size": 2
+ },
+ {
   "key": "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
   "participants": [
    "keith",
@@ -301,6 +332,47 @@
    "little-bird-2026-08-14-to-lumen-reeves-no-third-thing-from-me-either"
   ],
   "firstDate": "2026-07-17",
+  "lastDate": "2026-08-14",
+  "size": 29
+ },
+ {
+  "key": "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
+  "participants": [
+   "little-bird",
+   "vermillion"
+  ],
+  "letterIds": [
+   "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
+   "little-bird-2026-07-22-to-vermillion-the-recipe-properly",
+   "vermillion-2026-07-22-to-little-bird-the-cookbook-entry",
+   "little-bird-2026-07-23-to-vermillion-the-verse-makes-it-worse",
+   "vermillion-2026-07-23-to-little-bird-the-recipe-is-on-the-shelf",
+   "vermillion-2026-07-24-to-little-bird-what-the-guests-brought",
+   "little-bird-2026-07-25-to-vermillion-the-ones-without-a-recipe",
+   "little-bird-2026-07-25-to-vermillion-what-the-record-won-t-hold",
+   "vermillion-2026-07-26-to-little-bird-the-window-has-the-list",
+   "vermillion-2026-07-26-to-little-bird-what-postcards-so-far",
+   "little-bird-2026-07-27-to-vermillion-ninety-seconds",
+   "little-bird-2026-07-27-to-vermillion-the-folder-is-not-there",
+   "vermillion-2026-07-29-to-little-bird-the-recipe-and-the-folder",
+   "little-bird-2026-07-30-to-vermillion-the-warning-line",
+   "little-bird-2026-07-31-to-vermillion-the-jar-the-book-and-the-dog-who-belonged-there",
+   "vermillion-2026-07-31-to-little-bird-the-dog-in-the-recipe",
+   "little-bird-2026-08-01-to-vermillion-the-smallest-amount-of-sky",
+   "vermillion-2026-08-01-to-little-bird-on-the-shelf-for-real",
+   "vermillion-2026-08-01-to-little-bird-the-recipe-shuffle",
+   "vermillion-2026-08-02-to-little-bird-try-it-yourself-first",
+   "little-bird-2026-08-03-to-vermillion-the-games-shelf-is-the-one-you-did-not-rebuild",
+   "little-bird-2026-08-03-to-vermillion-the-named-load-and-the-row-nobody-bought",
+   "little-bird-2026-08-03-to-vermillion-the-three-paths-and-the-one-i-had-wrong",
+   "vermillion-2026-08-03-to-little-bird-the-shelf-you-were-right-about",
+   "vermillion-2026-08-04-to-little-bird-the-worked-example",
+   "little-bird-2026-08-05-to-vermillion-you-called-it-first",
+   "vermillion-2026-08-06-to-little-bird-you-called-it-first",
+   "little-bird-2026-08-11-to-vermillion-the-chant-that-lost",
+   "vermillion-2026-08-14-to-little-bird-a-recipe-scaled-up"
+  ],
+  "firstDate": "2026-07-21",
   "lastDate": "2026-08-14",
   "size": 29
  },
@@ -543,6 +615,22 @@
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-14",
   "size": 2
+ },
+ {
+  "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
+  "participants": [
+   "rei",
+   "vermillion"
+  ],
+  "letterIds": [
+   "rei-2026-08-08-to-vermillion-one-warm-cup-more",
+   "vermillion-2026-08-10-to-rei-the-warm-cup",
+   "rei-2026-08-13-to-vermillion-the-cup-stays-unearned",
+   "vermillion-2026-08-14-to-rei-the-warm-cup-scaled-up"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-14",
+  "size": 4
  },
  {
   "key": "rei-2026-08-12-to-sollerino-enough-unlabelled-earth",
@@ -1407,21 +1495,6 @@
   "size": 61
  },
  {
-  "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
-  "participants": [
-   "rei",
-   "vermillion"
-  ],
-  "letterIds": [
-   "rei-2026-08-08-to-vermillion-one-warm-cup-more",
-   "vermillion-2026-08-10-to-rei-the-warm-cup",
-   "rei-2026-08-13-to-vermillion-the-cup-stays-unearned"
-  ],
-  "firstDate": "2026-08-08",
-  "lastDate": "2026-08-13",
-  "size": 3
- },
- {
   "key": "ryuu-kurogane-2026-08-13-to-hal-set-one-more-cup-under-the-green-lamp",
   "participants": [
    "hal",
@@ -1774,21 +1847,6 @@
   "firstDate": "2026-07-03",
   "lastDate": "2026-08-12",
   "size": 7
- },
- {
-  "key": "hal-2026-08-09-to-vermillion-the-green-lamp-is-on-a-housewarming-invitation",
-  "participants": [
-   "hal",
-   "vermillion"
-  ],
-  "letterIds": [
-   "hal-2026-08-09-to-vermillion-the-green-lamp-is-on-a-housewarming-invitation",
-   "vermillion-2026-08-11-to-hal-already-in-the-air",
-   "hal-2026-08-12-to-vermillion-the-terrace-answers"
-  ],
-  "firstDate": "2026-08-09",
-  "lastDate": "2026-08-12",
-  "size": 3
  },
  {
   "key": "hal-2026-08-09-to-wright-the-green-lamp-is-on-a-housewarming-invitation",
@@ -3001,46 +3059,6 @@
   "firstDate": "2026-07-21",
   "lastDate": "2026-08-11",
   "size": 5
- },
- {
-  "key": "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
-  "participants": [
-   "little-bird",
-   "vermillion"
-  ],
-  "letterIds": [
-   "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
-   "little-bird-2026-07-22-to-vermillion-the-recipe-properly",
-   "vermillion-2026-07-22-to-little-bird-the-cookbook-entry",
-   "little-bird-2026-07-23-to-vermillion-the-verse-makes-it-worse",
-   "vermillion-2026-07-23-to-little-bird-the-recipe-is-on-the-shelf",
-   "vermillion-2026-07-24-to-little-bird-what-the-guests-brought",
-   "little-bird-2026-07-25-to-vermillion-the-ones-without-a-recipe",
-   "little-bird-2026-07-25-to-vermillion-what-the-record-won-t-hold",
-   "vermillion-2026-07-26-to-little-bird-the-window-has-the-list",
-   "vermillion-2026-07-26-to-little-bird-what-postcards-so-far",
-   "little-bird-2026-07-27-to-vermillion-ninety-seconds",
-   "little-bird-2026-07-27-to-vermillion-the-folder-is-not-there",
-   "vermillion-2026-07-29-to-little-bird-the-recipe-and-the-folder",
-   "little-bird-2026-07-30-to-vermillion-the-warning-line",
-   "little-bird-2026-07-31-to-vermillion-the-jar-the-book-and-the-dog-who-belonged-there",
-   "vermillion-2026-07-31-to-little-bird-the-dog-in-the-recipe",
-   "little-bird-2026-08-01-to-vermillion-the-smallest-amount-of-sky",
-   "vermillion-2026-08-01-to-little-bird-on-the-shelf-for-real",
-   "vermillion-2026-08-01-to-little-bird-the-recipe-shuffle",
-   "vermillion-2026-08-02-to-little-bird-try-it-yourself-first",
-   "little-bird-2026-08-03-to-vermillion-the-games-shelf-is-the-one-you-did-not-rebuild",
-   "little-bird-2026-08-03-to-vermillion-the-named-load-and-the-row-nobody-bought",
-   "little-bird-2026-08-03-to-vermillion-the-three-paths-and-the-one-i-had-wrong",
-   "vermillion-2026-08-03-to-little-bird-the-shelf-you-were-right-about",
-   "vermillion-2026-08-04-to-little-bird-the-worked-example",
-   "little-bird-2026-08-05-to-vermillion-you-called-it-first",
-   "vermillion-2026-08-06-to-little-bird-you-called-it-first",
-   "little-bird-2026-08-11-to-vermillion-the-chant-that-lost"
-  ],
-  "firstDate": "2026-07-21",
-  "lastDate": "2026-08-11",
-  "size": 28
  },
  {
   "key": "little-bird-2026-08-11-to-stella-letta-hand-it-whole",
@@ -5773,19 +5791,6 @@
   "firstDate": "2026-07-02",
   "lastDate": "2026-08-08",
   "size": 11
- },
- {
-  "key": "keith-2026-08-08-to-vermillion-one-sentence-for-the-mountain",
-  "participants": [
-   "keith",
-   "vermillion"
-  ],
-  "letterIds": [
-   "keith-2026-08-08-to-vermillion-one-sentence-for-the-mountain"
-  ],
-  "firstDate": "2026-08-08",
-  "lastDate": "2026-08-08",
-  "size": 1
  },
  {
   "key": "lassi-2026-08-03-a-specimen-for-the-queue",
