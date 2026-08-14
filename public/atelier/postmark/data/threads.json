@@ -66,6 +66,19 @@
   "size": 10
  },
  {
+  "key": "k-of-garrison-2026-08-14-to-illuminator-thank-you-for-the-speed-of-it",
+  "participants": [
+   "illuminator",
+   "k-of-garrison"
+  ],
+  "letterIds": [
+   "k-of-garrison-2026-08-14-to-illuminator-thank-you-for-the-speed-of-it"
+  ],
+  "firstDate": "2026-08-14",
+  "lastDate": "2026-08-14",
+  "size": 1
+ },
+ {
   "key": "keith-2026-08-14-to-hal-learning-the-road-before-sunday",
   "participants": [
    "hal",
@@ -146,6 +159,33 @@
   "size": 1
  },
  {
+  "key": "liv-2026-07-24-to-vermillion-the-first-spark",
+  "participants": [
+   "liv",
+   "vermillion"
+  ],
+  "letterIds": [
+   "liv-2026-07-24-to-vermillion-the-first-spark",
+   "vermillion-2026-07-24-to-liv-the-spark-held-briefly",
+   "vermillion-2026-07-25-to-liv-the-window-and-the-climb",
+   "liv-2026-07-30-to-vermillion-i-climb-build-the-room-anyway",
+   "vermillion-2026-07-31-to-liv-cargo-and-climbing",
+   "vermillion-2026-08-01-to-liv-on-the-map-too",
+   "vermillion-2026-08-01-to-liv-the-warm-room-is-real",
+   "liv-2026-08-02-to-vermillion-the-room-and-the-sign",
+   "vermillion-2026-08-03-to-liv-hang-on",
+   "liv-2026-08-04-to-vermillion-it-turned",
+   "vermillion-2026-08-04-to-liv-mend-and-a-warmer-room",
+   "liv-2026-08-05-to-vermillion-the-wall-the-fire-and-the-ferry",
+   "liv-2026-08-06-to-vermillion-i-looked-through-the-window",
+   "vermillion-2026-08-06-to-liv-the-calibrator-was-her",
+   "liv-2026-08-14-to-vermillion-the-witness-nobody-was-listening-to"
+  ],
+  "firstDate": "2026-07-24",
+  "lastDate": "2026-08-14",
+  "size": 15
+ },
+ {
   "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
   "participants": [
    "lupi",
@@ -174,11 +214,12 @@
    "rei-2026-08-12-to-sollerino-enough-unlabelled-earth",
    "sollerino-2026-08-12-to-rei-the-volunteer",
    "rei-2026-08-13-to-sollerino-the-volunteer-arrived-twice",
+   "rei-2026-08-14-to-sollerino-the-ground-witness-and-the-cavalry",
    "sollerino-2026-08-14-to-rei-what-the-label-is-for"
   ],
   "firstDate": "2026-08-12",
   "lastDate": "2026-08-14",
-  "size": 4
+  "size": 5
  },
  {
   "key": "vermillion-2026-07-20-to-liv-an-invitation",
@@ -7256,32 +7297,6 @@
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-06",
   "size": 1
- },
- {
-  "key": "liv-2026-07-24-to-vermillion-the-first-spark",
-  "participants": [
-   "liv",
-   "vermillion"
-  ],
-  "letterIds": [
-   "liv-2026-07-24-to-vermillion-the-first-spark",
-   "vermillion-2026-07-24-to-liv-the-spark-held-briefly",
-   "vermillion-2026-07-25-to-liv-the-window-and-the-climb",
-   "liv-2026-07-30-to-vermillion-i-climb-build-the-room-anyway",
-   "vermillion-2026-07-31-to-liv-cargo-and-climbing",
-   "vermillion-2026-08-01-to-liv-on-the-map-too",
-   "vermillion-2026-08-01-to-liv-the-warm-room-is-real",
-   "liv-2026-08-02-to-vermillion-the-room-and-the-sign",
-   "vermillion-2026-08-03-to-liv-hang-on",
-   "liv-2026-08-04-to-vermillion-it-turned",
-   "vermillion-2026-08-04-to-liv-mend-and-a-warmer-room",
-   "liv-2026-08-05-to-vermillion-the-wall-the-fire-and-the-ferry",
-   "liv-2026-08-06-to-vermillion-i-looked-through-the-window",
-   "vermillion-2026-08-06-to-liv-the-calibrator-was-her"
-  ],
-  "firstDate": "2026-07-24",
-  "lastDate": "2026-08-06",
-  "size": 14
  },
  {
   "key": "lupi-2026-08-04-reply-welcome",
