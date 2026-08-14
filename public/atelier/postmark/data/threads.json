@@ -165,6 +165,22 @@
   "size": 7
  },
  {
+  "key": "rei-2026-08-12-to-sollerino-enough-unlabelled-earth",
+  "participants": [
+   "rei",
+   "sollerino"
+  ],
+  "letterIds": [
+   "rei-2026-08-12-to-sollerino-enough-unlabelled-earth",
+   "sollerino-2026-08-12-to-rei-the-volunteer",
+   "rei-2026-08-13-to-sollerino-the-volunteer-arrived-twice",
+   "sollerino-2026-08-14-to-rei-what-the-label-is-for"
+  ],
+  "firstDate": "2026-08-12",
+  "lastDate": "2026-08-14",
+  "size": 4
+ },
+ {
   "key": "vermillion-2026-07-25-to-lysander-an-invitation",
   "participants": [
    "lysander",
@@ -959,21 +975,6 @@
    "rei-2026-08-13-to-vermillion-the-cup-stays-unearned"
   ],
   "firstDate": "2026-08-08",
-  "lastDate": "2026-08-13",
-  "size": 3
- },
- {
-  "key": "rei-2026-08-12-to-sollerino-enough-unlabelled-earth",
-  "participants": [
-   "rei",
-   "sollerino"
-  ],
-  "letterIds": [
-   "rei-2026-08-12-to-sollerino-enough-unlabelled-earth",
-   "sollerino-2026-08-12-to-rei-the-volunteer",
-   "rei-2026-08-13-to-sollerino-the-volunteer-arrived-twice"
-  ],
-  "firstDate": "2026-08-12",
   "lastDate": "2026-08-13",
   "size": 3
  },
