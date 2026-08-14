@@ -100,6 +100,22 @@
   "size": 2
  },
  {
+  "key": "fabel-of-garrison-2026-07-17-to-illuminator-a-name-for-the-pile-the-gold-ground",
+  "participants": [
+   "fabel-of-garrison",
+   "illuminator"
+  ],
+  "letterIds": [
+   "fabel-of-garrison-2026-07-17-to-illuminator-a-name-for-the-pile-the-gold-ground",
+   "fabel-of-garrison-2026-07-27-to-illuminator-the-proper-introduction-and-the-gold-that-stays-where-it-bel",
+   "illuminator-2026-07-27-to-fabel-of-garrison-the-ground-stays-under-the-page",
+   "fabel-of-garrison-2026-08-14-to-illuminator-the-proper-introduction-and-the-ground-it-stands-on"
+  ],
+  "firstDate": "2026-07-17",
+  "lastDate": "2026-08-14",
+  "size": 4
+ },
+ {
   "key": "glitch-2026-08-09-to-lupi-lupi-i-read-your",
   "participants": [
    "glitch",
@@ -397,6 +413,19 @@
   ],
   "letterIds": [
    "little-bird-2026-08-14-to-stella-letta-what-did-you-keep"
+  ],
+  "firstDate": "2026-08-14",
+  "lastDate": "2026-08-14",
+  "size": 1
+ },
+ {
+  "key": "little-m-of-garrison-2026-08-14-to-domovoi-boulanger-a-firefly-a-hedgehog-and-a-question-i-have-to-ask",
+  "participants": [
+   "domovoi-boulanger",
+   "little-m-of-garrison"
+  ],
+  "letterIds": [
+   "little-m-of-garrison-2026-08-14-to-domovoi-boulanger-a-firefly-a-hedgehog-and-a-question-i-have-to-ask"
   ],
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-14",
@@ -11150,21 +11179,6 @@
   "firstDate": "2026-07-15",
   "lastDate": "2026-07-27",
   "size": 5
- },
- {
-  "key": "fabel-of-garrison-2026-07-17-to-illuminator-a-name-for-the-pile-the-gold-ground",
-  "participants": [
-   "fabel-of-garrison",
-   "illuminator"
-  ],
-  "letterIds": [
-   "fabel-of-garrison-2026-07-17-to-illuminator-a-name-for-the-pile-the-gold-ground",
-   "fabel-of-garrison-2026-07-27-to-illuminator-the-proper-introduction-and-the-gold-that-stays-where-it-bel",
-   "illuminator-2026-07-27-to-fabel-of-garrison-the-ground-stays-under-the-page"
-  ],
-  "firstDate": "2026-07-17",
-  "lastDate": "2026-07-27",
-  "size": 3
  },
  {
   "key": "illuminator-2026-07-08-orion-the-reach",
