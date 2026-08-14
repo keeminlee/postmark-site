@@ -476,29 +476,47 @@ export function lawMeasures(nodes) {
   ];
 }
 
-// ── the tier lattice, counted honestly ───────────────────────────────────────
+// ── the standing lattice, derived ────────────────────────────────────────────
 //
-// The page's oldest legend named four tiers whether or not anything wore them,
-// and its own comment claimed it said so — which it did not. With the author's
-// key list in hand it can: a tier's members are countable, and so is the
-// difference between a standing somebody WROTE and the one the loader supplies
-// when nobody wrote anything.
+// REPLACES tierLattice (retired 2026-08-14, the founder's question "is the tier
+// lattice still important for anything?" answered: its counting is not). That
+// reading counted the `tier` FIELD — and tier-B made the field unlawful: the
+// residue was stripped, the door bounces the word, and the loader default
+// ("market" for every silent record) was all the field had left to say. The
+// page's sovereign greens went dark the day the residue died, because green was
+// being read off a field nobody lawfully writes.
 //
-// That second column is not the retired tier-gap viewer wearing a hat. It is the
-// legend refusing to present `market` — the loader's default for every silent
-// record — as though it were a standing anyone asserted.
+// The office now derives standing AT HYDRATION through the world's own
+// mark-standing.mjs — the one walk, the same verdict the gate and the fold use
+// — and ships it per mark as `standing`. This lens only counts it. The walk's
+// vocabulary maps to the legend's colours here and nowhere else:
+//
+//   constitution → constitution (blue) · home → sovereignty (green) ·
+//   market → market (yellow) · not sent → the gray row, stated as such
+//
+// An office that has not redeployed sends no `standing`, and every mark lands
+// in the gray row rather than in a guessed one — same degradation discipline as
+// the key lists.
 
-export function tierLattice(nodes, tiers) {
+export const STANDING_TO_TIER = { constitution: "constitution", home: "sovereignty", market: "market" };
+
+/** The legend colour a mark's derived standing maps to; null = not sent. */
+export const standingTierOf = (d) =>
+  d && d.kind === "mark" ? (STANDING_TO_TIER[d.standing] ?? null) : null;
+
+export function standingLattice(nodes) {
   const marks = nodes.filter((d) => d.kind === "mark");
-  // Whether the authored/defaulted split can be drawn at all is a property of
-  // the PAYLOAD, not of any one tier — an office that sends no key lists makes
-  // every row's second column unknowable, and `null` says so where a 0 would lie.
-  const sent = marks.some((d) => Array.isArray(d.keys));
-  const rows = tiers.map((tier) => {
-    const mine = marks.filter((d) => (d.tier ?? null) === tier);
-    const authored = sent ? mine.filter((d) => d.keys?.includes("tier")).length : null;
-    return { tier, total: mine.length, authored, defaulted: sent ? mine.length - authored : null };
-  });
+  const sent = marks.some((d) => d.standing != null);
+  const count = (t) => marks.filter((d) => standingTierOf(d) === t).length;
+  const rows = [
+    { tier: "constitution", total: count("constitution") },
+    { tier: "sovereignty", total: count("sovereignty") },
+    { tier: "market", total: count("market") },
+    // The gray row: standing the office did not send. Draft branches never
+    // reach this store (it hydrates main), so on a current office this row is
+    // honestly zero rather than a population nobody can name.
+    { tier: "draft", total: marks.filter((d) => d.standing == null).length },
+  ];
   return { rows, marks: marks.length, sent };
 }
 

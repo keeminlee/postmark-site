@@ -46,21 +46,19 @@ const EDGE_TYPES = [
   { type: "stop-of", line: "a stop and the vessel whose timetable names it" },
 ];
 
-// The tier lattice adopted at Stage 0 (dial 2): constitution → blue,
-// sovereignty → green, market → yellow, draft → gray. Two of the four have no
-// members in the store today, and the legend says so rather than quietly
-// showing a colour nothing wears.
-// The tier lattice adopted at Stage 0 (dial 2). The legend's member counts are
-// filled in by the island from the store in hand, never written here: this page
-// used to name all four whether or not anything wore them, and its own comment
-// claimed it said so — which it did not. `market` is also the word the loader
-// supplies for every record that asserts nothing, so the legend separates the
-// standing somebody WROTE from the one nobody did.
+// THE STANDING COLOURS (Stage 0's lattice, re-grounded 2026-08-14): constitution
+// → blue, sovereignty → green, market → yellow, gray for a standing the office
+// did not send. The colour is DERIVED — the office runs the world's own
+// mark-standing walk at hydration and ships the verdict per mark — because
+// tier-B made the `tier:` field unlawful and the loader's default said "market"
+// for every silent record, which painted every sovereign mark yellow. The
+// legend's member counts are filled in by the island from the store in hand,
+// never written here.
 const TIERS = [
   { tier: "constitution", label: "constitution", swatch: "tier-constitution" },
   { tier: "sovereignty", label: "sovereignty", swatch: "tier-sovereignty" },
   { tier: "market", label: "market", swatch: "tier-market" },
-  { tier: "draft", label: "draft / untiered", swatch: "tier-draft" },
+  { tier: "draft", label: "standing not sent", swatch: "tier-draft" },
 ];
 
 // ONE SPECIES OF DOT (v2, stage 1). The page used to draw four shapes — a
@@ -90,7 +88,7 @@ const WEARINGS = [
 //
 // One at a time, like `layout`, because two paints cannot share a node.
 const PAINTS = [
-  { paint: "tier", label: "the tier lattice", line: "the standing lattice — how this page has always drawn" },
+  { paint: "tier", label: "standing", line: "the one walk's verdict, derived at hydration — how this page has always drawn" },
   { paint: "ideal", label: "what LOGOS derives", line: "every datum on disk, sorted by where the law says it belongs" },
   { paint: "registry", label: "the class registry", line: "which nodes name a class-node — closure is a property of addressing" },
   { paint: "law", label: "the record's law", line: "the constitution as written marks — the piecewise LOGOS, lighting up as clauses land" },
@@ -185,10 +183,10 @@ const REGISTRY = [
       <div class="og-canvas">
         <div class="og-cy" data-cy></div>
 
-        <!-- the legend, over the canvas' bottom-left; the tier lattice is the
-             half people actually need, so it goes first. The colour row is
-             swapped by the paint lens — a legend still naming the tier lattice
-             while the canvas is painted by another reading would be worse than none. -->
+        <!-- the legend, over the canvas' bottom-left; the standing colours are
+             the half people actually need, so they go first. The colour row is
+             swapped by the paint lens — a legend still naming standing while
+             the canvas is painted by another reading would be worse than none. -->
         <div class="og-legend">
           <div class="og-legend-row" data-legend="tier">
             {TIERS.map((t) => (
@@ -269,7 +267,7 @@ const REGISTRY = [
     import { officeBase } from "@/lib/auth.mjs";
     import {
       SERIALIZATION_MAP, STORE_BOUNDARY, serializationOf, idealClassOf, fieldCensus,
-      classRegistry, lawMeasures, tierLattice, isRecordNode, recordTree,
+      classRegistry, lawMeasures, standingLattice, standingTierOf, isRecordNode, recordTree,
       isMachinery, wearsRegistryBadge, isContinuation, classFilters, filterBucketOf,
     } from "@/lib/world-lenses.mjs";
 
@@ -349,7 +347,10 @@ const REGISTRY = [
       const HINT_DEFAULT = "tap a node to light its neighbourhood — neighbours hidden by a filter come back with it. Tap the background to let go.";
       const hint = (text) => { $("[data-hint]").textContent = text || HINT_DEFAULT; };
 
-      const colourOf = (d) => (d.kind === "mark" ? (TIER[d.tier] ?? TIER.draft) : (KIND[d.kind] ?? KIND.unknown));
+      // A mark's colour is its DERIVED standing (the one walk, run office-side
+      // at hydration) — never the `tier` field, which tier-B retired and the
+      // loader used to default. No standing sent → the gray row, stated.
+      const colourOf = (d) => (d.kind === "mark" ? (TIER[standingTierOf(d)] ?? TIER.draft) : (KIND[d.kind] ?? KIND.unknown));
 
       // ── state ─────────────────────────────────────────────────────────────
       let cy = null;
@@ -371,10 +372,6 @@ const REGISTRY = [
       let panelHome = "findings";
       // The lenses' readings, computed once at mount off the one payload.
       let fields = null, record = null, registry = null, measures = null, lattice = null, filters = null;
-      // The lattice's rows, in the order the legend draws them. `null` is the
-      // untiered row: a node the store gives no tier at all, which is not the
-      // same as one that reads "draft".
-      const TIER_ORDER = ["constitution", "sovereignty", "market", "draft"];
 
       // ── boot ──────────────────────────────────────────────────────────────
       async function boot() {
@@ -508,7 +505,7 @@ const REGISTRY = [
         fields = fieldCensus(data);
         record = recordTree(data);
         measures = lawMeasures(data);
-        lattice = tierLattice(data, TIER_ORDER);
+        lattice = standingLattice(data);
         filters = classFilters(data);
         // Every chip starts on: the page opens on the whole world, and a filter
         // row that arrived with something already hidden would be lying about
@@ -972,10 +969,10 @@ const REGISTRY = [
         applyFilters({ relayout: true });
       }
 
-      // THE LATTICE LEGEND, counted. The four tiers were named here whether or
-      // not anything wore them; now the legend says how many, and — because
-      // `market` is also the word the loader supplies for every record that
-      // asserts nothing — how many of them anybody actually wrote.
+      // THE STANDING LEGEND, counted. Every count is the one walk's verdict as
+      // the office derived it at hydration — the authored/defaulted split the
+      // old lattice drew is gone with the field it split: `tier:` is not a
+      // field, and there is nothing left to have defaulted.
       function paintLatticeLegend() {
         for (const item of all("[data-tier-item]")) {
           const row = lattice.rows.find((r) => r.tier === item.dataset.tierItem);
@@ -983,9 +980,7 @@ const REGISTRY = [
           if (!row) { slot.textContent = ""; continue; }
           if (!row.total) { slot.textContent = "none"; item.classList.add("is-empty"); continue; }
           item.classList.remove("is-empty");
-          slot.textContent = lattice.sent && row.defaulted
-            ? `${row.total} (${row.defaulted} defaulted)`
-            : String(row.total);
+          slot.textContent = String(row.total);
         }
       }
 
@@ -1478,7 +1473,9 @@ const REGISTRY = [
 
         const facts = [
           ["kind", d.subkind ? `${d.kind} · ${d.subkind}` : d.kind],
-          ["tier", d.tier || "—"],
+          // The one walk's verdict, derived office-side; a mark the office sent
+          // no standing for says so rather than wearing the loader's default.
+          ["standing", d.kind === "mark" ? (d.standing ? `${d.standing} (derived)` : "not sent by this office") : "—"],
           ["by", d.by || "—"],
           ["degree", `${d.deg} (${d.indeg} in · ${d.outdeg} out)`],
         ];

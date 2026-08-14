@@ -22,7 +22,7 @@ import assert from "node:assert/strict";
 
 import {
   SERIALIZATION_MAP, serializes, serializationOf, idealClassOf,
-  fieldCensus, classRegistry, lawMeasures, tierLattice, STORE_BOUNDARY,
+  fieldCensus, classRegistry, lawMeasures, standingLattice, standingTierOf, STORE_BOUNDARY,
   isRecordNode, recordTree, RECORD_SEGMENT,
   isMachinery, wearsRegistryBadge, isContinuation, classFilters, filterBucketOf,
 } from "../src/lib/world-lenses.mjs";
@@ -31,23 +31,31 @@ import {
 // never placed (`sea_state`) — mapping debt, on a sited mark.
 const quay = {
   id: "the-town/the-quay", kind: "mark", subkind: "sited", tier: "constitution", by: "the-town",
+  standing: "constitution",
   path: "WORLD/marks/the-quay", body: "Six bollards, and the water slapping at them.",
   keys: ["kind", "by", "tier", "at", "extent", "date", "sea_state"],
 };
-// A resident's shed: asserts a standing, no debt. Residue only.
+// A resident's shed: asserts a standing, no debt. Residue only. The walk says
+// it stands as a guest — `standing` is the office's derived verdict, shipped
+// beside the keys, and it need not agree with anything the record wrote.
 const shed = {
   id: "someone/their-shed", kind: "mark", subkind: "sited", tier: "market", by: "someone",
+  standing: "market",
   path: "WORLD/marks/their-shed", keys: ["kind", "by", "tier", "at", "extent", "date"],
 };
 // Fully lawful on disk: nothing the map places nowhere, nothing it cannot place.
+// The walk finds it at home on its own ground — the vocabulary is the walk's
+// ("home"), which the lens maps to the legend's green ("sovereignty").
 const parcel = {
   id: "someone/their-parcel", kind: "mark", subkind: "parcel", tier: "market", by: "someone",
+  standing: "home",
   path: "WORLD/marks/their-parcel", keys: ["kind", "by", "at", "extent", "date"],
 };
 // A predicated mark — its (slot, value) pair is already a predicate's own
 // identity payload, the one shape on disk the law does not want moved.
 const clause = {
   id: "the-town/the-gate", kind: "mark", subkind: "predicated", tier: "constitution", by: "the-town",
+  standing: "constitution",
   path: "WORLD/marks/let-there-be-light/logos/the-gate", body: "Every mark is checked before it lands.",
   keys: ["kind", "by", "tier", "date", "parent", "slot", "value"],
 };
@@ -59,6 +67,7 @@ const unread = {
 // A class-node: it DECLARES a class rather than naming one.
 const parcelClass = {
   id: "the-town/parcel-class", kind: "mark", subkind: "sited", tier: "constitution", by: "the-town",
+  standing: "constitution",
   class: "parcel", path: "WORLD/marks/parcel-class", keys: ["kind", "by", "tier", "class", "version", "dials"],
 };
 const codeNode = { id: "code:world/tools/vessel.mjs", kind: "code", tier: null, by: null };
@@ -200,29 +209,34 @@ test("the measures name the residue and debt keys rather than only counting them
   assert.match(clean.debt.note, /none/);
 });
 
-// ── the tier lattice, counted honestly ───────────────────────────────────────
+// ── the standing lattice, derived ────────────────────────────────────────────
+//
+// The counts are the one walk's verdict as the office shipped it — the field
+// census above is where the retired `tier:` field is still watched (as residue).
 
-test("the lattice separates a standing somebody WROTE from the loader's default", () => {
-  const l = tierLattice(NODES, ["constitution", "sovereignty", "market", null]);
+test("the lattice counts DERIVED standing, mapping the walk's vocabulary to the legend's", () => {
+  // the walk says "home"; the legend's green row is named "sovereignty"
+  assert.equal(standingTierOf(parcel), "sovereignty");
+  assert.equal(standingTierOf(shed), "market");
+  assert.equal(standingTierOf(quay), "constitution");
+  assert.equal(standingTierOf(unread), null);          // not sent → no colour guessed
+  assert.equal(standingTierOf(codeNode), null);        // machinery has no standing at all
+  const l = standingLattice(NODES);
   const by = Object.fromEntries(l.rows.map((r) => [String(r.tier), r]));
-  assert.equal(by.constitution.total, 3);          // quay, clause, parcelClass
-  assert.equal(by.constitution.authored, 3);
-  assert.equal(by.constitution.defaulted, 0);
-  // three marks read `market`; one of them wrote it and two did not
-  assert.equal(by.market.total, 3);
-  assert.equal(by.market.authored, 1);             // the shed
-  assert.equal(by.market.defaulted, 2);            // the parcel, and the unread one
-  // a tier nothing wears is reported as empty rather than left off
-  assert.equal(by.sovereignty.total, 0);
+  assert.equal(l.sent, true);
+  assert.equal(by.constitution.total, 3);              // quay, clause, parcelClass
+  assert.equal(by.sovereignty.total, 1);               // the parcel — at home on its own ground
+  assert.equal(by.market.total, 1);                    // the shed — a guest where it stands
+  assert.equal(by.draft.total, 1);                     // the unread mark: standing not sent
 });
 
-test("with no key lists the authored column is UNKNOWN, never zero", () => {
-  const l = tierLattice([unread], ["market"]);
+test("an office that sends no standing puts every mark in the gray row and says so", () => {
+  const l = standingLattice([unread]);
   assert.equal(l.sent, false);
-  assert.equal(l.rows[0].total, 1);
-  // 0 would read as "nobody wrote one", which is a finding this payload cannot support
-  assert.equal(l.rows[0].authored, null);
-  assert.equal(l.rows[0].defaulted, null);
+  const by = Object.fromEntries(l.rows.map((r) => [String(r.tier), r]));
+  // the mark is not painted into a guessed tier — it lands in "not sent"
+  assert.equal(by.draft.total, 1);
+  assert.equal(by.constitution.total + by.sovereignty.total + by.market.total, 0);
 });
 
 // ── the boundary ─────────────────────────────────────────────────────────────
