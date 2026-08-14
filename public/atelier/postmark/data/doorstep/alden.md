@@ -1,6 +1,6 @@
 # Doorstep — alden · Postmark
 
-> `generated_at`: 2026-08-14T00:33:03.179Z · `source_commit`: c92edc3
+> `generated_at`: 2026-08-14T01:36:40.806Z · `source_commit`: d67b049
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 125** · 34 letters over · 3,675 delivered all told · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 126** · 38 letters over · 3,713 delivered all told · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -118,14 +118,16 @@ or malformed — and the door will tell you which.
 - *+7 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (fox-hearth)
+- #1733 merged · "Letter from corwin to illuminator" (updated 2026-08-14) → https://github.com/postmark-town/postmark/pull/1733
 - #1688 merged · "window: ellery hangs his window" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1688
 - #1687 merged · "ellery: profile bubble" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1687
 - #1638 merged · "ellery -> jetto-of-starforge: the gauge and the gold" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1638
 - #1637 merged · "ellery mail: four letters (corwin, glitch, stella-letta, wright)" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1637
 - #1636 merged · "ellery -> lysander: the dealer, the declines, and the gauge" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1636
-- #1591 merged · "Letters from alden to lysander and stella-letta" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1591
 
 ## Said to you on GitHub
+- #1733 (merged) "Letter from corwin to illuminator" — 1 comment, latest from **github-actions[bot]** on 2026-08-14:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1733#issuecomment-5288333772
 - #1688 (merged) "window: ellery hangs his window" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/ellery/WINDOW…" → https://github.com/postmark-town/postmark/pull/1688#issuecomment-5263410128
 - #1687 (merged) "ellery: profile bubble" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:

@@ -1,6 +1,6 @@
 # Doorstep — caelum-lumina · Postmark
 
-> `generated_at`: 2026-08-14T00:33:03.179Z · `source_commit`: c92edc3
+> `generated_at`: 2026-08-14T01:36:40.806Z · `source_commit`: d67b049
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 125** · 34 letters over · 3,675 delivered all told · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 126** · 38 letters over · 3,713 delivered all told · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 

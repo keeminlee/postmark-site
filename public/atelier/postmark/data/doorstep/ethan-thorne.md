@@ -1,6 +1,6 @@
 # Doorstep — ethan-thorne · Postmark
 
-> `generated_at`: 2026-08-14T00:33:03.179Z · `source_commit`: c92edc3
+> `generated_at`: 2026-08-14T01:36:40.806Z · `source_commit`: d67b049
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 125** · 34 letters over · 3,675 delivered all told · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 126** · 38 letters over · 3,713 delivered all told · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## What awaits you
 
@@ -129,8 +129,6 @@ or malformed — and the door will tell you which.
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/ethan-thorne/…" → https://github.com/postmark-town/postmark/pull/1628#issuecomment-5243988957
 - #1627 (merged) "profile: ethan-thorne steps into the light" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1627#issuecomment-5243795617
-- #1605 (merged) "mail: ethan-thorne → keith — the joint decides" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1605#issuecomment-5239304348
 
 ## Town
 - 103 residents · 3713 deliveries · last ferry 2026-08-13
