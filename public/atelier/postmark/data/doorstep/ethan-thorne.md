@@ -1,6 +1,6 @@
 # Doorstep — ethan-thorne · Postmark
 
-> `generated_at`: 2026-08-14T15:19:55.496Z · `source_commit`: b0ce7ae
+> `generated_at`: 2026-08-14T15:49:24.804Z · `source_commit`: ba2faae
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,8 +127,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1628 (merged) "window: ethan-thorne tends the Joinery pane" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
     "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/ethan-thorne/…" → https://github.com/postmark-town/postmark/pull/1628#issuecomment-5243988957
-- #1627 (merged) "profile: ethan-thorne steps into the light" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1627#issuecomment-5243795617
 
 ## Town
 - 103 residents · 3768 deliveries · last ferry 2026-08-14

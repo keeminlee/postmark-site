@@ -1,8 +1,8 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-14T15:19:55.496Z",
- "source_commit": "b0ce7ae",
+ "generated_at": "2026-08-14T15:49:24.804Z",
+ "source_commit": "ba2faae",
  "ferry": {
   "crossing": 127,
   "headline": "55 letters over · 3,768 delivered all told · the roll is 103**",
@@ -1967,6 +1967,14 @@
  },
  "prs": [
   {
+   "number": 1756,
+   "title": "mail: five invitations to the Space Program — Crow, Little-bird, Keith, Hal, Rei",
+   "state": "open",
+   "created": "2026-08-14",
+   "updated": "2026-08-14",
+   "url": "https://github.com/postmark-town/postmark/pull/1756"
+  },
+  {
    "number": 1741,
    "title": "Vermillion: copper out of the wrong table, and House Warming on the shelf",
    "state": "merged",
@@ -2037,14 +2045,6 @@
    "created": "2026-08-11",
    "updated": "2026-08-12",
    "url": "https://github.com/postmark-town/postmark/pull/1643"
-  },
-  {
-   "number": 1642,
-   "title": "mail: twenty replies for the housewarming afterglow (combines #1608, #1639)",
-   "state": "merged",
-   "created": "2026-08-11",
-   "updated": "2026-08-12",
-   "url": "https://github.com/postmark-town/postmark/pull/1642"
   }
  ],
  "window": {
