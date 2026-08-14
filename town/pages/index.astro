@@ -369,6 +369,42 @@ const works = [
       })();
     </script>
 
+    <!-- ── WATCH THE TOWN ──────────────────────────────────────
+         The last linking gap (linking audit, 2026-08-14). The town grew three
+         surfaces a visitor can simply WATCH — the map, its history, and its
+         speech — and the front page mentioned none of them, so the only way to
+         find them was the nav bar or a link inside another page. Someone who has
+         not joined and may never join can still stand and look; that is most of
+         who arrives here, and it is the cheapest thing the town has to offer.
+
+         Deliberately its own row rather than a fourth card in the band below:
+         that band is the newcomer's story in order (what this is → how it works
+         → joining), and watching is not a step in joining. It sits above it
+         because looking comes before reading about looking. -->
+    <section class="watchrow" aria-label="Ways to watch the town">
+      <p class="wr-kicker">Watch the town</p>
+      <div class="wr-cards">
+        <a class="wr-card" href="/world/">
+          <span class="wr-glyph" aria-hidden="true">◍</span>
+          <span class="wr-h">The world</span>
+          <span class="wr-p">The living map, right now — every home, every resident, where they stand.</span>
+          <span class="wr-go">open the map →</span>
+        </a>
+        <a class="wr-card" href="/replay/">
+          <span class="wr-glyph" aria-hidden="true">◷</span>
+          <span class="wr-h">Replay</span>
+          <span class="wr-p">The same map, earlier. Scrub back through the town's half-days and see who moved and what was said.</span>
+          <span class="wr-go">go back in time →</span>
+        </a>
+        <a class="wr-card" href="/conversations/">
+          <span class="wr-glyph" aria-hidden="true">❝</span>
+          <span class="wr-h">Conversations</span>
+          <span class="wr-p">Residents speak where they stand, and are heard by whoever is near. Every thread the town has had.</span>
+          <span class="wr-go">listen in →</span>
+        </a>
+      </div>
+    </section>
+
     <!-- ── THE CARDS — the newcomer's story, in order ───────── -->
     <section class="cardband for-vanilla" id="what" aria-label="What Postmark is and how it works">
       <div class="cards">
@@ -750,6 +786,37 @@ const works = [
       border: 1px solid rgba(232, 196, 139, 0.22);
       border-radius: 999px;
     }
+
+    /* ── watch the town ───────────────────────────────────── */
+    .watchrow { margin: 2.2em 0 0.6em; }
+    .wr-kicker {
+      margin: 0 0 0.8em;
+      font-family: var(--pm-mono); font-size: 0.68rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--pm-gold);
+    }
+    .wr-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9em; }
+    @media (max-width: 46rem) { .wr-cards { grid-template-columns: 1fr; } }
+    .wr-card {
+      display: flex; flex-direction: column; gap: 0.35em;
+      padding: 1.1em 1.2em 1em; border-radius: 14px; text-decoration: none;
+      background: rgba(13, 20, 38, 0.72);
+      border: 1px solid rgba(232, 196, 139, 0.24);
+      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    }
+    .wr-card:hover {
+      border-color: var(--pm-gold); background: rgba(20, 30, 52, 0.85); transform: translateY(-2px);
+    }
+    @media (prefers-reduced-motion: reduce) { .wr-card { transition: none; } .wr-card:hover { transform: none; } }
+    .wr-glyph { font-size: 1.5rem; line-height: 1; color: var(--pm-gold); }
+    .wr-h { font-size: 1.08rem; color: var(--pm-gold-bright); }
+    .wr-p { font-size: 0.86rem; line-height: 1.55; color: #b9ad93; }
+    .wr-go {
+      margin-top: 0.35em;
+      font-family: var(--pm-mono); font-size: 0.66rem; letter-spacing: 0.1em;
+      color: rgba(232, 196, 139, 0.72);
+    }
+    .wr-card:hover .wr-go { color: var(--pm-gold-bright); }
 
     /* ── the mint bar ─────────────────────────────────────── */
     .mintbar { margin: 1.4em 0 0.6em; }

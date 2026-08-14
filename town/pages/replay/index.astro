@@ -81,7 +81,7 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
     </section>
 
     <section class="r-digest">
-      <div class="r-rule"><span>What happened this crossing</span></div>
+      <div class="r-rule"><span>What happened this crossing<span data-convo></span></span></div>
       <div class="r-digest-grid">
         <div class="r-col">
           <h2 class="r-col-h">Said</h2>
@@ -111,11 +111,37 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
   <script is:inline>
     (function () {
       var RAW = "https://raw.githubusercontent.com/keeminlee/postmark-world";
-      var replay = (window.__pmReplay = { frame: null, worldSha: null });
+      // `world` is the crossing cache, keyed by the WORLD COMMIT rather than by
+      // the crossing number — several crossings can be computed against the same
+      // fold, and when they are, stepping between them should cost nothing at
+      // all. `stats` is not decoration: it is how the page's own claim about
+      // scrub cost is measured rather than asserted.
+      var replay = (window.__pmReplay = {
+        frame: null,
+        world: Object.create(null),
+        stats: { bytes: 0, fetches: 0 },
+      });
 
       function pathOf(url) {
         try { return new URL(url, location.href).pathname; } catch (e) { return String(url || ""); }
       }
+      // Fill the cache for a commit the reader has not asked for yet. The module
+      // below calls this for the crossings either side of the one on screen, when
+      // the browser says it is idle — so the common move, one step along the
+      // track, has usually already paid its network cost before it is made.
+      // Never rejects: a preload that fails is simply a step that pays later.
+      replay.warm = function (sha) {
+        if (!sha || replay.world[sha]) return Promise.resolve(false);
+        return real(RAW + "/" + sha + "/WORLD/world-state.json", { credentials: "omit" })
+          .then(function (r) { return r.ok ? r.text() : null; })
+          .then(function (body) {
+            if (!body || replay.world[sha]) return false;
+            replay.stats.bytes += body.length; replay.stats.fetches += 1;
+            replay.world[sha] = JSON.parse(body);
+            return true;
+          })
+          .catch(function () { return false; });
+      };
       function json(body, headers) {
         return new Response(JSON.stringify(body), {
           status: 200,
@@ -151,12 +177,25 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         // public, so the true historical fold is one immutable raw URL away — the
         // same RAW source the viewer already falls back to, just pinned to a sha
         // instead of to main.
+        //
+        // THE CACHE IS THE WHOLE SCRUB FIX'S OTHER HALF. Re-mounting used to cost
+        // a fresh 0.7 MB fold from GitHub on every step, including steps BACK to a
+        // crossing already looked at. The fold for a given world commit is
+        // immutable by construction — that is what a commit is — so it is fetched
+        // at most once per page, and stepping back through the record is free.
         if (/\/world\/state$/.test(p) || /\/WORLD\/world-state\.json$/.test(p)) {
           if (!frame.as_of_world) return real(input, init);
+          var have = replay.world[frame.as_of_world];
+          if (have) return Promise.resolve(json(have, { "x-postmark-as-of": String(frame.crossing) }));
           return real(RAW + "/" + frame.as_of_world + "/WORLD/world-state.json", { credentials: "omit" })
             .then(function (r) {
               if (!r.ok) return real(input, init);
-              return r.json().then(function (j) { return json(j, { "x-postmark-as-of": String(frame.crossing) }); });
+              return r.text().then(function (body) {
+                replay.stats.bytes += body.length; replay.stats.fetches += 1;
+                var parsed = JSON.parse(body);
+                replay.world[frame.as_of_world] = parsed;
+                return json(parsed, { "x-postmark-as-of": String(frame.crossing) });
+              });
             })
             .catch(function () { return real(input, init); });
         }
@@ -213,6 +252,7 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
     const voicesEl = document.querySelector("[data-voices]");
     const movesEl = document.querySelector("[data-moves]");
     const coverageEl = document.querySelector("[data-coverage]");
+    const convoEl = document.querySelector("[data-convo]");
     const provenanceEl = document.querySelector("[data-provenance]");
     const prevBtn = document.querySelector("[data-prev]");
     const nextBtn = document.querySelector("[data-next]");
@@ -227,7 +267,18 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       return n;
     };
 
-    let index = null, current = null, viewer = null, faces = {};
+    let index = null, current = null, viewer = null, faces = {}, mountCount = 0;
+    // The frames themselves are small (a crossing's speech and departures) but a
+    // step should not wait on a round trip for one. Same immutability argument as
+    // the fold cache next door: a finished crossing's record never changes. The
+    // one still being written is deliberately NOT cached, because it does.
+    const frames = new Map();
+    async function getFrame(n, meta) {
+      if (frames.has(n)) return frames.get(n);
+      const frame = await fetch(`/world-engine/replay/${n}.json`).then((r) => (r.ok ? r.json() : null));
+      if (frame && meta && meta.complete) frames.set(n, frame);
+      return frame;
+    }
 
     const nameOf = (handle) => {
       const m = /^human-of-(.+)$/.exec(handle || "");
@@ -277,6 +328,24 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         ? `${day(frame.from)} ${time(frame.from)} – ${time(frame.to)} UTC · ${meta.entity_count} residents on the map`
         : `${day(frame.from)} ${time(frame.from)} UTC · still open — this crossing is happening now`;
 
+      // THREADS, AND WHY ONLY SOMETIMES. The brief for this page asked every
+      // spoken line to link to its thread at /conversations/#<id>. It cannot,
+      // honestly: a thread there is a DERIVATION the office recomputes from live
+      // speech, the replay's own record carries no thread id, and the office keeps
+      // a closed thread about a day. A four-day-old crossing has no thread to
+      // arrive at, so a per-voice link would be a link that looks like it works
+      // and doesn't — the exact thing this page refused to ship last time.
+      //
+      // Where it CAN land it is offered: the crossing still being written is
+      // happening now, and its conversations are on that page this minute.
+      convoEl.textContent = "";
+      if (!frame.complete) {
+        convoEl.appendChild(document.createTextNode(" · "));
+        const a = el("a", "r-rule-link", "in conversation now");
+        a.href = "/conversations/";
+        convoEl.appendChild(a);
+      }
+
       voicesEl.textContent = "";
       if (!frame.voices.length) {
         voicesEl.appendChild(el("p", "r-empty", "Nobody spoke within earshot of anybody this crossing."));
@@ -320,11 +389,28 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
           // same word rather than reporting a 0 m walk.
           if (m.stopped) {
             li.appendChild(el("span", "r-move-what", "stopped where they stood"));
+          } else if (m.to) {
+            // WHERE THEY WERE HEADED, ON THE MAP. The record carries the asked-for
+            // mark AND the coordinates it resolved to, so a destination can be a
+            // door rather than a noun — same `/world/?at=` arrival the said column
+            // has used since the round trip landed. A departure with no resolved
+            // coordinates keeps the plain words rather than getting a link that
+            // lands nowhere.
+            const what = el("span", "r-move-what");
+            what.appendChild(document.createTextNode("set out for "));
+            const name = deslugMarkId(m.to);
+            if (m.toward && isFinite(m.toward.x) && isFinite(m.toward.y)) {
+              const a = el("a", "r-place-link", name);
+              a.href = `/world/?at=${m.toward.x},${m.toward.y}`;
+              a.title = "see this place on the map";
+              what.appendChild(a);
+            } else {
+              what.appendChild(document.createTextNode(name));
+            }
+            li.appendChild(what);
+            if (m.distance_m != null) li.appendChild(el("span", "r-dist", m.distance_m + " m"));
           } else {
-            const what = m.to
-              ? `set out for ${deslugMarkId(m.to)}`
-              : "set out across the world";
-            li.appendChild(el("span", "r-move-what", what));
+            li.appendChild(el("span", "r-move-what", "set out across the world"));
             if (m.distance_m != null) li.appendChild(el("span", "r-dist", m.distance_m + " m"));
           }
           li.appendChild(el("span", "r-at", time(m.at) + " UTC"));
@@ -338,16 +424,41 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
         : "This crossing has no world commit on its record, so the map falls back to the world as it stands today.";
     }
 
-    // Re-mounting is the honest way to move the map to another crossing: the
-    // viewer caches the world it loaded, and `stop()` is the teardown it publishes
-    // for exactly this (it clears both polls and the key/resize listeners). The
-    // cost is that the camera returns to the fitted view on each step.
-    function remount(frame) {
+    // MOVING THE MAP TO ANOTHER CROSSING, WITHOUT TEARING IT DOWN.
+    //
+    // This page used to re-mount the viewer on every step, which was the only
+    // thing the viewer's published interface allowed: `rerender` is a pure redraw
+    // from state already in hand, so it could not be told that the world's data
+    // doors now answer differently. A re-mount cost about a second, re-fetched
+    // the fold, threw the camera back to the fitted view, and — because the
+    // viewer's "greet once per page load" flag lived inside the mount — made the
+    // tour ambush an anonymous spectator again on every single arrow press.
+    //
+    // `reload` (postmark-world, 2026-08-14) is the seam that was missing: re-pull
+    // the fold and the walkers from the same doors, keep everything else. So a
+    // step is now: swap the frame the lens answers from, then ask the viewer to
+    // look again. The DOM node it drew into is never replaced.
+    //
+    // The re-mount below is kept as the FALLBACK, and it is not dead code: the
+    // site pins postmark-world by commit, so between this page merging and that
+    // pin moving, `reload` is simply not there. On that build the page behaves
+    // exactly as it did before — slow, but never broken.
+    function mount() {
       if (viewer && viewer.stop) viewer.stop();
       host.textContent = "";
       host.className = "r-map";
       viewer = mountViewer(host);
-      setViewerCrossing(frame.crossing);
+      // the same node, tagged, so QA can prove across a scrub that it survived
+      host.dataset.mountedAt = String(Date.now());
+      mountCount += 1;
+      window.__pmReplayMounts = mountCount;
+    }
+    async function showFrame(frame) {
+      if (!viewer) { mount(); setViewerCrossing(frame.crossing); return "mount"; }
+      if (typeof viewer.reload !== "function") { mount(); setViewerCrossing(frame.crossing); return "remount"; }
+      setViewerCrossing(frame.crossing);   // the caption first, so the number is never behind the map
+      await viewer.reload();
+      return "reload";
     }
 
     // The viewer keeps its own crossing number, and left alone it reads the wall
@@ -382,21 +493,42 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       input.dispatchEvent(new Event("input", { bubbles: true }));
     }
 
+    // The crossings either side of this one, warmed while the browser is idle.
+    // Stepping along the track is what a reader actually does with a scrubber, so
+    // n±1 is not a guess about behaviour — it is the behaviour the control invites.
+    // requestIdleCallback where it exists, because a preload must never compete
+    // with the map it is trying to make feel fast.
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 250));
+    function preloadNeighbours(n) {
+      const i = index.crossings.findIndex((c) => c.n === n);
+      if (i < 0) return;
+      idle(async () => {
+        for (const meta of [index.crossings[i + 1], index.crossings[i - 1]]) {
+          if (!meta || meta.n === current) continue;
+          const frame = await getFrame(meta.n, meta);
+          if (frame && frame.as_of_world) await window.__pmReplay.warm(frame.as_of_world);
+        }
+      });
+    }
+
     async function select(n) {
       const meta = index.crossings.find((c) => c.n === n);
       if (!meta) return;
       current = n;
       renderScrubber();
-      const frame = await fetch(`/world-engine/replay/${n}.json`).then((r) => (r.ok ? r.json() : null));
+      const frame = await getFrame(n, meta);
       if (!frame) {
         voicesEl.textContent = "";
         voicesEl.appendChild(el("p", "r-empty", "That crossing's record could not be read."));
         return;
       }
+      // The lens must be holding the new frame BEFORE the viewer is asked to look
+      // again, or it re-pulls the crossing it was already showing.
       window.__pmReplay.frame = frame;
       renderDigest(frame, meta);
-      remount(frame);
+      await showFrame(frame);
       history.replaceState(null, "", `#${n}`);
+      preloadNeighbours(n);
     }
 
     function step(by) {
@@ -540,6 +672,8 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
     .replay .r-rule::before, .replay .r-rule::after {
       content: ""; flex: 1; border-top: 1px dashed rgba(232, 196, 139, 0.22);
     }
+    .replay .r-rule-link { color: var(--pm-gold-bright); text-decoration: none; border-bottom: 1px solid rgba(232, 196, 139, 0.35); }
+    .replay .r-rule-link:hover { border-bottom-color: var(--pm-gold-bright); }
     .replay .r-digest-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 1.6rem; align-items: start; }
     @media (max-width: 46rem) { .replay .r-digest-grid { grid-template-columns: 1fr; gap: 1.1rem; } }
     .replay .r-col-h {

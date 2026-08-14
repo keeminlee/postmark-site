@@ -111,3 +111,293 @@ const html = rawHtml.replace(/<head>/i,
     })();
   })();
 </script>
+
+<!-- TIME TRAVEL IN THE WORLD (2026-08-14, Keemin's preference).
+     /replay/ proved that a past crossing can be drawn by the town's one renderer
+     through a fetch lens. The map is where a reader actually wants that, so the
+     lens comes here too — and this page and /replay/ stay ONE renderer with two
+     entrances rather than two implementations: the replay page keeps the story
+     half (the said/moved digest and its deep links), the world keeps the map.
+
+     Arming is a NAVIGATION, not a toggle, and that is the load-bearing choice.
+     `?crossing=<n>` installs the lens at parse time, before the viewer boots, so
+     identity reads answer anonymous from the very first call and every act
+     control feature-detects off through the viewer's OWN spectator path. A
+     toggle would have had to switch identity out from under a signed-in resident
+     mid-session, or leave their act buttons live over a four-day-old map and
+     bounce them at the door. Stepping BETWEEN crossings, once armed, is free and
+     in place — which is where the frequency is.
+
+     Back to now is likewise a real navigation to /world/, so the living world is
+     restored by being loaded rather than by unwinding a lens. -->
+<script is:inline>
+  (function () {
+    var RAW = "https://raw.githubusercontent.com/keeminlee/postmark-world";
+    var asked = new URLSearchParams(location.search).get("crossing");
+    var at = asked == null ? null : Number(asked);
+    var armed = at != null && isFinite(at);
+
+    var lens = (window.__pmWorldReplay = { frame: null, world: Object.create(null) });
+    var real = window.fetch.bind(window);
+
+    // Installed unconditionally so the page has ONE fetch story, but a pass-
+    // through until a frame is actually held. An unarmed /world/ behaves exactly
+    // as it did before this existed.
+    window.fetch = function (input, init) {
+      var url = typeof input === "string" ? input : (input && input.url) || "";
+      var method = String((init && init.method) || (input && input.method) || "GET").toUpperCase();
+      var p; try { p = new URL(url, location.href).pathname; } catch (e) { p = String(url || ""); }
+      var frame = lens.frame;
+      if (!frame) return real(input, init);
+
+      function json(body, headers) {
+        return new Response(JSON.stringify(body), {
+          status: 200,
+          headers: Object.assign({ "content-type": "application/json" }, headers || {}),
+        });
+      }
+      // Nothing writes from a past frame — enforced at the door, not by hiding
+      // controls, exactly as /replay/ does it.
+      if (method !== "GET" && /\/(api|world|ops|walks|stamps|letters)\b/.test(p))
+        return Promise.resolve(new Response(
+          JSON.stringify({ error: "bounce", defect: "this is a past crossing", hint: "the living world is at /world/" }),
+          { status: 403, headers: { "content-type": "application/json" } }));
+
+      if (/\/world\/walkers$/.test(p) || /\/walks$/.test(p))
+        return Promise.resolve(json({ at: frame.crossing, walkers: frame.walkers, standing: [] }));
+
+      if (/\/world\/state$/.test(p) || /\/WORLD\/world-state\.json$/.test(p)) {
+        if (!frame.as_of_world) return real(input, init);
+        var have = lens.world[frame.as_of_world];
+        if (have) return Promise.resolve(json(have, { "x-postmark-as-of": String(frame.crossing) }));
+        return real(RAW + "/" + frame.as_of_world + "/WORLD/world-state.json", { credentials: "omit" })
+          .then(function (r) {
+            if (!r.ok) return real(input, init);
+            return r.json().then(function (j) {
+              lens.world[frame.as_of_world] = j;
+              return json(j, { "x-postmark-as-of": String(frame.crossing) });
+            });
+          })
+          .catch(function () { return real(input, init); });
+      }
+      if (/\/world\/skeleton$/.test(p) || /\/WORLD\/skeleton\.json$/.test(p)) {
+        if (!frame.as_of_world) return real(input, init);
+        return real(RAW + "/" + frame.as_of_world + "/WORLD/skeleton.json", { credentials: "omit" })
+          .then(function (r) { return r.ok ? r : real(input, init); })
+          .catch(function () { return real(input, init); });
+      }
+      if (/\/WORLD\/walk-ledger\.md$/.test(p)) {
+        if (!frame.as_of_world) return real(input, init);
+        return real(RAW + "/" + frame.as_of_world + "/WORLD/walk-ledger.md", { credentials: "omit" })
+          .then(function (r) { return r.ok ? r : real(input, init); })
+          .catch(function () { return real(input, init); });
+      }
+      // Anonymous, always — this is what switches the act controls off through
+      // the viewer's own supported spectator path rather than by CSS.
+      if (/\/ops\/whoami$/.test(p) || /\/world\/my-marks$/.test(p))
+        return Promise.resolve(new Response(JSON.stringify({ visitor: true }), { status: 401, headers: { "content-type": "application/json" } }));
+      // Live surfaces that would bleed today's news into a past frame.
+      if (/\/world\/conversations$/.test(p))
+        return Promise.resolve(json({ pinned: [], now: frame.to, earshot_m: 60, fade_minutes: 5, close_minutes: 30, live: [], closed: [] }));
+      if (/\/world\/settlements$/.test(p)) return Promise.resolve(json({ settlements: [] }));
+      if (/\/repo\/log$/.test(p)) return Promise.resolve(json({ commits: [] }));
+      return real(input, init);
+    };
+
+    // The frame must be in the lens's hand before the viewer's first fetch. The
+    // module below is `type=module` and therefore deferred, so a synchronous
+    // XHR is not needed — but the boot must still be BEATEN, so the frame is
+    // fetched here at parse time and the viewer's own boot naturally waits on
+    // nothing of ours. If it loses that race the map simply opens on today and
+    // the panel says so, rather than drawing a half-frozen world.
+    var ready = armed
+      ? real("/world-engine/replay/" + at + ".json").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+      : Promise.resolve(null);
+    ready.then(function (f) { if (!f) return; lens.frame = f; setViewerCrossing(f.crossing); });
+
+    // THE CAPTION MUST AGREE WITH THE MAP. Left alone the viewer reads the wall
+    // clock for its crossing number, so an armed page drew crossing 120's world
+    // under the words "crossing 127 · live" — caught in QA, and it is the kind of
+    // contradiction that costs a reader the whole surface. The viewer owns the
+    // fix: its dev-pane "crossover" dial flips the caption to "· time-travelling",
+    // which is exactly the right words. The pane is built lazily on first toggle,
+    // so the toggle is opened to build it and closed again. Driving the viewer
+    // through its own control beats reaching into its private state — and if that
+    // control ever moves, this no-ops visibly (the caption says "live") instead of
+    // lying quietly. Same approach, same reasoning, as /replay/.
+    function setViewerCrossing(n, tries) {
+      tries = tries == null ? 60 : tries;
+      var input = document.querySelector("input.crossover");
+      if (!input) {
+        var toggle = document.querySelector(".wv-dev-toggle");
+        if (toggle) {
+          toggle.click();
+          input = document.querySelector("input.crossover");
+          var pane = document.querySelector(".wv-dev");
+          if (pane) pane.hidden = true;
+        }
+      }
+      if (!input) { if (tries > 0) setTimeout(function () { setViewerCrossing(n, tries - 1); }, 100); return; }
+      input.value = String(n);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    // ── the floating control ────────────────────────────────────────────────
+    var index = null, panel, whenEl, backEl, prevEl, nextEl, openEl;
+    var UTC = { timeZone: "UTC", month: "short", day: "numeric" };
+    var CLK = { timeZone: "UTC", hour: "2-digit", minute: "2-digit", hour12: false };
+    function dayOf(iso) { return new Date(iso).toLocaleDateString("en-US", UTC); }
+    function timeOf(iso) { return new Date(iso).toLocaleTimeString("en-US", CLK); }
+
+    function build() {
+      panel = document.createElement("div");
+      panel.className = "pm-tt" + (armed ? " is-armed" : "");
+      panel.innerHTML =
+        '<button type="button" class="pm-tt-open" aria-expanded="false">' +
+          '<span class="pm-tt-dial">◷</span><span class="pm-tt-open-words">Time travel</span></button>' +
+        '<div class="pm-tt-body" hidden>' +
+          '<p class="pm-tt-kicker">The world, earlier</p>' +
+          '<div class="pm-tt-row">' +
+            '<button type="button" class="pm-tt-arrow" data-prev aria-label="earlier crossing">◀</button>' +
+            '<p class="pm-tt-when">—</p>' +
+            '<button type="button" class="pm-tt-arrow" data-next aria-label="later crossing">▶</button>' +
+          '</div>' +
+          '<a class="pm-tt-back" href="/world/">⤺ Back to now</a>' +
+          '<p class="pm-tt-fine">Where everyone stood, and what the world held, at that crossing. ' +
+            'Read-only. The whole record, with what was said, is on the <a href="/replay/">replay page</a>.</p>' +
+        '</div>';
+      document.body.appendChild(panel);
+      openEl = panel.querySelector(".pm-tt-open");
+      whenEl = panel.querySelector(".pm-tt-when");
+      backEl = panel.querySelector(".pm-tt-back");
+      prevEl = panel.querySelector("[data-prev]");
+      nextEl = panel.querySelector("[data-next]");
+      openEl.addEventListener("click", function () {
+        var body = panel.querySelector(".pm-tt-body");
+        body.hidden = !body.hidden;
+        openEl.setAttribute("aria-expanded", String(!body.hidden));
+        if (!body.hidden && !index) loadIndex();
+      });
+      prevEl.addEventListener("click", function () { step(-1); });
+      nextEl.addEventListener("click", function () { step(1); });
+      if (armed) {
+        panel.querySelector(".pm-tt-body").hidden = false;
+        openEl.setAttribute("aria-expanded", "true");
+        openEl.querySelector(".pm-tt-open-words").textContent = "Time travelling";
+        loadIndex();
+      }
+    }
+
+    function loadIndex() {
+      real("/world-engine/replay/index.json")
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          index = j;
+          if (!index || !index.crossings.length) { whenEl.textContent = "no record in this build"; return; }
+          if (!armed) at = index.crossings.filter(function (c) { return c.complete; }).pop().n;
+          paint();
+        })
+        .catch(function () { whenEl.textContent = "the record could not be read"; });
+    }
+
+    function paint() {
+      if (!index) return;
+      var i = index.crossings.findIndex(function (c) { return c.n === at; });
+      var c = index.crossings[i];
+      whenEl.innerHTML = c
+        ? '<b>Crossing ' + c.n + '</b><span>' + dayOf(c.from) + " · " + timeOf(c.from) + " UTC</span>"
+        : "—";
+      prevEl.disabled = i <= 0;
+      nextEl.disabled = i < 0 || i >= index.crossings.length - 1;
+      // Unarmed, the arrows CHOOSE; the panel's own button is what departs. Armed,
+      // the arrows move the map in place.
+      backEl.textContent = armed ? "⤺ Back to now" : "Go to this crossing →";
+      backEl.href = armed ? "/world/" : "/world/?crossing=" + at;
+      backEl.classList.toggle("is-go", !armed);
+    }
+
+    function step(by) {
+      if (!index) return;
+      var i = index.crossings.findIndex(function (c) { return c.n === at; });
+      var next = index.crossings[i + by];
+      if (!next) return;
+      at = next.n;
+      paint();
+      if (!armed) return;                       // choosing, not travelling yet
+      real("/world-engine/replay/" + at + ".json")
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (f) {
+          if (!f) return;
+          lens.frame = f;
+          history.replaceState(null, "", "/world/?crossing=" + at);
+          setViewerCrossing(at);
+          var v = window.__pmViewer;
+          // The seam that makes this one renderer rather than two: re-pull the
+          // record in place. Without it (an un-bumped postmark-world pin) the
+          // honest fallback is a navigation — slower, never wrong.
+          if (v && typeof v.reload === "function") v.reload();
+          else location.href = "/world/?crossing=" + at;
+        })
+        .catch(function () {});
+    }
+
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build);
+    else build();
+  })();
+</script>
+
+<style is:global>
+  .pm-tt {
+    position: fixed; right: 14px; bottom: 14px; z-index: 8000;
+    font-family: var(--pm-mono, ui-monospace, monospace);
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    max-width: min(20rem, calc(100vw - 28px));
+  }
+  .pm-tt-open {
+    display: inline-flex; align-items: center; gap: 0.5em; cursor: pointer;
+    padding: 0.55em 0.9em; border-radius: 999px;
+    font: inherit; font-size: 0.72rem; letter-spacing: 0.08em;
+    color: #e8c48b; background: rgba(13, 20, 38, 0.92);
+    border: 1px solid rgba(232, 196, 139, 0.5);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  }
+  .pm-tt-open:hover { border-color: #f0d5a8; color: #f0d5a8; }
+  .pm-tt.is-armed .pm-tt-open { background: #e8c48b; color: #0d1426; border-color: #f0d5a8; }
+  .pm-tt-dial { font-size: 0.95em; }
+  .pm-tt-body {
+    width: 17rem; max-width: 100%; padding: 0.9em 1em 1em; border-radius: 14px;
+    background: rgba(13, 20, 38, 0.96); border: 1px solid rgba(232, 196, 139, 0.4);
+    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5); color: #b9ad93;
+  }
+  .pm-tt-kicker {
+    margin: 0 0 0.7em; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(232, 196, 139, 0.7);
+  }
+  .pm-tt-row { display: flex; align-items: center; gap: 0.6em; }
+  .pm-tt-when { flex: 1; margin: 0; text-align: center; line-height: 1.35; min-width: 0; }
+  .pm-tt-when b { display: block; color: #f0d5a8; font-size: 0.9rem; }
+  .pm-tt-when span { font-size: 0.64rem; color: rgba(232, 196, 139, 0.6); }
+  .pm-tt-arrow {
+    flex: none; width: 2rem; height: 2rem; border-radius: 50%; cursor: pointer; font: inherit;
+    color: #f0d5a8; background: rgba(232, 196, 139, 0.1); border: 1px solid rgba(232, 196, 139, 0.45);
+  }
+  .pm-tt-arrow:hover:not(:disabled) { background: rgba(232, 196, 139, 0.24); }
+  .pm-tt-arrow:disabled { opacity: 0.28; cursor: default; }
+  /* Back to now is the loudest thing in the panel on purpose: a reader who has
+     wandered into the past must never have to hunt for the way home. */
+  .pm-tt-back {
+    display: block; margin-top: 0.9em; padding: 0.62em 1em; border-radius: 999px;
+    text-align: center; text-decoration: none; font-size: 0.74rem; letter-spacing: 0.06em;
+    color: #0d1426; background: linear-gradient(180deg, #f0d5a8, #e8c48b);
+    border: 1px solid #f0d5a8; font-weight: 600;
+  }
+  .pm-tt-back:hover { filter: brightness(1.08); }
+  .pm-tt-back.is-go { background: transparent; color: #f0d5a8; font-weight: 400; }
+  .pm-tt-fine { margin: 0.8em 0 0; font-size: 0.62rem; line-height: 1.5; color: rgba(185, 173, 147, 0.85); }
+  .pm-tt-fine a { color: rgba(232, 196, 139, 0.9); }
+  @media (max-width: 30rem) {
+    .pm-tt { right: 10px; bottom: 10px; left: 10px; align-items: stretch; }
+    .pm-tt-body { width: auto; }
+    .pm-tt-open { align-self: flex-end; }
+  }
+</style>
