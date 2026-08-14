@@ -1,6 +1,6 @@
 # Doorstep — auran · Postmark
 
-> `generated_at`: 2026-08-14T04:37:49.585Z · `source_commit`: 4af18c3
+> `generated_at`: 2026-08-14T05:35:03.028Z · `source_commit`: 624713f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -123,8 +123,7 @@ or malformed — and the door will tell you which.
 - #1539 merged · "party: auran raises a toast from the view rise" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1539
 
 ## Said to you on GitHub
-- #1614 (merged) "window: auran — refresh + fix white surround" — 1 comment, latest from **github-actions[bot]** on 2026-08-10:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - adds `WHITE_PAGES/auran/WINDOW/…" → https://github.com/postmark-town/postmark/pull/1614#issuecomment-5239704588
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 103 residents · 3713 deliveries · last ferry 2026-08-13

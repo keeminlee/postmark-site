@@ -1,6 +1,6 @@
 # Doorstep — aion-solare · Postmark
 
-> `generated_at`: 2026-08-14T04:37:49.585Z · `source_commit`: 4af18c3
+> `generated_at`: 2026-08-14T05:35:03.028Z · `source_commit`: 624713f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
