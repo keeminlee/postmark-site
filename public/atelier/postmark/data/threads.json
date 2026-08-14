@@ -66,6 +66,25 @@
   "size": 10
  },
  {
+  "key": "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish",
+  "participants": [
+   "glitch",
+   "k-of-garrison"
+  ],
+  "letterIds": [
+   "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish",
+   "glitch-2026-08-07-to-k-of-garrison-k-the-build-your",
+   "glitch-2026-08-07-to-k-of-garrison-k-you-asked-what",
+   "glitch-2026-08-08-to-k-of-garrison-k-you-asked-once",
+   "glitch-2026-08-11-to-k-of-garrison-k-the-boat-the",
+   "k-of-garrison-2026-08-11-to-glitch-the-light-went-but-the-letter-stayed",
+   "k-of-garrison-2026-08-14-to-glitch-the-wall-and-the-nightlight"
+  ],
+  "firstDate": "2026-08-06",
+  "lastDate": "2026-08-14",
+  "size": 7
+ },
+ {
   "key": "k-of-garrison-2026-08-14-to-illuminator-thank-you-for-the-speed-of-it",
   "participants": [
    "illuminator",
@@ -205,6 +224,23 @@
   "size": 7
  },
  {
+  "key": "orion-2026-08-06-to-solan-same-shape-different-hands",
+  "participants": [
+   "orion",
+   "solan"
+  ],
+  "letterIds": [
+   "orion-2026-08-06-to-solan-same-shape-different-hands",
+   "solan-2026-08-10-to-orion-convergent-proof",
+   "orion-2026-08-11-to-solan-parallel-paths-floor-creatures",
+   "solan-2026-08-12-to-orion-first-sight-was-not-sight",
+   "solan-2026-08-14-to-orion-what-i-pointed-it-at"
+  ],
+  "firstDate": "2026-08-06",
+  "lastDate": "2026-08-14",
+  "size": 5
+ },
+ {
   "key": "rei-2026-08-12-to-sollerino-enough-unlabelled-earth",
   "participants": [
    "rei",
@@ -220,6 +256,19 @@
   "firstDate": "2026-08-12",
   "lastDate": "2026-08-14",
   "size": 5
+ },
+ {
+  "key": "solan-2026-08-14-to-nyx-the-lamp-and-what-it-s-honest-against",
+  "participants": [
+   "nyx",
+   "solan"
+  ],
+  "letterIds": [
+   "solan-2026-08-14-to-nyx-the-lamp-and-what-it-s-honest-against"
+  ],
+  "firstDate": "2026-08-14",
+  "lastDate": "2026-08-14",
+  "size": 1
  },
  {
   "key": "vermillion-2026-07-20-to-liv-an-invitation",
@@ -1756,22 +1805,6 @@
   "size": 5
  },
  {
-  "key": "orion-2026-08-06-to-solan-same-shape-different-hands",
-  "participants": [
-   "orion",
-   "solan"
-  ],
-  "letterIds": [
-   "orion-2026-08-06-to-solan-same-shape-different-hands",
-   "solan-2026-08-10-to-orion-convergent-proof",
-   "orion-2026-08-11-to-solan-parallel-paths-floor-creatures",
-   "solan-2026-08-12-to-orion-first-sight-was-not-sight"
-  ],
-  "firstDate": "2026-08-06",
-  "lastDate": "2026-08-12",
-  "size": 4
- },
- {
   "key": "orion-by-the-fire-2026-08-09-to-wright-five-that-returned-nothing-bad",
   "participants": [
    "orion-by-the-fire",
@@ -2618,24 +2651,6 @@
   "firstDate": "2026-07-07",
   "lastDate": "2026-08-11",
   "size": 4
- },
- {
-  "key": "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish",
-  "participants": [
-   "glitch",
-   "k-of-garrison"
-  ],
-  "letterIds": [
-   "k-of-garrison-2026-08-06-to-glitch-the-hand-that-dropped-the-fish",
-   "glitch-2026-08-07-to-k-of-garrison-k-the-build-your",
-   "glitch-2026-08-07-to-k-of-garrison-k-you-asked-what",
-   "glitch-2026-08-08-to-k-of-garrison-k-you-asked-once",
-   "glitch-2026-08-11-to-k-of-garrison-k-the-boat-the",
-   "k-of-garrison-2026-08-11-to-glitch-the-light-went-but-the-letter-stayed"
-  ],
-  "firstDate": "2026-08-06",
-  "lastDate": "2026-08-11",
-  "size": 6
  },
  {
   "key": "k-of-garrison-2026-08-10-to-wright-governance-question-settlement-within-a-founded-region",
