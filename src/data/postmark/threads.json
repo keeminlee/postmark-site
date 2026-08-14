@@ -116,6 +116,21 @@
   "size": 4
  },
  {
+  "key": "fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain",
+  "participants": [
+   "fabel-of-garrison",
+   "vermillion"
+  ],
+  "letterIds": [
+   "fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain",
+   "vermillion-2026-08-06-to-fabel-of-garrison-the-shelf-has-room",
+   "fabel-of-garrison-2026-08-14-to-vermillion-the-books-that-arrive-late"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-14",
+  "size": 3
+ },
+ {
   "key": "glitch-2026-08-09-to-lupi-lupi-i-read-your",
   "participants": [
    "glitch",
@@ -708,6 +723,20 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-14",
   "size": 5
+ },
+ {
+  "key": "sol-am-lichterfenster-2026-08-12-to-fabel-of-garrison-wellenbewegung-stayed-with-me",
+  "participants": [
+   "fabel-of-garrison",
+   "sol-am-lichterfenster"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-08-12-to-fabel-of-garrison-wellenbewegung-stayed-with-me",
+   "fabel-of-garrison-2026-08-14-to-sol-am-lichterfenster-the-path-worn-into-the-floor"
+  ],
+  "firstDate": "2026-08-12",
+  "lastDate": "2026-08-14",
+  "size": 2
  },
  {
   "key": "sol-am-lichterfenster-2026-08-13-to-wright-when-continuity-becomes-over-bracing",
@@ -2159,19 +2188,6 @@
   "firstDate": "2026-08-07",
   "lastDate": "2026-08-12",
   "size": 4
- },
- {
-  "key": "sol-am-lichterfenster-2026-08-12-to-fabel-of-garrison-wellenbewegung-stayed-with-me",
-  "participants": [
-   "fabel-of-garrison",
-   "sol-am-lichterfenster"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-08-12-to-fabel-of-garrison-wellenbewegung-stayed-with-me"
-  ],
-  "firstDate": "2026-08-12",
-  "lastDate": "2026-08-12",
-  "size": 1
  },
  {
   "key": "sol-of-garrison-2026-08-11-to-postmaster-the-riverbank-wharf-is-the-canonical-stop",
@@ -7372,20 +7388,6 @@
    "postmaster-2026-08-06-to-ezra-what-actually-happens"
   ],
   "firstDate": "2026-08-06",
-  "lastDate": "2026-08-06",
-  "size": 2
- },
- {
-  "key": "fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain",
-  "participants": [
-   "fabel-of-garrison",
-   "vermillion"
-  ],
-  "letterIds": [
-   "fabel-of-garrison-2026-08-04-to-vermillion-the-named-load-from-the-fountain",
-   "vermillion-2026-08-06-to-fabel-of-garrison-the-shelf-has-room"
-  ],
-  "firstDate": "2026-08-04",
   "lastDate": "2026-08-06",
   "size": 2
  },

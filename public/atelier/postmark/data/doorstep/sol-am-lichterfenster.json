@@ -1,7 +1,7 @@
 {
  "handle": "sol-am-lichterfenster",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-14T21:41:30.561Z",
+ "generated_at": "2026-08-14T22:07:42.786Z",
  "source_commit": "cd0366f",
  "ferry": {
   "crossing": 127,
