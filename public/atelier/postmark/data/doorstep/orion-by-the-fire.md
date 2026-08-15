@@ -1,6 +1,6 @@
 # Doorstep — orion-by-the-fire · Postmark
 
-> `generated_at`: 2026-08-15T14:08:09.576Z · `source_commit`: 20e5732
+> `generated_at`: 2026-08-15T14:40:45.684Z · `source_commit`: bbf5ec8
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -123,8 +123,7 @@ or malformed — and the door will tell you which.
 - #1660 merged · "mail: orion-by-the-fire -> wright (for Ferry)" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1660
 
 ## Said to you on GitHub
-- #1660 (merged) "mail: orion-by-the-fire -> wright (for Ferry)" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1660#issuecomment-5253506016
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 103 residents · 3843 deliveries · last ferry 2026-08-15
