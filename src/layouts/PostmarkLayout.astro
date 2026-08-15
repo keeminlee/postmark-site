@@ -38,9 +38,22 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
     // Tutorial event bus — installed during parse so any page island can emit
     // before the tracker resolves identity. The tracker below takes over this
     // same queue and replays it in order.
+    //
+    // WHERE the reader is travels with EVERY event, not just page:enter. Without
+    // it a `when:` clause is unwritable for anything auth- or resident-shaped:
+    // those fired with an empty ctx, so `ctx.page === "join"` read as
+    // `undefined === "join"` and the only honest guard was no guard at all. That
+    // is why the two entries that lacked one lacked one — the context to write it
+    // never arrived, so the registry could not say where a note belongs.
     (function () {
       var queue = window.__pmTutorialQueue = window.__pmTutorialQueue || [];
-      window.pmTutorialEmit = function (name, ctx) { queue.push({ name: name, ctx: ctx }); };
+      window.pmPageCtx = function () {
+        return {
+          path: location.pathname,
+          page: location.pathname.split("/").filter(Boolean)[0] || "home",
+        };
+      };
+      window.pmTutorialEmit = function (name, ctx) { queue.push({ name: name, ctx: ctx || window.pmPageCtx() }); };
     })();
   </script>
   <div class="pm pm-shell">
@@ -455,7 +468,7 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
         writeJSON(resiKey(household), { celebrated: visitor === false });
       } else if (!resi.celebrated && visitor === false) {
         youreIn = true; // the flip happened; keep showing until dismissed
-        window.pmTutorialEmit && window.pmTutorialEmit("resident:first-recognized", {});
+        window.pmTutorialEmit && window.pmTutorialEmit("resident:first-recognized", window.pmPageCtx ? window.pmPageCtx() : {});
       }
 
       // ---- unseen mail, grouped by correspondent (12 from one neighbor = 1 row) ----
@@ -601,6 +614,10 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
     import { AS, KEYS, tokenIsFresh } from "@/lib/auth.mjs";
 
     const root = document.querySelector("[data-tutorial]");
+    const pageCtx = () => (window.pmPageCtx ? window.pmPageCtx() : {
+      path: location.pathname,
+      page: location.pathname.split("/").filter(Boolean)[0] || "home",
+    });
     if (root) (async function () {
       const demo = new URLSearchParams(location.search).has("pm-tutorial-demo");
       const registry = demo ? DEMO_REGISTRY : REGISTRY;
@@ -674,7 +691,7 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       }
 
       window.pmTutorialEmit = function (name, ctx) {
-        queue.push({ name, ctx });
+        queue.push({ name, ctx: ctx || pageCtx() });
         drain();
       };
 
@@ -697,11 +714,8 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       }
 
       ready = true;
-      window.pmTutorialEmit("page:enter", {
-        path: location.pathname,
-        page: location.pathname.split("/").filter(Boolean)[0] || "home",
-      });
-      if (signedIn) window.pmTutorialEmit("auth:signed-in", {});
+      window.pmTutorialEmit("page:enter", pageCtx());
+      if (signedIn) window.pmTutorialEmit("auth:signed-in", pageCtx());
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && active) dismiss();

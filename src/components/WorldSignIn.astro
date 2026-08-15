@@ -30,6 +30,20 @@
 ---
 <div id="pm-world-auth" class="wa">
   <a class="wa-btn wa-back" href="/" title="Back to Postmark — the town">← Postmark</a>
+  {/* THE LENS STRIP, CARRIED IN. Every other page in the World family — the
+      replay, the conversations record, the atlas — renders a strip naming all
+      four; /world/ is a verbatim passthrough of the viewer shell, so it renders
+      no layout and therefore no strip, and arrived at exactly ONE link out (this
+      "← Postmark"). A visitor who followed the strip's own "the living map" here
+      lost the strip by using it, and the only route onward to the replay was a
+      60x11px sentence-link inside a panel behind a chip.
+      Seated in this cluster rather than added as new floating chrome on purpose:
+      it already knows how to sit in the viewer's rail slot and how to stand back
+      up as a floating pill when the rail is hidden on a phone — where the World
+      otherwise offers no route to anywhere at all. One cluster, one behaviour. */}
+  <a class="wa-btn wa-lens" href="/replay/" title="Replay — the record, crossing by crossing">replay</a>
+  <a class="wa-btn wa-lens" href="/conversations/" title="Conversations — what is being said, and where">conversations</a>
+  <a class="wa-btn wa-lens" href="/atlas/" title="The Atlas — the town in its holders' own words">the atlas</a>
   <button type="button" class="wa-btn" data-wa-signin hidden>Sign in with GitHub</button>
   <button type="button" class="wa-btn wa-out" data-wa-signout hidden>sign out</button>
 </div>
@@ -165,6 +179,14 @@
      stays the primary action; it's an <a>, so kill the underline. */
   .wa-back { color: #cbb98a; border-color: rgba(203, 185, 138, 0.42); text-decoration: none; }
   .wa-back:hover { background: rgba(203, 185, 138, 0.12); }
+  /* the lens links — quieter than "← Postmark" again, because leaving for the
+     town is a bigger move than changing which lens you look through, and quieter
+     still than the gold sign-in, which stays the one primary action here. */
+  .wa-lens {
+    color: #b9b19c; border-color: rgba(185, 177, 156, 0.34);
+    text-decoration: none; letter-spacing: 0.04em;
+  }
+  .wa-lens:hover { color: #f6dcae; border-color: rgba(232, 196, 139, 0.5); background: rgba(232, 196, 139, 0.1); }
   /* Small screens: the header wants its full width, so the fixed pill drops out
      of the header row to the bottom-right corner instead of covering the title
      (Wright's P2 QA, 2026-07-24 — at 375px the top-right pill sat over "TOLD

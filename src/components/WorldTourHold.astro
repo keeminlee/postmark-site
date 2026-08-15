@@ -1,0 +1,105 @@
+---
+// WorldTourHold — hold back the world viewer's arrival greeting on surfaces that
+// are RECORDS rather than the world itself: /replay/, and /world/ once it has
+// been armed to a past crossing.
+//
+// WHY THIS EXISTS. The viewer greets on mount, and both of those surfaces mount
+// the same viewer — so the tour arrives over a page it was not written for. On
+// /replay/ the viewer sits below the page's own title and prose instead of
+// owning the screen, so the steps that anchor to viewer chrome spotlight things
+// BELOW THE FOLD: step 7's highlight lands at y=934 on a 900px viewport, and the
+// reader gets a card describing a highlight that is not on their screen. Worse,
+// the steps teach acting — "the world takes what you do as done by them", "a walk
+// opens in the corner" — on a surface the time-travel panel itself calls
+// Read-only. (Keemin, 2026-08-15: "it makes no sense there, it has no anchored
+// content.")
+//
+// WHAT THIS DOES NOT DO — and this is the load-bearing half. It does NOT change
+// who gets greeted or how often. Spectators are greeted every visit on the living
+// world (Keemin, 2026-08-12, overruling his own 08-05 self: the door is open to
+// strangers). That ruling is untouched: this holds the greeting back on two
+// surfaces the ruling never contemplated, and nowhere else. The viewer's `?`
+// button keeps working here, so a reader who WANTS the tour on a record page can
+// still ask for it and gets it in full.
+//
+// It also refuses to spend a resident's one greeting. The viewer marks the tour
+// seen inside the same call that opens it, so a resident whose first ever visit
+// happened to be /replay/ would have burned their real greeting on a page we then
+// closed. So the seen-keys are snapshotted before the viewer boots and restored
+// after a held greeting: if the key was already there it stays, and if this
+// arrival created it, it goes. The resident's first walk into the living world is
+// still their first.
+//
+// `armedOnly` is for /world/, which is the living world until a crossing is asked
+// for; /replay/ passes nothing, because it is a record from its first paint.
+const { armedOnly = false } = Astro.props;
+---
+<script is:inline data-armed-only={armedOnly ? "true" : "false"}>
+  (function () {
+    var el = document.currentScript;
+    var armedOnly = el && el.dataset.armedOnly === "true";
+    // On /world/ the greeting is correct while the world is live; it is only the
+    // armed, read-only past that is a record. The lens is installed from the URL
+    // at parse time, so this is knowable before the viewer boots.
+    if (armedOnly && !new URLSearchParams(location.search).get("crossing")) return;
+
+    var SEEN = "pm_world_tour_seen";
+    function snapshot() {
+      var o = {};
+      try {
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf(SEEN) === 0) o[k] = localStorage.getItem(k);
+        }
+      } catch (e) {}
+      return o;
+    }
+    function restore(before) {
+      try {
+        for (var i = localStorage.length - 1; i >= 0; i--) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf(SEEN) === 0 && !(k in before)) localStorage.removeItem(k);
+        }
+      } catch (e) {}
+    }
+
+    var before = snapshot();
+    var asked = false;   // did the reader open the tour themselves?
+    var done = false;
+
+    // A deliberate open is the one thing that must survive this: the `?` sets
+    // this before the card can appear, so the hold never eats a request.
+    document.addEventListener("click", function (e) {
+      if (e.target && e.target.closest && e.target.closest(".wv-tour-open")) asked = true;
+    }, true);
+
+    function hold() {
+      if (done || asked) return;
+      var card = document.querySelector(".wv-tour-card");
+      if (!card || card.hidden) return;
+      var box = card.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      var skip = card.querySelector(".wv-tour-skip");
+      if (!skip) return;
+      done = true;
+      skip.click();
+      restore(before);
+      stop();
+    }
+
+    var obs = new MutationObserver(hold);
+    function stop() {
+      try { obs.disconnect(); } catch (e) {}
+      clearInterval(poll);
+      clearTimeout(giveUp);
+    }
+    obs.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden", "class", "style"] });
+    // The card can be built before the observer sees a mutation it cares about,
+    // so poll as well; both routes are cheap and one of them is always first.
+    var poll = setInterval(hold, 120);
+    // The greeting fires when identity resolves. If the office never answers it
+    // never comes, and watching forever would be a leak for no reader's benefit.
+    var giveUp = setTimeout(stop, 25000);
+    hold();
+  })();
+</script>

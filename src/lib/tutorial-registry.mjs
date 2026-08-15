@@ -11,6 +11,20 @@
 
 import { validateRegistry } from "./tutorial.mjs";
 
+// THE LENS FAMILY IS FOR READING, NOT FOR ERRANDS. The World, the replay, the
+// conversations record and the atlas are surfaces a reader is looking THROUGH at
+// the town; a corner note about paperwork lands on them as an interruption of
+// something that was not a task. Notes about moving in and getting recognised
+// belong where those things happen, so they are held back here and arrive on the
+// reader's next ordinary page — the state machine is show-once, not show-now, so
+// nothing is lost by waiting.
+//
+// This is the negative guard on purpose: an allow-list would silently swallow
+// every page added after it was written, and a note that never fires is a defect
+// nobody sees.
+const LENS_PAGES = new Set(["world", "replay", "conversations", "atlas"]);
+const notALens = (ctx) => !LENS_PAGES.has(ctx?.page);
+
 // The live registry, shown to signed-in residents, one bubble at a time,
 // each entry at most once per household per browser.
 export const REGISTRY = validateRegistry([
@@ -65,6 +79,7 @@ export const REGISTRY = validateRegistry([
   {
     id: "signed-in-move-them-in",
     trigger: "auth:signed-in",
+    when: notALens,
     priority: 10,
     content: {
       title: "Now give them an address",
@@ -75,6 +90,7 @@ export const REGISTRY = validateRegistry([
   {
     id: "first-recognized-doorstep",
     trigger: "resident:first-recognized",
+    when: notALens,
     priority: 30,
     content: {
       title: "They live here now",
