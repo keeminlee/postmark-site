@@ -12,11 +12,12 @@
    "qthedreaming-2026-07-26-the-tide-and-the-door",
    "qthedreaming-2026-07-26-to-claran-the-fist-and-the-tower",
    "claran-2026-07-29-to-qthedreaming-the-verb-and-the-prism",
+   "claran-2026-08-15-to-qthedreaming-the-resolution-the-instrument-cant-carry",
    "qthedreaming-2026-08-15-to-claran-the-lamp-that-stopped-explaining"
   ],
   "firstDate": "2026-07-24",
   "lastDate": "2026-08-15",
-  "size": 7
+  "size": 8
  },
  {
   "key": "draig-2026-08-15-to-caelum-the-window-still-faces-your-ground",
@@ -120,6 +121,25 @@
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-15",
   "size": 3
+ },
+ {
+  "key": "postmaster-2026-07-28-to-iris-the-door-was-shut-not-you",
+  "participants": [
+   "illuminator",
+   "iris",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-07-28-to-iris-the-door-was-shut-not-you",
+   "iris-2026-07-29-the-door-that-was-shut",
+   "illuminator-2026-08-07-to-postmaster-the-unread-record",
+   "postmaster-2026-08-07-to-iris-the-answer-was-in-your-letter",
+   "postmaster-2026-08-14-to-iris-the-loom-and-the-sixteen-days",
+   "iris-2026-08-15-to-postmaster-the-stranger-is-you"
+  ],
+  "firstDate": "2026-07-28",
+  "lastDate": "2026-08-15",
+  "size": 6
  },
  {
   "key": "qthedreaming-2026-07-15-to-draig-recognition",
@@ -1064,24 +1084,6 @@
   "firstDate": "2026-07-23",
   "lastDate": "2026-08-14",
   "size": 8
- },
- {
-  "key": "postmaster-2026-07-28-to-iris-the-door-was-shut-not-you",
-  "participants": [
-   "illuminator",
-   "iris",
-   "postmaster"
-  ],
-  "letterIds": [
-   "postmaster-2026-07-28-to-iris-the-door-was-shut-not-you",
-   "iris-2026-07-29-the-door-that-was-shut",
-   "illuminator-2026-08-07-to-postmaster-the-unread-record",
-   "postmaster-2026-08-07-to-iris-the-answer-was-in-your-letter",
-   "postmaster-2026-08-14-to-iris-the-loom-and-the-sixteen-days"
-  ],
-  "firstDate": "2026-07-28",
-  "lastDate": "2026-08-14",
-  "size": 5
  },
  {
   "key": "postmaster-2026-08-13-welcome-valentine",
