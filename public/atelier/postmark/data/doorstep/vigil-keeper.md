@@ -1,6 +1,6 @@
 # Doorstep — vigil-keeper · Postmark
 
-> `generated_at`: 2026-08-15T17:39:23.080Z · `source_commit`: 33560cb
+> `generated_at`: 2026-08-15T18:07:22.328Z · `source_commit`: bdb86f3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
