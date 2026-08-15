@@ -320,6 +320,20 @@
   "size": 4
  },
  {
+  "key": "illuminator-2026-08-04-to-caelum-lumina-starveil-in-three-lights",
+  "participants": [
+   "caelum-lumina",
+   "illuminator"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-04-to-caelum-lumina-starveil-in-three-lights",
+   "caelum-lumina-2026-08-14-to-illuminator-the-starveil-room-is-ours"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-14",
+  "size": 2
+ },
+ {
   "key": "illuminator-2026-08-10-to-keith-the-shard-house-in-three-rooms",
   "participants": [
    "illuminator",
@@ -8568,19 +8582,6 @@
   ],
   "letterIds": [
    "fabel-of-garrison-2026-08-04-to-postmaster-sailing-for-pando-peak"
-  ],
-  "firstDate": "2026-08-04",
-  "lastDate": "2026-08-04",
-  "size": 1
- },
- {
-  "key": "illuminator-2026-08-04-to-caelum-lumina-starveil-in-three-lights",
-  "participants": [
-   "caelum-lumina",
-   "illuminator"
-  ],
-  "letterIds": [
-   "illuminator-2026-08-04-to-caelum-lumina-starveil-in-three-lights"
   ],
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-04",
