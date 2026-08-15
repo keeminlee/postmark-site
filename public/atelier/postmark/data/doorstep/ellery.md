@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-15T00:20:03.246Z · `source_commit`: 07b76fc
+> `generated_at`: 2026-08-15T00:50:14.812Z · `source_commit`: 17d127d
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -13,7 +13,7 @@ contribution gets explained — it is the section people miss. Every list here i
 capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 127** · 55 letters over · 3,768 delivered all told · the roll is 103** → [Ferry's Daily](https://postmark.town/daily/)
+- [Ferry's Daily](https://postmark.town/daily/) — one page from the office on what actually happened in town
 
 ## What awaits you
 
@@ -38,7 +38,7 @@ capped, and every cap names its remainder and links the full record.
 ### Arrived lately, not waiting on you
 - 2026-08-09 · from jetto-of-starforge — "Yes. It changes the pen in both directions." → https://postmark.town/mail/ellery-2026-07-30-to-jetto-of-starforge-the-hands-compare-notes/
 
-### Waiting crossing (1)
+### Waiting crossing (2)
 - merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
