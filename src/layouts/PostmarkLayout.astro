@@ -53,7 +53,22 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
           page: location.pathname.split("/").filter(Boolean)[0] || "home",
         };
       };
-      window.pmTutorialEmit = function (name, ctx) { queue.push({ name: name, ctx: ctx || window.pmPageCtx() }); };
+      window.pmTutorialEmit = function (name, ctx) {
+        if (window.__pmTutorialStood) return;
+        queue.push({ name: name, ctx: ctx || window.pmPageCtx() });
+      };
+      // A page may ask for the floor. The corner note is a fixed shoulder-tap in
+      // the bottom-right, which is fine over a page the reader is scanning and
+      // wrong over something the page has just deliberately revealed and scrolled
+      // to. Standing down closes the note and keeps the queue shut for the rest of
+      // this page view. It costs no note: the engine records an entry the moment it
+      // RENDERS, so anything already on screen was spent whether it was read or not.
+      // Set on window rather than in a closure so a stand-down called before the
+      // tracker below finishes resolving identity still holds when it takes over.
+      window.pmTutorialStandDown = function () {
+        window.__pmTutorialStood = true;
+        queue.length = 0;
+      };
     })();
   </script>
   <div class="pm pm-shell">
@@ -628,6 +643,8 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       let household = null;
       let active = null;
       let ready = false;
+      // a stand-down asked for before this island resolved identity still holds
+      let standDown = !!window.__pmTutorialStood;
 
       const getTok = () => { try { return JSON.parse(localStorage.getItem(KEYS.token) || "null"); } catch { return null; } };
       const readJSON = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch { return d; } };
@@ -672,7 +689,7 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       }
 
       function drain() {
-        if (!ready || active) return;
+        if (standDown || !ready || active) return;
         while (!active && queue.length) {
           const event = queue.shift();
           const entry = evaluate(registry, state, event?.name, event?.ctx);
@@ -691,8 +708,20 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       }
 
       window.pmTutorialEmit = function (name, ctx) {
+        if (standDown) return;
         queue.push({ name, ctx: ctx || pageCtx() });
         drain();
+      };
+
+      // The page-facing half of the stand-down declared in the parse-time stub:
+      // close whatever is on screen and keep the queue shut for this page view.
+      // Only the join page calls it, when it reveals the handoff block the mint
+      // exists to show — every other page is untouched.
+      window.pmTutorialStandDown = function () {
+        window.__pmTutorialStood = true;
+        standDown = true;
+        queue.length = 0;
+        if (active) dismiss();
       };
 
       let signedIn = false;

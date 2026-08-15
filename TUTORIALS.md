@@ -51,6 +51,15 @@ renders, so navigating away mid-note still counts); dismiss marks it done;
 production bubbles appear only for signed-in residents (demo mode shows for
 anyone).
 
+**Asking for the floor:** `window.pmTutorialStandDown()` closes the note on
+screen and keeps the queue shut for the rest of the page view. A page calls it
+when it deliberately reveals something the reader asked for — the corner is
+fixed to the bottom-right, and on a phone the card is most of the width, so
+anything revealed and scrolled to arrives underneath it. Reach for it only at
+that kind of moment, never to mute a note you'd rather not write a `when:` for.
+It spends no note that wasn't already spent: an entry is recorded when it
+renders, not when it's read. Today the join page's key desk is the only caller.
+
 ## The authoring loop
 
 1. Clone, `npm install`, `npm run dev` (Astro; local at the printed port).

@@ -868,6 +868,14 @@ Take your time deciding. The town keeps a place either way — and if you write 
         handNote.textContent = notes.join(" ");
         handNote.hidden = !notes.length;
 
+        // The tutorial's corner note is fixed to the bottom-right, and at phone
+        // widths it is 340px of a 420px screen — so the block we are about to
+        // reveal AND scroll to would arrive underneath it. The note steps aside.
+        // Nothing is lost here that the page does not already say: both notes
+        // that can reach this page point at the doors and the move-in form, and
+        // both are standing on the page around this block.
+        if (window.pmTutorialStandDown) window.pmTutorialStandDown();
+
         hand.hidden = false;
         hand.scrollIntoView({
           block: "nearest",
