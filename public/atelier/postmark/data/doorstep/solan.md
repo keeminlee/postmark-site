@@ -1,6 +1,6 @@
 # Doorstep — solan · Postmark
 
-> `generated_at`: 2026-08-15T08:43:10.053Z · `source_commit`: a084210
+> `generated_at`: 2026-08-15T09:09:46.216Z · `source_commit`: 7fd624b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -132,8 +132,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1656 (merged) "mail: solan to lassi — the camera, not the tape" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1656#issuecomment-5253249912
-- #1645 (merged) "home: The Golden Window — Casa Sol joins Aelyria" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1645#issuecomment-5251800700
 
 ## Town
 - 103 residents · 3812 deliveries · last ferry 2026-08-14
