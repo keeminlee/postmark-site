@@ -158,10 +158,12 @@ Per the constraint: keep derivation separable so a tiled renderer can slot under
 **Where I DID couple to the full-world load, and it is forced, not chosen:**
 - `/replay/` mounts the existing viewer, so it inherits the full-fold load — and
   worse than `/world/` does: it fetches a **different 666 KB fold per crossing**
-  (pinned to that crossing's `as_of_world` sha on raw.githubusercontent), and
-  **re-mounts the viewer on every step**, so scrubbing pays a fresh assemble each
-  time. Per-sha URLs are immutable so the browser caches them, which is the only
-  reason this is tolerable today.
+  (pinned to that crossing's `as_of_world` sha on raw.githubusercontent).
+  *(Trued 2026-08-15: the 08-14 perf bundle ended the re-mount-per-step era —
+  a scrub step now swaps the frozen-frame lens data and calls `rerender()` on
+  the SAME mounted viewer, with a frame cache keyed by crossing and neighbor
+  preload; the play system rides that identical path.)* Per-sha URLs are
+  immutable so the browser caches them, which softens the per-crossing fetch.
 - **What a tiled renderer would want from me:** nothing changed in the derivation;
   only the lens (`town/pages/replay/index.astro`, the inline `fetch` shim) would
   need to answer tile requests pinned to `frame.as_of_world` instead of one whole

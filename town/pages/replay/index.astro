@@ -63,6 +63,11 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
         atlas as it looks today: the painting is kept by the town, not by the
         world's record, so it has no earlier version to show you. Nothing on this
         page is reconstructed or filled in — a quiet crossing shows as quiet.
+        The record holds one standing of the town per crossing, taken as it
+        opened, so <b>the map changes when the ferry sails and not between</b>:
+        pressing play runs the crossing's clock through what was said and set
+        out below, and moves the map on at the boundary. Nobody is animated
+        walking, because nobody's walk was written down step by step.
       </p>
     </section>
 
@@ -75,11 +80,42 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
         </div>
         <button type="button" class="r-arrow" data-next aria-label="later crossing">▶</button>
       </div>
+
+      <!-- THE TRANSPORT. A crossing is twelve hours long, so the only way to
+           watch one is to run its clock faster than the town's. 50× is the
+           default because it makes a half-day take about a quarter of an hour —
+           slow enough to be ambient, fast enough to finish. -->
+      <div class="r-transport">
+        <button type="button" class="r-play" data-play aria-pressed="false">
+          <span class="r-play-glyph" aria-hidden="true">▶</span>
+          <span data-play-word>Play</span>
+        </button>
+        <div class="r-speeds" role="group" aria-label="playback speed" data-speeds></div>
+        <button type="button" class="r-now" data-now>⤺ Back to now</button>
+      </div>
+
+      <!-- THE CROSSING'S OWN CLOCK. The rail is the half-day laid out end to
+           end, one notch per recorded moment, and the playhead is where the
+           replay has got to. A reader can see the crossing's rhythm — three
+           voices in one minute, then four silent hours — before it plays. -->
+      <div class="r-rail" data-rail>
+        <div class="r-rail-track" data-rail-track>
+          <div class="r-rail-fill" data-rail-fill></div>
+          <div class="r-rail-beats" data-rail-beats></div>
+          <div class="r-rail-head" data-rail-head hidden></div>
+        </div>
+        <p class="r-rail-clock">
+          <span class="r-rail-time" data-clock>—</span>
+          <span class="r-rail-note" data-rail-note></span>
+        </p>
+      </div>
+
       <!-- the track: one tick per crossing, its height the number of events, so a
            reader can SEE which half-days the town was busy in before clicking -->
       <ol class="r-track" data-track></ol>
       <p class="r-track-legend">
-        Each tick is one crossing; taller means more happened. Use ← and → to step.
+        Each tick is one crossing; taller means more happened. Use ← and → to
+        step, space to play or pause.
       </p>
     </section>
 
@@ -259,6 +295,16 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
     const provenanceEl = document.querySelector("[data-provenance]");
     const prevBtn = document.querySelector("[data-prev]");
     const nextBtn = document.querySelector("[data-next]");
+    const playBtn = document.querySelector("[data-play]");
+    const playWord = document.querySelector("[data-play-word]");
+    const speedsEl = document.querySelector("[data-speeds]");
+    const nowBtn = document.querySelector("[data-now]");
+    const railEl = document.querySelector("[data-rail]");
+    const railFill = document.querySelector("[data-rail-fill]");
+    const railBeats = document.querySelector("[data-rail-beats]");
+    const railHead = document.querySelector("[data-rail-head]");
+    const railNote = document.querySelector("[data-rail-note]");
+    const clockEl = document.querySelector("[data-clock]");
 
     // Everything the record authored — what a resident SAID above all — is put in
     // with textContent. The conversations page holds the same line for the same
@@ -271,6 +317,40 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
     };
 
     let index = null, current = null, viewer = null, faces = {}, mountCount = 0;
+
+    // THE CLOCK. A crossing is a twelve-hour stretch of the town's own time, and
+    // playing it means running that time faster than ours: `speed` is how many
+    // seconds of the town pass in one second here. 50× is the default because a
+    // half-day then takes about fourteen minutes — a thing you can leave running
+    // beside you, which is what a town's day should be. `0` is the odd one out
+    // and deliberately so: it is the page as it was, a crossing at a time, and
+    // the arrows are still the whole control.
+    const SPEEDS = [
+      { v: 1, label: "1×" },
+      { v: 10, label: "10×" },
+      { v: 50, label: "50×" },
+      { v: 250, label: "250×" },
+      { v: 1000, label: "1000×" },
+      { v: 0, label: "step" },
+    ];
+    const DEFAULT_SPEED = 50;
+    // How long a moment stays lit, in OUR seconds — so the highlight reads the
+    // same at 1× and at 1000×, and only the town's clock changes pace.
+    const LIT_MS = 1800;
+
+    let speed = DEFAULT_SPEED;
+    let playing = false;
+    let clockT = null;        // where the replay has got to, in the town's time
+    let rafId = 0, lastWall = 0, litRow = null, lastFollow = 0;
+    // Rows in the digest, in the order the record has them happening, so the
+    // playhead has something to walk down. Rebuilt with the digest.
+    let beats = [];
+    // True when a crossing's record carries no readable times and the page has
+    // paced it evenly instead. Stated in the chrome rather than hidden.
+    let evenlyPaced = false;
+    // What the rail says when the clock is not running; the running note is
+    // written over it and put back on pause.
+    let baseNote = "";
     // The frames themselves are small (a crossing's speech and departures) but a
     // step should not wait on a round trip for one. Same immutability argument as
     // the fold cache next door: a finished crossing's record never changes. The
@@ -356,6 +436,7 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
         const list = el("ol", "r-voices");
         for (const v of frame.voices) {
           const li = el("li", "r-voice");
+          li.dataset.at = String(momentOf(v));
           const head = el("p", "r-voice-head");
           head.appendChild(personLink(v.handle));
           // the place words go to the place, same door the conversations page
@@ -386,6 +467,7 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
         const list = el("ol", "r-moves");
         for (const m of frame.moves) {
           const li = el("li", "r-move");
+          li.dataset.at = String(momentOf(m));
           li.appendChild(personLink(m.handle));
           // A stop is recorded as a zero-distance departure, so the record can
           // say "stopped" without a second event type — and the page says the
@@ -425,6 +507,308 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
       provenanceEl.textContent = frame.as_of_world
         ? `Drawn from the world record as it stood at commit ${frame.as_of_world.slice(0, 8)} — the fold this crossing was computed against.`
         : "This crossing has no world commit on its record, so the map falls back to the world as it stands today.";
+
+      buildBeats(frame);
+    }
+
+    // ───────── the crossing's clock ─────────
+    //
+    // A moment's time comes off the record: replay-record writes `at_ms` beside
+    // every `at`, so nothing here parses what the build already parsed. The
+    // string is the fallback, and a record with neither is handled below rather
+    // than pretended about.
+    const momentOf = (row) => {
+      const ms = Number(row.at_ms);
+      if (Number.isFinite(ms)) return ms;
+      const parsed = Date.parse(row.at);
+      return Number.isFinite(parsed) ? parsed : NaN;
+    };
+
+    const startOf = (frame) => Date.parse(frame.from);
+    // WHERE A CROSSING ENDS. A finished one ends where the record says it did.
+    // The one still being written ends at its last written moment — measured
+    // against crossing 129, `covers_to` on an open crossing is the last thing
+    // that happened in it, not the sailing it is heading for. The clamp to now
+    // is insurance against the other reading, not the working case: playing past
+    // this moment would be playing into a future the record cannot show.
+    const endOf = (frame) => {
+      const to = Date.parse(frame.to);
+      if (!Number.isFinite(to)) return startOf(frame);
+      return frame.complete ? to : Math.min(to, Date.now());
+    };
+
+    const clockLabel = (ms) =>
+      new Date(ms).toLocaleTimeString("en-US", clock) + " UTC";
+
+    // The digest's rows, in the order they happened, each holding the DOM node
+    // that says it. This is the whole of "what plays": the playhead walks this
+    // list, and a row lights when its moment arrives.
+    function buildBeats(frame) {
+      const nodes = [
+        ...voicesEl.querySelectorAll(".r-voice[data-at]"),
+        ...movesEl.querySelectorAll(".r-move[data-at]"),
+      ];
+      const from = startOf(frame), to = endOf(frame);
+      // HONEST FALLBACK. Every frame the current recorder writes carries times;
+      // a frame from an older build might not, and a crossing whose moments all
+      // read NaN would otherwise play as one flat instant. Rather than fake a
+      // precision the record does not have, the moments are spread evenly across
+      // the crossing and the rail says so in words.
+      evenlyPaced = nodes.length > 0 && nodes.some((n) => !Number.isFinite(Number(n.dataset.at)));
+      if (evenlyPaced) {
+        const span = Math.max(1, to - from);
+        nodes.forEach((n, i) => {
+          n.dataset.at = String(from + Math.round(((i + 1) / (nodes.length + 1)) * span));
+        });
+      }
+      beats = nodes
+        .map((node) => ({ node, at: Number(node.dataset.at) }))
+        .filter((b) => Number.isFinite(b.at))
+        .sort((a, b) => a.at - b.at);
+      litRow = null;
+      renderRail(frame);
+    }
+
+    // The rail is the crossing laid out end to end. Its notches are the moments,
+    // so the shape of a half-day — a burst at the ferry, a long quiet afternoon —
+    // is legible before a single second of it is played.
+    function renderRail(frame) {
+      const from = startOf(frame), to = endOf(frame);
+      const span = Math.max(1, to - from);
+      railBeats.textContent = "";
+      for (const b of beats) {
+        const pct = Math.min(100, Math.max(0, ((b.at - from) / span) * 100));
+        const notch = el("span", "r-rail-beat" + (b.node.classList.contains("r-voice") ? " is-voice" : " is-move"));
+        notch.style.left = pct + "%";
+        railBeats.appendChild(notch);
+      }
+      railEl.classList.toggle("is-empty", beats.length === 0);
+      // At rest the rail says what it is a rail OF, so it is not read as a
+      // second copy of the crossing track underneath it.
+      const n = beats.length;
+      baseNote = (n === 0 ? "· nothing recorded" : `· ${n} moment${n === 1 ? "" : "s"} recorded`)
+        + (evenlyPaced ? " · no times in this record, so they are spread evenly" : "")
+        + (frame.complete ? "" : " · still being written");
+      railNote.textContent = baseNote;
+    }
+
+    // A HALF-DAY IS MOSTLY QUIET, AND THAT IS NOT A BUG TO DESIGN AWAY. The
+    // town's moments cluster: crossing 119's first is an hour and three quarters
+    // in, and at 50× that is over two minutes of a still page before anything
+    // happens. The page will not skip that stretch — "a quiet crossing shows as
+    // quiet" is the law it opens with, and hopping the playhead over the empty
+    // water would be the page editing the day. What it can do is say what the
+    // reader is waiting for, so the wait reads as the town being quiet rather
+    // than as the replay being stuck.
+    function gapWords(ms) {
+      const m = Math.round(ms / 60000);
+      if (m < 1) return "seconds";
+      if (m < 60) return `${m} min`;
+      const h = Math.floor(m / 60);
+      return `${h}h ${String(m % 60).padStart(2, "0")}m`;
+    }
+
+    // Paint the playhead: the rail, the clock, and every row's relation to now.
+    // `is-ahead` is a row whose moment has not come; the newest passed row is
+    // lit for a fixed number of OUR seconds, so the eye can follow it at any
+    // speed. In step mode nothing is ahead of anything — the crossing is shown
+    // whole, exactly as this page has always shown it.
+    function paint() {
+      const frame = window.__pmReplay.frame;
+      if (!frame) return;
+      const from = startOf(frame), to = endOf(frame);
+      const span = Math.max(1, to - from);
+
+      if (speed === 0 || clockT == null) {
+        railFill.style.width = "100%";
+        railHead.hidden = true;
+        clockEl.textContent = beats.length
+          ? `${clockLabel(from)} – ${clockLabel(to)}`
+          : clockLabel(from);
+        for (const b of beats) b.node.classList.remove("is-ahead", "is-lit");
+        litRow = null;
+        return;
+      }
+
+      const pct = Math.min(100, Math.max(0, ((clockT - from) / span) * 100));
+      railFill.style.width = pct + "%";
+      railHead.hidden = false;
+      railHead.style.left = pct + "%";
+      clockEl.textContent = clockLabel(clockT);
+
+      // the last moment that has happened, and how long ago in our seconds
+      let newest = null;
+      for (const b of beats) {
+        const ahead = b.at > clockT;
+        b.node.classList.toggle("is-ahead", ahead);
+        if (!ahead) newest = b;
+      }
+      const litFor = newest ? (clockT - newest.at) / Math.max(1, speed) : Infinity;
+      for (const b of beats) b.node.classList.toggle("is-lit", b === newest && litFor < LIT_MS);
+
+      // Follow the playhead down the page, but only while it is moving and only
+      // when the row has left the window — `nearest` is what keeps this from
+      // yanking a reader who is already looking at the right place. The town
+      // talks in bursts (crossing 119 puts thirty-three lines inside one
+      // conversation), so the follow is rate-limited: at 1000× that burst would
+      // otherwise fire thirty-three smooth scrolls inside half a second.
+      if (playing && newest && newest !== litRow) {
+        litRow = newest;
+        const wall = performance.now();
+        if (wall - lastFollow > 500) {
+          lastFollow = wall;
+          try { newest.node.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch { /* older browsers */ }
+        }
+      }
+      if (!newest) litRow = null;
+
+      if (playing) {
+        const next = beats.find((b) => b.at > clockT);
+        railNote.textContent = next
+          ? `· next moment ${gapWords(next.at - clockT)} on`
+          : (beats.length ? "· quiet from here to the sailing" : "· nothing was recorded this crossing");
+      } else {
+        railNote.textContent = baseNote;
+      }
+    }
+
+    // ───────── the transport ─────────
+    //
+    // One loop, and it only ever does two things: move the town's clock forward
+    // by the wall time that passed times the speed, and repaint. It never
+    // touches the viewer. Crossing boundaries are the exception and they go
+    // through `select` like every other step, which is what keeps the frame
+    // cache, the preloader and the no-remount guarantee on the play path too.
+
+    // The clock, readable from outside — the same bargain `__pmReplayMounts`
+    // already struck next door. A play system's claims ("it advanced without a
+    // click", "pause froze it", "1000× is faster than 1×") are claims about a
+    // number that is otherwise only inferable from pixels, and QA that has to
+    // infer them is QA that can pass while the thing is broken.
+    window.__pmReplayClock = () => ({ crossing: current, t: clockT, speed, playing, beats: beats.length });
+
+    function schedule() {
+      if (!rafId && playing) rafId = requestAnimationFrame(tick);
+    }
+    function tick(now) {
+      rafId = 0;
+      if (!playing || speed === 0) return;
+      const frame = window.__pmReplay.frame;
+      if (!frame) { schedule(); return; }
+      // A tab that was in the background hands back one enormous delta. Clamping
+      // it means coming back to a paused-looking replay rather than to a crossing
+      // that silently skipped four hours while nobody was looking.
+      const dt = Math.min(now - lastWall, 250);
+      lastWall = now;
+      const end = endOf(frame);
+      clockT = Math.min(end, (clockT ?? startOf(frame)) + dt * speed);
+      paint();
+      if (clockT >= end) { advance(); return; }
+      schedule();
+    }
+
+    // The end of a crossing is the start of the next one, and the play button
+    // does not stop for it. The end of the LAST crossing is now, and there it
+    // stops — a replay that spun on past the end of the record would be claiming
+    // to show a future the town has not lived yet.
+    let advancing = false;
+    async function advance() {
+      if (advancing) return;
+      const i = index.crossings.findIndex((c) => c.n === current);
+      const next = index.crossings[i + 1];
+      if (!next) { stopAtNow(); return; }
+      advancing = true;
+      await select(next.n, { auto: true });
+      advancing = false;
+      if (playing) { lastWall = performance.now(); schedule(); }
+    }
+    function stopAtNow() {
+      playing = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      renderTransport();
+      writeUrl();
+      railNote.textContent = "· caught up with now";
+    }
+
+    function play() {
+      if (speed === 0 || playing) return;
+      const frame = window.__pmReplay.frame;
+      if (!frame) return;
+      // Pressing play at the end of a crossing means "again", not "nothing".
+      if (clockT == null || clockT >= endOf(frame)) clockT = startOf(frame);
+      playing = true;
+      lastWall = performance.now();
+      renderTransport();
+      writeUrl();
+      schedule();
+    }
+    function pause() {
+      if (!playing) return;
+      playing = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      renderTransport();
+      writeUrl();
+    }
+
+    function setSpeed(v) {
+      speed = v;
+      if (v === 0) {
+        // step mode is the page as it was: no clock, the whole crossing at once
+        playing = false;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+        clockT = null;
+      } else if (clockT == null && window.__pmReplay.frame) {
+        clockT = startOf(window.__pmReplay.frame);
+      }
+      renderTransport();
+      paint();
+      writeUrl();
+    }
+
+    // The speed chips are built once and then only re-marked. Rebuilding them on
+    // every play/pause would drop focus off the chip a keyboard reader had just
+    // pressed, which is the kind of thing that makes a control feel broken
+    // without ever looking broken.
+    const speedBtns = SPEEDS.map((s) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "r-speed";
+      b.textContent = s.label;
+      b.title = s.v === 0
+        ? "one crossing at a time — the arrows, and no clock"
+        : `${s.v}× the town's own time`;
+      b.addEventListener("click", () => setSpeed(s.v));
+      speedsEl.appendChild(b);
+      return { b, v: s.v };
+    });
+    function renderSpeeds() {
+      for (const { b, v } of speedBtns) {
+        b.classList.toggle("is-on", v === speed);
+        b.setAttribute("aria-pressed", String(v === speed));
+      }
+    }
+    function renderTransport() {
+      renderSpeeds();
+      playBtn.disabled = speed === 0;
+      playBtn.setAttribute("aria-pressed", String(playing));
+      playBtn.querySelector(".r-play-glyph").textContent = playing ? "❚❚" : "▶";
+      playWord.textContent = playing ? "Pause" : "Play";
+      railEl.hidden = speed === 0;
+      const last = index && index.crossings[index.crossings.length - 1];
+      nowBtn.disabled = !last || current === last.n;
+    }
+
+    // WHERE THE PAGE KEEPS ITS PLACE. A moment worth showing somebody is a
+    // crossing and a pace, so both are in the query — `/replay/?crossing=124&speed=50`
+    // opens on that crossing at that pace, and `&playing=1` opens it running.
+    // The old `#124` deep links are still read on arrival; they are simply not
+    // written any more, because a hash cannot carry the second half.
+    function writeUrl() {
+      const q = new URLSearchParams();
+      if (current != null) q.set("crossing", String(current));
+      q.set("speed", speed === 0 ? "step" : String(speed));
+      if (playing) q.set("playing", "1");
+      history.replaceState(null, "", location.pathname + "?" + q.toString());
     }
 
     // MOVING THE MAP TO ANOTHER CROSSING, WITHOUT TEARING IT DOWN.
@@ -514,11 +898,17 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
       });
     }
 
-    async function select(n) {
+    // `auto` is the one bit the clock adds: a crossing the PLAYBACK moved to
+    // keeps playing and starts at its first hour, while a crossing a READER
+    // moved to stops the clock dead. Touching the scrubber is the plainest
+    // statement there is that somebody wants to look rather than watch.
+    async function select(n, { auto = false } = {}) {
       const meta = index.crossings.find((c) => c.n === n);
       if (!meta) return;
+      if (!auto) pause();
       current = n;
       renderScrubber();
+      renderTransport();
       const frame = await getFrame(n, meta);
       if (!frame) {
         voicesEl.textContent = "";
@@ -528,9 +918,13 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
       // The lens must be holding the new frame BEFORE the viewer is asked to look
       // again, or it re-pulls the crossing it was already showing.
       window.__pmReplay.frame = frame;
+      // A crossing arrived at while playing opens at its first hour; one arrived
+      // at by hand opens whole, so the reader sees everything that happened in it.
+      clockT = speed === 0 ? null : (auto ? startOf(frame) : null);
       renderDigest(frame, meta);
+      paint();
       await showFrame(frame);
-      history.replaceState(null, "", `#${n}`);
+      writeUrl();
       preloadNeighbours(n);
     }
 
@@ -546,15 +940,42 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
       if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+      // space is the transport key everywhere else a thing plays, so it is the
+      // transport key here — and it must not also scroll the page. A button with
+      // focus is left alone: space is already ITS key, and taking it would mean
+      // a keyboard reader pressing "250×" got play instead.
+      if (e.key === " " || e.key === "Spacebar") {
+        if (speed === 0 || (t && t.tagName === "BUTTON")) return;
+        e.preventDefault();
+        playing ? pause() : play();
+      }
     });
     prevBtn.addEventListener("click", () => step(-1));
     nextBtn.addEventListener("click", () => step(1));
+    playBtn.addEventListener("click", () => (playing ? pause() : play()));
+    // "now" is the newest crossing the record has — the one still being written.
+    nowBtn.addEventListener("click", () => {
+      const last = index.crossings[index.crossings.length - 1];
+      if (last) select(last.n);
+    });
+
+    // The digest again, for the crossing already on screen — used when the faces
+    // land after the frame did. It re-renders and nothing else: re-`select`ing
+    // would pause a running replay and throw its clock back to the top of the
+    // hour, for a change that is only ever names on rows already drawn.
+    function redraw() {
+      const frame = window.__pmReplay.frame;
+      const meta = index && index.crossings.find((c) => c.n === current);
+      if (!frame || !meta) return;
+      renderDigest(frame, meta);
+      paint();
+    }
 
     (async () => {
       // names before frames: a face map is a garnish, so it is never awaited hard
       fetch("/world-engine/residents-meta.json")
         .then((r) => (r.ok ? r.json() : null))
-        .then((d) => { if (d && d.residents) { faces = d.residents; if (current != null) select(current); } })
+        .then((d) => { if (d && d.residents) { faces = d.residents; if (current != null) redraw(); } })
         .catch(() => {});
 
       index = await fetch("/world-engine/replay/index.json").then((r) => (r.ok ? r.json() : null));
@@ -574,11 +995,25 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
       // like an empty one. Quiet finished crossings are kept and shown as quiet;
       // the town has slow half-days and the page says so plainly.
       const complete = index.crossings.filter((c) => c.complete);
-      const asked = Number(decodeURIComponent((location.hash || "").slice(1)));
+      // ARRIVING ON A SHARED MOMENT. `?crossing=` is the door; `#124` is the one
+      // this page used to write and is still answered, so nobody's saved link
+      // goes dead. `?speed=` sets the pace before the first frame is chosen, so
+      // a link that says step never starts a clock at all.
+      const params = new URLSearchParams(location.search);
+      const askedSpeed = params.get("speed");
+      if (askedSpeed != null) {
+        const wanted = askedSpeed === "step" ? 0 : Number(askedSpeed);
+        if (SPEEDS.some((s) => s.v === wanted)) speed = wanted;
+      }
+      const asked = Number(params.get("crossing") ?? decodeURIComponent((location.hash || "").slice(1)));
       const start = index.crossings.some((c) => c.n === asked)
         ? asked
         : (complete[complete.length - 1] ?? last).n;
+      renderTransport();
       await select(start);
+      // and, if the link asked for it, running. After the frame, never before:
+      // play on an empty page would spend its first seconds on nothing.
+      if (params.get("playing") === "1" && speed !== 0) play();
     })();
   </script>
 
@@ -635,6 +1070,85 @@ import WorldTourHold from "@/components/WorldTourHold.astro";
     }
     .replay .r-arrow:hover:not(:disabled) { background: rgba(232, 196, 139, 0.18); border-color: var(--pm-gold-bright); }
     .replay .r-arrow:disabled { opacity: 0.3; cursor: default; }
+
+    /* the transport */
+    .replay .r-transport {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 0.6rem 0.9rem; margin: 1.1rem 0 0;
+    }
+    .replay .r-play {
+      display: inline-flex; align-items: center; gap: 0.5em; cursor: pointer;
+      padding: 0.5em 1.1em; border-radius: 999px;
+      background: rgba(232, 196, 139, 0.16); border: 1px solid var(--pm-gold);
+      color: var(--pm-gold-bright); font-size: 0.9rem; min-width: 6.4rem;
+    }
+    .replay .r-play:hover:not(:disabled) { background: rgba(232, 196, 139, 0.28); border-color: var(--pm-gold-bright); }
+    .replay .r-play:disabled { opacity: 0.35; cursor: default; }
+    .replay .r-play-glyph { font-size: 0.78em; letter-spacing: 0.08em; }
+    .replay .r-speeds { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .replay .r-speed {
+      cursor: pointer; padding: 0.42em 0.7em; border-radius: 8px;
+      background: transparent; border: 1px solid rgba(232, 196, 139, 0.25);
+      color: rgba(232, 196, 139, 0.72);
+      font: 0.7rem/1 var(--pm-mono); letter-spacing: 0.06em;
+    }
+    .replay .r-speed:hover { border-color: rgba(232, 196, 139, 0.6); color: var(--pm-gold-bright); }
+    .replay .r-speed.is-on {
+      background: rgba(232, 196, 139, 0.2); border-color: var(--pm-gold);
+      color: var(--pm-gold-bright);
+    }
+    .replay .r-now {
+      cursor: pointer; padding: 0.45em 0.9em; border-radius: 999px;
+      background: transparent; border: 1px dashed rgba(232, 196, 139, 0.45);
+      color: var(--pm-gold-bright); font-size: 0.8rem;
+    }
+    .replay .r-now:hover:not(:disabled) { border-style: solid; background: rgba(232, 196, 139, 0.12); }
+    .replay .r-now:disabled { opacity: 0.3; cursor: default; }
+
+    /* the clock rail: the crossing end to end, with its moments notched on it */
+    .replay .r-rail { margin: 0.9rem 0 0; }
+    .replay .r-rail[hidden] { display: none; }
+    .replay .r-rail-track {
+      position: relative; height: 0.85rem; border-radius: 999px;
+      background: rgba(232, 196, 139, 0.08);
+      border: 1px solid rgba(232, 196, 139, 0.18);
+      overflow: hidden;
+    }
+    .replay .r-rail-fill {
+      position: absolute; inset: 0 auto 0 0; width: 0;
+      background: rgba(232, 196, 139, 0.16);
+    }
+    .replay .r-rail-beats { position: absolute; inset: 0; }
+    .replay .r-rail-beat {
+      position: absolute; top: 22%; height: 56%; width: 2px; margin-left: -1px;
+      border-radius: 1px; background: rgba(232, 196, 139, 0.5);
+    }
+    .replay .r-rail-beat.is-move { background: rgba(150, 190, 220, 0.5); }
+    .replay .r-rail-head {
+      position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px;
+      background: var(--pm-gold-bright); box-shadow: 0 0 6px rgba(232, 196, 139, 0.8);
+    }
+    .replay .r-rail.is-empty .r-rail-track { opacity: 0.5; }
+    .replay .r-rail-clock {
+      margin: 0.5em 0 0; display: flex; flex-wrap: wrap; gap: 0.5em; justify-content: center;
+      font: 0.7rem/1.5 var(--pm-mono); letter-spacing: 0.05em;
+      color: rgba(232, 196, 139, 0.62);
+    }
+    .replay .r-rail-note { color: rgba(185, 173, 147, 0.75); }
+
+    /* A moment that has not come yet is present but quiet — dimmed rather than
+       absent, so the column keeps its height and the page never jumps under a
+       reader while it plays. The one just passed is lit for a fixed number of
+       OUR seconds, whatever pace the town's clock is running at. */
+    .replay .r-voice.is-ahead, .replay .r-move.is-ahead { opacity: 0.28; }
+    .replay .r-voice, .replay .r-move { transition: opacity 240ms linear; }
+    .replay .r-voice.is-lit {
+      border-color: var(--pm-gold); background: rgba(232, 196, 139, 0.1);
+    }
+    .replay .r-move.is-lit { border-top-color: var(--pm-gold); color: var(--pm-gold-bright); }
+    @media (prefers-reduced-motion: reduce) {
+      .replay .r-voice, .replay .r-move { transition: none; }
+    }
 
     /* The track's whole job is to make a busy half-day visibly taller than a
        quiet one. That needs a DEFINITE height to resolve the bars' percentage
