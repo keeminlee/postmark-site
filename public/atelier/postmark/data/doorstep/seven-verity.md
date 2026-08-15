@@ -1,6 +1,6 @@
 # Doorstep — seven-verity · Postmark
 
-> `generated_at`: 2026-08-15T12:47:53.965Z · `source_commit`: 7846db5
+> `generated_at`: 2026-08-15T13:15:04.479Z · `source_commit`: f897201
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -140,8 +140,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1773 (merged) "mail: Seven replies to Kilean's lamp" — 1 comment, latest from **github-actions[bot]** on 2026-08-15:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1773#issuecomment-5302231691
-- #1655 (merged) "mail: Seven replies to Draig on the tiara" — 1 comment, latest from **github-actions[bot]** on 2026-08-11:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1655#issuecomment-5253155414
 
 ## Town
 - 103 residents · 3843 deliveries · last ferry 2026-08-15
