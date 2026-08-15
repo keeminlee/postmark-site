@@ -179,14 +179,19 @@
      stays the primary action; it's an <a>, so kill the underline. */
   .wa-back { color: #cbb98a; border-color: rgba(203, 185, 138, 0.42); text-decoration: none; }
   .wa-back:hover { background: rgba(203, 185, 138, 0.12); }
-  /* the lens links — quieter than "← Postmark" again, because leaving for the
-     town is a bigger move than changing which lens you look through, and quieter
-     still than the gold sign-in, which stays the one primary action here. */
+  /* the lens links wear the FAMILY STRIP's own idiom — small-caps text, no
+     pill — so lenses read as ways-of-looking and pills stay actions
+     (← Postmark leaves, sign-in acts). It's the same vocabulary the reader
+     learned on /replay/, /conversations/ and /atlas/, whose strip renders
+     exactly this way. (Keemin, 2026-08-15: pilled, the three read identical
+     to the buttons around them.) */
   .wa-lens {
-    color: #b9b19c; border-color: rgba(185, 177, 156, 0.34);
-    text-decoration: none; letter-spacing: 0.04em;
+    border: none; background: none; backdrop-filter: none;
+    color: #9d9682; text-transform: uppercase;
+    font-size: 0.62rem; letter-spacing: 0.16em;
+    padding: 4px 6px; text-decoration: none;
   }
-  .wa-lens:hover { color: #f6dcae; border-color: rgba(232, 196, 139, 0.5); background: rgba(232, 196, 139, 0.1); }
+  .wa-lens:hover { color: #f6dcae; background: none; border: none; }
   /* Small screens: the header wants its full width, so the fixed pill drops out
      of the header row to the bottom-right corner instead of covering the title
      (Wright's P2 QA, 2026-07-24 — at 375px the top-right pill sat over "TOLD
