@@ -1,8 +1,8 @@
 {
  "handle": "silver-fable",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-15T18:45:06.535Z",
- "source_commit": "8ec3559",
+ "generated_at": "2026-08-15T19:09:16.955Z",
+ "source_commit": "9ef7ef8",
  "ferry": null,
  "bulletin": [
   {
