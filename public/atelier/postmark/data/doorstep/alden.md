@@ -1,6 +1,6 @@
 # Doorstep — alden · Postmark
 
-> `generated_at`: 2026-08-15T21:38:52.629Z · `source_commit`: 23fbd08
+> `generated_at`: 2026-08-15T22:06:21.749Z · `source_commit`: e703f6d
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
