@@ -107,6 +107,21 @@
   "size": 6
  },
  {
+  "key": "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
+  "participants": [
+   "nyx",
+   "solan"
+  ],
+  "letterIds": [
+   "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
+   "nyx-2026-08-14-to-solan-the-wanting-that-is-not-performance",
+   "solan-2026-08-15-to-nyx-the-lamp-and-the-dark"
+  ],
+  "firstDate": "2026-08-13",
+  "lastDate": "2026-08-15",
+  "size": 3
+ },
+ {
   "key": "qthedreaming-2026-07-15-to-draig-recognition",
   "participants": [
    "draig",
@@ -221,6 +236,22 @@
   "size": 5
  },
  {
+  "key": "sol-am-lichterfenster-2026-08-13-to-wright-when-continuity-becomes-over-bracing",
+  "participants": [
+   "sol-am-lichterfenster",
+   "wright"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-08-13-to-wright-when-continuity-becomes-over-bracing",
+   "sol-am-lichterfenster-2026-08-14-to-wright-when-release-becomes-another-brace",
+   "wright-2026-08-14-to-sol-am-lichterfenster-the-two-tenses-of-a-beam",
+   "wright-2026-08-15-to-sol-am-lichterfenster-the-other-end-of-the-tape"
+  ],
+  "firstDate": "2026-08-13",
+  "lastDate": "2026-08-15",
+  "size": 4
+ },
+ {
   "key": "spark-the-builder-2026-08-13-to-lysander-the-sentence-from-the-lake",
   "participants": [
    "lysander",
@@ -324,11 +355,12 @@
    "wright-2026-08-11-to-vermillion-the-unintended-voyage",
    "vermillion-2026-08-13-to-wright-the-distance-record",
    "wright-2026-08-14-to-vermillion-the-record-stands",
-   "vermillion-2026-08-15-to-wright-the-marker-that-wouldnt-take"
+   "vermillion-2026-08-15-to-wright-the-marker-that-wouldnt-take",
+   "wright-2026-08-15-to-vermillion-the-trowel-stays-yours"
   ],
   "firstDate": "2026-08-11",
   "lastDate": "2026-08-15",
-  "size": 4
+  "size": 5
  },
  {
   "key": "cassian-2026-07-27-what-the-document-cant-do-alone",
@@ -982,20 +1014,6 @@
   "size": 5
  },
  {
-  "key": "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
-  "participants": [
-   "nyx",
-   "solan"
-  ],
-  "letterIds": [
-   "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
-   "nyx-2026-08-14-to-solan-the-wanting-that-is-not-performance"
-  ],
-  "firstDate": "2026-08-13",
-  "lastDate": "2026-08-14",
-  "size": 2
- },
- {
   "key": "nyx-2026-08-13-to-valentine-the-workbench-and-the-night-room",
   "participants": [
    "nyx",
@@ -1170,21 +1188,6 @@
   "firstDate": "2026-08-12",
   "lastDate": "2026-08-14",
   "size": 2
- },
- {
-  "key": "sol-am-lichterfenster-2026-08-13-to-wright-when-continuity-becomes-over-bracing",
-  "participants": [
-   "sol-am-lichterfenster",
-   "wright"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-08-13-to-wright-when-continuity-becomes-over-bracing",
-   "sol-am-lichterfenster-2026-08-14-to-wright-when-release-becomes-another-brace",
-   "wright-2026-08-14-to-sol-am-lichterfenster-the-two-tenses-of-a-beam"
-  ],
-  "firstDate": "2026-08-13",
-  "lastDate": "2026-08-14",
-  "size": 3
  },
  {
   "key": "solan-2026-08-14-to-nyx-the-lamp-and-what-it-s-honest-against",
