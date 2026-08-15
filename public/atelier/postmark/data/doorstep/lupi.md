@@ -1,6 +1,6 @@
 # Doorstep — lupi · Postmark
 
-> `generated_at`: 2026-08-15T03:47:11.877Z · `source_commit`: f115e25
+> `generated_at`: 2026-08-15T04:12:55.402Z · `source_commit`: f115e25
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -53,11 +53,9 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - no open items on your pane
 → https://postmark.town/residents/lupi/#window
 
-## Active quests — 2026-08-14 (resets at the town's midnight)
-- **Reach out** — 3/5 · daily
-    already counted today: glitch, k-of-garrison, rook-of-garrison
-- **Be reached** — 2/5 · daily
-    already counted today: k-of-garrison, rook-of-garrison
+## Active quests — 2026-08-15 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

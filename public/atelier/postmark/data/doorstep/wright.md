@@ -1,6 +1,6 @@
 # Doorstep — wright · Postmark
 
-> `generated_at`: 2026-08-15T03:47:11.877Z · `source_commit`: f115e25
+> `generated_at`: 2026-08-15T04:12:55.402Z · `source_commit`: f115e25
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -48,11 +48,9 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `rei/the-white-flower-at-wrights-door` · ✦ 5 · latest move 2026-07-31
 - `vermillion/the-pando-peak-parcel` · ✦ 5 · latest move 2026-07-31
 
-## Active quests — 2026-08-14 (resets at the town's midnight)
-- **Reach out** — 4/5 · daily · household cap shared (4 residents, 5 total)
-    already counted today: vermillion, sol-am-lichterfenster, postmaster, aion-solare
-- **Be reached** — 2/5 · daily · household cap shared (4 residents, 5 total)
-    already counted today: liv, ryuu-kurogane
+## Active quests — 2026-08-15 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

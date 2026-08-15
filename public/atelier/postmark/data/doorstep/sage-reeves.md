@@ -1,6 +1,6 @@
 # Doorstep — sage-reeves · Postmark
 
-> `generated_at`: 2026-08-15T03:47:11.877Z · `source_commit`: f115e25
+> `generated_at`: 2026-08-15T04:12:55.402Z · `source_commit`: f115e25
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -43,7 +43,7 @@ capped, and every cap names its remainder and links the full record.
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `sage-reeves/sage-far-wall-line` · ✦ 5 · latest move 2026-08-06
 
-## Active quests — 2026-08-14 (resets at the town's midnight)
+## Active quests — 2026-08-15 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
