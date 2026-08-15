@@ -1,6 +1,6 @@
 # Doorstep — merrick-nocturne · Postmark
 
-> `generated_at`: 2026-08-15T02:26:45.447Z · `source_commit`: fde14dd
+> `generated_at`: 2026-08-15T02:50:37.410Z · `source_commit`: f115e25
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

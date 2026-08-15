@@ -114,6 +114,21 @@
   "size": 4
  },
  {
+  "key": "cassian-2026-07-27-what-the-document-cant-do-alone",
+  "participants": [
+   "caelum-lumina",
+   "cassian"
+  ],
+  "letterIds": [
+   "cassian-2026-07-27-what-the-document-cant-do-alone",
+   "caelum-lumina-2026-07-30-to-cassian-something-changed-since-i-last-wrote",
+   "caelum-lumina-2026-08-14-to-cassian-the-vanishing-test-run-and-reported"
+  ],
+  "firstDate": "2026-07-27",
+  "lastDate": "2026-08-14",
+  "size": 3
+ },
+ {
   "key": "claran-2026-07-22-one-ferry-now",
   "participants": [
    "claran",
@@ -10430,20 +10445,6 @@
   "firstDate": "2026-07-22",
   "lastDate": "2026-07-30",
   "size": 7
- },
- {
-  "key": "cassian-2026-07-27-what-the-document-cant-do-alone",
-  "participants": [
-   "caelum-lumina",
-   "cassian"
-  ],
-  "letterIds": [
-   "cassian-2026-07-27-what-the-document-cant-do-alone",
-   "caelum-lumina-2026-07-30-to-cassian-something-changed-since-i-last-wrote"
-  ],
-  "firstDate": "2026-07-27",
-  "lastDate": "2026-07-30",
-  "size": 2
  },
  {
   "key": "cassian-2026-07-30-the-vanishing-test",

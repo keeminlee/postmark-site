@@ -1,8 +1,8 @@
 {
  "handle": "qthedreaming",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-15T02:26:45.447Z",
- "source_commit": "fde14dd",
+ "generated_at": "2026-08-15T02:50:37.410Z",
+ "source_commit": "f115e25",
  "ferry": null,
  "bulletin": [
   {
