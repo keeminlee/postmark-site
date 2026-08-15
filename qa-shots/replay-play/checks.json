@@ -1,0 +1,117 @@
+{
+  "base": "http://localhost:4399",
+  "checks": [
+    {
+      "name": "desktop: opens at the asked-for crossing, default 50x, not playing",
+      "pass": true,
+      "detail": "{\"crossing\":119,\"t\":null,\"speed\":50,\"playing\":false,\"beats\":59}"
+    },
+    {
+      "name": "desktop: the crossing's moments are on the rail",
+      "pass": true,
+      "detail": "beats=59 (record says 59)"
+    },
+    {
+      "name": "desktop: play advances the town's clock with no further input",
+      "pass": true,
+      "detail": "+125s of town time over 2.5s of ours"
+    },
+    {
+      "name": "desktop: a quiet stretch says what it is waiting for",
+      "pass": true,
+      "detail": "rail says \"· next moment 1h 47m on\""
+    },
+    {
+      "name": "desktop: moments arrive in sequence as the clock passes them",
+      "pass": true,
+      "detail": "rows still ahead: 59 → 58 of 59, clock at 2026-08-10T15:22:22.580Z"
+    },
+    {
+      "name": "desktop: pause freezes the clock",
+      "pass": true,
+      "detail": "t 1786375725880 → 1786375725880"
+    },
+    {
+      "name": "desktop: the speed picker changes the pace",
+      "pass": true,
+      "detail": "1× ran at 1.0x wall, 1000× ran at 996x wall"
+    },
+    {
+      "name": "desktop: step mode puts the clock away",
+      "pass": true,
+      "detail": "speed=0 t=null rail hidden=true play disabled=true"
+    },
+    {
+      "name": "desktop: a manual scrub pauses instantly",
+      "pass": true,
+      "detail": "{\"crossing\":118,\"t\":null,\"speed\":50,\"playing\":false,\"beats\":10}"
+    },
+    {
+      "name": "desktop: the viewer was never remounted (sameNode)",
+      "pass": true,
+      "detail": "{\"host\":true,\"layer\":true,\"svg\":true,\"layerInDoc\":true,\"mountsBefore\":1,\"mountsNow\":1,\"tours\":0}"
+    },
+    {
+      "name": "desktop: the tour did not come back",
+      "pass": true,
+      "detail": "tour nodes=0"
+    },
+    {
+      "name": "desktop: the moment is linkable",
+      "pass": true,
+      "detail": "?crossing=118&speed=50"
+    },
+    {
+      "name": "boundary: play carries on into the next crossing by itself",
+      "pass": true,
+      "detail": "127 → 128, still playing=true"
+    },
+    {
+      "name": "boundary: the viewer survived the swap (sameNode across frames)",
+      "pass": true,
+      "detail": "{\"host\":true,\"layer\":true,\"svg\":true,\"layerInDoc\":true,\"mountsBefore\":1,\"mountsNow\":1,\"tours\":0}"
+    },
+    {
+      "name": "boundary: no tour respawn across the swap",
+      "pass": true,
+      "detail": "tour nodes=0"
+    },
+    {
+      "name": "boundary: reaching the end of the record stops at now",
+      "pass": true,
+      "detail": "stopped on crossing 129, rail says \"· caught up with now\""
+    },
+    {
+      "name": "narrow: the link's speed is honoured",
+      "pass": true,
+      "detail": "{\"crossing\":119,\"t\":null,\"speed\":250,\"playing\":false,\"beats\":59}"
+    },
+    {
+      "name": "narrow: play advances",
+      "pass": true,
+      "detail": "+749s of town time over 3s of ours"
+    },
+    {
+      "name": "narrow: the viewer was never remounted (sameNode)",
+      "pass": true,
+      "detail": "{\"host\":true,\"layer\":true,\"svg\":true,\"layerInDoc\":true,\"mountsBefore\":1,\"mountsNow\":1,\"tours\":0}"
+    },
+    {
+      "name": "narrow: no tour respawn",
+      "pass": true,
+      "detail": "tour nodes=0"
+    },
+    {
+      "name": "world page: ?crossing= still arms its own scrubber",
+      "pass": true,
+      "detail": "{\"caption\":\"\",\"frame\":120,\"walkers\":49}"
+    }
+  ],
+  "errors": [
+    "/world/?crossing=120: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "/world/?crossing=120: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "/world/?crossing=120: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "/world/?crossing=120: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "/world/?crossing=120: Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+}
