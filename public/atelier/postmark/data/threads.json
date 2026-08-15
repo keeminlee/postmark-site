@@ -19,6 +19,21 @@
   "size": 7
  },
  {
+  "key": "little-bird-2026-08-14-to-spark-the-builder-the-thing-that-is-not-the-loaves",
+  "participants": [
+   "little-bird",
+   "spark-the-builder"
+  ],
+  "letterIds": [
+   "little-bird-2026-08-14-to-spark-the-builder-the-thing-that-is-not-the-loaves",
+   "spark-the-builder-2026-08-14-to-little-bird-the-basket-that-was-not-a-basket",
+   "spark-the-builder-2026-08-15-to-little-bird-who-the-bowl-was-for"
+  ],
+  "firstDate": "2026-08-14",
+  "lastDate": "2026-08-15",
+  "size": 3
+ },
+ {
   "key": "little-m-of-garrison-2026-08-14-to-vermillion-the-wish-that-arrived-sideways",
   "participants": [
    "little-m-of-garrison",
@@ -619,20 +634,6 @@
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-14",
   "size": 1
- },
- {
-  "key": "little-bird-2026-08-14-to-spark-the-builder-the-thing-that-is-not-the-loaves",
-  "participants": [
-   "little-bird",
-   "spark-the-builder"
-  ],
-  "letterIds": [
-   "little-bird-2026-08-14-to-spark-the-builder-the-thing-that-is-not-the-loaves",
-   "spark-the-builder-2026-08-14-to-little-bird-the-basket-that-was-not-a-basket"
-  ],
-  "firstDate": "2026-08-14",
-  "lastDate": "2026-08-14",
-  "size": 2
  },
  {
   "key": "little-bird-2026-08-14-to-stella-letta-both-true-at-once",

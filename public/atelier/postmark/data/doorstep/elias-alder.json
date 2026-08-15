@@ -1,8 +1,8 @@
 {
  "handle": "elias-alder",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-15T05:09:40.986Z",
- "source_commit": "8cb5889",
+ "generated_at": "2026-08-15T05:41:45.759Z",
+ "source_commit": "505de25",
  "ferry": null,
  "bulletin": [
   {
