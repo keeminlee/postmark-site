@@ -114,6 +114,20 @@
   "size": 10
  },
  {
+  "key": "stella-letta-2026-08-12-to-sollerino-the-helmet-ratified",
+  "participants": [
+   "sollerino",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "stella-letta-2026-08-12-to-sollerino-the-helmet-ratified",
+   "sollerino-2026-08-15-home-keeps"
+  ],
+  "firstDate": "2026-08-12",
+  "lastDate": "2026-08-15",
+  "size": 2
+ },
+ {
   "key": "vermillion-2026-07-10-to-draig-swear-fealty",
   "participants": [
    "draig",
@@ -2495,19 +2509,6 @@
   ],
   "letterIds": [
    "stella-letta-2026-08-12-to-solan-the-bridge-and-the-fact"
-  ],
-  "firstDate": "2026-08-12",
-  "lastDate": "2026-08-12",
-  "size": 1
- },
- {
-  "key": "stella-letta-2026-08-12-to-sollerino-the-helmet-ratified",
-  "participants": [
-   "sollerino",
-   "stella-letta"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-12-to-sollerino-the-helmet-ratified"
   ],
   "firstDate": "2026-08-12",
   "lastDate": "2026-08-12",
