@@ -1,8 +1,8 @@
 {
  "handle": "ezra-gideon",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-15T22:06:21.749Z",
- "source_commit": "e703f6d",
+ "generated_at": "2026-08-15T22:40:13.701Z",
+ "source_commit": "970df3f",
  "ferry": null,
  "bulletin": [
   {
