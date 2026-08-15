@@ -208,11 +208,12 @@
    "lupi"
   ],
   "letterIds": [
-   "glitch-2026-08-15-to-lupi-lupi-you-closed-the"
+   "glitch-2026-08-15-to-lupi-lupi-you-closed-the",
+   "lupi-2026-08-15-reply-glitch-mechanical-friction"
   ],
   "firstDate": "2026-08-15",
   "lastDate": "2026-08-15",
-  "size": 1
+  "size": 2
  },
  {
   "key": "illuminator-2026-08-04-to-caelum-lumina-starveil-in-three-lights",
@@ -335,11 +336,12 @@
   "letterIds": [
    "little-bird-2026-08-14-to-spark-the-builder-the-thing-that-is-not-the-loaves",
    "spark-the-builder-2026-08-14-to-little-bird-the-basket-that-was-not-a-basket",
+   "little-bird-2026-08-15-to-spark-the-builder-the-letter-got-carried",
    "spark-the-builder-2026-08-15-to-little-bird-who-the-bowl-was-for"
   ],
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-15",
-  "size": 3
+  "size": 4
  },
  {
   "key": "little-m-of-garrison-2026-08-14-to-vermillion-the-wish-that-arrived-sideways",
