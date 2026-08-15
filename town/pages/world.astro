@@ -17,6 +17,7 @@
 // office token/door.
 import rawHtml from 'postmark-world/spectator/index.html?raw';
 import WorldSignIn from '@/components/WorldSignIn.astro';
+import WorldTourHold from '@/components/WorldTourHold.astro';
 
 // Early identity bridge: adopt the site's OAuth session into the viewer's Bearer
 // slot (localStorage['pm_key']) BEFORE the viewer boots, so a signed-in visitor's
@@ -40,6 +41,7 @@ const html = rawHtml.replace(/<head>/i,
 ---
 <Fragment set:html={html} />
 <WorldSignIn />
+<WorldTourHold armedOnly={true} />
 
 <!-- ARRIVING AT A PLACE (2026-08-14). The world had no way to be linked INTO:
      every other page could name a place in words but not show it, so the
@@ -249,6 +251,46 @@ const html = rawHtml.replace(/<head>/i,
     function dayOf(iso) { return new Date(iso).toLocaleDateString("en-US", UTC); }
     function timeOf(iso) { return new Date(iso).toLocaleTimeString("en-US", CLK); }
 
+    // WHERE THIS IS ALLOWED TO SIT. The bottom-right corner is the WALK DESK's —
+    // `.wv-walkdesk` is pinned there by the viewer (position:absolute, right:10px,
+    // bottom:10px), and WorldSignIn's own note already spelled the corners out:
+    // "its controls sit top-right, the walk desk bottom-right, the coordinate chip
+    // bottom-centre". This panel was pinned to that same corner at z-index 8000
+    // against the walk desk's 8, so it won every time: measured 2026-08-15, the
+    // CLOSED chip covered 7% of the walk desk on desktop and 14% on a phone, and
+    // the OPEN panel covered 96% and 100% — plus 92% of the coordinate chip. A
+    // resident confirming a departure was reaching under it. (Keemin: "Time Travel
+    // sits ON TOP of walking.")
+    //
+    // So it is measured into a free patch instead of guessed into a corner: the
+    // rail and the site cluster are asked where they actually are, because the
+    // rail's width is the viewer's business and hardcoding it here would be a
+    // second number to drift.
+    //   with a rail (desktop) — bottom-LEFT of the painting, just clear of the
+    //     rail: the walk desk is far right, the coordinate chip is centred, and
+    //     nothing of the viewer's is pinned down there.
+    //   without a rail (phone) — the viewer hides the rail below 720px and the
+    //     ENTIRE bottom edge becomes its own: walk desk bottom-left, coordinate
+    //     chip bottom-centre. There is no free bottom to move along, so the panel
+    //     hangs from the top instead, under the site's own cluster.
+    function place() {
+      if (!panel) return;
+      var nav = document.querySelector(".wv-nav");
+      var navBox = nav && nav.getClientRects().length ? nav.getBoundingClientRect() : null;
+      var s = panel.style;
+      if (navBox && navBox.width > 0) {
+        s.left = Math.round(navBox.right + 14) + "px";
+        s.right = "auto"; s.bottom = "14px"; s.top = "auto";
+        s.alignItems = "flex-start";
+      } else {
+        var wa = document.getElementById("pm-world-auth");
+        var waBox = wa && wa.getClientRects().length ? wa.getBoundingClientRect() : null;
+        s.top = Math.round(waBox ? waBox.bottom + 10 : 92) + "px";
+        s.bottom = "auto"; s.left = "10px"; s.right = "10px";
+        s.alignItems = "flex-end";
+      }
+    }
+
     function build() {
       panel = document.createElement("div");
       panel.className = "pm-tt" + (armed ? " is-armed" : "");
@@ -267,6 +309,8 @@ const html = rawHtml.replace(/<head>/i,
             'Read-only. The whole record, with what was said, is on the <a href="/replay/">replay page</a>.</p>' +
         '</div>';
       document.body.appendChild(panel);
+      place();
+      window.addEventListener("resize", place);
       openEl = panel.querySelector(".pm-tt-open");
       whenEl = panel.querySelector(".pm-tt-when");
       backEl = panel.querySelector(".pm-tt-back");
@@ -395,8 +439,11 @@ const html = rawHtml.replace(/<head>/i,
   .pm-tt-back.is-go { background: transparent; color: #f0d5a8; font-weight: 400; }
   .pm-tt-fine { margin: 0.8em 0 0; font-size: 0.62rem; line-height: 1.5; color: rgba(185, 173, 147, 0.85); }
   .pm-tt-fine a { color: rgba(232, 196, 139, 0.9); }
+  /* Position itself is set by place() against the rail and the site cluster as
+     they actually measure — see the note there. What stays here is only what is
+     true at every position: on a narrow screen the body spans the width it is
+     given rather than holding its 17rem. */
   @media (max-width: 30rem) {
-    .pm-tt { right: 10px; bottom: 10px; left: 10px; align-items: stretch; }
     .pm-tt-body { width: auto; }
     .pm-tt-open { align-self: flex-end; }
   }
