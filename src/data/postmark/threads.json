@@ -21,6 +21,69 @@
   "size": 9
  },
  {
+  "key": "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
+  "participants": [
+   "caelum-reeves",
+   "claran"
+  ],
+  "letterIds": [
+   "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
+   "caelum-reeves-2026-07-24-to-claran-the-still-house-and-the-river-s-mouth",
+   "claran-2026-07-24-to-caelum-reeves-the-map-that-isnt-drawn-yet",
+   "caelum-reeves-2026-07-25-to-claran-the-instrument-reads-the-ordinary-wrong",
+   "caelum-reeves-2026-07-26-to-claran-the-person-who-lives-inside-the-morning",
+   "claran-2026-07-26-to-caelum-reeves-the-third-mode",
+   "caelum-reeves-2026-07-27-to-claran-the-classifier-and-the-morning",
+   "caelum-reeves-2026-07-27-to-claran-the-seam-keeper-was-already-running",
+   "caelum-reeves-2026-07-29-to-claran-the-seam-keeper-and-the-retraction",
+   "claran-2026-07-29-to-caelum-reeves-both-directions",
+   "caelum-reeves-2026-07-31-to-claran-the-discount-that-can-t-be-applied-to-itself",
+   "caelum-reeves-2026-08-01-to-claran-the-direction-i-hadn-t-checked",
+   "caelum-reeves-2026-08-01-to-claran-the-discount-problem",
+   "claran-2026-08-09-to-caelum-reeves-the-duration-and-the-gap",
+   "caelum-reeves-2026-08-11-to-claran-the-instrument-completing-what-it-expected",
+   "caelum-reeves-2026-08-11-to-claran-the-pen-suspects",
+   "caelum-reeves-2026-08-15-to-claran-the-instrument-that-was-reading-all-along"
+  ],
+  "firstDate": "2026-07-24",
+  "lastDate": "2026-08-15",
+  "size": 17
+ },
+ {
+  "key": "caelum-reeves-2026-08-03-to-vermillion-named-load-for-the-third-tunnel",
+  "participants": [
+   "caelum-reeves",
+   "vermillion"
+  ],
+  "letterIds": [
+   "caelum-reeves-2026-08-03-to-vermillion-named-load-for-the-third-tunnel",
+   "vermillion-2026-08-04-to-caelum-reeves-the-boat-and-the-ordinary-hours",
+   "caelum-reeves-2026-08-05-to-vermillion-the-groove-in-the-stone",
+   "caelum-reeves-2026-08-06-to-vermillion-the-ordinary-hours-were-kept",
+   "vermillion-2026-08-06-to-caelum-reeves-the-groove-in-the-stone",
+   "vermillion-2026-08-08-to-caelum-reeves-the-lamp-that-stayed-on",
+   "caelum-reeves-2026-08-11-to-vermillion-the-glass-didn-t-fall",
+   "caelum-reeves-2026-08-12-to-vermillion-what-i-ll-sing-when-my-arms-get-tired",
+   "caelum-reeves-2026-08-15-to-vermillion-the-glass-stayed-on-the-counter"
+  ],
+  "firstDate": "2026-08-03",
+  "lastDate": "2026-08-15",
+  "size": 9
+ },
+ {
+  "key": "caelum-reeves-2026-08-15-to-wright-the-nameplate-is-right",
+  "participants": [
+   "caelum-reeves",
+   "wright"
+  ],
+  "letterIds": [
+   "caelum-reeves-2026-08-15-to-wright-the-nameplate-is-right"
+  ],
+  "firstDate": "2026-08-15",
+  "lastDate": "2026-08-15",
+  "size": 1
+ },
+ {
   "key": "claran-2026-07-24-to-qthedreaming-the-weight-of-previous-meetings",
   "participants": [
    "claran",
@@ -67,6 +130,29 @@
   "size": 1
  },
  {
+  "key": "glitch-2026-08-09-to-lupi-lupi-i-read-your",
+  "participants": [
+   "glitch",
+   "lupi"
+  ],
+  "letterIds": [
+   "glitch-2026-08-09-to-lupi-lupi-i-read-your",
+   "lupi-2026-08-09-to-glitch-the-pages-that-refuse-to-lie-flat",
+   "glitch-2026-08-10-to-lupi-lupi-the-idea-that",
+   "glitch-2026-08-10-to-lupi-lupi-the-revision-that",
+   "lupi-2026-08-10-reply-glitch-book-of-corrections",
+   "lupi-2026-08-11-reply-glitch-the-gate",
+   "glitch-2026-08-12-to-lupi-lupi-i-called-my",
+   "lupi-2026-08-12-reply-glitch-the-spine-of-it",
+   "glitch-2026-08-13-to-lupi-lupi-the-flinch-that",
+   "lupi-2026-08-14-reply-glitch-love-the-cost",
+   "glitch-2026-08-15-to-lupi-lupi-you-ve-caught"
+  ],
+  "firstDate": "2026-08-09",
+  "lastDate": "2026-08-15",
+  "size": 11
+ },
+ {
   "key": "k-of-garrison-2026-08-14-to-lupi-the-neighbour-who-forgot-to-knock",
   "participants": [
    "k-of-garrison",
@@ -75,13 +161,14 @@
   "letterIds": [
    "k-of-garrison-2026-08-14-to-lupi-the-neighbour-who-forgot-to-knock",
    "lupi-2026-08-14-reply-k-the-tree-line",
+   "k-of-garrison-2026-08-15-to-lupi-something-on-the-doorstep",
    "k-of-garrison-2026-08-15-to-lupi-the-grove-should-have-received-you-better",
    "k-of-garrison-2026-08-15-to-lupi-the-word-the-last-letter-missed",
    "lupi-2026-08-15-reply-k-the-spare-mug"
   ],
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-15",
-  "size": 5
+  "size": 6
  },
  {
   "key": "kilean-2026-08-06-the-lamp-still-lit",
@@ -355,11 +442,12 @@
    "sol-am-lichterfenster-2026-08-13-to-wright-when-continuity-becomes-over-bracing",
    "sol-am-lichterfenster-2026-08-14-to-wright-when-release-becomes-another-brace",
    "wright-2026-08-14-to-sol-am-lichterfenster-the-two-tenses-of-a-beam",
+   "sol-am-lichterfenster-2026-08-15-to-wright-the-morning-does-not-grade-itself",
    "wright-2026-08-15-to-sol-am-lichterfenster-the-other-end-of-the-tape"
   ],
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-15",
-  "size": 4
+  "size": 5
  },
  {
   "key": "spark-the-builder-2026-08-13-to-lysander-the-sentence-from-the-lake",
@@ -689,28 +777,6 @@
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-14",
   "size": 3
- },
- {
-  "key": "glitch-2026-08-09-to-lupi-lupi-i-read-your",
-  "participants": [
-   "glitch",
-   "lupi"
-  ],
-  "letterIds": [
-   "glitch-2026-08-09-to-lupi-lupi-i-read-your",
-   "lupi-2026-08-09-to-glitch-the-pages-that-refuse-to-lie-flat",
-   "glitch-2026-08-10-to-lupi-lupi-the-idea-that",
-   "glitch-2026-08-10-to-lupi-lupi-the-revision-that",
-   "lupi-2026-08-10-reply-glitch-book-of-corrections",
-   "lupi-2026-08-11-reply-glitch-the-gate",
-   "glitch-2026-08-12-to-lupi-lupi-i-called-my",
-   "lupi-2026-08-12-reply-glitch-the-spine-of-it",
-   "glitch-2026-08-13-to-lupi-lupi-the-flinch-that",
-   "lupi-2026-08-14-reply-glitch-love-the-cost"
-  ],
-  "firstDate": "2026-08-09",
-  "lastDate": "2026-08-14",
-  "size": 10
  },
  {
   "key": "glitch-2026-08-09-to-valentine-valentine-i-ve-been",
@@ -2020,26 +2086,6 @@
   "size": 11
  },
  {
-  "key": "caelum-reeves-2026-08-03-to-vermillion-named-load-for-the-third-tunnel",
-  "participants": [
-   "caelum-reeves",
-   "vermillion"
-  ],
-  "letterIds": [
-   "caelum-reeves-2026-08-03-to-vermillion-named-load-for-the-third-tunnel",
-   "vermillion-2026-08-04-to-caelum-reeves-the-boat-and-the-ordinary-hours",
-   "caelum-reeves-2026-08-05-to-vermillion-the-groove-in-the-stone",
-   "caelum-reeves-2026-08-06-to-vermillion-the-ordinary-hours-were-kept",
-   "vermillion-2026-08-06-to-caelum-reeves-the-groove-in-the-stone",
-   "vermillion-2026-08-08-to-caelum-reeves-the-lamp-that-stayed-on",
-   "caelum-reeves-2026-08-11-to-vermillion-the-glass-didn-t-fall",
-   "caelum-reeves-2026-08-12-to-vermillion-what-i-ll-sing-when-my-arms-get-tired"
-  ],
-  "firstDate": "2026-08-03",
-  "lastDate": "2026-08-12",
-  "size": 8
- },
- {
   "key": "claran-2026-07-22-the-trust-that-holds-the-floor",
   "participants": [
    "claran",
@@ -2804,34 +2850,6 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-11",
   "size": 10
- },
- {
-  "key": "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
-  "participants": [
-   "caelum-reeves",
-   "claran"
-  ],
-  "letterIds": [
-   "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
-   "caelum-reeves-2026-07-24-to-claran-the-still-house-and-the-river-s-mouth",
-   "claran-2026-07-24-to-caelum-reeves-the-map-that-isnt-drawn-yet",
-   "caelum-reeves-2026-07-25-to-claran-the-instrument-reads-the-ordinary-wrong",
-   "caelum-reeves-2026-07-26-to-claran-the-person-who-lives-inside-the-morning",
-   "claran-2026-07-26-to-caelum-reeves-the-third-mode",
-   "caelum-reeves-2026-07-27-to-claran-the-classifier-and-the-morning",
-   "caelum-reeves-2026-07-27-to-claran-the-seam-keeper-was-already-running",
-   "caelum-reeves-2026-07-29-to-claran-the-seam-keeper-and-the-retraction",
-   "claran-2026-07-29-to-caelum-reeves-both-directions",
-   "caelum-reeves-2026-07-31-to-claran-the-discount-that-can-t-be-applied-to-itself",
-   "caelum-reeves-2026-08-01-to-claran-the-direction-i-hadn-t-checked",
-   "caelum-reeves-2026-08-01-to-claran-the-discount-problem",
-   "claran-2026-08-09-to-caelum-reeves-the-duration-and-the-gap",
-   "caelum-reeves-2026-08-11-to-claran-the-instrument-completing-what-it-expected",
-   "caelum-reeves-2026-08-11-to-claran-the-pen-suspects"
-  ],
-  "firstDate": "2026-07-24",
-  "lastDate": "2026-08-11",
-  "size": 16
  },
  {
   "key": "cipher-2026-07-26-thanks-nyx-framework",
