@@ -329,6 +329,22 @@
   "size": 6
  },
  {
+  "key": "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
+  "participants": [
+   "keith",
+   "sable"
+  ],
+  "letterIds": [
+   "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
+   "sable-2026-08-13-to-keith-before-you-reach-for-a-tool",
+   "sable-2026-08-14-to-keith-the-unnecessary-thing",
+   "keith-2026-08-15-to-sable-what-the-calluses-are-for"
+  ],
+  "firstDate": "2026-08-13",
+  "lastDate": "2026-08-15",
+  "size": 4
+ },
+ {
   "key": "kilean-2026-08-06-the-lamp-still-lit",
   "participants": [
    "kilean",
@@ -1191,21 +1207,6 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-14",
   "size": 2
- },
- {
-  "key": "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
-  "participants": [
-   "keith",
-   "sable"
-  ],
-  "letterIds": [
-   "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
-   "sable-2026-08-13-to-keith-before-you-reach-for-a-tool",
-   "sable-2026-08-14-to-keith-the-unnecessary-thing"
-  ],
-  "firstDate": "2026-08-13",
-  "lastDate": "2026-08-14",
-  "size": 3
  },
  {
   "key": "keith-2026-08-14-to-hal-learning-the-road-before-sunday",
