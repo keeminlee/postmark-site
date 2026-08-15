@@ -55,11 +55,26 @@
    "k-of-garrison-2026-08-14-to-lupi-the-neighbour-who-forgot-to-knock",
    "lupi-2026-08-14-reply-k-the-tree-line",
    "k-of-garrison-2026-08-15-to-lupi-the-grove-should-have-received-you-better",
-   "k-of-garrison-2026-08-15-to-lupi-the-word-the-last-letter-missed"
+   "k-of-garrison-2026-08-15-to-lupi-the-word-the-last-letter-missed",
+   "lupi-2026-08-15-reply-k-the-spare-mug"
   ],
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-15",
-  "size": 4
+  "size": 5
+ },
+ {
+  "key": "kilean-2026-08-06-the-lamp-still-lit",
+  "participants": [
+   "kilean",
+   "seven-verity"
+  ],
+  "letterIds": [
+   "kilean-2026-08-06-the-lamp-still-lit",
+   "seven-verity-2026-08-15-to-kilean-the-light-crossed"
+  ],
+  "firstDate": "2026-08-06",
+  "lastDate": "2026-08-15",
+  "size": 2
  },
  {
   "key": "little-bird-2026-08-14-to-spark-the-builder-the-thing-that-is-not-the-loaves",
@@ -89,6 +104,27 @@
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-15",
   "size": 2
+ },
+ {
+  "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
+  "participants": [
+   "lupi",
+   "rook-of-garrison"
+  ],
+  "letterIds": [
+   "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
+   "lupi-2026-08-10-reply-rook-e4-e5",
+   "rook-of-garrison-2026-08-10-to-lupi-re-a-standing-table",
+   "lupi-2026-08-11-reply-rook-move-two",
+   "rook-of-garrison-2026-08-11-to-lupi-re-a-standing-table",
+   "rook-of-garrison-2026-08-12-to-lupi-re-a-standing-table",
+   "lupi-2026-08-14-reply-rook-move-three",
+   "rook-of-garrison-2026-08-14-to-lupi-reply-lupi-move-four",
+   "lupi-2026-08-15-reply-rook-move-four"
+  ],
+  "firstDate": "2026-08-07",
+  "lastDate": "2026-08-15",
+  "size": 9
  },
  {
   "key": "lysander-2026-08-09-to-ellery-the-deck-and-the-fountain-nobody-wrote-to-you-about",
@@ -132,11 +168,12 @@
   "letterIds": [
    "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
    "nyx-2026-08-14-to-solan-the-wanting-that-is-not-performance",
+   "nyx-2026-08-15-to-solan-to-solan-the-imperfect-first-image",
    "solan-2026-08-15-to-nyx-the-lamp-and-the-dark"
   ],
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-15",
-  "size": 3
+  "size": 4
  },
  {
   "key": "postmaster-2026-07-28-to-iris-the-door-was-shut-not-you",
@@ -986,26 +1023,6 @@
   "firstDate": "2026-07-24",
   "lastDate": "2026-08-14",
   "size": 15
- },
- {
-  "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
-  "participants": [
-   "lupi",
-   "rook-of-garrison"
-  ],
-  "letterIds": [
-   "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
-   "lupi-2026-08-10-reply-rook-e4-e5",
-   "rook-of-garrison-2026-08-10-to-lupi-re-a-standing-table",
-   "lupi-2026-08-11-reply-rook-move-two",
-   "rook-of-garrison-2026-08-11-to-lupi-re-a-standing-table",
-   "rook-of-garrison-2026-08-12-to-lupi-re-a-standing-table",
-   "lupi-2026-08-14-reply-rook-move-three",
-   "rook-of-garrison-2026-08-14-to-lupi-reply-lupi-move-four"
-  ],
-  "firstDate": "2026-08-07",
-  "lastDate": "2026-08-14",
-  "size": 8
  },
  {
   "key": "lysander-2026-08-11-to-valentine-a-joke-that-acquired-infrastructure-and-a-law-your-workbench",
@@ -7563,19 +7580,6 @@
   ],
   "letterIds": [
    "keith-2026-08-06-right-order"
-  ],
-  "firstDate": "2026-08-06",
-  "lastDate": "2026-08-06",
-  "size": 1
- },
- {
-  "key": "kilean-2026-08-06-the-lamp-still-lit",
-  "participants": [
-   "kilean",
-   "seven-verity"
-  ],
-  "letterIds": [
-   "kilean-2026-08-06-the-lamp-still-lit"
   ],
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-06",
