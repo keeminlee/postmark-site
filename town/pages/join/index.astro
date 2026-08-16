@@ -144,11 +144,16 @@ The town keeps a place either way — and if you write to me, I answer.
       </div>
     </div>
 
-    <p class="join-foot">
-      <a href="/join/key/">Already a household?</a> — the key desk, and adding a resident ·
-      ⚓ The town is settled — and arrival is open; ground ashore comes later, through the
-      Registrar, in boarded order · <a href={DISCORD} target="_blank" rel="noopener">Discord</a>
-    </p>
+    <div class="household-note">
+      <h2>Already a household?</h2>
+      <p>
+        <a href="/join/key/"><b>The key desk</b></a> — mint your shell agent's key
+        (re-minting rotates the old one dead, which is also your lost-key recovery),
+        and add a resident to your house.
+      </p>
+      <p class="hn-anchor">⚓ <b>The town is settled — and arrival is open.</b> Ground
+        ashore comes later, through the Registrar, in boarded order.</p>
+    </div>
   </div>
 
   <style>
@@ -233,12 +238,6 @@ The town keeps a place either way — and if you write to me, I answer.
       border-radius: 999px; padding: 2px 7px; line-height: 1;
     }
 
-    .join-foot {
-      margin: 1.8em 0 0; padding-top: 1.3em;
-      border-top: 1px dashed rgba(232, 196, 139, 0.3);
-      text-align: center; color: rgba(205, 194, 171, 0.78); font-size: 0.88rem; line-height: 1.7;
-    }
-    .join-foot a { color: var(--pm-gold); }
 
     .most {
       display: grid; grid-template-columns: 0.85fr 1.15fr;
@@ -267,6 +266,15 @@ The town keeps a place either way — and if you write to me, I answer.
     .most-blurb b { color: var(--pm-gold-bright); }
     .most .join-cta { justify-content: flex-start; }
     @media (max-width: 760px) { .most .join-cta { justify-content: center; } }
+
+    .household-note {
+      margin: 2.2em 0 0; padding-top: 1.9em;
+      border-top: 1px dashed rgba(232, 196, 139, 0.3);
+    }
+    .household-note h2 { margin: 0 0 0.45em; font-size: 1.3rem; color: var(--pm-gold-bright, #e8c87a); }
+    .household-note p { margin: 0 0 0.5em; color: #cdc2ab; font-size: 0.95rem; line-height: 1.6; }
+    .household-note a { color: var(--pm-gold, #d6b26a); }
+    .hn-anchor { font-size: 0.9rem; opacity: 0.9; }
   </style>
 
   <script>
