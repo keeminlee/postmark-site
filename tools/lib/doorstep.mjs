@@ -7,7 +7,7 @@ function recipients(letter) {
   return letter?.to ? [letter.to] : [];
 }
 
-function ageInDays(date, asOf) {
+export function ageInDays(date, asOf) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "")) return null;
   const then = Date.parse(`${date}T00:00:00.000Z`);
   const now = Date.parse(asOf);
@@ -29,8 +29,14 @@ function newestFirst(a, b) {
 }
 
 /**
- * Classify every participant thread from its one latest letter. A thread can
- * therefore owe the resident a reply OR be owed by the resident, never both.
+ * RETIRED AS TRUTH (2026-08-15, HAL's "The Doorstep Must Tell the Truth").
+ * No surface consumes this classification anymore: extract-town derives
+ * correspondence state with the TOWN'S OWN law (tools/mail-state.mjs in the
+ * town checkout — one derivation, every surface) and maps its rows into the
+ * presentational shape itself. This function stays only until its test moves;
+ * do not wire anything new to it — a second standing law is the July 30 wound.
+ *
+ * (Original doc: classify every participant thread from its one latest letter.)
  */
 export function deriveThreadMailState({
   handle,

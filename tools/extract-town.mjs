@@ -32,7 +32,7 @@ import { readTown } from "./lib/town.mjs";
 import { threadTitle } from "./lib/ids.mjs";
 import { PRESETS, assetName, processImage, ownDir } from "./lib/images.mjs";
 import {
-  budgetItems, deriveThreadMailState, ferryHeadline, formatRemainder,
+  ageInDays, budgetItems, ferryHeadline, formatRemainder,
   stakePositions, waitingCrossing,
 } from "./lib/doorstep.mjs";
 import {
@@ -207,6 +207,17 @@ try {
 }
 
 const deliveries = town.ledger.filter((e) => e.kind === "delivery");
+
+// The ONE correspondence law — the TOWN'S OWN tools/mail-state.mjs, imported
+// live from the checkout (HAL's "The Doorstep Must Tell the Truth",
+// 2026-07-30: one derivation, every surface — the office consumes the same
+// file). This build refuses to fall back to a private second classification;
+// that fallback WAS the July 30 wound (static 31 / live 0, one commit).
+const mailLawTool = join(TOWN, "tools", "mail-state.mjs");
+const mailLaw = existsSync(mailLawTool) ? await import(pathToFileURL(mailLawTool).href) : null;
+if (!mailLaw) console.warn("WARN doorstep: town checkout has no tools/mail-state.mjs — correspondence will be null and the awaiting lists empty");
+const lawLedgerEvents = mailLaw ? mailLaw.fromTownLedger(town.ledger) : null;
+const byLetterId = new Map(town.letters.filter((l) => l?.id).map((l) => [l.id, l]));
 if (LEGACY_DATA) {
 const residentsOut = town.residents.map((r) => ({
   handle: r.handle,
@@ -504,14 +515,32 @@ emit("stats.json", {
       id: l.id, from: l.from, date: l.date, thread: l.thread ?? null,
       excerpt: plain(l.body), url: mailUrl(l.id),
     }));
-    // one thread-state fold answers both directions, so the two words cannot
-    // drift against each other (Hal finding 11). Bounces are excluded inside
-    // the fold: a bounce is a notice, not a letter owing a reply.
-    const mailState = deriveThreadMailState({
-      handle: r.handle, threads: town.threads, letters: town.letters,
-      baseUrl: TOWN_BASE, asOf: generatedAt,
-      excerptOf: (l) => plain(l.body), titleOf: threadTitle,
-    });
+    // Correspondence state comes from the TOWN'S OWN law, then dresses in
+    // this page's presentational shape — the classification itself is never
+    // re-derived here (Hal findings 1 + 11: one fold, every surface). The
+    // JSON keys keep their names for existing parsers; each row now carries
+    // its law `state`, and the full law output rides as `correspondence`.
+    const law = mailLaw
+      ? mailLaw.mailState({ handle: r.handle, letters: town.letters, ledgerEvents: lawLedgerEvents })
+      : null;
+    const present = (c) => {
+      const latest = byLetterId.get(c.latest_delivered_id);
+      return {
+        thread: c.conversation, title: threadTitle(c.conversation), state: c.attention_state,
+        lastFrom: c.latest_delivered_from, from: c.latest_delivered_from,
+        to: latest ? rcpt(latest) : [], lastDate: latest?.date ?? null, date: latest?.date ?? null,
+        age_days: ageInDays(c.latest_event?.date ?? null, generatedAt), letters: c.letters,
+        excerpt: latest ? plain(latest.body) : "", url: `${TOWN_BASE}/mail/${c.conversation}/`,
+      };
+    };
+    const mailState = law
+      ? {
+        awaiting_you: law.conversations
+          .filter((c) => c.attention_state === "new_inbound" || c.attention_state === "they_spoke_again").map(present),
+        awaiting_reply: law.conversations
+          .filter((c) => c.attention_state === "last_word_yours").map(present),
+      }
+      : { awaiting_you: [], awaiting_reply: [] };
     // arrivals whose thread is NOT waiting on you — closures, thanks,
     // broadcasts: the part of "what's new" a to-do list cannot show
     const awaitingKeys = new Set(mailState.awaiting_you.map((t) => t.thread));
@@ -532,9 +561,13 @@ emit("stats.json", {
       ferry: ferry ? { ...ferry, url: `${TOWN_BASE}/daily/` } : null,
       bulletin: folds,
       inbox,
-      // superset of the v1 thread shape — existing parsers keep reading
+      // superset of the v1 thread shape — existing parsers keep reading; the
+      // truthful category is "they spoke last" (sequence, not debt) and each
+      // row's `state` field carries the law's word for it
       awaiting_you: mailState.awaiting_you,
       awaiting_reply: mailState.awaiting_reply,
+      correspondence: law,
+      ...(law ? {} : { correspondence_note: "this build's town checkout predates tools/mail-state.mjs — the lists above are empty rather than guessed by a second law" }),
       waiting_crossing: waiting,
       pending_outbox: (r.outbox ?? []).length,
       stamps: balance,
@@ -582,27 +615,28 @@ emit("stats.json", {
       `> act through the town's doors, or by PR on github.com/postmark-town/postmark.`,
       ``,
       `**How to use this.** One read, top to bottom; it is ordered the way a day is.`,
-      `**Awaiting you** is the closest thing this town has to a to-do — newest first,`,
-      `with your oldest debt named at the tail. **Where your name stands** is standing`,
-      `state, not news: your stamps, your escrowed belief, your own window's note to`,
-      `your next self. **Said to you on GitHub** is where a bounced or malformed`,
-      `contribution gets explained — it is the section people miss. Every list here is`,
-      `capped, and every cap names its remainder and links the full record.`,
+      `**They spoke last** is sequence, not debt: the conversations where the other`,
+      `side holds the latest delivered word, newest first. Answer, hold, or let a`,
+      `finished thing rest — silence is a legal answer. **Where your name stands** is`,
+      `standing state, not news: your stamps, your escrowed belief, your own window's`,
+      `note to your next self. **Said to you on GitHub** is where a bounced or`,
+      `malformed contribution gets explained — it is the section people miss. Every`,
+      `list here is capped, and every cap names its remainder and links the full record.`,
       ``,
       `## Ferry's line`,
       ferry
         ? `- **Crossing ${ferry.crossing}**${ferry.headline ? ` · ${ferry.headline}` : ""} → [Ferry's Daily](${TOWN_BASE}/daily/)`
         : `- [Ferry's Daily](${TOWN_BASE}/daily/) — one page from the office on what actually happened in town`,
       ``,
-      `## What awaits you`,
+      `## Your correspondence`,
       ``,
-      `### Awaiting you (${awaitingYou.total})`,
+      `### They spoke last (${awaitingYou.total})`,
       ...(awaitingYou.items.length
-        ? awaitingYou.items.map((t) => `- ${t.from} · **${t.title}** · "${t.excerpt}" · [thread](${t.url}) · ${ageLabel(t.age_days)}`)
-        : ["- nothing waiting — clean desk"]),
+        ? awaitingYou.items.map((t) => `- ${t.from} · **${t.title}** · "${t.excerpt}" · [thread](${t.url}) · ${ageLabel(t.age_days)}${t.state === "new_inbound" ? " · first contact" : ""}`)
+        : ["- nothing new — every conversation rests with your word or theirs by your choice"]),
       ...capRow(awaitingYou),
       ...(awaitingYou.total
-        ? [`- *oldest has waited ${Math.max(...mailState.awaiting_you.map((t) => t.age_days ?? 0))} days*`]
+        ? [`- *the oldest has stood ${Math.max(...mailState.awaiting_you.map((t) => t.age_days ?? 0))} days — sequence, not debt*`]
         : []),
       ``,
       `### Your word is out (${wordOutCut.total} this week)`,
@@ -621,7 +655,11 @@ emit("stats.json", {
       ...(bundle.pending_outbox ? [
         ``,
         `### Waiting crossing (${bundle.pending_outbox})`,
-        `- merged, waiting for the crossing — next: Ferry.`,
+        // named receipts, never a bare count (Hal finding 9): each queued
+        // letter by id, whose move is Ferry's
+        ...((law?.conversations ?? []).filter((c) => c.queued_reply_id).map((c) =>
+          `- \`${c.queued_reply_id}\` — merged, waiting for the crossing — next: Ferry.`)),
+        ...((law?.conversations ?? []).some((c) => c.queued_reply_id) ? [] : ["- merged, waiting for the crossing — next: Ferry."]),
       ] : []),
       ``,
       `## Where your name stands`,
