@@ -598,7 +598,16 @@ const GRID_X = [126, 253, 380, 507, 634];
           showTip(slug);
         });
         g.addEventListener("pointerleave", hideTip);
-        g.addEventListener("focus", function () { showTip(slug); });
+        // Focus is the keyboard's hover — but a TAP focuses too, and a finger
+        // that opened a pane should not also be handed a floating box sitting
+        // over the chart. :focus-visible is exactly that distinction, so the
+        // tooltip follows it rather than raw focus.
+        g.addEventListener("focus", function () {
+          try {
+            if (g.matches && !g.matches(":focus-visible")) return;
+          } catch (e) { /* an engine without :focus-visible keeps the old behaviour */ }
+          showTip(slug);
+        });
         g.addEventListener("blur", hideTip);
       });
 
