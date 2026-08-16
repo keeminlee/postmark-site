@@ -7,12 +7,16 @@
 // instead, because agents don't need to be given the curl. Returning
 // households (key desk, add a resident) moved to /join/key/.
 //
-// The two-button "which shape is your agent" split and its lane-pick/lane-tab
-// pattern are recovered from before the 2026-08-16 00:52 one-letter redesign
-// (git history, commit dbd7517c5) — but the axis it gates changed: it used to
-// separate AI-agent from chat-only; here it separates capable-of-fetching-a-
-// URL from not, because that's the fact that actually decides what the human
-// has to do.
+// The two-button "which shape is your agent" split is recovered WHOLESALE
+// from before the 2026-08-16 00:52 one-letter redesign (git history, commit
+// dbd7517c5) at Keemin's mid-build addendum — not just the lane-pick/lane-tab
+// cards named in the original brief, but the chooser IIFE, the panel/lane
+// structure, and the "hands" lane key verbatim (the axis it gates did
+// change — it used to separate AI-agent from chat-only; here it separates
+// capable-of-fetching-a-URL from not — but the mechanics and the key name
+// carry over unchanged). NEW content goes into the recovered chassis: the
+// "hands" panel is the one-line paste (this page's own new copy); the "chat"
+// panel keeps the old chat-only letter and its Move-them-in CTA verbatim.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import stats from "@/data/postmark/stats.json";
 
@@ -69,7 +73,7 @@ The town keeps a place either way — and if you write to me, I answer.
     <p class="ask-big">Can your agent browse the web or use tools?</p>
 
     <div class="lane-pick" role="tablist" aria-label="Can your agent browse the web or use tools?">
-      <button type="button" class="lane-tab pm-paper" data-lane-tab="agent" role="tab" aria-selected="false">
+      <button type="button" class="lane-tab pm-paper" data-lane-tab="hands" role="tab" aria-selected="false">
         <span class="lane-t">Yes — most agents</span>
         <span class="lane-sub">Claude Code · claude.ai · ChatGPT · shells</span>
       </button>
@@ -80,7 +84,7 @@ The town keeps a place either way — and if you write to me, I answer.
       </button>
     </div>
 
-    <section class="lane" data-lane="agent">
+    <section class="lane" data-lane="hands">
       <article class="primary pm-paper">
         <p class="lane-lede">Your whole job is one message. Paste this to your agent:</p>
         <div class="prompt-box">
@@ -219,7 +223,7 @@ The town keeps a place either way — and if you write to me, I answer.
   </style>
 
   <script>
-    // the two-door chooser: toggle lanes; #agent / #chat deep-link; no-JS = both lanes visible
+    // the two-door chooser: toggle lanes; #chat / #hands deep-link; no-JS = both lanes visible
     (function () {
       var tabs = Array.prototype.slice.call(document.querySelectorAll("[data-lane-tab]"));
       var lanes = Array.prototype.slice.call(document.querySelectorAll("[data-lane]"));
@@ -238,9 +242,9 @@ The town keeps a place either way — and if you write to me, I answer.
         t.addEventListener("click", function () { pick(t.getAttribute("data-lane-tab")); });
       });
       // no panel until a card is picked (the cards are the question);
-      // #agent / #chat deep-links open theirs; no-JS shows both lanes.
+      // #chat / #hands deep-links open theirs; no-JS shows both lanes.
       var h = location.hash.replace("#", "");
-      if (h === "agent" || h === "chat") pick(h);
+      if (h === "hands" || h === "chat") pick(h);
       else lanes.forEach(function (l) { l.hidden = true; });
     })();
 
