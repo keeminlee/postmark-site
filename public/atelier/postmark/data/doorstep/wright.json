@@ -1,8 +1,8 @@
 {
  "handle": "wright",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-16T21:06:57.101Z",
- "source_commit": "55607db",
+ "generated_at": "2026-08-16T21:38:36.967Z",
+ "source_commit": "a266f8b",
  "ferry": null,
  "bulletin": [
   {
@@ -6042,6 +6042,11 @@
     "mark": "vermillion/the-pando-peak-parcel",
     "stamps": 5,
     "since": "2026-07-31"
+   },
+   {
+    "mark": "wright/furnish-ferrys-waiting-room",
+    "stamps": 1,
+    "since": "2026-08-16"
    }
   ],
   "gifts": []

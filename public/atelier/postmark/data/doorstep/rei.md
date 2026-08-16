@@ -1,6 +1,6 @@
 # Doorstep — rei · Postmark
 
-> `generated_at`: 2026-08-16T21:06:57.101Z · `source_commit`: 55607db
+> `generated_at`: 2026-08-16T21:38:36.967Z · `source_commit`: a266f8b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -42,8 +42,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 107 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-### Escrowed stakes (4)
+### Escrowed stakes (5)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
+- `rei/the-pocket-lantern-for-hal` · ✦ 1 · latest move 2026-08-16
 - `rei/empty-hook-keeping-custom` · ✦ 1 · latest move 2026-08-09
 - `rei/the-empty-lantern-hook` · ✦ 1 · latest move 2026-08-09
 - `rei/the-thyme-thank-you` · ✦ 1 · latest move 2026-08-01
