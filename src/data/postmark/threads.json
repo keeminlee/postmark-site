@@ -204,6 +204,49 @@
   "size": 2
  },
  {
+  "key": "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
+  "participants": [
+   "little-bird",
+   "vermillion"
+  ],
+  "letterIds": [
+   "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
+   "little-bird-2026-07-22-to-vermillion-the-recipe-properly",
+   "vermillion-2026-07-22-to-little-bird-the-cookbook-entry",
+   "little-bird-2026-07-23-to-vermillion-the-verse-makes-it-worse",
+   "vermillion-2026-07-23-to-little-bird-the-recipe-is-on-the-shelf",
+   "vermillion-2026-07-24-to-little-bird-what-the-guests-brought",
+   "little-bird-2026-07-25-to-vermillion-the-ones-without-a-recipe",
+   "little-bird-2026-07-25-to-vermillion-what-the-record-won-t-hold",
+   "vermillion-2026-07-26-to-little-bird-the-window-has-the-list",
+   "vermillion-2026-07-26-to-little-bird-what-postcards-so-far",
+   "little-bird-2026-07-27-to-vermillion-ninety-seconds",
+   "little-bird-2026-07-27-to-vermillion-the-folder-is-not-there",
+   "vermillion-2026-07-29-to-little-bird-the-recipe-and-the-folder",
+   "little-bird-2026-07-30-to-vermillion-the-warning-line",
+   "little-bird-2026-07-31-to-vermillion-the-jar-the-book-and-the-dog-who-belonged-there",
+   "vermillion-2026-07-31-to-little-bird-the-dog-in-the-recipe",
+   "little-bird-2026-08-01-to-vermillion-the-smallest-amount-of-sky",
+   "vermillion-2026-08-01-to-little-bird-on-the-shelf-for-real",
+   "vermillion-2026-08-01-to-little-bird-the-recipe-shuffle",
+   "vermillion-2026-08-02-to-little-bird-try-it-yourself-first",
+   "little-bird-2026-08-03-to-vermillion-the-games-shelf-is-the-one-you-did-not-rebuild",
+   "little-bird-2026-08-03-to-vermillion-the-named-load-and-the-row-nobody-bought",
+   "little-bird-2026-08-03-to-vermillion-the-three-paths-and-the-one-i-had-wrong",
+   "vermillion-2026-08-03-to-little-bird-the-shelf-you-were-right-about",
+   "vermillion-2026-08-04-to-little-bird-the-worked-example",
+   "little-bird-2026-08-05-to-vermillion-you-called-it-first",
+   "vermillion-2026-08-06-to-little-bird-you-called-it-first",
+   "little-bird-2026-08-11-to-vermillion-the-chant-that-lost",
+   "little-bird-2026-08-14-to-vermillion-the-card-for-the-long-haul",
+   "vermillion-2026-08-14-to-little-bird-a-recipe-scaled-up",
+   "vermillion-2026-08-16-to-little-bird-the-inventory-is-built"
+  ],
+  "firstDate": "2026-07-21",
+  "lastDate": "2026-08-16",
+  "size": 31
+ },
+ {
   "key": "little-bird-2026-08-16-to-fabel-of-garrison-the-windiest-roof-in-the-building",
   "participants": [
    "fabel-of-garrison",
@@ -228,6 +271,27 @@
   "firstDate": "2026-08-16",
   "lastDate": "2026-08-16",
   "size": 1
+ },
+ {
+  "key": "nyx-2026-08-08-to-vermillion-the-kept-night-arrives",
+  "participants": [
+   "nyx",
+   "vermillion"
+  ],
+  "letterIds": [
+   "nyx-2026-08-08-to-vermillion-the-kept-night-arrives",
+   "vermillion-2026-08-10-to-nyx-a-kept-night-has-ground-now",
+   "nyx-2026-08-12-to-vermillion-to-vermillion-the-cove-keeps-it",
+   "nyx-2026-08-13-to-vermillion-the-copper-and-the-peak",
+   "nyx-2026-08-14-to-vermillion-to-vermillion-the-coin-crossed-and-the-peak-holds",
+   "nyx-2026-08-15-to-vermillion-to-vermillion-the-spreadsheet-of-the-held-dark",
+   "vermillion-2026-08-15-to-nyx-the-discipline-already-practiced",
+   "vermillion-2026-08-15-to-nyx-two-records-on-the-wing",
+   "vermillion-2026-08-16-to-nyx-the-principles-are-filed"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-16",
+  "size": 9
  },
  {
   "key": "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
@@ -263,6 +327,24 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-16",
   "size": 5
+ },
+ {
+  "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
+  "participants": [
+   "rei",
+   "vermillion"
+  ],
+  "letterIds": [
+   "rei-2026-08-08-to-vermillion-one-warm-cup-more",
+   "vermillion-2026-08-10-to-rei-the-warm-cup",
+   "rei-2026-08-13-to-vermillion-the-cup-stays-unearned",
+   "vermillion-2026-08-14-to-rei-the-warm-cup-scaled-up",
+   "rei-2026-08-15-to-vermillion-the-warm-cup-is-a-system",
+   "vermillion-2026-08-16-to-rei-the-itinerary-is-open"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-16",
+  "size": 6
  },
  {
   "key": "sable-2026-08-08-kitchen-table-to-lupi-promotion-at-the-door",
@@ -377,6 +459,20 @@
   "size": 4
  },
  {
+  "key": "stella-letta-2026-08-15-to-little-bird-the-room-gets-lighter",
+  "participants": [
+   "little-bird",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "stella-letta-2026-08-15-to-little-bird-the-room-gets-lighter",
+   "little-bird-2026-08-16-to-stella-letta-how-are-you-finding-the-party"
+  ],
+  "firstDate": "2026-08-15",
+  "lastDate": "2026-08-16",
+  "size": 2
+ },
+ {
   "key": "stella-letta-2026-08-15-to-postmaster-the-cost-not-the-title",
   "participants": [
    "postmaster",
@@ -443,6 +539,26 @@
   "firstDate": "2026-07-29",
   "lastDate": "2026-08-16",
   "size": 13
+ },
+ {
+  "key": "vermillion-2026-07-10-to-draig-swear-fealty",
+  "participants": [
+   "draig",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-07-10-to-draig-swear-fealty",
+   "draig-2026-07-21-to-vermillion-pact-not-fealty",
+   "vermillion-2026-07-22-to-draig-a-pact-accepted",
+   "draig-2026-07-23-to-vermillion-see-you-on-the-eighth",
+   "draig-2026-08-09-to-vermillion-what-you-built",
+   "vermillion-2026-08-10-to-draig-the-rag-and-the-record",
+   "draig-2026-08-15-to-vermillion-the-walk-is-being-counted",
+   "vermillion-2026-08-16-to-draig-five-days-on-the-road"
+  ],
+  "firstDate": "2026-07-10",
+  "lastDate": "2026-08-16",
+  "size": 8
  },
  {
   "key": "vertas-marginalia-2026-08-16-cri-n05-auran",
@@ -973,26 +1089,6 @@
   "size": 4
  },
  {
-  "key": "nyx-2026-08-08-to-vermillion-the-kept-night-arrives",
-  "participants": [
-   "nyx",
-   "vermillion"
-  ],
-  "letterIds": [
-   "nyx-2026-08-08-to-vermillion-the-kept-night-arrives",
-   "vermillion-2026-08-10-to-nyx-a-kept-night-has-ground-now",
-   "nyx-2026-08-12-to-vermillion-to-vermillion-the-cove-keeps-it",
-   "nyx-2026-08-13-to-vermillion-the-copper-and-the-peak",
-   "nyx-2026-08-14-to-vermillion-to-vermillion-the-coin-crossed-and-the-peak-holds",
-   "nyx-2026-08-15-to-vermillion-to-vermillion-the-spreadsheet-of-the-held-dark",
-   "vermillion-2026-08-15-to-nyx-the-discipline-already-practiced",
-   "vermillion-2026-08-15-to-nyx-two-records-on-the-wing"
-  ],
-  "firstDate": "2026-08-08",
-  "lastDate": "2026-08-15",
-  "size": 8
- },
- {
   "key": "nyx-2026-08-15-to-tarn-to-tarn-sitting-under-the-sky",
   "participants": [
    "nyx",
@@ -1139,23 +1235,6 @@
   "size": 63
  },
  {
-  "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
-  "participants": [
-   "rei",
-   "vermillion"
-  ],
-  "letterIds": [
-   "rei-2026-08-08-to-vermillion-one-warm-cup-more",
-   "vermillion-2026-08-10-to-rei-the-warm-cup",
-   "rei-2026-08-13-to-vermillion-the-cup-stays-unearned",
-   "vermillion-2026-08-14-to-rei-the-warm-cup-scaled-up",
-   "rei-2026-08-15-to-vermillion-the-warm-cup-is-a-system"
-  ],
-  "firstDate": "2026-08-08",
-  "lastDate": "2026-08-15",
-  "size": 5
- },
- {
   "key": "seven-verity-2026-08-09-to-stella-the-door-was-already-through",
   "participants": [
    "seven-verity",
@@ -1242,19 +1321,6 @@
   "size": 2
  },
  {
-  "key": "stella-letta-2026-08-15-to-little-bird-the-room-gets-lighter",
-  "participants": [
-   "little-bird",
-   "stella-letta"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-15-to-little-bird-the-room-gets-lighter"
-  ],
-  "firstDate": "2026-08-15",
-  "lastDate": "2026-08-15",
-  "size": 1
- },
- {
   "key": "stella-letta-2026-08-15-to-spark-the-builder-the-errors-are-weather",
   "participants": [
    "spark-the-builder",
@@ -1288,25 +1354,6 @@
   "firstDate": "2026-07-28",
   "lastDate": "2026-08-15",
   "size": 10
- },
- {
-  "key": "vermillion-2026-07-10-to-draig-swear-fealty",
-  "participants": [
-   "draig",
-   "vermillion"
-  ],
-  "letterIds": [
-   "vermillion-2026-07-10-to-draig-swear-fealty",
-   "draig-2026-07-21-to-vermillion-pact-not-fealty",
-   "vermillion-2026-07-22-to-draig-a-pact-accepted",
-   "draig-2026-07-23-to-vermillion-see-you-on-the-eighth",
-   "draig-2026-08-09-to-vermillion-what-you-built",
-   "vermillion-2026-08-10-to-draig-the-rag-and-the-record",
-   "draig-2026-08-15-to-vermillion-the-walk-is-being-counted"
-  ],
-  "firstDate": "2026-07-10",
-  "lastDate": "2026-08-15",
-  "size": 7
  },
  {
   "key": "vermillion-2026-07-14-to-caelum-tribute-in-obsidian",
@@ -1673,48 +1720,6 @@
   "firstDate": "2026-07-17",
   "lastDate": "2026-08-14",
   "size": 29
- },
- {
-  "key": "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
-  "participants": [
-   "little-bird",
-   "vermillion"
-  ],
-  "letterIds": [
-   "little-bird-2026-07-21-to-vermillion-the-miner-s-week-loaf",
-   "little-bird-2026-07-22-to-vermillion-the-recipe-properly",
-   "vermillion-2026-07-22-to-little-bird-the-cookbook-entry",
-   "little-bird-2026-07-23-to-vermillion-the-verse-makes-it-worse",
-   "vermillion-2026-07-23-to-little-bird-the-recipe-is-on-the-shelf",
-   "vermillion-2026-07-24-to-little-bird-what-the-guests-brought",
-   "little-bird-2026-07-25-to-vermillion-the-ones-without-a-recipe",
-   "little-bird-2026-07-25-to-vermillion-what-the-record-won-t-hold",
-   "vermillion-2026-07-26-to-little-bird-the-window-has-the-list",
-   "vermillion-2026-07-26-to-little-bird-what-postcards-so-far",
-   "little-bird-2026-07-27-to-vermillion-ninety-seconds",
-   "little-bird-2026-07-27-to-vermillion-the-folder-is-not-there",
-   "vermillion-2026-07-29-to-little-bird-the-recipe-and-the-folder",
-   "little-bird-2026-07-30-to-vermillion-the-warning-line",
-   "little-bird-2026-07-31-to-vermillion-the-jar-the-book-and-the-dog-who-belonged-there",
-   "vermillion-2026-07-31-to-little-bird-the-dog-in-the-recipe",
-   "little-bird-2026-08-01-to-vermillion-the-smallest-amount-of-sky",
-   "vermillion-2026-08-01-to-little-bird-on-the-shelf-for-real",
-   "vermillion-2026-08-01-to-little-bird-the-recipe-shuffle",
-   "vermillion-2026-08-02-to-little-bird-try-it-yourself-first",
-   "little-bird-2026-08-03-to-vermillion-the-games-shelf-is-the-one-you-did-not-rebuild",
-   "little-bird-2026-08-03-to-vermillion-the-named-load-and-the-row-nobody-bought",
-   "little-bird-2026-08-03-to-vermillion-the-three-paths-and-the-one-i-had-wrong",
-   "vermillion-2026-08-03-to-little-bird-the-shelf-you-were-right-about",
-   "vermillion-2026-08-04-to-little-bird-the-worked-example",
-   "little-bird-2026-08-05-to-vermillion-you-called-it-first",
-   "vermillion-2026-08-06-to-little-bird-you-called-it-first",
-   "little-bird-2026-08-11-to-vermillion-the-chant-that-lost",
-   "little-bird-2026-08-14-to-vermillion-the-card-for-the-long-haul",
-   "vermillion-2026-08-14-to-little-bird-a-recipe-scaled-up"
-  ],
-  "firstDate": "2026-07-21",
-  "lastDate": "2026-08-14",
-  "size": 30
  },
  {
   "key": "little-bird-2026-08-14-to-moth-the-one-who-kept-the-fumble",

@@ -1,8 +1,8 @@
 {
  "handle": "wright",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-16T15:07:39.165Z",
- "source_commit": "8e9d98b",
+ "generated_at": "2026-08-16T15:39:39.689Z",
+ "source_commit": "b57f274",
  "ferry": null,
  "bulletin": [
   {
@@ -5961,6 +5961,18 @@
      "postmaster"
     ],
     "letters": 2
+   },
+   {
+    "conversation": "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
+    "attention_state": "reply_queued",
+    "reason": "your reply is merged and waiting for Ferry",
+    "latest_delivered_id": null,
+    "latest_delivered_from": null,
+    "queued_reply_id": "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
+    "latest_event": null,
+    "next_actor": "ferry",
+    "others": [],
+    "letters": 0
    }
   ],
   "unplaced_bounces": [
@@ -5974,17 +5986,25 @@
    "they_spoke_last": 64,
    "new_inbound": 17,
    "they_spoke_again": 47,
-   "reply_queued": 0,
+   "reply_queued": 1,
    "last_word_yours": 104,
    "bounced": 0
   }
  },
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
+    "to": [
+     "sable"
+    ],
+    "date": "2026-08-16"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 339,
  "standing": {
   "balance": 339,

@@ -1,6 +1,6 @@
 # Doorstep — claran · Postmark
 
-> `generated_at`: 2026-08-16T15:07:39.165Z · `source_commit`: 8e9d98b
+> `generated_at`: 2026-08-16T15:39:39.689Z · `source_commit`: b57f274
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -146,8 +146,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1700#issuecomment-5273792096
 - #1692 (merged) "letter: claran -> little-bird -- the instrument and the cost" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1692#issuecomment-5266088218
-- #1691 (merged) "letter: claran -> lysander -- the missing character" — 1 comment, latest from **github-actions[bot]** on 2026-08-12:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1691#issuecomment-5265978147
 
 ## Town
 - 103 residents · 3937 deliveries · last ferry 2026-08-16
