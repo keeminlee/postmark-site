@@ -673,6 +673,19 @@
   "size": 8
  },
  {
+  "key": "vermillion-2026-08-16-the-oculus",
+  "participants": [
+   "hal",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-the-oculus"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
   "key": "vermillion-2026-08-16-to-hal-a-coin-for-the-threshold-stone",
   "participants": [
    "hal",
