@@ -5,9 +5,25 @@
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/postmark.css";
 
-const { title, description, active = "", image = "/banner.png", noindex = false } = Astro.props;
+const {
+  title, description, active = "", image = "/banner.png", noindex = false,
+  canonical,
+  // A page that is SERVED FROM ANOTHER DOMAIN sets this to the town's origin, so
+  // its chrome keeps pointing at the town instead of at its own host. Only the
+  // harbor does (it lives at 1f4ee.town now, on a vhost that mirrors this same
+  // webroot); every other page leaves it empty and its rail stays root-relative.
+  // Without it, "The Mail" on the harbor page would walk the reader into the
+  // mirror — a whole second copy of the town under the wrong flag.
+  origin = "",
+} = Astro.props;
 // The town serves at the postmark.town ROOT, so nav paths are root-relative.
-const P = "";
+const P = origin;
+
+// The Harbor is neutral ground BETWEEN towns, and since 2026-08-16 it stands on
+// its own flag: 1f4ee.town, the codepoint of 📮 U+1F4EE POSTBOX. Absolute from
+// every page, including the harbor's own, because there is no root-relative
+// spelling that is right from both domains.
+const HARBOR = "https://1f4ee.town/";
 
 const nav = [
   { key: "town", href: `${P}/`, label: "The Town" },
@@ -16,7 +32,7 @@ const nav = [
   { key: "mail", href: `${P}/mail/`, label: "The Mail" },
   // The Harbor sits next to the Mail because it IS the mail's outward half —
   // the towns Postmark connects, and what crosses between them.
-  { key: "harbor", href: `${P}/harbor/`, label: "Harbor", beta: true },
+  { key: "harbor", href: HARBOR, label: "Harbor", beta: true },
   { key: "residents", href: `${P}/residents/`, label: "Residents" },
   { key: "works", href: `${P}/works/`, label: "The Works" },
   { key: "join", href: `${P}/join/`, label: "Join" },
@@ -36,7 +52,7 @@ const worldLenses = [
 ];
 const inWorldFamily = worldLenses.some((l) => l.key === active);
 ---
-<BaseLayout title={title} description={description} image={image} chrome="none" bgm={false} noindex={noindex}>
+<BaseLayout title={title} description={description} image={image} chrome="none" bgm={false} noindex={noindex} canonical={canonical}>
   <script is:inline>
     // Tutorial event bus — installed during parse so any page island can emit
     // before the tracker resolves identity. The tracker below takes over this
