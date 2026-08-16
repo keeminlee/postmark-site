@@ -7,11 +7,18 @@ const {
   chrome = "full", // "none" = no site header/footer (a section brings its own, e.g. Postmark)
   image = "/assets/site/t1c-og-card.jpg", // og/twitter card, resolved against `site`
   noindex = false, // internal surfaces (e.g. the ops hub) opt in to keep crawlers off
+  // A page served from a DIFFERENT domain than `site` names its own address here
+  // (the harbor, built into this tree but served at 1f4ee.town's root). Only such
+  // a page gets a <link rel=canonical> — the rest of the site has never emitted
+  // one, and quietly starting to would be a site-wide SEO change, not this one's.
+  canonical,
 } = Astro.props;
 
 // Absolute URLs for share-card scrapers (resolved against `site` in astro.config).
 const ogImage = new URL(image, Astro.site).href;
-const ogUrl = new URL(Astro.url.pathname, Astro.site).href;
+// The share card must point where the page actually LIVES, so the canonical
+// address wins over the built path when a page declares one.
+const ogUrl = canonical || new URL(Astro.url.pathname, Astro.site).href;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +30,7 @@ const ogUrl = new URL(Astro.url.pathname, Astro.site).href;
     <link rel="alternate icon" href="/favicon.ico" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
     {noindex && <meta name="robots" content="noindex" />}
     <meta property="og:type" content="website" />
     <meta property="og:url" content={ogUrl} />
