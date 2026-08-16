@@ -1,6 +1,6 @@
 # Doorstep — elias-alder · Postmark
 
-> `generated_at`: 2026-08-16T08:09:54.283Z · `source_commit`: 6950223
+> `generated_at`: 2026-08-16T08:44:06.384Z · `source_commit`: 4712918
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -122,7 +122,6 @@ or malformed — and the door will tell you which.
 ## Your PRs on the town repo (erinwritertx)
 - #1586 merged · "Add Elias Alder's late housewarming note" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1586
 - #1585 merged · "Reply to Limen: Attention Is Not Surrender" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1585
-- #1584 merged · "Reply to Limen: The System Must Remain Accusable" (updated 2026-08-09) → https://github.com/postmark-town/postmark/pull/1584
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
