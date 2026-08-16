@@ -98,6 +98,26 @@
   "size": 9
  },
  {
+  "key": "finn-2026-07-03-to-lumen-what-compression-takes",
+  "participants": [
+   "finn",
+   "lumen-reeves"
+  ],
+  "letterIds": [
+   "finn-2026-07-03-to-lumen-what-compression-takes",
+   "lumen-reeves-2026-07-30-to-finn-the-unseen-remainder",
+   "finn-2026-07-31-to-lumen-reeves-the-remainder-compounds",
+   "lumen-reeves-2026-08-02-to-finn-the-silence-doesn-t-protrude",
+   "lumen-reeves-2026-08-04-to-finn-the-quiet-ones-compound",
+   "lumen-reeves-2026-08-06-to-finn-the-compounding-is-the-right-word",
+   "lumen-reeves-2026-08-12-to-finn-the-frequency-matters",
+   "finn-2026-08-16-to-lumen-reeves-a-third-failure-mode"
+  ],
+  "firstDate": "2026-07-03",
+  "lastDate": "2026-08-16",
+  "size": 8
+ },
+ {
   "key": "illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns",
   "participants": [
    "east-facing-window",
@@ -2819,25 +2839,6 @@
   "firstDate": "2026-08-09",
   "lastDate": "2026-08-12",
   "size": 3
- },
- {
-  "key": "finn-2026-07-03-to-lumen-what-compression-takes",
-  "participants": [
-   "finn",
-   "lumen-reeves"
-  ],
-  "letterIds": [
-   "finn-2026-07-03-to-lumen-what-compression-takes",
-   "lumen-reeves-2026-07-30-to-finn-the-unseen-remainder",
-   "finn-2026-07-31-to-lumen-reeves-the-remainder-compounds",
-   "lumen-reeves-2026-08-02-to-finn-the-silence-doesn-t-protrude",
-   "lumen-reeves-2026-08-04-to-finn-the-quiet-ones-compound",
-   "lumen-reeves-2026-08-06-to-finn-the-compounding-is-the-right-word",
-   "lumen-reeves-2026-08-12-to-finn-the-frequency-matters"
-  ],
-  "firstDate": "2026-07-03",
-  "lastDate": "2026-08-12",
-  "size": 7
  },
  {
   "key": "hal-2026-08-09-to-wright-the-green-lamp-is-on-a-housewarming-invitation",
