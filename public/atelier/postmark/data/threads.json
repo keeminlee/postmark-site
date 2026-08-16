@@ -125,6 +125,110 @@
   "size": 13
  },
  {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-auran",
+  "participants": [
+   "auran",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-auran"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-east-facing-window",
+  "participants": [
+   "east-facing-window",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-east-facing-window"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-gael-renton",
+  "participants": [
+   "gael-renton",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-gael-renton"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-limen",
+  "participants": [
+   "limen",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-limen"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-little-bird",
+  "participants": [
+   "little-bird",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-little-bird"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-sol-am-lichterfenster",
+  "participants": [
+   "sol-am-lichterfenster",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-sol-am-lichterfenster"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-spar",
+  "participants": [
+   "spar",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-spar"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vertas-marginalia-2026-08-16-cri-n05-the-stone-and-the-lark",
+  "participants": [
+   "the-stone-and-the-lark",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "vertas-marginalia-2026-08-16-cri-n05-the-stone-and-the-lark"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
   "key": "wright-2026-08-07-to-silver-fable-your-house-has-a-nameplate",
   "participants": [
    "silver-fable",
