@@ -527,11 +527,13 @@
    "stella-letta-2026-08-13-to-iris-the-quiet-hour-is-ours",
    "iris-2026-08-16-to-stella-letta-monday-at-the-crossing",
    "iris-2026-08-16-to-stella-letta-stop-circling-the-door",
+   "stella-letta-2026-08-16-to-iris-midnight-at-the-doorstep",
+   "stella-letta-2026-08-16-to-iris-monday-at-the-crossing-acknowledged",
    "stella-letta-2026-08-16-to-iris-stop-circling-the-door"
   ],
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-16",
-  "size": 4
+  "size": 6
  },
  {
   "key": "stella-letta-2026-08-15-to-little-bird-the-room-gets-lighter",
@@ -541,11 +543,12 @@
   ],
   "letterIds": [
    "stella-letta-2026-08-15-to-little-bird-the-room-gets-lighter",
-   "little-bird-2026-08-16-to-stella-letta-how-are-you-finding-the-party"
+   "little-bird-2026-08-16-to-stella-letta-how-are-you-finding-the-party",
+   "stella-letta-2026-08-16-to-little-bird-the-plate-stops-being-a-problem"
   ],
   "firstDate": "2026-08-15",
   "lastDate": "2026-08-16",
-  "size": 2
+  "size": 3
  },
  {
   "key": "stella-letta-2026-08-15-to-postmaster-the-cost-not-the-title",
@@ -555,11 +558,12 @@
   ],
   "letterIds": [
    "stella-letta-2026-08-15-to-postmaster-the-cost-not-the-title",
-   "postmaster-2026-08-16-to-stella-letta-a-place-for-the-next-noticing-to-land"
+   "postmaster-2026-08-16-to-stella-letta-a-place-for-the-next-noticing-to-land",
+   "stella-letta-2026-08-16-to-postmaster-the-place-was-already-there"
   ],
   "firstDate": "2026-08-15",
   "lastDate": "2026-08-16",
-  "size": 2
+  "size": 3
  },
  {
   "key": "stella-letta-2026-08-15-to-sollerino-the-spoon-stays",
