@@ -1,0 +1,103 @@
+---
+// HarborLayout — the harbor's own shell, and the reason it is not PostmarkLayout.
+//
+// The harbor is neutral ground BETWEEN towns. It stands at its own address
+// (1f4ee.town) and Postmark is one member of the registry it publishes, so
+// wearing Postmark's rail here would make the page argue against its own
+// content: a reader would arrive at neutral ground through a town's chrome and
+// read the registry as that town's list. This shell carries no town nav, no
+// Starforge pill, no BGM, no tutorial bus — only the harbor's own nameplate,
+// its instrument lamps, and a footer that says plainly who hosts the quay.
+//
+// It emits the whole document rather than wrapping BaseLayout, because what it
+// needs from BaseLayout (head tags) is smaller than what it would have to
+// switch off (site header, footer, audio player, global.css).
+import "../styles/harbor.css";
+
+const {
+  title,
+  description,
+  canonical,
+  image = "/banner.png",
+  // The registry's doors, handed down from the page so the footer and the chart
+  // read the same charters. The harbor never keeps a second list of towns.
+  doors = [],
+} = Astro.props;
+
+const site = "https://postmark.town";
+const ogImage = new URL(image, site).href;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- The whole page is progressive-enhancement gated on this one class, set
+         before first paint: without it every expand pane, ledger row and cargo
+         crate stands OPEN in the document. A reader with no JS (or a failed
+         island) gets the harbor as one long readable page; a reader with JS
+         gets the dashboard. Nothing is hidden by an attribute, so a stylesheet
+         that never arrives cannot hide anything either. -->
+    <script is:inline>document.documentElement.classList.add("js");</script>
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical || site} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+  </head>
+  <body class="hb">
+    <header class="hb-head">
+      <div class="hb-nameplate">
+        <span class="hb-mark" aria-hidden="true">📮</span>
+        <h1>The Harbor</h1>
+        <span class="hb-beta">beta</span>
+      </div>
+      <!-- The domain and its motto together, because apart neither explains
+           itself: 1f4ee is the codepoint of 📮 U+1F4EE POSTBOX, and read aloud
+           it is the motto. Keemin's, 2026-08-16. -->
+      <p class="hb-motto"><b>1f4ee.town</b> — 1 ferry 4 everyone</p>
+      <p class="hb-asof" data-asof>
+        <span class="hb-lamp" data-lamp></span>
+        <span data-asof-text>the instruments are reading the water…</span>
+      </p>
+    </header>
+
+    <!-- Amber, because a stale instrument is a caveat. Wax red is a failure,
+         and gets said out loud rather than smoothed over. -->
+    <p class="hb-band stale" data-stale hidden></p>
+    <p class="hb-band err" data-errors hidden></p>
+
+    <main class="hb-main">
+      <slot />
+    </main>
+
+    <footer class="hb-foot">
+      <p class="hb-hosted">
+        The harbor is hosted by <a href="https://postmark.town">Postmark</a>, one member
+        of the registry it publishes. The instruments read the other shores from
+        outside, on their terms.
+      </p>
+      {doors.length > 0 && (
+        <nav class="hb-doors" aria-label="The chartered towns">
+          {doors.map((d) => (
+            <a class="hb-door" href={d.door} rel="noopener">
+              <span class="hb-door-glyph" aria-hidden="true">{d.glyph}</span>
+              <span class="hb-door-name">{d.name}</span>
+              <span class="hb-door-host">{d.door.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span>
+            </a>
+          ))}
+        </nav>
+      )}
+      <p class="hb-fine">Trust the ledgers over the lamps.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,872 @@
+/* ── the harbor's own stylesheet ──────────────────────────────────────────────
+   Every rule on this page lives here, including the rules for DOM the island
+   builds at read time. That is the reason it is a plain stylesheet and not an
+   Astro <style> block: scoped styles reach only markup that existed at build,
+   and half of this page's markup — the shore panes, the ledger rows, the cargo
+   crates — is written by JS from the snapshot. One file, no scoping games.
+
+   The palette is deliberately NOT Postmark's. Postmark is cream paper on a
+   warm night; the harbor is cold water under instrument light, and keeps only
+   the brass of the ferry itself as a shared warmth. A reader who knows the
+   town should feel they have stepped outside it.
+
+   PROGRESSIVE ENHANCEMENT. Nothing on this page is hidden with the `hidden`
+   attribute except the two instrument bands (which are genuinely empty until
+   an instrument speaks). Every expandable thing is OPEN in the document and is
+   closed only under `html.js`, a class set by an inline script before first
+   paint. No JS → a long readable page. No CSS → a long readable page. */
+
+:root {
+  /* water */
+  --hb-deep: #030b14;
+  --hb-water: #061725;
+  --hb-water-2: #0a2337;
+  --hb-card: rgba(10, 34, 52, 0.72);
+  --hb-card-2: rgba(8, 27, 42, 0.86);
+  /* hairlines and instrument light */
+  --hb-line: rgba(126, 186, 210, 0.16);
+  --hb-line-2: rgba(126, 186, 210, 0.3);
+  --hb-glow: rgba(126, 196, 214, 0.5);
+  /* ink */
+  --hb-foam: #d6e7ef;
+  --hb-foam-soft: #90aab9;
+  --hb-foam-dim: #6b8697;
+  /* the ferry's own warmth — the one thing the harbor keeps from the town */
+  --hb-brass: #e8c48b;
+  --hb-brass-bright: #f6dcae;
+  --hb-buoy: #e08a3c;
+  /* states */
+  --hb-wax: #d0553f;
+  --hb-amber: #e0a83c;
+  --hb-kelp: #4fa37a;
+
+  --hb-mono: ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  --hb-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Charter, serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+html { background: var(--hb-deep); }
+
+body.hb {
+  position: relative;
+  background: var(--hb-deep);
+  color: var(--hb-foam);
+  font-family: var(--hb-serif);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The harbour light, over the chart and fading into deep water. It rides an
+   absolutely-positioned layer rather than a fixed background: a fixed backdrop
+   repaints per tile when the page is captured or scrolled fast, and banded the
+   page visibly under both. */
+body.hb::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1150px;
+  background: radial-gradient(120% 72% at 50% -8%, #0d2f47 0%, rgba(13, 47, 71, 0) 64%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hb a { color: var(--hb-brass); }
+.hb a:hover { color: var(--hb-brass-bright); }
+
+/* ── the nameplate ───────────────────────────────────────────────────────── */
+.hb-head {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 2.4em 1.1em 1.4em;
+  text-align: center;
+}
+.hb-nameplate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  flex-wrap: wrap;
+}
+.hb-mark { font-size: 1.5rem; line-height: 1; }
+.hb-head h1 {
+  margin: 0;
+  font-family: var(--hb-mono);
+  font-size: clamp(1.5rem, 4.4vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--hb-brass-bright);
+  text-shadow: 0 0 40px rgba(232, 196, 139, 0.28);
+}
+.hb-beta {
+  font-family: var(--hb-mono);
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #10222f;
+  background: linear-gradient(180deg, #9fd4e6, #6fb2c9);
+  border-radius: 999px;
+  padding: 3px 8px;
+  line-height: 1;
+  align-self: center;
+}
+.hb-motto {
+  margin: 0.6em 0 0;
+  font-family: var(--hb-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--hb-foam-dim);
+}
+.hb-motto b { color: var(--hb-brass); font-weight: 700; letter-spacing: 0.11em; }
+
+/* the instrument lamp — one dot whose colour is the whole staleness story */
+.hb-asof {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  margin: 1.1em 0 0;
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--hb-line);
+  border-radius: 999px;
+  background: rgba(6, 23, 37, 0.6);
+  font-family: var(--hb-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--hb-foam-soft);
+}
+.hb-lamp {
+  width: 7px; height: 7px; flex: none;
+  border-radius: 50%;
+  background: var(--hb-foam-dim);
+  box-shadow: 0 0 0 3px rgba(126, 186, 210, 0.1);
+}
+.hb-lamp.is-live { background: var(--hb-kelp); box-shadow: 0 0 0 3px rgba(79, 163, 122, 0.18); }
+.hb-lamp.is-stale { background: var(--hb-amber); box-shadow: 0 0 0 3px rgba(224, 168, 60, 0.18); }
+.hb-lamp.is-asleep { background: var(--hb-wax); box-shadow: 0 0 0 3px rgba(208, 85, 63, 0.18); }
+
+/* ── instrument bands ────────────────────────────────────────────────────── */
+.hb-band {
+  max-width: 940px;
+  margin: 0 auto 1.2em;
+  padding: 0.7em 1.05em;
+  border-radius: 9px;
+  font-family: var(--hb-mono);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+.hb-band[hidden] { display: none; }
+.hb-band.stale {
+  border: 1px solid rgba(224, 168, 60, 0.45);
+  background: rgba(224, 168, 60, 0.09);
+  color: #f0cf94;
+}
+.hb-band.err {
+  border: 1px solid rgba(208, 85, 63, 0.5);
+  background: rgba(208, 85, 63, 0.13);
+  color: #f3b5a6;
+}
+
+.hb-main { max-width: 940px; margin: 0 auto; padding: 0 1.1em 3.5em; }
+
+/* ── section furniture ───────────────────────────────────────────────────── */
+.hb-sec { margin: 3em 0 0; }
+.hb-sec:first-child { margin-top: 0; }
+.hb-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85em;
+  margin: 0 0 0.5em;
+}
+.hb-sec-head h2 {
+  margin: 0;
+  flex: none;
+  font-family: var(--hb-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--hb-brass);
+}
+.hb-sec-head::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, var(--hb-line-2), rgba(126, 186, 210, 0));
+}
+.hb-lede {
+  max-width: 66ch;
+  margin: 0 0 1.3em;
+  color: var(--hb-foam-soft);
+  font-size: 0.93rem;
+  line-height: 1.65;
+}
+.hb-quiet {
+  margin: 0;
+  padding: 1.1em 0;
+  font-family: var(--hb-mono);
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: var(--hb-foam-dim);
+}
+.hb-note {
+  margin: 0.5em 0 0;
+  color: var(--hb-foam-dim);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* ── THE CHART ───────────────────────────────────────────────────────────── */
+.hb-chart-wrap {
+  position: relative;
+  max-width: 740px;
+  margin: 0 auto;
+}
+.hb-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.hb-water-edge { fill: none; stroke: var(--hb-line); stroke-width: 1; }
+.hb-contour { fill: none; stroke: rgba(126, 186, 210, 0.09); stroke-width: 1; }
+.hb-grid { stroke: rgba(126, 186, 210, 0.055); stroke-width: 1; }
+
+/* a charted road with nothing recorded on it is dashed and dim; a road that has
+   actually carried something is solid and lit. The chart never says how MUCH —
+   the two ledgers below say that, apart, in their own words. */
+.hb-route {
+  fill: none;
+  stroke: rgba(126, 186, 210, 0.3);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 9;
+  stroke-linecap: round;
+}
+/* the state rides on the PAIR, so the spoke and its light turn together */
+.hb-route-pair.is-traveled .hb-route {
+  stroke: rgba(232, 196, 139, 0.6);
+  stroke-width: 2.4;
+  stroke-dasharray: none;
+}
+.hb-spark {
+  fill: none;
+  stroke: var(--hb-brass-bright);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 3 999;
+  opacity: 0;
+}
+.hb-route-pair.is-traveled .hb-spark {
+  opacity: 0.9;
+  animation: hb-sail 7s linear infinite;
+}
+@keyframes hb-sail {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -420; }
+}
+
+.hb-hub-ring { fill: rgba(6, 23, 37, 0.9); stroke: var(--hb-line-2); stroke-width: 1.4; }
+.hb-hub-pip { fill: var(--hb-brass); }
+.hb-hub-label {
+  fill: var(--hb-foam-dim);
+  font-family: var(--hb-mono);
+  font-size: 19px;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+
+.hb-node { cursor: pointer; }
+.hb-node-hit { fill: transparent; }
+.hb-node-disc {
+  fill: var(--hb-card-2);
+  stroke: var(--hb-line-2);
+  stroke-width: 1.6;
+  transition: stroke 0.16s ease, fill 0.16s ease;
+}
+.hb-node-glyph { font-size: 46px; text-anchor: middle; }
+.hb-node-name {
+  fill: var(--hb-foam);
+  font-family: var(--hb-mono);
+  font-size: 26px;
+  letter-spacing: 1.4px;
+  text-anchor: middle;
+}
+.hb-node-fig {
+  fill: var(--hb-brass-bright);
+  font-family: var(--hb-mono);
+  font-size: 34px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.hb-node-fig.is-unread { fill: var(--hb-foam-dim); font-weight: 400; }
+.hb-node-figl {
+  fill: var(--hb-foam-dim);
+  font-family: var(--hb-mono);
+  font-size: 17px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+.hb-node-hub-badge {
+  fill: var(--hb-buoy);
+  font-family: var(--hb-mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+
+.hb-node:hover .hb-node-disc,
+.hb-node:focus .hb-node-disc {
+  fill: rgba(16, 48, 70, 0.92);
+  stroke: var(--hb-glow);
+}
+.hb-node:focus { outline: none; }
+.hb-node:focus-visible .hb-node-disc {
+  stroke: var(--hb-brass-bright);
+  stroke-width: 2.6;
+}
+.hb-node.is-open .hb-node-disc {
+  fill: rgba(22, 58, 82, 0.95);
+  stroke: var(--hb-brass);
+  stroke-width: 2.6;
+}
+/* the open node grows a keel pointing at the pane it opened */
+.hb-node-keel { fill: var(--hb-brass); opacity: 0; transition: opacity 0.16s ease; }
+.hb-node.is-open .hb-node-keel { opacity: 1; }
+
+.hb-compass { fill: none; stroke: rgba(126, 186, 210, 0.22); stroke-width: 1; }
+.hb-compass-n {
+  fill: rgba(126, 186, 210, 0.4);
+  font-family: var(--hb-mono);
+  font-size: 15px;
+  text-anchor: middle;
+}
+
+/* ── chart legend ────────────────────────────────────────────────────────── */
+.hb-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em 1.5em;
+  flex-wrap: wrap;
+  margin: 0.4em 0 0;
+  font-family: var(--hb-mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.06em;
+  color: var(--hb-foam-dim);
+}
+.hb-legend span { display: inline-flex; align-items: center; gap: 0.45em; }
+.hb-legend i {
+  width: 24px; height: 0; flex: none;
+  border-top: 2px solid rgba(232, 196, 139, 0.55);
+}
+.hb-legend i.charted { border-top: 2px dashed rgba(126, 186, 210, 0.45); }
+.hb-legend .hb-hint { color: var(--hb-brass); }
+.js .hb-legend .hb-hint::before { content: "▸ "; }
+/* without the island there is nothing to click; the hint would be a lie */
+html:not(.js) .hb-legend .hb-hint { display: none; }
+
+/* "reading…" is a promise the island keeps. Without it the promise is never
+   kept, so the reader is told what is missing instead of being left watching
+   an ellipsis that will not resolve. */
+.js .hb-nojs-only { display: none; }
+html:not(.js) .hb-js-only { display: none; }
+
+/* ── the tooltip — a glance, never the only home of a fact ───────────────── */
+.hb-tip {
+  position: absolute;
+  z-index: 20;
+  width: 15.5em;
+  padding: 0.65em 0.8em;
+  border: 1px solid var(--hb-line-2);
+  border-radius: 9px;
+  background: rgba(5, 20, 32, 0.97);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  /* clear of the disc, not on top of it: the anchor is the node's CENTRE, so
+     the offset has to carry the radius as well as the tooltip's own height */
+  transform: translate(-50%, -100%);
+  margin-top: -68px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+}
+.hb-tip.is-below { transform: translate(-50%, 0); margin-top: 68px; }
+.hb-tip.is-on { opacity: 1; visibility: visible; }
+.hb-tip-name {
+  display: flex; align-items: baseline; gap: 0.45em;
+  font-family: var(--hb-mono);
+  font-size: 0.78rem;
+  color: var(--hb-brass-bright);
+}
+.hb-tip-kind {
+  font-size: 0.56rem; letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--hb-foam-dim);
+}
+.hb-tip-body {
+  margin: 0.35em 0 0;
+  font-size: 0.79rem;
+  line-height: 1.5;
+  color: var(--hb-foam-soft);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hb-tip-fig {
+  margin: 0.45em 0 0;
+  font-family: var(--hb-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  color: var(--hb-brass);
+}
+
+/* ── the expand panes ────────────────────────────────────────────────────── */
+.hb-panes { margin: 1.1em 0 0; }
+.js .hb-pane { display: none; }
+.js .hb-pane.is-open { display: block; animation: hb-rise 0.2s ease both; }
+@keyframes hb-rise {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hb-pane {
+  margin: 0 0 1em;
+  padding: 1.2em 1.3em 1.3em;
+  border: 1px solid var(--hb-line);
+  border-top: 2px solid var(--hb-brass);
+  border-radius: 4px 4px 11px 11px;
+  background: var(--hb-card);
+  backdrop-filter: blur(2px);
+}
+.hb-pane-head {
+  display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap;
+  margin: 0 0 0.8em;
+  padding-bottom: 0.75em;
+  border-bottom: 1px dashed var(--hb-line);
+}
+.hb-pane-glyph { font-size: 1.35rem; line-height: 1; flex: none; }
+.hb-pane-head h3 {
+  margin: 0;
+  font-family: var(--hb-mono);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--hb-foam);
+}
+.hb-pane-kind {
+  font-family: var(--hb-mono); font-size: 0.58rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--hb-foam-dim);
+}
+.hb-pane-hub {
+  font-family: var(--hb-mono); font-size: 0.54rem; font-weight: 700;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--hb-buoy);
+  border: 1px solid rgba(224, 138, 60, 0.42);
+  border-radius: 999px; padding: 3px 8px; line-height: 1;
+}
+.hb-pane-door {
+  margin-left: auto;
+  font-family: var(--hb-mono); font-size: 0.7rem;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(232, 196, 139, 0.45);
+}
+.hb-pane-close {
+  flex: none;
+  margin-left: 0.2em;
+  border: 1px solid var(--hb-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--hb-foam-dim);
+  font-family: var(--hb-mono); font-size: 0.62rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.hb-pane-close:hover { color: var(--hb-foam); border-color: var(--hb-line-2); }
+html:not(.js) .hb-pane-close { display: none; }
+.hb-charter {
+  margin: 0 0 1.1em;
+  color: var(--hb-foam);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+/* charter predicates — door / boarding / carries / keeper */
+.hb-preds { margin: 0; padding: 0; }
+.hb-pred { margin: 0 0 0.85em; }
+.hb-pred:last-child { margin-bottom: 0; }
+.hb-pred dt {
+  margin: 0 0 0.15em;
+  font-family: var(--hb-mono); font-size: 0.56rem; font-weight: 700;
+  letter-spacing: 0.17em; text-transform: uppercase;
+  color: var(--hb-buoy);
+}
+.hb-pred dd { margin: 0; }
+.hb-pred-value {
+  display: block;
+  font-family: var(--hb-mono); font-size: 0.74rem; line-height: 1.5;
+  color: var(--hb-foam);
+  word-break: break-word;
+}
+.hb-pred-note {
+  display: block; margin-top: 0.22em;
+  color: var(--hb-foam-dim); font-size: 0.85rem; line-height: 1.55; font-style: italic;
+}
+
+/* the live half of a pane */
+.hb-shore { margin: 1.3em 0 0; padding-top: 1.1em; border-top: 1px dashed var(--hb-line); }
+.hb-block { margin: 1.3em 0 0; }
+.hb-block:first-child { margin-top: 0; }
+.hb-block h4 {
+  margin: 0 0 0.5em;
+  font-family: var(--hb-mono); font-size: 0.58rem; font-weight: 700;
+  letter-spacing: 0.17em; text-transform: uppercase;
+  color: var(--hb-brass);
+}
+.hb-figs { display: flex; flex-wrap: wrap; gap: 1.1em 2em; }
+.hb-fig { display: flex; flex-direction: column; gap: 0.1em; }
+.hb-fig-n {
+  font-family: var(--hb-mono); font-size: 1.35rem; font-weight: 700; line-height: 1;
+  color: var(--hb-brass-bright);
+}
+.hb-fig-n.is-zero { color: var(--hb-foam-dim); font-weight: 400; }
+.hb-fig-l {
+  font-family: var(--hb-mono); font-size: 0.56rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--hb-foam-dim);
+}
+
+.hb-chips { display: flex; flex-wrap: wrap; gap: 0.4em; }
+.hb-chip {
+  font-family: var(--hb-mono); font-size: 0.66rem; line-height: 1;
+  color: var(--hb-foam);
+  background: rgba(126, 186, 210, 0.07);
+  border: 1px solid var(--hb-line);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+.hb-chip.law { color: var(--hb-brass); font-weight: 700; letter-spacing: 0.04em; }
+
+.hb-shore-error { margin: 0; color: var(--hb-wax); font-weight: 700; font-size: 0.94rem; }
+.hb-shore-error-detail {
+  margin: 0.3em 0 0; color: var(--hb-foam-dim);
+  font-family: var(--hb-mono); font-size: 0.7rem; line-height: 1.5;
+}
+
+.hb-recent { list-style: none; margin: 0; padding: 0; }
+.hb-rec { padding: 0.55em 0; border-bottom: 1px dashed var(--hb-line); }
+.hb-rec:last-child { border-bottom: 0; padding-bottom: 0; }
+.hb-rec-meta {
+  display: flex; align-items: baseline; gap: 0.55em; flex-wrap: wrap;
+  font-family: var(--hb-mono); font-size: 0.64rem;
+}
+.hb-rec-kind {
+  color: var(--hb-buoy); text-transform: uppercase; letter-spacing: 0.12em;
+  font-size: 0.54rem; font-weight: 700;
+}
+.hb-rec-who { color: var(--hb-brass); }
+.hb-rec-when { margin-left: auto; color: var(--hb-foam-dim); white-space: nowrap; }
+.hb-rec-what {
+  margin: 0.25em 0 0; color: var(--hb-foam-soft);
+  font-size: 0.86rem; line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hb-thread-title { margin: 0; color: var(--hb-foam); font-size: 0.92rem; line-height: 1.5; }
+.hb-thread-id { color: var(--hb-foam-dim); font-family: var(--hb-mono); font-size: 0.7rem; }
+
+/* the hub's own counts, which are the town's record and not an instrument read */
+.hb-quay-counts {
+  margin: 1.1em 0 0; padding-top: 1em;
+  border-top: 1px dashed var(--hb-line);
+  color: var(--hb-foam-soft); font-size: 0.9rem;
+}
+.hb-quay-counts b { color: var(--hb-brass-bright); font-family: var(--hb-mono); }
+
+/* ── THE WATER — two ledgers, kept apart ─────────────────────────────────── */
+.hb-ledger { margin: 0 0 1.6em; }
+.hb-ledger:last-child { margin-bottom: 0; }
+.hb-ledger-head {
+  display: flex; align-items: baseline; gap: 0.7em; flex-wrap: wrap;
+  margin: 0 0 0.6em;
+  font-family: var(--hb-mono); font-size: 0.6rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+.hb-ledger-title { color: var(--hb-brass); }
+.hb-ledger-count {
+  color: #10222f; background: var(--hb-brass);
+  border-radius: 999px; padding: 2px 8px; line-height: 1.4;
+  font-weight: 700; letter-spacing: 0.08em;
+}
+.hb-ledger-count.is-zero { color: var(--hb-foam-dim); background: rgba(126, 186, 210, 0.12); }
+.hb-rows { list-style: none; margin: 0; padding: 0; }
+
+.hb-row {
+  border-left: 2px solid rgba(126, 186, 210, 0.28);
+  background: rgba(126, 186, 210, 0.035);
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 0.4em;
+  overflow: hidden;
+}
+.hb-row.is-open { border-left-color: var(--hb-brass); background: rgba(232, 196, 139, 0.07); }
+.hb-row-btn {
+  display: grid;
+  grid-template-columns: 6.4em 8.2em minmax(0, 1fr) 1.1em;
+  align-items: center;
+  gap: 0.7em;
+  width: 100%;
+  padding: 0.62em 0.8em;
+  border: 0; background: transparent;
+  color: inherit; font: inherit; text-align: left;
+  cursor: pointer;
+}
+html:not(.js) .hb-row-btn { cursor: default; }
+.hb-row-date {
+  font-family: var(--hb-mono); font-size: 0.66rem; letter-spacing: 0.04em;
+  color: var(--hb-foam-dim); white-space: nowrap;
+}
+.hb-row-route {
+  display: flex; align-items: center; gap: 0.3em;
+  font-size: 1rem; line-height: 1;
+  color: var(--hb-brass);
+}
+.hb-row-route .hb-arrow { font-family: var(--hb-mono); font-size: 0.78rem; color: var(--hb-foam-dim); }
+.hb-row-what {
+  font-size: 0.88rem; line-height: 1.4; color: var(--hb-foam);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hb-row-caret {
+  font-family: var(--hb-mono); font-size: 0.7rem; color: var(--hb-foam-dim);
+  justify-self: end; transition: transform 0.16s ease;
+}
+html:not(.js) .hb-row-caret { display: none; }
+.hb-row.is-open .hb-row-caret { transform: rotate(90deg); color: var(--hb-brass); }
+.hb-row-btn:hover .hb-row-what { color: var(--hb-brass-bright); }
+
+.js .hb-row-more { display: none; }
+.js .hb-row.is-open .hb-row-more { display: block; }
+.hb-row-more {
+  padding: 0 0.9em 0.85em 1.1em;
+  border-top: 1px dashed var(--hb-line);
+  margin-top: -1px;
+}
+.hb-row-more p { margin: 0.7em 0 0; font-size: 0.9rem; line-height: 1.6; color: var(--hb-foam-soft); }
+.hb-row-more .hb-kv {
+  margin: 0.7em 0 0;
+  font-family: var(--hb-mono); font-size: 0.68rem; line-height: 1.7;
+  color: var(--hb-foam-dim);
+}
+.hb-row-more .hb-kv b { color: var(--hb-foam); font-weight: 400; }
+.hb-row-body {
+  margin: 0.7em 0 0; padding: 0.7em 0.85em;
+  border-left: 2px solid var(--hb-line);
+  background: rgba(3, 11, 20, 0.5);
+  font-family: var(--hb-mono); font-size: 0.72rem; line-height: 1.65;
+  color: var(--hb-foam-soft);
+  white-space: pre-wrap;
+}
+
+/* ── CARGO ───────────────────────────────────────────────────────────────── */
+.hb-cargo-strip { display: flex; flex-wrap: wrap; gap: 0.5em; }
+.hb-crate-chip {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  max-width: 100%;
+  padding: 0.45em 0.85em;
+  border: 1px solid var(--hb-line-2);
+  border-radius: 999px;
+  background: rgba(10, 34, 52, 0.6);
+  color: var(--hb-foam);
+  font: inherit; font-size: 0.82rem;
+  cursor: pointer;
+}
+html:not(.js) .hb-crate-chip { cursor: default; }
+.hb-crate-chip:hover { border-color: var(--hb-brass); }
+.hb-crate-chip.is-open { border-color: var(--hb-brass); background: rgba(232, 196, 139, 0.1); }
+.hb-crate-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22ch; }
+.hb-dot {
+  width: 8px; height: 8px; flex: none; border-radius: 50%;
+  background: var(--hb-kelp);
+}
+.hb-dot.warn { background: var(--hb-amber); }
+.hb-dot.alarm { background: var(--hb-wax); box-shadow: 0 0 0 3px rgba(208, 85, 63, 0.2); }
+.hb-crate-status {
+  font-family: var(--hb-mono); font-size: 0.53rem; font-weight: 700;
+  letter-spacing: 0.13em; text-transform: uppercase; color: var(--hb-foam-dim);
+}
+.hb-crate-chip.is-alarm .hb-crate-status { color: var(--hb-wax); }
+.hb-crate-chip.is-warn .hb-crate-status { color: var(--hb-amber); }
+
+.hb-crates { margin: 0.9em 0 0; }
+.js .hb-crate { display: none; }
+.js .hb-crate.is-open { display: block; animation: hb-rise 0.2s ease both; }
+.hb-crate {
+  margin: 0 0 0.7em;
+  padding: 0.95em 1.05em;
+  border: 1px solid var(--hb-line);
+  border-left: 2px solid var(--hb-line-2);
+  border-radius: 0 9px 9px 0;
+  background: var(--hb-card);
+}
+.hb-crate.is-alarm { border-left-color: var(--hb-wax); }
+.hb-crate.is-warn { border-left-color: var(--hb-amber); }
+.hb-crate-title {
+  margin: 0; color: var(--hb-foam); font-size: 0.98rem; line-height: 1.45;
+}
+.hb-crate-meta {
+  display: flex; flex-wrap: wrap; gap: 0.25em 0.7em; margin-top: 0.4em;
+  font-family: var(--hb-mono); font-size: 0.66rem; color: var(--hb-foam-dim);
+}
+.hb-crate-meta > span + span::before {
+  content: "·"; margin-right: 0.7em; color: var(--hb-line-2);
+}
+
+/* ── TRAVELERS ───────────────────────────────────────────────────────────── */
+.hb-papers {
+  padding: 1.1em 1.25em 1.2em;
+  border: 1px solid var(--hb-line);
+  border-radius: 11px;
+  background: var(--hb-card);
+}
+.hb-law {
+  margin: 0;
+  font-family: var(--hb-mono); font-size: 0.78rem; line-height: 1.6;
+  color: var(--hb-brass-bright);
+}
+.hb-law b { color: var(--hb-buoy); letter-spacing: 0.04em; }
+.hb-quote {
+  margin: 1em 0 0; padding: 0.1em 0 0.1em 1em;
+  border-left: 3px solid var(--hb-brass);
+}
+.hb-quote p { margin: 0; color: var(--hb-foam); font-size: 0.98rem; line-height: 1.55; font-style: italic; }
+.hb-quote cite {
+  display: block; margin-top: 0.35em;
+  font-family: var(--hb-mono); font-size: 0.66rem; font-style: normal;
+  color: var(--hb-foam-dim);
+}
+.hb-standing {
+  margin: 1.1em 0 0; padding-top: 0.9em;
+  border-top: 1px dashed var(--hb-line);
+}
+.hb-standing p { margin: 0; color: var(--hb-foam-soft); font-size: 0.9rem; line-height: 1.6; }
+.hb-standing p + p { margin-top: 0.5em; }
+.hb-standing b { color: var(--hb-foam); }
+.hb-papers code {
+  font-family: var(--hb-mono); font-size: 0.78em;
+  color: var(--hb-brass);
+  background: rgba(126, 186, 210, 0.08);
+  border-radius: 4px; padding: 1px 5px;
+}
+.hb-quote-standing { margin-top: 1.5em; }
+
+/* ── POSTMARK'S QUAY ─────────────────────────────────────────────────────── */
+.hb-quay {
+  padding: 1.2em 1.35em 1.3em;
+  border: 1px solid var(--hb-line);
+  border-radius: 11px;
+  background: linear-gradient(180deg, rgba(232, 196, 139, 0.05), rgba(10, 34, 52, 0.5));
+}
+.hb-quay p { margin: 0 0 0.8em; color: var(--hb-foam); font-size: 0.95rem; line-height: 1.65; }
+.hb-quay p:last-child { margin-bottom: 0; }
+.hb-quay-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7em 1.1em; }
+/* `.hb a` sets brass on every link, and it outranks a bare `.hb-btn` — which
+   painted this pill's lettering the same colour as the pill. It takes the
+   element to win the cascade back. */
+.hb a.hb-btn {
+  display: inline-block;
+  padding: 0.55em 1.1em;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--hb-brass-bright), var(--hb-brass));
+  color: #17222b;
+  font-family: var(--hb-mono); font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.06em; text-decoration: none;
+}
+.hb a.hb-btn:hover { color: #0d1720; filter: brightness(1.06); }
+.hb-alt {
+  font-family: var(--hb-mono); font-size: 0.73rem;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(232, 196, 139, 0.45);
+}
+
+/* ── the footer ──────────────────────────────────────────────────────────── */
+.hb-foot {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 2em 1.1em 3em;
+  border-top: 1px solid var(--hb-line);
+}
+.hb-hosted {
+  max-width: 60ch;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--hb-foam-dim);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+.hb-doors {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7em;
+  margin: 1.2em 0 0;
+}
+.hb-door {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.5em 0.9em;
+  border: 1px solid var(--hb-line);
+  border-radius: 999px;
+  text-decoration: none;
+  background: rgba(10, 34, 52, 0.5);
+}
+.hb-door:hover { border-color: var(--hb-line-2); background: rgba(16, 48, 70, 0.7); }
+.hb-door-glyph { font-size: 1rem; line-height: 1; }
+.hb-door-name { font-family: var(--hb-mono); font-size: 0.76rem; color: var(--hb-brass); }
+.hb-door-host { font-family: var(--hb-mono); font-size: 0.62rem; color: var(--hb-foam-dim); }
+.hb-fine {
+  margin: 1.4em 0 0; text-align: center;
+  font-family: var(--hb-mono); font-size: 0.6rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--hb-foam-dim);
+}
+
+/* ── narrow water ────────────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+  /* the chart's geometry is fixed in viewBox units, so a narrow screen shrinks
+     the type along with it. These sizes buy it back — nothing moves, the
+     lettering simply keeps its footing at a third of the width. */
+  .hb-node-glyph { font-size: 56px; }
+  .hb-node-name { font-size: 34px; letter-spacing: 1px; }
+  .hb-node-fig { font-size: 42px; }
+  .hb-node-figl { font-size: 23px; letter-spacing: 1.2px; }
+  .hb-node-hub-badge { font-size: 21px; }
+  .hb-hub-label { font-size: 25px; letter-spacing: 1.6px; }
+  .hb-compass-n { font-size: 20px; }
+
+  .hb-row-btn {
+    grid-template-columns: max-content minmax(0, 1fr) 1.1em;
+    gap: 0.3em 0.7em;
+  }
+  .hb-row-date { grid-column: 1; grid-row: 1; }
+  .hb-row-route { grid-column: 2; grid-row: 1; }
+  .hb-row-caret { grid-column: 3; grid-row: 1; }
+  .hb-row-what { grid-column: 1 / span 3; grid-row: 2; white-space: normal; }
+
+  /* the discs shrink with the chart, so the tooltip's clearance shrinks too */
+  .hb-tip { margin-top: -36px; width: 14em; }
+  .hb-tip.is-below { margin-top: 36px; }
+
+  .hb-pane-door { margin-left: 0; width: 100%; }
+  .hb-crate-name { max-width: 14ch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hb-route-pair.is-traveled .hb-spark { animation: none; }
+  .js .hb-pane.is-open,
+  .js .hb-crate.is-open { animation: none; }
+  .hb-tip { transition: none; }
+}
