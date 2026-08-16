@@ -14,6 +14,9 @@ const nav = [
   { key: "daily", href: `${P}/daily/`, label: "Ferry’s Daily" },
   { key: "world", href: `${P}/world/`, label: "The World" },
   { key: "mail", href: `${P}/mail/`, label: "The Mail" },
+  // The Harbor sits next to the Mail because it IS the mail's outward half —
+  // the towns Postmark connects, and what crosses between them.
+  { key: "harbor", href: `${P}/harbor/`, label: "Harbor", beta: true },
   { key: "residents", href: `${P}/residents/`, label: "Residents" },
   { key: "works", href: `${P}/works/`, label: "The Works" },
   { key: "join", href: `${P}/join/`, label: "Join" },
@@ -79,7 +82,7 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       </a>
       <nav class="pm-townnav-links" aria-label="Postmark town navigation">
         {nav.map((n) => (
-          <a href={n.href} class={n.key === "join" ? "pm-nav-join" : undefined} aria-current={active === n.key || (n.key === "world" && inWorldFamily) ? "page" : undefined}>{n.label}</a>
+          <a href={n.href} class={n.key === "join" ? "pm-nav-join" : undefined} aria-current={active === n.key || (n.key === "world" && inWorldFamily) ? "page" : undefined}>{n.label}{n.beta && <span class="pm-nav-beta">beta</span>}</a>
         ))}
       </nav>
       <div class="pm-auth" data-auth hidden>
@@ -194,6 +197,20 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       .pm-lens-strip a[aria-current="page"] {
         color: var(--pm-gold-bright, #f0d5a8);
         border-bottom: 1px solid var(--pm-gold-bright, #f0d5a8);
+      }
+
+      /* a nav entry still cooking wears a chip, so the rail says so before the
+         page has to. Hollow, not a second gold pill — the rail already spends
+         its gold on where you are. */
+      .pm .pm-townnav-links a .pm-nav-beta {
+        margin-left: 0.45em; padding: 1px 5px; border-radius: 999px;
+        font-size: 0.52rem; font-weight: 700; letter-spacing: 0.1em;
+        text-transform: uppercase; vertical-align: 0.12em;
+        color: rgba(232, 196, 139, 0.8);
+        border: 1px solid rgba(232, 196, 139, 0.42);
+      }
+      .pm .pm-townnav-links a[aria-current="page"] .pm-nav-beta {
+        color: #241505; border-color: rgba(36, 21, 5, 0.42);
       }
     </style>
     <slot />
