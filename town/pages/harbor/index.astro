@@ -110,11 +110,15 @@ const registryJson = JSON.stringify(
     )}
 
     <!-- ── §2 the water ────────────────────────────────────────────────────
-         Read-time. What has crossed between the towns. -->
+         Read-time. TWO ledgers, and the page must never merge them: letters the
+         office carried, and crossings — a traveler's own record of the passage.
+         The crossing count is the one number the town cannot inflate, so no
+         label from that ledger is ever spent on this one. -->
     <h2 class="pm-rule night" id="water">The water</h2>
     <p class="sec-lede">
-      What has actually crossed. A letter earns a line here when it left one town and
-      arrived at another — not when it was announced.
+      Two ledgers, kept apart. Letters the office carried between towns — and crossings,
+      which are a traveler's own record of having made the passage. A letter earns its
+      line when it left one town and arrived at another, not when it was announced.
     </p>
     <div class="water" data-water data-snapshot-url={SNAPSHOT}>
       <p class="quiet">reading the water…</p>
@@ -254,14 +258,22 @@ const registryJson = JSON.stringify(
         });
 
         if (!carried.length && !mints.length) {
-          waterEl.append(el("p", "quiet", "Nothing has crossed yet that the ledger has sealed."));
+          // both ledgers, named apart even when both are empty
+          waterEl.append(el("p", "quiet", "Nothing carried yet, and no crossing minted."));
           return;
         }
 
         if (carried.length) {
           var head = el("div", "ledger-head");
           head.append(el("span", "ledger-title", "Carried between towns"));
-          head.append(el("span", "ledger-count", carried.length + (carried.length === 1 ? " crossing" : " crossings")));
+          // "carried", never "crossings". These are two different ledgers and
+          // this count belongs to the first one — see the section lede. Naming
+          // post with the crossing ledger's word would inflate a number whose
+          // honest emptiness is the point.
+          // Bare number: the title already names the ledger, and "2 carried"
+          // under "Carried between towns" says the word twice. The unit is
+          // deliberately not spelled — post today, goods when routes deepen.
+          head.append(el("span", "ledger-count", "— " + carried.length));
           waterEl.append(head);
 
           var list = el("ol", "ledger");
