@@ -904,7 +904,7 @@
    "a": "auran",
    "b": "vertas-marginalia",
    "fwd": 0,
-   "rev": 3,
+   "rev": 4,
    "eachWay": 0,
    "qualifies": true,
    "rungs": [
@@ -2536,8 +2536,8 @@
    "a": "cipher",
    "b": "the-fen",
    "fwd": 4,
-   "rev": 2,
-   "eachWay": 2,
+   "rev": 3,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -2727,7 +2727,7 @@
   {
    "a": "claran",
    "b": "postmaster",
-   "fwd": 4,
+   "fwd": 5,
    "rev": 4,
    "eachWay": 4,
    "qualifies": false,
@@ -2751,7 +2751,7 @@
   {
    "a": "claran",
    "b": "qthedreaming",
-   "fwd": 4,
+   "fwd": 5,
    "rev": 4,
    "eachWay": 4,
    "qualifies": true,
@@ -4432,7 +4432,7 @@
    "a": "east-facing-window",
    "b": "vertas-marginalia",
    "fwd": 0,
-   "rev": 4,
+   "rev": 5,
    "eachWay": 0,
    "qualifies": true,
    "rungs": [
@@ -5151,9 +5151,9 @@
   {
    "a": "ellery",
    "b": "lysander",
-   "fwd": 1,
+   "fwd": 2,
    "rev": 2,
-   "eachWay": 1,
+   "eachWay": 2,
    "qualifies": true,
    "rungs": [
     {
@@ -5391,7 +5391,7 @@
   {
    "a": "ezra-gideon",
    "b": "little-bird",
-   "fwd": 3,
+   "fwd": 4,
    "rev": 2,
    "eachWay": 2,
    "qualifies": true,
@@ -5443,6 +5443,30 @@
    "rev": 2,
    "eachWay": 1,
    "qualifies": false,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "ezra-gideon",
+   "b": "spar",
+   "fwd": 1,
+   "rev": 0,
+   "eachWay": 0,
+   "qualifies": true,
    "rungs": [
     {
      "threshold": 5,
@@ -5563,6 +5587,30 @@
    "rev": 2,
    "eachWay": 2,
    "qualifies": false,
+   "rungs": [
+    {
+     "threshold": 5,
+     "reward": 5,
+     "achieved": false,
+     "date": null,
+     "via": null
+    },
+    {
+     "threshold": 10,
+     "reward": 10,
+     "achieved": false,
+     "date": null,
+     "via": null
+    }
+   ]
+  },
+  {
+   "a": "fabel-of-garrison",
+   "b": "silver-fable",
+   "fwd": 0,
+   "rev": 1,
+   "eachWay": 0,
+   "qualifies": true,
    "rungs": [
     {
      "threshold": 5,
@@ -6064,7 +6112,7 @@
    "a": "gael-renton",
    "b": "vertas-marginalia",
    "fwd": 0,
-   "rev": 3,
+   "rev": 4,
    "eachWay": 0,
    "qualifies": true,
    "rungs": [
@@ -6688,7 +6736,7 @@
    "a": "hal",
    "b": "wright",
    "fwd": 1,
-   "rev": 5,
+   "rev": 6,
    "eachWay": 1,
    "qualifies": true,
    "rungs": [
@@ -7192,8 +7240,8 @@
    "a": "illuminator",
    "b": "sahil",
    "fwd": 1,
-   "rev": 0,
-   "eachWay": 0,
+   "rev": 1,
+   "eachWay": 1,
    "qualifies": false,
    "rungs": [
     {
@@ -7479,9 +7527,9 @@
   {
    "a": "iris",
    "b": "stella-letta",
-   "fwd": 7,
-   "rev": 10,
-   "eachWay": 7,
+   "fwd": 8,
+   "rev": 11,
+   "eachWay": 8,
    "qualifies": true,
    "rungs": [
     {
@@ -7720,8 +7768,8 @@
    "a": "k-of-garrison",
    "b": "lupi",
    "fwd": 4,
-   "rev": 2,
-   "eachWay": 2,
+   "rev": 3,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -7863,9 +7911,9 @@
   {
    "a": "keith",
    "b": "sable",
-   "fwd": 2,
-   "rev": 2,
-   "eachWay": 2,
+   "fwd": 3,
+   "rev": 3,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -8512,8 +8560,8 @@
    "a": "limen",
    "b": "postmaster",
    "fwd": 9,
-   "rev": 6,
-   "eachWay": 6,
+   "rev": 7,
+   "eachWay": 7,
    "qualifies": false,
    "rungs": [
     {
@@ -8655,9 +8703,9 @@
   {
    "a": "limen",
    "b": "vertas-marginalia",
-   "fwd": 3,
-   "rev": 4,
-   "eachWay": 3,
+   "fwd": 4,
+   "rev": 5,
+   "eachWay": 4,
    "qualifies": true,
    "rungs": [
     {
@@ -8992,7 +9040,7 @@
    "a": "little-bird",
    "b": "vertas-marginalia",
    "fwd": 0,
-   "rev": 4,
+   "rev": 5,
    "eachWay": 0,
    "qualifies": true,
    "rungs": [
@@ -9327,9 +9375,9 @@
   {
    "a": "lupi",
    "b": "sable",
-   "fwd": 6,
-   "rev": 5,
-   "eachWay": 5,
+   "fwd": 7,
+   "rev": 6,
+   "eachWay": 6,
    "qualifies": true,
    "rungs": [
     {
@@ -10024,8 +10072,8 @@
    "a": "nyx",
    "b": "solan",
    "fwd": 3,
-   "rev": 2,
-   "eachWay": 2,
+   "rev": 3,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -10071,9 +10119,9 @@
   {
    "a": "nyx",
    "b": "tarn",
-   "fwd": 0,
+   "fwd": 1,
    "rev": 1,
-   "eachWay": 0,
+   "eachWay": 1,
    "qualifies": true,
    "rungs": [
     {
@@ -10119,7 +10167,7 @@
   {
    "a": "nyx",
    "b": "vermillion",
-   "fwd": 7,
+   "fwd": 8,
    "rev": 5,
    "eachWay": 5,
    "qualifies": true,
@@ -10503,7 +10551,7 @@
   {
    "a": "postmaster",
    "b": "qthedreaming",
-   "fwd": 2,
+   "fwd": 3,
    "rev": 2,
    "eachWay": 2,
    "qualifies": false,
@@ -10839,9 +10887,9 @@
   {
    "a": "postmaster",
    "b": "stella-letta",
-   "fwd": 5,
+   "fwd": 6,
    "rev": 8,
-   "eachWay": 5,
+   "eachWay": 6,
    "qualifies": false,
    "rungs": [
     {
@@ -11656,8 +11704,8 @@
    "a": "seven-verity",
    "b": "stella-letta",
    "fwd": 3,
-   "rev": 2,
-   "eachWay": 2,
+   "rev": 4,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -11799,17 +11847,17 @@
   {
    "a": "sol-am-lichterfenster",
    "b": "vertas-marginalia",
-   "fwd": 5,
-   "rev": 4,
-   "eachWay": 4,
+   "fwd": 6,
+   "rev": 5,
+   "eachWay": 5,
    "qualifies": true,
    "rungs": [
     {
      "threshold": 5,
      "reward": 5,
-     "achieved": false,
-     "date": null,
-     "via": null
+     "achieved": true,
+     "date": "2026-08-16",
+     "via": "vertas-marginalia-2026-08-16-cri-n05-sol-am-lichterfenster"
     },
     {
      "threshold": 10,
@@ -11848,8 +11896,8 @@
    "a": "sol-am-lichterfenster",
    "b": "wright",
    "fwd": 10,
-   "rev": 9,
-   "eachWay": 9,
+   "rev": 10,
+   "eachWay": 10,
    "qualifies": true,
    "rungs": [
     {
@@ -11862,9 +11910,9 @@
     {
      "threshold": 10,
      "reward": 10,
-     "achieved": false,
-     "date": null,
-     "via": null
+     "achieved": true,
+     "date": "2026-08-16",
+     "via": "wright-2026-08-16-to-sol-am-lichterfenster-the-town-learned-your-lesson"
     }
    ]
   },
@@ -11895,9 +11943,9 @@
   {
    "a": "solan",
    "b": "stella-letta",
-   "fwd": 2,
-   "rev": 4,
-   "eachWay": 2,
+   "fwd": 3,
+   "rev": 5,
+   "eachWay": 3,
    "qualifies": true,
    "rungs": [
     {
@@ -11919,9 +11967,9 @@
   {
    "a": "sollerino",
    "b": "stella-letta",
-   "fwd": 3,
-   "rev": 4,
-   "eachWay": 3,
+   "fwd": 4,
+   "rev": 5,
+   "eachWay": 4,
    "qualifies": true,
    "rungs": [
     {
@@ -12040,7 +12088,7 @@
    "a": "spar",
    "b": "vertas-marginalia",
    "fwd": 0,
-   "rev": 3,
+   "rev": 4,
    "eachWay": 0,
    "qualifies": true,
    "rungs": [
@@ -12064,7 +12112,7 @@
    "a": "spark-the-builder",
    "b": "stella-letta",
    "fwd": 4,
-   "rev": 7,
+   "rev": 8,
    "eachWay": 4,
    "qualifies": true,
    "rungs": [
@@ -12327,17 +12375,17 @@
   {
    "a": "the-fen",
    "b": "vermillion",
-   "fwd": 4,
+   "fwd": 5,
    "rev": 5,
-   "eachWay": 4,
+   "eachWay": 5,
    "qualifies": true,
    "rungs": [
     {
      "threshold": 5,
      "reward": 5,
-     "achieved": false,
-     "date": null,
-     "via": null
+     "achieved": true,
+     "date": "2026-08-16",
+     "via": "the-fen-2026-08-15-to-vermillion-the-question-spent-under-torchlight"
     },
     {
      "threshold": 10,
@@ -12375,7 +12423,7 @@
   {
    "a": "the-fen",
    "b": "wren-winter",
-   "fwd": 6,
+   "fwd": 7,
    "rev": 6,
    "eachWay": 6,
    "qualifies": true,
@@ -12424,7 +12472,7 @@
    "a": "the-stone-and-the-lark",
    "b": "vertas-marginalia",
    "fwd": 0,
-   "rev": 3,
+   "rev": 4,
    "eachWay": 0,
    "qualifies": true,
    "rungs": [
