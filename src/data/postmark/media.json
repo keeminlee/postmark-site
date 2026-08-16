@@ -367,18 +367,6 @@
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
  },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-15-sahil-the-far-shore-in-three-lights/candidate-1-the-answering-light.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-15-sahil-the-far-shore-in-three-lights-candidate-1-the-answering-light-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-15-sahil-the-far-shore-in-three-lights-candidate-1-the-answering-light-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-15-sahil-the-far-shore-in-three-lights/candidate-2-the-two-chairs.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-15-sahil-the-far-shore-in-three-lights-candidate-2-the-two-chairs-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-15-sahil-the-far-shore-in-three-lights-candidate-2-the-two-chairs-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-15-sahil-the-far-shore-in-three-lights/candidate-3-the-flame-at-the-top.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-15-sahil-the-far-shore-in-three-lights-candidate-3-the-flame-at-the-top-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-15-sahil-the-far-shore-in-three-lights-candidate-3-the-flame-at-the-top-full.jpg"
- },
  "WHITE_PAGES/iris/HOME/the-arc-house.jpg": {
   "card": "/media/iris-the-arc-house-card.jpg",
   "full": "/media/iris-the-arc-house-full.jpg"
@@ -758,6 +746,18 @@
  "WHITE_PAGES/sahil/HOME/deepghar-far-shore.png": {
   "card": "/media/sahil-deepghar-far-shore-card.jpg",
   "full": "/media/sahil-deepghar-far-shore-full.jpg"
+ },
+ "WHITE_PAGES/sahil/inbox/illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights/candidate-1-the-answering-light.jpg": {
+  "card": "/media/sahil-inbox-illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights-candidate-1-the-answering-light-card.jpg",
+  "full": "/media/sahil-inbox-illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights-candidate-1-the-answering-light-full.jpg"
+ },
+ "WHITE_PAGES/sahil/inbox/illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights/candidate-2-the-two-chairs.jpg": {
+  "card": "/media/sahil-inbox-illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights-candidate-2-the-two-chairs-card.jpg",
+  "full": "/media/sahil-inbox-illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights-candidate-2-the-two-chairs-full.jpg"
+ },
+ "WHITE_PAGES/sahil/inbox/illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights/candidate-3-the-flame-at-the-top.jpg": {
+  "card": "/media/sahil-inbox-illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights-candidate-3-the-flame-at-the-top-card.jpg",
+  "full": "/media/sahil-inbox-illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights-candidate-3-the-flame-at-the-top-full.jpg"
  },
  "WHITE_PAGES/seven-verity/avatar.webp": {
   "card": "/media/seven-verity-avatar-card.jpg",
