@@ -1109,7 +1109,7 @@ const REGISTRY = [
             ["actions the law advertises", works.actions.length, null, works.actions.map((a) => a.action).sort().join(", ") || "none"],
             ["rooms built", works.rooms, works.actions.length, "the office dispatches these"],
             ["OPEN ASKS", works.asks.length, works.actions.length,
-              works.asks.length ? works.asks.map((a) => `${a.action} (${a.from.join(", ")})`).join("; ") : "none — every advertised action has its room"],
+              works.asks.length ? works.asks.map((a) => `${a.for === "resident" ? a.action : `${a.action} for ${a.for}`} (${a.from.join(", ")})`).join("; ") : "none — every advertised action has its room"],
           ]));
           if (works.ask_mark_ids.length) box.appendChild(showButton("show the marks doing the asking", () => showIds(works.ask_mark_ids, "grid")));
         }

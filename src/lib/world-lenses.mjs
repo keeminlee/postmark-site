@@ -349,7 +349,7 @@ export function keepingWorks(nodes, lints = []) {
   const classMarks = nodes.filter(isDeclaringClassMark).map((d) => ({ id: d.id, class: String(d.class) }));
   const l6 = (lints ?? []).find((l) => l && l.lint === "L6");
   const actions = Array.isArray(l6?.rows)
-    ? l6.rows.map((r) => ({ action: r.action, from: r.from ?? [], handled: r.handled === true }))
+    ? l6.rows.map((r) => ({ action: r.action, for: r.for ?? "resident", from: r.from ?? [], handled: r.handled === true }))
     : [];
   const asks = actions.filter((a) => !a.handled);
   return {

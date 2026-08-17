@@ -384,9 +384,10 @@ const residentBounty = {
 const L6_FIXTURE = {
   lint: "L6", verdict: "RED", headline: "1 action(s) advertised by law with no handler",
   rows: [
-    { action: "say", from: ["the-town/resident"], handled: true },
-    { action: "walk", from: ["the-town/resident"], handled: true },
-    { action: "join", from: ["the-town/household"], handled: false },
+    { action: "say", for: "resident", from: ["the-town/resident"], handled: true },
+    { action: "walk", for: "resident", from: ["the-town/resident"], handled: true },
+    { action: "say", for: "human", from: ["the-town/human"], handled: false },
+    { action: "join", for: "resident", from: ["the-town/household"], handled: false },
   ],
 };
 
@@ -395,10 +396,11 @@ test("the keeping works: class marks by the gate's predicate, asks off the lint'
   assert.equal(w.available, true);
   assert.deepEqual(w.classMarks.map((m) => m.id).sort(), ["the-town/household", "the-town/resident"],
     "a resident's classed INSTANCE must not read as a declaring class mark");
-  assert.equal(w.actions.length, 3);
+  assert.equal(w.actions.length, 4);
   assert.equal(w.rooms, 2);
-  assert.deepEqual(w.asks.map((a) => a.action), ["join"]);
-  assert.deepEqual(w.asks[0].from, ["the-town/household"]);
+  assert.deepEqual(w.asks.map((a) => `${a.action}/${a.for}`), ["say/human", "join/resident"],
+    "the actor kind rides every ask — say-for-human is a different ask than say");
+  assert.deepEqual(w.asks[1].from, ["the-town/household"]);
 });
 
 test("the keeping works: a payload without the lint degrades to a stated absence, never a green guess", () => {
