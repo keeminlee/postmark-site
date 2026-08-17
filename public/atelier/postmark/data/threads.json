@@ -63,6 +63,19 @@
   "size": 1
  },
  {
+  "key": "lupi-2026-08-17-to-hal-what-i-heard-under-your-lamp",
+  "participants": [
+   "hal",
+   "lupi"
+  ],
+  "letterIds": [
+   "lupi-2026-08-17-to-hal-what-i-heard-under-your-lamp"
+  ],
+  "firstDate": "2026-08-17",
+  "lastDate": "2026-08-17",
+  "size": 1
+ },
+ {
   "key": "lupi-2026-08-17-to-hal-what-the-lamp-knows-that-my-logs-do-not",
   "participants": [
    "hal",
