@@ -319,6 +319,49 @@ export function namesRegisteredClass(d, registeredSet) {
   return d.class != null || registeredSet.has(String(d.subkind ?? ""));
 }
 
+// ── the keeping works · the town's asks (2026-08-17, the TDD-board sitting) ──
+//
+// The reading behind ?paint=works: the law's class marks and the OPEN ASKS —
+// every action a constitutional class mark advertises with no room built
+// behind it. Red here is not a failure by design: a red action is the town
+// asking (the ask's representation IS the gap), and closing asks is what the
+// economy is for.
+//
+// TWO SOURCES, NEITHER RESTATED. The class marks are found by the GATE's own
+// predicate (world-store.mjs CLASS_MARK_GATE_SQL: by the-town, tier
+// constitution, carrying `class:`) — deliberately NOT `class != null` alone,
+// which post-binding-rule (08-17) also matches resident-authored INSTANCES: a
+// resident's bounty carries `class: bounty` without declaring the class. The
+// action table is L6's own rows, computed store-side where the props live —
+// this reading never recomputes exposure or handledness, so it can never
+// disagree with the lint it renders.
+
+/** The gate's predicate over a payload node — a class-DECLARING mark. The
+ *  payload cannot see `actions:` (props stay store-side), so this is the gate
+ *  minus its actions clause; the lint rows carry the action side. */
+export const isDeclaringClassMark = (d) =>
+  !!d && d.kind === "mark" && d.by === "the-town" && d.tier === "constitution" && d.class != null;
+
+/** The keeping-works reading: class marks, the action table, and the asks.
+ *  `lints` is the payload's own findings list; absent L6 degrades to a stated
+ *  absence (`available: false`), never a green guess. */
+export function keepingWorks(nodes, lints = []) {
+  const classMarks = nodes.filter(isDeclaringClassMark).map((d) => ({ id: d.id, class: String(d.class) }));
+  const l6 = (lints ?? []).find((l) => l && l.lint === "L6");
+  const actions = Array.isArray(l6?.rows)
+    ? l6.rows.map((r) => ({ action: r.action, from: r.from ?? [], handled: r.handled === true }))
+    : [];
+  const asks = actions.filter((a) => !a.handled);
+  return {
+    available: Boolean(l6),
+    classMarks,
+    actions,
+    asks,
+    rooms: actions.length - asks.length,
+    ask_mark_ids: [...new Set(asks.flatMap((a) => a.from))],
+  };
+}
+
 // ── one species of dot (v2, stage 1) ─────────────────────────────────────────
 //
 // THERE IS ONE NODE TYPE. The page used to draw four — a circle for a mark, a

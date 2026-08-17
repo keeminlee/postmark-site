@@ -92,6 +92,7 @@ const PAINTS = [
   { paint: "ideal", label: "what LOGOS derives", line: "every datum on disk, sorted by where the law says it belongs" },
   { paint: "registry", label: "the class registry", line: "which nodes name a class-node — closure is a property of addressing" },
   { paint: "law", label: "the record's law", line: "the constitution as written marks — the piecewise LOGOS, lighting up as clauses land" },
+  { paint: "works", label: "the keeping works", line: "the law's class marks and their open asks — a red action is the town asking for a room" },
 ];
 
 // THE IDEAL VIEW'S POPULATIONS. Every key a record carries is put through the
@@ -269,6 +270,7 @@ const REGISTRY = [
       SERIALIZATION_MAP, STORE_BOUNDARY, serializationOf, idealClassOf, fieldCensus,
       classRegistry, lawMeasures, standingLattice, standingTierOf, isRecordNode, recordTree,
       isMachinery, wearsRegistryBadge, isContinuation, classFilters, filterBucketOf,
+      keepingWorks, isDeclaringClassMark,
     } from "@/lib/world-lenses.mjs";
 
     const root = document.querySelector("[data-graph]");
@@ -371,7 +373,7 @@ const REGISTRY = [
       // in.
       let panelHome = "findings";
       // The lenses' readings, computed once at mount off the one payload.
-      let fields = null, record = null, registry = null, measures = null, lattice = null, filters = null;
+      let fields = null, record = null, registry = null, measures = null, lattice = null, filters = null, works = null;
 
       // ── boot ──────────────────────────────────────────────────────────────
       async function boot() {
@@ -480,11 +482,18 @@ const REGISTRY = [
         const data = els.nodes.map((n) => n.data);
         registry = classRegistry(data);
         const reg = new Set(registry.registered);
+        // The keeping-works reading is taken here, before the class loop, so
+        // an open ask is a mount-time fact about its minting mark — same
+        // footing as the lint class itself (the store said so).
+        works = keepingWorks(data, payload.lints);
+        const askIds = new Set(works.ask_mark_ids);
         for (const n of els.nodes) {
           const d = n.data;
           const cls = [];
           if (d.lints && d.lints.length) cls.push("lint");
           if (d.unresolved) cls.push("ghost");
+          if (isDeclaringClassMark(d)) cls.push("works-mark");
+          if (askIds.has(d.id)) cls.push("works-ask");
           cls.push("ideal-" + idealClassOf(d));
           cls.push("reg-" + (d.kind !== "mark"
             ? (payload.convergence_kinds.includes(d.kind) ? "spine" : "off")
@@ -653,6 +662,19 @@ const REGISTRY = [
               },
             },
             { selector: "node.paint-law.rec.rec-law", style: { "background-color": RECORD_PAINT.law } },
+            // The keeping works: the class marks are the subject, everything
+            // else recedes; an open ask is drawn red AS FILL — the border red
+            // stays the lint's own, and here the two agree on purpose.
+            { selector: "node.paint-works", style: { "background-color": "#3a4256", opacity: 0.22 } },
+            {
+              selector: "node.paint-works.works-mark",
+              style: {
+                "background-color": "#d9a95a", opacity: 1, label: "data(short)", "font-size": 10,
+                width: (n) => 14 + Math.sqrt(n.data("deg") || 0) * 4,
+                height: (n) => 14 + Math.sqrt(n.data("deg") || 0) * 4,
+              },
+            },
+            { selector: "node.paint-works.works-ask", style: { "background-color": RED, opacity: 1 } },
             // ── the whole point of the page ───────────────────────────────
             { selector: "node.lint", style: { "border-width": 3, "border-color": RED, "border-opacity": 1 } },
             { selector: "edge.lint", style: { "line-color": RED, width: 3, opacity: 1, "z-index": 20 } },
@@ -926,6 +948,7 @@ const REGISTRY = [
         if (on.paint === "ideal") paintIdealLens(box);
         if (on.paint === "registry") paintRegistryLens(box);
         if (on.paint === "law") paintLawLens(box);
+        if (on.paint === "works") paintWorksLens(box);
       }
 
       // THE CLASS ROW, built from the registry the store actually holds.
@@ -1061,6 +1084,43 @@ const REGISTRY = [
         const spine = {};
         for (const k of payload.convergence_kinds) spine[k] = payload.counts.by_kind[k] ?? 0;
         box.appendChild(numbers(Object.entries(spine).map(([k, n]) => [k, n, payload.counts.nodes, ""])));
+
+        paintBoundary(box);
+      }
+
+      // ── the keeping works · the town's asks ───────────────────────────────
+      // The focused view of the law's class marks and the open asks (the
+      // TDD-board sitting, 2026-08-17). Red here is not a failure by design:
+      // a red action is the town ASKING — the ask's representation IS the gap,
+      // and closing asks is what the economy is for.
+      function paintWorksLens(box) {
+        box.appendChild(lede(
+          "The keeping works: every constitutional class mark, and every action the law advertises. A room BUILT means the office "
+          + "dispatches it; an OPEN ASK is law declared with no room behind it — the town asking, on purpose. The asks are L6's own rows, "
+          + "never recomputed here."));
+
+        if (!works.available) {
+          box.appendChild(warn(
+            "this office sends no L6 finding, so the action side cannot be read — the class marks below are the payload's, "
+            + "but which of their actions have rooms is stated by nobody. Not green: unread."));
+        } else {
+          box.appendChild(numbers([
+            ["class marks in the works", works.classMarks.length, null, works.classMarks.map((m) => m.class).sort().join(", ") || "none in this store"],
+            ["actions the law advertises", works.actions.length, null, works.actions.map((a) => a.action).sort().join(", ") || "none"],
+            ["rooms built", works.rooms, works.actions.length, "the office dispatches these"],
+            ["OPEN ASKS", works.asks.length, works.actions.length,
+              works.asks.length ? works.asks.map((a) => `${a.action} (${a.from.join(", ")})`).join("; ") : "none — every advertised action has its room"],
+          ]));
+          if (works.ask_mark_ids.length) box.appendChild(showButton("show the marks doing the asking", () => showIds(works.ask_mark_ids, "grid")));
+        }
+
+        box.appendChild(sectionHead("Three registers of red — what a red means depends on where it lives"));
+        box.appendChild(lede(
+          "ASKS (this lens): a constitutional mark declares an action with no room built — intentional, bounty-shaped, the build queue. "
+          + "DEBT (the LOGOS measures — the ideal and registry lenses): the strangler cutovers' ledger, program-sized asks priced by "
+          + "sittings, not single rooms. VIOLATIONS (the fidelity suite, world-side): a rendering saying OTHER than the law — never "
+          + "intentional, never an ask; they gate settlements and are fixed, not funded. Unrendered LOGOS clauses are deliberately NOT "
+          + "red anywhere: the piecewise ruling lands a clause when a build leans on it, so absence is the design."));
 
         paintBoundary(box);
       }

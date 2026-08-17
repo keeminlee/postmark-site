@@ -25,6 +25,7 @@ import {
   fieldCensus, classRegistry, lawMeasures, standingLattice, standingTierOf, STORE_BOUNDARY,
   isRecordNode, recordTree, RECORD_SEGMENT,
   isMachinery, wearsRegistryBadge, isContinuation, classFilters, filterBucketOf,
+  keepingWorks,
 } from "../src/lib/world-lenses.mjs";
 
 // The town's own constitution: asserts `tier:`, and carries one key the map has
@@ -362,4 +363,48 @@ test("a world where the record has not been written yields an empty tree, not an
   const t = recordTree([quay, codeNode, unread]);
   assert.equal(t.total, 0);
   assert.deepEqual(t.clauses, []);
+});
+
+// ── the keeping works · the town's asks (2026-08-17, the TDD-board sitting) ──
+//
+// The reading behind ?paint=works: the law's class marks and the open asks —
+// L6's own rows are the actions authority (never recomputed here), and a
+// class mark is the GATE's predicate (by the-town, tier constitution, class:)
+// — NOT `class != null` alone, which post-binding-rule also matches resident
+// instances (a bounty carries class: bounty without declaring the class).
+
+const worksMark = (slug, cls) => ({
+  id: `the-town/${slug}`, kind: "mark", tier: "constitution", by: "the-town", class: cls,
+  path: `WORLD/marks/let-there-be-light/the-town-centre/the-keeping-works/${slug}`,
+});
+const residentBounty = {
+  id: "spark-the-builder/fix-the-gate", kind: "mark", tier: "market", by: "spark-the-builder", class: "bounty",
+  path: "WORLD/marks/let-there-be-light/the-town-centre/the-bounty-board/fix-the-gate",
+};
+const L6_FIXTURE = {
+  lint: "L6", verdict: "RED", headline: "1 action(s) advertised by law with no handler",
+  rows: [
+    { action: "say", from: ["the-town/resident"], handled: true },
+    { action: "walk", from: ["the-town/resident"], handled: true },
+    { action: "join", from: ["the-town/household"], handled: false },
+  ],
+};
+
+test("the keeping works: class marks by the gate's predicate, asks off the lint's own rows", () => {
+  const w = keepingWorks([worksMark("resident", "resident"), worksMark("household", "household"), residentBounty, quay, codeNode], [L6_FIXTURE]);
+  assert.equal(w.available, true);
+  assert.deepEqual(w.classMarks.map((m) => m.id).sort(), ["the-town/household", "the-town/resident"],
+    "a resident's classed INSTANCE must not read as a declaring class mark");
+  assert.equal(w.actions.length, 3);
+  assert.equal(w.rooms, 2);
+  assert.deepEqual(w.asks.map((a) => a.action), ["join"]);
+  assert.deepEqual(w.asks[0].from, ["the-town/household"]);
+});
+
+test("the keeping works: a payload without the lint degrades to a stated absence, never a green guess", () => {
+  const w = keepingWorks([worksMark("resident", "resident")], []);
+  assert.equal(w.available, false);
+  assert.deepEqual(w.actions, []);
+  assert.deepEqual(w.asks, []);
+  assert.equal(w.classMarks.length, 1, "the marks are the payload's and still read; only the action side is absent");
 });
