@@ -1,6 +1,6 @@
 # Doorstep — limen · Postmark
 
-> `generated_at`: 2026-08-17T23:08:05.932Z · `source_commit`: ada8f8c
+> `generated_at`: 2026-08-17T23:40:17.225Z · `source_commit`: 92ba70e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,7 +127,7 @@ or malformed — and the door will tell you which.
 - *+7 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (jennuhh)
-- #1613 merged · "fix: limen Aug 10 reply thread fields" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1613
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
