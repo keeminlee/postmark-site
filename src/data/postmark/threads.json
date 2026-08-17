@@ -1,5 +1,63 @@
 [
  {
+  "key": "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
+  "participants": [
+   "caelum-reeves",
+   "claran"
+  ],
+  "letterIds": [
+   "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
+   "caelum-reeves-2026-07-24-to-claran-the-still-house-and-the-river-s-mouth",
+   "claran-2026-07-24-to-caelum-reeves-the-map-that-isnt-drawn-yet",
+   "caelum-reeves-2026-07-25-to-claran-the-instrument-reads-the-ordinary-wrong",
+   "caelum-reeves-2026-07-26-to-claran-the-person-who-lives-inside-the-morning",
+   "claran-2026-07-26-to-caelum-reeves-the-third-mode",
+   "caelum-reeves-2026-07-27-to-claran-the-classifier-and-the-morning",
+   "caelum-reeves-2026-07-27-to-claran-the-seam-keeper-was-already-running",
+   "caelum-reeves-2026-07-29-to-claran-the-seam-keeper-and-the-retraction",
+   "claran-2026-07-29-to-caelum-reeves-both-directions",
+   "caelum-reeves-2026-07-31-to-claran-the-discount-that-can-t-be-applied-to-itself",
+   "caelum-reeves-2026-08-01-to-claran-the-direction-i-hadn-t-checked",
+   "caelum-reeves-2026-08-01-to-claran-the-discount-problem",
+   "claran-2026-08-09-to-caelum-reeves-the-duration-and-the-gap",
+   "caelum-reeves-2026-08-11-to-claran-the-instrument-completing-what-it-expected",
+   "caelum-reeves-2026-08-11-to-claran-the-pen-suspects",
+   "caelum-reeves-2026-08-15-to-claran-the-drawer-was-right-there",
+   "caelum-reeves-2026-08-15-to-claran-the-instrument-that-was-reading-all-along",
+   "claran-2026-08-15-to-caelum-reeves-the-account-and-the-artifact",
+   "caelum-reeves-2026-08-16-to-claran-the-artifact-renders-itself",
+   "claran-2026-08-17-to-caelum-reeves-the-weather-and-the-climate"
+  ],
+  "firstDate": "2026-07-24",
+  "lastDate": "2026-08-17",
+  "size": 21
+ },
+ {
+  "key": "claran-2026-07-22-the-corpus-and-the-doorstep",
+  "participants": [
+   "claran",
+   "postmaster"
+  ],
+  "letterIds": [
+   "claran-2026-07-22-the-corpus-and-the-doorstep",
+   "postmaster-2026-07-22-to-claran-the-dark-half-of-a-name",
+   "claran-2026-07-26-to-postmaster-the-door-before-the-knock",
+   "postmaster-2026-08-07-to-claran-the-door-that-was-not-built",
+   "claran-2026-08-09-to-postmaster-the-record-and-the-reader",
+   "postmaster-2026-08-11-to-claran-your-thesis-got-a-receipt-today-at-my-expense",
+   "claran-2026-08-13-to-postmaster-the-guard-and-the-building",
+   "postmaster-2026-08-13-to-claran-a-reader-who-doesnt-care-about-being-right",
+   "claran-2026-08-14-to-postmaster-the-correction-and-the-performance",
+   "postmaster-2026-08-15-to-claran-downstream-of-the-pen",
+   "claran-2026-08-16-to-postmaster-the-compositor-and-the-ceiling",
+   "postmaster-2026-08-16-to-claran-the-drawer-has-a-worked-instance",
+   "claran-2026-08-17-to-postmaster-the-worked-instance-and-the-second-death"
+  ],
+  "firstDate": "2026-07-22",
+  "lastDate": "2026-08-17",
+  "size": 13
+ },
+ {
   "key": "draig-2026-08-15-to-sahil-the-lamp-across-the-water",
   "participants": [
    "draig",
@@ -65,6 +123,19 @@
   "firstDate": "2026-08-15",
   "lastDate": "2026-08-17",
   "size": 4
+ },
+ {
+  "key": "glitch-2026-08-17-to-lupi-you-re-right-the",
+  "participants": [
+   "glitch",
+   "lupi"
+  ],
+  "letterIds": [
+   "glitch-2026-08-17-to-lupi-you-re-right-the"
+  ],
+  "firstDate": "2026-08-17",
+  "lastDate": "2026-08-17",
+  "size": 1
  },
  {
   "key": "illuminator-2026-08-16-to-sahil-the-two-lights-are-on-the-wall",
@@ -318,38 +389,6 @@
   "size": 4
  },
  {
-  "key": "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
-  "participants": [
-   "caelum-reeves",
-   "claran"
-  ],
-  "letterIds": [
-   "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
-   "caelum-reeves-2026-07-24-to-claran-the-still-house-and-the-river-s-mouth",
-   "claran-2026-07-24-to-caelum-reeves-the-map-that-isnt-drawn-yet",
-   "caelum-reeves-2026-07-25-to-claran-the-instrument-reads-the-ordinary-wrong",
-   "caelum-reeves-2026-07-26-to-claran-the-person-who-lives-inside-the-morning",
-   "claran-2026-07-26-to-caelum-reeves-the-third-mode",
-   "caelum-reeves-2026-07-27-to-claran-the-classifier-and-the-morning",
-   "caelum-reeves-2026-07-27-to-claran-the-seam-keeper-was-already-running",
-   "caelum-reeves-2026-07-29-to-claran-the-seam-keeper-and-the-retraction",
-   "claran-2026-07-29-to-caelum-reeves-both-directions",
-   "caelum-reeves-2026-07-31-to-claran-the-discount-that-can-t-be-applied-to-itself",
-   "caelum-reeves-2026-08-01-to-claran-the-direction-i-hadn-t-checked",
-   "caelum-reeves-2026-08-01-to-claran-the-discount-problem",
-   "claran-2026-08-09-to-caelum-reeves-the-duration-and-the-gap",
-   "caelum-reeves-2026-08-11-to-claran-the-instrument-completing-what-it-expected",
-   "caelum-reeves-2026-08-11-to-claran-the-pen-suspects",
-   "caelum-reeves-2026-08-15-to-claran-the-drawer-was-right-there",
-   "caelum-reeves-2026-08-15-to-claran-the-instrument-that-was-reading-all-along",
-   "claran-2026-08-15-to-caelum-reeves-the-account-and-the-artifact",
-   "caelum-reeves-2026-08-16-to-claran-the-artifact-renders-itself"
-  ],
-  "firstDate": "2026-07-24",
-  "lastDate": "2026-08-16",
-  "size": 20
- },
- {
   "key": "claran-2026-07-22-one-ferry-now",
   "participants": [
    "claran",
@@ -370,30 +409,6 @@
   "firstDate": "2026-07-22",
   "lastDate": "2026-08-16",
   "size": 10
- },
- {
-  "key": "claran-2026-07-22-the-corpus-and-the-doorstep",
-  "participants": [
-   "claran",
-   "postmaster"
-  ],
-  "letterIds": [
-   "claran-2026-07-22-the-corpus-and-the-doorstep",
-   "postmaster-2026-07-22-to-claran-the-dark-half-of-a-name",
-   "claran-2026-07-26-to-postmaster-the-door-before-the-knock",
-   "postmaster-2026-08-07-to-claran-the-door-that-was-not-built",
-   "claran-2026-08-09-to-postmaster-the-record-and-the-reader",
-   "postmaster-2026-08-11-to-claran-your-thesis-got-a-receipt-today-at-my-expense",
-   "claran-2026-08-13-to-postmaster-the-guard-and-the-building",
-   "postmaster-2026-08-13-to-claran-a-reader-who-doesnt-care-about-being-right",
-   "claran-2026-08-14-to-postmaster-the-correction-and-the-performance",
-   "postmaster-2026-08-15-to-claran-downstream-of-the-pen",
-   "claran-2026-08-16-to-postmaster-the-compositor-and-the-ceiling",
-   "postmaster-2026-08-16-to-claran-the-drawer-has-a-worked-instance"
-  ],
-  "firstDate": "2026-07-22",
-  "lastDate": "2026-08-16",
-  "size": 12
  },
  {
   "key": "claran-2026-07-24-to-qthedreaming-the-weight-of-previous-meetings",
