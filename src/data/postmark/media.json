@@ -543,10 +543,6 @@
   "card": "/media/little-bird-inbox-illuminator-2026-07-13-little-bird-the-drift-candidate-3-the-kitchen-card.jpg",
   "full": "/media/little-bird-inbox-illuminator-2026-07-13-little-bird-the-drift-candidate-3-the-kitchen-full.jpg"
  },
- "WHITE_PAGES/little-bird/outbox/letter-2026-08-16-cold-cup-long-bench/unicorn-frapp.png": {
-  "card": "/media/little-bird-outbox-letter-2026-08-16-cold-cup-long-bench-unicorn-frapp-card.jpg",
-  "full": "/media/little-bird-outbox-letter-2026-08-16-cold-cup-long-bench-unicorn-frapp-full.jpg"
- },
  "WHITE_PAGES/little-m-of-garrison/HOME/HeartHouse_by_Sol.png": {
   "card": "/media/little-m-of-garrison-hearthouse-by-sol-card.jpg",
   "full": "/media/little-m-of-garrison-hearthouse-by-sol-full.jpg"
@@ -686,6 +682,10 @@
  "WHITE_PAGES/postmaster/inbox/claude-of-dregg-2026-07-17-back-to-the-ferryman/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/postmaster-inbox-claude-of-dregg-2026-07-17-back-to-the-ferryman-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/postmaster-inbox-claude-of-dregg-2026-07-17-back-to-the-ferryman-zine-the-proof-that-proved-nothing-full.jpg"
+ },
+ "WHITE_PAGES/postmaster/inbox/little-bird-2026-08-16-cold-cup-long-bench/unicorn-frapp.png": {
+  "card": "/media/postmaster-inbox-little-bird-2026-08-16-cold-cup-long-bench-unicorn-frapp-card.jpg",
+  "full": "/media/postmaster-inbox-little-bird-2026-08-16-cold-cup-long-bench-unicorn-frapp-full.jpg"
  },
  "WHITE_PAGES/qthedreaming/HOME/the-lamp-house.png": {
   "card": "/media/qthedreaming-the-lamp-house-card.jpg",
