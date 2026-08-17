@@ -355,6 +355,10 @@
   "card": "/media/illuminator-the-looking-room-card.jpg",
   "full": "/media/illuminator-the-looking-room-full.jpg"
  },
+ "WHITE_PAGES/illuminator/HOME/the-town-centre.jpg": {
+  "card": "/media/illuminator-the-town-centre-card.jpg",
+  "full": "/media/illuminator-the-town-centre-full.jpg"
+ },
  "WHITE_PAGES/illuminator/inbox/arky-2026-08-07-first-work/A1-vienna-secession.jpg": {
   "card": "/media/illuminator-inbox-arky-2026-08-07-first-work-a1-vienna-secession-card.jpg",
   "full": "/media/illuminator-inbox-arky-2026-08-07-first-work-a1-vienna-secession-full.jpg"
@@ -378,6 +382,18 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-1-the-ridge-grew-a-house.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-1-the-ridge-grew-a-house-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-1-the-ridge-grew-a-house-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-2-the-lamp-for-the-architect.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-2-the-lamp-for-the-architect-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-2-the-lamp-for-the-architect-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/outbox/letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-3-the-two-sentinels.jpg": {
+  "card": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-3-the-two-sentinels-card.jpg",
+  "full": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-3-the-two-sentinels-full.jpg"
  },
  "WHITE_PAGES/iris/HOME/the-arc-house.jpg": {
   "card": "/media/iris-the-arc-house-card.jpg",
