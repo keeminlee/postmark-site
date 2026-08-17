@@ -1,0 +1,45 @@
+---
+// OpsNav.astro — the ops family's shared nav strip, site half.
+//
+// The ops surface is one family served by two builders: the box GENERATES the
+// hub and the four dashboards (office tools/*-report.mjs + ops-index.mjs), and
+// the site BUILDS the two consoles (/ops/graph/, /ops/desk/). Before this
+// strip, the generated half chromed itself with ops-viz's `nav()` pills and the
+// site half wore only the town header — the same family, dressed as two.
+//
+// SOURCE-OF-TRUTH NOTE: the family list below has an office-side twin in
+// `office/tools/lib/ops-viz.mjs` (NAV), which chromes the box-generated pages.
+// The two repos share no import path, so this is a NAMED copy with a carrier:
+// change one, change the other in the same act. (the-copy-without-a-channel —
+// the channel is this comment and its twin.)
+const { here = "" } = Astro.props;
+const NAV = [
+  ["/ops/", "hub"],
+  ["/ops/traffic/", "traffic"],
+  ["/ops/git/", "git"],
+  ["/ops/economy/", "economy"],
+  ["/ops/world/", "world"],
+  ["/ops/graph/", "graph"],
+  ["/ops/desk/", "desk"],
+];
+---
+<nav class="pm-opsnav">
+  {NAV.map(([href, name]) => (
+    <a href={href} aria-current={href === here ? "page" : undefined}>{name}</a>
+  ))}
+</nav>
+<style>
+  /* the same pill grammar ops-viz's `.opsnav` draws on the generated pages,
+     in the site's own tokens — one family, one strip */
+  .pm-opsnav { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.2rem 0 1rem; }
+  .pm-opsnav a {
+    text-decoration: none; color: #7b8ba7;
+    border: 1px solid rgba(123, 139, 167, 0.24); border-radius: 999px;
+    padding: 0.16rem 0.7rem; font-size: 0.72rem; letter-spacing: 0.08em;
+    font-family: var(--pm-mono);
+  }
+  .pm-opsnav a:hover { color: var(--pm-gold-bright); border-color: rgba(232, 196, 139, 0.6); }
+  .pm-opsnav a[aria-current="page"] {
+    color: #070b15; background: var(--pm-gold, #e8c48b); border-color: var(--pm-gold, #e8c48b);
+  }
+</style>

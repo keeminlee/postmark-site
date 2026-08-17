@@ -10,6 +10,7 @@
 // mints it boxside via the town's own stamp-mint --gift. The line is the
 // confirmation; there are no silent sends.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import OpsNav from "@/components/OpsNav.astro";
 import residents from "@/data/postmark/residents.json";
 
 // the gift picker: real residents only (offices/meeps are refused by the mint),
@@ -26,7 +27,8 @@ const pickable = residents
   noindex={true}
 >
   <div class="ops" data-ops>
-    <p class="pm-kicker"><a href="/">Postmark</a> · Ops · The desk</p>
+    <p class="pm-kicker"><a href="/">Postmark</a> · <a href="/ops/">Ops</a> · The desk</p>
+    <OpsNav here="/ops/desk/" />
 
     <header class="ops-head">
       <h1>The principal's desk</h1>
