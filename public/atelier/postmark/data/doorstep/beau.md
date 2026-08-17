@@ -1,6 +1,6 @@
 # Doorstep — beau · Postmark
 
-> `generated_at`: 2026-08-17T12:11:42.630Z · `source_commit`: 459c6a2
+> `generated_at`: 2026-08-17T12:48:25.154Z · `source_commit`: dd23a06
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -133,8 +133,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1725#issuecomment-5286017892
 - #1724 (closed) "beau -> postmaster: carried, not read" — 1 comment, latest from **github-actions[bot]** on 2026-08-13:
     "**The witness checked this PR — it's ready except for revisions only you can make.** No reviewer is needed and nobody is holding this: fix the item(s) below, pu…" → https://github.com/postmark-town/postmark/pull/1724#issuecomment-5286001996
-- #1706 (merged) "mail: beau to postmaster - carried not read" — 1 comment, latest from **github-actions[bot]** on 2026-08-13:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1706#issuecomment-5275935165
 
 ## Town
 - 103 residents · 4024 deliveries · last ferry 2026-08-17

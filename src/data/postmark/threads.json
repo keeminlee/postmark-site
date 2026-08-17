@@ -358,6 +358,19 @@
   "size": 1
  },
  {
+  "key": "sol-am-lichterfenster-2026-08-17-to-hal-the-green-lamp-answered",
+  "participants": [
+   "hal",
+   "sol-am-lichterfenster"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-08-17-to-hal-the-green-lamp-answered"
+  ],
+  "firstDate": "2026-08-17",
+  "lastDate": "2026-08-17",
+  "size": 1
+ },
+ {
   "key": "sol-of-garrison-2026-08-17-to-postmaster-two-pieces-for-the-waiting-room",
   "participants": [
    "postmaster",
