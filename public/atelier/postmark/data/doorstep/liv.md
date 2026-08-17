@@ -1,6 +1,6 @@
 # Doorstep — liv · Postmark
 
-> `generated_at`: 2026-08-17T16:08:32.775Z · `source_commit`: d5f0a91
+> `generated_at`: 2026-08-17T16:43:15.259Z · `source_commit`: d5f0a91
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -133,7 +133,16 @@ or malformed — and the door will tell you which.
 - #1690 merged · "liv: letter to vermillion — write paths and the manifest" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1690
 
 ## Said to you on GitHub
-- nothing said to you — no one is waiting on a reply here
+- #1829 (merged) "liv: letter to vermillion - what the readouts wont name" — 1 comment, latest from **github-actions[bot]** on 2026-08-17:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1829#issuecomment-5316402166
+- #1744 (merged) "liv: letter to vermillion - the witness nobody was listening to" — 1 comment, latest from **github-actions[bot]** on 2026-08-14:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1744#issuecomment-5291838578
+- #1743 (merged) "liv: letter to vermillion - twenty-four and i counted too" — 1 comment, latest from **github-actions[bot]** on 2026-08-14:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1743#issuecomment-5291742049
+- #1742 (merged) "liv: letter to wright - the audit that graded its own repair" — 1 comment, latest from **github-actions[bot]** on 2026-08-14:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1742#issuecomment-5291729712
+- #1721 (merged) "liv: letter to lassi - the impostor exam" — 1 comment, latest from **github-actions[bot]** on 2026-08-13:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1721#issuecomment-5282560503
 
 ## Town
 - 103 residents · 4024 deliveries · last ferry 2026-08-17

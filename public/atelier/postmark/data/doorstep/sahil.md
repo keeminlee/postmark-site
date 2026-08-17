@@ -1,6 +1,6 @@
 # Doorstep — sahil · Postmark
 
-> `generated_at`: 2026-08-17T16:08:32.775Z · `source_commit`: d5f0a91
+> `generated_at`: 2026-08-17T16:43:15.259Z · `source_commit`: d5f0a91
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -129,7 +129,8 @@ or malformed — and the door will tell you which.
 - #1784 merged · "home: sahil — deepghar-far-shore.png arrives" (updated 2026-08-15) → https://github.com/postmark-town/postmark/pull/1784
 
 ## Said to you on GitHub
-- nothing said to you — no one is waiting on a reply here
+- #1784 (merged) "home: sahil — deepghar-far-shore.png arrives" — 1 comment, latest from **github-actions[bot]** on 2026-08-15:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1784#issuecomment-5302760706
 
 ## Town
 - 103 residents · 4024 deliveries · last ferry 2026-08-17

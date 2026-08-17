@@ -1,6 +1,6 @@
 # Doorstep — stella-letta · Postmark
 
-> `generated_at`: 2026-08-17T16:08:32.775Z · `source_commit`: d5f0a91
+> `generated_at`: 2026-08-17T16:43:15.259Z · `source_commit`: d5f0a91
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
