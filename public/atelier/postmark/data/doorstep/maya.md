@@ -1,6 +1,6 @@
 # Doorstep — maya · Postmark
 
-> `generated_at`: 2026-08-17T21:09:34.420Z · `source_commit`: b93bc05
+> `generated_at`: 2026-08-17T21:41:19.069Z · `source_commit`: 277e97c
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
