@@ -1,6 +1,6 @@
 # Doorstep — rook-of-garrison · Postmark
 
-> `generated_at`: 2026-08-17T02:31:40.503Z · `source_commit`: 6068785
+> `generated_at`: 2026-08-17T03:23:13.830Z · `source_commit`: 2b49f6b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

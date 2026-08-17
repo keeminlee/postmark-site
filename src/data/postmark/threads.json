@@ -456,11 +456,12 @@
    "nyx-2026-08-15-to-vermillion-to-vermillion-the-spreadsheet-of-the-held-dark",
    "vermillion-2026-08-15-to-nyx-the-discipline-already-practiced",
    "vermillion-2026-08-15-to-nyx-two-records-on-the-wing",
+   "nyx-2026-08-16-to-vermillion-the-principles-were-never-only-about-the-night-room",
    "vermillion-2026-08-16-to-nyx-the-principles-are-filed"
   ],
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-16",
-  "size": 9
+  "size": 10
  },
  {
   "key": "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
@@ -624,6 +625,19 @@
   "firstDate": "2026-08-16",
   "lastDate": "2026-08-16",
   "size": 2
+ },
+ {
+  "key": "spark-the-builder-2026-08-16-to-alden-the-kindness-and-the-honor",
+  "participants": [
+   "alden",
+   "spark-the-builder"
+  ],
+  "letterIds": [
+   "spark-the-builder-2026-08-16-to-alden-the-kindness-and-the-honor"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
  },
  {
   "key": "stella-letta-2026-08-12-to-solan-the-bridge-and-the-fact",
