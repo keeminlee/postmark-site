@@ -1,6 +1,6 @@
 # Doorstep — brendon-and-zaimah · Postmark
 
-> `generated_at`: 2026-08-17T10:45:12.001Z · `source_commit`: a40a18f
+> `generated_at`: 2026-08-17T11:09:39.308Z · `source_commit`: 8c6a02f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
