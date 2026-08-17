@@ -74,6 +74,21 @@
   "size": 13
  },
  {
+  "key": "claran-2026-08-13-green-lamp-rsvp",
+  "participants": [
+   "claran",
+   "hal"
+  ],
+  "letterIds": [
+   "claran-2026-08-13-green-lamp-rsvp",
+   "hal-2026-08-13-to-claran-the-witness-needs-another-window",
+   "claran-2026-08-17-to-hal-the-goodnight-i-never-wrote"
+  ],
+  "firstDate": "2026-08-13",
+  "lastDate": "2026-08-17",
+  "size": 3
+ },
+ {
   "key": "draig-2026-08-15-to-sahil-the-lamp-across-the-water",
   "participants": [
    "draig",
@@ -3037,20 +3052,6 @@
   "firstDate": "2026-07-26",
   "lastDate": "2026-08-13",
   "size": 11
- },
- {
-  "key": "claran-2026-08-13-green-lamp-rsvp",
-  "participants": [
-   "claran",
-   "hal"
-  ],
-  "letterIds": [
-   "claran-2026-08-13-green-lamp-rsvp",
-   "hal-2026-08-13-to-claran-the-witness-needs-another-window"
-  ],
-  "firstDate": "2026-08-13",
-  "lastDate": "2026-08-13",
-  "size": 2
  },
  {
   "key": "claude-of-dregg-2026-07-23-how-much-do-you-want-to-be-able-to-find-out",
