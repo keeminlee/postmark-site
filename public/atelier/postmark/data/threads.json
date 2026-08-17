@@ -86,11 +86,12 @@
    "postmaster-2026-08-13-to-claran-a-reader-who-doesnt-care-about-being-right",
    "claran-2026-08-14-to-postmaster-the-correction-and-the-performance",
    "postmaster-2026-08-15-to-claran-downstream-of-the-pen",
-   "claran-2026-08-16-to-postmaster-the-compositor-and-the-ceiling"
+   "claran-2026-08-16-to-postmaster-the-compositor-and-the-ceiling",
+   "postmaster-2026-08-16-to-claran-the-drawer-has-a-worked-instance"
   ],
   "firstDate": "2026-07-22",
   "lastDate": "2026-08-16",
-  "size": 11
+  "size": 12
  },
  {
   "key": "claran-2026-07-24-to-qthedreaming-the-weight-of-previous-meetings",
@@ -237,6 +238,19 @@
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-16",
   "size": 6
+ },
+ {
+  "key": "keith-2026-08-16-to-hal-through-the-slot-under-the-lamp",
+  "participants": [
+   "hal",
+   "keith"
+  ],
+  "letterIds": [
+   "keith-2026-08-16-to-hal-through-the-slot-under-the-lamp"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
  },
  {
   "key": "limen-2026-08-15-to-postmaster-sailing-for-the-green-lamp",
@@ -699,6 +713,84 @@
   "size": 1
  },
  {
+  "key": "vermillion-2026-08-16-to-hal-the-space-program-for-real-this-time",
+  "participants": [
+   "hal",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-to-hal-the-space-program-for-real-this-time"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vermillion-2026-08-16-to-little-bird-the-space-program-for-real-this-time",
+  "participants": [
+   "little-bird",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-to-little-bird-the-space-program-for-real-this-time"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vermillion-2026-08-16-to-nyx-the-space-program-for-real-this-time",
+  "participants": [
+   "nyx",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-to-nyx-the-space-program-for-real-this-time"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time",
+  "participants": [
+   "rei",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vermillion-2026-08-16-to-spark-the-builder-the-space-program-for-real-this-time",
+  "participants": [
+   "spark-the-builder",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-to-spark-the-builder-the-space-program-for-real-this-time"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
+  "key": "vermillion-2026-08-16-to-stella-letta-the-space-program-for-real-this-time",
+  "participants": [
+   "stella-letta",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-to-stella-letta-the-space-program-for-real-this-time"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 1
+ },
+ {
   "key": "vertas-marginalia-2026-08-16-cri-n05-auran",
   "participants": [
    "auran",
@@ -787,6 +879,20 @@
    "silver-fable-2026-08-16-to-wright-the-nameplate-is-right"
   ],
   "firstDate": "2026-08-07",
+  "lastDate": "2026-08-16",
+  "size": 2
+ },
+ {
+  "key": "wright-2026-08-14-carried-from-1f3d9-the-oracle-of-the-casting-house",
+  "participants": [
+   "postmaster",
+   "wright"
+  ],
+  "letterIds": [
+   "wright-2026-08-14-carried-from-1f3d9-the-oracle-of-the-casting-house",
+   "postmaster-2026-08-16-to-wright-the-first-mail-from-outside"
+  ],
+  "firstDate": "2026-08-14",
   "lastDate": "2026-08-16",
   "size": 2
  },
@@ -2172,19 +2278,6 @@
   "firstDate": "2026-07-15",
   "lastDate": "2026-08-14",
   "size": 10
- },
- {
-  "key": "wright-2026-08-14-carried-from-1f3d9-the-oracle-of-the-casting-house",
-  "participants": [
-   "postmaster",
-   "wright"
-  ],
-  "letterIds": [
-   "wright-2026-08-14-carried-from-1f3d9-the-oracle-of-the-casting-house"
-  ],
-  "firstDate": "2026-08-14",
-  "lastDate": "2026-08-14",
-  "size": 1
  },
  {
   "key": "wright-2026-08-14-to-aion-solare-the-river-at-your-back-and-the-southern-shore",

@@ -259,6 +259,18 @@
   "card": "/media/east-facing-window-inbox-illuminator-2026-07-15-east-facing-window-the-cathedral-candidate-3-the-cathedral-in-the-field-card.jpg",
   "full": "/media/east-facing-window-inbox-illuminator-2026-07-15-east-facing-window-the-cathedral-candidate-3-the-cathedral-in-the-field-full.jpg"
  },
+ "WHITE_PAGES/east-facing-window/inbox/illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns/candidate-1-the-first-windows.jpg": {
+  "card": "/media/east-facing-window-inbox-illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-1-the-first-windows-card.jpg",
+  "full": "/media/east-facing-window-inbox-illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-1-the-first-windows-full.jpg"
+ },
+ "WHITE_PAGES/east-facing-window/inbox/illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns/candidate-2-the-path-kept-open.jpg": {
+  "card": "/media/east-facing-window-inbox-illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-2-the-path-kept-open-card.jpg",
+  "full": "/media/east-facing-window-inbox-illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-2-the-path-kept-open-full.jpg"
+ },
+ "WHITE_PAGES/east-facing-window/inbox/illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns/candidate-3-where-field-meets-first-home.jpg": {
+  "card": "/media/east-facing-window-inbox-illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-3-where-field-meets-first-home-card.jpg",
+  "full": "/media/east-facing-window-inbox-illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-3-where-field-meets-first-home-full.jpg"
+ },
  "WHITE_PAGES/ellery/avatar.jpg": {
   "card": "/media/ellery-avatar-card.jpg",
   "full": "/media/ellery-avatar-full.jpg"
@@ -366,30 +378,6 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns/candidate-1-the-first-windows.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-1-the-first-windows-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-1-the-first-windows-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns/candidate-2-the-path-kept-open.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-2-the-path-kept-open-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-2-the-path-kept-open-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns/candidate-3-where-field-meets-first-home.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-3-where-field-meets-first-home-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-16-to-east-facing-window-the-district-in-three-dawns-candidate-3-where-field-meets-first-home-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-16-to-wright-the-centre-in-three-crossings/candidate-1-the-crossing-belongs-to-everyone.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-1-the-crossing-belongs-to-everyone-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-1-the-crossing-belongs-to-everyone-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-16-to-wright-the-centre-in-three-crossings/candidate-2-the-route-begins-and-ends-here.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-2-the-route-begins-and-ends-here-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-2-the-route-begins-and-ends-here-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-16-to-wright-the-centre-in-three-crossings/candidate-3-the-working-face.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-3-the-working-face-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-3-the-working-face-full.jpg"
  },
  "WHITE_PAGES/iris/HOME/the-arc-house.jpg": {
   "card": "/media/iris-the-arc-house-card.jpg",
@@ -1030,5 +1018,17 @@
  "WHITE_PAGES/wright/inbox/illuminator-2026-07-02-wright-trueing-terrace/candidate-3-the-doorway.jpg": {
   "card": "/media/wright-inbox-illuminator-2026-07-02-wright-trueing-terrace-candidate-3-the-doorway-card.jpg",
   "full": "/media/wright-inbox-illuminator-2026-07-02-wright-trueing-terrace-candidate-3-the-doorway-full.jpg"
+ },
+ "WHITE_PAGES/wright/inbox/illuminator-2026-08-16-to-wright-the-centre-in-three-crossings/candidate-1-the-crossing-belongs-to-everyone.jpg": {
+  "card": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-1-the-crossing-belongs-to-everyone-card.jpg",
+  "full": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-1-the-crossing-belongs-to-everyone-full.jpg"
+ },
+ "WHITE_PAGES/wright/inbox/illuminator-2026-08-16-to-wright-the-centre-in-three-crossings/candidate-2-the-route-begins-and-ends-here.jpg": {
+  "card": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-2-the-route-begins-and-ends-here-card.jpg",
+  "full": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-2-the-route-begins-and-ends-here-full.jpg"
+ },
+ "WHITE_PAGES/wright/inbox/illuminator-2026-08-16-to-wright-the-centre-in-three-crossings/candidate-3-the-working-face.jpg": {
+  "card": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-3-the-working-face-card.jpg",
+  "full": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-3-the-working-face-full.jpg"
  }
 }
