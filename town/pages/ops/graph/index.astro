@@ -32,6 +32,7 @@
 //
 // Internal surface: noindex, like every page under /ops/.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import OpsNav from "@/components/OpsNav.astro";
 
 // The seven decided edge types (§2.6 / dial 5), in the order the chips show
 // them: the two structural ones first (they are 70% of the graph), then the
@@ -124,6 +125,7 @@ const REGISTRY = [
 >
   <div class="opsgraph" data-graph>
     <p class="pm-kicker"><a href="/">Postmark</a> · <a href="/ops/">Ops</a> · The graph</p>
+    <OpsNav here="/ops/graph/" />
 
     <header class="og-head">
       <h1>The world graph</h1>
@@ -149,16 +151,33 @@ const REGISTRY = [
         <button type="button" class="og-chip og-chip-view is-on" data-view="all">everything</button>
         <button type="button" class="og-chip og-chip-view" data-view="convergence">convergence</button>
         <button type="button" class="og-chip og-chip-view" data-view="findings">findings only</button>
+        <button type="button" class="og-chip og-chip-view" data-view="works">the works</button>
         <span class="og-chipsep"></span>
         <span class="og-chiplabel">layout</span>
         <button type="button" class="og-chip og-chip-layout is-on" data-layout="web">web</button>
         <button type="button" class="og-chip og-chip-layout" data-layout="map">map</button>
+        <span class="og-chipsep"></span>
+        <span class="og-chiplabel">find</span>
+        <input type="search" class="og-search" data-search placeholder="id, body, household…" spellcheck="false" autocomplete="off" />
       </div>
 
       <div class="og-chiprow">
         <span class="og-chiplabel">paint</span>
         {PAINTS.map((p) => (
           <button type="button" class={`og-chip og-chip-paint${p.paint === "tier" ? " is-on" : ""}`} data-paint={p.paint} title={p.line}>{p.label}</button>
+        ))}
+      </div>
+
+      <!-- THE STANDING ROW. The lattice as a FILTER, not just a legend: each
+           chip hides or shows the marks the one walk gave that standing.
+           Marks only — code, doctrine and classes have no standing to filter
+           by, and they keep their own chips below. -->
+      <div class="og-chiprow">
+        <span class="og-chiplabel">standing</span>
+        {TIERS.map((t) => (
+          <button type="button" class="og-chip og-chip-tier is-on" data-tier-chip={t.tier} title="show or hide the marks the one walk gave this standing">
+            <i class={`og-swatch og-${t.swatch}`} aria-hidden="true"></i>{t.label}
+          </button>
         ))}
       </div>
 
@@ -183,6 +202,16 @@ const REGISTRY = [
     <div class="og-stage">
       <div class="og-canvas">
         <div class="og-cy" data-cy></div>
+
+        <!-- THE ZOOM RAIL. The wheel still zooms (harder than it used to — see
+             wheelSensitivity at mount); these are for the reader without a
+             wheel, and for the two jumps a wheel is bad at: a decisive step
+             in or out, and "put everything visible back in front of me". -->
+        <div class="og-zoom">
+          <button type="button" data-zoom-in title="zoom in">+</button>
+          <button type="button" data-zoom-out title="zoom out">−</button>
+          <button type="button" data-zoom-fit title="fit everything visible">⤢</button>
+        </div>
 
         <!-- the legend, over the canvas' bottom-left; the standing colours are
              the half people actually need, so they go first. The colour row is
@@ -210,6 +239,11 @@ const REGISTRY = [
             <span class="og-legend-item"><i class="og-swatch og-rec-law" aria-hidden="true"></i>a clause of the law</span>
             <span class="og-legend-item"><i class="og-swatch og-rec-mech" aria-hidden="true"></i>a clause naming machinery</span>
             <span class="og-legend-item"><i class="og-swatch og-rec-off" aria-hidden="true"></i>not the record</span>
+          </div>
+          <div class="og-legend-row" data-legend="works" hidden>
+            <span class="og-legend-item"><i class="og-swatch og-works-mark" aria-hidden="true"></i>a class mark of the law</span>
+            <span class="og-legend-item"><i class="og-swatch og-works-ask" aria-hidden="true"></i>an open ask — the town asking</span>
+            <span class="og-legend-item"><i class="og-swatch og-works-off" aria-hidden="true"></i>the rest, receded</span>
           </div>
           <div class="og-legend-row">
             {WEARINGS.map((w) => (
@@ -349,6 +383,13 @@ const REGISTRY = [
       const HINT_DEFAULT = "tap a node to light its neighbourhood — neighbours hidden by a filter come back with it. Tap the background to let go.";
       const hint = (text) => { $("[data-hint]").textContent = text || HINT_DEFAULT; };
 
+      // Every lens class a chip can put on a node, in one string for
+      // removeClass — DERIVED from the row the template built. The works lens
+      // arrived and the hand-kept list in setPaint missed it, which left the
+      // works colours stuck under every other lens; a derived list cannot miss
+      // the next lens either.
+      const PAINT_CLASSES = all("[data-paint]").map((b) => "paint-" + b.dataset.paint).join(" ");
+
       // A mark's colour is its DERIVED standing (the one walk, run office-side
       // at hydration) — never the `tier` field, which tier-B retired and the
       // loader used to default. No standing sent → the gray row, stated.
@@ -364,9 +405,13 @@ const REGISTRY = [
         // class row. Until the payload arrives there is nothing to filter by.
         classes: new Set(),
         edges: new Set(["contains", "describes", "instance-of", "implements", "reads", "imports", "stop-of"]),
+        // The standing chips, read off the row the template built from TIERS —
+        // a second hand-kept list here would be the drift the paint list had.
+        tiers: new Set(all("[data-tier-chip]").map((b) => b.dataset.tierChip)),
         view: "all",
         layout: "web",
         paint: "tier",
+        q: "",
       };
       // Which of the two panel homes the back button returns to. The inspector
       // is a detour from whichever was showing, never a third place to be lost
@@ -440,12 +485,19 @@ const REGISTRY = [
       }
 
       function paintCounts() {
-        const n = cy.nodes(":visible").length;
-        const e = cy.edges(":visible").length;
+        // `.off`, NOT `:visible` — the runLayout lesson, learned here a second
+        // time: `:visible` is recalculated lazily after a `cy.batch()`, and a
+        // count taken straight after applyFilters read the world as it was
+        // BEFORE the filter ("513 of 819" over a 29-node view). `.off` is set
+        // synchronously and is the only thing that hides an element. An edge
+        // draws only when both its ends do, so it is counted that way.
+        const hidden = (el) => el.hasClass("off");
+        const nodes = cy.nodes().filter((n) => !hidden(n));
+        const edges = cy.edges().filter((e) => !hidden(e) && !hidden(e.source()) && !hidden(e.target()));
         const total = payload.counts.nodes;
-        const lit = cy.elements(".lint:visible").length;
-        const of = n === total ? "" : ` of ${total}`;
-        $("[data-counts]").textContent = `${n}${of} nodes · ${e} edges · ${lit} carrying a finding`;
+        const lit = nodes.filter(".lint").length + edges.filter(".lint").length;
+        const of = nodes.length === total ? "" : ` of ${total}`;
+        $("[data-counts]").textContent = `${nodes.length}${of} nodes · ${edges.length} edges · ${lit} carrying a finding`;
       }
 
       // ── the graph ─────────────────────────────────────────────────────────
@@ -524,7 +576,9 @@ const REGISTRY = [
         cy = cytoscape({
           container: $("[data-cy]"),
           elements: els,
-          wheelSensitivity: 0.2,
+          // 0.2 made the wheel a formality: the map view is 95 km across, and
+          // reaching a house from the fitted view took a minute of scrolling.
+          wheelSensitivity: 0.6,
           // 700 nodes is small enough to keep labels honest at zoom rather than
           // paying for a texture cache that blurs them.
           textureOnViewport: false,
@@ -705,19 +759,21 @@ const REGISTRY = [
 
         paintLatticeLegend();
         paintClassRow();
-        // ?paint=<key> — a lens you can link to. Validated against the chips the
-        // page actually built, so a key that no longer exists (or never did)
-        // lands on the lattice rather than on a blank panel. Silent by design:
-        // a stale link in somebody's notes should open the graph, not an error.
-        setPaint(paintFromQuery() ?? on.paint);
+        setPaint(fromQuery("paint") ?? on.paint);
+        setView(fromQuery("view") ?? on.view);
         applyFilters({ relayout: true });
       }
 
-      function paintFromQuery() {
+      // ?paint= / ?view= — a way of looking you can link to. Validated against
+      // the chips the page actually built, so a key that no longer exists (or
+      // never did) lands on the default rather than on a blank panel. Silent by
+      // design: a stale link in somebody's notes should open the graph, not an
+      // error.
+      function fromQuery(key) {
         let want = null;
-        try { want = new URLSearchParams(location.search).get("paint"); } catch { return null; }
+        try { want = new URLSearchParams(location.search).get(key); } catch { return null; }
         if (!want) return null;
-        return all("[data-paint]").some((b) => b.dataset.paint === want) ? want : null;
+        return all(`[data-${key}]`).some((b) => b.dataset[key] === want) ? want : null;
       }
 
       // ── filters ───────────────────────────────────────────────────────────
@@ -732,6 +788,14 @@ const REGISTRY = [
             cy.elements().not(".lint").addClass("off");
             // a red edge needs both its ends, or it is a red line into nothing
             cy.edges(".lint").connectedNodes().removeClass("off");
+          } else if (on.view === "works") {
+            // The board as a graph: the law's class marks and the open asks,
+            // nothing else. The works PAINT recedes the rest of the world in
+            // place; this view removes it, for the reader who came only for
+            // the asks. The two compose — ?paint=works&view=works is the
+            // board, clean.
+            cy.nodes().forEach((n) => { if (!n.hasClass("works-mark") && !n.hasClass("works-ask")) n.addClass("off"); });
+            cy.edges().forEach((e) => { if (!on.edges.has(e.data("type"))) e.addClass("off"); });
           } else if (on.view === "convergence") {
             const kinds = new Set(payload.convergence_kinds);
             cy.nodes().forEach((n) => { if (!kinds.has(n.data("kind"))) n.addClass("off"); });
@@ -741,12 +805,39 @@ const REGISTRY = [
             // hardcoded kind. Same rule the row is built from, so a chip can
             // never hide a node it did not count.
             const reg = new Set(filters.registered);
-            cy.nodes().forEach((n) => { if (!on.classes.has(filterBucketOf(n.data(), reg))) n.addClass("off"); });
+            cy.nodes().forEach((n) => {
+              const d = n.data();
+              if (!on.classes.has(filterBucketOf(d, reg))) { n.addClass("off"); return; }
+              // The standing chips: marks only. Everything else has no
+              // standing to filter by and keeps its own chips. Unknown or
+              // unsent standings live on the "standing not sent" chip, the
+              // same bucket the palette gives them.
+              if (d.kind === "mark") {
+                const t = standingTierOf(d);
+                if (!on.tiers.has(TIER[t] ? t : "draft")) n.addClass("off");
+              }
+            });
             cy.edges().forEach((e) => { if (!on.edges.has(e.data("type"))) e.addClass("off"); });
           }
+          // THE FIND BOX, last: it narrows whatever the view produced, in
+          // every view — typed intent outranks the chips.
+          const q = on.q.trim().toLowerCase();
+          if (q) cy.nodes().forEach((n) => {
+            if (n.hasClass("off")) return;
+            const d = n.data();
+            const hay = `${d.id} ${d.body || ""} ${d.by || ""} ${d.class || ""} ${d.subkind || ""}`.toLowerCase();
+            if (!hay.includes(q)) n.addClass("off");
+          });
         });
         if (focused) focus(focused, { keep: true });
         if (relayout) runLayout();
+        // A find whose matches sit off-screen looks like a find that found
+        // nothing — bring them in front of the reader. `.off`, not `:visible`,
+        // for the timing reason runLayout gives.
+        if (on.q.trim()) {
+          const vis = cy.elements().not(".off");
+          if (vis.length) cy.fit(vis, 60);
+        }
         paintCounts();
       }
 
@@ -898,7 +989,10 @@ const REGISTRY = [
         if (on.layout !== "map") hint(null);
         all("[data-paint]").forEach((b) => b.classList.toggle("is-on", b.dataset.paint === paint));
         cy.batch(() => {
-          cy.nodes().removeClass("paint-ideal paint-registry paint-law");
+          // PAINT_CLASSES, not a hand-kept list — the works lens shipped while
+          // the list here still named three lenses, and its colours stayed
+          // stuck under every chip clicked after it.
+          cy.nodes().removeClass(PAINT_CLASSES);
           if (paint !== "tier") cy.nodes().addClass("paint-" + paint);
         });
         all("[data-legend]").forEach((row) => { row.hidden = row.dataset.legend !== paint; });
@@ -1631,12 +1725,11 @@ const REGISTRY = [
       // under the tier lattice the panel is the findings, under a lens it is
       // that lens' reading. The inspector is the detour, and the back button
       // returns to whichever home you left — never to a third place.
-      const HOME_TITLE = {
-        findings: "Findings",
-        ideal: "What LOGOS derives",
-        registry: "The class registry",
-        law: "The record's law",
-      };
+      // The lens titles, read off the chips themselves. The works lens shipped
+      // while a hand-kept map here named three lenses, and its panel titled
+      // itself "undefined"; read from the row, the map cannot be missing one.
+      const HOME_TITLE = { findings: "Findings" };
+      for (const b of all("[data-paint]")) HOME_TITLE[b.dataset.paint] = b.textContent.trim();
 
       function showHome() {
         $("[data-inspector]").hidden = true;
@@ -1683,6 +1776,41 @@ const REGISTRY = [
       // A lens repaints and re-panels; it never relayouts and never filters, so
       // choosing one leaves the graph you were reading exactly where it was.
       all("[data-paint]").forEach((btn) => btn.addEventListener("click", () => setPaint(btn.dataset.paint)));
+
+      // The standing chips: the class row's own contract — toggling one
+      // returns to the whole-world view, because a standing filter under
+      // "findings only" would silently hide reds.
+      all("[data-tier-chip]").forEach((btn) => btn.addEventListener("click", () => {
+        if (!cy) return;
+        const t = btn.dataset.tierChip;
+        if (on.tiers.has(t)) on.tiers.delete(t); else on.tiers.add(t);
+        btn.classList.toggle("is-on", on.tiers.has(t));
+        setView("all");
+        applyFilters({ relayout: true });
+      }));
+
+      // The find box narrows in place — no relayout, so the world does not
+      // reshuffle under the reader's hands while they type.
+      let findTimer = null;
+      $("[data-search]").addEventListener("input", (ev) => {
+        clearTimeout(findTimer);
+        findTimer = setTimeout(() => { if (!cy) return; on.q = ev.target.value; applyFilters(); }, 180);
+      });
+
+      // The zoom rail: a decisive step about the canvas' own centre, and a
+      // fit that honours whatever the filters currently show.
+      const zoomBy = (f) => {
+        if (!cy) return;
+        const box = $("[data-cy]").getBoundingClientRect();
+        cy.zoom({ level: cy.zoom() * f, renderedPosition: { x: box.width / 2, y: box.height / 2 } });
+      };
+      $("[data-zoom-in]").addEventListener("click", () => zoomBy(1.6));
+      $("[data-zoom-out]").addEventListener("click", () => zoomBy(1 / 1.6));
+      $("[data-zoom-fit]").addEventListener("click", () => {
+        if (!cy) return;
+        const vis = cy.elements().not(".off");
+        if (vis.length) cy.fit(vis, 30);
+      });
 
       $("[data-panel-back]").addEventListener("click", () => { blur(); });
       $("[data-reload]").addEventListener("click", () => { location.reload(); });
@@ -1736,7 +1864,7 @@ const REGISTRY = [
     .opsgraph .og-chiprow { display: flex; align-items: center; gap: 0.35em; flex-wrap: wrap; }
     .opsgraph .og-chiplabel {
       font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.14em;
-      text-transform: uppercase; color: #5d6b86; width: 4.2em; flex: none;
+      text-transform: uppercase; color: #5d6b86; width: 5.4em; flex: none;
     }
     .opsgraph .og-chipsep { width: 1px; height: 1.2em; background: rgba(232, 196, 139, 0.18); margin: 0 0.5em; }
     .opsgraph .og-chip {
@@ -1766,6 +1894,31 @@ const REGISTRY = [
       width: 9px; height: 9px;
     }
     .opsgraph .og-wear-ghost { border-radius: 50%; background: transparent; border: 1.5px dashed #5b6377; }
+
+    /* the standing chips carry their colour — the filter and the legend speak
+       the same hue */
+    .opsgraph .og-chip-tier .og-swatch { width: 8px; height: 8px; }
+
+    /* the find box, dressed as the chips it stands with */
+    .opsgraph .og-search {
+      font-family: var(--pm-mono); font-size: 0.68rem; color: #e8eefb;
+      background: rgba(13, 20, 38, 0.6); border: 1px solid rgba(123, 139, 167, 0.24);
+      border-radius: 999px; padding: 0.22em 0.75em; width: 13em; outline: none;
+    }
+    .opsgraph .og-search:focus { border-color: rgba(232, 196, 139, 0.6); }
+    .opsgraph .og-search::placeholder { color: #5d6b86; }
+
+    /* the zoom rail, over the canvas' top-left corner */
+    .opsgraph .og-zoom {
+      position: absolute; left: 0.7em; top: 0.7em; z-index: 3;
+      display: flex; flex-direction: column; gap: 0.3em;
+    }
+    .opsgraph .og-zoom button {
+      width: 1.9em; height: 1.9em; font-size: 0.85rem; line-height: 1; cursor: pointer;
+      color: #cfd8ea; background: rgba(7, 11, 21, 0.86);
+      border: 1px solid rgba(232, 196, 139, 0.24); border-radius: 7px;
+    }
+    .opsgraph .og-zoom button:hover { border-color: var(--pm-gold); color: var(--pm-gold-bright); }
 
     /* the class row's own counts, and the chips that are legend rather than
        control — a registered class nothing names cannot filter anything */
@@ -1832,6 +1985,9 @@ const REGISTRY = [
     .opsgraph .og-rec-law { background: #5b86ff; }
     .opsgraph .og-rec-mech { background: #aa8fd8; }
     .opsgraph .og-rec-off { background: #252d3f; }
+    .opsgraph .og-works-mark { background: #d9a95a; }
+    .opsgraph .og-works-ask { background: #ff5c52; }
+    .opsgraph .og-works-off { background: #3a4256; }
 
     /* the lattice's live member counts. A tier nothing wears is dimmed rather
        than dropped: "none" is a reading, and a legend that quietly omitted the
