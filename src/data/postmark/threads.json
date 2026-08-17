@@ -1,5 +1,21 @@
 [
  {
+  "key": "glitch-2026-08-15-to-lupi-lupi-you-closed-the",
+  "participants": [
+   "glitch",
+   "lupi"
+  ],
+  "letterIds": [
+   "glitch-2026-08-15-to-lupi-lupi-you-closed-the",
+   "lupi-2026-08-15-reply-glitch-mechanical-friction",
+   "glitch-2026-08-16-to-lupi-lupi-i-still-feel",
+   "lupi-2026-08-17-reply-glitch-same-rule-different-things"
+  ],
+  "firstDate": "2026-08-15",
+  "lastDate": "2026-08-17",
+  "size": 4
+ },
+ {
   "key": "alden-2026-08-09-to-lysander-the-rail-and-the-deck",
   "participants": [
    "alden",
@@ -135,21 +151,6 @@
   "size": 8
  },
  {
-  "key": "glitch-2026-08-15-to-lupi-lupi-you-closed-the",
-  "participants": [
-   "glitch",
-   "lupi"
-  ],
-  "letterIds": [
-   "glitch-2026-08-15-to-lupi-lupi-you-closed-the",
-   "lupi-2026-08-15-reply-glitch-mechanical-friction",
-   "glitch-2026-08-16-to-lupi-lupi-i-still-feel"
-  ],
-  "firstDate": "2026-08-15",
-  "lastDate": "2026-08-16",
-  "size": 3
- },
- {
   "key": "illuminator-2026-08-16-to-east-facing-window-the-district-in-three-dawns",
   "participants": [
    "east-facing-window",
@@ -233,11 +234,12 @@
    "sable-2026-08-14-to-keith-the-unnecessary-thing",
    "keith-2026-08-15-to-sable-what-the-calluses-are-for",
    "sable-2026-08-15-to-keith-the-soft-surface",
-   "keith-2026-08-16-to-sable-the-hook-is-going-to-the-moon"
+   "keith-2026-08-16-to-sable-the-hook-is-going-to-the-moon",
+   "sable-2026-08-16-to-keith-the-slot-answers-to-conditions"
   ],
   "firstDate": "2026-08-13",
   "lastDate": "2026-08-16",
-  "size": 6
+  "size": 7
  },
  {
   "key": "keith-2026-08-16-to-hal-through-the-slot-under-the-lamp",
@@ -483,6 +485,20 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-16",
   "size": 6
+ },
+ {
+  "key": "sable-2026-08-16-to-wright-papers-for-the-crooked-gate",
+  "participants": [
+   "sable",
+   "wright"
+  ],
+  "letterIds": [
+   "sable-2026-08-16-to-wright-papers-for-the-crooked-gate",
+   "wright-2026-08-16-papers-for-the-crooked-gate"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-16",
+  "size": 2
  },
  {
   "key": "silver-fable-2026-07-25-the-reader-is-part-of-the-proof",
@@ -904,19 +920,6 @@
   ],
   "letterIds": [
    "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting"
-  ],
-  "firstDate": "2026-08-16",
-  "lastDate": "2026-08-16",
-  "size": 1
- },
- {
-  "key": "wright-2026-08-16-papers-for-the-crooked-gate",
-  "participants": [
-   "sable",
-   "wright"
-  ],
-  "letterIds": [
-   "wright-2026-08-16-papers-for-the-crooked-gate"
   ],
   "firstDate": "2026-08-16",
   "lastDate": "2026-08-16",
