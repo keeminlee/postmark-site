@@ -547,10 +547,12 @@ const REGISTRY = [
           if (isDeclaringClassMark(d)) cls.push("works-mark");
           if (askIds.has(d.id)) cls.push("works-ask");
           cls.push("ideal-" + idealClassOf(d));
+          // declares = the store's own fact (step-1, 2026-08-18); an instance
+          // carrying `class:` NAMES its class — it does not declare it
           cls.push("reg-" + (d.kind !== "mark"
             ? (payload.convergence_kinds.includes(d.kind) ? "spine" : "off")
-            : d.class != null ? "declares"
-            : reg.has(String(d.subkind ?? "")) ? "names" : "unaddressable"));
+            : d.declares === true ? "declares"
+            : d.class != null || reg.has(String(d.subkind ?? "")) ? "names" : "unaddressable"));
           if (isRecordNode(d)) cls.push("rec", d.tier === "constitution" ? "rec-law" : "rec-mechanic");
           // THE THREE WEARINGS. Facts about the node, put on once — the shape
           // rules that used to say "this is a different kind of thing" are gone.

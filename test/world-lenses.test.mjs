@@ -65,10 +65,12 @@ const unread = {
   id: "someone/their-lamp", kind: "mark", subkind: "sited", tier: "market", by: "someone",
   path: "WORLD/marks/their-lamp",
 };
-// A class-node: it DECLARES a class rather than naming one.
+// A class-node: it DECLARES a class rather than naming one. `declares` is the
+// store's own fact (stamped at hydration — a class-carrying mark standing in
+// the Keeping Works; step-1, 2026-08-18); the lens reads it, never re-derives.
 const parcelClass = {
   id: "the-town/parcel-class", kind: "mark", subkind: "sited", tier: "constitution", by: "the-town",
-  standing: "constitution",
+  standing: "constitution", declares: true,
   class: "parcel", path: "WORLD/marks/parcel-class", keys: ["kind", "by", "tier", "class", "version", "dials"],
 };
 const codeNode = { id: "code:world/tools/vessel.mjs", kind: "code", tier: null, by: null };
@@ -318,7 +320,7 @@ test("the buckets catch what the registry cannot name, each by its own reason", 
 test("a registered class nothing names keeps its chip and reports zero", () => {
   // two declared classes, one of them addressed by nobody: the row must still
   // show it, because "declared and reached by nothing" is the finding
-  const lightClass = { id: "the-town/light", kind: "mark", subkind: "sited", class: "light", by: "the-town" };
+  const lightClass = { id: "the-town/light", kind: "mark", subkind: "sited", class: "light", by: "the-town", declares: true };
   const f = classFilters([parcelClass, parcel, lightClass]);
   const by = Object.fromEntries(f.classes.map((c) => [c.key, c.count]));
   assert.equal(by.parcel, 2);
@@ -375,6 +377,7 @@ test("a world where the record has not been written yields an empty tree, not an
 
 const worksMark = (slug, cls) => ({
   id: `the-town/${slug}`, kind: "mark", tier: "constitution", by: "the-town", class: cls,
+  declares: true,   // the store's fact — stamped by the hydrator for a class mark standing in the works
   path: `WORLD/marks/let-there-be-light/the-town-centre/the-keeping-works/${slug}`,
 });
 const residentBounty = {

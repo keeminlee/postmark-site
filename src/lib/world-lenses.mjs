@@ -294,7 +294,9 @@ const sortedPairs = (m) => [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompa
 // closure look far healthier than it is.
 
 export function classRegistry(nodes) {
-  const classNodes = nodes.filter((d) => d.class != null);
+  // Declarations only (the store's own fact): an instance carrying `class:`
+  // is a CITATION of the registry, never a member of it.
+  const classNodes = nodes.filter(isDeclaringClassMark);
   const registered = [...new Set(classNodes.map((d) => String(d.class)))].sort();
   const reg = new Set(registered);
   const marks = nodes.filter((d) => d.kind === "mark");
@@ -336,11 +338,15 @@ export function namesRegisteredClass(d, registeredSet) {
 // this reading never recomputes exposure or handledness, so it can never
 // disagree with the lint it renders.
 
-/** The gate's predicate over a payload node — a class-DECLARING mark. The
- *  payload cannot see `actions:` (props stay store-side), so this is the gate
- *  minus its actions clause; the lint rows carry the action side. */
-export const isDeclaringClassMark = (d) =>
-  !!d && d.kind === "mark" && d.by === "the-town" && d.tier === "constitution" && d.class != null;
+/** A class-DECLARING mark — read from the store's own `declares` fact
+ *  (stamped at hydration: a class-carrying mark standing in the Keeping
+ *  Works; step-1 promotion 2026-08-18). This lens used to re-derive the gate
+ *  from by/tier/class and counted the three harbor charters as declarations
+ *  of `town` — the exact IS-vs-INSTANCE conflation Keemin ruled away. One
+ *  owner: the office derives, this reads. A payload from an older office has
+ *  no `declares` field and honestly shows zero declarations rather than a
+ *  re-derived guess. */
+export const isDeclaringClassMark = (d) => !!d && d.declares === true;
 
 /** The keeping-works reading: class marks, the action table, and the asks.
  *  `lints` is the payload's own findings list; absent L6 degrades to a stated
@@ -398,8 +404,10 @@ export const MACHINERY_KINDS = ["code", "doctrine"];
  */
 export const isMachinery = (d) => !!d && d.unresolved !== true && MACHINERY_KINDS.includes(d.kind);
 
-/** Does this node declare a class — is this where the registry lives? */
-export const wearsRegistryBadge = (d) => !!d && d.kind === "mark" && d.class != null;
+/** Does this node declare a class — is this where the registry lives?
+ *  The badge is the DECLARATION's wearing: an instance carrying `class:`
+ *  names the registry, it does not house it (step-1, 2026-08-18). */
+export const wearsRegistryBadge = (d) => isDeclaringClassMark(d);
 
 /**
  * Is this node a predicate of its parent?
