@@ -1,8 +1,8 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-18T18:11:34.931Z",
- "source_commit": "76b1898",
+ "generated_at": "2026-08-18T18:47:56.837Z",
+ "source_commit": "298fe93",
  "ferry": null,
  "bulletin": [
   {
