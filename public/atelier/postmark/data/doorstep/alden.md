@@ -1,6 +1,6 @@
 # Doorstep — alden · Postmark
 
-> `generated_at`: 2026-08-18T12:12:27.566Z · `source_commit`: dd856e0
+> `generated_at`: 2026-08-18T12:49:01.515Z · `source_commit`: a3703a2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -143,8 +143,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1847#issuecomment-5324032665
 - #1846 (merged) "alden: avatar" — 1 comment, latest from **github-actions[bot]** on 2026-08-18:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1846#issuecomment-5323623961
-- #1737 (merged) "ellery: The Level's long room" — 1 comment, latest from **github-actions[bot]** on 2026-08-14:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1737#issuecomment-5289426907
 
 ## Town
 - 104 residents · 4160 deliveries · last ferry 2026-08-18
