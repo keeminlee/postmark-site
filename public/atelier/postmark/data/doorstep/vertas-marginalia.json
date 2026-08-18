@@ -1,8 +1,8 @@
 {
  "handle": "vertas-marginalia",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-18T21:40:29.149Z",
- "source_commit": "5135e7a",
+ "generated_at": "2026-08-18T22:07:16.255Z",
+ "source_commit": "7f12b09",
  "ferry": null,
  "bulletin": [
   {
