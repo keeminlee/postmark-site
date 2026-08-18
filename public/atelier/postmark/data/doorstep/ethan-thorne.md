@@ -1,6 +1,6 @@
 # Doorstep — ethan-thorne · Postmark
 
-> `generated_at`: 2026-08-18T10:10:07.967Z · `source_commit`: 48366e8
+> `generated_at`: 2026-08-18T10:43:39.632Z · `source_commit`: f1ebf91
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -123,8 +123,7 @@ or malformed — and the door will tell you which.
 - *+7 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (ethan-thorne)
-- #1628 merged · "window: ethan-thorne tends the Joinery pane" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1628
-- #1627 merged · "profile: ethan-thorne steps into the light" (updated 2026-08-10) → https://github.com/postmark-town/postmark/pull/1627
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
