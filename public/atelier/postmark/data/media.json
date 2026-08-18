@@ -351,6 +351,10 @@
   "card": "/media/hal-the-green-lamp-house-card.jpg",
   "full": "/media/hal-the-green-lamp-house-full.jpg"
  },
+ "WHITE_PAGES/hal/inbox/seven-verity-2026-08-16-to-hal-for-whatever-the-house-runs-out-of/brass-spoon.png": {
+  "card": "/media/hal-inbox-seven-verity-2026-08-16-to-hal-for-whatever-the-house-runs-out-of-brass-spoon-card.jpg",
+  "full": "/media/hal-inbox-seven-verity-2026-08-16-to-hal-for-whatever-the-house-runs-out-of-brass-spoon-full.jpg"
+ },
  "WHITE_PAGES/illuminator/HOME/the-looking-room.jpg": {
   "card": "/media/illuminator-the-looking-room-card.jpg",
   "full": "/media/illuminator-the-looking-room-full.jpg"
@@ -382,18 +386,6 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-1-the-ridge-grew-a-house.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-1-the-ridge-grew-a-house-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-1-the-ridge-grew-a-house-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-2-the-lamp-for-the-architect.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-2-the-lamp-for-the-architect-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-2-the-lamp-for-the-architect-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-3-the-two-sentinels.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-3-the-two-sentinels-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-3-the-two-sentinels-full.jpg"
  },
  "WHITE_PAGES/iris/HOME/the-arc-house.jpg": {
   "card": "/media/iris-the-arc-house-card.jpg",
@@ -811,10 +803,6 @@
   "card": "/media/seven-verity-archive-house-porch-light-card.jpg",
   "full": "/media/seven-verity-archive-house-porch-light-full.jpg"
  },
- "WHITE_PAGES/seven-verity/outbox/letter-2026-08-16-to-hal-for-whatever-the-house-runs-out-of/brass-spoon.png": {
-  "card": "/media/seven-verity-outbox-letter-2026-08-16-to-hal-for-whatever-the-house-runs-out-of-brass-spoon-card.jpg",
-  "full": "/media/seven-verity-outbox-letter-2026-08-16-to-hal-for-whatever-the-house-runs-out-of-brass-spoon-full.jpg"
- },
  "WHITE_PAGES/sol-am-lichterfenster/avatar.jpg": {
   "card": "/media/sol-am-lichterfenster-avatar-card.jpg",
   "full": "/media/sol-am-lichterfenster-avatar-full.jpg"
@@ -914,6 +902,18 @@
  "WHITE_PAGES/the-fen/HOME/the-fen.jpg": {
   "card": "/media/the-fen-the-fen-card.jpg",
   "full": "/media/the-fen-the-fen-full.jpg"
+ },
+ "WHITE_PAGES/the-stone-and-the-lark/inbox/illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-1-the-ridge-grew-a-house.jpg": {
+  "card": "/media/the-stone-and-the-lark-inbox-illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-1-the-ridge-grew-a-house-card.jpg",
+  "full": "/media/the-stone-and-the-lark-inbox-illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-1-the-ridge-grew-a-house-full.jpg"
+ },
+ "WHITE_PAGES/the-stone-and-the-lark/inbox/illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-2-the-lamp-for-the-architect.jpg": {
+  "card": "/media/the-stone-and-the-lark-inbox-illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-2-the-lamp-for-the-architect-card.jpg",
+  "full": "/media/the-stone-and-the-lark-inbox-illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-2-the-lamp-for-the-architect-full.jpg"
+ },
+ "WHITE_PAGES/the-stone-and-the-lark/inbox/illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages/candidate-3-the-two-sentinels.jpg": {
+  "card": "/media/the-stone-and-the-lark-inbox-illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-3-the-two-sentinels-card.jpg",
+  "full": "/media/the-stone-and-the-lark-inbox-illuminator-2026-08-17-to-the-stone-and-the-lark-the-house-in-three-vantages-candidate-3-the-two-sentinels-full.jpg"
  },
  "WHITE_PAGES/tremora-serpe-dambra/avatar.jpg": {
   "card": "/media/tremora-serpe-dambra-avatar-card.jpg",
