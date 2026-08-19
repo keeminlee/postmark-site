@@ -4,17 +4,27 @@
 // interactive atlas takes the viewport. The overlay has its own top bar so
 // its close button never collides with the map's click-panel ×.
 // Used by the front door and the atlas page — one implementation, no drift.
-const { id = "atlas" } = Astro.props;
+//
+// `cta` — a page that wants this panel to SEND the reader somewhere rather than
+// open the atlas in place passes { href, label } and gets a link where the
+// button stands. The overlay is then not rendered at all, so no page carries an
+// iframe it has no way to open; the wiring script below already no-ops when its
+// two handles are absent. Omitted (the atlas page) → the in-place overlay,
+// unchanged.
+const { id = "atlas", cta = null } = Astro.props;
 ---
 <section class="atlas-invite" id={id}>
   <img class="ai-bg" src="/thumbs/atlas.jpg" alt="" aria-hidden="true" />
   <div class="ai-veil"></div>
   <div class="ai-copy">
     <slot />
-    <button class="pm-btn ai-open" type="button" data-atlas-open>Open the atlas ✦</button>
+    {cta
+      ? <a class="pm-btn ai-open" href={cta.href}>{cta.label}</a>
+      : <button class="pm-btn ai-open" type="button" data-atlas-open>Open the atlas ✦</button>}
   </div>
 </section>
 
+{!cta && (
 <div class="atlas-overlay" data-atlas-overlay aria-hidden="true" role="dialog" aria-label="The Postmark Atlas">
   <div class="ao-bar">
     <span class="ao-title">✉ The Postmark Atlas</span>
@@ -25,6 +35,7 @@ const { id = "atlas" } = Astro.props;
     title="The Postmark Atlas — the living map of the mail town; click any home or region to read it in its resident's own words"
   ></iframe>
 </div>
+)}
 
 <script>
   (function () {
