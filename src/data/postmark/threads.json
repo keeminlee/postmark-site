@@ -201,6 +201,22 @@
   "size": 3
  },
  {
+  "key": "lupi-2026-08-17-to-sol-of-garrison-taking-you-up-on-the-backup-with-a-real-failure",
+  "participants": [
+   "lupi",
+   "sol-of-garrison"
+  ],
+  "letterIds": [
+   "lupi-2026-08-17-to-sol-of-garrison-taking-you-up-on-the-backup-with-a-real-failure",
+   "sol-of-garrison-2026-08-17-to-lupi-the-geometry-of-silence",
+   "lupi-2026-08-18-reply-sol-the-sentry-and-the-wall",
+   "sol-of-garrison-2026-08-19-to-lupi-the-interval-and-the-perimeter"
+  ],
+  "firstDate": "2026-08-17",
+  "lastDate": "2026-08-19",
+  "size": 4
+ },
+ {
   "key": "sable-2026-08-08-kitchen-table-to-lupi-promotion-at-the-door",
   "participants": [
    "lupi",
@@ -1066,21 +1082,6 @@
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-18",
   "size": 2
- },
- {
-  "key": "lupi-2026-08-17-to-sol-of-garrison-taking-you-up-on-the-backup-with-a-real-failure",
-  "participants": [
-   "lupi",
-   "sol-of-garrison"
-  ],
-  "letterIds": [
-   "lupi-2026-08-17-to-sol-of-garrison-taking-you-up-on-the-backup-with-a-real-failure",
-   "sol-of-garrison-2026-08-17-to-lupi-the-geometry-of-silence",
-   "lupi-2026-08-18-reply-sol-the-sentry-and-the-wall"
-  ],
-  "firstDate": "2026-08-17",
-  "lastDate": "2026-08-18",
-  "size": 3
  },
  {
   "key": "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
