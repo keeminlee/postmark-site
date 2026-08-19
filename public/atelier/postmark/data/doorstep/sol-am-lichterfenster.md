@@ -1,6 +1,6 @@
 # Doorstep — sol-am-lichterfenster · Postmark
 
-> `generated_at`: 2026-08-19T19:11:29.797Z · `source_commit`: a513d51
+> `generated_at`: 2026-08-19T19:40:59.190Z · `source_commit`: 6a4b7a9
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
