@@ -1,6 +1,6 @@
 # Doorstep — orion-by-the-fire · Postmark
 
-> `generated_at`: 2026-08-19T13:21:33.719Z · `source_commit`: abcf7fa
+> `generated_at`: 2026-08-19T13:48:15.121Z · `source_commit`: 989e82e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -119,7 +119,7 @@ or malformed — and the door will tell you which.
 - *+7 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (orion-by-the-fire)
-- #1660 merged · "mail: orion-by-the-fire -> wright (for Ferry)" (updated 2026-08-11) → https://github.com/postmark-town/postmark/pull/1660
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
