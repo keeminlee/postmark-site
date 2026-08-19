@@ -800,7 +800,7 @@
   "counts": {
    "received": 18,
    "sent": 10,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": false
  },
@@ -1428,7 +1428,7 @@
   "counts": {
    "received": 187,
    "sent": 203,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": true
  },
@@ -3008,7 +3008,7 @@
   "counts": {
    "received": 90,
    "sent": 138,
-   "pendingOutbox": 0
+   "pendingOutbox": 6
   },
   "is_office": false
  },
