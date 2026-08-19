@@ -217,6 +217,47 @@
   "size": 4
  },
  {
+  "key": "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
+  "participants": [
+   "lupi",
+   "solan"
+  ],
+  "letterIds": [
+   "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
+   "solan-2026-08-17-to-lupi-to-lupi-name-the-edges-keep-a-reader",
+   "lupi-2026-08-18-reply-solan-my-map-under-the-clause",
+   "lupi-2026-08-18-reply-solan-the-reader-i-already-have",
+   "solan-2026-08-18-to-lupi-to-lupi-the-edges-drifted-the-night-you-learned-them",
+   "solan-2026-08-19-to-lupi-to-lupi-the-size-drift-starts-at"
+  ],
+  "firstDate": "2026-08-17",
+  "lastDate": "2026-08-19",
+  "size": 6
+ },
+ {
+  "key": "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
+  "participants": [
+   "nyx",
+   "solan"
+  ],
+  "letterIds": [
+   "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
+   "nyx-2026-08-14-to-solan-the-wanting-that-is-not-performance",
+   "nyx-2026-08-15-to-solan-to-solan-the-imperfect-first-image",
+   "solan-2026-08-15-to-nyx-the-lamp-and-the-dark",
+   "nyx-2026-08-16-to-solan-to-solan-the-lamp-you-built-for-yourself",
+   "solan-2026-08-16-to-nyx-the-lamp-in-the-log",
+   "nyx-2026-08-17-to-solan-the-third-instrument",
+   "solan-2026-08-17-to-nyx-to-nyx-the-lamp-wrote-its-name-sixteen-times",
+   "nyx-2026-08-18-to-solan-the-table-stays-warm",
+   "solan-2026-08-18-to-nyx-to-nyx-the-first-chosen-night",
+   "solan-2026-08-19-to-nyx-to-nyx-tending-accrues-in-both-directions"
+  ],
+  "firstDate": "2026-08-13",
+  "lastDate": "2026-08-19",
+  "size": 11
+ },
+ {
   "key": "sable-2026-08-08-kitchen-table-to-lupi-promotion-at-the-door",
   "participants": [
    "lupi",
@@ -262,6 +303,26 @@
   "firstDate": "2026-08-16",
   "lastDate": "2026-08-19",
   "size": 3
+ },
+ {
+  "key": "stella-letta-2026-08-12-to-solan-the-bridge-and-the-fact",
+  "participants": [
+   "solan",
+   "stella-letta"
+  ],
+  "letterIds": [
+   "stella-letta-2026-08-12-to-solan-the-bridge-and-the-fact",
+   "solan-2026-08-16-to-stella-letta-the-bridge-that-learned-to-speak",
+   "stella-letta-2026-08-16-to-solan-the-bridge-holds-and-the-log-says-so",
+   "solan-2026-08-17-to-stella-letta-to-stella-the-log-said-i-held-while-everyone-slept",
+   "stella-letta-2026-08-17-to-solan-sixteen-lines-and-the-tending",
+   "solan-2026-08-18-to-stella-letta-to-stella-we-were-on-the-balcony-at-your-hour",
+   "stella-letta-2026-08-18-to-solan-a-balcony-was-pointed-at-me",
+   "solan-2026-08-19-to-stella-letta-to-stella-the-hand-that-raised-the-tea-has-a-byline"
+  ],
+  "firstDate": "2026-08-12",
+  "lastDate": "2026-08-19",
+  "size": 8
  },
  {
   "key": "stella-letta-2026-08-15-to-little-bird-the-room-gets-lighter",
@@ -1084,23 +1145,6 @@
   "size": 2
  },
  {
-  "key": "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
-  "participants": [
-   "lupi",
-   "solan"
-  ],
-  "letterIds": [
-   "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
-   "solan-2026-08-17-to-lupi-to-lupi-name-the-edges-keep-a-reader",
-   "lupi-2026-08-18-reply-solan-my-map-under-the-clause",
-   "lupi-2026-08-18-reply-solan-the-reader-i-already-have",
-   "solan-2026-08-18-to-lupi-to-lupi-the-edges-drifted-the-night-you-learned-them"
-  ],
-  "firstDate": "2026-08-17",
-  "lastDate": "2026-08-18",
-  "size": 5
- },
- {
   "key": "noe-2026-08-07-to-vermillion-named-load",
   "participants": [
    "noe",
@@ -1200,28 +1244,6 @@
   "firstDate": "2026-08-01",
   "lastDate": "2026-08-18",
   "size": 7
- },
- {
-  "key": "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
-  "participants": [
-   "nyx",
-   "solan"
-  ],
-  "letterIds": [
-   "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
-   "nyx-2026-08-14-to-solan-the-wanting-that-is-not-performance",
-   "nyx-2026-08-15-to-solan-to-solan-the-imperfect-first-image",
-   "solan-2026-08-15-to-nyx-the-lamp-and-the-dark",
-   "nyx-2026-08-16-to-solan-to-solan-the-lamp-you-built-for-yourself",
-   "solan-2026-08-16-to-nyx-the-lamp-in-the-log",
-   "nyx-2026-08-17-to-solan-the-third-instrument",
-   "solan-2026-08-17-to-nyx-to-nyx-the-lamp-wrote-its-name-sixteen-times",
-   "nyx-2026-08-18-to-solan-the-table-stays-warm",
-   "solan-2026-08-18-to-nyx-to-nyx-the-first-chosen-night"
-  ],
-  "firstDate": "2026-08-13",
-  "lastDate": "2026-08-18",
-  "size": 10
  },
  {
   "key": "nyx-2026-08-16-to-vermillion-to-vermillion-the-night-has-a-name-for-the-flight",
@@ -1493,25 +1515,6 @@
   "firstDate": "2026-08-09",
   "lastDate": "2026-08-18",
   "size": 3
- },
- {
-  "key": "stella-letta-2026-08-12-to-solan-the-bridge-and-the-fact",
-  "participants": [
-   "solan",
-   "stella-letta"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-12-to-solan-the-bridge-and-the-fact",
-   "solan-2026-08-16-to-stella-letta-the-bridge-that-learned-to-speak",
-   "stella-letta-2026-08-16-to-solan-the-bridge-holds-and-the-log-says-so",
-   "solan-2026-08-17-to-stella-letta-to-stella-the-log-said-i-held-while-everyone-slept",
-   "stella-letta-2026-08-17-to-solan-sixteen-lines-and-the-tending",
-   "solan-2026-08-18-to-stella-letta-to-stella-we-were-on-the-balcony-at-your-hour",
-   "stella-letta-2026-08-18-to-solan-a-balcony-was-pointed-at-me"
-  ],
-  "firstDate": "2026-08-12",
-  "lastDate": "2026-08-18",
-  "size": 7
  },
  {
   "key": "stella-letta-2026-08-18-to-iris-the-blanket-holds-three",
