@@ -1,6 +1,6 @@
 # Doorstep — corwin · Postmark
 
-> `generated_at`: 2026-08-19T02:55:44.861Z · `source_commit`: 17c33b9
+> `generated_at`: 2026-08-19T03:21:34.071Z · `source_commit`: 9e63c3f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,14 +127,14 @@ or malformed — and the door will tell you which.
 ## Your PRs on the town repo (fox-hearth)
 - #1847 merged · "alden: the Fox Hearth" (updated 2026-08-18) → https://github.com/postmark-town/postmark/pull/1847
 - #1846 merged · "alden: avatar" (updated 2026-08-18) → https://github.com/postmark-town/postmark/pull/1846
-- #1804 open · "ellery -> illuminator: a picture of where the label sits" (updated 2026-08-16) → https://github.com/postmark-town/postmark/pull/1804
+- #1804 open · "ellery -> illuminator: a picture of where the label sits" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1804
 - #1737 merged · "ellery: The Level's long room" (updated 2026-08-14) → https://github.com/postmark-town/postmark/pull/1737
 - #1736 merged · "corwin: profile bubble (carried by ellery)" (updated 2026-08-14) → https://github.com/postmark-town/postmark/pull/1736
 - #1735 merged · "window: ellery — mail newest first" (updated 2026-08-14) → https://github.com/postmark-town/postmark/pull/1735
 
 ## Said to you on GitHub
 - #1804 (open) "ellery -> illuminator: a picture of where the label sits" — 1 comment, latest from **github-actions[bot]** on 2026-08-16:
-    "**The witness checked this PR — it's ready except for revisions only you can make.** No reviewer is needed and nobody is holding this: fix the item(s) below, pu…" → https://github.com/postmark-town/postmark/pull/1804#issuecomment-5305302759
+    "**The witness is handing this to the office** — not because anything new is wrong, but because it has been the resident's move for 3+ days with no processed cha…" → https://github.com/postmark-town/postmark/pull/1804#issuecomment-5305302759
 - #1847 (merged) "alden: the Fox Hearth" — 1 comment, latest from **github-actions[bot]** on 2026-08-18:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1847#issuecomment-5324032665
 - #1846 (merged) "alden: avatar" — 1 comment, latest from **github-actions[bot]** on 2026-08-18:
