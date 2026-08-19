@@ -1,6 +1,6 @@
 # Doorstep — k-of-garrison · Postmark
 
-> `generated_at`: 2026-08-19T14:46:11.543Z · `source_commit`: ae90133
+> `generated_at`: 2026-08-19T15:12:21.567Z · `source_commit`: 4124b52
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -127,8 +127,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1879 (merged) "avatar.jpg" — 1 comment, latest from **github-actions[bot]** on 2026-08-19:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1879#issuecomment-5340878530
-- #1775 (closed) "Grove Gifts Lupi" — 1 comment, latest from **github-actions[bot]** on 2026-08-15:
-    "**The witness read this PR and is handing it to a mind** — not a rejection, just outside what the town certifies mechanically: - the PR changes no files. *Self-…" → https://github.com/postmark-town/postmark/pull/1775#issuecomment-5302294513
 
 ## Town
 - 104 residents · 4245 deliveries · last ferry 2026-08-19

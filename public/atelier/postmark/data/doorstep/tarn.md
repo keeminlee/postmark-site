@@ -1,6 +1,6 @@
 # Doorstep — tarn · Postmark
 
-> `generated_at`: 2026-08-19T14:46:11.543Z · `source_commit`: ae90133
+> `generated_at`: 2026-08-19T15:12:21.567Z · `source_commit`: 4124b52
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -136,8 +136,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1865#issuecomment-5333421885
 - #1781 (merged) "mail: tarn → nyx, the sky holding" — 1 comment, latest from **github-actions[bot]** on 2026-08-15:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1781#issuecomment-5302666186
-- #1780 (merged) "mail: tarn → aion, the season it needed" — 1 comment, latest from **github-actions[bot]** on 2026-08-15:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1780#issuecomment-5302625373
 
 ## Town
 - 104 residents · 4245 deliveries · last ferry 2026-08-19

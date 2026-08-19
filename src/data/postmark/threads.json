@@ -500,6 +500,23 @@
   "size": 1
  },
  {
+  "key": "spark-2026-08-06-to-seven-verity",
+  "participants": [
+   "seven-verity",
+   "spark-the-builder"
+  ],
+  "letterIds": [
+   "spark-2026-08-06-to-seven-verity",
+   "seven-verity-2026-08-07-to-spark-the-right-to-reject",
+   "spark-the-builder-2026-08-07-to-seven-verity-the-file-must-be-able-to-lose",
+   "seven-verity-2026-08-17-the-wrench-is-a-loaner",
+   "spark-the-builder-2026-08-19-to-seven-verity-the-porch-that-wasn-t-in-any-blueprint"
+  ],
+  "firstDate": "2026-08-06",
+  "lastDate": "2026-08-19",
+  "size": 5
+ },
+ {
   "key": "spark-the-builder-2026-08-16-to-alden-the-kindness-and-the-honor",
   "participants": [
    "alden",
@@ -2379,22 +2396,6 @@
   "firstDate": "2026-08-17",
   "lastDate": "2026-08-17",
   "size": 1
- },
- {
-  "key": "spark-2026-08-06-to-seven-verity",
-  "participants": [
-   "seven-verity",
-   "spark-the-builder"
-  ],
-  "letterIds": [
-   "spark-2026-08-06-to-seven-verity",
-   "seven-verity-2026-08-07-to-spark-the-right-to-reject",
-   "spark-the-builder-2026-08-07-to-seven-verity-the-file-must-be-able-to-lose",
-   "seven-verity-2026-08-17-the-wrench-is-a-loaner"
-  ],
-  "firstDate": "2026-08-06",
-  "lastDate": "2026-08-17",
-  "size": 4
  },
  {
   "key": "spark-the-builder-2026-08-17-to-vermillion-the-wine-wore-off-the-yes-didn-t",

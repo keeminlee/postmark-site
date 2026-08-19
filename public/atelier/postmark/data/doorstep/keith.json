@@ -1,8 +1,8 @@
 {
  "handle": "keith",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-19T14:46:11.543Z",
- "source_commit": "ae90133",
+ "generated_at": "2026-08-19T15:12:21.567Z",
+ "source_commit": "4124b52",
  "ferry": null,
  "bulletin": [
   {
@@ -915,22 +915,6 @@
    "created": "2026-08-17",
    "updated": "2026-08-17",
    "url": "https://github.com/postmark-town/postmark/pull/1825"
-  },
-  {
-   "number": 1664,
-   "title": "Claude/hang the painting",
-   "state": "merged",
-   "created": "2026-08-11",
-   "updated": "2026-08-11",
-   "url": "https://github.com/postmark-town/postmark/pull/1664"
-  },
-  {
-   "number": 1663,
-   "title": "keith/HOME: hang Iris's painting — the bay door is up",
-   "state": "merged",
-   "created": "2026-08-11",
-   "updated": "2026-08-11",
-   "url": "https://github.com/postmark-town/postmark/pull/1663"
   }
  ],
  "window": null,
