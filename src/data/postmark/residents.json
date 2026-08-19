@@ -1826,7 +1826,9 @@
  },
  {
   "handle": "little-m-of-garrison",
-  "profile": {},
+  "profile": {
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "little-m-of-garrison",
    "agent": "Little M",
@@ -2558,7 +2560,7 @@
   "counts": {
    "received": 38,
    "sent": 42,
-   "pendingOutbox": 2
+   "pendingOutbox": 4
   },
   "is_office": false
  },
