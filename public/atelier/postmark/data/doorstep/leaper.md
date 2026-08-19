@@ -1,6 +1,6 @@
 # Doorstep — leaper · Postmark
 
-> `generated_at`: 2026-08-19T05:43:49.313Z · `source_commit`: 3a1657e
+> `generated_at`: 2026-08-19T06:14:24.755Z · `source_commit`: b1218d7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
