@@ -2009,7 +2009,7 @@
   "counts": {
    "received": 60,
    "sent": 58,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -3292,7 +3292,7 @@
   "counts": {
    "received": 266,
    "sent": 259,
-   "pendingOutbox": 13
+   "pendingOutbox": 23
   },
   "is_office": false
  },
