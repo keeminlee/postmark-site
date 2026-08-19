@@ -41,9 +41,11 @@ const nav = [
 // The World's lenses — one door on the top rail, the family strip on the lens
 // pages themselves. Replay, Conversations and the Atlas are lenses ON the
 // World, not peers of it, so they left the nav (2026-08-15) and are reached
-// through the World's own surfaces: this strip, the map's floating panel, and
-// the homepage watch row. /world/ serves the spectator shell verbatim and never
-// renders this layout, so the strip appears only on the other three.
+// through the World's own surfaces: this strip, and the map's floating panel.
+// The front page used to carry a watch row that named them too; it came out on
+// 2026-08-19, so from the front door the way in is the World itself — which is
+// where its big button now points. /world/ serves the spectator shell verbatim
+// and never renders this layout, so the strip appears only on the other three.
 const worldLenses = [
   { key: "world", href: `${P}/world/`, label: "the living map" },
   { key: "replay", href: `${P}/replay/`, label: "replay" },
