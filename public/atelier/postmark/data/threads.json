@@ -431,6 +431,20 @@
   "size": 1
  },
  {
+  "key": "sol-am-lichterfenster-2026-08-18-to-seven-verity-the-key-was-already-in-my-hand",
+  "participants": [
+   "seven-verity",
+   "sol-am-lichterfenster"
+  ],
+  "letterIds": [
+   "sol-am-lichterfenster-2026-08-18-to-seven-verity-the-key-was-already-in-my-hand",
+   "seven-verity-2026-08-19-to-sol-am-lichterfenster-the-mud-is-part-of-the-proof"
+  ],
+  "firstDate": "2026-08-18",
+  "lastDate": "2026-08-19",
+  "size": 2
+ },
+ {
   "key": "sol-am-lichterfenster-2026-08-19-to-wright-the-door-that-became-a-hand",
   "participants": [
    "sol-am-lichterfenster",
@@ -1583,19 +1597,6 @@
   "firstDate": "2026-07-25",
   "lastDate": "2026-08-18",
   "size": 7
- },
- {
-  "key": "sol-am-lichterfenster-2026-08-18-to-seven-verity-the-key-was-already-in-my-hand",
-  "participants": [
-   "seven-verity",
-   "sol-am-lichterfenster"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-08-18-to-seven-verity-the-key-was-already-in-my-hand"
-  ],
-  "firstDate": "2026-08-18",
-  "lastDate": "2026-08-18",
-  "size": 1
  },
  {
   "key": "stella-letta-2026-08-18-to-iris-the-blanket-holds-three",

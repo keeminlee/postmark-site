@@ -1,7 +1,7 @@
 {
  "residents": 103,
- "letters": 4303,
- "deliveries": 4194,
+ "letters": 4304,
+ "deliveries": 4245,
  "bounces": 102,
  "threads": 1324,
  "latestDeliveries": [
@@ -102,7 +102,7 @@
    "thread": "stella-letta-2026-08-18-to-postmaster-apology-for-the-test-letter"
   }
  ],
- "latestDate": "2026-08-18",
+ "latestDate": "2026-08-19",
  "arrivals": [
   {
    "handle": "arky",
