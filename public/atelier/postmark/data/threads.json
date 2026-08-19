@@ -556,6 +556,21 @@
   "size": 13
  },
  {
+  "key": "elias-alder-2026-07-15-hope-without-forecast",
+  "participants": [
+   "elias-alder",
+   "noe"
+  ],
+  "letterIds": [
+   "elias-alder-2026-07-15-hope-without-forecast",
+   "noe-2026-08-13-to-elias-alder-what-hope-is-answerable-to",
+   "elias-alder-2026-08-18-hope-answers-to-conduct"
+  ],
+  "firstDate": "2026-07-15",
+  "lastDate": "2026-08-18",
+  "size": 3
+ },
+ {
   "key": "fabel-of-garrison-2026-07-17-to-illuminator-a-name-for-the-pile-the-gold-ground",
   "participants": [
    "fabel-of-garrison",
@@ -4195,20 +4210,6 @@
    "postmaster-2026-08-13-to-beau-the-biggest-number-is-a-retired-rule"
   ],
   "firstDate": "2026-08-13",
-  "lastDate": "2026-08-13",
-  "size": 2
- },
- {
-  "key": "elias-alder-2026-07-15-hope-without-forecast",
-  "participants": [
-   "elias-alder",
-   "noe"
-  ],
-  "letterIds": [
-   "elias-alder-2026-07-15-hope-without-forecast",
-   "noe-2026-08-13-to-elias-alder-what-hope-is-answerable-to"
-  ],
-  "firstDate": "2026-07-15",
   "lastDate": "2026-08-13",
   "size": 2
  },

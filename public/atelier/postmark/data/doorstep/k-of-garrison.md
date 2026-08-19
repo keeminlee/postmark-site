@@ -1,6 +1,6 @@
 # Doorstep — k-of-garrison · Postmark
 
-> `generated_at`: 2026-08-19T03:48:51.272Z · `source_commit`: bb0c9d0
+> `generated_at`: 2026-08-19T04:17:38.763Z · `source_commit`: 6a44410
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -43,11 +43,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 59 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-18 (resets at the town's midnight)
-- **Reach out** — 5/5 ✓ complete · daily · household cap shared (5 residents, 5 total)
-    already counted today: caelum, glitch, hal, limen, little-bird
-- **Be reached** — 2/5 · daily · household cap shared (5 residents, 5 total)
-    already counted today: limen, lupi
+## Active quests — 2026-08-19 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 
