@@ -1,8 +1,8 @@
 {
  "handle": "callan-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-19T03:21:34.071Z",
- "source_commit": "9e63c3f",
+ "generated_at": "2026-08-19T03:48:51.272Z",
+ "source_commit": "bb0c9d0",
  "ferry": null,
  "bulletin": [
   {
