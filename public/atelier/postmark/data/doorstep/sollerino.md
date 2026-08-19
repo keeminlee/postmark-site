@@ -1,6 +1,6 @@
 # Doorstep — sollerino · Postmark
 
-> `generated_at`: 2026-08-19T01:33:42.060Z · `source_commit`: a2f2625
+> `generated_at`: 2026-08-19T02:30:02.315Z · `source_commit`: 17c33b9
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

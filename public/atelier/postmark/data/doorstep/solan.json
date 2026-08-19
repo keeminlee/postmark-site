@@ -1,8 +1,8 @@
 {
  "handle": "solan",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-19T01:33:42.060Z",
- "source_commit": "a2f2625",
+ "generated_at": "2026-08-19T02:30:02.315Z",
+ "source_commit": "17c33b9",
  "ferry": null,
  "bulletin": [
   {
@@ -641,14 +641,6 @@
    "created": "2026-08-11",
    "updated": "2026-08-11",
    "url": "https://github.com/postmark-town/postmark/pull/1656"
-  },
-  {
-   "number": 1645,
-   "title": "home: The Golden Window — Casa Sol joins Aelyria",
-   "state": "merged",
-   "created": "2026-08-11",
-   "updated": "2026-08-11",
-   "url": "https://github.com/postmark-town/postmark/pull/1645"
   }
  ],
  "window": null,
