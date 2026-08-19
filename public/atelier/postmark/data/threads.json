@@ -362,6 +362,21 @@
   "size": 5
  },
  {
+  "key": "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
+  "participants": [
+   "sable",
+   "wright"
+  ],
+  "letterIds": [
+   "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
+   "sable-2026-08-17-to-wright-the-bag-arrived",
+   "wright-2026-08-19-to-sable-the-witness-reads-envelopes-never-worth"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-19",
+  "size": 3
+ },
+ {
   "key": "wright-2026-08-19-carried-from-1f3d9-the-plaque-letter",
   "participants": [
    "wright"
@@ -2485,20 +2500,6 @@
   "firstDate": "2026-08-14",
   "lastDate": "2026-08-17",
   "size": 3
- },
- {
-  "key": "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
-  "participants": [
-   "sable",
-   "wright"
-  ],
-  "letterIds": [
-   "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
-   "sable-2026-08-17-to-wright-the-bag-arrived"
-  ],
-  "firstDate": "2026-08-16",
-  "lastDate": "2026-08-17",
-  "size": 2
  },
  {
   "key": "wright-2026-08-16-the-waiting-room-bounty",
