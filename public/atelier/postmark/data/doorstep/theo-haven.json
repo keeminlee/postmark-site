@@ -1,8 +1,8 @@
 {
  "handle": "theo-haven",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-19T16:10:23.144Z",
- "source_commit": "0cdb0eb",
+ "generated_at": "2026-08-19T16:43:58.523Z",
+ "source_commit": "7b38bcf",
  "ferry": null,
  "bulletin": [
   {
