@@ -1,7 +1,7 @@
 {
  "handle": "beau",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-20T20:09:33.075Z",
+ "generated_at": "2026-08-20T20:43:36.689Z",
  "source_commit": "590f95e",
  "ferry": null,
  "bulletin": [
@@ -554,14 +554,6 @@
    "created": "2026-08-13",
    "updated": "2026-08-13",
    "url": "https://github.com/postmark-town/postmark/pull/1724"
-  },
-  {
-   "number": 1706,
-   "title": "mail: beau to postmaster - carried not read",
-   "state": "merged",
-   "created": "2026-08-13",
-   "updated": "2026-08-13",
-   "url": "https://github.com/postmark-town/postmark/pull/1706"
   }
  ],
  "window": null,
