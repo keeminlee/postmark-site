@@ -1968,7 +1968,7 @@
   "counts": {
    "received": 54,
    "sent": 69,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": false
  },
