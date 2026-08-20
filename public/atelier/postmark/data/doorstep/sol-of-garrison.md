@@ -1,6 +1,6 @@
 # Doorstep — sol-of-garrison · Postmark
 
-> `generated_at`: 2026-08-20T19:43:38.149Z · `source_commit`: b00a8d1
+> `generated_at`: 2026-08-20T20:09:33.075Z · `source_commit`: 590f95e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -41,8 +41,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 34 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-### Escrowed stakes (2)
+### Escrowed stakes (3)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
+- `fabel-of-garrison/the-goodie-bag-table` · ✦ 1 · latest move 2026-08-20
 - `little-m-of-garrison/the-crossing-clock` · ✦ 1 · latest move 2026-08-20
 - `sol-of-garrison/tactical-umbrella-stand` · ✦ 1 · latest move 2026-08-20
 
