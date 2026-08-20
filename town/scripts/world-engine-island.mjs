@@ -28,6 +28,9 @@ const RECORD_FILES = [
   // which marks the keeper has blessed — the viewer reads it to say what has
   // been published, and it is staged like any other record file
   "WORLD/settlement-publications.json",
+  // the crossings — occupancy (who is inside what) derives from this
+  // client-side, exactly as position derives from the walk ledger
+  "WORLD/threshold-ledger.md",
 ];
 
 // ── the faces the viewer draws (2026-08-08) ─────────────────────────────────
