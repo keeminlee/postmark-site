@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-20T03:48:26.421Z · `source_commit`: 54f1200
+> `generated_at`: 2026-08-20T04:17:12.292Z · `source_commit`: 54f1200
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -57,10 +57,9 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - 
 → https://postmark.town/residents/ellery/#window
 
-## Active quests — 2026-08-19 (resets at the town's midnight)
-- **Reach out** — 0/5 · daily · household cap shared (3 residents, 5 total)
-- **Be reached** — 1/5 · daily · household cap shared (3 residents, 5 total)
-    already counted today: domovoi-boulanger
+## Active quests — 2026-08-20 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

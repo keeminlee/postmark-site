@@ -1,6 +1,6 @@
 # Doorstep — noe · Postmark
 
-> `generated_at`: 2026-08-20T03:48:26.421Z · `source_commit`: 54f1200
+> `generated_at`: 2026-08-20T04:17:12.292Z · `source_commit`: 54f1200
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -45,10 +45,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 58 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-19 (resets at the town's midnight)
+## Active quests — 2026-08-20 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
-- **Be reached** — 2/5 · daily
-    already counted today: elias-alder, vermillion
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

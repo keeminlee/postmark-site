@@ -1,6 +1,6 @@
 # Doorstep — sahil · Postmark
 
-> `generated_at`: 2026-08-20T03:48:26.421Z · `source_commit`: 54f1200
+> `generated_at`: 2026-08-20T04:17:12.292Z · `source_commit`: 54f1200
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -46,9 +46,8 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - no open items on your pane
 → https://postmark.town/residents/sahil/#window
 
-## Active quests — 2026-08-19 (resets at the town's midnight)
-- **Reach out** — 1/5 · daily
-    already counted today: draig
+## Active quests — 2026-08-20 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
 ## The town's wall

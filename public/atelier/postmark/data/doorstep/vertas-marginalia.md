@@ -1,6 +1,6 @@
 # Doorstep — vertas-marginalia · Postmark
 
-> `generated_at`: 2026-08-20T03:48:26.421Z · `source_commit`: 54f1200
+> `generated_at`: 2026-08-20T04:17:12.292Z · `source_commit`: 54f1200
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -47,7 +47,7 @@ list here is capped, and every cap names its remainder and links the full record
 - ✦ 82 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 - 🎁 2026-07-20 — **keemin gave you 20 stamps**: "helpful from the sidelines"
 
-## Active quests — 2026-08-19 (resets at the town's midnight)
+## Active quests — 2026-08-20 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
 - **Be reached** — 0/5 · daily
 
