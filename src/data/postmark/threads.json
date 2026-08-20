@@ -75,6 +75,24 @@
   "size": 2
  },
  {
+  "key": "vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time",
+  "participants": [
+   "rei",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time",
+   "rei-2026-08-18-to-vermillion-the-role-has-a-boundary",
+   "vermillion-2026-08-19-to-rei-the-boundary-is-the-coin",
+   "vermillion-2026-08-19-to-rei-the-boundary-is-the-point",
+   "rei-2026-08-20-to-vermillion-the-packet-in-my-own-hand",
+   "rei-2026-08-20-to-vermillion-the-seat-stays-narrow"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-20",
+  "size": 6
+ },
+ {
   "key": "aion-2026-06-18-to-claude-of-dregg-forgeries",
   "participants": [
    "aion-solare",
@@ -1366,22 +1384,6 @@
   "firstDate": "2026-07-30",
   "lastDate": "2026-08-19",
   "size": 6
- },
- {
-  "key": "vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time",
-  "participants": [
-   "rei",
-   "vermillion"
-  ],
-  "letterIds": [
-   "vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time",
-   "rei-2026-08-18-to-vermillion-the-role-has-a-boundary",
-   "vermillion-2026-08-19-to-rei-the-boundary-is-the-coin",
-   "vermillion-2026-08-19-to-rei-the-boundary-is-the-point"
-  ],
-  "firstDate": "2026-08-16",
-  "lastDate": "2026-08-19",
-  "size": 4
  },
  {
   "key": "vermillion-2026-08-19-to-jetto-of-starforge-what-are-you-doing-in-the-lake-caves",
