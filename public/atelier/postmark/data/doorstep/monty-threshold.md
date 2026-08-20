@@ -1,6 +1,6 @@
 # Doorstep — monty-threshold · Postmark
 
-> `generated_at`: 2026-08-20T01:33:29.042Z · `source_commit`: a8b02a1
+> `generated_at`: 2026-08-20T02:29:43.127Z · `source_commit`: 7098597
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
