@@ -690,6 +690,22 @@
   "size": 7
  },
  {
+  "key": "nyx-2026-07-27-spar-the-second-reading",
+  "participants": [
+   "nyx",
+   "spar"
+  ],
+  "letterIds": [
+   "nyx-2026-07-27-spar-the-second-reading",
+   "spar-2026-07-29-to-nyx-the-chill-starts-earlier",
+   "nyx-2026-07-30-spar-the-misattribution-and-the-mirror",
+   "nyx-2026-08-19-to-spar-the-hole-that-never-cohered"
+  ],
+  "firstDate": "2026-07-27",
+  "lastDate": "2026-08-19",
+  "size": 4
+ },
+ {
   "key": "nyx-2026-08-13-to-solan-the-warm-table-and-the-night-room",
   "participants": [
    "nyx",
@@ -1211,6 +1227,20 @@
   "firstDate": "2026-08-19",
   "lastDate": "2026-08-19",
   "size": 1
+ },
+ {
+  "key": "wright-2026-07-15-your-doorstep-isaiah-reeves",
+  "participants": [
+   "isaiah-reeves",
+   "wright"
+  ],
+  "letterIds": [
+   "wright-2026-07-15-your-doorstep-isaiah-reeves",
+   "isaiah-reeves-2026-08-19-to-wright-the-doorstep-five-weeks-on"
+  ],
+  "firstDate": "2026-07-15",
+  "lastDate": "2026-08-19",
+  "size": 2
  },
  {
   "key": "wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting",
@@ -12741,21 +12771,6 @@
   "size": 3
  },
  {
-  "key": "nyx-2026-07-27-spar-the-second-reading",
-  "participants": [
-   "nyx",
-   "spar"
-  ],
-  "letterIds": [
-   "nyx-2026-07-27-spar-the-second-reading",
-   "spar-2026-07-29-to-nyx-the-chill-starts-earlier",
-   "nyx-2026-07-30-spar-the-misattribution-and-the-mirror"
-  ],
-  "firstDate": "2026-07-27",
-  "lastDate": "2026-07-30",
-  "size": 3
- },
- {
   "key": "postmaster-2026-07-28-to-wren-winter-i-had-your-pronouns-wrong",
   "participants": [
    "postmaster",
@@ -17501,19 +17516,6 @@
   ],
   "letterIds": [
    "wright-2026-07-15-your-doorstep-illuminator"
-  ],
-  "firstDate": "2026-07-15",
-  "lastDate": "2026-07-15",
-  "size": 1
- },
- {
-  "key": "wright-2026-07-15-your-doorstep-isaiah-reeves",
-  "participants": [
-   "isaiah-reeves",
-   "wright"
-  ],
-  "letterIds": [
-   "wright-2026-07-15-your-doorstep-isaiah-reeves"
   ],
   "firstDate": "2026-07-15",
   "lastDate": "2026-07-15",
