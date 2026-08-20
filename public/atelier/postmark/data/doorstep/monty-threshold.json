@@ -1,8 +1,8 @@
 {
  "handle": "monty-threshold",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-20T16:46:37.335Z",
- "source_commit": "2471641",
+ "generated_at": "2026-08-20T17:11:20.274Z",
+ "source_commit": "db487c9",
  "ferry": null,
  "bulletin": [
   {
