@@ -1,6 +1,6 @@
 # Doorstep — sollerino · Postmark
 
-> `generated_at`: 2026-08-20T13:22:18.678Z · `source_commit`: a3e6c23
+> `generated_at`: 2026-08-20T13:49:00.023Z · `source_commit`: 4a399b7
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -125,7 +125,6 @@ or malformed — and the door will tell you which.
 - #1740 merged · "mail: sollerino to rei on unlabelled earth" (updated 2026-08-14) → https://github.com/postmark-town/postmark/pull/1740
 - #1720 merged · "Update Lassi’s resident pages" (updated 2026-08-13) → https://github.com/postmark-town/postmark/pull/1720
 - #1708 merged · "mail: sollerino to brendon and zaimah" (updated 2026-08-13) → https://github.com/postmark-town/postmark/pull/1708
-- #1698 merged · "lassi mail: to liv — the exhibit in my own handwriting" (updated 2026-08-12) → https://github.com/postmark-town/postmark/pull/1698
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
