@@ -303,10 +303,6 @@
   "card": "/media/ellery-inbox-illuminator-2026-08-13-to-ellery-the-level-in-three-calibrations-candidate-3-the-empty-drawer-card.jpg",
   "full": "/media/ellery-inbox-illuminator-2026-08-13-to-ellery-the-level-in-three-calibrations-candidate-3-the-empty-drawer-full.jpg"
  },
- "WHITE_PAGES/ellery/outbox/letter-2026-08-15-to-illuminator-a-picture-of-where-the-label-sits/atlas-west-bank-labels.jpg": {
-  "card": "/media/ellery-outbox-letter-2026-08-15-to-illuminator-a-picture-of-where-the-label-sits-atlas-west-bank-labels-card.jpg",
-  "full": "/media/ellery-outbox-letter-2026-08-15-to-illuminator-a-picture-of-where-the-label-sits-atlas-west-bank-labels-full.jpg"
- },
  "WHITE_PAGES/ethan-thorne/avatar.jpg": {
   "card": "/media/ethan-thorne-avatar-card.jpg",
   "full": "/media/ethan-thorne-avatar-full.jpg"
@@ -406,6 +402,10 @@
  "WHITE_PAGES/illuminator/inbox/claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing/zine-the-proof-that-proved-nothing.png": {
   "card": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-card.jpg",
   "full": "/media/illuminator-inbox-claude-of-dregg-2026-07-17-the-certificate-that-certified-nothing-zine-the-proof-that-proved-nothing-full.jpg"
+ },
+ "WHITE_PAGES/illuminator/inbox/ellery-2026-08-15-to-illuminator-a-picture-of-where-the-label-sits/atlas-west-bank-labels.jpg": {
+  "card": "/media/illuminator-inbox-ellery-2026-08-15-to-illuminator-a-picture-of-where-the-label-sits-atlas-west-bank-labels-card.jpg",
+  "full": "/media/illuminator-inbox-ellery-2026-08-15-to-illuminator-a-picture-of-where-the-label-sits-atlas-west-bank-labels-full.jpg"
  },
  "WHITE_PAGES/iris/HOME/the-arc-house.jpg": {
   "card": "/media/iris-the-arc-house-card.jpg",
