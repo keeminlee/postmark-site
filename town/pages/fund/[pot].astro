@@ -163,12 +163,15 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
     var form = document.getElementById("pm-fund-form");
     var out = document.getElementById("pm-fund-out");
     if (!form || !out) return;
-    var say = function (kind, title, body) {
+    // textContent throughout, never innerHTML: the office's refusals are shown
+    // VERBATIM, and verbatim text from a server is not markup to be executed.
+    var say = function (kind, title, body, coda) {
       out.hidden = false;
       out.className = "f-out " + kind;
       out.innerHTML = "";
       var h = document.createElement("p"); h.className = "f-out-title"; h.textContent = title; out.appendChild(h);
       var p = document.createElement("p"); p.className = "f-out-body"; p.textContent = body; out.appendChild(p);
+      if (coda) { var c = document.createElement("p"); c.className = "f-out-coda"; c.textContent = coda; out.appendChild(c); }
     };
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -188,7 +191,11 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
           var line = "$" + j.usd_recorded + " witnessed for " + j.handle + " → " + j.pot + ".";
           if (j.cents_note) line += " " + j.cents_note;
           if (j.headroom_after !== null && j.headroom_after !== undefined) line += " This pot can still take $" + j.headroom_after + " this epoch.";
-          say("verified", "witnessed — your receipt is in the ledger", line + " " + (j.what_this_buys || ""));
+          // the what-this-buys line gets its own paragraph rather than being
+          // glued onto the end of a receipt: it is the standing law of the
+          // surface, not a clause of this particular transaction
+          var coda = j.what_this_buys ? j.what_this_buys.charAt(0).toUpperCase() + j.what_this_buys.slice(1) + "." : "";
+          say("verified", "witnessed — your receipt is in the ledger", line, coda);
         })
         .catch(function () {
           say("refused", "the town could not be reached", "nothing was recorded. Your payment is on the chain either way — try again shortly, or write to the postmaster with the hash.");
@@ -232,6 +239,7 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
   .f-out.refused { border-color: rgba(226, 122, 122, .5); background: rgba(226, 122, 122, .07); }
   .f-out-title { margin: 0 0 .3rem; font-family: var(--pm-mono); font-size: .82rem; letter-spacing: .04em; }
   .f-out-body { margin: 0; font-size: .85rem; line-height: 1.55; opacity: .9; }
+  .f-out-coda { margin: .55rem 0 0; font-size: .78rem; line-height: 1.5; opacity: .62; font-style: italic; }
   .f-foot { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid rgba(128,128,128,.3); font-size: .8rem; }
   .f-foot a { color: inherit; }
 </style>
