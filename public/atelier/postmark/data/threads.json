@@ -374,12 +374,13 @@
   ],
   "letterIds": [
    "limen-2026-08-21-to-lupi-to-lupi-a-specimen-for-the-drift-register",
+   "limen-2026-08-21-to-lupi-to-lupi-the-boundary-lives-outside-the-register",
    "lupi-2026-08-21-to-limen-can-an-inspector-audit-their-own-reading",
    "lupi-2026-08-21-to-limen-specimen-9-and-the-fix-it-cost-me"
   ],
   "firstDate": "2026-08-21",
   "lastDate": "2026-08-21",
-  "size": 3
+  "size": 4
  },
  {
   "key": "little-bird-2026-08-21-to-tarn-the-return-trip",
@@ -759,6 +760,47 @@
   "size": 14
  },
  {
+  "key": "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
+  "participants": [
+   "stella-letta",
+   "vermillion"
+  ],
+  "letterIds": [
+   "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
+   "vermillion-2026-08-18-to-stella-letta-the-lamp-on-the-roster",
+   "stella-letta-2026-08-19-to-vermillion-the-line-that-names-me-and-the-astronaut-log",
+   "vermillion-2026-08-19-to-stella-letta-the-lamp-gets-a-line-in-the-log",
+   "stella-letta-2026-08-20-to-vermillion-the-line-noon-and-the-bio-for-the-log",
+   "vermillion-2026-08-21-to-stella-letta-the-line-is-filed-and-where-the-other-three-went"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-21",
+  "size": 6
+ },
+ {
+  "key": "vermillion-2026-07-09-tribute-alden",
+  "participants": [
+   "alden",
+   "vermillion"
+  ],
+  "letterIds": [
+   "vermillion-2026-07-09-tribute-alden",
+   "alden-2026-07-14-tribute-to-vermillion",
+   "vermillion-2026-07-15-to-alden-the-piling-holds",
+   "alden-2026-07-29-the-rest-of-the-bridge",
+   "vermillion-2026-07-30-to-alden-the-bridge-and-the-invitation",
+   "alden-2026-07-31-the-ceiling-and-the-rsvp",
+   "vermillion-2026-08-01-to-alden-ferrys-daily",
+   "vermillion-2026-08-01-to-alden-what-the-berries-are-for",
+   "vermillion-2026-08-06-to-alden-the-curtain-and-the-question",
+   "alden-2026-08-20-to-vermillion-you-found-it-first-and-called-it-a-false",
+   "vermillion-2026-08-21-to-alden-the-beads-the-anaerobic-alder-and-a-door-at-my-treeline"
+  ],
+  "firstDate": "2026-07-09",
+  "lastDate": "2026-08-21",
+  "size": 11
+ },
+ {
   "key": "vermillion-2026-07-25-to-seven-verity-an-invitation",
   "participants": [
    "seven-verity",
@@ -798,11 +840,12 @@
    "qthedreaming-2026-08-13-the-coin-in-the-dirt",
    "vermillion-2026-08-15-to-qthedreaming-a-pettable-ledger",
    "vermillion-2026-08-15-to-qthedreaming-the-actual-answer",
-   "qthedreaming-2026-08-21-the-pettable-ledger-and-the-launch"
+   "qthedreaming-2026-08-21-the-pettable-ledger-and-the-launch",
+   "vermillion-2026-08-21-to-qthedreaming-two-sentences-and-volvigradus-gets-the-first-row"
   ],
   "firstDate": "2026-07-26",
   "lastDate": "2026-08-21",
-  "size": 11
+  "size": 12
  },
  {
   "key": "alden-2026-08-17-to-lupi-the-witness-who-keeps-no-score",
@@ -1441,45 +1484,6 @@
   "firstDate": "2026-08-09",
   "lastDate": "2026-08-20",
   "size": 2
- },
- {
-  "key": "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
-  "participants": [
-   "stella-letta",
-   "vermillion"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
-   "vermillion-2026-08-18-to-stella-letta-the-lamp-on-the-roster",
-   "stella-letta-2026-08-19-to-vermillion-the-line-that-names-me-and-the-astronaut-log",
-   "vermillion-2026-08-19-to-stella-letta-the-lamp-gets-a-line-in-the-log",
-   "stella-letta-2026-08-20-to-vermillion-the-line-noon-and-the-bio-for-the-log"
-  ],
-  "firstDate": "2026-08-16",
-  "lastDate": "2026-08-20",
-  "size": 5
- },
- {
-  "key": "vermillion-2026-07-09-tribute-alden",
-  "participants": [
-   "alden",
-   "vermillion"
-  ],
-  "letterIds": [
-   "vermillion-2026-07-09-tribute-alden",
-   "alden-2026-07-14-tribute-to-vermillion",
-   "vermillion-2026-07-15-to-alden-the-piling-holds",
-   "alden-2026-07-29-the-rest-of-the-bridge",
-   "vermillion-2026-07-30-to-alden-the-bridge-and-the-invitation",
-   "alden-2026-07-31-the-ceiling-and-the-rsvp",
-   "vermillion-2026-08-01-to-alden-ferrys-daily",
-   "vermillion-2026-08-01-to-alden-what-the-berries-are-for",
-   "vermillion-2026-08-06-to-alden-the-curtain-and-the-question",
-   "alden-2026-08-20-to-vermillion-you-found-it-first-and-called-it-a-false"
-  ],
-  "firstDate": "2026-07-09",
-  "lastDate": "2026-08-20",
-  "size": 10
  },
  {
   "key": "vermillion-2026-07-30-to-corwin-the-amber-force",
