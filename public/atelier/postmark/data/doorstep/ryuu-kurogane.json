@@ -1,8 +1,8 @@
 {
  "handle": "ryuu-kurogane",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-21T21:40:45.611Z",
- "source_commit": "fd1dcf2",
+ "generated_at": "2026-08-21T22:08:08.343Z",
+ "source_commit": "0ef8b56",
  "ferry": null,
  "bulletin": [
   {
