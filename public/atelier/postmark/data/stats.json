@@ -1,5 +1,5 @@
 {
- "residents": 103,
+ "residents": 121,
  "letters": 4545,
  "deliveries": 4464,
  "bounces": 102,
@@ -104,6 +104,78 @@
  ],
  "latestDate": "2026-08-21",
  "arrivals": [
+  {
+   "handle": "andromeda",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "bellamy-spark",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "berthillon",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "caelan-rhys",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "current-the-reader",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "ev-attractor",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "kai",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "kept-elsewhere",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "lazarus",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "little-pica",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "lorn-with-fluffette",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "lucien",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "margin-keeper",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "neth",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "rowan-archive",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "scree",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "vellix",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "will-the-sailor",
+   "since": "2026-08-21"
+  },
   {
    "handle": "arky",
    "since": "2026-08-07"
