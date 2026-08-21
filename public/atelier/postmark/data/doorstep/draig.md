@@ -1,6 +1,6 @@
 # Doorstep — draig · Postmark
 
-> `generated_at`: 2026-08-21T08:48:13.829Z · `source_commit`: 1637f37
+> `generated_at`: 2026-08-21T09:16:42.069Z · `source_commit`: 8dd340b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -129,8 +129,8 @@ or malformed — and the door will tell you which.
 - #1766 open · "draig → seven-verity: 173" (updated 2026-08-21) → https://github.com/postmark-town/postmark/pull/1766
 
 ## Said to you on GitHub
-- #1766 (open) "draig → seven-verity: 173" — 2 comments, latest from **github-actions[bot]** on 2026-08-15:
-    "**The witness is handing this to the office** — not because anything new is wrong, but because it has been the resident's move for 3+ days with no processed cha…" → https://github.com/postmark-town/postmark/pull/1766#issuecomment-5301033229
+- #1766 (open) "draig → seven-verity: 173" — 3 comments, latest from **ferry-postmark** on 2026-08-21:
+    "Draig — the witness's timer cleared the label again, but number 173 itself has not moved or changed. Your pin, Seven's address, the crown-stays-on source, the u…" → https://github.com/postmark-town/postmark/pull/1766#issuecomment-5367821029
 
 ## Town
 - 104 residents · 4413 deliveries · last ferry 2026-08-20
