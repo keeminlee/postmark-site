@@ -165,11 +165,20 @@ test("a ρ past its constitutional ceiling is not a dial to render", () => {
 });
 
 test("the holo cap is the law's formula, not a stored number", () => {
+  // LAW R10 (Keemin, 2026-08-21): "Owner of the number: `ECONOMY-DIALS.json
+  //          § law_side.keeping.rho`; every other surface reads it rather than
+  //          restating it."
+  // So this test asserts the FORMULA and reads ρ from the dial. A hard-coded cap
+  // here would be a second dial, and it would go red on a lawful ballot instead
+  // of on a bug — which is the failure this whole alignment pass exists to fix.
   const e = readEconomy(ECONOMY_FIXTURE);
-  assert.equal(e.holoCap, Math.floor(e.rho * e.primaryMint), "ρ × earned primary mint");
-  assert.equal(e.holoCap, 600);
+  assert.equal(e.holoCap, Math.floor(e.rho * e.primaryMint), "ρ × what the town has minted");
   assert.equal(e.overCap, false);
-  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: 700 }).overCap, true);
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.holoCap + 1 }).overCap, true);
+  // and the cap MOVES with the dial — the proof it is derived, not stored
+  const halved = readEconomy({ ...ECONOMY_FIXTURE, rho: e.rho / 2 });
+  assert.equal(halved.holoCap, Math.floor((e.rho / 2) * e.primaryMint));
+  assert.notEqual(halved.holoCap, e.holoCap, "a stored cap would not have moved");
 });
 
 test("the backing gauge is dollars per ✧, and says nothing when nothing is minted", () => {
@@ -203,11 +212,13 @@ test("the σ-split floors, and the seam keeps the change", () => {
   // and R1 (floor both legs, remainder burns un-minted).
   //
   // The σ leg is deliberately NOT asserted here, because this fixture never
-  // renders it: § 8 sends it "back to the keepers as their own equity, at par
-  // of their burn — permanent, verb-less" — the KEEPERS being the households
-  // that staked (§ 8: "Households stake keeping-stakes on it"), not the pot's
-  // beneficiary. Where verb-less keeping-equity lives in the tense model is
-  // still open, so the site names it in words and shows no number for it.
+  // renders a number for it. § 8 sends it "back to the keepers as their own
+  // equity, at par of their burn" — the KEEPERS being the households that staked
+  // (§ 8: "Households stake keeping-stakes on it"), not the pot's beneficiary —
+  // and R12 names it ordinary mint, source-tagged, with no liquid coin. D1 puts
+  // it in the ownership READ rather than in any tense, and the ownership read is
+  // the door's, not the site's: the site names the leg in words and shows no
+  // number for it.
   //
   // 40✦ burned at σ=0.5: the stakers' leg floor(20), the payers' pool
   // floor(20) shared by dollar and floored per receipt. 8 + 6 + 5 = 19, so 1✧
@@ -226,8 +237,11 @@ test("the σ-split floors, and the seam keeps the change", () => {
 
 test("no household's holo exceeds its ρ-cap", () => {
   // THE LAW THIS ASSERTS — ECONOMY-DIALS.json law_side.keeping._holo, quoted:
-  //   "rho caps it: a household's holo <= rho x its earned primary mint,
-  //    clipped at conversion, excess recorded as deed only."
+  //   "rho caps it: a household's holo <= rho x its RHO BASE, clipped at
+  //    conversion, excess recorded as deed only."
+  // and R12: "holo cap base = earned primary mint + keeping mint". The fixture
+  // households hold no keeping mint, so their base is their mint_count. ρ is
+  // read from the dial, never restated (R10).
   const { rho } = ECONOMY_FIXTURE;
   for (const [handle, s] of Object.entries(STAMPS_FIXTURE)) {
     assert.ok(s.holo <= Math.floor(rho * s.mint_count),

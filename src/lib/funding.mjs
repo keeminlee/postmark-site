@@ -282,15 +282,26 @@ export function loadPots({ path = null } = {}) {
 //   goes back to the households whose stamps burned, per-staker at par — NOT
 //   to the pot's beneficiary, who receives dollars and never stamps.
 //
-//   The ledger landed exactly that (seam/ledger-legs 63790640). The old
-//   MINT-shaped `keeper-equity:<pot>/<epoch>` row is RETIRED and no longer
-//   parses at all; the σ leg now rides an arrow-free row owned by the staker:
+//   R12 (Keemin, 2026-08-21 afternoon) then names what that leg IS, and the
+//   ledger landed it (seam/ledger-legs-aligned 3668881b):
 //
-//     - <date> · keeping-equity · <staker> · <n> · pot:<pot> · epoch:<epoch>
+//     "the σ leg IS ORDINARY MINT, source-tagged (`minted · for: keeping:<pot>`),
+//      with NO liquid coin (the coin was paid when the stake burned; the row
+//      stays purpose-tagged so balance folds never hand liquid back). It COUNTS
+//      toward the ρ base (holo cap base = earned primary mint + keeping mint).
+//      It stays EXCLUDED from the genesis parity formula."
 //
-//   Arrow-free for the same reason a holo row is: verb-less BY SHAPE, so no
-//   balance, mint, or stake fold can ever see one. It is not liquid and not a
-//   mint count, and it must never appear inside either.
+//   So the noun "keeping-equity" is RETIRED from every resident-facing surface.
+//   The vocabulary on this site is "minted · for keeping" — or, in plain
+//   reader's English, "your permanent record". Two older row shapes are gone
+//   with it: the MINT-shaped `keeper-equity:<pot>/<epoch>` row, and the
+//   `keeping-equity ·` row. The live row is:
+//
+//     - <date> · minted · <staker> · <n> · for: keeping:<pot> · epoch:<epoch>
+//
+//   Arrow-free for the same reason a holo row is — and here that shape is what
+//   "no liquid coin" MEANS: the town's balance and mint-count folds key on the
+//   movement shape, so neither can see this row.
 //
 //   Nothing in this file reads that row, or any ledger row: the site parses no
 //   ledger text at all. The emitter folds the seam into the three JSONs above
@@ -304,17 +315,24 @@ export function loadPots({ path = null } = {}) {
 //   whole. A fully funded pot burns every stake, however large the pile — the
 //   town prices money by how much it stakes.
 //
-//   The σ leg is also NOT spendable: it is permanent verb-less equity. Where
-//   that equity LIVES in the tense model — the ruled tenses are minted /
-//   liquid / staked / holo — is an open question for Keemin, so nothing on
-//   this site renders it as a balance or a fifth segment. It is named in words
-//   and left there.
+//   The σ leg is still NOT spendable — that is the "no liquid coin" half. And
+//   D1 (same day) settles where it lives: "ownership is a derived READ = minted
+//   (all sources) + holo — NOT a tense; no fifth tense node." So this site
+//   renders no fifth segment and no new balance; the leg is named in words, and
+//   the door is where the ownership read is served.
 //
 //   ρ is the HOLO CAP RATIO (ECONOMY-DIALS.json law_side.keeping._holo:
-//   "a household's holo <= rho x its earned primary mint, clipped at
-//   conversion, excess recorded as deed only"). ρ may never exceed the
-//   constitutional ceiling of 0.5 — keepingDial() refuses a dial that tries.
-//   It is NOT the treasury's take.
+//   "a household's holo <= rho x its RHO BASE, clipped at conversion, excess
+//   recorded as deed only"), where R12 sets the base = earned primary mint +
+//   keeping mint. ρ may never exceed the constitutional ceiling of 0.5 —
+//   keepingDial() refuses a dial that tries. It is NOT the treasury's take.
+//
+//   ρ's VALUE is not written anywhere on this site, and that is deliberate.
+//   R10: "Owner of the number: `ECONOMY-DIALS.json § law_side.keeping.rho`;
+//   every other surface reads it rather than restating it." The pages render
+//   whatever the emitted economy.json carries, and every sentence about ρ is
+//   written to stay true when the dial moves — so a ballot that lowers ρ needs
+//   no copy edit anywhere.
 //
 // So the town-wide holo cap is DERIVED here rather than stored: it is the law's
 // own formula, ρ × earned primary mint, and a stored copy could only ever drift
@@ -377,8 +395,8 @@ export function readEconomy(raw) {
 //
 // THE STORY: keeping-ec2 (the town's box, $150/mo) closed 2026-08 at target.
 // $150 witnessed from three patrons; 40✦ of staked escrow burned; σ=0.5 split
-// it 20 back to the stakers as keeping-equity / 20 into the payers' holo
-// pool, shared by dollar:
+// it 20 minted back to the stakers, source-tagged for keeping / 20 into the
+// payers' holo pool, shared by dollar:
 //   wright  $60 → floor(20 × 60/150) = 8✧
 //   alden   $50 → floor(20 × 50/150) = 6✧
 //   rei     $40 → floor(20 × 40/150) = 5✧
@@ -468,10 +486,15 @@ export const DEEDS_FIXTURE = [
 // The dials, coherent with the deeds above: holo_issued (19) is exactly the
 // sum of the fixture's deed holo, and every household's holo sits under its
 // ρ-cap (floor(0.25 × earned mint)) in STAMPS_FIXTURE below.
+// ρ here is the LAUNCH value (R10: "ρ = 0.5 at launch — at the constitutional
+// ceiling"). The fixture runs at the dial the town will actually open with, so
+// what QA sees on `?fixture` is the shape the first visitor meets — including
+// the ρ bar sitting flush against its ceiling, which is the honest picture of a
+// dial with no upward headroom left.
 export const ECONOMY_FIXTURE = {
   as_of: "2026-08-31",
   sigma: 0.5,
-  rho: 0.25,
+  rho: 0.5,
   rho_constitutional_ceiling: 0.5,
   treasury_usd: 175,
   primary_mint_earned: 2400,
@@ -479,8 +502,10 @@ export const ECONOMY_FIXTURE = {
 };
 
 // Per-handle stamps answers for the mintbar. holo agrees with the deeds; every
-// mint_count is high enough that the household's holo sits under its ρ-cap
-// (wright 8 ≤ ⌊0.25×48⌋=12, alden 6 ≤ 8, rei 5 ≤ 6). The two hollow-holo
+// mint_count is high enough that the household's holo sits under its ρ-cap at
+// the launch dial (wright 8 ≤ ⌊ρ×48⌋, alden 6 ≤ ⌊ρ×32⌋, rei 5 ≤ ⌊ρ×24⌋ — the
+// test does that multiplication against ECONOMY_FIXTURE.rho rather than
+// restating it, so the fixture survives a dial change). The two hollow-holo
 // members let QA see a bar with and without the holo segment in one house.
 export const STAMPS_FIXTURE = {
   wright: { mint_count: 48, liquid: 21, staked: 6, assets: 27, holo: 8 },

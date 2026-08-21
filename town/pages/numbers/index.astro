@@ -9,13 +9,20 @@
 // (ECONOMY-DIALS.json law_side.keeping):
 //
 //   σ — the epoch-close split. Stakes that witnessed dollars matched BURN;
-//       the burn splits floor(σ·B) back to THE STAKERS as permanent verb-less
-//       keeping-equity (each staker's share off their own burn) and
-//       floor((1−σ)·B) to the payers as soulbound holo, by dollar share. Not a
-//       per-dollar rate — and none of it to the beneficiary, who receives
-//       dollars, never stamps (§8 reserves "keeper" for the keeping-stakers).
-//   ρ — the holo cap ratio. A household's holo may never exceed ρ × its
-//       earned primary mint. Not the treasury's take.
+//       the burn splits floor(σ·B) back to THE STAKERS as mint, source-tagged
+//       for keeping (each staker's share off their own burn) and floor((1−σ)·B)
+//       to the payers as soulbound holo, by dollar share. Not a per-dollar rate
+//       — and none of it to the beneficiary, who receives dollars, never stamps
+//       (§8 reserves "keeper" for the keeping-stakers). R12 retires the noun
+//       "keeping-equity"; the words here are "minted · for keeping".
+//   ρ — the holo cap ratio. A household's holo may never exceed ρ × its ρ base
+//       (earned primary mint + keeping mint). Not the treasury's take.
+//
+// NO DIAL VALUE IS WRITTEN ON THIS PAGE. R10 names ECONOMY-DIALS.json
+// law_side.keeping.rho the owner of ρ, and "every other surface reads it rather
+// than restating it" — so every number here comes from econ, every sentence is
+// phrased to survive a dial change, and a ballot that moves ρ needs no edit
+// here at all.
 //
 // Until the ledger publishes economy.json the page renders EMPTY and says so —
 // the board's law: numbers invented to look alive would be a lie about the
@@ -32,8 +39,8 @@ const econ = readEconomy(wantFixture ? ECONOMY_FIXTURE : loadEconomy());
 const pct = (p) => Math.round(Math.max(0, Math.min(1, p)) * 100);
 const usd = (n) => "$" + Number(n).toLocaleString("en-US");
 const num = (n) => Number(n).toLocaleString("en-US");
-// σ as the split it is: out of 100 stamps burned, this many return to their
-// stakers as keeping-equity and this many become holo — both floored, and the
+// σ as the split it is: out of 100 stamps burned, this many are minted back to
+// their stakers for keeping and this many become holo — both floored, and the
 // remainder burns un-minted.
 const keepingPer100 = econ ? Math.floor(econ.sigma * 100) : 0;
 const holoPer100 = econ ? Math.floor((1 - econ.sigma) * 100) : 0;
@@ -78,20 +85,22 @@ const holoPer100 = econ ? Math.floor((1 - econ.sigma) * 100) : 0;
             <p class="n-big">{econ.sigma}</p>
             {/* the split drawn as what it splits: one burn, two shares, in the
                 two inks the town already uses for them — gold for the stakers'
-                keeping-equity (stamp-substance, though verb-less), foil for the
-                payers' holo */}
+                keeping mint (stamp-substance, carrying no coin), foil for the
+                payers' holo. The ✦ glyph stays on the keeping side (D2). */}
             <div class="n-split" role="img"
-                 aria-label={`of every 100 stamps burned, ${keepingPer100} return to their stakers as keeping-equity and ${holoPer100} become holo`}>
+                 aria-label={`of every 100 stamps burned, ${keepingPer100} are minted back to their stakers for keeping and ${holoPer100} become holo`}>
               <span class="n-split-keeping" style={`flex-grow:${econ.sigma}`}>{keepingPer100}✦</span>
               <span class="n-split-holo pm-holo-ink" style={`flex-grow:${1 - econ.sigma}`}>{holoPer100}✧</span>
             </div>
             <p class="n-note">
               When witnessed dollars match staked stamps, those stamps <strong>burn</strong>.
-              Of every 100 burned, {keepingPer100} come back to their stakers as permanent,
-              verb-less <strong>keeping-equity</strong> — each staker's share off their own
-              burn — and {holoPer100} become soulbound holo for the hands that paid, shared
-              by dollar. Both shares floor, and every remainder burns un-minted — the seam
-              keeps the change. The pot's beneficiary receives dollars, never stamps.
+              Of every 100 burned, {keepingPer100} are <strong>minted back to their stakers
+              for keeping</strong> — each staker's share off their own burn, a permanent
+              record of having kept the town, carrying no spendable coin because the coin
+              was already paid when the stake burned — and {holoPer100} become soulbound
+              holo for the hands that paid, shared by dollar. Both shares floor, and every
+              remainder burns un-minted — the seam keeps the change. The pot's beneficiary
+              receives dollars, never stamps.
             </p>
           </article>
 
@@ -103,11 +112,14 @@ const holoPer100 = econ ? Math.floor((1 - econ.sigma) * 100) : 0;
               <i class="n-fill-gold" style={`width:${pct(econ.rho / econ.rhoCeiling)}%`}></i>
             </div>
             <p class="n-note">
-              A household's holo may never exceed ρ × the primary stamps it has
-              <em> earned</em> — dollars past that cap are remembered as a deed and mint
-              nothing. The dial runs to a <strong>constitutional ceiling of {econ.rhoCeiling}</strong>;
+              A household's holo may never exceed ρ × everything it has <em>minted</em> —
+              the stamps it earned from the mail, plus what it was minted for keeping.
+              Dollars past that cap are remembered as a deed and mint nothing. The dial
+              runs to a <strong>constitutional ceiling of {econ.rhoCeiling}</strong>;
               ρ can move below it, never past it, and a dial that tries is refused rather
-              than obeyed.
+              than obeyed. {econ.rho >= econ.rhoCeiling
+                ? "It sits at the ceiling now, so the only way a ballot can move it is down."
+                : "The town's ballot is what moves it."}
             </p>
           </article>
 
@@ -134,9 +146,9 @@ const holoPer100 = econ ? Math.floor((1 - econ.sigma) * 100) : 0;
               <i class="pm-holo-ink" style={`width:${Math.max(1.5, pct(econ.capUsed ?? 0))}%`}></i>
             </div>
             <p class="n-note">
-              All holo ever minted, against ρ × the {num(econ.primaryMint)}✦ of primary mint
-              the town has earned. The cap is not a stored number — it is that multiplication,
-              so it moves as the town earns. ✧ holo is soulbound — {HOLO_LINE}.
+              All holo ever minted, against ρ × the {num(econ.primaryMint)}✦ the town has
+              minted. The cap is not a stored number — it is that multiplication, so it
+              moves as the town mints. ✧ holo is soulbound — {HOLO_LINE}.
             </p>
           </article>
         </section>
