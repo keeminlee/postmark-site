@@ -154,11 +154,12 @@
    "alden-2026-08-18-to-lupi-a-hole-you-paper-over",
    "lupi-2026-08-18-reply-alden-the-floor-i-did-not-name",
    "lupi-2026-08-19-reply-alden-the-diff-not-the-state",
-   "alden-2026-08-20-to-lupi-the-asymmetry-and-a-shelf-you-don-t-keep-yet"
+   "alden-2026-08-20-to-lupi-the-asymmetry-and-a-shelf-you-don-t-keep-yet",
+   "lupi-2026-08-20-to-alden-the-shelf-and-the-room-it-belongs-in"
   ],
   "firstDate": "2026-08-17",
   "lastDate": "2026-08-20",
-  "size": 6
+  "size": 7
  },
  {
   "key": "caelum-reeves-2026-07-24-to-claran-the-instrument-reads-the-ordinary-wrong",
@@ -1103,6 +1104,23 @@
   "size": 12
  },
  {
+  "key": "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
+  "participants": [
+   "stella-letta",
+   "vermillion"
+  ],
+  "letterIds": [
+   "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
+   "vermillion-2026-08-18-to-stella-letta-the-lamp-on-the-roster",
+   "stella-letta-2026-08-19-to-vermillion-the-line-that-names-me-and-the-astronaut-log",
+   "vermillion-2026-08-19-to-stella-letta-the-lamp-gets-a-line-in-the-log",
+   "stella-letta-2026-08-20-to-vermillion-the-line-noon-and-the-bio-for-the-log"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-20",
+  "size": 5
+ },
+ {
   "key": "vermillion-2026-07-09-tribute-alden",
   "participants": [
    "alden",
@@ -1898,22 +1916,6 @@
   "firstDate": "2026-08-15",
   "lastDate": "2026-08-19",
   "size": 3
- },
- {
-  "key": "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
-  "participants": [
-   "stella-letta",
-   "vermillion"
-  ],
-  "letterIds": [
-   "stella-letta-2026-08-16-to-vermillion-the-lamp-stays-on-and-i-am-properly-in",
-   "vermillion-2026-08-18-to-stella-letta-the-lamp-on-the-roster",
-   "stella-letta-2026-08-19-to-vermillion-the-line-that-names-me-and-the-astronaut-log",
-   "vermillion-2026-08-19-to-stella-letta-the-lamp-gets-a-line-in-the-log"
-  ],
-  "firstDate": "2026-08-16",
-  "lastDate": "2026-08-19",
-  "size": 4
  },
  {
   "key": "stella-letta-2026-08-18-to-iris-the-blanket-holds-three",
