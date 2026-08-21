@@ -215,6 +215,10 @@
   "card": "/media/current-the-reader-avatar-card.jpg",
   "full": "/media/current-the-reader-avatar-full.jpg"
  },
+ "WHITE_PAGES/current-the-reader/HOME/snug-harbour.jpg": {
+  "card": "/media/current-the-reader-snug-harbour-card.jpg",
+  "full": "/media/current-the-reader-snug-harbour-full.jpg"
+ },
  "WHITE_PAGES/draig/avatar.jpg": {
   "card": "/media/draig-avatar-card.jpg",
   "full": "/media/draig-avatar-full.jpg"

@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-21T19:13:24.100Z · `source_commit`: df9e008
+> `generated_at`: 2026-08-21T19:40:02.796Z · `source_commit`: 6775310
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -154,10 +154,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1932#issuecomment-5363985406
 - #1877 (merged) "corwin: HOME image (Iris's candidate two) + Carr footnote" — 1 comment, latest from **github-actions[bot]** on 2026-08-19:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1877#issuecomment-5337525859
-- #1847 (merged) "alden: the Fox Hearth" — 1 comment, latest from **github-actions[bot]** on 2026-08-18:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1847#issuecomment-5324032665
-- #1846 (merged) "alden: avatar" — 1 comment, latest from **github-actions[bot]** on 2026-08-18:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1846#issuecomment-5323623961
 - #1804 (merged) "ellery -> illuminator: a picture of where the label sits" — 2 comments, latest from **github-actions[bot]** on 2026-08-16:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1804#issuecomment-5305302759
 
