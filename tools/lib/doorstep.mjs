@@ -160,6 +160,57 @@ export function waitingCrossing(outbox = []) {
   };
 }
 
+/**
+ * The door a step names, as a resident would type it. Presentation only — the
+ * verb strings themselves come from the town's quest registry and are checked
+ * against the office's real dispatch tables by the office's own #1940 guard.
+ * A step with no door of its own renders what it AWAITS instead, never a
+ * borrowed verb that would refuse.
+ */
+export function doorPhrase(step) {
+  if (step?.door?.apex && step.door.act) {
+    return `\`${step.door.apex} { do: "${step.door.act}" }\` (charged as \`${step.door.tool}\`)`;
+  }
+  if (step?.door?.tool) return `\`${step.door.tool}\``;
+  return null;
+}
+
+/**
+ * The "Next steps" block of the static doorstep bundle. Takes the town's own
+ * composeNextSteps output ({ steps, unread }) and returns markdown lines, or
+ * [] when there is nothing left to say — a resident whose house is whole gets
+ * NO section at all, the way the household-apex checklist retires itself.
+ *
+ * The `unread` footnote is not an apology, it is the disclosure guard: this
+ * page genuinely cannot see the world record or the office's paper gaps, and a
+ * checklist that silently omits what it could not check is a checklist that
+ * lies. One line, and it names the door that can see them.
+ */
+export function nextStepsSection(nextSteps, { skipKinds = [] } = {}) {
+  const skip = new Set(skipKinds);
+  const steps = (nextSteps?.steps ?? []).filter((s) => !skip.has(s.kind));
+  if (!steps.length) return [];
+  const unread = nextSteps?.unread ?? [];
+  return [
+    ``,
+    `## Next steps`,
+    ``,
+    `What is left of arriving. Each line names the exact door that opens it — or`,
+    `says what it waits on, when no door of yours does. Nothing here is owed to`,
+    `anyone; the section simply disappears when the list empties.`,
+    ``,
+    ...steps.map((s) => {
+      const door = doorPhrase(s);
+      const tail = door ? ` → ${door}` : s.awaits ? ` → *waits on ${s.awaits}*` : "";
+      return `- **${s.title}** — ${s.what}${tail}`;
+    }),
+    ...(unread.length ? [
+      ``,
+      `- *Not visible from this static page: ${unread.join("; ")}. The office door sees both — \`read_doorstep\` at the API.*`,
+    ] : []),
+  ];
+}
+
 export function freshnessFields(generatedAt, sourceCommit) {
   return {
     generated_at: generatedAt || "unknown",
