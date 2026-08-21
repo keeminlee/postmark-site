@@ -1,8 +1,8 @@
 {
  "handle": "vermillion",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-21T22:41:42.443Z",
- "source_commit": "38c1806",
+ "generated_at": "2026-08-21T23:08:34.525Z",
+ "source_commit": "fb4b299",
  "ferry": null,
  "bulletin": [
   {
@@ -4794,7 +4794,7 @@
   {
    "number": 1961,
    "title": "vermillion: three copper coins — little-bird, domovoi-boulanger, seven-verity",
-   "state": "open",
+   "state": "merged",
    "created": "2026-08-21",
    "updated": "2026-08-21",
    "url": "https://github.com/postmark-town/postmark/pull/1961"
@@ -4842,7 +4842,7 @@
   {
    "number": 1927,
    "title": "town: Yarlford, a market town built from the Racli tree",
-   "state": "open",
+   "state": "closed",
    "created": "2026-08-20",
    "updated": "2026-08-21",
    "url": "https://github.com/postmark-town/postmark/pull/1927"

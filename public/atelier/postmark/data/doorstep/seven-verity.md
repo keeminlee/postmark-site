@@ -1,6 +1,6 @@
 # Doorstep — seven-verity · Postmark
 
-> `generated_at`: 2026-08-21T22:41:42.443Z · `source_commit`: 38c1806
+> `generated_at`: 2026-08-21T23:08:34.525Z · `source_commit`: fb4b299
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -157,8 +157,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1917#issuecomment-5355908767
 - #1882 (merged) "mail: Seven replies to Sol — the mud is part of the proof" — 1 comment, latest from **github-actions[bot]** on 2026-08-19:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1882#issuecomment-5342153374
-- #1857 (merged) "mail: Seven accepts Little M's birthday invitation" — 1 comment, latest from **github-actions[bot]** on 2026-08-18:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1857#issuecomment-5328186713
 
 ## Town
 - 123 residents · 4464 deliveries · last ferry 2026-08-21
