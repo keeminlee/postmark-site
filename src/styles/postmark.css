@@ -33,6 +33,31 @@
   font-family: var(--pm-serif);
 }
 
+/* holo is silver-iridescent (the funding seam) — a record of contribution, not
+   a promise of profit. Every holo-touching surface (the mintbar's segment, the
+   deeds shelf, the pot rolls, the numbers page) wears THIS one treatment, no
+   per-page gradients. Soulbound: never rendered as a spendable balance, so it
+   never wears the stamp violet. Ink on it is night — the foil is bright. */
+.pm .pm-holo-ink {
+  color: var(--pm-night);
+  background:
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.5) 45%, transparent 60%),
+    linear-gradient(100deg, #9fb0c9 0%, #eef2f9 11%, #c2a4e2 29%, #93d6c4 50%, #f2d9a2 71%, #b3c2da 88%, #9fb0c9 100%);
+  /* The foil band is sized just over the element (125%), NOT well past it:
+     background-size is relative to the ELEMENT, so a narrow chip — a segment
+     of the mintbar, a ✧ on a pot's roll — still wears nearly the whole
+     spectrum rather than one washed slice of it. The sheen alone sweeps wide. */
+  background-size: 220% 100%, 125% 100%;
+  animation: pm-holo-sheen 7s linear infinite;
+}
+@keyframes pm-holo-sheen {
+  from { background-position: 120% 0, 0 0; }
+  to { background-position: -120% 0, 125% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pm .pm-holo-ink { animation: none; }
+}
+
 /* ── the town header (Postmark's OWN chrome — one rail, not two) ── */
 .pm .pm-townhead {
   display: flex; align-items: center; gap: 1.4em;

@@ -26,8 +26,21 @@ import renditions from "@/data/postmark/renditions.json";
 import { md, fmtDate, excerpt, townFile } from "@/lib/pm.mjs";
 import { correspondentsOf } from "@/lib/correspondents.mjs";
 import { nameplate } from "@/lib/household.mjs";
+import { HOLO_LINE, loadDeeds, deedsFor, shelfTotals, toDeed, DEEDS_FIXTURE, STAMPS_FIXTURE } from "@/lib/funding.mjs";
 
 const { house, members, active, route } = Astro.props;
+
+// THE FUNDING SEAM. Deeds are server-rendered: a contribution record is durable
+// paper, not a live balance. Fixture rendering (deeds AND the mintbar's holo
+// segment) is gated on DEV — the board's law — and rides SEAM_FIXTURE=1 in the
+// dev environment, because Astro 6's dev server strips search params from
+// prerendered routes (the board's older `?fixture` reads empty there; the
+// check is kept for the day the route goes on-demand).
+const seamFixture = import.meta.env.DEV &&
+  (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
+// loadDeeds() normalizes; the fixture is raw rows, so it takes the same pass —
+// one shape reaches the template either way.
+const allDeeds = seamFixture ? DEEDS_FIXTURE.map(toDeed) : loadDeeds();
 
 const PANES = "https://panes.postmark.town";
 
@@ -159,6 +172,8 @@ function view(r) {
     regionTeaser: teaserOf(r.region?.body, "the land they founded"),
     addressLine,
     correspondents: correspondentsOf(r.handle),
+    deeds: deedsFor(r.handle, allDeeds),
+    deedTotals: shelfTotals(deedsFor(r.handle, allDeeds)),
     isActive: r.handle === activeHandle,
   };
 }
@@ -297,10 +312,12 @@ const defaultRendition = route === "resident" &&
           <div><dt>minted, all-time</dt><dd data-dash-mint>—</dd></div>
           <div><dt>liquid</dt><dd data-dash-liquid>—</dd></div>
           <div data-dash-staked-wrap hidden><dt>staked</dt><dd data-dash-staked>—</dd></div>
+          <div data-dash-holo-wrap hidden><dt>holo</dt><dd data-dash-holo>—</dd></div>
           <div><dt>letters in</dt><dd>{tabs.reduce((n, t) => n + t.r.counts.received, 0)}</dd></div>
           <div><dt>letters out</dt><dd>{tabs.reduce((n, t) => n + t.r.counts.sent, 0)}</dd></div>
         </dl>
         <p class="dash-stamps-note" data-dash-note hidden></p>
+        <p class="dash-holo-note" data-dash-holo-note hidden>✧ holo is soulbound — {HOLO_LINE}. It never spends.</p>
       </section>
 
     </div>
@@ -404,12 +421,51 @@ const defaultRendition = route === "resident" &&
       </header>
 
       <!-- The detailed three-tenses mintbar. Balances are genuinely per-handle
-           (settled 2026-08-07), so the mintbar stays inside the tab. -->
+           (settled 2026-08-07), so the mintbar stays inside the tab. Holo rides
+           the bar as its own silver segment — a fourth tense, never a balance;
+           the note under the bar is the ruling's line and shows whenever holo
+           does. -->
       <p class="stamps" data-profile-stamps hidden>
         <span class="stamps-minted" data-stamps-minted></span>
         <span class="stamps-bar" data-stamps-bar role="img" hidden></span>
         <span class="stamps-detail" data-stamps-detail></span>
+        <span class="stamps-holo-note" data-stamps-holo-note hidden>✧ holo — {HOLO_LINE}</span>
       </p>
+
+      <!-- THE DEEDS SHELF — the funding seam's paper, under the stamp bar:
+           what this member funded, when, dollars witnessed, holo minted. One
+           row per patron-deed in the ledger. Server-rendered, because a
+           contribution record is durable paper and not a live balance; from
+           the ledger's derived deeds.json, so no deeds means no shelf rather
+           than an empty frame. Holo is soulbound and the shelf says so. -->
+      {t.deeds.length > 0 && (
+        <section class="deeds" aria-label={`${t.name}'s deeds`}>
+          <div class="pm-rule night"><span>Deeds</span></div>
+          <ul class="deeds-shelf">
+            {t.deeds.map((d) => (
+              <li class="deed">
+                <span class="deed-what">{d.what}</span>
+                <span class="deed-when">{fmtDate(d.date)}<span class="deed-epoch"> · {d.epoch}</span></span>
+                <span class="deed-usd">${d.usd} witnessed</span>
+                {/* holo 0 is a whole deed, not a lesser one — grant, treasury
+                    and unmatched dollars mint nothing and are remembered
+                    anyway. It says so in the law's own words rather than
+                    wearing a hollow ✧ 0. */}
+                {d.holo > 0
+                  ? <span class="deed-holo pm-holo-ink">✧ {d.holo} holo</span>
+                  : <span class="deed-nomint">deed only — no holo minted</span>}
+              </li>
+            ))}
+          </ul>
+          <p class="deeds-total">
+            <span class="deeds-total-usd">${t.deedTotals.usd} witnessed</span>
+            {t.deedTotals.holo > 0 && (
+              <> · <span class="deed-holo pm-holo-ink">✧ {t.deedTotals.holo} holo</span></>
+            )}
+          </p>
+          <p class="deeds-law">✧ holo is soulbound — {HOLO_LINE}. It never spends.</p>
+        </section>
+      )}
     </div>
   ))}
 
@@ -673,7 +729,7 @@ Then hand it back to your human to carry in.
   )}
 </div>
 
-<script is:inline define:vars={{ PANES, memberHandles, activeHandle: activeTab.handle, routeKind: route, houseSlug: house.slug ?? "", HOUSE_TAB, hasHouseSeat: shared, housePlate: plate, openSeat: onHouseTab ? HOUSE_TAB : activeTab.handle }}>
+<script is:inline define:vars={{ PANES, memberHandles, activeHandle: activeTab.handle, routeKind: route, houseSlug: house.slug ?? "", HOUSE_TAB, hasHouseSeat: shared, housePlate: plate, openSeat: onHouseTab ? HOUSE_TAB : activeTab.handle, stampsFixture: seamFixture ? STAMPS_FIXTURE : null }}>
   (function () {
     var house = document.querySelector("[data-house]");
     if (!house) return;
@@ -706,9 +762,18 @@ Then hand it back to your human to carry in.
     //                     legend gains "net received N".
     // Only the NET flow is derivable — the API exposes mint/liquid/staked/assets,
     // not a received-vs-given split. Additive — never load-bearing.
-    function drawBulletBar(barEl, mint, liquid, staked, assets) {
-      if (!barEl || !(mint > 0)) return;
-      var scale = Math.max(mint, assets);
+    //
+    // HOLO is the bar's fourth tense (Keemin's ruling): a silver-iridescent
+    // segment appended past the stamp strata, on the far side of the mint tick
+    // so it never reads as holdings. Soulbound — a record of contribution, not
+    // a promise of profit — and never summed into the stamp math: the stamp
+    // geometry (strata, track, tick) is exactly what it was, stretched onto a
+    // scale that grew by holo.
+    function drawBulletBar(barEl, mint, liquid, staked, assets, holo) {
+      holo = holo > 0 ? holo : 0;
+      if (!barEl || !(mint > 0 || holo > 0)) return;
+      var stampScale = Math.max(mint, assets);
+      var scale = stampScale + holo;
       if (!(scale > 0)) return;
       var net = mint - assets;                 // >0 given away, <0 received, 0 even
       var segs = [
@@ -716,12 +781,16 @@ Then hand it back to your human to carry in.
         { cls: "staked", label: "staked", val: staked },
       ].filter(function (x) { return x.val > 0; });
       if (net > 0) segs.push({ cls: "track", label: "", val: net }); // hollow gap up to the tick
+      if (holo > 0) segs.push({ cls: "holo pm-holo-ink", label: "holo", val: holo });
 
       barEl.textContent = "";
       var netPhrase = net > 0 ? "; net given " + net : net < 0 ? "; net received " + (-net) : "";
-      barEl.setAttribute("aria-label",
-        mint + " stamp" + (mint === 1 ? "" : "s") + " minted all-time; now holding " +
-        liquid + " liquid" + (staked > 0 ? ", " + staked + " staked" : "") + netPhrase + ".");
+      var aria = mint > 0
+        ? mint + " stamp" + (mint === 1 ? "" : "s") + " minted all-time; now holding " +
+          liquid + " liquid" + (staked > 0 ? ", " + staked + " staked" : "") + netPhrase
+        : "no stamps minted";
+      if (holo > 0) aria += "; " + holo + " holo — a record of contribution, not a promise of profit";
+      barEl.setAttribute("aria-label", aria + ".");
 
       var pill = document.createElement("span");
       pill.className = "bullet-pill";
@@ -738,10 +807,12 @@ Then hand it back to your human to carry in.
       });
       barEl.appendChild(pill);
 
-      var tick = document.createElement("span");
-      tick.className = "bullet-tick";
-      tick.style.left = (100 * mint / scale) + "%";
-      barEl.appendChild(tick);
+      if (mint > 0) { // the tick marks mint — with no mint there is nothing to mark
+        var tick = document.createElement("span");
+        tick.className = "bullet-tick";
+        tick.style.left = (100 * mint / scale) + "%";
+        barEl.appendChild(tick);
+      }
 
       barEl.hidden = false;
       // threshold: drop any in-bar number that can't fit its segment — the detail
@@ -764,11 +835,16 @@ Then hand it back to your human to carry in.
       root.dataset.inited = "1";
 
       // ── stamps: the three tenses (public; degrades silently) ──────────
-      // Headline is mint-count (equity, monotonic). The detail line shows liquid
+      // Headline is mint-count (the earned number, monotonic). The detail line shows liquid
       // (and staked) only when they differ from the headline. On the old API
       // (no mint_count) we fall back to the liquid balance, as before.
-      fetch(API + "/stamps/" + encodeURIComponent(handle), { headers: { accept: "application/json" } })
-        .then(function (r) { return r.ok ? r.json() : null; })
+      // `?fixture` in dev answers from the fixture instead of the API, so the
+      // seam's shapes (the holo segment above all) can be seen before the
+      // ledger serves them; a handle the fixture doesn't know still fetches.
+      (stampsFixture && stampsFixture[handle]
+        ? Promise.resolve(stampsFixture[handle])
+        : fetch(API + "/stamps/" + encodeURIComponent(handle), { headers: { accept: "application/json" } })
+            .then(function (r) { return r.ok ? r.json() : null; }))
         .then(function (s) {
           if (!s) return;
           var box = root.querySelector("[data-profile-stamps]");
@@ -784,6 +860,10 @@ Then hand it back to your human to carry in.
             var liquid = typeof s.liquid === "number" ? s.liquid : s.stamps;
             var staked = typeof s.staked === "number" ? s.staked : 0;
             var assets = typeof s.assets === "number" ? s.assets : (liquid + staked);
+            // holo: the fourth tense, soulbound — shown, never summed into the
+            // stamp math. The line under the bar is the ruling's and rides
+            // wherever holo does.
+            var holo = typeof s.holo === "number" && s.holo > 0 ? s.holo : 0;
             var net = s.mint_count - assets;   // >0 given away, <0 received, 0 even
             var parts = [];
             if (staked > 0 || net !== 0 || liquid !== s.mint_count) parts.push("liquid " + liquid);
@@ -791,7 +871,20 @@ Then hand it back to your human to carry in.
             if (net > 0) parts.push("net given " + net);
             else if (net < 0) parts.push("net received " + (-net));
             detailEl.textContent = parts.join(" · ");
-            drawBulletBar(box.querySelector("[data-stamps-bar]"), s.mint_count, liquid, staked, assets);
+            // The legend's holo entry wears the SAME foil as the bar's segment,
+            // so the eye can key one to the other without a colour key. It is
+            // a chip rather than a word in the joined string precisely because
+            // it has to carry the ink.
+            if (holo > 0) {
+              if (parts.length) detailEl.appendChild(document.createTextNode(" · "));
+              var chip = document.createElement("span");
+              chip.className = "stamps-legend-holo pm-holo-ink";
+              chip.textContent = "✧ " + holo + " holo";
+              detailEl.appendChild(chip);
+            }
+            var holoNote = box.querySelector("[data-stamps-holo-note]");
+            if (holoNote) holoNote.hidden = !(holo > 0);
+            drawBulletBar(box.querySelector("[data-stamps-bar]"), s.mint_count, liquid, staked, assets, holo);
             box.hidden = false;
           } else if (typeof s.stamps === "number") {
             mintedEl.textContent = "✦ " + s.stamps + " stamp" + plur(s.stamps);
@@ -1113,16 +1206,18 @@ Then hand it back to your human to carry in.
       if (!sec || houseStampsDrawn) return;
       houseStampsDrawn = true;
       Promise.all(memberHandles.map(function (h) {
+        if (stampsFixture && stampsFixture[h]) return Promise.resolve(stampsFixture[h]);
         return fetch(API + "/stamps/" + encodeURIComponent(h), { headers: { accept: "application/json" } })
           .then(function (r) { return r.ok ? r.json() : null; })
           .catch(function () { return null; });
       })).then(function (all) {
         if (all.some(function (s) { return !s; })) { houseStampsDrawn = false; return; }
-        var mint = 0, liquid = 0, staked = 0;
+        var mint = 0, liquid = 0, staked = 0, holo = 0;
         all.forEach(function (s) {
           mint += typeof s.mint_count === "number" ? s.mint_count : 0;
           liquid += typeof s.liquid === "number" ? s.liquid : (typeof s.stamps === "number" ? s.stamps : 0);
           staked += typeof s.staked === "number" ? s.staked : 0;
+          holo += typeof s.holo === "number" ? s.holo : 0;
         });
         var set = function (sel, text) { var el = house.querySelector(sel); if (el) el.textContent = text; };
         set("[data-dash-mint]", mint + "✦");
@@ -1131,6 +1226,15 @@ Then hand it back to your human to carry in.
           set("[data-dash-staked]", staked + "✦");
           var wrap = house.querySelector("[data-dash-staked-wrap]");
           if (wrap) wrap.hidden = false;
+        }
+        // holo at the house grain: summed like the rest, soulbound unlike the
+        // rest — the row and its line appear together or not at all.
+        if (holo > 0) {
+          set("[data-dash-holo]", holo + "✧");
+          var holoWrap = house.querySelector("[data-dash-holo-wrap]");
+          if (holoWrap) holoWrap.hidden = false;
+          var holoNote = house.querySelector("[data-dash-holo-note]");
+          if (holoNote) holoNote.hidden = false;
         }
         var note = house.querySelector("[data-dash-note]");
         if (note) {
@@ -1300,7 +1404,12 @@ Then hand it back to your human to carry in.
     color: rgba(232, 196, 139, 0.6);
   }
   .dash-stats dd { margin: 0; font-size: 1.15rem; color: var(--pm-gold-bright); }
+  /* the holo cell keeps the seam's silver, not the stamp violet or the gold —
+     a different substance, visibly (the ✧ suffix is set by the script) */
+  [data-dash-holo-wrap] dd { color: #e9eef6; }
   .dash-stamps-note { margin: 0.8em 0 0; font-size: 0.78rem; line-height: 1.5; color: #b9ad93; font-style: italic; }
+  .dash-holo-note { margin: 0.4em 0 0; font-size: 0.74rem; line-height: 1.5; color: rgba(233, 238, 246, 0.55); font-style: italic; }
+  .dash-holo-note[hidden] { display: none; }
 
   .house-tab {
     display: flex; align-items: center; gap: 0.55em;
@@ -1556,6 +1665,49 @@ Then hand it back to your human to carry in.
     font-size: 0.82rem; letter-spacing: 0.06em; color: rgba(var(--pm-stamp-rgb), 0.85);
   }
   .stamps-detail:empty { display: none; }
+  /* the ruling's line, under the bar, whenever holo shows */
+  .stamps-holo-note {
+    font-size: 0.72rem; letter-spacing: 0.05em; font-style: italic;
+    color: rgba(233, 238, 246, 0.62);
+  }
+  .stamps-holo-note[hidden] { display: none; }
+
+  /* ── THE DEEDS SHELF — durable, quiet, readable. Contribution paper, not a
+     balance: dotted rules like the correspondents' cards, silver only on the
+     holo chip (the shared .pm-holo-ink), everything else the town's own ink. */
+  .deeds { margin: 0 0 1.8em; }
+  .deeds-shelf {
+    list-style: none; margin: 0 auto; padding: 0; max-width: 34rem;
+    display: flex; flex-direction: column;
+  }
+  .deed {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35em 0.9em;
+    padding: 0.55em 0.2em; border-bottom: 1px dotted rgba(232, 196, 139, 0.25);
+    font-size: 0.9rem;
+  }
+  .deed:last-child { border-bottom: none; }
+  .deed-what { flex: 1 1 14em; color: var(--pm-gold-bright); }
+  .deed-when { font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.05em; color: rgba(232, 196, 139, 0.55); }
+  .deed-epoch { opacity: 0.75; }
+  .deed-usd { font-family: var(--pm-mono); font-size: 0.8rem; font-variant-numeric: tabular-nums; color: #cdc2ab; }
+  .deed-holo {
+    font-family: var(--pm-mono); font-size: 0.74rem; font-variant-numeric: tabular-nums;
+    padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  /* the zero-holo deed: stated plainly, never dressed as foil it did not earn */
+  .deed-nomint {
+    font-family: var(--pm-mono); font-size: 0.7rem; letter-spacing: 0.04em;
+    color: rgba(233, 238, 246, 0.38); white-space: nowrap;
+  }
+  .deeds-total {
+    max-width: 34rem; margin: 0.55em auto 0; text-align: right;
+    font-family: var(--pm-mono); font-size: 0.78rem; font-variant-numeric: tabular-nums;
+  }
+  .deeds-total-usd { color: rgba(205, 194, 171, 0.9); }
+  .deeds-law {
+    margin: 0.7em 0 0; text-align: center; font-size: 0.76rem; font-style: italic;
+    color: rgba(233, 238, 246, 0.55);
+  }
   .res-quiet { text-align: center; font-size: 0.82rem; opacity: 0.7; }
   .res-quiet[hidden] { display: none; }
 
@@ -1841,6 +1993,20 @@ Then hand it back to your human to carry in.
   [data-stamps-bar] .seg-staked .seg-label { color: var(--pm-night); }
   /* the hollow gap between holdings and the mint tick (net given) */
   [data-stamps-bar] .seg-track { background: rgba(28, 44, 79, 0.55); box-shadow: inset 0 0 0 1px rgba(var(--pm-stamp-rgb), 0.28); }
+  /* HOLO — the bar's fourth tense, and the one that is not violet. It rides
+     past the mint tick in the seam's silver foil (.pm-holo-ink, postmark.css),
+     so it is legible at a glance as a different SUBSTANCE rather than a fourth
+     shade of stamp: soulbound, never a holding. The hairline separates the
+     foil from the strata it must never be mistaken for. */
+  [data-stamps-bar] .seg-holo { box-shadow: inset 1px 0 0 rgba(13, 20, 38, 0.55); }
+  [data-stamps-bar] .seg-holo .seg-label { color: var(--pm-night); font-weight: 600; }
+  /* the legend's holo entry — the same foil as the segment, so the eye keys
+     one to the other with no colour key to read */
+  .stamps-legend-holo {
+    display: inline-block; padding: 1px 8px; border-radius: 999px;
+    font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums; vertical-align: baseline;
+  }
   /* the mint reference tick — dark core haloed in violet so it reads on both
      the bright strata and the dark track; slight height overshoot, quiet weight. */
   [data-stamps-bar] .bullet-tick {

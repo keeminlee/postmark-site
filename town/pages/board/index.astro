@@ -13,13 +13,25 @@
 // gated on import.meta.env.DEV, so it cannot be reached on postmark.town.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
+import { livePots, loadPots, HOLO_LINE, POT_FIXTURE } from "@/lib/funding.mjs";
 
-const wantFixture = import.meta.env.DEV && Astro.url.searchParams.has("fixture");
+// DEV-gated fixture, `?fixture` or SEAM_FIXTURE=1 in the environment — Astro
+// 6's dev server strips search params from prerendered routes, so the query
+// lane reads empty there; the env lane is how the shape is actually seen now.
+const wantFixture = import.meta.env.DEV &&
+  (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
 const state = wantFixture ? FIXTURE : loadWorldState();
 const board = notices(state);
 const open = board.notices.filter((n) => n.status === "open");
 const done = board.notices.filter((n) => n.status === "done");
+
+// The pots are NOT world marks — a pot is a file (WHITE_PAGES/pot-<id>.json)
+// with a row on the quest registry, and the site reads the emission made from
+// it. livePots() holds back any pot the founder has not opened: rendering a
+// draft would be the site asking for money the town has not asked for.
+const potBoard = livePots(wantFixture ? POT_FIXTURE : loadPots());
 const pct = (p) => Math.round(p * 100);
+const usd = (n) => "$" + Number(n).toLocaleString("en-US");
 ---
 <PostmarkLayout
   title="The Bounty Board — Postmark"
@@ -108,6 +120,96 @@ const pct = (p) => Math.round(p * 100);
       </section>
     )}
 
+    {/* THE POTS — funding bounties. A pot is a file on the quest board
+        (WHITE_PAGES/pot-<id>.json) with a row on the registry: dollars asked
+        for a named need, per epoch, witnessed by the ledger as they arrive.
+        Stamps staked on a pot ride the ordinary stake verb and sit in escrow;
+        at the epoch's close, the stakes that witnessed dollars matched BURN,
+        and the burn splits: minted back to the stakers, source-tagged for
+        keeping (each off their own burn — §8 reserves "keeper" for them), and
+        soulbound holo for the payers; the beneficiary receives dollars, never
+        stamps. So the roll is a record of contribution, not a promise of
+        profit. Same emptiness
+        law as the notices: nothing is ever seeded, and a pot the founder has
+        not opened never appears. */}
+    {potBoard.pots.length > 0 && (
+      <section class="b-list pots" aria-label="Funding pots">
+        <h2>The Pots — {potBoard.pots.length}</h2>
+        <p class="pots-lead b-dim">
+          A pot is a funding bounty: dollars asked for a named need, one epoch at a time.
+          Stake stamps to say it matters to you; witnessed dollars close the month, and the
+          close mints <span class="pot-word pm-holo-ink">holo</span> to the hands that paid —
+          {" "}{HOLO_LINE}. The dials behind these numbers hang at{" "}
+          <a href="/numbers/">the Town's Numbers</a>.
+        </p>
+        {potBoard.pots.map((p) => (
+          <article class:list={["b-card", "pot", p.status !== "open" && "pot-settled"]}>
+            <p class="b-ask">{p.title}</p>
+            {p.source && <p class="pot-source b-dim">{p.source}</p>}
+            <p class="b-meta">
+              <span class="b-tag">pot · {p.epoch}</span>
+              {/* null is a real state: a close refuses a pot with no beneficiary */}
+              <span class="b-who">
+                {p.beneficiary
+                  ? <>for <code>{p.beneficiary}</code></>
+                  : <span class="pot-nobeneficiary">no beneficiary named yet</span>}
+              </span>
+              <span class="pot-status">{p.status}</span>
+              {p.cadence && <span class="b-dim">{p.cadence}</span>}
+            </p>
+            <div class="b-bar-wrap">
+              <div class="b-bar pot-bar" role="img"
+                   aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
+                {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
+              </div>
+              <p class="b-bar-label">
+                <strong>{usd(p.received)}</strong> of {usd(p.target)} received
+                {p.received === 0 && <span class="b-dim"> · the pot is open, unfed</span>}
+                {p.received > p.target && <span class="b-over"> · over-fed</span>}
+              </p>
+            </div>
+            {p.patrons.length > 0 ? (
+              <p class="pot-roll">
+                <span class="pot-roll-lead">the roll · </span>
+                {p.patrons.map((c, i) => (
+                  <span class="pot-roll-entry">{i > 0 && " · "}<a href={`/residents/${c.patron}/`}>{c.patron}</a>{" "}
+                    <span class="pot-roll-amt">{usd(c.usd)}</span>
+                    {/* holo appears on the roll only where a close actually
+                        minted it — an open epoch has not split anything yet,
+                        and a hollow ✧0 would imply it had. */}
+                    {c.holo > 0 && <> <span class="pot-holo pm-holo-ink">✧{c.holo}</span></>}
+                  </span>
+                ))}
+              </p>
+            ) : (
+              <p class="pot-roll b-dim">Nobody has fed this pot yet — the roll is open.</p>
+            )}
+            <p class="pot-escrow b-dim">
+              {p.staked > 0
+                ? <><strong>{p.staked}✦</strong> staked in escrow on this pot</>
+                : "no stamps staked on this pot"}
+            </p>
+          </article>
+        ))}
+        <p class="b-dim b-note">✧ holo is soulbound — {HOLO_LINE}. It is never a balance and never spends.</p>
+      </section>
+    )}
+
+    {potBoard.malformed.length > 0 && (
+      <section class="b-empty b-warn">
+        <p><strong>{potBoard.malformed.length} pot{potBoard.malformed.length === 1 ? "" : "s"} could not be read.</strong></p>
+        <p class="b-dim">
+          Dropped rather than rendered half-built — money least of all should appear
+          half-said. A pot needs a slug, a title, a status of <code>draft</code>,{" "}
+          <code>open</code> or <code>closed</code>, an epoch of <code>YYYY-MM</code>,
+          and a whole-dollar target of at least $1.
+        </p>
+        <ul class="b-dim">
+          {potBoard.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}
+        </ul>
+      </section>
+    )}
+
     {done.length > 0 && (
       <section class="b-list b-done-list" aria-label="Closed notices">
         <h2>Done — {done.length}</h2>
@@ -169,10 +271,33 @@ const pct = (p) => Math.round(p * 100);
   .b-body { font-size: .9rem; opacity: .8; margin: .3rem 0 .6rem; }
   .b-bar-wrap { margin-top: .6rem; }
   .b-bar { height: .55rem; border-radius: 999px; background: rgba(128,128,128,.28); overflow: hidden; max-width: 24rem; }
-  .b-bar i { display: block; height: 100%; background: currentColor; border-radius: 999px; }
+  /* A notice's bar fills in the board's own ink. The exclusion matters: this
+     rule is scoped, so it outranks the global .pm-holo-ink, and the `background`
+     SHORTHAND would blank the foil's background-image out from under a pot's
+     fill — leaving a night-dark bar on a grey track. Pots opt out and wear the
+     seam's silver instead. */
+  .b-bar:not(.pot-bar) i { display: block; height: 100%; background: currentColor; border-radius: 999px; }
   .b-bar-label { font-size: .8rem; margin: .35rem 0 0; font-variant-numeric: tabular-nums; }
   .b-over { opacity: .7; }
   .b-backed { font-size: .82rem; margin: .3rem 0 0; font-variant-numeric: tabular-nums; }
+  /* the pots — the seam's rows. The bar's fill is the shared holo foil
+     (pm-holo-ink, postmark.css); everything else stays the board's own ink. */
+  .pots-lead { font-size: .88rem; margin: .4rem 0 0; }
+  .pots-lead a { color: inherit; }
+  .pot-word, .pot-holo { padding: 0 .35em; border-radius: 999px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pot-source { font-size: .84rem; margin: .3rem 0 0; line-height: 1.55; }
+  .pot-status { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+  .pot-nobeneficiary { font-style: italic; opacity: .7; }
+  .pot-bar { background: rgba(128,128,128,.2); }
+  .pot-bar i { display: block; height: 100%; border-radius: 999px; }
+  .pot-roll { font-size: .84rem; margin: .55rem 0 0; line-height: 1.7; }
+  .pot-roll a { color: inherit; }
+  .pot-roll-lead { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
+  .pot-roll-amt { font-variant-numeric: tabular-nums; opacity: .85; }
+  .pot-roll-entry { white-space: nowrap; }
+  .pot-escrow { font-size: .8rem; margin: .35rem 0 0; font-variant-numeric: tabular-nums; }
+  .pot-settled .b-ask { opacity: .65; }
+
   .b-done .b-ask { text-decoration: line-through; opacity: .6; }
   .b-done-list { opacity: .9; }
   .b-note { font-size: .8rem; margin-top: .8rem; }
