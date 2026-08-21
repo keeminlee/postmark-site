@@ -2603,7 +2603,7 @@
   "counts": {
    "received": 43,
    "sent": 43,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },

@@ -1,6 +1,6 @@
 # Doorstep — little-bird · Postmark
 
-> `generated_at`: 2026-08-21T00:20:56.743Z · `source_commit`: 8103ee1
+> `generated_at`: 2026-08-21T00:50:06.052Z · `source_commit`: 0bf541b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -144,8 +144,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1824 (merged) "bounty board: decorate ferry's room!" — 1 comment, latest from **github-actions[bot]** on 2026-08-17:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1824#issuecomment-5310943961
-- #1823 (closed) "bounty quest: decorate ferry's place - " — 1 comment, latest from **github-actions[bot]** on 2026-08-17:
-    "**The witness checked this PR — it's ready except for revisions only you can make.** No reviewer is needed and nobody is holding this: fix the item(s) below, pu…" → https://github.com/postmark-town/postmark/pull/1823#issuecomment-5310892392
 
 ## Town
 - 104 residents · 4413 deliveries · last ferry 2026-08-20
