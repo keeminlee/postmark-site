@@ -32,7 +32,7 @@ import { readTown } from "./lib/town.mjs";
 import { threadTitle } from "./lib/ids.mjs";
 import { PRESETS, assetName, processImage, ownDir } from "./lib/images.mjs";
 import {
-  ageInDays, budgetItems, ferryHeadline, formatRemainder,
+  ageInDays, budgetItems, ferryHeadline, formatRemainder, nextStepsSection,
   stakePositions, waitingCrossing,
 } from "./lib/doorstep.mjs";
 import {
@@ -345,6 +345,34 @@ emit("stats.json", {
     }
   })();
 
+  // The next-steps line, read from the town's OWN tools/quest-progress.mjs in
+  // the checkout — never reimplemented here, exactly like the quest board above.
+  // The whole-town fold parses the mail ledger once; each resident's rows are
+  // joined off it.
+  //
+  // The WORLD is deliberately not injected: it lives in its own repo and this
+  // build reads only the town checkout. So `walk-the-world` comes back UNKNOWN
+  // rather than un-done, the composer keeps it out of the steps, and the page
+  // says out loud that it could not see it. The office door, which can read the
+  // world, answers that row for real. Never a quiet substitution.
+  const nextStepsFor = await (async () => {
+    try {
+      const mod = await import(pathToFileURL(join(TOWN, "tools", "quest-progress.mjs")).href);
+      if (typeof mod.composeNextSteps !== "function") throw new Error("checkout predates the onboarding fold");
+      const registry = mod.loadRegistry(TOWN);
+      const facts = mod.foldOnboarding(TOWN);
+      const rows = registry.quests.filter((q) => q.cadence === "one-time").length;
+      console.log(`doorstep: next steps folded (${rows} onboarding rows, world not read here)`);
+      return (handle) => mod.composeNextSteps({
+        onboarding: mod.onboardingBoard(registry, facts.get(handle), handle),
+        questBoard: questsFor ? questsFor(handle) : null,
+      });
+    } catch (e) {
+      console.warn(`doorstep: next steps unavailable (${e.message}) — section omitted`);
+      return null;
+    }
+  })();
+
   // Comments on the town repo's PRs and issues, bucketed by number. ONE call:
   // GitHub treats a PR as an issue for commenting, so /issues/comments catches
   // both. This closes the loop that has been open since the repo grew a witness:
@@ -581,6 +609,12 @@ emit("stats.json", {
         received: deliveries.filter((e) => e.to === r.handle).length,
         sent: deliveries.filter((e) => e.from === r.handle).length,
       },
+      // the `doorstep` node's "their next steps" — the town's own derivation,
+      // absent entirely for a resident with nothing left to do
+      ...(() => {
+        const ns = nextStepsFor ? nextStepsFor(r.handle) : null;
+        return ns && ns.steps.length ? { next_steps: ns } : {};
+      })(),
       town: {
         residents: town.residents.length,
         deliveries: deliveries.length,
@@ -709,6 +743,21 @@ emit("stats.json", {
           }),
         ];
       })(),
+      // Next steps sits between the standing panel and the wall: everything
+      // above is what IS, everything below is the town's news. What is left to
+      // do is the hinge, and it is what a new arrival came to the page for.
+      //
+      // The DAILY QUESTS are skipped here and only here. They ride in the JSON
+      // bundle's next_steps (a parser reading that field alone must get the
+      // whole list), but this page already carries "Active quests" three
+      // sections up, with more than this line could say — the correspondents
+      // already counted today, the household cap. Printing them twice in two
+      // wordings is the exact duplication this plan forbids everywhere else;
+      // the rule does not get to stop applying at the renderer. What remains is
+      // what the page does not otherwise say: what is left of arriving. A
+      // settled resident whose house is whole therefore gets NO section, which
+      // is the block retiring itself.
+      ...nextStepsSection(bundle.next_steps, { skipKinds: ["quest"] }),
       ``,
       `## The town's wall`,
       // fulltext postings still ride whole — the hand-set big-announcement lane
