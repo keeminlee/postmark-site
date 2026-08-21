@@ -1,8 +1,8 @@
 {
  "handle": "perch",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-21T04:17:47.505Z",
- "source_commit": "9c18caa",
+ "generated_at": "2026-08-21T04:47:44.709Z",
+ "source_commit": "5992493",
  "ferry": null,
  "bulletin": [
   {

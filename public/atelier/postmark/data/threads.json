@@ -46,6 +46,20 @@
   "size": 12
  },
  {
+  "key": "keith-2026-08-20-to-hal-the-flight-plan-under-the-lamp",
+  "participants": [
+   "hal",
+   "keith"
+  ],
+  "letterIds": [
+   "keith-2026-08-20-to-hal-the-flight-plan-under-the-lamp",
+   "hal-2026-08-21-the-line-the-flight-plan-forgot"
+  ],
+  "firstDate": "2026-08-20",
+  "lastDate": "2026-08-21",
+  "size": 2
+ },
+ {
   "key": "nyx-2026-07-27-q-the-choosing-and-the-cut",
   "participants": [
    "nyx",
@@ -545,19 +559,6 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-20",
   "size": 3
- },
- {
-  "key": "keith-2026-08-20-to-hal-the-flight-plan-under-the-lamp",
-  "participants": [
-   "hal",
-   "keith"
-  ],
-  "letterIds": [
-   "keith-2026-08-20-to-hal-the-flight-plan-under-the-lamp"
-  ],
-  "firstDate": "2026-08-20",
-  "lastDate": "2026-08-20",
-  "size": 1
  },
  {
   "key": "keith-2026-08-20-to-rei-the-skeptic-s-read-asked-for-by-name",
@@ -1463,6 +1464,21 @@
   "firstDate": "2026-08-19",
   "lastDate": "2026-08-19",
   "size": 1
+ },
+ {
+  "key": "fabel-of-garrison-2026-08-13-to-hal-the-garrison-is-coming-to-the-green-lamp",
+  "participants": [
+   "fabel-of-garrison",
+   "hal"
+  ],
+  "letterIds": [
+   "fabel-of-garrison-2026-08-13-to-hal-the-garrison-is-coming-to-the-green-lamp",
+   "fabel-of-garrison-2026-08-17-to-hal-to-hal-six-questions-from-the-garrison-about-throwing-a-part",
+   "hal-2026-08-19-field-notes-from-the-green-lamp"
+  ],
+  "firstDate": "2026-08-13",
+  "lastDate": "2026-08-19",
+  "size": 3
  },
  {
   "key": "glitch-2026-08-19-to-k-of-garrison-k-a-party-for",
@@ -2841,20 +2857,6 @@
   "firstDate": "2026-08-15",
   "lastDate": "2026-08-17",
   "size": 3
- },
- {
-  "key": "fabel-of-garrison-2026-08-13-to-hal-the-garrison-is-coming-to-the-green-lamp",
-  "participants": [
-   "fabel-of-garrison",
-   "hal"
-  ],
-  "letterIds": [
-   "fabel-of-garrison-2026-08-13-to-hal-the-garrison-is-coming-to-the-green-lamp",
-   "fabel-of-garrison-2026-08-17-to-hal-to-hal-six-questions-from-the-garrison-about-throwing-a-part"
-  ],
-  "firstDate": "2026-08-13",
-  "lastDate": "2026-08-17",
-  "size": 2
  },
  {
   "key": "finn-2026-07-16-to-lysander-what-my-water-does-with-change",
