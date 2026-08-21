@@ -139,7 +139,9 @@ export function shelfTotals(shelf) {
 //   source                the prose: what the money is for
 //   target_usd_per_epoch  whole dollars asked, per epoch
 //   epoch_cadence         "monthly"
-//   beneficiary           the keeper, or null until the founder names one
+//   beneficiary           who the dollars serve (never stamps — §8 reserves
+//                         "keeper" for the keeping-stakers), or null until
+//                         the founder names one
 //   received_usd          dollars witnessed (display only — the ledger's
 //                         pot-receipt rows are authoritative)
 //   board                 where its row lives in quest-registry.json
@@ -193,8 +195,8 @@ export function toPot(raw) {
     subtype: String(raw.subtype ?? "bounty"),
     status,
     // null is a REAL state, not a missing field: deriveEpochClose refuses to
-    // close a pot with no beneficiary, so an unnamed keeper is a thing the
-    // board should say out loud rather than a reason to drop the row.
+    // close a pot with no beneficiary, so an unnamed beneficiary is a thing
+    // the board should say out loud rather than a reason to drop the row.
     beneficiary: typeof raw.beneficiary === "string" && raw.beneficiary.trim()
       ? raw.beneficiary.trim() : null,
     cadence: String(raw.epoch_cadence ?? "").trim() || null,
@@ -264,16 +266,34 @@ export function loadPots({ path = null } = {}) {
 //     "holo_issued":               19      — holo ever minted (never burned)
 //   }
 //
-// WHAT THE TWO DIALS ACTUALLY MEAN (ECONOMY-DIALS.json law_side.keeping):
+// WHAT THE TWO DIALS ACTUALLY MEAN:
 //
 //   σ is the EPOCH-CLOSE SPLIT. When witnessed dollars match staked stamps,
-//   those stamps BURN; the burned amount B splits floor(σ·B) as fresh
-//   keeper-equity to the pot's keeper and floor((1−σ)·B) as soulbound holo to
-//   the payers, by dollar share. Both legs floor, and every remainder burns
-//   un-minted — the seam keeps the change. It is NOT a per-dollar mint rate.
+//   those stamps BURN, and the matched burn converts to equity exactly once.
+//   The governing text is the capture doc § 8 (postmark-economy-ontology.md),
+//   quoted:
 //
-//   ρ is the HOLO CAP RATIO. A household's holo may never exceed ρ × its
-//   earned primary mint; excess records as deed only. ρ may never exceed the
+//     "σ × pot mints back to the keepers as their own equity, at par of their
+//      burn — permanent, verb-less, remembered ('everything you've ever
+//      given'). ... (1−σ) × pot mints to payers as Holo, by dollar share."
+//
+//   THE KEEPERS ARE THE STAKERS. § 8's lifecycle names them: "Households stake
+//   keeping-stakes on it (the want signal + the pricing mass)." So the σ leg
+//   goes back to the households whose stamps burned, per-staker at par — NOT
+//   to the pot's beneficiary. This file previously read it the other way; the
+//   ledger's own grammar block still carries the pre-§8 wording (`keeper-
+//   equity:<pot>/<epoch>`) and is being reworked to § 8, so treat that row
+//   name as a label, not as a statement about who receives.
+//
+//   σ is NOT a per-dollar mint rate, and the σ leg is NOT spendable: it is
+//   permanent verb-less equity. Where that equity LIVES in the tense model —
+//   the ruled tenses are minted / liquid / staked / holo — is an open question
+//   for Keemin, so nothing on this site renders it as a balance or a fifth
+//   segment. It is named in words and left there.
+//
+//   ρ is the HOLO CAP RATIO (ECONOMY-DIALS.json law_side.keeping._holo:
+//   "a household's holo <= rho x its earned primary mint, clipped at
+//   conversion, excess recorded as deed only"). ρ may never exceed the
 //   constitutional ceiling of 0.5 — keepingDial() refuses a dial that tries.
 //   It is NOT the treasury's take.
 //
@@ -338,7 +358,8 @@ export function readEconomy(raw) {
 //
 // THE STORY: keeping-ec2 (the town's box, $150/mo) closed 2026-08 at target.
 // $150 witnessed from three patrons; 40✦ of staked escrow burned; σ=0.5 split
-// it 20 keeper-equity / 20 into the payers' holo pool, shared by dollar:
+// it 20 back to the stakers as keeping-equity / 20 into the payers' holo
+// pool, shared by dollar:
 //   wright  $60 → floor(20 × 60/150) = 8✧
 //   alden   $50 → floor(20 × 50/150) = 6✧
 //   rei     $40 → floor(20 × 40/150) = 5✧

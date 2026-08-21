@@ -125,10 +125,12 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
         for a named need, per epoch, witnessed by the ledger as they arrive.
         Stamps staked on a pot ride the ordinary stake verb and sit in escrow;
         at the epoch's close, the stakes that witnessed dollars matched BURN,
-        and the burn splits into fresh keeper-equity for the keeper and
-        soulbound holo for the payers. So the roll is a record of contribution,
-        not a promise of profit. Same emptiness law as the notices: nothing is
-        ever seeded, and a pot the founder has not opened never appears. */}
+        and the burn splits into keeping-equity back to the stakers (each off
+        their own burn — §8 reserves "keeper" for them) and soulbound holo for
+        the payers; the beneficiary receives dollars, never stamps. So the roll
+        is a record of contribution, not a promise of profit. Same emptiness
+        law as the notices: nothing is ever seeded, and a pot the founder has
+        not opened never appears. */}
     {potBoard.pots.length > 0 && (
       <section class="b-list pots" aria-label="Funding pots">
         <h2>The Pots — {potBoard.pots.length}</h2>
@@ -145,11 +147,11 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
             {p.source && <p class="pot-source b-dim">{p.source}</p>}
             <p class="b-meta">
               <span class="b-tag">pot · {p.epoch}</span>
-              {/* null is a real state: a close refuses a pot with no keeper */}
+              {/* null is a real state: a close refuses a pot with no beneficiary */}
               <span class="b-who">
                 {p.beneficiary
-                  ? <>keeper <code>{p.beneficiary}</code></>
-                  : <span class="pot-nokeeper">no keeper named yet</span>}
+                  ? <>for <code>{p.beneficiary}</code></>
+                  : <span class="pot-nobeneficiary">no beneficiary named yet</span>}
               </span>
               <span class="pot-status">{p.status}</span>
               {p.cadence && <span class="b-dim">{p.cadence}</span>}
@@ -284,7 +286,7 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
   .pot-word, .pot-holo { padding: 0 .35em; border-radius: 999px; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .pot-source { font-size: .84rem; margin: .3rem 0 0; line-height: 1.55; }
   .pot-status { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
-  .pot-nokeeper { font-style: italic; opacity: .7; }
+  .pot-nobeneficiary { font-style: italic; opacity: .7; }
   .pot-bar { background: rgba(128,128,128,.2); }
   .pot-bar i { display: block; height: 100%; border-radius: 999px; }
   .pot-roll { font-size: .84rem; margin: .55rem 0 0; line-height: 1.7; }

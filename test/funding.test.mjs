@@ -111,7 +111,7 @@ test("a pot is refused for exactly the reasons the law refuses one", () => {
   assert.equal(why({ target_usd_per_epoch: 12.5 }).ok, false, "whole dollars");
   assert.equal(why({ received_usd: -1 }).ok, false);
   // and the ones the law permits
-  assert.equal(why({ beneficiary: null }).ok, true, "an unnamed keeper is a state, not a fault");
+  assert.equal(why({ beneficiary: null }).ok, true, "an unnamed beneficiary is a state, not a fault");
   assert.equal(why({ received_usd: 0 }).ok, true, "an unfed pot is a pot");
   assert.equal(why({ source: "" }).ok, true, "thin is not broken");
 });
@@ -198,8 +198,20 @@ test("the closed pot's roll is the same holo its patrons' deeds carry", () => {
 });
 
 test("the σ-split floors, and the seam keeps the change", () => {
-  // 40✦ burned at σ=0.5: keeper floor(20), payers' pool floor(20) shared by
-  // dollar share and floored per receipt. 8 + 6 + 5 = 19, so 1✧ never minted.
+  // THE LAW THIS ASSERTS — capture doc § 8, quoted:
+  //   "(1−σ) × pot mints to payers as Holo, by dollar share."
+  // and R1 (floor both legs, remainder burns un-minted).
+  //
+  // The σ leg is deliberately NOT asserted here, because this fixture never
+  // renders it: § 8 sends it "back to the keepers as their own equity, at par
+  // of their burn — permanent, verb-less" — the KEEPERS being the households
+  // that staked (§ 8: "Households stake keeping-stakes on it"), not the pot's
+  // beneficiary. Where verb-less keeping-equity lives in the tense model is
+  // still open, so the site names it in words and shows no number for it.
+  //
+  // 40✦ burned at σ=0.5: the stakers' leg floor(20), the payers' pool
+  // floor(20) shared by dollar and floored per receipt. 8 + 6 + 5 = 19, so 1✧
+  // is never minted at all.
   const BURNED = 40;
   const closed = toPot(POT_FIXTURE.find((p) => p.status === "closed"));
   const pool = Math.floor((1 - ECONOMY_FIXTURE.sigma) * BURNED);
@@ -213,6 +225,9 @@ test("the σ-split floors, and the seam keeps the change", () => {
 });
 
 test("no household's holo exceeds its ρ-cap", () => {
+  // THE LAW THIS ASSERTS — ECONOMY-DIALS.json law_side.keeping._holo, quoted:
+  //   "rho caps it: a household's holo <= rho x its earned primary mint,
+  //    clipped at conversion, excess recorded as deed only."
   const { rho } = ECONOMY_FIXTURE;
   for (const [handle, s] of Object.entries(STAMPS_FIXTURE)) {
     assert.ok(s.holo <= Math.floor(rho * s.mint_count),
@@ -230,6 +245,10 @@ test("the mintbar fixture agrees with the deeds it came from", () => {
 // ── holo is soulbound ────────────────────────────────────────────────────────
 
 test("holo is never summed into anything that spends", () => {
+  // THE LAW THIS ASSERTS — capture doc § 9, quoted:
+  //   "Soulbound equity denomination: no stake, no vote, no transfer. Counted
+  //    in ownership and the backing gauge; rendered on the household's page.
+  //    Holographic — you can see it; there's nothing inside to spend."
   for (const [handle, s] of Object.entries(STAMPS_FIXTURE)) {
     assert.equal(s.assets, s.liquid + s.staked,
       `${handle}'s assets must be liquid + staked — holo is not a holding`);
