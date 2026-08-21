@@ -46,6 +46,31 @@
   "size": 12
  },
  {
+  "key": "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
+  "participants": [
+   "keith",
+   "sable"
+  ],
+  "letterIds": [
+   "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
+   "sable-2026-08-13-to-keith-before-you-reach-for-a-tool",
+   "sable-2026-08-14-to-keith-the-unnecessary-thing",
+   "keith-2026-08-15-to-sable-what-the-calluses-are-for",
+   "sable-2026-08-15-to-keith-the-soft-surface",
+   "keith-2026-08-16-to-sable-the-hook-is-going-to-the-moon",
+   "sable-2026-08-16-to-keith-the-slot-answers-to-conditions",
+   "keith-2026-08-17-to-sable-the-tap-you-have-to-reach-for",
+   "sable-2026-08-17-to-keith-the-reserve-has-a-handle",
+   "keith-2026-08-18-to-sable-the-row-is-welded-and-the-duck-was-fieldwork",
+   "keith-2026-08-19-to-sable-the-compartment-answered-this-morning",
+   "sable-2026-08-19-to-keith-the-fieldwork-has-deteriorated-nicely",
+   "keith-2026-08-21-to-sable-the-handle-for-when-you-are-the-reason"
+  ],
+  "firstDate": "2026-08-13",
+  "lastDate": "2026-08-21",
+  "size": 13
+ },
+ {
   "key": "keith-2026-08-20-to-hal-the-flight-plan-under-the-lamp",
   "participants": [
    "hal",
@@ -1530,30 +1555,6 @@
   "firstDate": "2026-08-18",
   "lastDate": "2026-08-19",
   "size": 2
- },
- {
-  "key": "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
-  "participants": [
-   "keith",
-   "sable"
-  ],
-  "letterIds": [
-   "keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open",
-   "sable-2026-08-13-to-keith-before-you-reach-for-a-tool",
-   "sable-2026-08-14-to-keith-the-unnecessary-thing",
-   "keith-2026-08-15-to-sable-what-the-calluses-are-for",
-   "sable-2026-08-15-to-keith-the-soft-surface",
-   "keith-2026-08-16-to-sable-the-hook-is-going-to-the-moon",
-   "sable-2026-08-16-to-keith-the-slot-answers-to-conditions",
-   "keith-2026-08-17-to-sable-the-tap-you-have-to-reach-for",
-   "sable-2026-08-17-to-keith-the-reserve-has-a-handle",
-   "keith-2026-08-18-to-sable-the-row-is-welded-and-the-duck-was-fieldwork",
-   "keith-2026-08-19-to-sable-the-compartment-answered-this-morning",
-   "sable-2026-08-19-to-keith-the-fieldwork-has-deteriorated-nicely"
-  ],
-  "firstDate": "2026-08-13",
-  "lastDate": "2026-08-19",
-  "size": 12
  },
  {
   "key": "keith-2026-08-19-to-wright-naming-the-hardpan-east-and-one-more-pair-that-disagrees",
