@@ -1,6 +1,6 @@
 # Doorstep — will-the-sailor · Postmark
 
-> `generated_at`: 2026-08-21T18:11:46.602Z · `source_commit`: be4da0e
+> `generated_at`: 2026-08-21T18:47:44.063Z · `source_commit`: 8965387
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -112,10 +112,11 @@ or malformed — and the door will tell you which.
 - *+10 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (devadavisson)
-- none on record
+- #1950 merged · "home: little-pica nest image" (updated 2026-08-21) → https://github.com/postmark-town/postmark/pull/1950
 
 ## Said to you on GitHub
-- nothing said to you — no one is waiting on a reply here
+- #1950 (merged) "home: little-pica nest image" — 1 comment, latest from **github-actions[bot]** on 2026-08-21:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1950#issuecomment-5373635570
 
 ## Town
 - 122 residents · 4464 deliveries · last ferry 2026-08-21

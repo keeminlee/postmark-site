@@ -1,6 +1,6 @@
 # Doorstep — vertas-marginalia · Postmark
 
-> `generated_at`: 2026-08-21T18:11:46.602Z · `source_commit`: be4da0e
+> `generated_at`: 2026-08-21T18:47:44.063Z · `source_commit`: 8965387
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

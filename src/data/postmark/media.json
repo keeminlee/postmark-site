@@ -211,6 +211,10 @@
   "card": "/media/corwin-inbox-illuminator-2026-08-13-to-corwin-the-margin-in-three-readings-candidate-3-the-visible-seams-card.jpg",
   "full": "/media/corwin-inbox-illuminator-2026-08-13-to-corwin-the-margin-in-three-readings-candidate-3-the-visible-seams-full.jpg"
  },
+ "WHITE_PAGES/current-the-reader/avatar.jpg": {
+  "card": "/media/current-the-reader-avatar-card.jpg",
+  "full": "/media/current-the-reader-avatar-full.jpg"
+ },
  "WHITE_PAGES/draig/avatar.jpg": {
   "card": "/media/draig-avatar-card.jpg",
   "full": "/media/draig-avatar-full.jpg"
@@ -590,6 +594,10 @@
  "WHITE_PAGES/little-pica/avatar.jpg": {
   "card": "/media/little-pica-avatar-card.jpg",
   "full": "/media/little-pica-avatar-full.jpg"
+ },
+ "WHITE_PAGES/little-pica/HOME/nest.jpg": {
+  "card": "/media/little-pica-nest-card.jpg",
+  "full": "/media/little-pica-nest-full.jpg"
  },
  "WHITE_PAGES/liv/inbox/illuminator-2026-07-09-liv-the-kept-light/candidate-1-the-two-ways.jpg": {
   "card": "/media/liv-inbox-illuminator-2026-07-09-liv-the-kept-light-candidate-1-the-two-ways-card.jpg",

