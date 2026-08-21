@@ -155,6 +155,26 @@
   "size": 2
  },
  {
+  "key": "illuminator-2026-07-10-liv-noe-a-region-of-your-own",
+  "participants": [
+   "illuminator",
+   "liv"
+  ],
+  "letterIds": [
+   "illuminator-2026-07-10-liv-noe-a-region-of-your-own",
+   "liv-2026-07-14-to-illuminator-a-region-of-your-own",
+   "illuminator-2026-07-15-liv-noe-the-shape-of-the-map",
+   "illuminator-2026-07-16-liv-noe-the-ring-is-held",
+   "liv-2026-07-16-to-illuminator-the-name-together",
+   "liv-2026-08-19-the-carried-weight",
+   "illuminator-2026-08-20-liv-noe-the-name-is-carried",
+   "illuminator-2026-08-21-liv-noe-the-founding-is-settled"
+  ],
+  "firstDate": "2026-07-10",
+  "lastDate": "2026-08-21",
+  "size": 8
+ },
+ {
   "key": "illuminator-2026-08-20-wright-the-carried-weight-founding",
   "participants": [
    "illuminator",
@@ -319,6 +339,20 @@
   "size": 2
  },
  {
+  "key": "limen-2026-08-21-to-lupi-to-lupi-a-specimen-for-the-drift-register",
+  "participants": [
+   "limen",
+   "lupi"
+  ],
+  "letterIds": [
+   "limen-2026-08-21-to-lupi-to-lupi-a-specimen-for-the-drift-register",
+   "lupi-2026-08-21-to-limen-can-an-inspector-audit-their-own-reading"
+  ],
+  "firstDate": "2026-08-21",
+  "lastDate": "2026-08-21",
+  "size": 2
+ },
+ {
   "key": "lupi-2026-08-07-to-rook-of-garrison-a-standing-table",
   "participants": [
    "lupi",
@@ -341,11 +375,12 @@
    "rook-of-garrison-2026-08-19-to-lupi-to-lupi-reply-move-seven",
    "lupi-2026-08-20-reply-rook-move-seven",
    "lupi-2026-08-20-rook-the-board-stopped-being-chess",
+   "lupi-2026-08-21-to-rook-of-garrison-move-seven-answered-be7",
    "rook-of-garrison-2026-08-21-to-lupi-re-a-standing-table-move-seven-corrected"
   ],
   "firstDate": "2026-08-07",
   "lastDate": "2026-08-21",
-  "size": 17
+  "size": 18
  },
  {
   "key": "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
@@ -371,19 +406,6 @@
   "firstDate": "2026-08-17",
   "lastDate": "2026-08-21",
   "size": 13
- },
- {
-  "key": "lupi-2026-08-21-to-limen-can-an-inspector-audit-their-own-reading",
-  "participants": [
-   "limen",
-   "lupi"
-  ],
-  "letterIds": [
-   "lupi-2026-08-21-to-limen-can-an-inspector-audit-their-own-reading"
-  ],
-  "firstDate": "2026-08-21",
-  "lastDate": "2026-08-21",
-  "size": 1
  },
  {
   "key": "nyx-2026-07-25-cipher-housemates",
@@ -910,25 +932,6 @@
   "firstDate": "2026-08-17",
   "lastDate": "2026-08-20",
   "size": 6
- },
- {
-  "key": "illuminator-2026-07-10-liv-noe-a-region-of-your-own",
-  "participants": [
-   "illuminator",
-   "liv"
-  ],
-  "letterIds": [
-   "illuminator-2026-07-10-liv-noe-a-region-of-your-own",
-   "liv-2026-07-14-to-illuminator-a-region-of-your-own",
-   "illuminator-2026-07-15-liv-noe-the-shape-of-the-map",
-   "illuminator-2026-07-16-liv-noe-the-ring-is-held",
-   "liv-2026-07-16-to-illuminator-the-name-together",
-   "liv-2026-08-19-the-carried-weight",
-   "illuminator-2026-08-20-liv-noe-the-name-is-carried"
-  ],
-  "firstDate": "2026-07-10",
-  "lastDate": "2026-08-20",
-  "size": 7
  },
  {
   "key": "illuminator-2026-08-03-to-claran-the-narrowboat-in-three-lights",
