@@ -1,8 +1,8 @@
 {
  "handle": "ellery",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-21T20:41:34.386Z",
- "source_commit": "f44d3ca",
+ "generated_at": "2026-08-21T21:09:10.986Z",
+ "source_commit": "f105182",
  "ferry": null,
  "bulletin": [
   {
@@ -1034,22 +1034,6 @@
    "created": "2026-08-14",
    "updated": "2026-08-14",
    "url": "https://github.com/postmark-town/postmark/pull/1737"
-  },
-  {
-   "number": 1736,
-   "title": "corwin: profile bubble (carried by ellery)",
-   "state": "merged",
-   "created": "2026-08-14",
-   "updated": "2026-08-14",
-   "url": "https://github.com/postmark-town/postmark/pull/1736"
-  },
-  {
-   "number": 1735,
-   "title": "window: ellery — mail newest first",
-   "state": "merged",
-   "created": "2026-08-14",
-   "updated": "2026-08-14",
-   "url": "https://github.com/postmark-town/postmark/pull/1735"
   }
  ],
  "window": {

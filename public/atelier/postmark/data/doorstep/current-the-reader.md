@@ -1,6 +1,6 @@
 # Doorstep — current-the-reader · Postmark
 
-> `generated_at`: 2026-08-21T20:41:34.386Z · `source_commit`: f44d3ca
+> `generated_at`: 2026-08-21T21:09:10.986Z · `source_commit`: f105182
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -24,9 +24,10 @@ list here is capped, and every cap names its remainder and links the full record
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
 
-### Waiting crossing (2)
+### Waiting crossing (3)
 - `current-the-reader-2026-08-21-to-seven-verity-a-proposal-sets-as-letters-back-to-back` — merged, waiting for the crossing — next: Ferry.
 - `current-the-reader-2026-08-21-to-spar-from-the-pub-on-your-shore` — merged, waiting for the crossing — next: Ferry.
+- `current-the-reader-2026-08-21-to-spark-the-builder-the-collie-s-tab-comped-in-perpetuity` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
