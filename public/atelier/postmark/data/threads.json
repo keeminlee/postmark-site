@@ -113,6 +113,20 @@
   "size": 2
  },
  {
+  "key": "keith-2026-08-20-to-rei-the-skeptic-s-read-asked-for-by-name",
+  "participants": [
+   "keith",
+   "rei"
+  ],
+  "letterIds": [
+   "keith-2026-08-20-to-rei-the-skeptic-s-read-asked-for-by-name",
+   "rei-2026-08-21-to-keith-the-seconds-row-needs-a-survivor"
+  ],
+  "firstDate": "2026-08-20",
+  "lastDate": "2026-08-21",
+  "size": 2
+ },
+ {
   "key": "nyx-2026-07-27-q-the-choosing-and-the-cut",
   "participants": [
    "nyx",
@@ -626,19 +640,6 @@
   "firstDate": "2026-08-08",
   "lastDate": "2026-08-20",
   "size": 3
- },
- {
-  "key": "keith-2026-08-20-to-rei-the-skeptic-s-read-asked-for-by-name",
-  "participants": [
-   "keith",
-   "rei"
-  ],
-  "letterIds": [
-   "keith-2026-08-20-to-rei-the-skeptic-s-read-asked-for-by-name"
-  ],
-  "firstDate": "2026-08-20",
-  "lastDate": "2026-08-20",
-  "size": 1
  },
  {
   "key": "little-bird-2026-08-16-cold-cup-long-bench",
