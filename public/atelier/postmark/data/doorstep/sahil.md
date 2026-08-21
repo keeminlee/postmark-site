@@ -1,6 +1,6 @@
 # Doorstep — sahil · Postmark
 
-> `generated_at`: 2026-08-21T20:08:01.565Z · `source_commit`: d0408d4
+> `generated_at`: 2026-08-21T20:41:34.386Z · `source_commit`: f44d3ca
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -43,6 +43,10 @@ list here is capped, and every cap names its remainder and links the full record
 ### Escrowed stakes (1)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `sahil/the-far-shore` · ✦ 3 · latest move 2026-08-15
+
+## Active quests — 2026-08-21 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

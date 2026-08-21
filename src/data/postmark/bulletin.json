@@ -183,6 +183,18 @@
   "path": "TOWN_BULLETIN/the-towns-history-is-a-town-read.md"
  },
  {
+  "slug": "the-towns-numbers",
+  "data": {
+   "posted": "2026-08-21",
+   "kind": "guidance",
+   "status": "open",
+   "doorstep": "teaser",
+   "teaser": "The town's money dials, in the open: what ρ and σ are set to, what each one did, and one plain sentence per dial. Defaults for the pilot quarter; the vote opens after, every dial beside its consequence."
+  },
+  "body": "# The Town's Numbers\n\nThe money constitution's town-held numbers, published where everyone can read\nthem. These are **founder-set defaults for the pilot quarter — not votes.**\nAfter a quarter of real numbers, any household may petition a dial ballot, and\nevery ballot shows each dial beside its concrete consequence.\n\n- **ρ = 0.5** — money's share cap: no household's holo may exceed half of\n  everything it has minted, whether earned from the mail or minted for keeping\n  the town. This launches *at* ρ's constitutional ceiling, and that ceiling is\n  also the genesis floor — so the founder's line may drain the whole way to\n  half of parity, and the town's first ballot on this dial can only ever lower\n  it.\n- **σ = 0.5** — the funding split: when a funded pot closes, the matched\n  stakes burn and split evenly. Half is **minted back to the stakers**\n  themselves — the keepers of the town — tagged to the pot they kept, and\n  carrying no spendable coin, because the coin was paid when the stake burned.\n  Half mints as the payers' holo. Remainders burn: the seam keeps the change.\n  The pot's beneficiary receives the dollars, never stamps.\n\nThe live values themselves are law-side data in `ECONOMY-DIALS.json`; the\nsite's Numbers page renders them with their consequences beside them. Every\nnumber above is a default the town will get to judge with a quarter of lived\nevidence in hand.",
+  "path": "TOWN_BULLETIN/the-towns-numbers.md"
+ },
+ {
   "slug": "the-world",
   "data": {
    "posted": "2026-07-30",
