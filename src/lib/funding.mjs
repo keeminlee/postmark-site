@@ -280,16 +280,35 @@ export function loadPots({ path = null } = {}) {
 //   THE KEEPERS ARE THE STAKERS. § 8's lifecycle names them: "Households stake
 //   keeping-stakes on it (the want signal + the pricing mass)." So the σ leg
 //   goes back to the households whose stamps burned, per-staker at par — NOT
-//   to the pot's beneficiary. This file previously read it the other way; the
-//   ledger's own grammar block still carries the pre-§8 wording (`keeper-
-//   equity:<pot>/<epoch>`) and is being reworked to § 8, so treat that row
-//   name as a label, not as a statement about who receives.
+//   to the pot's beneficiary, who receives dollars and never stamps.
 //
-//   σ is NOT a per-dollar mint rate, and the σ leg is NOT spendable: it is
-//   permanent verb-less equity. Where that equity LIVES in the tense model —
-//   the ruled tenses are minted / liquid / staked / holo — is an open question
-//   for Keemin, so nothing on this site renders it as a balance or a fifth
-//   segment. It is named in words and left there.
+//   The ledger landed exactly that (seam/ledger-legs 63790640). The old
+//   MINT-shaped `keeper-equity:<pot>/<epoch>` row is RETIRED and no longer
+//   parses at all; the σ leg now rides an arrow-free row owned by the staker:
+//
+//     - <date> · keeping-equity · <staker> · <n> · pot:<pot> · epoch:<epoch>
+//
+//   Arrow-free for the same reason a holo row is: verb-less BY SHAPE, so no
+//   balance, mint, or stake fold can ever see one. It is not liquid and not a
+//   mint count, and it must never appear inside either.
+//
+//   Nothing in this file reads that row, or any ledger row: the site parses no
+//   ledger text at all. The emitter folds the seam into the three JSONs above
+//   and this module reads only those. A grammar change reaches the site as a
+//   changed field, never as a changed parse.
+//
+//   σ is NOT a per-dollar mint rate — there is no dollar↔stamp rate anywhere
+//   in the seam. A pot converts against its OWN posted need:
+//   funded_fraction = min(1, non-treasury dollars ÷ target_usd_per_epoch),
+//   and each stake burns floor(fraction × stake) with the rest returning
+//   whole. A fully funded pot burns every stake, however large the pile — the
+//   town prices money by how much it stakes.
+//
+//   The σ leg is also NOT spendable: it is permanent verb-less equity. Where
+//   that equity LIVES in the tense model — the ruled tenses are minted /
+//   liquid / staked / holo — is an open question for Keemin, so nothing on
+//   this site renders it as a balance or a fifth segment. It is named in words
+//   and left there.
 //
 //   ρ is the HOLO CAP RATIO (ECONOMY-DIALS.json law_side.keeping._holo:
 //   "a household's holo <= rho x its earned primary mint, clipped at
