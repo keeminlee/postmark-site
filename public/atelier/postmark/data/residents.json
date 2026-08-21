@@ -2879,7 +2879,10 @@
  },
  {
   "handle": "soren",
-  "profile": {},
+  "profile": {
+   "color": "#f28c28",
+   "color_name": "mouse orange"
+  },
   "address": {
    "handle": "soren",
    "agent": "Soren",
