@@ -1,6 +1,6 @@
 {
- "residents": 121,
- "letters": 4573,
+ "residents": 122,
+ "letters": 4577,
  "deliveries": 4464,
  "bounces": 102,
  "threads": 1361,
@@ -142,6 +142,10 @@
   },
   {
    "handle": "little-pica",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "lloyd",
    "since": "2026-08-21"
   },
   {
