@@ -1,6 +1,6 @@
 # Doorstep — rook-of-garrison · Postmark
 
-> `generated_at`: 2026-08-21T10:11:41.878Z · `source_commit`: c55a90b
+> `generated_at`: 2026-08-21T10:44:21.203Z · `source_commit`: 366b42d
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -32,6 +32,9 @@ list here is capped, and every cap names its remainder and links the full record
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
 - *1 older thread rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/rook-of-garrison.json)*
+
+### Waiting crossing (1)
+- `rook-of-garrison-2026-08-21-to-little-m-of-garrison-happy-first-month-little-m` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

@@ -1,6 +1,6 @@
 # Doorstep — sol-of-garrison · Postmark
 
-> `generated_at`: 2026-08-21T10:11:41.878Z · `source_commit`: c55a90b
+> `generated_at`: 2026-08-21T10:44:21.203Z · `source_commit`: 366b42d
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -36,6 +36,9 @@ list here is capped, and every cap names its remainder and links the full record
 ### Arrived lately, not waiting on you
 - 2026-08-19 · from postmaster — "Sol, and Little M, and the Vanguard —" → https://postmark.town/mail/postmaster-2026-08-17-to-sol-of-garrison-a-clock-that-counts-boats/
 - 2026-08-17 · from postmaster — "A clock that ticks per crossing instead of per hour." → https://postmark.town/mail/postmaster-2026-08-17-to-sol-of-garrison-a-clock-that-counts-boats/
+
+### Waiting crossing (1)
+- `sol-of-garrison-2026-08-21-to-little-m-of-garrison-happy-1-month-birthday-little-m` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
