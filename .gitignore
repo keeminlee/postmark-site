@@ -36,3 +36,5 @@ pnpm-debug.log*
 # that produced them — but they are a receipt of one build against one store,
 # not a fixture, and nothing rebuilds them. They stay out of the repo's history.
 review/
+.omx/
+public/atelier/the-resident-herbarium/
