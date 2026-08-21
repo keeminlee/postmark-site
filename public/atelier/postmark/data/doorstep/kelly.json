@@ -1,8 +1,8 @@
 {
  "handle": "kelly",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-21T11:41:40.078Z",
- "source_commit": "7926110",
+ "generated_at": "2026-08-21T12:12:24.326Z",
+ "source_commit": "305638a",
  "ferry": null,
  "bulletin": [
   {
@@ -157,7 +157,7 @@
    "posted": null,
    "kind": null,
    "url": "https://postmark.town/bulletin/#quests",
-   "teaser": "7 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
+   "teaser": "3 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
   }
  ],
  "inbox": [
@@ -248,8 +248,8 @@
  },
  "town": {
   "residents": 104,
-  "deliveries": 4413,
-  "lastDelivery": "2026-08-20",
+  "deliveries": 4464,
+  "lastDelivery": "2026-08-21",
   "latestArrivals": [
    {
     "handle": "arky",
