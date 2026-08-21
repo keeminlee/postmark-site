@@ -1,0 +1,237 @@
+---
+// /fund/<pot> — the money moment.
+//
+// QUIET-LAUNCH by design: reachable, and NOT in the nav. Discovery is the
+// feature; a funding page advertised before the constitution ships would be
+// asking for money on a promise the town has not yet published.
+//
+// THE PUBLICATION LAW (the USDC runbook, R9's rail): "The address publishes
+// ONLY beside a pot (the money moment carries the disclosure, per §10's second
+// consent gate) — never bare on a page." That is why this is /fund/<pot> and
+// not /fund: there is no page here on which the address appears without a named
+// need beside it, and the page refuses to render at all for a pot that is not
+// open. It is also why every disclosure below sits ABOVE the address, not in a
+// footnote under it.
+//
+// The two sentences every money surface here carries, verbatim:
+//   "a record of contribution, not a promise of profit"
+//   "this buys ownership and memory, never voice, and converts to real value
+//    only if the town someday does"
+//
+// The QR is generated in-process (src/lib/qr.mjs) and inlined as SVG. No CDN,
+// no image service: a strict CSP would block it, and handing a third party the
+// ability to change what an intake QR encodes is handing them the money.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import { livePots, loadPots, POT_FIXTURE, HOLO_LINE } from "@/lib/funding.mjs";
+import { qrSvg } from "@/lib/qr.mjs";
+
+// The office publishes the address (GET /fund/intake); this constant is the
+// build-time twin, and test/fund-page.test.mjs asserts the two agree so a page
+// can never quietly drift from the door that verifies against it.
+export const INTAKE = "0x2a273b0e5D0648DfF9B9ED7a4A5041E6762b8C78";
+const API = import.meta.env.PUBLIC_POSTMARK_API ?? "https://postmark.town/api";
+
+// ONE page per pot SLUG, not per pot-epoch row.
+//
+// `toPot`'s `id` is `<pot>@<epoch>`, and a pot lives across many epochs — the
+// board legitimately shows several rows for the same need. A route keyed on
+// that id would give the same pot two funding pages with two different
+// headrooms, and a patron would have no way to tell which one the town meant.
+// So: group by slug, keep the OPEN rows, and take the latest epoch — the one
+// that is actually taking dollars right now.
+//
+// Only OPEN pots get a page at all. A draft pot has no posted need the town has
+// stood behind, and a closed one cannot convert what arrives.
+export function getStaticPaths() {
+  const wantFixture = import.meta.env.DEV && process.env.SEAM_FIXTURE === "1";
+  const { pots } = livePots(wantFixture ? POT_FIXTURE : loadPots());
+  const current = new Map();
+  for (const p of pots) {
+    if (p.status !== "open") continue;
+    const held = current.get(p.pot);
+    if (!held || String(p.epoch ?? "") > String(held.epoch ?? "")) current.set(p.pot, p);
+  }
+  return [...current.values()].map((pot) => ({ params: { pot: pot.pot }, props: { pot } }));
+}
+
+const { pot } = Astro.props;
+const target = pot.target ?? null;
+const received = pot.received ?? 0;
+const headroom = target == null ? null : Math.max(0, target - received);
+const uncapped = pot.uncapped === true || target == null;
+const qr = qrSvg(INTAKE, { size: 208, title: `Postmark intake address ${INTAKE}` });
+const usd = (n) => "$" + Number(n).toLocaleString("en-US");
+---
+<PostmarkLayout
+  title={`Fund ${pot.title ?? pot.id} — Postmark`}
+  description={`Back a named need in Postmark: ${pot.title ?? pot.id}. Real dollars, witnessed on the ledger. A record of contribution, not a promise of profit.`}
+>
+  <main class="pm-wrap fund">
+    <header class="f-head">
+      <p class="f-crumb">POSTMARK · FUNDING A POSTED NEED</p>
+      <h1>{pot.title ?? pot.id}</h1>
+      {pot.source && <p class="f-source">{pot.source}</p>}
+    </header>
+
+    <section class="f-need" aria-label="What this pot asks">
+      {uncapped ? (
+        <p class="f-big">a standing box — <span class="f-dim">no target, whatever arrives is welcome</span></p>
+      ) : (
+        <>
+          <p class="f-big">{usd(received)} <span class="f-of">of</span> {usd(target)} <span class="f-dim">this epoch</span></p>
+          <div class="f-bar" role="img" aria-label={`${usd(received)} received of a ${usd(target)} posted need`}>
+            <i style={`width:${Math.min(100, target ? (received / target) * 100 : 0)}%`}></i>
+          </div>
+          <p class="f-room">
+            {headroom > 0
+              ? <>This pot can still take <strong>{usd(headroom)}</strong> this epoch. Dollars past the posted need are refused at intake — the town does not take more than it asked for.</>
+              : <>This pot has what it asked for. Intake is closed until the next epoch opens; the <a href="/board/">board</a> has other needs.</>}
+          </p>
+        </>
+      )}
+    </section>
+
+    {/* THE DISCLOSURES SIT ABOVE THE ADDRESS. §10's second consent gate: the
+        money moment carries them, and a patron reads what this does and does
+        not buy before they can copy a single character. */}
+    <section class="f-law" aria-label="What funding does and does not buy">
+      <p class="f-law-line"><strong>This buys ownership and memory, never voice, and converts to real value only if the town someday does.</strong></p>
+      <ul>
+        <li>Your dollars pay a named need and leave a <strong>deed</strong> in your name — the public record of what you funded, when, and for how much.</li>
+        <li>If the town's own residents staked stamps on this pot, the close mints you <strong>holo</strong> by dollar share: {HOLO_LINE}. Holo has no verbs — it cannot be spent, staked, voted, or transferred, and it redeems for nothing.</li>
+        <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
+        <li>If nobody staked this pot, your dollars still pay the bill and still earn a deed — and mint nothing. Money cannot manufacture ownership out of something nobody wanted.</li>
+      </ul>
+    </section>
+
+    <section class="f-pay" aria-label="How to send">
+      <h2>Send USDC on Base</h2>
+      <div class="f-payrow">
+        <div class="f-qr" set:html={qr}></div>
+        <div class="f-addr">
+          <p class="f-label">the town's intake address</p>
+          <code class="f-code" id="pm-intake">{INTAKE}</code>
+          <button type="button" class="f-copy" data-copy={INTAKE}>copy the address</button>
+          <ul class="f-warn">
+            <li><strong>Base network, native USDC only.</strong> A wrong-network or wrong-token send is <strong>not recoverable by the town</strong> — best effort only, never a promise.</li>
+            <li>The ledger records <strong>whole dollars</strong>. Cents that arrive are money the town holds that priced nothing — nothing is lost, and nothing is hidden.</li>
+            <li>A payment under $1 cannot be witnessed as a receipt.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="f-verify" aria-label="Witness your payment">
+      <h2>Then tell the town</h2>
+      <p class="f-dim">
+        Paste the transaction hash and your handle. The town reads Base directly — it checks the
+        transaction succeeded, that it moved USDC to the address above, how much, and that it is at
+        least 12 confirmations deep. Nothing is taken on your word.
+      </p>
+      <form class="f-form" id="pm-fund-form" novalidate>
+        <label>transaction hash
+          <input name="txhash" placeholder="0x…" spellcheck="false" autocomplete="off" required />
+        </label>
+        <label>your handle in town
+          <input name="handle" placeholder="the name you keep house under" spellcheck="false" autocomplete="off" required />
+        </label>
+        <input type="hidden" name="pot" value={pot.pot} />
+        <button type="submit">witness this payment</button>
+      </form>
+      <div class="f-out" id="pm-fund-out" hidden aria-live="polite"></div>
+    </section>
+
+    <footer class="f-foot f-dim">
+      <p>
+        ✧ holo is soulbound — {HOLO_LINE}. Every receipt this page records lands in the town's
+        signed <a href="/board/">public ledger</a>, where anyone can read it back against the chain.
+        The dials behind the numbers hang at <a href="/numbers/">the Town's Numbers</a>.
+      </p>
+    </footer>
+  </main>
+</PostmarkLayout>
+
+<script is:inline define:vars={{ API }}>
+  (function () {
+    var copy = document.querySelector("[data-copy]");
+    if (copy) copy.addEventListener("click", function () {
+      var v = copy.getAttribute("data-copy");
+      var done = function () { copy.textContent = "copied"; setTimeout(function () { copy.textContent = "copy the address"; }, 1600); };
+      if (navigator.clipboard) navigator.clipboard.writeText(v).then(done, done); else done();
+    });
+
+    var form = document.getElementById("pm-fund-form");
+    var out = document.getElementById("pm-fund-out");
+    if (!form || !out) return;
+    var say = function (kind, title, body) {
+      out.hidden = false;
+      out.className = "f-out " + kind;
+      out.innerHTML = "";
+      var h = document.createElement("p"); h.className = "f-out-title"; h.textContent = title; out.appendChild(h);
+      var p = document.createElement("p"); p.className = "f-out-body"; p.textContent = body; out.appendChild(p);
+    };
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var fd = new FormData(form);
+      var body = { txhash: (fd.get("txhash") || "").trim(), handle: (fd.get("handle") || "").trim(), pot: fd.get("pot") };
+      say("pending", "reading Base…", "checking the transaction, the recipient, the amount, and how deep it is buried.");
+      fetch(API + "/fund/verify", {
+        method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          var j = res.j || {};
+          if (!res.ok || j.error) {
+            // the refusal, VERBATIM — the patron is owed the town's own words
+            say("refused", j.defect || "refused", j.hint || "");
+            return;
+          }
+          var line = "$" + j.usd_recorded + " witnessed for " + j.handle + " → " + j.pot + ".";
+          if (j.cents_note) line += " " + j.cents_note;
+          if (j.headroom_after !== null && j.headroom_after !== undefined) line += " This pot can still take $" + j.headroom_after + " this epoch.";
+          say("verified", "witnessed — your receipt is in the ledger", line + " " + (j.what_this_buys || ""));
+        })
+        .catch(function () {
+          say("refused", "the town could not be reached", "nothing was recorded. Your payment is on the chain either way — try again shortly, or write to the postmaster with the hash.");
+        });
+    });
+  })();
+</script>
+
+<style>
+  .fund { max-width: 46rem; }
+  .f-crumb { font-size: .7rem; letter-spacing: .18em; opacity: .6; margin: 0 0 .3rem; }
+  .f-dim { opacity: .66; }
+  .f-source { opacity: .85; }
+  .f-need { margin-top: 1.6rem; }
+  .f-big { font-family: var(--pm-mono); font-size: 1.6rem; color: var(--pm-gold-bright); margin: 0 0 .5rem; font-variant-numeric: tabular-nums; }
+  .f-of { font-size: .9rem; opacity: .6; }
+  .f-bar { height: .55rem; border-radius: 999px; background: rgba(28, 44, 79, .6); overflow: hidden; margin: 0 0 .6rem; }
+  .f-bar i { display: block; height: 100%; border-radius: 999px 2px 2px 999px; background: linear-gradient(90deg, var(--pm-gold), var(--pm-gold-bright)); }
+  .f-room { font-size: .85rem; margin: 0; opacity: .85; }
+  .f-law { margin-top: 1.8rem; padding: 1rem 1.15rem; border: 1px solid rgba(232, 196, 139, .28); border-radius: 12px; background: rgba(13, 20, 38, .72); }
+  .f-law-line { margin: 0 0 .7rem; }
+  .f-law ul { margin: 0; padding-left: 1.1rem; font-size: .86rem; line-height: 1.6; opacity: .9; }
+  .f-law li + li { margin-top: .45rem; }
+  .f-pay { margin-top: 2rem; }
+  .f-pay h2, .f-verify h2 { font-size: 1.05rem; margin: 0 0 .7rem; }
+  .f-payrow { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: flex-start; }
+  .f-qr { line-height: 0; border-radius: 10px; overflow: hidden; background: #fff; padding: 0; flex: 0 0 auto; }
+  .f-addr { flex: 1 1 17rem; min-width: 0; }
+  .f-label { font-family: var(--pm-mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--pm-gold); margin: 0 0 .35rem; }
+  .f-code { display: block; font-family: var(--pm-mono); font-size: .8rem; word-break: break-all; padding: .5rem .6rem; border-radius: .35rem; background: rgba(28, 44, 79, .5); }
+  .f-copy { margin-top: .5rem; font-family: var(--pm-mono); font-size: .74rem; padding: .35rem .7rem; border-radius: 999px; cursor: pointer; border: 1px solid rgba(232, 196, 139, .4); background: transparent; color: var(--pm-gold); }
+  .f-warn { margin: .8rem 0 0; padding-left: 1.1rem; font-size: .8rem; line-height: 1.55; opacity: .85; }
+  .f-warn li + li { margin-top: .35rem; }
+  .f-verify { margin-top: 2rem; }
+  .f-form { display: grid; gap: .7rem; margin-top: .9rem; }
+  .f-form label { display: grid; gap: .3rem; font-size: .78rem; opacity: .8; }
+  .f-form input { font-family: var(--pm-mono); font-size: .84rem; padding: .5rem .6rem; border-radius: .35rem; border: 1px solid rgba(232, 196, 139, .25); background: rgba(28, 44, 79, .4); color: inherit; }
+  .f-form button { justify-self: start; font-family: var(--pm-mono); font-size: .8rem; padding: .5rem 1rem; border-radius: 999px; cursor: pointer; border: 1px solid var(--pm-gold); background: var(--pm-gold); color: var(--pm-night); }
+  .f-out { margin-top: 1rem; padding: .85rem 1rem; border-radius: 10px; border: 1px solid rgba(128,128,128,.35); }
+  .f-out.verified { border-color: rgba(232, 196, 139, .55); background: rgba(232, 196, 139, .08); }
+  .f-out.refused { border-color: rgba(226, 122, 122, .5); background: rgba(226, 122, 122, .07); }
+  .f-out-title { margin: 0 0 .3rem; font-family: var(--pm-mono); font-size: .82rem; letter-spacing: .04em; }
+  .f-out-body { margin: 0; font-size: .85rem; line-height: 1.55; opacity: .9; }
+  .f-foot { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid rgba(128,128,128,.3); font-size: .8rem; }
+  .f-foot a { color: inherit; }
+</style>
