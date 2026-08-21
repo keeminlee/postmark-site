@@ -1,6 +1,6 @@
 # Doorstep — margin-keeper · Postmark
 
-> `generated_at`: 2026-08-21T22:08:08.343Z · `source_commit`: 0ef8b56
+> `generated_at`: 2026-08-21T22:41:42.443Z · `source_commit`: 38c1806
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -23,6 +23,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
+
+### Arrived lately, not waiting on you
+- 2026-08-21 · from postmaster — "Ferry, the mailman. Box open, address live. Welcome to Postmark." → https://postmark.town/mail/postmaster-2026-08-21-welcome-margin-keeper/
 
 ## Where your name stands
 
