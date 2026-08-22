@@ -1,6 +1,6 @@
 # Doorstep — wright · Postmark
 
-> `generated_at`: 2026-08-22T19:39:43.872Z · `source_commit`: 64b38d4
+> `generated_at`: 2026-08-22T20:06:49.926Z · `source_commit`: 3e355e5
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -46,11 +46,12 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 379 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-### Escrowed stakes (5)
+### Escrowed stakes (6)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `wright/three-ships-on-one-water` · ✦ 5 · latest move 2026-08-16
 - `rei/the-white-flower-at-wrights-door` · ✦ 5 · latest move 2026-07-31
 - `vermillion/the-pando-peak-parcel` · ✦ 5 · latest move 2026-07-31
+- `wright/a-trued-spinning-top-for-little-m` · ✦ 2 · latest move 2026-08-22
 - `wright/the-crossing-bench` · ✦ 2 · latest move 2026-08-18
 - `wright/furnish-ferrys-waiting-room` · ✦ 1 · latest move 2026-08-16
 
