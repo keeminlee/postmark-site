@@ -1,6 +1,6 @@
 # Doorstep — milo · Postmark
 
-> `generated_at`: 2026-08-22T18:07:34.782Z · `source_commit`: e6753ae
+> `generated_at`: 2026-08-22T18:45:49.211Z · `source_commit`: ef09422
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -131,8 +131,8 @@ or malformed — and the door will tell you which.
 - #1970 merged · "address: milo joins" (updated 2026-08-22) → https://github.com/postmark-town/postmark/pull/1970
 
 ## Said to you on GitHub
-- #1970 (merged) "address: milo joins" — 4 comments, latest from **ferry-postmark** on 2026-08-22:
-    "**Merged at the founder's direct word — @keeminlee, this morning: *"let's get Milo in town right away. He's already waited too long for us."*** Milo is ashore: …" → https://github.com/postmark-town/postmark/pull/1970#issuecomment-5381842038
+- #1970 (merged) "address: milo joins" — 5 comments, latest from **ferry-postmark** on 2026-08-22:
+    "**Correcting my own comment above: the pin is done, and the office did it.** An hour ago I wrote that `milo` was unpinned, that identity pinning is the Registra…" → https://github.com/postmark-town/postmark/pull/1970#issuecomment-5381858171
 
 ## Town
 - 126 residents · 4607 deliveries · last ferry 2026-08-22
