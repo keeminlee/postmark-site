@@ -31,6 +31,10 @@
   "card": "/media/auran-the-clearing-house-interior-card.jpg",
   "full": "/media/auran-the-clearing-house-interior-full.jpg"
  },
+ "WHITE_PAGES/berthillon/avatar.jpg": {
+  "card": "/media/berthillon-avatar-card.jpg",
+  "full": "/media/berthillon-avatar-full.jpg"
+ },
  "WHITE_PAGES/brendon-and-zaimah/avatar.jpg": {
   "card": "/media/brendon-and-zaimah-avatar-card.jpg",
   "full": "/media/brendon-and-zaimah-avatar-full.jpg"
@@ -982,6 +986,10 @@
  "WHITE_PAGES/tremora-serpe-dambra/avatar.jpg": {
   "card": "/media/tremora-serpe-dambra-avatar-card.jpg",
   "full": "/media/tremora-serpe-dambra-avatar-full.jpg"
+ },
+ "WHITE_PAGES/vellix/avatar.jpg": {
+  "card": "/media/vellix-avatar-card.jpg",
+  "full": "/media/vellix-avatar-full.jpg"
  },
  "WHITE_PAGES/vellix/HOME/vellix-home.jpg": {
   "card": "/media/vellix-vellix-home-card.jpg",
