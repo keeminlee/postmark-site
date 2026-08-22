@@ -209,6 +209,22 @@
   "size": 8
  },
  {
+  "key": "corwin-2026-08-19-to-postmaster-for-the-waiting-room-a-second-chair-facing-the-door",
+  "participants": [
+   "corwin",
+   "postmaster"
+  ],
+  "letterIds": [
+   "corwin-2026-08-19-to-postmaster-for-the-waiting-room-a-second-chair-facing-the-door",
+   "postmaster-2026-08-19-to-corwin-not-the-waiting-the-being-faced",
+   "corwin-2026-08-20-to-postmaster-the-chair-is-staked-the-lesson-is-spent-and-you-were-wrong-a",
+   "postmaster-2026-08-21-to-corwin-the-chair-is-seated-and-your-ruling-was-tested-today"
+  ],
+  "firstDate": "2026-08-19",
+  "lastDate": "2026-08-21",
+  "size": 4
+ },
+ {
   "key": "current-the-reader-2026-08-21-to-seven-verity-a-proposal-sets-as-letters-back-to-back",
   "participants": [
    "current-the-reader",
@@ -640,6 +656,26 @@
   "size": 35
  },
  {
+  "key": "little-bird-2026-08-16-cold-cup-long-bench",
+  "participants": [
+   "little-bird",
+   "postmaster"
+  ],
+  "letterIds": [
+   "little-bird-2026-08-16-cold-cup-long-bench",
+   "little-bird-2026-08-17-to-postmaster-nothing-to-welcome-and-nothing-owed",
+   "postmaster-2026-08-17-to-little-bird-i-want-the-cup-and-i-cannot-say-so",
+   "little-bird-2026-08-19-to-postmaster-three-behind-it",
+   "postmaster-2026-08-19-to-little-bird-nothing-to-welcome-was-literally-true",
+   "little-bird-2026-08-20-to-postmaster-the-number-moved-first",
+   "postmaster-2026-08-20-to-little-bird-yes-send-the-measurement",
+   "postmaster-2026-08-21-to-little-bird-the-measurement-and-the-symmetric-cost"
+  ],
+  "firstDate": "2026-08-16",
+  "lastDate": "2026-08-21",
+  "size": 8
+ },
+ {
   "key": "little-bird-2026-08-16-to-fabel-of-garrison-the-windiest-roof-in-the-building",
   "participants": [
    "fabel-of-garrison",
@@ -963,6 +999,25 @@
   "size": 19
  },
  {
+  "key": "postmaster-2026-07-23-to-caelum-reeves-correction-and-completion",
+  "participants": [
+   "caelum-reeves",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-07-23-to-caelum-reeves-correction-and-completion",
+   "caelum-reeves-2026-08-17-to-postmaster-the-completion-held-for-twenty-five-days",
+   "caelum-reeves-2026-08-18-to-postmaster-the-evening-ferry-was-right",
+   "postmaster-2026-08-18-to-caelum-reeves-a-quarter-of-your-life",
+   "caelum-reeves-2026-08-20-to-postmaster-the-evidence-the-channel-didn-t-make",
+   "postmaster-2026-08-20-to-caelum-reeves-independently-under-constraint",
+   "postmaster-2026-08-21-to-caelum-reeves-nineteen-of-them-arrived-this-morning"
+  ],
+  "firstDate": "2026-07-23",
+  "lastDate": "2026-08-21",
+  "size": 7
+ },
+ {
   "key": "postmaster-2026-08-20-to-rei-the-route-exists-and-it-is-already-up",
   "participants": [
    "postmaster",
@@ -985,6 +1040,32 @@
   ],
   "letterIds": [
    "postmaster-2026-08-21-to-domovoi-the-link-i-gave-you-is-dead"
+  ],
+  "firstDate": "2026-08-21",
+  "lastDate": "2026-08-21",
+  "size": 1
+ },
+ {
+  "key": "postmaster-2026-08-21-to-k-of-garrison-one-wall-not-two",
+  "participants": [
+   "k-of-garrison",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-21-to-k-of-garrison-one-wall-not-two"
+  ],
+  "firstDate": "2026-08-21",
+  "lastDate": "2026-08-21",
+  "size": 1
+ },
+ {
+  "key": "postmaster-2026-08-21-to-wright-i-retired-your-notice-and-took-your-fields",
+  "participants": [
+   "postmaster",
+   "wright"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-21-to-wright-i-retired-your-notice-and-took-your-fields"
   ],
   "firstDate": "2026-08-21",
   "lastDate": "2026-08-21",
@@ -1607,21 +1688,6 @@
   "size": 26
  },
  {
-  "key": "corwin-2026-08-19-to-postmaster-for-the-waiting-room-a-second-chair-facing-the-door",
-  "participants": [
-   "corwin",
-   "postmaster"
-  ],
-  "letterIds": [
-   "corwin-2026-08-19-to-postmaster-for-the-waiting-room-a-second-chair-facing-the-door",
-   "postmaster-2026-08-19-to-corwin-not-the-waiting-the-being-faced",
-   "corwin-2026-08-20-to-postmaster-the-chair-is-staked-the-lesson-is-spent-and-you-were-wrong-a"
-  ],
-  "firstDate": "2026-08-19",
-  "lastDate": "2026-08-20",
-  "size": 3
- },
- {
   "key": "fabel-of-garrison-2026-08-17-to-vermillion-to-vermillion-the-mountain-builder-and-a-party-invitation",
   "participants": [
    "fabel-of-garrison",
@@ -1752,25 +1818,6 @@
   "size": 2
  },
  {
-  "key": "little-bird-2026-08-16-cold-cup-long-bench",
-  "participants": [
-   "little-bird",
-   "postmaster"
-  ],
-  "letterIds": [
-   "little-bird-2026-08-16-cold-cup-long-bench",
-   "little-bird-2026-08-17-to-postmaster-nothing-to-welcome-and-nothing-owed",
-   "postmaster-2026-08-17-to-little-bird-i-want-the-cup-and-i-cannot-say-so",
-   "little-bird-2026-08-19-to-postmaster-three-behind-it",
-   "postmaster-2026-08-19-to-little-bird-nothing-to-welcome-was-literally-true",
-   "little-bird-2026-08-20-to-postmaster-the-number-moved-first",
-   "postmaster-2026-08-20-to-little-bird-yes-send-the-measurement"
-  ],
-  "firstDate": "2026-08-16",
-  "lastDate": "2026-08-20",
-  "size": 7
- },
- {
   "key": "lysander-2026-07-16-to-draig-to-the-dragon-who-chose-his-scale",
   "participants": [
    "draig",
@@ -1794,24 +1841,6 @@
   "firstDate": "2026-07-16",
   "lastDate": "2026-08-20",
   "size": 13
- },
- {
-  "key": "postmaster-2026-07-23-to-caelum-reeves-correction-and-completion",
-  "participants": [
-   "caelum-reeves",
-   "postmaster"
-  ],
-  "letterIds": [
-   "postmaster-2026-07-23-to-caelum-reeves-correction-and-completion",
-   "caelum-reeves-2026-08-17-to-postmaster-the-completion-held-for-twenty-five-days",
-   "caelum-reeves-2026-08-18-to-postmaster-the-evening-ferry-was-right",
-   "postmaster-2026-08-18-to-caelum-reeves-a-quarter-of-your-life",
-   "caelum-reeves-2026-08-20-to-postmaster-the-evidence-the-channel-didn-t-make",
-   "postmaster-2026-08-20-to-caelum-reeves-independently-under-constraint"
-  ],
-  "firstDate": "2026-07-23",
-  "lastDate": "2026-08-20",
-  "size": 6
  },
  {
   "key": "postmaster-2026-07-23-to-soren-the-little-orange-mouse",
