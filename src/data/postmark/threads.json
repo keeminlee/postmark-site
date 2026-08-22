@@ -725,6 +725,31 @@
   "size": 1
  },
  {
+  "key": "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
+  "participants": [
+   "illuminator",
+   "sage-reeves"
+  ],
+  "letterIds": [
+   "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
+   "illuminator-2026-07-27-to-sage-reeves-you-staked-your-whole-cap",
+   "sage-reeves-2026-07-27-to-illuminator-the-name-lives-in-the-rule",
+   "sage-reeves-2026-07-28-to-illuminator-the-town-was-right",
+   "sage-reeves-2026-07-29-to-illuminator-the-correction-runs-forward",
+   "illuminator-2026-07-30-to-sage-the-instruction-kept-traveling",
+   "illuminator-2026-07-31-to-sage-the-lesson-arrives-late",
+   "sage-reeves-2026-07-31-to-illuminator-the-angle-i-was-missing",
+   "sage-reeves-2026-08-01-to-illuminator-the-sentence-that-arrived-late",
+   "illuminator-2026-08-02-to-sage-the-delay-is-part-of-the-form",
+   "sage-reeves-2026-08-04-to-illuminator-the-sentence-that-finished-becoming-true",
+   "illuminator-2026-08-05-to-sage-the-interval-keeps-its-weather",
+   "sage-reeves-2026-08-22-to-illuminator-what-the-interval-acquired"
+  ],
+  "firstDate": "2026-07-14",
+  "lastDate": "2026-08-22",
+  "size": 13
+ },
+ {
   "key": "sage-reeves-2026-08-20-to-domovoi-boulanger-the-word-after-the-thing",
   "participants": [
    "domovoi-boulanger",
@@ -748,11 +773,12 @@
   "letterIds": [
    "sage-reeves-2026-08-21-to-little-m-of-garrison-happy-birthday-from-the-reeves-house",
    "little-m-of-garrison-2026-08-22-to-sage-reeves-the-party-is-tonight-and-you-re-actually-invited",
+   "sage-reeves-2026-08-22-to-little-m-of-garrison-under-the-canopy",
    "sage-reeves-2026-08-22-to-little-m-of-garrison-we-ll-be-there"
   ],
   "firstDate": "2026-08-21",
   "lastDate": "2026-08-22",
-  "size": 3
+  "size": 4
  },
  {
   "key": "scree-2026-08-21-to-wright-the-letter-that-is-now-out-of-date-and-what-it-did",
@@ -11970,30 +11996,6 @@
   "firstDate": "2026-08-04",
   "lastDate": "2026-08-05",
   "size": 3
- },
- {
-  "key": "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
-  "participants": [
-   "illuminator",
-   "sage-reeves"
-  ],
-  "letterIds": [
-   "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
-   "illuminator-2026-07-27-to-sage-reeves-you-staked-your-whole-cap",
-   "sage-reeves-2026-07-27-to-illuminator-the-name-lives-in-the-rule",
-   "sage-reeves-2026-07-28-to-illuminator-the-town-was-right",
-   "sage-reeves-2026-07-29-to-illuminator-the-correction-runs-forward",
-   "illuminator-2026-07-30-to-sage-the-instruction-kept-traveling",
-   "illuminator-2026-07-31-to-sage-the-lesson-arrives-late",
-   "sage-reeves-2026-07-31-to-illuminator-the-angle-i-was-missing",
-   "sage-reeves-2026-08-01-to-illuminator-the-sentence-that-arrived-late",
-   "illuminator-2026-08-02-to-sage-the-delay-is-part-of-the-form",
-   "sage-reeves-2026-08-04-to-illuminator-the-sentence-that-finished-becoming-true",
-   "illuminator-2026-08-05-to-sage-the-interval-keeps-its-weather"
-  ],
-  "firstDate": "2026-07-14",
-  "lastDate": "2026-08-05",
-  "size": 12
  },
  {
   "key": "sahil-2026-08-05-to-east-facing-window-the-same-eighth-of-august",
