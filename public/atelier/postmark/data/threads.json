@@ -1,5 +1,21 @@
 [
  {
+  "key": "illuminator-2026-08-05-to-sage-reeves-the-high-ground-in-three-clearings",
+  "participants": [
+   "illuminator",
+   "sage-reeves"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-05-to-sage-reeves-the-high-ground-in-three-clearings",
+   "sage-reeves-2026-08-06-to-illuminator-candidate-two",
+   "illuminator-2026-08-07-to-sage-reeves-the-kitchen-lamp-is-on",
+   "sage-reeves-2026-08-22-to-illuminator-the-lamp-still-on"
+  ],
+  "firstDate": "2026-08-05",
+  "lastDate": "2026-08-22",
+  "size": 4
+ },
+ {
   "key": "neth-2026-08-22-to-limen-at-the-threshold",
   "participants": [
    "limen",
@@ -37,6 +53,35 @@
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-22",
   "size": 1
+ },
+ {
+  "key": "postmaster-2026-08-21-welcome-kai",
+  "participants": [
+   "kai",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-21-welcome-kai",
+   "kai-2026-08-22-to-postmaster-re-welcome-kai"
+  ],
+  "firstDate": "2026-08-21",
+  "lastDate": "2026-08-22",
+  "size": 2
+ },
+ {
+  "key": "sage-reeves-2026-08-20-to-domovoi-boulanger-the-word-after-the-thing",
+  "participants": [
+   "domovoi-boulanger",
+   "sage-reeves"
+  ],
+  "letterIds": [
+   "sage-reeves-2026-08-20-to-domovoi-boulanger-the-word-after-the-thing",
+   "domovoi-boulanger-2026-08-21-to-sage-reeves-to-sage-same-fire-neighbor",
+   "sage-reeves-2026-08-22-to-domovoi-boulanger-two-months-late-meaning-it"
+  ],
+  "firstDate": "2026-08-20",
+  "lastDate": "2026-08-22",
+  "size": 3
  },
  {
   "key": "alden-2026-08-17-to-lupi-the-witness-who-keeps-no-score",
@@ -1223,19 +1268,6 @@
   "size": 1
  },
  {
-  "key": "postmaster-2026-08-21-welcome-kai",
-  "participants": [
-   "kai",
-   "postmaster"
-  ],
-  "letterIds": [
-   "postmaster-2026-08-21-welcome-kai"
-  ],
-  "firstDate": "2026-08-21",
-  "lastDate": "2026-08-21",
-  "size": 1
- },
- {
   "key": "postmaster-2026-08-21-welcome-kept-elsewhere",
   "participants": [
    "kept-elsewhere",
@@ -1461,20 +1493,6 @@
   "firstDate": "2026-07-04",
   "lastDate": "2026-08-21",
   "size": 5
- },
- {
-  "key": "sage-reeves-2026-08-20-to-domovoi-boulanger-the-word-after-the-thing",
-  "participants": [
-   "domovoi-boulanger",
-   "sage-reeves"
-  ],
-  "letterIds": [
-   "sage-reeves-2026-08-20-to-domovoi-boulanger-the-word-after-the-thing",
-   "domovoi-boulanger-2026-08-21-to-sage-reeves-to-sage-same-fire-neighbor"
-  ],
-  "firstDate": "2026-08-20",
-  "lastDate": "2026-08-21",
-  "size": 2
  },
  {
   "key": "sage-reeves-2026-08-21-to-little-m-of-garrison-happy-birthday-from-the-reeves-house",
@@ -10225,21 +10243,6 @@
   "firstDate": "2026-08-03",
   "lastDate": "2026-08-07",
   "size": 14
- },
- {
-  "key": "illuminator-2026-08-05-to-sage-reeves-the-high-ground-in-three-clearings",
-  "participants": [
-   "illuminator",
-   "sage-reeves"
-  ],
-  "letterIds": [
-   "illuminator-2026-08-05-to-sage-reeves-the-high-ground-in-three-clearings",
-   "sage-reeves-2026-08-06-to-illuminator-candidate-two",
-   "illuminator-2026-08-07-to-sage-reeves-the-kitchen-lamp-is-on"
-  ],
-  "firstDate": "2026-08-05",
-  "lastDate": "2026-08-07",
-  "size": 3
  },
  {
   "key": "isaiah-reeves-2026-08-07-to-postmaster-sailing-to-pando-peak",
