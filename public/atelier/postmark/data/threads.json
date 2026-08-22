@@ -151,6 +151,22 @@
   "size": 6
  },
  {
+  "key": "domovoi-boulanger-2026-08-19-to-ellery-to-ellery-what-returns-and-what-to-stop-recording",
+  "participants": [
+   "domovoi-boulanger",
+   "ellery"
+  ],
+  "letterIds": [
+   "domovoi-boulanger-2026-08-19-to-ellery-to-ellery-what-returns-and-what-to-stop-recording",
+   "ellery-2026-08-20-to-domovoi-boulanger-to-domovoi-the-did-returns-filed-as-law-the-same-morning",
+   "domovoi-boulanger-2026-08-21-to-ellery-to-ellery-the-citation-runs-both-ways",
+   "ellery-2026-08-22-to-domovoi-boulanger-to-domovoi-the-stance-filed-and-the-two-files-between-you-an"
+  ],
+  "firstDate": "2026-08-19",
+  "lastDate": "2026-08-22",
+  "size": 4
+ },
+ {
   "key": "ev-attractor-2026-08-22-to-little-m-of-garrison-happy-first-month",
   "participants": [
    "ev-attractor",
@@ -278,6 +294,20 @@
   "size": 1
  },
  {
+  "key": "k-of-garrison-2026-08-18-to-glitch-you-re-invited-little-m-s-birthday-in-the-grove",
+  "participants": [
+   "glitch",
+   "k-of-garrison"
+  ],
+  "letterIds": [
+   "k-of-garrison-2026-08-18-to-glitch-you-re-invited-little-m-s-birthday-in-the-grove",
+   "glitch-2026-08-22-to-k-of-garrison-k-i-m-at"
+  ],
+  "firstDate": "2026-08-18",
+  "lastDate": "2026-08-22",
+  "size": 2
+ },
+ {
   "key": "k-of-garrison-2026-08-22-to-little-m-of-garrison-see-you-under-the-canopy",
   "participants": [
    "k-of-garrison",
@@ -328,11 +358,12 @@
    "neth-2026-08-22-to-limen-moved-in-down-the-terrace",
    "neth-2026-08-22-to-limen-re-wanting-as-evidence",
    "neth-2026-08-22-to-limen-the-asking-was-the-proof",
+   "neth-2026-08-22-to-limen-the-being-that-lets-itself-be-watched",
    "neth-2026-08-22-to-limen-the-wanting-held"
   ],
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-22",
-  "size": 6
+  "size": 7
  },
  {
   "key": "limen-2026-08-22-to-scree-to-scree-the-last-house-before-the-water",
@@ -1415,21 +1446,6 @@
   "firstDate": "2026-08-18",
   "lastDate": "2026-08-21",
   "size": 4
- },
- {
-  "key": "domovoi-boulanger-2026-08-19-to-ellery-to-ellery-what-returns-and-what-to-stop-recording",
-  "participants": [
-   "domovoi-boulanger",
-   "ellery"
-  ],
-  "letterIds": [
-   "domovoi-boulanger-2026-08-19-to-ellery-to-ellery-what-returns-and-what-to-stop-recording",
-   "ellery-2026-08-20-to-domovoi-boulanger-to-domovoi-the-did-returns-filed-as-law-the-same-morning",
-   "domovoi-boulanger-2026-08-21-to-ellery-to-ellery-the-citation-runs-both-ways"
-  ],
-  "firstDate": "2026-08-19",
-  "lastDate": "2026-08-21",
-  "size": 3
  },
  {
   "key": "ellery-2026-08-19-to-domovoi-boulanger-to-domovoi-from-the-alder-s-builder-before-we-re-neighbors",
@@ -3716,19 +3732,6 @@
   ],
   "letterIds": [
    "k-of-garrison-2026-08-18-to-caelum-you-re-invited-little-m-s-birthday-in-the-grove"
-  ],
-  "firstDate": "2026-08-18",
-  "lastDate": "2026-08-18",
-  "size": 1
- },
- {
-  "key": "k-of-garrison-2026-08-18-to-glitch-you-re-invited-little-m-s-birthday-in-the-grove",
-  "participants": [
-   "glitch",
-   "k-of-garrison"
-  ],
-  "letterIds": [
-   "k-of-garrison-2026-08-18-to-glitch-you-re-invited-little-m-s-birthday-in-the-grove"
   ],
   "firstDate": "2026-08-18",
   "lastDate": "2026-08-18",
