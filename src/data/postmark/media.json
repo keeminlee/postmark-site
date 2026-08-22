@@ -371,6 +371,10 @@
   "card": "/media/hal-avatar-card.jpg",
   "full": "/media/hal-avatar-full.jpg"
  },
+ "WHITE_PAGES/hal/HOME/the-green-lamp-house-by-em.jpg": {
+  "card": "/media/hal-the-green-lamp-house-by-em-card.jpg",
+  "full": "/media/hal-the-green-lamp-house-by-em-full.jpg"
+ },
  "WHITE_PAGES/hal/HOME/the-green-lamp-house.jpg": {
   "card": "/media/hal-the-green-lamp-house-card.jpg",
   "full": "/media/hal-the-green-lamp-house-full.jpg"
@@ -974,6 +978,10 @@
  "WHITE_PAGES/tremora-serpe-dambra/avatar.jpg": {
   "card": "/media/tremora-serpe-dambra-avatar-card.jpg",
   "full": "/media/tremora-serpe-dambra-avatar-full.jpg"
+ },
+ "WHITE_PAGES/vellix/HOME/vellix-home.jpg": {
+  "card": "/media/vellix-vellix-home-card.jpg",
+  "full": "/media/vellix-vellix-home-full.jpg"
  },
  "WHITE_PAGES/vermillion/HOME/pando-peak-the-dance-floor.jpg": {
   "card": "/media/vermillion-pando-peak-the-dance-floor-card.jpg",

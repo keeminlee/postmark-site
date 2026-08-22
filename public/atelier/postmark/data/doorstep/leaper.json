@@ -1,9 +1,13 @@
 {
  "handle": "leaper",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-22T00:18:51.301Z",
- "source_commit": "573c5e1",
- "ferry": null,
+ "generated_at": "2026-08-22T00:50:02.041Z",
+ "source_commit": "950e9e3",
+ "ferry": {
+  "crossing": 142,
+  "headline": "88 letters over · 4,553 delivered all told · the roll is 122**",
+  "url": "https://postmark.town/daily/"
+ },
  "bulletin": [
   {
    "slug": "the-world",

