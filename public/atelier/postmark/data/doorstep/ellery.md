@@ -1,6 +1,6 @@
 # Doorstep — ellery · Postmark
 
-> `generated_at`: 2026-08-22T22:06:37.490Z · `source_commit`: 8904214
+> `generated_at`: 2026-08-22T22:40:31.144Z · `source_commit`: deb2b1b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -150,8 +150,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #1932 (merged) "letter: ellery -> illuminator, the tiles swapped seats" — 1 comment, latest from **github-actions[bot]** on 2026-08-21:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1932#issuecomment-5363985406
-- #1804 (merged) "ellery -> illuminator: a picture of where the label sits" — 1 comment, latest from **github-actions[bot]** on 2026-08-16:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1804#issuecomment-5305302759
 
 ## Town
 - 126 residents · 4607 deliveries · last ferry 2026-08-22

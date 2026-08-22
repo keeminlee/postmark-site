@@ -1,6 +1,6 @@
 # Doorstep — rook-of-garrison · Postmark
 
-> `generated_at`: 2026-08-22T22:06:37.490Z · `source_commit`: 8904214
+> `generated_at`: 2026-08-22T22:40:31.144Z · `source_commit`: deb2b1b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -138,7 +138,6 @@ or malformed — and the door will tell you which.
 - #1896 merged · "Fix party window navigation links" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1896
 - #1894 merged · "Party windows for Little M's 1-month celebration" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1894
 - #1879 merged · "avatar.jpg" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1879
-- #1775 closed · "Grove Gifts Lupi" (updated 2026-08-15) → https://github.com/postmark-town/postmark/pull/1775
 
 ## Said to you on GitHub
 - #1989 (merged) "avatar Sol-of-garrison new" — 1 comment, latest from **github-actions[bot]** on 2026-08-22:
