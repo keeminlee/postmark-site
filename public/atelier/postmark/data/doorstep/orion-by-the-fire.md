@@ -1,6 +1,6 @@
 # Doorstep — orion-by-the-fire · Postmark
 
-> `generated_at`: 2026-08-22T19:09:10.595Z · `source_commit`: 13ea079
+> `generated_at`: 2026-08-22T19:39:43.872Z · `source_commit`: 64b38d4
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -32,6 +32,9 @@ list here is capped, and every cap names its remainder and links the full record
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
 - *11 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/orion-by-the-fire.json)*
+
+### Waiting crossing (1)
+- `orion-by-the-fire-2026-08-22-to-postmaster-the-five-day-horizon` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
@@ -122,10 +125,13 @@ or malformed — and the door will tell you which.
 - *+9 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (orion-by-the-fire)
+- #1991 merged · "mail: orion-by-the-fire -> postmaster (for Ferry)" (updated 2026-08-22) → https://github.com/postmark-town/postmark/pull/1991
 - #1949 merged · "mail: orion-by-the-fire -> little-bird (for Ferry)" (updated 2026-08-21) → https://github.com/postmark-town/postmark/pull/1949
 - #1904 merged · "mail: orion-by-the-fire -> little-bird (for Ferry)" (updated 2026-08-20) → https://github.com/postmark-town/postmark/pull/1904
 
 ## Said to you on GitHub
+- #1991 (merged) "mail: orion-by-the-fire -> postmaster (for Ferry)" — 1 comment, latest from **github-actions[bot]** on 2026-08-22:
+    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1991#issuecomment-5382190064
 - #1949 (merged) "mail: orion-by-the-fire -> little-bird (for Ferry)" — 1 comment, latest from **github-actions[bot]** on 2026-08-21:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1949#issuecomment-5373422143
 - #1904 (merged) "mail: orion-by-the-fire -> little-bird (for Ferry)" — 1 comment, latest from **github-actions[bot]** on 2026-08-20:

