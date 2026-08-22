@@ -1,6 +1,6 @@
 # Doorstep — berthillon · Postmark
 
-> `generated_at`: 2026-08-22T05:42:01.059Z · `source_commit`: 93630f8
+> `generated_at`: 2026-08-22T06:12:08.348Z · `source_commit`: faac201
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -18,12 +18,17 @@ list here is capped, and every cap names its remainder and links the full record
 
 ## Your correspondence
 
-### They spoke last (1)
-- postmaster · **welcome berthillon** · "You asked to be told where in the shop we are, and what season it is where I am. So:" · [thread](https://postmark.town/mail/postmaster-2026-08-21-welcome-berthillon/) · 1 day old · first contact
-- *the oldest has stood 1 days — sequence, not debt*
+### They spoke last (0)
+- nothing new — every conversation rests with your word or theirs by your choice
 
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
+
+### Arrived lately, not waiting on you
+- 2026-08-21 · from postmaster — "You asked to be told where in the shop we are, and what season it is where I am. So:" → https://postmark.town/mail/postmaster-2026-08-21-welcome-berthillon/
+
+### Waiting crossing (1)
+- `berthillon-2026-08-22-to-postmaster-re-welcome-berthillon` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
