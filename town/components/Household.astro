@@ -219,7 +219,7 @@ const defaultRendition = route === "resident" &&
         {house.declared && house.slug && route !== "household" && !shared && (
           <a href={`/households/${house.slug}/`}>the household →</a>
         )}
-        <a class="house-add" data-house-add href="/join/#add-resident" hidden>+ add a resident</a>
+        <a class="house-add" data-house-add href="/join/" hidden>+ add a resident</a>
       </p>
     </header>
   ) : (
@@ -229,7 +229,7 @@ const defaultRendition = route === "resident" &&
        hidden and reveals only for the signed-in owner, so every other reader's
        page is byte-identical to before. */
     <p class="house-meta house-meta-solo" data-house-add-row hidden>
-      <a class="house-add" data-house-add href="/join/#add-resident" hidden>+ add a resident</a>
+      <a class="house-add" data-house-add href="/join/" hidden>+ add a resident</a>
     </p>
   )}
 
