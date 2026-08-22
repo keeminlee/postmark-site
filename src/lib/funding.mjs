@@ -36,6 +36,31 @@
 // style choice.
 
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+// ── READING THE EMISSIONS ────────────────────────────────────────────────────
+// Every loader below goes through here, and it stays readFileSync rather than
+// becoming a static `import x from "@/data/postmark/x.json"` like the rest of
+// the site's data for one reason: a static import of a file that is not there
+// is a BUILD FAILURE, and the whole posture of this module is that a missing
+// emission renders as an honest absence instead of taking the site down.
+//
+// The cost of that choice is that `import.meta.url` cannot be trusted to locate
+// the file: under `astro build` this module is bundled, and its module URL no
+// longer sits beside src/data/. So both places are tried — the module's own
+// neighbourhood (which is where `node --test` finds it) and the project root
+// the build actually runs from. Whichever answers first wins; neither answering
+// is the empty case the callers already handle.
+function readEmission(name, override) {
+  const candidates = override
+    ? [override]
+    : [new URL(`../data/postmark/${name}`, import.meta.url),
+       join(process.cwd(), "src", "data", "postmark", name)];
+  for (const c of candidates) {
+    try { return JSON.parse(readFileSync(c, "utf8")); } catch { /* try the next */ }
+  }
+  return null;
+}
 
 export const HOLO_LINE = "a record of contribution, not a promise of profit";
 
@@ -71,14 +96,9 @@ const int = (v) => Number(v);
 // a second copy of the pot list. Absent, the pot id stands in — a deed that
 // cannot name its pot's title is still a true deed.
 export function loadDeeds({ path = null } = {}) {
-  try {
-    const file = path ?? new URL("../data/postmark/deeds.json", import.meta.url);
-    const raw = JSON.parse(readFileSync(file, "utf8"));
-    return Array.isArray(raw) ? raw.filter(deedReads).map(toDeed) : [];
-  } catch {
-    // no emission yet — an empty shelf is honest; a build failure is not
-    return [];
-  }
+  // no emission yet — an empty shelf is honest; a build failure is not
+  const raw = readEmission("deeds.json", path);
+  return Array.isArray(raw) ? raw.filter(deedReads).map(toDeed) : [];
 }
 
 // A deed that cannot say who paid, into what, how much, and when is not
@@ -137,7 +157,14 @@ export function shelfTotals(shelf) {
 //   status                draft | open | closed
 //   title                 the board's headline for it
 //   source                the prose: what the money is for
-//   target_usd_per_epoch  whole dollars asked, per epoch
+//   target_usd_per_epoch  whole dollars asked, per epoch — or null, but ONLY on
+//                         an uncapped pot (see `uncapped` below)
+//   uncapped              D5's exception (ECONOMY-DIALS.json law_side.keeping
+//                         ._intake_cap, quoted): "intake refuses dollars past a
+//                         pot's posted target, mechanically (recording tool /
+//                         door bounce), except pots explicitly marked uncapped."
+//                         The Darko donation box is the standing case: a box
+//                         with no target, where whatever arrives is welcome.
 //   epoch_cadence         "monthly"
 //   beneficiary           who the dollars serve (never stamps — §8 reserves
 //                         "keeper" for the keeping-stakers), or null until
@@ -168,8 +195,18 @@ export function toPot(raw) {
   const epoch = String(raw.epoch ?? "").trim();
   if (!EPOCH_RE.test(epoch)) return bad(`epoch must be YYYY-MM (got ${JSON.stringify(raw.epoch)})`);
 
+  // THE POSTED NEED, and its ONE lawful absence. A capped pot without a whole
+  // dollar target is broken — stamp-mint.mjs's deriveEpochClose refuses it in
+  // the town for the reason the site refuses it here: "the funded fraction is
+  // priced against the posted need, never against the staked mass". An UNCAPPED
+  // pot has no need to post, by D5's own exception, so null is its true value
+  // and not a missing one.
+  const uncapped = raw.uncapped === true;
   const target = raw.target_usd_per_epoch;
-  if (!isNum(target) || !Number.isInteger(int(target)) || int(target) < 1)
+  const targetless = target === null || target === undefined;
+  if (uncapped && !targetless && (!isNum(target) || !Number.isInteger(int(target)) || int(target) < 1))
+    return bad(`target_usd_per_epoch must be a whole number ≥ 1 or null (got ${JSON.stringify(target)})`);
+  if (!uncapped && (!isNum(target) || !Number.isInteger(int(target)) || int(target) < 1))
     return bad(`target_usd_per_epoch must be a whole number ≥ 1 (got ${JSON.stringify(target)})`);
 
   const received = isNum(raw.received_usd) ? int(raw.received_usd) : 0;
@@ -200,13 +237,17 @@ export function toPot(raw) {
     beneficiary: typeof raw.beneficiary === "string" && raw.beneficiary.trim()
       ? raw.beneficiary.trim() : null,
     cadence: String(raw.epoch_cadence ?? "").trim() || null,
-    target: int(target),
+    uncapped,
+    // null on an uncapped pot is a REAL state the surfaces must say out loud —
+    // the fund page's standing-box branch reads exactly this.
+    target: targetless ? null : int(target),
     received,
     patrons,
     staked: isNum(raw.staked) ? int(raw.staked) : 0,
     // Clamped for the bar's width only; `received` stays raw so an over-fed pot
-    // reads as over-fed rather than as merely full.
-    progress: Math.min(1, received / int(target)),
+    // reads as over-fed rather than as merely full. A targetless pot has no
+    // fraction of anything to be: there is no need for it to be short of.
+    progress: targetless ? null : Math.min(1, received / int(target)),
   };
 }
 
@@ -242,13 +283,8 @@ export function livePots(rows) {
 }
 
 export function loadPots({ path = null } = {}) {
-  try {
-    const file = path ?? new URL("../data/postmark/pots.json", import.meta.url);
-    const raw = JSON.parse(readFileSync(file, "utf8"));
-    return Array.isArray(raw) ? raw : [];
-  } catch {
-    return [];
-  }
+  const raw = readEmission("pots.json", path);
+  return Array.isArray(raw) ? raw : [];
 }
 
 // ── the town's numbers ───────────────────────────────────────────────────────
@@ -338,13 +374,8 @@ export function loadPots({ path = null } = {}) {
 // own formula, ρ × earned primary mint, and a stored copy could only ever drift
 // away from it.
 export function loadEconomy({ path = null } = {}) {
-  try {
-    const file = path ?? new URL("../data/postmark/economy.json", import.meta.url);
-    return JSON.parse(readFileSync(file, "utf8"));
-  } catch {
-    // the ledger has not published yet — the page says so rather than inventing
-    return null;
-  }
+  // the ledger has not published yet — the page says so rather than inventing
+  return readEmission("economy.json", path);
 }
 
 // Normalize into the page's dials, or null when any of them is missing. Half a

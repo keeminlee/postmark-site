@@ -29,6 +29,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { readTown } from "./lib/town.mjs";
+import { emitSeam } from "./extract-seam.mjs";
 import { threadTitle } from "./lib/ids.mjs";
 import { PRESETS, assetName, processImage, ownDir } from "./lib/images.mjs";
 import {
@@ -942,6 +943,14 @@ const ATLAS_ASSETS = join(ATLAS_OUT, "assets");
 
   console.log(`atlas: town.html ${writeIfChanged(join(ATLAS_OUT, "town.html"), html)} — ${refs.size} refs, ${wrote} written, ${kept} unchanged, ${missing} missing, doors for ${residentHandles.length} residents`);
 }
+
+// ── the funding seam (pots.json · deeds.json · economy.json) ───────────────
+// Checkout-coupled like the rest of this file, and it has to be: the pot files,
+// the sealed ledger and ECONOMY-DIALS.json are town REPO surfaces, and the
+// office API exposes none of them. tools/extract-seam.mjs owns the fold and
+// imports the town's own stamp-mint.mjs so the site never grows a second parser
+// of the ledger's grammar.
+await emitSeam(TOWN);
 
 // ── Ferry's Daily (same contract as v1 sync) ───────────────────────────────
 {

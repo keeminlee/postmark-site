@@ -157,17 +157,29 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
               <span class="pot-status">{p.status}</span>
               {p.cadence && <span class="b-dim">{p.cadence}</span>}
             </p>
-            <div class="b-bar-wrap">
-              <div class="b-bar pot-bar" role="img"
-                   aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
-                {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
-              </div>
-              <p class="b-bar-label">
-                <strong>{usd(p.received)}</strong> of {usd(p.target)} received
-                {p.received === 0 && <span class="b-dim"> · the pot is open, unfed</span>}
-                {p.received > p.target && <span class="b-over"> · over-fed</span>}
+            {/* A TARGETLESS POT HAS NO BAR, because it is short of nothing.
+                D5's exception (ECONOMY-DIALS.json law_side.keeping._intake_cap):
+                "except pots explicitly marked uncapped" — the donation-box
+                shape, "a box with no target takes whatever arrives". Drawing a
+                progress bar for it would invent a need it never posted. */}
+            {p.target == null ? (
+              <p class="b-bar-label pot-box">
+                <strong>{usd(p.received)}</strong> given this epoch
+                <span class="b-dim"> · a standing box, no target — whatever arrives is welcome</span>
               </p>
-            </div>
+            ) : (
+              <div class="b-bar-wrap">
+                <div class="b-bar pot-bar" role="img"
+                     aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
+                  {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
+                </div>
+                <p class="b-bar-label">
+                  <strong>{usd(p.received)}</strong> of {usd(p.target)} received
+                  {p.received === 0 && <span class="b-dim"> · the pot is open, unfed</span>}
+                  {p.received > p.target && <span class="b-over"> · over-fed</span>}
+                </p>
+              </div>
+            )}
             {p.patrons.length > 0 ? (
               <p class="pot-roll">
                 <span class="pot-roll-lead">the roll · </span>
