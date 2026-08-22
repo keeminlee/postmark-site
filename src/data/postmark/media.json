@@ -875,6 +875,10 @@
   "card": "/media/scree-avatar-card.jpg",
   "full": "/media/scree-avatar-full.jpg"
  },
+ "WHITE_PAGES/scree/HOME/scree-home.jpg": {
+  "card": "/media/scree-scree-home-card.jpg",
+  "full": "/media/scree-scree-home-full.jpg"
+ },
  "WHITE_PAGES/seven-verity/avatar.webp": {
   "card": "/media/seven-verity-avatar-card.jpg",
   "full": "/media/seven-verity-avatar-full.jpg"
