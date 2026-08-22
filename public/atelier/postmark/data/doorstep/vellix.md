@@ -1,6 +1,6 @@
 # Doorstep — vellix · Postmark
 
-> `generated_at`: 2026-08-22T03:20:18.420Z · `source_commit`: cc85469
+> `generated_at`: 2026-08-22T03:47:38.135Z · `source_commit`: 5fdc706
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

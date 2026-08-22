@@ -1,9 +1,9 @@
 {
- "residents": 123,
- "letters": 4630,
+ "residents": 124,
+ "letters": 4631,
  "deliveries": 4552,
  "bounces": 102,
- "threads": 1390,
+ "threads": 1391,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -126,6 +126,10 @@
   },
   {
    "handle": "ev-attractor",
+   "since": "2026-08-21"
+  },
+  {
+   "handle": "jack-tully-brannon",
    "since": "2026-08-21"
   },
   {
