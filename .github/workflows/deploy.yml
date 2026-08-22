@@ -1,55 +1,106 @@
-name: Deploy to EC2
+name: Deploy (snapshot -> dev, release -> prod)
 
-# Every push to main builds the town's site and rsyncs it to the EC2 webroot.
+# THE CUTOVER (Keemin, 2026-08-21 night: "the site is honestly the MOST
+# important. we should make the cutover tonight for merge to main -> dev,
+# SNAPSHOT vs RELEASE mode with tagging, tag-to-prod").
 #
-# P3 FLIPPED 2026-07-27 — this repo deploys to the LIVE webroot and is its one
-# writer; the atelier dropped its town half in the same window (7b840a75). The
-# one-writer law stands: nothing else may rsync /var/www/postmark-town-site/
-# (gold plan postmark-site-extraction § What must NOT happen).
+# Three lanes, one build:
+#   - push to main            -> SNAPSHOT build -> dev.postmark.town webroot
+#   - push a release/* tag    -> RELEASE build  -> postmark.town webroot (prod)
+#   - schedule (30 min)       -> RELEASE build at the LATEST release/* tag with
+#                                FRESH town data -> prod. Content refresh != code
+#                                release: prod's code moves only when a human
+#                                tags; prod's letters keep the town's pulse.
+#                                Skips silently until the first release tag.
 #
-# Merge = prod deploy, which is why main is branch-protected (PR + 1 review).
+# The one-writer law stands: THIS workflow is the only writer of
+# /var/www/postmark-town-site/ (prod) and /var/www/postmark-dev-site/ (dev).
+# Merge = dev deploy. Tag = prod deploy. Nothing else touches prod.
 
 on:
   push:
     branches: [main]
+    tags: ["release/*"]
+  schedule:
+    - cron: "*/30 * * * *"
   workflow_dispatch:
+    inputs:
+      channel:
+        description: "which lane to run (snapshot -> dev, release -> prod at latest tag)"
+        required: true
+        default: snapshot
+        type: choice
+        options: [snapshot, release]
 
 concurrency:
-  group: deploy
+  group: deploy-${{ (startsWith(github.ref, 'refs/tags/release/') || github.event_name == 'schedule' || inputs.channel == 'release') && 'prod' || 'dev' }}
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Decide the lane
+        id: lane
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.channel }}" = "release" ] || case "${{ github.ref }}" in refs/tags/release/*) true;; *) false;; esac; then
+            echo "channel=release" >> "$GITHUB_OUTPUT"
+            echo "webroot=/var/www/postmark-town-site/" >> "$GITHUB_OUTPUT"
+          else
+            echo "channel=snapshot" >> "$GITHUB_OUTPUT"
+            echo "webroot=/var/www/postmark-dev-site/" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pin to the latest release tag (release lane off a non-tag trigger)
+        id: pin
+        if: steps.lane.outputs.channel == 'release' && !startsWith(github.ref, 'refs/tags/release/')
+        run: |
+          TAG=$(git tag -l 'release/*' --sort=-creatordate | head -1)
+          if [ -z "$TAG" ]; then
+            echo "no release/* tag exists yet — the release lane sleeps until the first one"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            git checkout "$TAG"
+            echo "building prod at $TAG"
+          fi
 
       - uses: actions/setup-node@v4
+        if: steps.pin.outputs.skip != 'true'
         with:
           node-version: 22
           cache: npm
 
       - run: npm ci
+        if: steps.pin.outputs.skip != 'true'
+
       - name: Refresh Postmark data from office API
+        if: steps.pin.outputs.skip != 'true'
         env:
           POSTMARK_API: https://postmark.town/api
         run: node tools/fetch-town.mjs
-      - run: npm run build            # town -> dist-town/ (postmark.town root)
 
-      - name: Rsync the town to EC2
+      - name: Build (${{ steps.lane.outputs.channel }})
+        if: steps.pin.outputs.skip != 'true'
+        env:
+          PUBLIC_CHANNEL: ${{ steps.lane.outputs.channel }}
+          PUBLIC_BUILD_SHA: ${{ github.sha }}
+        run: npm run build            # town -> dist-town/
+
+      - name: Rsync to EC2 (${{ steps.lane.outputs.webroot }})
+        if: steps.pin.outputs.skip != 'true'
         env:
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          # STAGING until P3. Flipping this one value to
-          # THE FLIP LANDED 2026-07-27 (P3): this repo is the live webroot's ONE
-          # writer — the atelier's deploy.yml dropped its town half in the same
-          # window (starforge-atelier 7b840a75). Staging remains for dark runs.
-          TOWN_WEBROOT: /var/www/postmark-town-site/
+          WEBROOT: ${{ steps.lane.outputs.webroot }}
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" dist-town/ "$USER@$HOST:$TOWN_WEBROOT"
-          echo "town: deployed $(du -sh dist-town | cut -f1) to $HOST:$TOWN_WEBROOT"
+          rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" dist-town/ "$USER@$HOST:$WEBROOT"
+          echo "${{ steps.lane.outputs.channel }}: deployed $(du -sh dist-town | cut -f1) to $HOST:$WEBROOT"

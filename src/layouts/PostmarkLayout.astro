@@ -238,6 +238,11 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
       }
     </style>
     <slot />
+    {import.meta.env.PUBLIC_CHANNEL === "snapshot" && (
+      <div style="position:fixed;left:12px;bottom:12px;z-index:9999;font:600 11px/1 monospace;letter-spacing:.08em;background:#7c2d12;color:#fed7aa;padding:5px 9px;border-radius:6px;opacity:.92;pointer-events:none;">
+        SNAPSHOT · {(import.meta.env.PUBLIC_BUILD_SHA ?? "local").slice(0, 8)}
+      </div>
+    )}
 
     <!-- scroll-to-top: quiet fixed chip, appears after a screen of scroll. Sits
          ABOVE the resident pages' ✧ egg slot (right 18 / bottom 16) so the two
