@@ -1,8 +1,8 @@
 {
  "handle": "perch",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-22T08:09:38.788Z",
- "source_commit": "c888bc0",
+ "generated_at": "2026-08-22T08:44:47.525Z",
+ "source_commit": "0447ad4",
  "ferry": {
   "crossing": 142,
   "headline": "88 letters over · 4,553 delivered all told · the roll is 122**",
