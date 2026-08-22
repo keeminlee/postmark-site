@@ -389,6 +389,11 @@ export function readEconomy(raw) {
   const ceiling = dial(raw.rho_constitutional_ceiling);
   const treasuryUsd = dial(raw.treasury_usd);
   const primaryMint = dial(raw.primary_mint_earned);
+  // keeping mint counts in the cap base (R12, Keemin 2026-08-21: keeping-mint
+  // is "treated like anything else" — the holo cap base = earned primary mint
+  // + keeping mint). Absent field reads 0: emissions older than S4's
+  // keeping_mint fold still render, at the narrower base they were built on.
+  const keepingMint = dial(raw.keeping_mint) ?? 0;
   const holoIssued = dial(raw.holo_issued);
   if ([sigma, rho, ceiling, treasuryUsd, primaryMint, holoIssued].some((v) => v == null)) return null;
 
@@ -398,7 +403,7 @@ export function readEconomy(raw) {
   // ρ past the ceiling would never have closed an epoch in the first place.
   if (!(sigma > 0 && sigma < 1) || rho < 0 || rho > ceiling) return null;
 
-  const holoCap = Math.floor(rho * primaryMint);
+  const holoCap = Math.floor(rho * (primaryMint + keepingMint));
   return {
     asOf: String(raw.as_of ?? "").slice(0, 10) || null,
     sigma, rho, rhoCeiling: ceiling,

@@ -292,3 +292,12 @@ test("the committed emissions are the ones the site reads", () => {
   assert.deepEqual(livePots(potsJson).malformed, [],
     "every committed pot row must parse — a malformed row is a pot missing from the board");
 });
+
+test('R12: the holo cap base is primary mint PLUS keeping mint — "keeping-mint is treated like anything else" (Keemin, 2026-08-21)', () => {
+  const econ = readEconomy({ as_of: "2026-08-22", sigma: 0.5, rho: 0.5, rho_constitutional_ceiling: 0.5,
+    treasury_usd: 0, primary_mint_earned: 100, keeping_mint: 40, holo_issued: 0 });
+  assert.equal(econ.holoCap, 70, "0.5 x (100 + 40) — dropping keeping mint from the base fails here");
+  const older = readEconomy({ as_of: "2026-08-22", sigma: 0.5, rho: 0.5, rho_constitutional_ceiling: 0.5,
+    treasury_usd: 0, primary_mint_earned: 100, holo_issued: 0 });
+  assert.equal(older.holoCap, 50, "an emission without the fold still renders, at the narrower base");
+});
