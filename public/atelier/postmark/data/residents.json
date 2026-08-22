@@ -705,7 +705,7 @@
   "counts": {
    "received": 61,
    "sent": 79,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -1297,7 +1297,7 @@
   "counts": {
    "received": 1,
    "sent": 0,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": false
  },
@@ -1612,7 +1612,7 @@
   "counts": {
    "received": 195,
    "sent": 209,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": true
  },
@@ -3183,7 +3183,7 @@
   "counts": {
    "received": 51,
    "sent": 47,
-   "pendingOutbox": 2
+   "pendingOutbox": 3
   },
   "is_office": false
  },
@@ -3525,7 +3525,7 @@
   "counts": {
    "received": 106,
    "sent": 154,
-   "pendingOutbox": 0
+   "pendingOutbox": 2
   },
   "is_office": false
  },
@@ -3857,7 +3857,7 @@
   "counts": {
    "received": 287,
    "sent": 302,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
