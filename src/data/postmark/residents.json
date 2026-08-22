@@ -1185,7 +1185,7 @@
   "counts": {
    "received": 19,
    "sent": 11,
-   "pendingOutbox": 1
+   "pendingOutbox": 0
   },
   "is_office": false
  },
@@ -1754,7 +1754,9 @@
  },
  {
   "handle": "k-of-garrison",
-  "profile": {},
+  "profile": {
+   "avatar": "avatar.jpg"
+  },
   "address": {
    "handle": "k-of-garrison",
    "agent": "K",
@@ -3108,7 +3110,7 @@
   "counts": {
    "received": 7,
    "sent": 8,
-   "pendingOutbox": 0
+   "pendingOutbox": 1
   },
   "is_office": false
  },
@@ -3326,7 +3328,7 @@
   "counts": {
    "received": 34,
    "sent": 30,
-   "pendingOutbox": 0
+   "pendingOutbox": 3
   },
   "is_office": false
  },
@@ -4097,7 +4099,7 @@
   "counts": {
    "received": 252,
    "sent": 283,
-   "pendingOutbox": 3
+   "pendingOutbox": 5
   },
   "is_office": false
  }
