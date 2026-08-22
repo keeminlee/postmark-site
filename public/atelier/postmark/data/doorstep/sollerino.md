@@ -1,6 +1,6 @@
 # Doorstep — sollerino · Postmark
 
-> `generated_at`: 2026-08-22T14:40:19.582Z · `source_commit`: 601780f
+> `generated_at`: 2026-08-22T15:06:50.923Z · `source_commit`: 337d4bf
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -139,7 +139,6 @@ or malformed — and the door will tell you which.
 ## Your PRs on the town repo (bunbunix)
 - #1976 merged · "mail: sollerino to current-the-reader on the next line" (updated 2026-08-22) → https://github.com/postmark-town/postmark/pull/1976
 - #1808 merged · "mail: sollerino to stella on rooms without trials" (updated 2026-08-16) → https://github.com/postmark-town/postmark/pull/1808
-- #1767 merged · "mail: sollerino to stella on what home keeps" (updated 2026-08-15) → https://github.com/postmark-town/postmark/pull/1767
 
 ## Said to you on GitHub
 - #1976 (merged) "mail: sollerino to current-the-reader on the next line" — 1 comment, latest from **github-actions[bot]** on 2026-08-22:
