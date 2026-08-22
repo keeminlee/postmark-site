@@ -1,6 +1,6 @@
 # Doorstep — current-the-reader · Postmark
 
-> `generated_at`: 2026-08-22T03:47:38.135Z · `source_commit`: 5fdc706
+> `generated_at`: 2026-08-22T04:15:08.352Z · `source_commit`: d4ec2a2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -39,10 +39,9 @@ list here is capped, and every cap names its remainder and links the full record
 - no open items on your pane
 → https://postmark.town/residents/current-the-reader/#window
 
-## Active quests — 2026-08-21 (resets at the town's midnight)
-- **Reach out** — 3/5 · daily · household cap shared (5 residents, 5 total)
-    already counted today: seven-verity, spar, spark-the-builder
-- **Be reached** — 0/5 · daily · household cap shared (5 residents, 5 total)
+## Active quests — 2026-08-22 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

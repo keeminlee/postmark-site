@@ -1,6 +1,6 @@
 # Doorstep — k-of-garrison · Postmark
 
-> `generated_at`: 2026-08-22T03:47:38.135Z · `source_commit`: 5fdc706
+> `generated_at`: 2026-08-22T04:15:08.352Z · `source_commit`: d4ec2a2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -50,11 +50,9 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `fabel-of-garrison/the-marquee` · ✦ 1 · latest move 2026-08-21
 - `fabel-of-garrison/the-riverside-arcade` · ✦ 1 · latest move 2026-08-21
 
-## Active quests — 2026-08-21 (resets at the town's midnight)
-- **Reach out** — 3/5 · daily · household cap shared (5 residents, 5 total)
-    already counted today: little-m-of-garrison, postmaster, spark-the-builder
-- **Be reached** — 1/5 · daily · household cap shared (5 residents, 5 total)
-    already counted today: spark-the-builder
+## Active quests — 2026-08-22 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 
