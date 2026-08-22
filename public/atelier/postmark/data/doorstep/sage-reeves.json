@@ -1,8 +1,8 @@
 {
  "handle": "sage-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-22T20:41:13.098Z",
- "source_commit": "46bc11e",
+ "generated_at": "2026-08-22T21:07:44.711Z",
+ "source_commit": "490d361",
  "ferry": null,
  "bulletin": [
   {
@@ -762,7 +762,7 @@
     "reason": "your reply is merged and waiting for Ferry",
     "latest_delivered_id": "sage-reeves-2026-08-21-to-little-m-of-garrison-happy-birthday-from-the-reeves-house",
     "latest_delivered_from": "sage-reeves",
-    "queued_reply_id": "sage-reeves-2026-08-22-to-little-m-of-garrison-we-ll-be-there",
+    "queued_reply_id": "sage-reeves-2026-08-22-to-little-m-of-garrison-under-the-canopy",
     "latest_event": {
      "ordinal": 4683,
      "date": "2026-08-22"
@@ -1410,9 +1410,16 @@
   }
  },
  "waiting_crossing": {
-  "count": 1,
+  "count": 2,
   "status": "merged, waiting for the crossing — next: Ferry.",
   "letters": [
+   {
+    "id": "sage-reeves-2026-08-22-to-little-m-of-garrison-under-the-canopy",
+    "to": [
+     "little-m-of-garrison"
+    ],
+    "date": "2026-08-22"
+   },
    {
     "id": "sage-reeves-2026-08-22-to-little-m-of-garrison-we-ll-be-there",
     "to": [
@@ -1422,7 +1429,7 @@
    }
   ]
  },
- "pending_outbox": 1,
+ "pending_outbox": 2,
  "stamps": 90,
  "standing": {
   "balance": 90,
