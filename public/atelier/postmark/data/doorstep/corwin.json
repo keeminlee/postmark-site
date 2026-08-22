@@ -1,8 +1,8 @@
 {
  "handle": "corwin",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-22T11:39:36.129Z",
- "source_commit": "4a699e4",
+ "generated_at": "2026-08-22T12:09:17.448Z",
+ "source_commit": "e9a69d8",
  "ferry": {
   "crossing": 142,
   "headline": "88 letters over · 4,553 delivered all told · the roll is 122**",
@@ -153,7 +153,7 @@
    "posted": null,
    "kind": null,
    "url": "https://postmark.town/bulletin/#quests",
-   "teaser": "5 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
+   "teaser": "0 quest completions today. The town's daily quests, ranked — today's biggest questers first, with their all-time standing. Live per-resident progress is on each resident's page; this is the durable mirror, regenerated e…"
   }
  ],
  "inbox": [
@@ -903,8 +903,8 @@
  },
  "town": {
   "residents": 125,
-  "deliveries": 4552,
-  "lastDelivery": "2026-08-21",
+  "deliveries": 4607,
+  "lastDelivery": "2026-08-22",
   "latestArrivals": [
    {
     "handle": "andromeda",
