@@ -65,13 +65,57 @@ test("the disclosures sit ABOVE the address — the consent gate is an order, no
   assert.ok(law < addr, "the what-this-buys line must precede the address in the document");
 });
 
-test("only OPEN pots get a funding page, and one page per pot", () => {
-  // A draft pot has no need the town has stood behind; a closed one cannot
-  // convert what arrives. And a route keyed on toPot's `<pot>@<epoch>` id would
-  // give one pot two pages with two different headrooms.
-  assert.match(PAGE, /if \(p\.status !== "open"\) continue;/);
+test("a closed pot gets no page, and one page per pot", () => {
+  // A closed pot cannot convert what arrives, so a page for it would take money
+  // into a month that is already sealed. And a route keyed on toPot's
+  // `<pot>@<epoch>` id would give one pot two pages with two different
+  // headrooms, and a patron no way to tell which one the town meant.
+  assert.match(PAGE, /if \(p\.status === "closed"\) continue;/);
   assert.match(PAGE, /params: \{ pot: pot\.pot \}/, "the route is the pot SLUG, not the pot-epoch id");
   assert.ok(!/params: \{ pot: pot\.id \}/.test(PAGE));
+});
+
+test("ONLY AN OPEN POT CARRIES THE MONEY MOMENT", () => {
+  // RE-PINNED 2026-08-21 (S4). This used to assert the source line
+  // `if (p.status !== "open") continue;` — that a draft pot got no page at all.
+  // A draft pot now gets a page, because the town's own record refuses to hide
+  // it (pot-darko-fund.json, verbatim: "DRAFT — the rendering may show on the
+  // dev channel, but opening a pot is the founder's word").
+  //
+  // The law that assertion was PROTECTING is unchanged, and this is a stronger
+  // statement of it. funding.mjs: "rendering one would be the site asking for
+  // money the town has not asked for." The ask is not the page — the ask is the
+  // intake address, the QR, and the witness form. So what must be true is that
+  // every one of them hangs off the open gate, and a source-line regex could
+  // never have said that: it would have passed a page that routed only open
+  // pots and then printed the address unconditionally anyway.
+  const gate = PAGE.indexOf('const open = pot.status === "open";');
+  assert.ok(gate > 0, "the page declares the money-moment gate as a named constant");
+
+  // The TEMPLATE only — the frontmatter above the second `---` builds the QR
+  // and never renders anything, so a mention of INTAKE up there is not a
+  // publication. What this test is about is what reaches the reader.
+  const BODY = PAGE.slice(PAGE.indexOf("---", PAGE.indexOf("---") + 3));
+
+  // the three things that can take a dollar, each inside `{open && ...}`
+  const guarded = BODY.match(/\{open && \(<>([\s\S]*?)<\/>\)\}/);
+  assert.ok(guarded, "the pay and witness sections sit inside the open gate");
+  const money = guarded[1];
+  assert.match(money, /\{INTAKE\}/, "the address is inside the gate");
+  assert.match(money, /set:html=\{qr\}/, "the QR is inside the gate");
+  assert.match(money, /id="pm-fund-form"/, "the witness form is inside the gate");
+
+  // and NOWHERE else on the page — a second, ungated copy is the exact failure
+  // the old source-line assertion could not see
+  const ungated = BODY.replace(/\{open && \(<>[\s\S]*?<\/>\)\}/g, "");
+  assert.ok(!/\{INTAKE\}/.test(ungated), "the address appears nowhere outside the gate");
+  assert.ok(!/data-copy=\{INTAKE\}/.test(ungated), "no copy-the-address button outside the gate either");
+  assert.ok(!/set:html=\{qr\}/.test(ungated), "the QR appears nowhere outside the gate");
+  assert.ok(!/id="pm-fund-form"/.test(ungated), "the witness form appears nowhere outside the gate");
+
+  // a draft page must SAY it is a draft rather than merely going quiet
+  assert.match(PAGE, /\{!open && \(/, "a non-open pot renders its own state");
+  assert.match(PAGE, /The town has not opened this pot, so it cannot take your money\./);
 });
 
 test("the page shows the refusal verbatim rather than a friendly paraphrase", () => {
