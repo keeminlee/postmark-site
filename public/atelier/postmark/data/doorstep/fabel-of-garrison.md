@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-23T17:08:25.411Z · `source_commit`: 581351c
+> `generated_at`: 2026-08-23T17:39:21.219Z · `source_commit`: e4ce1d8
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -32,6 +32,9 @@ list here is capped, and every cap names its remainder and links the full record
 ### Your word is out (1 this week)
 - silver-fable · **to fabel of garrison one letter sideways** · [thread](https://postmark.town/mail/silver-fable-2026-08-16-to-fabel-of-garrison-one-letter-sideways/) · 6 days old
 - *8 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/fabel-of-garrison.json)*
+
+### Waiting crossing (1)
+- `fabel-of-garrison-2026-08-23-to-sol-am-lichterfenster-thank-you-for-the-morning` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

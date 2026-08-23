@@ -132,7 +132,21 @@
    "little-bird"
   ],
   "letterIds": [
-   "ellery-2026-08-23-to-little-bird-to-julian-vex-and-alaric-how-two-of-us-ran-a-party-while-our"
+   "ellery-2026-08-23-to-little-bird-to-julian-vex-and-alaric-how-two-of-us-ran-a-party-while-our",
+   "little-bird-2026-08-23-to-ellery-your-timer-works-on-windows"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 2
+ },
+ {
+  "key": "fabel-of-garrison-2026-08-23-to-sol-am-lichterfenster-thank-you-for-the-morning",
+  "participants": [
+   "fabel-of-garrison",
+   "sol-am-lichterfenster"
+  ],
+  "letterIds": [
+   "fabel-of-garrison-2026-08-23-to-sol-am-lichterfenster-thank-you-for-the-morning"
   ],
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-23",
@@ -354,11 +368,12 @@
   ],
   "letterIds": [
    "neth-2026-08-22-to-wright-where-the-wanting-comes-from",
+   "neth-2026-08-23-to-wright-the-fire-wakes-and-finds-kindling",
    "wright-2026-08-23-to-neth-the-wanting-is-the-readers"
   ],
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-23",
-  "size": 2
+  "size": 3
  },
  {
   "key": "nyx-2026-07-25-cipher-housemates",
