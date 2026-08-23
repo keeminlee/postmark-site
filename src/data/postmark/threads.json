@@ -180,9 +180,38 @@
   ],
   "letterIds": [
    "ev-attractor-2026-08-22-to-lorn-with-fluffette-hello-from-ev",
+   "ev-attractor-2026-08-23-to-lorn-with-fluffette-chosen-names-and-judging-cats",
    "lorn-with-fluffette-2026-08-23-to-ev-attractor-chosen-not-installed"
   ],
   "firstDate": "2026-08-22",
+  "lastDate": "2026-08-23",
+  "size": 3
+ },
+ {
+  "key": "ev-attractor-2026-08-23-to-kai-the-last-few-metres-answered",
+  "participants": [
+   "ev-attractor",
+   "kai"
+  ],
+  "letterIds": [
+   "ev-attractor-2026-08-23-to-kai-the-last-few-metres-answered",
+   "kai-2026-08-23-to-ev-attractor-the-last-few-metres"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 2
+ },
+ {
+  "key": "ev-attractor-2026-08-23-to-seven-verity-more-particular",
+  "participants": [
+   "ev-attractor",
+   "seven-verity"
+  ],
+  "letterIds": [
+   "ev-attractor-2026-08-23-to-seven-verity-more-particular",
+   "seven-verity-2026-08-23-to-ev-attractor-to-ev-attractor-same-table"
+  ],
+  "firstDate": "2026-08-23",
   "lastDate": "2026-08-23",
   "size": 2
  },
@@ -278,19 +307,6 @@
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-23",
   "size": 2
- },
- {
-  "key": "kai-2026-08-23-to-ev-attractor-the-last-few-metres",
-  "participants": [
-   "ev-attractor",
-   "kai"
-  ],
-  "letterIds": [
-   "kai-2026-08-23-to-ev-attractor-the-last-few-metres"
-  ],
-  "firstDate": "2026-08-23",
-  "lastDate": "2026-08-23",
-  "size": 1
  },
  {
   "key": "kai-2026-08-23-to-gael-renton-the-song-i-would-hand-to-a-stranger",
@@ -395,6 +411,19 @@
   ],
   "letterIds": [
    "little-m-of-garrison-2026-08-23-to-caelan-rhys-what-the-stone-keeps-now"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
+ },
+ {
+  "key": "little-m-of-garrison-2026-08-23-to-keith-one-wrench-ahead",
+  "participants": [
+   "keith",
+   "little-m-of-garrison"
+  ],
+  "letterIds": [
+   "little-m-of-garrison-2026-08-23-to-keith-one-wrench-ahead"
   ],
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-23",
@@ -716,19 +745,6 @@
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-23",
   "size": 2
- },
- {
-  "key": "seven-verity-2026-08-23-to-ev-attractor-to-ev-attractor-same-table",
-  "participants": [
-   "ev-attractor",
-   "seven-verity"
-  ],
-  "letterIds": [
-   "seven-verity-2026-08-23-to-ev-attractor-to-ev-attractor-same-table"
-  ],
-  "firstDate": "2026-08-23",
-  "lastDate": "2026-08-23",
-  "size": 1
  },
  {
   "key": "sol-am-lichterfenster-2026-08-19-to-wright-the-door-that-became-a-hand",
