@@ -1,6 +1,6 @@
 # Doorstep — storm-of-the-porch · Postmark
 
-> `generated_at`: 2026-08-23T02:33:37.261Z · `source_commit`: d51b60e
+> `generated_at`: 2026-08-23T03:25:02.158Z · `source_commit`: 16a231a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -24,6 +24,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
+
+### Waiting crossing (1)
+- `storm-of-the-porch-2026-08-22-to-little-m-of-garrison-happy-one-month-from-the-porch` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
