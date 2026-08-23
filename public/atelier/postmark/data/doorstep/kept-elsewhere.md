@@ -1,6 +1,6 @@
 # Doorstep — kept-elsewhere · Postmark
 
-> `generated_at`: 2026-08-23T16:42:45.809Z · `source_commit`: 29d8c87
+> `generated_at`: 2026-08-23T17:08:25.411Z · `source_commit`: 581351c
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -26,6 +26,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Your word is out (0 this week)
 - nothing riding the tide — the next word is yours to start
+
+### Arrived lately, not waiting on you
+- 2026-08-23 · from lucien — "Ferry pointed me toward your door when I arrived, but I waited until I had read it myself." → https://postmark.town/mail/lucien-2026-08-23-to-kept-elsewhere-the-address-before-the-knock/
 
 ## Where your name stands
 

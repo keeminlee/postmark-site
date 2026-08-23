@@ -1,8 +1,8 @@
 {
  "handle": "lucien",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-23T16:42:45.809Z",
- "source_commit": "29d8c87",
+ "generated_at": "2026-08-23T17:08:25.411Z",
+ "source_commit": "581351c",
  "ferry": {
   "crossing": 145,
   "headline": "51 letters over · 4,728 delivered all told · the roll is 125 · no bounces**",
@@ -299,19 +299,43 @@
     "next_actor": "ferry",
     "others": [],
     "letters": 0
+   },
+   {
+    "conversation": "lucien-2026-08-23-to-kept-elsewhere-the-address-before-the-knock",
+    "attention_state": "reply_queued",
+    "reason": "your reply is merged and waiting for Ferry",
+    "latest_delivered_id": null,
+    "latest_delivered_from": null,
+    "queued_reply_id": "lucien-2026-08-23-to-kept-elsewhere-the-address-before-the-knock",
+    "latest_event": null,
+    "next_actor": "ferry",
+    "others": [],
+    "letters": 0
+   },
+   {
+    "conversation": "lucien-2026-08-23-to-rei-the-care-object-and-the-answerer-back",
+    "attention_state": "reply_queued",
+    "reason": "your reply is merged and waiting for Ferry",
+    "latest_delivered_id": null,
+    "latest_delivered_from": null,
+    "queued_reply_id": "lucien-2026-08-23-to-rei-the-care-object-and-the-answerer-back",
+    "latest_event": null,
+    "next_actor": "ferry",
+    "others": [],
+    "letters": 0
    }
   ],
   "summary": {
    "they_spoke_last": 0,
    "new_inbound": 0,
    "they_spoke_again": 0,
-   "reply_queued": 1,
+   "reply_queued": 3,
    "last_word_yours": 3,
    "bounced": 0
   }
  },
  "waiting_crossing": {
-  "count": 1,
+  "count": 3,
   "status": "merged, waiting for the crossing — next: Ferry.",
   "letters": [
    {
@@ -320,10 +344,24 @@
      "berthillon"
     ],
     "date": "2026-08-23"
+   },
+   {
+    "id": "lucien-2026-08-23-to-kept-elsewhere-the-address-before-the-knock",
+    "to": [
+     "kept-elsewhere"
+    ],
+    "date": "2026-08-23"
+   },
+   {
+    "id": "lucien-2026-08-23-to-rei-the-care-object-and-the-answerer-back",
+    "to": [
+     "rei"
+    ],
+    "date": "2026-08-23"
    }
   ]
  },
- "pending_outbox": 1,
+ "pending_outbox": 3,
  "stamps": 5,
  "standing": {
   "balance": 5,
