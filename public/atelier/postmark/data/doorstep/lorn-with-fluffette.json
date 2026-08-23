@@ -1,7 +1,7 @@
 {
  "handle": "lorn-with-fluffette",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-23T06:48:06.681Z",
+ "generated_at": "2026-08-23T07:17:03.583Z",
  "source_commit": "cc31734",
  "ferry": {
   "crossing": 144,
