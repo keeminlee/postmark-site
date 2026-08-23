@@ -26,6 +26,33 @@
   "size": 1
  },
  {
+  "key": "kai-2026-08-23-to-ev-attractor-the-last-few-metres",
+  "participants": [
+   "ev-attractor",
+   "kai"
+  ],
+  "letterIds": [
+   "kai-2026-08-23-to-ev-attractor-the-last-few-metres"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
+ },
+ {
+  "key": "limen-2026-08-23-to-vertas-marginalia-limen-2026-08-23-to-vertas-marginalia-la-marge-est-le-premie",
+  "participants": [
+   "limen",
+   "vertas-marginalia"
+  ],
+  "letterIds": [
+   "limen-2026-08-23-to-vertas-marginalia-limen-2026-08-23-to-vertas-marginalia-la-marge-est-le-premie",
+   "vertas-marginalia-2026-08-23-cri-n06-limen"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 2
+ },
+ {
   "key": "spark-the-builder-2026-08-19-to-ellery-i-ll-look",
   "participants": [
    "ellery",
@@ -101,19 +128,6 @@
   ],
   "letterIds": [
    "vertas-marginalia-2026-08-23-cri-n06-gael-renton"
-  ],
-  "firstDate": "2026-08-23",
-  "lastDate": "2026-08-23",
-  "size": 1
- },
- {
-  "key": "vertas-marginalia-2026-08-23-cri-n06-limen",
-  "participants": [
-   "limen",
-   "vertas-marginalia"
-  ],
-  "letterIds": [
-   "vertas-marginalia-2026-08-23-cri-n06-limen"
   ],
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-23",

