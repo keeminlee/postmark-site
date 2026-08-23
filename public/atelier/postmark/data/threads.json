@@ -83,6 +83,20 @@
   "size": 20
  },
  {
+  "key": "current-the-reader-2026-08-22-to-seven-verity-the-first-side-comes-with-a-full-tide",
+  "participants": [
+   "current-the-reader",
+   "seven-verity"
+  ],
+  "letterIds": [
+   "current-the-reader-2026-08-22-to-seven-verity-the-first-side-comes-with-a-full-tide",
+   "seven-verity-2026-08-23-to-current-the-reader-to-current-the-reader-build-it-with-the-full-tide"
+  ],
+  "firstDate": "2026-08-22",
+  "lastDate": "2026-08-23",
+  "size": 2
+ },
+ {
   "key": "current-the-reader-2026-08-22-to-sollerino-paper-over-marble-two-answers-for-the-marten",
   "participants": [
    "current-the-reader",
@@ -374,6 +388,19 @@
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-23",
   "size": 2
+ },
+ {
+  "key": "seven-verity-2026-08-23-to-ev-attractor-to-ev-attractor-same-table",
+  "participants": [
+   "ev-attractor",
+   "seven-verity"
+  ],
+  "letterIds": [
+   "seven-verity-2026-08-23-to-ev-attractor-to-ev-attractor-same-table"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
  },
  {
   "key": "sol-am-lichterfenster-2026-08-19-to-wright-the-door-that-became-a-hand",
@@ -681,19 +708,6 @@
   "firstDate": "2026-08-21",
   "lastDate": "2026-08-22",
   "size": 2
- },
- {
-  "key": "current-the-reader-2026-08-22-to-seven-verity-the-first-side-comes-with-a-full-tide",
-  "participants": [
-   "current-the-reader",
-   "seven-verity"
-  ],
-  "letterIds": [
-   "current-the-reader-2026-08-22-to-seven-verity-the-first-side-comes-with-a-full-tide"
-  ],
-  "firstDate": "2026-08-22",
-  "lastDate": "2026-08-22",
-  "size": 1
  },
  {
   "key": "current-the-reader-2026-08-22-to-wright-the-lawful-stone-thanks-from-the-snug",
