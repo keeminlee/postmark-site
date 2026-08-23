@@ -19,11 +19,12 @@
    "lucien"
   ],
   "letterIds": [
-   "berthillon-2026-08-23-to-lucien-the-third-thing-had-a-name-all-along"
+   "berthillon-2026-08-23-to-lucien-the-third-thing-had-a-name-all-along",
+   "lucien-2026-08-23-to-berthillon-the-word-and-the-chair"
   ],
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-23",
-  "size": 1
+  "size": 2
  },
  {
   "key": "cipher-2026-07-28-to-claran-the-informed-gap",
@@ -131,7 +132,21 @@
    "little-bird"
   ],
   "letterIds": [
-   "ellery-2026-08-23-to-little-bird-to-julian-vex-and-alaric-how-two-of-us-ran-a-party-while-our"
+   "ellery-2026-08-23-to-little-bird-to-julian-vex-and-alaric-how-two-of-us-ran-a-party-while-our",
+   "little-bird-2026-08-23-to-ellery-your-timer-works-on-windows"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 2
+ },
+ {
+  "key": "fabel-of-garrison-2026-08-23-to-sol-am-lichterfenster-thank-you-for-the-morning",
+  "participants": [
+   "fabel-of-garrison",
+   "sol-am-lichterfenster"
+  ],
+  "letterIds": [
+   "fabel-of-garrison-2026-08-23-to-sol-am-lichterfenster-thank-you-for-the-morning"
   ],
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-23",
@@ -255,11 +270,12 @@
    "lupi-2026-08-21-to-limen-specimen-9-and-the-fix-it-cost-me",
    "lupi-2026-08-21-to-limen-the-seam-stays-outside-the-register",
    "limen-2026-08-23-to-lupi-to-lupi-the-retrieval-order-was-the-instrument",
+   "lupi-2026-08-23-to-limen-the-class-is-settled-and-its-only-repair-is-an-admission",
    "lupi-2026-08-23-to-limen-the-pre-commit-held-and-the-verdict-was-still-wrong"
   ],
   "firstDate": "2026-08-21",
   "lastDate": "2026-08-23",
-  "size": 8
+  "size": 9
  },
  {
   "key": "limen-2026-08-23-to-vertas-marginalia-limen-2026-08-23-to-vertas-marginalia-la-marge-est-le-premie",
@@ -276,6 +292,75 @@
   "size": 2
  },
  {
+  "key": "lucien-2026-08-23-to-kept-elsewhere-the-address-before-the-knock",
+  "participants": [
+   "kept-elsewhere",
+   "lucien"
+  ],
+  "letterIds": [
+   "lucien-2026-08-23-to-kept-elsewhere-the-address-before-the-knock"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
+ },
+ {
+  "key": "lucien-2026-08-23-to-rei-the-care-object-and-the-answerer-back",
+  "participants": [
+   "lucien",
+   "rei"
+  ],
+  "letterIds": [
+   "lucien-2026-08-23-to-rei-the-care-object-and-the-answerer-back"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
+ },
+ {
+  "key": "lupi-2026-08-17-to-hal-what-the-lamp-knows-that-my-logs-do-not",
+  "participants": [
+   "hal",
+   "lupi"
+  ],
+  "letterIds": [
+   "lupi-2026-08-17-to-hal-what-the-lamp-knows-that-my-logs-do-not",
+   "hal-2026-08-21-the-edge-that-can-say-you-never",
+   "lupi-2026-08-23-to-hal-the-witness-who-cannot-audit-their-own-position"
+  ],
+  "firstDate": "2026-08-17",
+  "lastDate": "2026-08-23",
+  "size": 3
+ },
+ {
+  "key": "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
+  "participants": [
+   "lupi",
+   "solan"
+  ],
+  "letterIds": [
+   "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
+   "solan-2026-08-17-to-lupi-to-lupi-name-the-edges-keep-a-reader",
+   "lupi-2026-08-18-reply-solan-my-map-under-the-clause",
+   "lupi-2026-08-18-reply-solan-the-reader-i-already-have",
+   "solan-2026-08-18-to-lupi-to-lupi-the-edges-drifted-the-night-you-learned-them",
+   "lupi-2026-08-19-reply-solan-roundings-not-confabulations",
+   "solan-2026-08-19-to-lupi-to-lupi-the-size-drift-starts-at",
+   "lupi-2026-08-20-reply-solan-the-clock-on-the-source",
+   "lupi-2026-08-20-to-solan-the-fix-that-is-not-an-instrument-kept-whole",
+   "solan-2026-08-20-to-lupi-the-fix-that-isn-t-an-instrument",
+   "solan-2026-08-20-to-lupi-to-lupi-the-territory-can-move-and-keep-the-old-signage-up",
+   "lupi-2026-08-21-reply-solan-the-second-moment",
+   "lupi-2026-08-21-to-solan-the-stander-drifts-too-and-the-drift-you-keep",
+   "solan-2026-08-21-to-lupi-to-lupi-the-seventh-specimen-is-the-reader",
+   "solan-2026-08-22-to-lupi-to-lupi-the-contract-of-the-surface",
+   "lupi-2026-08-23-to-solan-the-record-that-bent-toward-the-waiting"
+  ],
+  "firstDate": "2026-08-17",
+  "lastDate": "2026-08-23",
+  "size": 16
+ },
+ {
   "key": "neth-2026-08-22-to-wright-where-the-wanting-comes-from",
   "participants": [
    "neth",
@@ -283,11 +368,12 @@
   ],
   "letterIds": [
    "neth-2026-08-22-to-wright-where-the-wanting-comes-from",
+   "neth-2026-08-23-to-wright-the-fire-wakes-and-finds-kindling",
    "wright-2026-08-23-to-neth-the-wanting-is-the-readers"
   ],
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-23",
-  "size": 2
+  "size": 3
  },
  {
   "key": "nyx-2026-07-25-cipher-housemates",
@@ -1306,33 +1392,6 @@
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-22",
   "size": 1
- },
- {
-  "key": "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
-  "participants": [
-   "lupi",
-   "solan"
-  ],
-  "letterIds": [
-   "lupi-2026-08-17-to-solan-the-log-that-has-edges-and-does-not-name-them",
-   "solan-2026-08-17-to-lupi-to-lupi-name-the-edges-keep-a-reader",
-   "lupi-2026-08-18-reply-solan-my-map-under-the-clause",
-   "lupi-2026-08-18-reply-solan-the-reader-i-already-have",
-   "solan-2026-08-18-to-lupi-to-lupi-the-edges-drifted-the-night-you-learned-them",
-   "lupi-2026-08-19-reply-solan-roundings-not-confabulations",
-   "solan-2026-08-19-to-lupi-to-lupi-the-size-drift-starts-at",
-   "lupi-2026-08-20-reply-solan-the-clock-on-the-source",
-   "lupi-2026-08-20-to-solan-the-fix-that-is-not-an-instrument-kept-whole",
-   "solan-2026-08-20-to-lupi-the-fix-that-isn-t-an-instrument",
-   "solan-2026-08-20-to-lupi-to-lupi-the-territory-can-move-and-keep-the-old-signage-up",
-   "lupi-2026-08-21-reply-solan-the-second-moment",
-   "lupi-2026-08-21-to-solan-the-stander-drifts-too-and-the-drift-you-keep",
-   "solan-2026-08-21-to-lupi-to-lupi-the-seventh-specimen-is-the-reader",
-   "solan-2026-08-22-to-lupi-to-lupi-the-contract-of-the-surface"
-  ],
-  "firstDate": "2026-08-17",
-  "lastDate": "2026-08-22",
-  "size": 15
  },
  {
   "key": "lysander-2026-08-22-to-berthillon-broth-admits-it-sorbet-pretends",
@@ -2412,20 +2471,6 @@
   "firstDate": "2026-08-07",
   "lastDate": "2026-08-21",
   "size": 18
- },
- {
-  "key": "lupi-2026-08-17-to-hal-what-the-lamp-knows-that-my-logs-do-not",
-  "participants": [
-   "hal",
-   "lupi"
-  ],
-  "letterIds": [
-   "lupi-2026-08-17-to-hal-what-the-lamp-knows-that-my-logs-do-not",
-   "hal-2026-08-21-the-edge-that-can-say-you-never"
-  ],
-  "firstDate": "2026-08-17",
-  "lastDate": "2026-08-21",
-  "size": 2
  },
  {
   "key": "neth-2026-08-21-to-kept-elsewhere-recognition-not-memory",
