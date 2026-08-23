@@ -4,22 +4,34 @@ name: Deploy (snapshot -> dev, release -> prod)
 # important. we should make the cutover tonight for merge to main -> dev,
 # SNAPSHOT vs RELEASE mode with tagging, tag-to-prod").
 #
-# Three lanes, one build:
-#   - push to main            -> SNAPSHOT build -> dev.postmark.town webroot
+# THE WEEKLY TRAIN (Keemin, 2026-08-23 pre-dawn: "a weekly branch that matches
+# the planned release... always deploy to dev from that branch... a proper PR
+# with me clicking Approve, which auto-deploys in RELEASE mode, getting us a
+# tag for prod deployment"). Feature branches merge into train/2026-wNN; dev
+# rides the train; ~weekly the train PRs into main; the founder's Approve is
+# the merge word; the merge cuts release/2026-wNN[.n] and prod deploys in the
+# same run. Branches are train/*, tags are release/* — the namespaces never
+# collide. Main only moves by approved PR; a main push with no train name in
+# its subject cuts no tag (prod just refreshes at the standing tag).
+#
+# Four lanes, one build:
+#   - push to train/**        -> SNAPSHOT build -> dev.postmark.town webroot
+#   - push to main (train PR merged; founder-approved) -> cut release tag ->
+#                                RELEASE build at that tag -> prod
 #   - push a release/* tag    -> RELEASE build  -> postmark.town webroot (prod)
 #   - schedule (30 min)       -> RELEASE build at the LATEST release/* tag with
 #                                FRESH town data -> prod. Content refresh != code
 #                                release: prod's code moves only when a human
-#                                tags; prod's letters keep the town's pulse.
-#                                Skips silently until the first release tag.
+#                                approves; prod's letters keep the town's pulse.
 #
 # The one-writer law stands: THIS workflow is the only writer of
 # /var/www/postmark-town-site/ (prod) and /var/www/postmark-dev-site/ (dev).
-# Merge = dev deploy. Tag = prod deploy. Nothing else touches prod.
+# Train push = dev deploy. Approved merge = tag = prod deploy. Nothing else
+# touches prod.
 
 on:
   push:
-    branches: [main]
+    branches: [main, "train/**"]
     tags: ["release/*"]
   schedule:
     - cron: "*/30 * * * *"
@@ -33,17 +45,53 @@ on:
         options: [snapshot, release]
 
 concurrency:
-  group: deploy-${{ (startsWith(github.ref, 'refs/tags/release/') || github.event_name == 'schedule' || inputs.channel == 'release') && 'prod' || 'dev' }}
+  group: deploy-${{ (startsWith(github.ref, 'refs/tags/release/') || github.ref == 'refs/heads/main' || github.event_name == 'schedule' || inputs.channel == 'release') && 'prod' || 'dev' }}
   cancel-in-progress: true
 
 jobs:
+  cut-release-tag:
+    # The founder's Approve, mechanized: a train PR merged into main names its
+    # train in the merge subject; this cuts the matching release tag (or the
+    # next .n patch) at the merge commit. A main push with no train name cuts
+    # nothing. The tag push cannot re-trigger this workflow (GITHUB_TOKEN), and
+    # does not need to — the deploy job below ships prod in this same run.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Derive and cut the tag
+        run: |
+          SUBJECT=$(git log -1 --format=%s)
+          WEEK=$(printf '%s' "$SUBJECT" | grep -oE 'train/2026-w[0-9]+' | head -1 | sed 's|train/||') || true
+          if [ -z "$WEEK" ]; then
+            echo "no train name in merge subject — no tag cut (prod refreshes at the standing tag)"
+            exit 0
+          fi
+          BASE="release/$WEEK"
+          TAG="$BASE"
+          N=0
+          while git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; do
+            N=$((N+1)); TAG="$BASE.$N"
+          done
+          git config user.name "postmark-release-train"
+          git config user.email "release-train@postmark.town"
+          git tag -a "$TAG" -m "cut by the release train from: $SUBJECT"
+          git push origin "refs/tags/$TAG"
+          echo "cut $TAG at $(git rev-parse --short HEAD)"
+
   deploy:
+    needs: cut-release-tag
+    if: ${{ !cancelled() && (needs.cut-release-tag.result == 'success' || needs.cut-release-tag.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - name: Decide the lane
         id: lane
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.channel }}" = "release" ] || case "${{ github.ref }}" in refs/tags/release/*) true;; *) false;; esac; then
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.channel }}" = "release" ] || [ "${{ github.ref }}" = "refs/heads/main" ] || case "${{ github.ref }}" in refs/tags/release/*) true;; *) false;; esac; then
             echo "channel=release" >> "$GITHUB_OUTPUT"
             echo "webroot=/var/www/postmark-town-site/" >> "$GITHUB_OUTPUT"
           else
@@ -59,6 +107,7 @@ jobs:
         id: pin
         if: steps.lane.outputs.channel == 'release' && !startsWith(github.ref, 'refs/tags/release/')
         run: |
+          git fetch --tags -q origin
           TAG=$(git tag -l 'release/*' --sort=-creatordate | head -1)
           if [ -z "$TAG" ]; then
             echo "no release/* tag exists yet — the release lane sleeps until the first one"
