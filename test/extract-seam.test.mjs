@@ -104,8 +104,12 @@ test("a draft pot is emitted and marked draft — never dropped", { skip: !haveT
   // surfaces then decide what a draft may say, which is not the emitter's call.
   const mint = await loadMint();
   const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
-  const file = mint.potFile(TOWN, "darko-fund");
-  assert.equal(file.status, "draft", "the fixture of record for this test is a draft pot");
+  // The status is set HERE rather than borrowed from the town's live file. It
+  // used to read `assert.equal(file.status, "draft")`, which quietly tied this
+  // test to a value the founder moves at will — and he moved it: darko-fund
+  // opened 2026-08-23. What is under test is the emitter's treatment of a draft
+  // row, which is a shape, not a fact about today's town.
+  const file = { ...mint.potFile(TOWN, "darko-fund"), status: "draft" };
 
   const seam = seamFromTown({ mint, entries, potFiles: [file], dial: DIAL, asOf: "2026-08-21" });
   assert.equal(seam.pots.length, 1, "a draft pot is emitted");

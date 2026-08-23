@@ -238,6 +238,20 @@ export function toPot(raw) {
       ? raw.beneficiary.trim() : null,
     cadence: String(raw.epoch_cadence ?? "").trim() || null,
     uncapped,
+    // The pot file's own word for what a close does here, and the one thing
+    // the surfaces need from it. "none" is the donation-box shape, and the
+    // file says what that means: "a standing box, not an epoch pot — gifts
+    // are witnessed, never converted; nothing here ever burns or mints"
+    // (pot-darko-fund.json § _close).
+    close: typeof raw.close === "string" && raw.close.trim() ? raw.close.trim() : null,
+    // DERIVED, and deliberately not stored: whether an epoch close can ever
+    // run on this pot. The explicit field wins when the emission carries it;
+    // otherwise the pot's own target answers, because the law already ties the
+    // two together — "A pot with no target cannot close"
+    // (pot-keeping-ec2.json § _target). An older emission with no `close`
+    // therefore still reads correctly, which is why the derivation is the
+    // fallback and never the primary.
+    closes: String(raw.close ?? "").trim() === "none" ? false : !targetless,
     // null on an uncapped pot is a REAL state the surfaces must say out loud —
     // the fund page's standing-box branch reads exactly this.
     target: targetless ? null : int(target),
@@ -479,6 +493,20 @@ export const POT_FIXTURE = [
       { patron: "alden", usd: 50, holo: 6 },
       { patron: "rei", usd: 40, holo: 5 },
     ],
+  },
+  // THE STANDING BOX — the second pot shape, and the one the surfaces get
+  // wrong if it is not in the fixture. No target, uncapped, and `close: none`:
+  // gifts are witnessed and nothing is ever converted, so no bar, no headroom,
+  // and not one word about a close. The live case is the DARKO fund.
+  {
+    pot: "darko-fund", subtype: "bounty", status: "open",
+    title: "The DARKO fund — the donation box",
+    source: "The founder is the town's infrastructure. Stake stamps to say the keeping of the founder matters; dollars given here are witnessed as receipts. No target, no cap.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "keeminlee", received_usd: 25, close: "none",
+    board: "quest-registry.json § darko-fund",
+    epoch: "2026-09", staked: 4,
+    patrons: [{ patron: "iris", usd: 25, holo: 0 }],
   },
   // a pot the founder has NOT opened. The board must never render this one —
   // livePots() holds it back, and the tests prove it.

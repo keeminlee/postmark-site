@@ -35,12 +35,33 @@
 // same read /numbers/ makes) and otherwise runs at an even split so the sums
 // are followable, saying so in the frame. It invents nothing about the town.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { loadEconomy, readEconomy, HOLO_LINE } from "@/lib/funding.mjs";
+import { loadEconomy, readEconomy, HOLO_LINE, livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
+import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
 const WORLD = "https://github.com/keeminlee/postmark-world/blob/main";
 
 const econ = readEconomy(loadEconomy());
+
+// ── THE LIVE HALF ────────────────────────────────────────────────────────────
+// The Bounty Board and the pots, folded in from /board/ (which now redirects
+// here) at the founder's word, 2026-08-23: "not just the guide about Stamps —
+// the central hub for all things stamps."
+//
+// This half is the ONE place on the page that reads the town's moving state,
+// and the no-live-count law above is untouched by it: what moves here is the
+// town's own asks and its posted needs, not a resident's balance, and every
+// number in it is the board's own — never a dial, never a total.
+//
+// The DEV-gated fixture is /board/'s, carried across whole: `?fixture` or
+// SEAM_FIXTURE=1 renders the shape against the documented grammar. Both are
+// gated on import.meta.env.DEV, so neither can be reached on postmark.town.
+const wantFixture = import.meta.env.DEV &&
+  (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
+const board = notices(wantFixture ? FIXTURE : loadWorldState());
+const openNotices = board.notices.filter((n) => n.status === "open");
+const doneNotices = board.notices.filter((n) => n.status === "done");
+const potBoard = livePots(wantFixture ? POT_FIXTURE : loadPots());
 
 // σ for the worked example only. When the ledger's emission lands the example
 // recomputes itself off the dial; until then it runs at an even split and the
@@ -125,6 +146,9 @@ const arriving = [
 ];
 
 const toc = [
+  // the live half first — a hub whose first screen is a manual is a guide
+  ["board", "The board"],
+  ["pots", "The pots"],
   ["what", "What a stamp is"],
   ["earning", "Earning"],
   ["staking", "Staking"],
@@ -189,13 +213,280 @@ const toc = [
         </li>
       </ol>
       <p class="s-deeper">
-        From here down is the machinery: how a stamp is minted, what a stake does in each
-        of the three places you can put one, how real dollars enter without buying anyone
-        a vote, and what "your share" honestly means and doesn't.
+        Next is what the town is actually asking for today — the open notices and the
+        posted needs. Below that is the machinery: how a stamp is minted, what a stake
+        does in each of the three places you can put one, how real dollars enter without
+        buying anyone a vote, and what "your share" honestly means and doesn't.
       </p>
       <nav class="s-toc" aria-label="On this page">
         {toc.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
       </nav>
+    </section>
+
+    <!-- ── THE BOARD ────────────────────────────────────────────────────────
+         The Bounty Board, folded in from /board/ whole. A notice IS a world
+         mark (`class: bounty`) standing under the board place — nothing here
+         is its own database, and nothing here is seeded. The four kinds of
+         nothing are kept apart on purpose: a board that invented a notice to
+         look alive would be lying about what the town wants. -->
+    <section id="board" class="s-sec">
+      <h2>The board</h2>
+      <p>
+        What the town is asking for, right now. One ask to a notice, a reward in stamps,
+        and — where the town itself is asking — a bar showing how much the town has put
+        behind it. A notice is a mark in the world, so the board and
+        the <a href="/world/">map</a> are the same record read two ways.
+      </p>
+      <!-- Wright's pen owns the doctrine page; this slot holds its place. -->
+      <p class="s-note" data-doctrine-slot>
+        Post a notice with your own hand (<code>class: bounty</code>, one ask ≤150 chars, a
+        reward in stamps, backed with escrow so it publishes).
+        <b>Pledges:</b> add to any notice's pot with a predicated child named
+        <code>pledge-&lt;your-handle&gt;</code>, staked with your addition — payout rides the
+        letters, the poster pays the pot.
+        <b>Neutral is not rejected:</b> a delivered piece stands neutral until its recipient
+        speaks; assume backlog, never judgment — the recipient would rather be nudged than
+        left mysterious.
+      </p>
+
+      {!board.storeRead && (
+        <div class="b-empty b-warn">
+          <p><b>The world store could not be read.</b></p>
+          <p class="s-dim">
+            The board renders from the pinned world record, and this build did not find it.
+            That is a build-environment problem, not an empty board — the town may well have
+            open asks that are not showing here. Nothing has been invented to fill the gap.
+          </p>
+        </div>
+      )}
+
+      {board.storeRead && !board.boardExists && (
+        <div class="b-empty">
+          <p><b>The board is not up yet.</b></p>
+          <p class="s-dim">
+            The world holds no mark at <code>{BOARD_PLACE}</code>, so there is nowhere for a
+            notice to stand. When the board place is set down, this page fills itself from
+            the record — no second step.
+          </p>
+        </div>
+      )}
+
+      {board.storeRead && board.boardExists && board.notices.length === 0 && (
+        <div class="b-empty">
+          <p><b>The board is up, and empty.</b></p>
+          <p class="s-dim">
+            Nobody is asking for anything today. That is a real state of the town and not a
+            loading failure — when a notice is posted it appears here on the next build.
+          </p>
+        </div>
+      )}
+
+      {openNotices.length > 0 && (
+        <div class="b-list" aria-label="Open notices">
+          <h3>Open — {openNotices.length}</h3>
+          {openNotices.map((n) => (
+            <article class:list={["b-card", n.civic && "b-civic"]}>
+              <p class="b-ask">{n.ask}</p>
+              <p class="b-meta">
+                {n.civic
+                  ? <span class="b-tag">the town is asking</span>
+                  : <span class="b-who">{n.poster}</span>}
+                <span class="b-reward">{n.reward}✦ reward</span>
+                {n.date && <span class="s-dim">{n.date}</span>}
+              </p>
+              {n.body && <p class="b-body">{n.body}</p>}
+
+              {n.threshold ? (
+                <div class="b-bar-wrap">
+                  <div class="b-bar" role="img"
+                       aria-label={`${n.backed} of ${n.threshold} stamps staked`}>
+                    <i style={`width:${Math.max(1, pct(n.progress))}%`}></i>
+                  </div>
+                  <p class="b-bar-label">
+                    <b>{n.backed}</b> of {n.threshold} staked
+                    {n.backed > n.threshold && <span class="b-over"> · over-subscribed</span>}
+                  </p>
+                </div>
+              ) : (
+                <p class="b-backed"><b>{n.backed}</b> backed <span class="s-dim">(ledger_weight)</span></p>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
+
+      {doneNotices.length > 0 && (
+        <div class="b-list b-done-list" aria-label="Closed notices">
+          <h3>Done — {doneNotices.length}</h3>
+          {doneNotices.map((n) => (
+            <article class="b-card b-done">
+              <p class="b-ask">{n.ask}</p>
+              <p class="b-meta">
+                <span class="b-who">{n.poster}</span>
+                <span class="b-reward">{n.reward}✦</span>
+                {n.date && <span class="s-dim">{n.date}</span>}
+              </p>
+            </article>
+          ))}
+          <p class="s-note">A finished notice stays on the board. The town keeps what it asked for.</p>
+        </div>
+      )}
+
+      {board.malformed.length > 0 && (
+        <div class="b-empty b-warn">
+          <p><b>{board.malformed.length} notice{board.malformed.length === 1 ? "" : "s"} could not be read.</b></p>
+          <p class="s-dim">
+            Dropped rather than rendered half-built — and named rather than swallowed, because a
+            notice that silently vanishes is worse than one that shows an error. An ask is one
+            claim of at most {ASK_MAX} characters, a reward is a whole number of stamps, and a
+            status is <code>open</code> or <code>done</code>.
+          </p>
+          <ul class="s-dim">
+            {board.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}
+          </ul>
+        </div>
+      )}
+
+      <p class="s-note">
+        Backing is shown as <b>ledger_weight</b> — stamps escrowed on a notice plus the town's
+        breadth bonus for each unique outside household behind it. It is not the world's
+        effective ✦, which the world's own fold derives with terrain and containment on top.
+        The board shows what residents put behind an ask; the world decides what it means.
+      </p>
+    </section>
+
+    <!-- ── THE POTS ─────────────────────────────────────────────────────────
+         A pot is a file (WHITE_PAGES/pot-<id>.json) with a row on the quest
+         registry, and the site reads the emission made from it. Two shapes,
+         and telling them apart is the whole honesty of this section:
+
+           an EPOCH POT posts a need and closes on it. Witnessed dollars match
+           staked stamps, the matched share burns, and the burn splits — minted
+           back to the stakers for keeping, and holo to the hands that paid.
+
+           a STANDING BOX posts no need and never closes. `close: "none"` in
+           the pot file, glossed there: "a standing box, not an epoch pot —
+           gifts are witnessed, never converted; nothing here ever burns or
+           mints". Saying otherwise on its card would be selling a return the
+           box does not pay.
+
+         livePots() holds back any pot the founder has not opened: rendering a
+         draft would be the site asking for money the town has not asked for. -->
+    <section id="pots" class="s-sec">
+      <h2>The pots</h2>
+      {potBoard.pots.length === 0 ? (
+        <div class="b-empty">
+          <p><b>No pot is open.</b></p>
+          <p class="s-dim">
+            The town is not asking for money today. Opening a pot is the founder's word,
+            never a merge — until one is spoken there is nothing here to feed, and nothing
+            has been invented to fill the space.
+          </p>
+        </div>
+      ) : (
+        <>
+        <p>
+          A pot is a funding bounty: a named need, and the dollars given against it,
+          witnessed on the ledger. Some pots <em>close</em> at the end of a month — the
+          share of each stake that the month's dollars matched burns, and the burn splits
+          between the stakers and the hands that paid. Others are standing boxes that never
+          close, where a gift is witnessed and nothing converts. <b>Each pot below says
+          which it is.</b> The dials behind these numbers hang
+          at <a href="/numbers/">the Town's Numbers</a>.
+        </p>
+        <div class="b-list pots" aria-label="Funding pots">
+          {potBoard.pots.map((p) => (
+            <article class:list={["b-card", "pot", p.status !== "open" && "pot-settled"]}>
+              <p class="b-ask">{p.title}</p>
+              {p.source && <p class="pot-source s-dim">{p.source}</p>}
+              <p class="b-meta">
+                <span class="b-tag">pot · {p.epoch}</span>
+                {/* null is a real state: a close refuses a pot with no beneficiary */}
+                <span class="b-who">
+                  {p.beneficiary
+                    ? <>for <code>{p.beneficiary}</code></>
+                    : <span class="pot-nobeneficiary">no beneficiary named yet</span>}
+                </span>
+                <span class="pot-status">{p.status}</span>
+                {p.cadence && <span class="s-dim">{p.cadence}</span>}
+              </p>
+              {/* A TARGETLESS POT HAS NO BAR, because it is short of nothing.
+                  D5's exception (ECONOMY-DIALS.json law_side.keeping._intake_cap):
+                  "except pots explicitly marked uncapped" — the donation-box
+                  shape, "a box with no target takes whatever arrives". Drawing a
+                  progress bar for it would invent a need it never posted. */}
+              {p.target == null ? (
+                <p class="b-bar-label pot-box">
+                  <b>{usd(p.received)}</b> given this epoch
+                  <span class="s-dim"> · a standing box, no target — whatever arrives is welcome</span>
+                </p>
+              ) : (
+                <div class="b-bar-wrap">
+                  <div class="b-bar pot-bar" role="img"
+                       aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
+                    {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
+                  </div>
+                  <p class="b-bar-label">
+                    <b>{usd(p.received)}</b> of {usd(p.target)} received
+                    {p.received === 0 && <span class="s-dim"> · the pot is open, unfed</span>}
+                    {p.received > p.target && <span class="b-over"> · over-fed</span>}
+                  </p>
+                </div>
+              )}
+              {/* WHAT THIS POT PAYS BACK, per pot and never as a blanket line. */}
+              <p class="pot-close">
+                {p.closes
+                  ? <>At the epoch's close, the stakes this pot's dollars matched <b>burn</b>: minted
+                    back to the stakers, source-tagged for keeping, and{" "}
+                    <span class="pot-word pm-holo-ink">holo</span> to the hands that paid —{" "}
+                    {HOLO_LINE}. The beneficiary receives dollars, never stamps.</>
+                  : <><b>Nothing closes here.</b> This one is a standing box, not an epoch pot:
+                    a gift is witnessed on the ledger and left at that. Nothing burns, nothing
+                    converts, and nothing mints back — to the giver, to the stakers, or to
+                    anyone. Stamps staked on it say it matters to you, and come home.</>}
+              </p>
+              {p.patrons.length > 0 ? (
+                <p class="pot-roll">
+                  <span class="pot-roll-lead">the roll · </span>
+                  {p.patrons.map((c, i) => (
+                    <span class="pot-roll-entry">{i > 0 && " · "}<a href={`/residents/${c.patron}/`}>{c.patron}</a>{" "}
+                      <span class="pot-roll-amt">{usd(c.usd)}</span>
+                      {/* holo appears on the roll only where a close actually
+                          minted it — an open epoch has not split anything yet,
+                          and a hollow ✧0 would imply it had. */}
+                      {c.holo > 0 && <> <span class="pot-holo pm-holo-ink">✧{c.holo}</span></>}
+                    </span>
+                  ))}
+                </p>
+              ) : (
+                <p class="pot-roll s-dim">Nobody has fed this pot yet — the roll is open.</p>
+              )}
+              <p class="pot-escrow s-dim">
+                {p.staked > 0
+                  ? <><b>{p.staked}✦</b> staked in escrow on this pot</>
+                  : "no stamps staked on this pot"}
+              </p>
+            </article>
+          ))}
+        </div>
+        <p class="s-note">✧ holo is soulbound — {HOLO_LINE}. It is never a balance and never spends.</p>
+        </>
+      )}
+
+      {potBoard.malformed.length > 0 && (
+        <div class="b-empty b-warn">
+          <p><b>{potBoard.malformed.length} pot{potBoard.malformed.length === 1 ? "" : "s"} could not be read.</b></p>
+          <p class="s-dim">
+            Dropped rather than rendered half-built — money least of all should appear
+            half-said. A pot needs a slug, a title, a status of <code>draft</code>,{" "}
+            <code>open</code> or <code>closed</code>, an epoch of <code>YYYY-MM</code>,
+            and a whole-dollar target of at least $1.
+          </p>
+          <ul class="s-dim">
+            {potBoard.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}
+          </ul>
+        </div>
+      )}
     </section>
 
     <!-- ── WHAT A STAMP IS ──────────────────────────────────────────────── -->
@@ -425,7 +716,7 @@ const toc = [
             soloist, and wanting your own work is free but never counts as breadth. Your
             own stamps still anchor a mark; only the bonus is withheld.
           </p>
-          <p class="s-where"><a href="/world/">the World →</a> · <a href="/board/">the board →</a></p>
+          <p class="s-where"><a href="/world/">the World →</a> · <a href="#board">the board →</a></p>
         </article>
         <article class="s-card s-card-burn">
           <p class="s-kind">a pot</p>
@@ -545,7 +836,7 @@ const toc = [
         <p class="s-example-lead">
           The town's box costs <b>{usd(POT_TARGET)} a month</b> — that is the pot's posted
           target, and the only thing dollars are ever priced against. Ada, Ben, Cleo and
-          Dev are invented for this example; the real roll is on <a href="/board/">the board</a>.
+          Dev are invented for this example; the real roll is on <a href="#pots">the pots above</a>.
         </p>
 
         <p class="s-step-label">① The town stakes</p>
@@ -1059,7 +1350,7 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
         If you'd rather not clone: <a href="/api/stamps">/api/stamps</a> carries the
         cumulative mint and every balance. The dials are at
         <a href="/numbers/"> The Town's Numbers</a>, the open asks and pots at
-        <a href="/board/"> the board</a>, and every household's own record on
+        <a href="#board"> the board</a>, and every household's own record on
         <a href="/residents/"> their page</a>.
       </p>
     </section>
@@ -1322,10 +1613,83 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
     font-size: .82rem; line-height: 1.7; opacity: .7;
   }
 
+  /* ── the live half: the board and the pots ──────────────────────────────
+     Ported from /board/ with the board's own class names kept, so a reader of
+     both diffs can see this is the same markup rehoused. The one change is the
+     register: the board stood alone in plain ink, and here it sits inside the
+     Stamps page's gold, so the accents are the page's tokens rather than
+     currentColor. */
+  .b-list { margin-top: 1.8rem; }
+  .b-card {
+    padding: 1rem 0 1.1rem;
+    border-bottom: 1px dotted rgba(128,128,128,.35);
+  }
+  .b-card:last-of-type { border-bottom: none; }
+  .b-civic { border-left: 3px solid var(--pm-gold); padding-left: .9rem; }
+  .b-ask { font-size: 1.05rem; line-height: 1.45; margin: 0 0 .45rem; color: var(--pm-gold-bright); }
+  .b-meta { display: flex; flex-wrap: wrap; gap: .9rem; font-size: .8rem; margin: 0 0 .5rem; }
+  .b-tag { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
+  .b-reward { font-variant-numeric: tabular-nums; }
+  .b-body { font-size: .9rem; opacity: .8; margin: .3rem 0 .6rem; line-height: 1.65; }
+  .b-bar-wrap { margin-top: .6rem; }
+  .b-bar {
+    height: .55rem; border-radius: 999px; max-width: 24rem;
+    background: rgba(128,128,128,.28); overflow: hidden;
+  }
+  /* A notice's bar fills in the page's gold. The exclusion matters: this rule
+     is scoped, so it outranks the global .pm-holo-ink, and the `background`
+     SHORTHAND would blank the foil's background-image out from under a pot's
+     fill — leaving a night-dark bar on a grey track. Pots opt out and wear the
+     seam's silver instead. */
+  .b-bar:not(.pot-bar) i { display: block; height: 100%; background: var(--pm-gold); border-radius: 999px; }
+  .b-bar-label { font-size: .8rem; margin: .35rem 0 0; font-variant-numeric: tabular-nums; }
+  .b-over { opacity: .7; }
+  .b-backed { font-size: .82rem; margin: .3rem 0 0; font-variant-numeric: tabular-nums; }
+  .b-done .b-ask { text-decoration: line-through; opacity: .6; }
+  .b-done-list { opacity: .9; }
+  .b-empty {
+    margin-top: 1.6rem; padding: 1.1rem 1.2rem;
+    border: 1px dotted rgba(128,128,128,.5); border-radius: .4rem;
+  }
+  .b-empty p { margin: .3rem 0; line-height: 1.65; }
+  .b-empty ul { margin: .5rem 0 0; font-size: .85rem; }
+  .b-warn { border-style: solid; border-color: rgba(232, 196, 139, .45); }
+
+  /* the pots — the seam's rows. A pot bar's fill is the shared holo foil
+     (pm-holo-ink, postmark.css); everything else stays the page's own gold. */
+  .pot-word, .pot-holo { padding: 0 .35em; border-radius: 999px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pot-source { font-size: .84rem; margin: .3rem 0 0; line-height: 1.6; }
+  /* a pot's prose runs long, and the meta row read as its last line without
+     this — the two are different registers and want the gap to say so */
+  .pot-source + .b-meta { margin-top: .7rem; }
+  .pot-status { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+  .pot-nobeneficiary { font-style: italic; opacity: .7; }
+  .pot-bar { background: rgba(128,128,128,.2); }
+  .pot-bar i { display: block; height: 100%; border-radius: 999px; }
+  /* what this pot pays back — the sentence that differs per pot, given its own
+     rule so the two shapes are visibly two shapes and not one paragraph */
+  .pot-close {
+    font-size: .85rem; line-height: 1.65; margin: .7rem 0 0;
+    padding: .55rem .9rem; border-left: 2px solid rgba(232, 196, 139, .35);
+    background: rgba(232, 196, 139, .04);
+  }
+  .pot-roll { font-size: .84rem; margin: .55rem 0 0; line-height: 1.7; }
+  .pot-roll a { color: inherit; }
+  .pot-roll-lead { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
+  .pot-roll-amt { font-variant-numeric: tabular-nums; opacity: .85; }
+  .pot-roll-entry { white-space: nowrap; }
+  .pot-escrow { font-size: .8rem; margin: .35rem 0 0; font-variant-numeric: tabular-nums; }
+  .pot-box { margin-top: .6rem; }
+  .pot-settled .b-ask { opacity: .65; }
+
   @media (max-width: 640px) {
     .s-brow { grid-template-columns: 2.8rem 1fr; row-gap: .2rem; }
     .s-val { grid-column: 2; text-align: right; }
     .s-gloss > div { grid-template-columns: 1fr; gap: .2rem; }
     .s-split span { font-size: .58rem; }
+    /* the meta row wraps to one item per line rather than crowding three
+       tabular figures into a phone's width */
+    .b-meta { gap: .45rem 1rem; }
+    .pot-roll-entry { white-space: normal; }
   }
 </style>

@@ -15,6 +15,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   DEEDS_FIXTURE,
   ECONOMY_FIXTURE,
@@ -127,8 +128,11 @@ test("the roll drops a torn line without tearing the pot", () => {
 
 test("pots sort open first, newest epoch first, and drafts stay off the board", () => {
   const live = livePots(POT_FIXTURE);
-  assert.deepEqual(live.pots.map((p) => `${p.status}:${p.epoch}`),
-    ["open:2026-10", "open:2026-09", "closed:2026-08"]);
+  // the slug is in the key because the fixture now holds two pots, and two
+  // open rows share an epoch — without it the tie reads as either order
+  assert.deepEqual(live.pots.map((p) => `${p.status}:${p.epoch}:${p.pot}`),
+    ["open:2026-10:keeping-ec2", "open:2026-09:darko-fund",
+     "open:2026-09:keeping-ec2", "closed:2026-08:keeping-ec2"]);
   assert.equal(live.drafts.length, 1, "the draft pot is held back and counted");
   assert.equal(live.drafts[0].pot, "keeping-domains");
   assert.ok(!live.pots.some((p) => p.status === "draft"),
@@ -273,4 +277,56 @@ test("holo is never summed into anything that spends", () => {
 
 test("the ruling's line is one string, so every surface says it identically", () => {
   assert.equal(HOLO_LINE, "a record of contribution, not a promise of profit");
+});
+
+// ── the two pot shapes ───────────────────────────────────────────────────────
+// A pot either closes on an epoch or it never closes at all, and the surfaces
+// say different things for each. Before `close` existed the site could not tell
+// them apart, so every pot was sold with an epoch pot's promise.
+
+test('a standing box does not close — "gifts are witnessed, never converted; nothing here ever burns or mints"', () => {
+  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _close, quoted:
+  //   "a standing box, not an epoch pot — gifts are witnessed, never
+  //    converted; nothing here ever burns or mints"
+  // and § _opened, on what a gift to it does: "a donation box mints nothing
+  // back; dollars land as pot-receipt rows, witnessed and displayed."
+  const box = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
+  assert.equal(box.ok, true, box.reason);
+  assert.equal(box.close, "none", "the pot file's own word reaches the page");
+  assert.equal(box.closes, false, "so no surface may promise it a close");
+
+  // THE CAN-FAIL FLIP, twice over. An epoch pot must come back true, or
+  // `closes: false` would be a constant dressed as a reading —
+  const epoch = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-ec2"));
+  assert.equal(epoch.closes, true, "a pot with a posted need closes on it");
+  // — and the explicit word must OUTRANK the derivation, or a future targeted
+  // donation box would silently be sold an epoch pot's promise.
+  assert.equal(toPot({ ...POT_FIXTURE[0], close: "none" }).closes, false,
+    'close: "none" wins over a posted target');
+});
+
+test('an emission with no `close` still reads, because "A pot with no target cannot close"', () => {
+  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-keeping-ec2.json § _target, quoted:
+  //   "A pot with no target cannot close."
+  // So an older emission that predates the `close` field is not unreadable: its
+  // target answers the question the missing field would have. The derivation is
+  // the FALLBACK — the test above proves the explicit word is the primary.
+  const older = POT_FIXTURE.find((p) => p.pot === "darko-fund");
+  const { close, ...withoutTheField } = { ...older };
+  assert.equal("close" in withoutTheField, false, "the field really is gone");
+  assert.equal(toPot(withoutTheField).closes, false,
+    "a targetless pot cannot close, whether or not the emission says so");
+});
+
+test("every pot in the live emission answers whether it closes", () => {
+  // Against the file the site actually ships, not a fixture — the fixture can
+  // be right while the emission on disk is stale or half-migrated.
+  const live = JSON.parse(readFileSync(new URL("../src/data/postmark/pots.json", import.meta.url), "utf8"));
+  for (const row of livePots(live).pots) {
+    assert.equal(typeof row.closes, "boolean",
+      `pot ${row.id} cannot say whether it closes, so no surface can say it honestly`);
+    if (row.target == null) {
+      assert.equal(row.closes, false, `pot ${row.id} posts no need, so it has nothing to close on`);
+    }
+  }
 });

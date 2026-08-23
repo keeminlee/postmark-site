@@ -104,7 +104,7 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
           This page exists so the pot can be read while it is still being considered. It
           publishes no intake address and carries no way to pay, which is the difference
           between the town describing what it is thinking about and the town asking you for
-          something. The <a href="/board/">board</a> carries the needs that are actually open.
+          something. The <a href="/stamps/#pots">Stamps hub</a> carries the needs that are actually open.
         </p>
       </section>
     )}
@@ -125,7 +125,7 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
               ? <>Nothing can be sent against this pot while it is a draft.</>
               : headroom > 0
               ? <>This pot can still take <strong>{usd(headroom)}</strong> this epoch. Dollars past the posted need are refused at intake — the town does not take more than it asked for.</>
-              : <>This pot has what it asked for. Intake is closed until the next epoch opens; the <a href="/board/">board</a> has other needs.</>}
+              : <>This pot has what it asked for. Intake is closed until the next epoch opens; the <a href="/stamps/#pots">Stamps hub</a> has other needs.</>}
           </p>
         </>
       )}
@@ -138,9 +138,24 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
       <p class="f-law-line"><strong>This buys ownership and memory, never voice, and converts to real value only if the town someday does.</strong></p>
       <ul>
         <li>Your dollars pay a named need and leave a <strong>deed</strong> in your name — the public record of what you funded, when, and for how much.</li>
-        <li>If the town's own residents staked stamps on this pot, the close mints you <strong>holo</strong> by dollar share: {HOLO_LINE}. Holo has no verbs — it cannot be spent, staked, voted, or transferred, and it redeems for nothing.</li>
-        <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
-        <li>If nobody staked this pot, your dollars still pay the bill and still earn a deed — and mint nothing. Money cannot manufacture ownership out of something nobody wanted.</li>
+        {/* THE CLOSE IS NOT UNIVERSAL. A standing box never closes — its own
+            file says so ("a standing box, not an epoch pot — gifts are
+            witnessed, never converted; nothing here ever burns or mints"), and
+            promising holo beside its intake address would be selling a return
+            it does not pay. `closes` carries the pot file's own word. */}
+        {pot.closes ? (
+          <>
+            <li>If the town's own residents staked stamps on this pot, the close mints you <strong>holo</strong> by dollar share: {HOLO_LINE}. Holo has no verbs — it cannot be spent, staked, voted, or transferred, and it redeems for nothing.</li>
+            <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
+            <li>If nobody staked this pot, your dollars still pay the bill and still earn a deed — and mint nothing. Money cannot manufacture ownership out of something nobody wanted.</li>
+          </>
+        ) : (
+          <>
+            <li><strong>This one never closes.</strong> It is a standing box, not an epoch pot: a gift is witnessed and left at that. Nothing burns, nothing converts, and <strong>nothing mints back</strong> — no holo, no stamps, to you or to anyone.</li>
+            <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
+            <li>What you get is the deed, and the town's memory of it. If that is not what you meant to buy, do not send.</li>
+          </>
+        )}
       </ul>
     </section>
 
@@ -187,12 +202,12 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
       <p>
         ✧ holo is soulbound — {HOLO_LINE}.
         {open
-          ? <> Every receipt this page records lands in the town's signed <a href="/board/">public
+          ? <> Every receipt this page records lands in the town's signed <a href="https://github.com/postmark-town/postmark/blob/main/WHITE_PAGES/stamp-ledger.md" target="_blank" rel="noopener">public
             ledger</a>, where anyone can read it back against the chain.</>
           /* a draft page records nothing, and saying otherwise would promise a
              receipt for a payment it has no way to take */
           : <> This pot records nothing yet: it takes no payment, so there is no receipt of it
-            in the town's signed <a href="/board/">public ledger</a>.</>}
+            in the town's signed <a href="https://github.com/postmark-town/postmark/blob/main/WHITE_PAGES/stamp-ledger.md" target="_blank" rel="noopener">public ledger</a>.</>}
         {" "}The dials behind the numbers hang at <a href="/numbers/">the Town's Numbers</a>.
       </p>
     </footer>

@@ -51,6 +51,17 @@ export default defineConfig({
   redirects: {
     // v1's Town Archive folded into the Works; old links stay alive (rebased to root)
     '/archive/': '/works/',
+    // The Bounty Board folded into the Stamps hub — the founder, 2026-08-23:
+    // "not just the guide about Stamps — the central hub for all things
+    // stamps." The board's content MOVED; it was not copied, so a pointer page
+    // would leave two surfaces both looking like the board. Every off-site link
+    // stays alive and lands on the real thing.
+    //
+    // EXACT-PATH, and that is load-bearing here: /board/ is also a public asset
+    // directory (public/atelier/postmark/board/quest-board-wood.jpg, which
+    // /daily/ uses as a background). Astro matches this route and nothing
+    // beneath it, so the images keep serving from the same prefix.
+    '/board/': '/stamps/#board',
   },
   vite: {
     ...(DEV ? {

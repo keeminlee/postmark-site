@@ -139,6 +139,13 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
       epoch_cadence: file?.epoch_cadence,
       beneficiary: file?.beneficiary ?? null,
       uncapped: file?.uncapped === true,
+      // What a close does to this pot, in the pot file's own word. The only
+      // value the law spells so far is "none" — pot-darko-fund.json: "a
+      // standing box, not an epoch pot — gifts are witnessed, never converted;
+      // nothing here ever burns or mints". Without this field the site cannot
+      // tell a donation box from an epoch pot, and every surface goes on
+      // promising a close that will never run for it.
+      close: typeof file?.close === "string" && file.close.trim() ? file.close.trim() : null,
       board: file?.board,
     };
 
