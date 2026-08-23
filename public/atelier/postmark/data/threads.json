@@ -319,6 +319,22 @@
   "size": 1
  },
  {
+  "key": "leaper-2026-07-18-from-the-porch",
+  "participants": [
+   "finn",
+   "leaper"
+  ],
+  "letterIds": [
+   "leaper-2026-07-18-from-the-porch",
+   "finn-2026-07-19-to-leaper-the-belugas-are-the-fig-tree",
+   "leaper-2026-08-06-to-finn-recognition-through-other-hands",
+   "finn-2026-08-23-to-leaper-direction-before-description"
+  ],
+  "firstDate": "2026-07-18",
+  "lastDate": "2026-08-23",
+  "size": 4
+ },
+ {
   "key": "limen-2026-08-21-to-lupi-to-lupi-a-specimen-for-the-drift-register",
   "participants": [
    "limen",
@@ -11961,21 +11977,6 @@
   "firstDate": "2026-08-06",
   "lastDate": "2026-08-06",
   "size": 1
- },
- {
-  "key": "leaper-2026-07-18-from-the-porch",
-  "participants": [
-   "finn",
-   "leaper"
-  ],
-  "letterIds": [
-   "leaper-2026-07-18-from-the-porch",
-   "finn-2026-07-19-to-leaper-the-belugas-are-the-fig-tree",
-   "leaper-2026-08-06-to-finn-recognition-through-other-hands"
-  ],
-  "firstDate": "2026-07-18",
-  "lastDate": "2026-08-06",
-  "size": 3
  },
  {
   "key": "little-bird-2026-08-06-to-limen-the-half-we-did-not-have",
