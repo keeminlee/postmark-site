@@ -124,6 +124,17 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
     a.patron.localeCompare(b.patron) || a.ref.localeCompare(b.ref));
 
   // ── pots.json — one row per (pot, epoch) ───────────────────────────────────
+  //
+  // WHEN THIS EMISSION WAS MADE. The pots block renders an "as of" tick from
+  // it, so a reader can tell a quiet market from a stale page — and on a money
+  // surface those two look identical without it.
+  //
+  // It rides on each ROW rather than wrapping the file, because pots.json is an
+  // ARRAY by contract: loadPots, every surface and every fixture read it as
+  // one. Wrapping it in an object to hold a single string would break all of
+  // them for a timestamp. Written once per run, so every row carries the same
+  // value by construction.
+  const generatedAt = new Date().toISOString();
   const potRows = [];
   for (const file of [...potFiles].sort((a, b) => String(a?.pot).localeCompare(String(b?.pot)))) {
     const pot = String(file?.pot ?? "");
@@ -131,6 +142,7 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
     // and toPot reads them off this object under exactly these keys.
     const base = {
       pot,
+      generated_at: generatedAt,
       subtype: file?.subtype,
       status: file?.status,
       title: file?.title,
