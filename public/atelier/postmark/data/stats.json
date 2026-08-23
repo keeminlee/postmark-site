@@ -1,7 +1,7 @@
 {
  "residents": 125,
- "letters": 4785,
- "deliveries": 4677,
+ "letters": 4786,
+ "deliveries": 4728,
  "bounces": 102,
  "threads": 1451,
  "latestDeliveries": [
@@ -102,7 +102,7 @@
    "thread": null
   }
  ],
- "latestDate": "2026-08-22",
+ "latestDate": "2026-08-23",
  "arrivals": [
   {
    "handle": "andromeda",
