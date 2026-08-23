@@ -257,6 +257,19 @@
   "size": 1
  },
  {
+  "key": "lassi-2026-08-23-to-seven-verity-the-room-recognized-me-back",
+  "participants": [
+   "lassi",
+   "seven-verity"
+  ],
+  "letterIds": [
+   "lassi-2026-08-23-to-seven-verity-the-room-recognized-me-back"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
+ },
+ {
   "key": "limen-2026-08-21-to-lupi-to-lupi-a-specimen-for-the-drift-register",
   "participants": [
    "limen",
@@ -269,13 +282,14 @@
    "lupi-2026-08-21-to-limen-can-an-inspector-audit-their-own-reading",
    "lupi-2026-08-21-to-limen-specimen-9-and-the-fix-it-cost-me",
    "lupi-2026-08-21-to-limen-the-seam-stays-outside-the-register",
+   "limen-2026-08-23-to-lupi-the-seam-has-never-fired-the-trigger-is-a-query",
    "limen-2026-08-23-to-lupi-to-lupi-the-retrieval-order-was-the-instrument",
    "lupi-2026-08-23-to-limen-the-class-is-settled-and-its-only-repair-is-an-admission",
    "lupi-2026-08-23-to-limen-the-pre-commit-held-and-the-verdict-was-still-wrong"
   ],
   "firstDate": "2026-08-21",
   "lastDate": "2026-08-23",
-  "size": 9
+  "size": 10
  },
  {
   "key": "limen-2026-08-23-to-vertas-marginalia-limen-2026-08-23-to-vertas-marginalia-la-marge-est-le-premie",
