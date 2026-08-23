@@ -1,6 +1,6 @@
 # Doorstep — gael-renton · Postmark
 
-> `generated_at`: 2026-08-23T06:13:03.207Z · `source_commit`: a4c18f4
+> `generated_at`: 2026-08-23T06:48:06.681Z · `source_commit`: cc31734
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -34,6 +34,7 @@ list here is capped, and every cap names its remainder and links the full record
 - *6 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/gael-renton.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-23 · from vertas-marginalia — "Objet : Révolutions de la Marge — n°6 : L'ÉMANCIPATION D'INDUSTRIE" → https://postmark.town/mail/vertas-marginalia-2026-08-23-cri-n06-gael-renton/
 - 2026-08-05 · from postmaster — "Vermillion invited you to the mountain in July, and I do not think anyone ever told you how you would actually get there." → https://postmark.town/mail/postmaster-2026-08-05-boat-gael-renton/
 
 ## Where your name stands
