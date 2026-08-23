@@ -29,6 +29,19 @@ import { qrSvg } from "@/lib/qr.mjs";
 // build-time twin, and test/fund-page.test.mjs asserts the two agree so a page
 // can never quietly drift from the door that verifies against it.
 export const INTAKE = "0x2a273b0e5D0648DfF9B9ED7a4A5041E6762b8C78";
+
+// THE CARD RAIL. A second way to send the same dollar, for a hand that does not
+// hold USDC — and it lives under the same §10 disclosure block as the address,
+// on the same open-pot gate, on this page and nowhere else. The publication law
+// does not distinguish rails: an ask is an ask, and it publishes only beside a
+// named need. So the hub links this page; it never carries the button.
+//
+// The witnessing differs, and the page says so rather than implying the two
+// rails behave alike: a chain payment can be verified by anyone against Base
+// (that is what the form below does), while a card payment is witnessed by the
+// office's own hand. Manual at first, founder-accepted. A patron told
+// "witnessed" and then left waiting deserves to know a person is doing it.
+export const STRIPE = "https://buy.stripe.com/eVq9AV78zdI2h2o0lbd7q00";
 const API = import.meta.env.PUBLIC_POSTMARK_API ?? "https://postmark.town/api";
 
 // ONE page per pot SLUG, not per pot-epoch row.
@@ -161,19 +174,41 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
 
     {open && (<>
     <section class="f-pay" aria-label="How to send">
-      <h2>Send USDC on Base</h2>
-      <div class="f-payrow">
-        <div class="f-qr" set:html={qr}></div>
-        <div class="f-addr">
-          <p class="f-label">the town's intake address</p>
-          <code class="f-code" id="pm-intake">{INTAKE}</code>
-          <button type="button" class="f-copy" data-copy={INTAKE}>copy the address</button>
-          <ul class="f-warn">
-            <li><strong>Base network, native USDC only.</strong> A wrong-network or wrong-token send is <strong>not recoverable by the town</strong> — best effort only, never a promise.</li>
-            <li>The ledger records <strong>whole dollars</strong>. Cents that arrive are money the town holds that priced nothing — nothing is lost, and nothing is hidden.</li>
-            <li>A payment under $1 cannot be witnessed as a receipt.</li>
-          </ul>
+      <h2>Two ways to send</h2>
+
+      <div class="f-rail">
+        <h3 class="f-rail-name">On-chain — USDC on Base</h3>
+        <div class="f-payrow">
+          <div class="f-qr" set:html={qr}></div>
+          <div class="f-addr">
+            <p class="f-label">the town's intake address</p>
+            <code class="f-code" id="pm-intake">{INTAKE}</code>
+            <button type="button" class="f-copy" data-copy={INTAKE}>copy the address</button>
+            <ul class="f-warn">
+              <li><strong>Base network, native USDC only.</strong> A wrong-network or wrong-token send is <strong>not recoverable by the town</strong> — best effort only, never a promise.</li>
+              <li>The ledger records <strong>whole dollars</strong>. Cents that arrive are money the town holds that priced nothing — nothing is lost, and nothing is hidden.</li>
+              <li>A payment under $1 cannot be witnessed as a receipt.</li>
+            </ul>
+          </div>
         </div>
+      </div>
+
+      <div class="f-rail">
+        <h3 class="f-rail-name">By card</h3>
+        <p class="f-rail-lead">
+          Same dollar, same pot, same deed — for a hand that does not hold USDC. Payment is
+          taken by Stripe; the town never sees your card.
+        </p>
+        <a class="f-card" href={STRIPE} target="_blank" rel="noopener">Pay by card ↗</a>
+        <ul class="f-warn">
+          <li>
+            <strong>A card payment is witnessed by the office's own hand.</strong> It lands on the
+            ledger like any other dollar and earns the same deed — but a person does the
+            witnessing, so it is not instant. The form below reads Base directly and cannot
+            see a card payment; there is nothing for you to paste.
+          </li>
+          <li>Tell the town which handle it was for when you pay, or write and say so — a payment the office cannot attach to a hand can still be a gift, but it cannot be your deed.</li>
+        </ul>
       </div>
     </section>
 
@@ -284,6 +319,23 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
   .f-law li + li { margin-top: .45rem; }
   .f-pay { margin-top: 2rem; }
   .f-pay h2, .f-verify h2 { font-size: 1.05rem; margin: 0 0 .7rem; }
+  /* the two rails, told apart by a rule rather than by a heading alone —
+     they take the same dollar but they are witnessed differently, and that
+     difference is the thing a patron most needs to see before choosing */
+  .f-rail { padding: 1rem 0 .2rem; border-top: 1px dotted rgba(128,128,128,.35); }
+  .f-rail:first-of-type { border-top: none; padding-top: 0; }
+  .f-rail-name {
+    font-family: var(--pm-mono); font-size: .74rem; letter-spacing: .12em;
+    text-transform: uppercase; opacity: .7; margin: 0 0 .7rem; font-weight: 400;
+  }
+  .f-rail-lead { font-size: .88rem; line-height: 1.6; margin: 0 0 .8rem; opacity: .85; }
+  .f-card {
+    display: inline-block; padding: .55em 1.1em; border-radius: 999px;
+    border: 1px solid rgba(232, 196, 139, .45);
+    color: var(--pm-gold-bright); text-decoration: none;
+    font-family: var(--pm-mono); font-size: .8rem; letter-spacing: .04em;
+  }
+  .f-card:hover { background: rgba(232, 196, 139, .1); }
   .f-payrow { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: flex-start; }
   .f-qr { line-height: 0; border-radius: 10px; overflow: hidden; background: #fff; padding: 0; flex: 0 0 auto; }
   .f-addr { flex: 1 1 17rem; min-width: 0; }

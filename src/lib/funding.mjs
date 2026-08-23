@@ -212,6 +212,8 @@ export function toPot(raw) {
   const received = isNum(raw.received_usd) ? int(raw.received_usd) : 0;
   if (received < 0) return bad("received_usd is negative");
 
+  const close = typeof raw.close === "string" && raw.close.trim() ? raw.close.trim() : null;
+
   // The roll. An entry that cannot name its hand and its dollars is dropped —
   // the pot still reads; a torn line on the roll does not tear the pot. holo
   // defaults to 0 because 0 is a real answer here, not a missing one.
@@ -238,20 +240,48 @@ export function toPot(raw) {
       ? raw.beneficiary.trim() : null,
     cadence: String(raw.epoch_cadence ?? "").trim() || null,
     uncapped,
-    // The pot file's own word for what a close does here, and the one thing
-    // the surfaces need from it. "none" is the donation-box shape, and the
-    // file says what that means: "a standing box, not an epoch pot — gifts
-    // are witnessed, never converted; nothing here ever burns or mints"
-    // (pot-darko-fund.json § _close).
-    close: typeof raw.close === "string" && raw.close.trim() ? raw.close.trim() : null,
-    // DERIVED, and deliberately not stored: whether an epoch close can ever
-    // run on this pot. The explicit field wins when the emission carries it;
-    // otherwise the pot's own target answers, because the law already ties the
-    // two together — "A pot with no target cannot close"
-    // (pot-keeping-ec2.json § _target). An older emission with no `close`
-    // therefore still reads correctly, which is why the derivation is the
-    // fallback and never the primary.
-    closes: String(raw.close ?? "").trim() === "none" ? false : !targetless,
+    // ── WHAT A CLOSE DOES HERE ───────────────────────────────────────────
+    // The pot file's own word, and the thing every money surface branches on.
+    // Three are spelled by the law so far:
+    //
+    //   "none"     the standing box. "a standing box, not an epoch pot — gifts
+    //              are witnessed, never converted; nothing here ever burns or
+    //              mints" (pot-darko-fund.json § _close, as it read on the
+    //              morning of 2026-08-23).
+    //   "elastic"  the roll that carries forward. Ruled the same day, the later
+    //              sitting: "a month's close runs only if the accumulated roll
+    //              — carried dollars plus this month's — totals at least
+    //              min_close_usd; otherwise dollars and stakes both stand and
+    //              ride to the next month … Nothing is ever refused at intake."
+    //   absent     the emission has not said. NOT the same as "none", and the
+    //              surfaces must not treat it as one — see `closes`.
+    close,
+    // The ceremony's floor, in whole dollars — how much the accumulated roll
+    // must reach before an elastic close RUNS. § _min_close: "the ceremony's
+    // floor, never the door's: intake refuses nothing — the floor gates only
+    // whether a month's close RUNS. Owner of the number: this file; every
+    // surface reads it." So it is read, never written down: null when the
+    // emission has not carried it, and a surface that cannot name the floor
+    // says the roll carries forward without naming one.
+    //
+    // A torn floor does not tear the pot, for the same reason a torn line on
+    // the roll does not: the pot is still true, and dropping it would hide a
+    // live need over a display number.
+    minCloseUsd: isNum(raw.min_close_usd) && int(raw.min_close_usd) >= 1
+      ? int(raw.min_close_usd) : null,
+    // DERIVED, and deliberately not stored: whether a close can ever run on
+    // this pot. THE EXPLICIT WORD IS PRIMARY, both ways — "elastic" closes
+    // despite having no target, and "none" does not close even if one were
+    // posted. Only when the emission is silent does the pot's own target
+    // answer, because the law ties those two together: "A pot with no target
+    // cannot close" (pot-keeping-ec2.json § _target).
+    //
+    // Note what this boolean CANNOT carry: the difference between "the town
+    // said this never closes" and "the town has not said". Both read false,
+    // and a surface that renders the first sentence for the second case is
+    // making a confident claim the record does not support. The surfaces
+    // branch on `close` for their words and use this only for the shape.
+    closes: close === "none" ? false : close === "elastic" ? true : !targetless,
     // null on an uncapped pot is a REAL state the surfaces must say out loud —
     // the fund page's standing-box branch reads exactly this.
     target: targetless ? null : int(target),
@@ -494,19 +524,52 @@ export const POT_FIXTURE = [
       { patron: "rei", usd: 40, holo: 5 },
     ],
   },
-  // THE STANDING BOX — the second pot shape, and the one the surfaces get
-  // wrong if it is not in the fixture. No target, uncapped, and `close: none`:
-  // gifts are witnessed and nothing is ever converted, so no bar, no headroom,
-  // and not one word about a close. The live case is the DARKO fund.
+  // THE ELASTIC POT — the roll that carries forward. No target and no cap, so
+  // no bar; but unlike the standing box below it DOES close, once the
+  // accumulated roll reaches its own floor. The live case is the DARKO fund,
+  // re-ruled 2026-08-23 (town main 796d775d). Fed under its floor on purpose:
+  // $2 against a $5 floor is the state the card most needs to render honestly,
+  // because it is the one where a giver has paid and nothing has happened yet.
   {
     pot: "darko-fund", subtype: "bounty", status: "open",
     title: "The DARKO fund — the donation box",
     source: "The founder is the town's infrastructure. Stake stamps to say the keeping of the founder matters; dollars given here are witnessed as receipts. No target, no cap.",
     target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
-    beneficiary: "keeminlee", received_usd: 25, close: "none",
+    beneficiary: "keeminlee", received_usd: 2,
+    close: "elastic", min_close_usd: 5,
     board: "quest-registry.json § darko-fund",
     epoch: "2026-09", staked: 4,
-    patrons: [{ patron: "iris", usd: 25, holo: 0 }],
+    patrons: [{ patron: "iris", usd: 2, holo: 0 }],
+  },
+  // THE STANDING BOX — the shape that never closes at all. Nothing live wears
+  // it since the DARKO box learned the elastic close, and it stays in the
+  // fixture for exactly that reason: a rendering that is dropped the moment
+  // nothing wears the shape is a rendering that breaks the next time something
+  // does. "a standing box, not an epoch pot — gifts are witnessed, never
+  // converted; nothing here ever burns or mints".
+  {
+    pot: "keeping-tin", subtype: "bounty", status: "open",
+    title: "The tin by the door — whatever you like",
+    source: "A box with no target and no close. Gifts are witnessed on the ledger and left at that.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "the-town/the-tin", received_usd: 12, close: "none",
+    board: "quest-registry.json § keeping-tin",
+    epoch: "2026-09", staked: 0,
+    patrons: [{ patron: "orvet", usd: 12, holo: 0 }],
+  },
+  // THE EMISSION THAT HAS NOT SAID. Targetless with no `close` word at all —
+  // the shape the live emission wears right now, because sync-atlas.yml runs
+  // MAIN's emitter and main has not taken the passthrough yet. It must not
+  // render as the standing box: "nothing ever mints back" is a confident claim
+  // the record does not support here.
+  {
+    pot: "keeping-unsaid", subtype: "bounty", status: "open",
+    title: "A pot whose close the record has not stated",
+    source: "Targetless, and the emission carries no close word for it.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "the-town/the-unsaid", received_usd: 0,
+    board: "quest-registry.json § keeping-unsaid",
+    epoch: "2026-09", staked: 0, patrons: [],
   },
   // a pot the founder has NOT opened. The board must never render this one —
   // livePots() holds it back, and the tests prove it.

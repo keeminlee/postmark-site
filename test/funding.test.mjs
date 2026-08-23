@@ -131,8 +131,8 @@ test("pots sort open first, newest epoch first, and drafts stay off the board", 
   // the slug is in the key because the fixture now holds two pots, and two
   // open rows share an epoch — without it the tie reads as either order
   assert.deepEqual(live.pots.map((p) => `${p.status}:${p.epoch}:${p.pot}`),
-    ["open:2026-10:keeping-ec2", "open:2026-09:darko-fund",
-     "open:2026-09:keeping-ec2", "closed:2026-08:keeping-ec2"]);
+    ["open:2026-10:keeping-ec2", "open:2026-09:darko-fund", "open:2026-09:keeping-ec2",
+     "open:2026-09:keeping-tin", "open:2026-09:keeping-unsaid", "closed:2026-08:keeping-ec2"]);
   assert.equal(live.drafts.length, 1, "the draft pot is held back and counted");
   assert.equal(live.drafts[0].pot, "keeping-domains");
   assert.ok(!live.pots.some((p) => p.status === "draft"),
@@ -284,38 +284,75 @@ test("the ruling's line is one string, so every surface says it identically", ()
 // say different things for each. Before `close` existed the site could not tell
 // them apart, so every pot was sold with an epoch pot's promise.
 
-test('a standing box does not close — "gifts are witnessed, never converted; nothing here ever burns or mints"', () => {
+test("the elastic pot closes on its own roll — a month's close runs only if the accumulated roll totals at least min_close_usd", () => {
   // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _close, quoted:
-  //   "a standing box, not an epoch pot — gifts are witnessed, never
-  //    converted; nothing here ever burns or mints"
-  // and § _opened, on what a gift to it does: "a donation box mints nothing
-  // back; dollars land as pot-receipt rows, witnessed and displayed."
-  const box = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
-  assert.equal(box.ok, true, box.reason);
-  assert.equal(box.close, "none", "the pot file's own word reaches the page");
-  assert.equal(box.closes, false, "so no surface may promise it a close");
+  //   "ELASTIC …: a month's close runs only if the accumulated roll — carried
+  //    dollars plus this month's — totals at least min_close_usd; otherwise
+  //    dollars and stakes both stand and ride to the next month. When it runs,
+  //    every standing stake converts in full … and holo splits by dollar share
+  //    across the WHOLE accumulated roll … Nothing is ever refused at intake."
+  const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
+  assert.equal(roll.ok, true, roll.reason);
+  assert.equal(roll.close, "elastic", "the pot file's own word reaches the page");
+  assert.equal(roll.closes, true, "an elastic pot DOES close — despite posting no target");
+  assert.equal(roll.target, null, "and it posts none, so no surface may draw it a bar");
+  assert.equal(roll.progress, null, "a roll is short of nothing");
 
-  // THE CAN-FAIL FLIP, twice over. An epoch pot must come back true, or
-  // `closes: false` would be a constant dressed as a reading —
-  const epoch = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-ec2"));
-  assert.equal(epoch.closes, true, "a pot with a posted need closes on it");
-  // — and the explicit word must OUTRANK the derivation, or a future targeted
-  // donation box would silently be sold an epoch pot's promise.
-  assert.equal(toPot({ ...POT_FIXTURE[0], close: "none" }).closes, false,
-    'close: "none" wins over a posted target');
+  // § _min_close: "Owner of the number: this file; every surface reads it."
+  assert.equal(roll.minCloseUsd, 5, "the ceremony's floor is read, not written down");
+  const noFloor = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), min_close_usd: undefined });
+  assert.equal(noFloor.minCloseUsd, null,
+    "an emission with no floor yields null, so a surface can decline to name one");
+  assert.equal(noFloor.closes, true, "and the pot still closes — the floor gates the ceremony, not the shape");
 });
 
-test('an emission with no `close` still reads, because "A pot with no target cannot close"', () => {
+test('a standing box does not close at all — "nothing here ever burns or mints"', () => {
+  // THE LAW THIS ASSERTS — the shape as § _close spelled it on the morning of
+  // 2026-08-23, before the box learned the elastic close:
+  //   "a standing box, not an epoch pot — gifts are witnessed, never converted;
+  //    nothing here ever burns or mints"
+  // Nothing live wears this today. It stays under test for the reason it stays
+  // in the fixture: a rendering dropped the moment nothing wears the shape is a
+  // rendering that breaks the next time something does.
+  const box = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-tin"));
+  assert.equal(box.ok, true, box.reason);
+  assert.equal(box.close, "none");
+  assert.equal(box.closes, false, "so no surface may promise it a close");
+});
+
+test("the explicit word outranks the derivation, in BOTH directions", () => {
+  // Either half failing would be a silent mis-sale. If "elastic" lost to a null
+  // target, the roll would be rendered as a box that never pays back; if "none"
+  // lost to a posted target, a box would be sold an epoch pot's promise.
+  const epoch = POT_FIXTURE.find((p) => p.pot === "keeping-ec2");
+  const roll = POT_FIXTURE.find((p) => p.pot === "darko-fund");
+  assert.equal(toPot(epoch).closes, true, "a pot with a posted need closes on it");
+  assert.equal(toPot({ ...epoch, close: "none" }).closes, false,
+    '"none" beats a posted target');
+  assert.equal(toPot({ ...roll, close: "elastic" }).closes, true,
+    '"elastic" beats a null target');
+});
+
+test('an emission with no `close` falls back, because "A pot with no target cannot close"', () => {
   // THE LAW THIS ASSERTS — WHITE_PAGES/pot-keeping-ec2.json § _target, quoted:
   //   "A pot with no target cannot close."
-  // So an older emission that predates the `close` field is not unreadable: its
-  // target answers the question the missing field would have. The derivation is
-  // the FALLBACK — the test above proves the explicit word is the primary.
-  const older = POT_FIXTURE.find((p) => p.pot === "darko-fund");
-  const { close, ...withoutTheField } = { ...older };
-  assert.equal("close" in withoutTheField, false, "the field really is gone");
-  assert.equal(toPot(withoutTheField).closes, false,
-    "a targetless pot cannot close, whether or not the emission says so");
+  // So an emission predating the `close` field is not unreadable: its target
+  // answers the question the missing field would have. The derivation is the
+  // FALLBACK — the test above proves the explicit word is the primary.
+  //
+  // AND THE THING THE BOOLEAN CANNOT SAY. This row and the standing box both
+  // read `closes: false`, and they are not the same state: one is the town
+  // saying "never", the other is the town not having said. `close` tells them
+  // apart, and the surfaces branch on it rather than on the boolean — which is
+  // not hypothetical, because the live emission is exactly this row today.
+  const unsaid = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-unsaid"));
+  assert.equal(unsaid.ok, true, unsaid.reason);
+  assert.equal(unsaid.close, null, "the record has not said");
+  assert.equal(unsaid.closes, false, "so the shape falls back to the target's answer");
+
+  const box = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-tin"));
+  assert.equal(box.closes, unsaid.closes, "the boolean cannot tell these apart —");
+  assert.notEqual(box.close, unsaid.close, "— and the word is the only thing that can");
 });
 
 test("every pot in the live emission answers whether it closes", () => {

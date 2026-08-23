@@ -146,6 +146,11 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
       // tell a donation box from an epoch pot, and every surface goes on
       // promising a close that will never run for it.
       close: typeof file?.close === "string" && file.close.trim() ? file.close.trim() : null,
+      // The elastic close's floor, carried across whole. § _min_close names the
+      // owner and the duty in one line: "Owner of the number: this file; every
+      // surface reads it." So the emitter passes it and nobody downstream
+      // writes a 5 anywhere.
+      min_close_usd: Number.isFinite(Number(file?.min_close_usd)) ? Number(file.min_close_usd) : null,
       board: file?.board,
     };
 

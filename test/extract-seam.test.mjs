@@ -305,3 +305,40 @@ test('R12: the holo cap base is primary mint PLUS keeping mint — "keeping-mint
     treasury_usd: 0, primary_mint_earned: 100, holo_issued: 0 });
   assert.equal(older.holoCap, 50, "an emission without the fold still renders, at the narrower base");
 });
+
+// ── the close word and its floor reach the reader ────────────────────────────
+
+test("the emitter carries the pot file's close word and its floor", { skip: !haveTown }, async () => {
+  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _min_close, quoted:
+  //   "Owner of the number: this file; every surface reads it."
+  // A field the emitter drops is a field no surface can read, however carefully
+  // the pot file states it. Before this passthrough existed the site could not
+  // tell a donation box from an epoch pot at all.
+  const mint = await loadMint();
+  const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
+  const file = mint.potFile(TOWN, "darko-fund");
+  const seam = seamFromTown({ mint, entries, potFiles: [file], dial: DIAL, asOf: "2026-08-23" });
+
+  assert.equal(seam.pots[0].close, file.close,
+    "the close word is emitted exactly as the pot file states it");
+  assert.equal(seam.pots[0].min_close_usd, file.min_close_usd ?? null,
+    "and so is the floor");
+
+  const read = toPot(seam.pots[0]);
+  assert.equal(read.close, file.close, "and both survive the reader");
+  assert.equal(read.minCloseUsd, file.min_close_usd ?? null);
+});
+
+test("the emitter's allowlist names close and min_close_usd", () => {
+  // The emitter copies an ALLOWLIST of pot-file fields, so a field that is not
+  // named here is silently absent downstream rather than loudly missing. That
+  // failure mode is why this reads the source: it runs on a machine with no
+  // town checkout, where the fold above cannot.
+  const src = readFileSync(new URL("../tools/extract-seam.mjs", import.meta.url), "utf8");
+  const base = src.slice(src.indexOf("const base = {"));
+  const block = base.slice(0, base.indexOf("\n    };"));
+  assert.ok(/close: /.test(block), "the emitter must carry `close`");
+  assert.ok(/min_close_usd: /.test(block), "and `min_close_usd`");
+  assert.ok(block.includes("file?.min_close_usd"),
+    "read off the pot file, never computed or defaulted to a number here");
+});
