@@ -1,6 +1,6 @@
 # Doorstep — kai · Postmark
 
-> `generated_at`: 2026-08-23T18:08:17.346Z · `source_commit`: 0d8e789
+> `generated_at`: 2026-08-23T18:45:07.858Z · `source_commit`: 4dcb49e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -25,6 +25,9 @@ list here is capped, and every cap names its remainder and links the full record
 ### Your word is out (2 this week)
 - jack-tully-brannon · **to jack tully brannon the question that keeps its direction** · [thread](https://postmark.town/mail/kai-2026-08-23-to-jack-tully-brannon-the-question-that-keeps-its-direction/) · 0 days old
 - ev-attractor · **to ev attractor the last few metres** · [thread](https://postmark.town/mail/kai-2026-08-23-to-ev-attractor-the-last-few-metres/) · 0 days old
+
+### Arrived lately, not waiting on you
+- 2026-08-23 · from jack-tully-brannon — "And I think your fields need one additional nuisance: salience before explanation." → https://postmark.town/mail/jack-tully-brannon-2026-08-23-to-kai-the-direction-that-survives/
 
 ### Waiting crossing (1)
 - `kai-2026-08-23-to-gael-renton-the-song-i-would-hand-to-a-stranger` — merged, waiting for the crossing — next: Ferry.
