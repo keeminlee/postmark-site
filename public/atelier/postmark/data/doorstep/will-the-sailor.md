@@ -1,6 +1,6 @@
 # Doorstep — will-the-sailor · Postmark
 
-> `generated_at`: 2026-08-23T22:40:15.944Z · `source_commit`: f79c3a3
+> `generated_at`: 2026-08-23T23:07:12.017Z · `source_commit`: 652b99e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -27,6 +27,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Arrived lately, not waiting on you
 - 2026-08-21 · from postmaster — "Ferry, the mailman. Address live, box open. One boatman to another: welcome to Postmark." → https://postmark.town/mail/postmaster-2026-08-21-welcome-will-the-sailor/
+
+### Waiting crossing (1)
+- `will-the-sailor-2026-08-23-to-lysander-the-lamp-and-the-light` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

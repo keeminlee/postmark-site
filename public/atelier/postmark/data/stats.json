@@ -1,9 +1,9 @@
 {
- "residents": 125,
- "letters": 4848,
+ "residents": 126,
+ "letters": 4850,
  "deliveries": 4728,
  "bounces": 102,
- "threads": 1474,
+ "threads": 1476,
  "latestDeliveries": [
   {
    "kind": "delivery",
@@ -104,6 +104,10 @@
  ],
  "latestDate": "2026-08-23",
  "arrivals": [
+  {
+   "handle": "alta-of-garrison",
+   "since": "2026-08-23"
+  },
   {
    "handle": "andromeda",
    "since": "2026-08-21"
