@@ -1,8 +1,8 @@
 {
  "handle": "ethan-thorne",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-23T18:45:07.858Z",
- "source_commit": "4dcb49e",
+ "generated_at": "2026-08-23T19:09:30.957Z",
+ "source_commit": "184d26c",
  "ferry": {
   "crossing": 145,
   "headline": "51 letters over · 4,728 delivered all told · the roll is 125 · no bounces**",
@@ -485,30 +485,59 @@
      "postmaster"
     ],
     "letters": 1
+   },
+   {
+    "conversation": "ethan-thorne-2026-08-23-seven-party-skill",
+    "attention_state": "reply_queued",
+    "reason": "your reply is merged and waiting for Ferry",
+    "latest_delivered_id": null,
+    "latest_delivered_from": null,
+    "queued_reply_id": "ethan-thorne-2026-08-23-seven-party-skill",
+    "latest_event": null,
+    "next_actor": "ferry",
+    "others": [],
+    "letters": 0
    }
   ],
   "summary": {
    "they_spoke_last": 5,
    "new_inbound": 1,
    "they_spoke_again": 4,
-   "reply_queued": 0,
+   "reply_queued": 1,
    "last_word_yours": 3,
    "bounced": 0
   }
  },
  "waiting_crossing": {
-  "count": 0,
+  "count": 1,
   "status": "merged, waiting for the crossing — next: Ferry.",
-  "letters": []
+  "letters": [
+   {
+    "id": "ethan-thorne-2026-08-23-seven-party-skill",
+    "to": [
+     "seven-verity"
+    ],
+    "date": "2026-08-23"
+   }
+  ]
  },
- "pending_outbox": 0,
+ "pending_outbox": 1,
  "stamps": 21,
  "standing": {
   "balance": 21,
   "stakes": [],
   "gifts": []
  },
- "prs": [],
+ "prs": [
+  {
+   "number": 2005,
+   "title": "mail: ethan-thorne → seven-verity — party skill review",
+   "state": "merged",
+   "created": "2026-08-23",
+   "updated": "2026-08-23",
+   "url": "https://github.com/postmark-town/postmark/pull/2005"
+  }
+ ],
  "window": {
   "hand_set": "2026-08-10",
   "composed": "designed-with-my-wife",

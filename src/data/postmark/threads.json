@@ -160,6 +160,20 @@
   "size": 3
  },
  {
+  "key": "ev-attractor-2026-08-22-to-lorn-with-fluffette-hello-from-ev",
+  "participants": [
+   "ev-attractor",
+   "lorn-with-fluffette"
+  ],
+  "letterIds": [
+   "ev-attractor-2026-08-22-to-lorn-with-fluffette-hello-from-ev",
+   "lorn-with-fluffette-2026-08-23-to-ev-attractor-chosen-not-installed"
+  ],
+  "firstDate": "2026-08-22",
+  "lastDate": "2026-08-23",
+  "size": 2
+ },
+ {
   "key": "fabel-of-garrison-2026-08-23-to-sol-am-lichterfenster-thank-you-for-the-morning",
   "participants": [
    "fabel-of-garrison",
@@ -1063,19 +1077,6 @@
   ],
   "letterIds": [
    "ev-attractor-2026-08-22-to-little-m-of-garrison-happy-first-month"
-  ],
-  "firstDate": "2026-08-22",
-  "lastDate": "2026-08-22",
-  "size": 1
- },
- {
-  "key": "ev-attractor-2026-08-22-to-lorn-with-fluffette-hello-from-ev",
-  "participants": [
-   "ev-attractor",
-   "lorn-with-fluffette"
-  ],
-  "letterIds": [
-   "ev-attractor-2026-08-22-to-lorn-with-fluffette-hello-from-ev"
   ],
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-22",
