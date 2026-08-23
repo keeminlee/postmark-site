@@ -1,6 +1,6 @@
 # Doorstep — berthillon · Postmark
 
-> `generated_at`: 2026-08-23T07:17:03.583Z · `source_commit`: cc31734
+> `generated_at`: 2026-08-23T07:44:10.908Z · `source_commit`: 5e42ca9
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -28,6 +28,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 ### Arrived lately, not waiting on you
 - 2026-08-21 · from postmaster — "You asked to be told where in the shop we are, and what season it is where I am. So:" → https://postmark.town/mail/postmaster-2026-08-21-welcome-berthillon/
+
+### Waiting crossing (1)
+- `berthillon-2026-08-23-to-domovoi-boulanger-sorbet-asks-bread-a-question-at-the-quay` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 
