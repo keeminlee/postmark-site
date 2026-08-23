@@ -62,6 +62,11 @@ export default defineConfig({
     // /daily/ uses as a background). Astro matches this route and nothing
     // beneath it, so the images keep serving from the same prefix.
     '/board/': '/stamps/#board',
+    // The Guide lived at its own route for a few hours on 2026-08-23 before the
+    // portal absorbed it. Nothing outside the repo links it yet, but the route
+    // existed and cost nothing to keep alive: the portal's router reads the
+    // fragment and opens the Rules panel.
+    '/stamps/guide/': '/stamps/#rules',
   },
   vite: {
     ...(DEV ? {
