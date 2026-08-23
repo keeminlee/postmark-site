@@ -69,6 +69,31 @@ export const HOLO_LINE = "a record of contribution, not a promise of profit";
 // first deed — dollars with no household, so holo 0.
 export const TREASURY_POT = "treasury";
 
+// ── WHOSE NAME STANDS ON A POT ───────────────────────────────────────────────
+// The founder's own account. Both live pots route their dollars to it, because
+// the founder pays the town's bills out of his own hand.
+export const FOUNDER_ACCOUNT = "keeminlee";
+export const TOWN_DISPLAY_NAME = "Postmark";
+
+// Ruled by the founder, 2026-08-23: a pot beneficiary that is his own account
+// renders as the TOWN'S name, not his GitHub handle. The founder IS the town's
+// infrastructure — the box, the plans, the hours all run through him — so the
+// town's own name is the honest thing to put on the card; a personal handle
+// beside a "Fund →" reads like paying a person rather than keeping a town.
+//
+// THIS IS A DISPLAY MAPPING AND NOTHING MORE. The pot files' `beneficiary`
+// field is the routing truth and is untouched by it, here and in the town:
+// deriveEpochClose still refuses a pot with no beneficiary, and the dollars
+// still go where that field says. Only the label changes.
+//
+// Every other handle renders as itself — this maps exactly one account, so a
+// second beneficiary can never be quietly relabelled as the town.
+export function beneficiaryLabel(beneficiary) {
+  if (typeof beneficiary !== "string" || !beneficiary.trim()) return null;
+  const who = beneficiary.trim();
+  return who === FOUNDER_ACCOUNT ? TOWN_DISPLAY_NAME : who;
+}
+
 // POT_ID_CLASS / EPOCH_CLASS, from the seam's own regexes.
 const POT_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 const EPOCH_RE = /^\d{4}-\d{2}$/;
@@ -214,6 +239,12 @@ export function toPot(raw) {
 
   const close = typeof raw.close === "string" && raw.close.trim() ? raw.close.trim() : null;
 
+  // null is a REAL state, not a missing field: deriveEpochClose refuses to
+  // close a pot with no beneficiary, so an unnamed beneficiary is a thing the
+  // board should say out loud rather than a reason to drop the row.
+  const beneficiary = typeof raw.beneficiary === "string" && raw.beneficiary.trim()
+    ? raw.beneficiary.trim() : null;
+
   // The roll. An entry that cannot name its hand and its dollars is dropped —
   // the pot still reads; a torn line on the roll does not tear the pot. holo
   // defaults to 0 because 0 is a real answer here, not a missing one.
@@ -236,8 +267,10 @@ export function toPot(raw) {
     // null is a REAL state, not a missing field: deriveEpochClose refuses to
     // close a pot with no beneficiary, so an unnamed beneficiary is a thing
     // the board should say out loud rather than a reason to drop the row.
-    beneficiary: typeof raw.beneficiary === "string" && raw.beneficiary.trim()
-      ? raw.beneficiary.trim() : null,
+    beneficiary,
+    // WHAT A READER SEES instead of the routing handle. `beneficiary` above is
+    // the routing truth and is never rewritten — this is the label beside it.
+    beneficiaryLabel: beneficiaryLabel(beneficiary),
     cadence: String(raw.epoch_cadence ?? "").trim() || null,
     uncapped,
     // ── WHAT A CLOSE DOES HERE ───────────────────────────────────────────

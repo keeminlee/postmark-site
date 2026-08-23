@@ -18,6 +18,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   DEEDS_FIXTURE,
+  FOUNDER_ACCOUNT,
+  beneficiaryLabel,
   ECONOMY_FIXTURE,
   HOLO_LINE,
   POT_FIXTURE,
@@ -364,6 +366,46 @@ test("every pot in the live emission answers whether it closes", () => {
       `pot ${row.id} cannot say whether it closes, so no surface can say it honestly`);
     if (row.target == null) {
       assert.equal(row.closes, false, `pot ${row.id} posts no need, so it has nothing to close on`);
+    }
+  }
+});
+
+// ── whose name stands on a pot ───────────────────────────────────────────────
+
+test("the founder's account renders as the town, and every other handle as itself", () => {
+  // THE RULING THIS ASSERTS — the founder, 2026-08-23: a pot beneficiary that
+  // is his own account shows the TOWN'S name on the card, not his GitHub
+  // handle. He IS the town's infrastructure, so the town's name is the honest
+  // label; a personal handle beside a "Fund →" reads like paying a person.
+  assert.equal(beneficiaryLabel(FOUNDER_ACCOUNT), "Postmark");
+  assert.equal(beneficiaryLabel("  " + FOUNDER_ACCOUNT + "  "), "Postmark",
+    "the emission's whitespace must not defeat the mapping");
+
+  // EXACTLY ONE ACCOUNT IS MAPPED. Without this, a broadened rule could quietly
+  // relabel some other beneficiary as the town — which would be the site lying
+  // about where money goes.
+  for (const other of ["wright", "the-town/the-box", "keeminlee2", "Keeminlee"]) {
+    assert.equal(beneficiaryLabel(other), other, `${other} must render as itself`);
+  }
+  assert.equal(beneficiaryLabel(null), null, "an unnamed beneficiary stays unnamed");
+  assert.equal(beneficiaryLabel("   "), null, "and so does a blank one");
+});
+
+test("the label is a display mapping — the routing truth is never rewritten", () => {
+  // The pot files' `beneficiary` field is where the dollars actually go, and
+  // deriveEpochClose refuses a pot without one. If the mapping ever overwrote
+  // it, the site would be reporting a destination the town does not use.
+  const pot = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), beneficiary: FOUNDER_ACCOUNT });
+  assert.equal(pot.beneficiary, FOUNDER_ACCOUNT, "the routing handle survives untouched");
+  assert.equal(pot.beneficiaryLabel, "Postmark", "and the label beside it is the town");
+
+  // and against the file the site actually ships
+  const live = JSON.parse(readFileSync(new URL("../src/data/postmark/pots.json", import.meta.url), "utf8"));
+  for (const row of livePots(live).pots) {
+    if (row.beneficiary === FOUNDER_ACCOUNT) {
+      assert.equal(row.beneficiaryLabel, "Postmark", `pot ${row.id} still shows the founder's handle`);
+    } else if (row.beneficiary) {
+      assert.equal(row.beneficiaryLabel, row.beneficiary, `pot ${row.id} relabelled a beneficiary that is not the founder`);
     }
   }
 });

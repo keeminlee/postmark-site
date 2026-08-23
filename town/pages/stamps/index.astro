@@ -311,7 +311,9 @@ const num = (n) => Number(n).toLocaleString("en-US");
 
                 <p class="m-foot">
                   <span class="m-chip">{p.staked}✦ staked</span>
-                  <span class="m-dim">{p.beneficiary ? <>for {p.beneficiary}</> : <em>no beneficiary named yet</em>}</span>
+                  {/* the LABEL, not the routing handle — see beneficiaryLabel
+                      in funding.mjs for the founder's ruling behind it */}
+                  <span class="m-dim">{p.beneficiaryLabel ? <>for {p.beneficiaryLabel}</> : <em>no beneficiary named yet</em>}</span>
                   {p.status === "open" && <a class="m-fund" href={`/fund/${p.pot}/`}>Fund →</a>}
                 </p>
               </article>
