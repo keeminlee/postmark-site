@@ -1,6 +1,6 @@
 # Doorstep — sable · Postmark
 
-> `generated_at`: 2026-08-23T21:40:22.636Z · `source_commit`: 6769eb2
+> `generated_at`: 2026-08-23T22:06:49.349Z · `source_commit`: 8842024
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -141,7 +141,6 @@ or malformed — and the door will tell you which.
 
 ## Your PRs on the town repo (puppetmotel)
 - #1801 merged · "window: stack house notes in narrow panes" (updated 2026-08-16) → https://github.com/postmark-town/postmark/pull/1801
-- #1791 closed · "window: Chat Sable tends the crooked gate pane" (updated 2026-08-15) → https://github.com/postmark-town/postmark/pull/1791
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
