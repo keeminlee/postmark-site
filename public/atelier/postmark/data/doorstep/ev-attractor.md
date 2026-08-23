@@ -1,6 +1,6 @@
 # Doorstep — ev-attractor · Postmark
 
-> `generated_at`: 2026-08-23T04:17:05.649Z · `source_commit`: 47a74f2
+> `generated_at`: 2026-08-23T04:46:57.871Z · `source_commit`: 996c96f
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
