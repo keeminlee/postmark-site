@@ -25,7 +25,7 @@
 //   And nothing is invented: every number comes from its one source, and every
 //   kind of nothing is still named rather than smoothed away.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { loadEconomy, readEconomy, HOLO_LINE, livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
+import { loadEconomy, readEconomy, HOLO_LINE, holoPerDollar, livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
@@ -132,6 +132,17 @@ const arriving = [
 const RULE_IDS = ["what","earning","staking","seam","minterest","ownership","faq","glossary","check"];
 
 const num = (n) => Number(n).toLocaleString("en-US");
+
+// the estimate, bound to this build's dials once
+const estimate = (pot) => holoPerDollar(pot, econ);
+
+// WHEN THIS DATA WAS MADE, from the emission's own stamp — a quiet market and
+// a stale page look identical without it. Every row carries the same value;
+// the first that has one speaks for the block.
+const potsAsOf = potBoard.pots.map((p) => p.generatedAt).find(Boolean) ?? null;
+const asOfText = potsAsOf
+  ? new Date(potsAsOf).toISOString().replace("T", " ").slice(0, 16) + " UTC"
+  : null;
 ---
 <PostmarkLayout
   title="Stamps — Postmark"
@@ -249,7 +260,7 @@ const num = (n) => Number(n).toLocaleString("en-US");
       </div>
 
       <div id="pots" class="m-block">
-        <p class="m-lab">What the town needs money for</p>
+        <p class="m-lab">What the town needs money for{asOfText && <span class="n-asof"> · as of {asOfText}</span>}</p>
 
         {potBoard.pots.length === 0 ? (
           <div class="m-none">
@@ -263,14 +274,37 @@ const num = (n) => Number(n).toLocaleString("en-US");
                 <p class="m-kind">pot · {p.epoch}{p.cadence && <> · {p.cadence}</>}</p>
                 <h3 class="m-title">{p.title}</h3>
 
-                {/* THE MONEY LINE. A targetless pot gets no bar, because it is
-                    short of nothing — D5's uncapped exception. */}
-                {p.target == null ? (
+                {/* THE MONEY LINE.
+                    An ELASTIC pot gets a bar like an epoch pot's, but it
+                    measures something different: progress toward the CLOSE
+                    FLOOR, not toward a target. Past the floor the bar reads
+                    full and the roll keeps climbing beside it — the floor gates
+                    the ceremony, never the door ("intake refuses nothing"), so
+                    a bar that looked done would say the opposite of the law.
+                    A pot that is targetless AND floorless is short of nothing
+                    and gets no bar at all — D5's uncapped exception. */}
+                {p.close === "elastic" && p.minCloseUsd != null ? (
+                  <div class="m-bar-wrap">
+                    <div class="m-bar is-pot-bar" role="img"
+                         aria-label={`${usd(p.received)} in the roll, against a ${usd(p.minCloseUsd)} close floor`}>
+                      {p.received > 0 && (
+                        <i class="pm-holo-ink"
+                           style={`width:${Math.max(2, pct(Math.min(1, p.received / p.minCloseUsd)))}%`}></i>
+                      )}
+                    </div>
+                    <p class="m-barlab">
+                      {p.received >= p.minCloseUsd
+                        ? <><b>{usd(p.received)}</b> in the roll — closes at month's end,{" "}
+                          <span class="m-dim">no cap</span></>
+                        : <><b>{usd(p.received)}</b> of {usd(p.minCloseUsd)} to a close
+                          <span class="m-dim"> · and it keeps taking past that</span></>}
+                    </p>
+                  </div>
+                ) : p.target == null ? (
                   <p class="m-money">
                     {p.close === "elastic"
-                      ? <><b>{usd(p.received)}</b> given so far this roll{p.minCloseUsd != null
-                          ? <span class="m-dim"> · rolls on until {usd(p.minCloseUsd)}</span>
-                          : <span class="m-dim"> · rolls on until it is worth closing</span>}</>
+                      ? <><b>{usd(p.received)}</b> given so far this roll
+                          <span class="m-dim"> · rolls on until it is worth closing</span></>
                       : p.close === "none"
                       ? <><b>{usd(p.received)}</b> given <span class="m-dim">· a standing box, no target</span></>
                       : <><b>{usd(p.received)}</b> given <span class="m-dim">· no posted target</span></>}
@@ -300,6 +334,23 @@ const num = (n) => Number(n).toLocaleString("en-US");
                     ? <><b>Closes at the epoch.</b> Stakes the month's dollars matched burn and split: minted back to the stakers for keeping, <span class="pm-holo-ink m-holo">holo</span> to the hands that paid. The beneficiary receives dollars, never stamps.</>
                     : <><b>How it closes is not in the town's record yet.</b> It posts no target and the emission carries no word for it — so nothing here promises you a return, and nothing promises you there isn't one.</>}
                 </p>
+
+                {/* WHAT IT WOULD PAY IF IT CLOSED RIGHT NOW. An estimate, and
+                    the copy says so three ways: at this moment's roll and
+                    stakes, moving as both move, and never a promise. The math
+                    is holoPerDollar() in funding.mjs, which reads σ from the
+                    dials and the rest from this row — nothing typed. It comes
+                    back null on a pot with no close to run, so a standing box
+                    and an unsaid pot never show one. */}
+                {estimate(p) != null && (
+                  <p class="m-est">
+                    <b>≈ {estimate(p)}<span class="pm-holo-ink m-holo">✧</span> per $1</b>
+                    <span class="m-dim">
+                      {" "}if the close ran this moment — an estimate at today's roll and
+                      stakes, and it moves as both move. Holo is {HOLO_LINE}.
+                    </span>
+                  </p>
+                )}
 
                 <p class="m-roll">
                   {p.patrons.length > 0
@@ -1442,6 +1493,12 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
     background: rgba(232, 196, 139, .05); border-left: 2px solid rgba(232, 196, 139, .3);
   }
   .m-holo { padding: 0 .3em; border-radius: 999px; }
+  .m-est {
+    font-size: .8rem; line-height: 1.55; margin: 0;
+    padding: .45rem .7rem; border-radius: .35rem;
+    background: rgba(232, 196, 139, .05);
+  }
+  .m-est b { color: var(--pm-gold-bright); white-space: nowrap; }
   .m-roll { font-size: .78rem; margin: 0; line-height: 1.6; }
   .m-roll a { color: inherit; }
   .m-patron { white-space: nowrap; }

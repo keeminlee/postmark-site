@@ -249,10 +249,12 @@ test("each pot says what IT does, keyed on the word and never on the boolean", (
   const section = pots.slice(0, pots.indexOf("\n    </section>"));
   const sBody = flat(section);
 
-  // TWO sites branch on the word — the figure line and the character line —
-  // and both matter: a roll is not "this epoch", and it must never get a bar.
-  assert.equal(section.split('p.close === "elastic"').length - 1, 2,
-    "both the figure line and the character line must branch on the word");
+  // THREE sites branch on the word, and each is a different promise: the bar
+  // (measured against the close floor, not a target), the figure line for a
+  // floorless roll, and the character line. Losing any one of them leaves the
+  // pot half-described.
+  assert.equal(section.split('p.close === "elastic"').length - 1, 3,
+    "the bar, the figure line and the character line must each branch on the word");
   assert.ok(section.includes('p.close === "none"'), "and the standing box has its own branch");
   assert.ok(sBody.includes("given so far this roll"),
     "an elastic pot's figure is a running roll, not one epoch's takings");
@@ -382,4 +384,56 @@ test("every bare fragment on the portal names something the portal has", () => {
     assert.ok(KNOWN.has(id),
       `the portal points at #${id}, which is not a panel, a market block or an accordion`);
   }
+});
+
+test("an elastic pot gets a bar against its floor, and the bar says the roll keeps growing", () => {
+  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _min_close, quoted:
+  //   "the ceremony's floor, never the door's: intake refuses nothing — the
+  //    floor gates only whether a month's close RUNS."
+  // A bar that filled and stopped would say the opposite: that the pot is done
+  // taking. So past the floor it reads full AND the total keeps climbing.
+  const pots = raw.slice(raw.indexOf('<div id="pots"'));
+  const section = pots.slice(0, pots.indexOf("\n    </section>"));
+
+  assert.ok(section.includes('p.close === "elastic" && p.minCloseUsd != null'),
+    "the elastic bar branch must require a floor to measure against");
+  assert.ok(/Math\.min\(1, p\.received \/ p\.minCloseUsd\)/.test(section),
+    "the fill is progress toward the floor, clamped — never past 100%");
+  const sBody = flat(section);
+  assert.ok(sBody.includes("no cap"), "past the floor the card must say the pot still takes");
+  assert.ok(sBody.includes("closes at month's end"), "and when the close comes");
+  assert.ok(sBody.includes("it keeps taking past that"),
+    "and under the floor it must still say the pot is not capped by it");
+  assert.equal(/\$5\b/.test(sBody), false, "the floor is read, never typed");
+});
+
+test("the estimate renders only where a close could run, and never as a promise", () => {
+  // THE RULING THIS ASSERTS — the founder, 2026-08-23: the card carries an
+  // estimated return "as of this moment". The honesty is the whole point: it
+  // is an estimate at today's roll and stakes, it moves as both move, and it
+  // is {HOLO_LINE} — never a promise of profit.
+  const pots = raw.slice(raw.indexOf('<div id="pots"'));
+  const section = pots.slice(0, pots.indexOf("\n    </section>"));
+  const sBody = flat(section);
+
+  assert.ok(section.includes("estimate(p) != null &&"),
+    "the estimate is gated on the helper, which returns null where no close can run");
+  assert.ok(sBody.includes("if the close ran this moment"), "it says when it would apply");
+  assert.ok(sBody.includes("it moves as both move"), "and that it is not fixed");
+  assert.ok(section.includes("{HOLO_LINE}"), "and it carries the ruling's line");
+  // the number comes from the reader, not from the page
+  assert.ok(/const estimate = \(pot\) => holoPerDollar\(pot, econ\)/.test(src),
+    "the math lives in funding.mjs and the page only calls it");
+  assert.equal(/per \$1[^<]*0\.\d/.test(sBody), false, "no estimate is typed into the markup");
+});
+
+test("the pots block says when its data was made", () => {
+  // A quiet market and a stale page look identical on a money surface. The
+  // stamp comes from the emission's own field, so it cannot drift from the
+  // data it describes — a build-time clock would tick even when nothing synced.
+  assert.ok(/const potsAsOf = potBoard\.pots\.map\(\(p\) => p\.generatedAt\)/.test(src),
+    "the tick is read from the emission, not from the build clock");
+  assert.ok(raw.includes("as of {asOfText}"), "and rendered on the pots block");
+  assert.equal(/new Date\(\)\.toISOString/.test(src), false,
+    "the page must not stamp itself — that would look fresh on stale data");
 });

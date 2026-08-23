@@ -339,6 +339,14 @@ test("the emitter's allowlist names close and min_close_usd", () => {
   const block = base.slice(0, base.indexOf("\n    };"));
   assert.ok(/close: /.test(block), "the emitter must carry `close`");
   assert.ok(/min_close_usd: /.test(block), "and `min_close_usd`");
+  // AND WHEN THE EMISSION WAS MADE. This reads the source because the shipped
+  // pots.json already carries the stamp: deleting the emitter line leaves the
+  // committed file untouched and every data-level check green, so only the
+  // emitter's own text can catch the loss. Its can-fail flip proved that.
+  assert.ok(/generated_at: generatedAt,/.test(block),
+    "the emitter must stamp each row with when it ran");
+  assert.ok(/const generatedAt = new Date\(\)\.toISOString\(\);/.test(src),
+    "stamped once per run, so every row agrees by construction");
   assert.ok(block.includes("file?.min_close_usd"),
     "read off the pot file, never computed or defaulted to a number here");
 });

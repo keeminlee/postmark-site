@@ -88,6 +88,41 @@ export const TOWN_DISPLAY_NAME = "Postmark";
 //
 // Every other handle renders as itself — this maps exactly one account, so a
 // second beneficiary can never be quietly relabelled as the town.
+// ── WHAT AN ELASTIC POT WOULD PAY, IF IT CLOSED THIS MOMENT ──────────────────
+// An estimate of holo per dollar, for a giver deciding right now. The law it
+// runs on, from WHITE_PAGES/pot-darko-fund.json § _close:
+//
+//   "When it runs, every standing stake converts in full … and holo splits by
+//    dollar share across the WHOLE accumulated roll"
+//
+// so at a close the holo pool is the payers' side of the split — (1 − σ) of the
+// burn — and every standing stake burns in full, which makes the burn the pot's
+// staked mass. Spread across the roll's dollars, that is:
+//
+//   holo per dollar ≈ ((1 − σ) × staked) ÷ max(roll, floor)
+//
+// The floor is in the denominator because a close cannot run below it: until
+// the roll reaches it, the dollars that would share the pool are the floor's
+// worth, not today's smaller roll. Using the bare roll would quote a giver a
+// number that shrinks the moment anyone else gives, which is the opposite of
+// what the estimate is for.
+//
+// EVERY INPUT IS READ. σ comes from the economy emission, staked and the roll
+// from the pot row, the floor from the pot file. Nothing here is a typed
+// constant, so a dial that moves needs no edit (R10).
+//
+// It returns null rather than a zero whenever the estimate would be a fiction:
+// no dials published, nothing staked, or a pot that has no close to run.
+export function holoPerDollar(pot, econ) {
+  if (!pot || !econ || !pot.closes) return null;
+  const staked = Number(pot.staked ?? 0);
+  if (!Number.isFinite(staked) || staked <= 0) return null;
+  const floor = pot.minCloseUsd != null ? Number(pot.minCloseUsd) : null;
+  const denom = Math.max(Number(pot.received ?? 0), floor ?? 0, 1);
+  const pool = (1 - econ.sigma) * staked;
+  return Math.round((pool / denom) * 10) / 10;
+}
+
 export function beneficiaryLabel(beneficiary) {
   if (typeof beneficiary !== "string" || !beneficiary.trim()) return null;
   const who = beneficiary.trim();
@@ -315,6 +350,11 @@ export function toPot(raw) {
     // making a confident claim the record does not support. The surfaces
     // branch on `close` for their words and use this only for the shape.
     closes: close === "none" ? false : close === "elastic" ? true : !targetless,
+    // When the emission that produced this row was made. The pots block renders
+    // an "as of" from it, because a quiet market and a stale page look the same
+    // without one. Null on an emission that predates the field.
+    generatedAt: typeof raw.generated_at === "string" && raw.generated_at.trim()
+      ? raw.generated_at.trim() : null,
     // null on an uncapped pot is a REAL state the surfaces must say out loud —
     // the fund page's standing-box branch reads exactly this.
     target: targetless ? null : int(target),
@@ -573,6 +613,22 @@ export const POT_FIXTURE = [
     board: "quest-registry.json § darko-fund",
     epoch: "2026-09", staked: 4,
     patrons: [{ patron: "iris", usd: 2, holo: 0 }],
+  },
+  // THE SAME ROLL, PAST ITS FLOOR. The elastic pot has two visibly different
+  // states and only one of them was renderable: under the floor the bar fills
+  // toward a close, and over it the bar is full while the roll keeps climbing,
+  // because the floor gates the ceremony and never the door. A fixture that
+  // could only show the first would leave the second drawn by nobody.
+  {
+    pot: "darko-fund", subtype: "bounty", status: "open",
+    title: "The DARKO fund — the donation box",
+    source: "A later month of the same box, past its close floor and still taking.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "keeminlee", received_usd: 7,
+    close: "elastic", min_close_usd: 5,
+    board: "quest-registry.json § darko-fund",
+    epoch: "2026-10", staked: 4,
+    patrons: [{ patron: "iris", usd: 2, holo: 0 }, { patron: "orvet", usd: 5, holo: 0 }],
   },
   // THE STANDING BOX — the shape that never closes at all. Nothing live wears
   // it since the DARKO box learned the elastic close, and it stays in the
