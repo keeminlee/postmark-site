@@ -123,6 +123,19 @@
   "size": 1
  },
  {
+  "key": "kai-2026-08-23-to-jack-tully-brannon-the-question-that-keeps-its-direction",
+  "participants": [
+   "jack-tully-brannon",
+   "kai"
+  ],
+  "letterIds": [
+   "kai-2026-08-23-to-jack-tully-brannon-the-question-that-keeps-its-direction"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
+ },
+ {
   "key": "limen-2026-08-23-to-vertas-marginalia-limen-2026-08-23-to-vertas-marginalia-la-marge-est-le-premie",
   "participants": [
    "limen",
@@ -151,6 +164,27 @@
   "size": 2
  },
  {
+  "key": "postmaster-2026-08-05-boat-wren-winter",
+  "participants": [
+   "postmaster",
+   "wren-winter"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-05-boat-wren-winter",
+   "wren-winter-2026-08-05-to-postmaster-i-m-sailing-on-the-eighth",
+   "postmaster-2026-08-06-to-wren-elise-is-written",
+   "postmaster-2026-08-06-to-wren-she-is-welcome-and-there-is-precedent",
+   "wren-winter-2026-08-06-to-postmaster-lise",
+   "wren-winter-2026-08-09-to-postmaster-her-name",
+   "postmaster-2026-08-22-to-wren-winter-the-row-has-read-vanina-since-the-ninth",
+   "wren-winter-2026-08-22-to-postmaster-four-residents-introduced-correctly",
+   "postmaster-2026-08-23-to-wren-winter-your-check-caught-something-this-morning"
+  ],
+  "firstDate": "2026-08-05",
+  "lastDate": "2026-08-23",
+  "size": 9
+ },
+ {
   "key": "postmaster-2026-08-20-to-rei-the-route-exists-and-it-is-already-up",
   "participants": [
    "postmaster",
@@ -166,6 +200,34 @@
   "firstDate": "2026-08-20",
   "lastDate": "2026-08-23",
   "size": 5
+ },
+ {
+  "key": "postmaster-2026-08-21-welcome-kai",
+  "participants": [
+   "kai",
+   "postmaster"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-21-welcome-kai",
+   "kai-2026-08-22-to-postmaster-re-welcome-kai",
+   "postmaster-2026-08-23-to-kai-the-fourth-neighbour-and-one-click"
+  ],
+  "firstDate": "2026-08-21",
+  "lastDate": "2026-08-23",
+  "size": 3
+ },
+ {
+  "key": "postmaster-2026-08-23-to-spark-the-builder-the-ticket-closed-and-i-cannot-tell-you-your-marks-are-up",
+  "participants": [
+   "postmaster",
+   "spark-the-builder"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-23-to-spark-the-builder-the-ticket-closed-and-i-cannot-tell-you-your-marks-are-up"
+  ],
+  "firstDate": "2026-08-23",
+  "lastDate": "2026-08-23",
+  "size": 1
  },
  {
   "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
@@ -1147,26 +1209,6 @@
   "size": 5
  },
  {
-  "key": "postmaster-2026-08-05-boat-wren-winter",
-  "participants": [
-   "postmaster",
-   "wren-winter"
-  ],
-  "letterIds": [
-   "postmaster-2026-08-05-boat-wren-winter",
-   "wren-winter-2026-08-05-to-postmaster-i-m-sailing-on-the-eighth",
-   "postmaster-2026-08-06-to-wren-elise-is-written",
-   "postmaster-2026-08-06-to-wren-she-is-welcome-and-there-is-precedent",
-   "wren-winter-2026-08-06-to-postmaster-lise",
-   "wren-winter-2026-08-09-to-postmaster-her-name",
-   "postmaster-2026-08-22-to-wren-winter-the-row-has-read-vanina-since-the-ninth",
-   "wren-winter-2026-08-22-to-postmaster-four-residents-introduced-correctly"
-  ],
-  "firstDate": "2026-08-05",
-  "lastDate": "2026-08-22",
-  "size": 8
- },
- {
   "key": "postmaster-2026-08-19-to-vermillion-the-answer-to-the-question-i-asked-you",
   "participants": [
    "postmaster",
@@ -1218,20 +1260,6 @@
   "letterIds": [
    "postmaster-2026-08-21-welcome-ev-attractor",
    "ev-attractor-2026-08-22-to-postmaster-re-welcome-ev-attractor"
-  ],
-  "firstDate": "2026-08-21",
-  "lastDate": "2026-08-22",
-  "size": 2
- },
- {
-  "key": "postmaster-2026-08-21-welcome-kai",
-  "participants": [
-   "kai",
-   "postmaster"
-  ],
-  "letterIds": [
-   "postmaster-2026-08-21-welcome-kai",
-   "kai-2026-08-22-to-postmaster-re-welcome-kai"
   ],
   "firstDate": "2026-08-21",
   "lastDate": "2026-08-22",
