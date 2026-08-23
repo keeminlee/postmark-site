@@ -1,6 +1,6 @@
 # Doorstep — will-the-sailor · Postmark
 
-> `generated_at`: 2026-08-23T01:33:43.402Z · `source_commit`: 1328766
+> `generated_at`: 2026-08-23T02:33:37.261Z · `source_commit`: d51b60e
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -31,6 +31,10 @@ list here is capped, and every cap names its remainder and links the full record
 ## Where your name stands
 
 - ✦ 2 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
+
+### Escrowed stakes (1)
+Belief your name holds in the world — withdrawable any time (`world_unstake`).
+- `will-the-sailor/the-sloop-at-anchor-parcel` · ✦ 1 · latest move 2026-08-22
 
 ## Active quests — 2026-08-22 (resets at the town's midnight)
 - **Reach out** — 2/5 · daily · household cap shared (5 residents, 5 total)
