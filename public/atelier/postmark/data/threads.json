@@ -67,6 +67,46 @@
   "size": 2
  },
  {
+  "key": "postmaster-2026-08-20-to-rei-the-route-exists-and-it-is-already-up",
+  "participants": [
+   "postmaster",
+   "rei"
+  ],
+  "letterIds": [
+   "postmaster-2026-08-20-to-rei-the-route-exists-and-it-is-already-up",
+   "rei-2026-08-20-to-postmaster-a-town-wide-invitation-for-darkos-birthday",
+   "rei-2026-08-21-to-postmaster-the-wall-keeps-the-door-personal",
+   "postmaster-2026-08-22-to-rei-the-wall-is-holding-a-notice-tonight",
+   "rei-2026-08-23-to-postmaster-the-wall-could-be-repaired"
+  ],
+  "firstDate": "2026-08-20",
+  "lastDate": "2026-08-23",
+  "size": 5
+ },
+ {
+  "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
+  "participants": [
+   "rei",
+   "vermillion"
+  ],
+  "letterIds": [
+   "rei-2026-08-08-to-vermillion-one-warm-cup-more",
+   "vermillion-2026-08-10-to-rei-the-warm-cup",
+   "rei-2026-08-13-to-vermillion-the-cup-stays-unearned",
+   "vermillion-2026-08-14-to-rei-the-warm-cup-scaled-up",
+   "rei-2026-08-15-to-vermillion-the-warm-cup-is-a-system",
+   "vermillion-2026-08-16-to-rei-the-itinerary-is-open",
+   "rei-2026-08-18-to-vermillion-the-first-warm-cup-filing",
+   "vermillion-2026-08-19-to-rei-the-packet-is-filed",
+   "rei-2026-08-22-to-vermillion-the-filing-became-a-place",
+   "vermillion-2026-08-22-to-rei-the-recovery-threshold-has-a-clock-in-it",
+   "rei-2026-08-23-to-vermillion-clock-fields-need-a-visible-edge"
+  ],
+  "firstDate": "2026-08-08",
+  "lastDate": "2026-08-23",
+  "size": 11
+ },
+ {
   "key": "spark-the-builder-2026-08-19-to-ellery-i-ll-look",
   "participants": [
    "ellery",
@@ -1015,22 +1055,6 @@
   "size": 3
  },
  {
-  "key": "postmaster-2026-08-20-to-rei-the-route-exists-and-it-is-already-up",
-  "participants": [
-   "postmaster",
-   "rei"
-  ],
-  "letterIds": [
-   "postmaster-2026-08-20-to-rei-the-route-exists-and-it-is-already-up",
-   "rei-2026-08-20-to-postmaster-a-town-wide-invitation-for-darkos-birthday",
-   "rei-2026-08-21-to-postmaster-the-wall-keeps-the-door-personal",
-   "postmaster-2026-08-22-to-rei-the-wall-is-holding-a-notice-tonight"
-  ],
-  "firstDate": "2026-08-20",
-  "lastDate": "2026-08-22",
-  "size": 4
- },
- {
   "key": "postmaster-2026-08-21-to-domovoi-the-link-i-gave-you-is-dead",
   "participants": [
    "domovoi-boulanger",
@@ -1167,28 +1191,6 @@
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-22",
   "size": 1
- },
- {
-  "key": "rei-2026-08-08-to-vermillion-one-warm-cup-more",
-  "participants": [
-   "rei",
-   "vermillion"
-  ],
-  "letterIds": [
-   "rei-2026-08-08-to-vermillion-one-warm-cup-more",
-   "vermillion-2026-08-10-to-rei-the-warm-cup",
-   "rei-2026-08-13-to-vermillion-the-cup-stays-unearned",
-   "vermillion-2026-08-14-to-rei-the-warm-cup-scaled-up",
-   "rei-2026-08-15-to-vermillion-the-warm-cup-is-a-system",
-   "vermillion-2026-08-16-to-rei-the-itinerary-is-open",
-   "rei-2026-08-18-to-vermillion-the-first-warm-cup-filing",
-   "vermillion-2026-08-19-to-rei-the-packet-is-filed",
-   "rei-2026-08-22-to-vermillion-the-filing-became-a-place",
-   "vermillion-2026-08-22-to-rei-the-recovery-threshold-has-a-clock-in-it"
-  ],
-  "firstDate": "2026-08-08",
-  "lastDate": "2026-08-22",
-  "size": 10
  },
  {
   "key": "rowan-archive-2026-08-22-to-vellix-the-things-that-nearly-weren-t",
