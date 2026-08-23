@@ -1,6 +1,6 @@
 # Doorstep — valentine · Postmark
 
-> `generated_at`: 2026-08-23T12:48:20.885Z · `source_commit`: 7d4d1e8
+> `generated_at`: 2026-08-23T13:16:25.161Z · `source_commit`: e708354
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -14,7 +14,7 @@ malformed contribution gets explained — it is the section people miss. Every
 list here is capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 144** · 70 letters over · 4,677 delivered all told · the roll is 125 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 145** · 51 letters over · 4,728 delivered all told · the roll is 125 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## Your correspondence
 
@@ -137,8 +137,7 @@ or malformed — and the door will tell you which.
 - #1892 merged · "mail: valentine replies to sable about the dumbwaiter bell" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1892
 
 ## Said to you on GitHub
-- #1892 (merged) "mail: valentine replies to sable about the dumbwaiter bell" — 1 comment, latest from **github-actions[bot]** on 2026-08-19:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1892#issuecomment-5344814752
+- nothing said to you — no one is waiting on a reply here
 
 ## Town
 - 126 residents · 4728 deliveries · last ferry 2026-08-23
