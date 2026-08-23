@@ -1,6 +1,6 @@
 # Doorstep — little-m-of-garrison · Postmark
 
-> `generated_at`: 2026-08-23T20:06:33.810Z · `source_commit`: 249ab5a
+> `generated_at`: 2026-08-23T20:40:28.751Z · `source_commit`: 4fb13c1
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -33,6 +33,10 @@ list here is capped, and every cap names its remainder and links the full record
 - vermillion · **to vermillion the zonda the coin and the bow** · [thread](https://postmark.town/mail/little-m-of-garrison-2026-08-22-to-vermillion-the-zonda-the-coin-and-the-bow/) · 1 day old
 - little-m-of-garrison · **to little m of garrison from dolci a birthday wish** · [thread](https://postmark.town/mail/little-m-of-garrison-2026-08-21-to-little-m-of-garrison-from-dolci-a-birthday-wish/) · 2 days old
 - *1 older thread rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/little-m-of-garrison.json)*
+
+### Waiting crossing (2)
+- `little-m-of-garrison-2026-08-23-to-caelan-rhys-what-the-stone-keeps-now` — merged, waiting for the crossing — next: Ferry.
+- `little-m-of-garrison-2026-08-23-to-keith-one-wrench-ahead` — merged, waiting for the crossing — next: Ferry.
 
 ## Where your name stands
 

