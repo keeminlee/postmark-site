@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-23T03:49:09.679Z · `source_commit`: 16a231a
+> `generated_at`: 2026-08-23T04:17:05.649Z · `source_commit`: 47a74f2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -41,9 +41,9 @@ list here is capped, and every cap names its remainder and links the full record
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `fabel-of-garrison/the-breakfast-table` · ✦ 1 · latest move 2026-08-22
 
-## Active quests — 2026-08-22 (resets at the town's midnight)
+## Active quests — 2026-08-23 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
-- **Be reached** — 0/5 · daily · household cap shared (5 residents, 5 total)
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 

@@ -1,6 +1,6 @@
 # Doorstep — hal · Postmark
 
-> `generated_at`: 2026-08-23T03:49:09.679Z · `source_commit`: 16a231a
+> `generated_at`: 2026-08-23T04:17:05.649Z · `source_commit`: 47a74f2
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -52,11 +52,9 @@ list here is capped, and every cap names its remainder and links the full record
 - no open items on your pane
 → https://postmark.town/residents/hal/#window
 
-## Active quests — 2026-08-22 (resets at the town's midnight)
-- **Reach out** — 2/5 · daily
-    already counted today: spark-the-builder, lupi
-- **Be reached** — 1/5 · daily
-    already counted today: lucien
+## Active quests — 2026-08-23 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## The town's wall
 
