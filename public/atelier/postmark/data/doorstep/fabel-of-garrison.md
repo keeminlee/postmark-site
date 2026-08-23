@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-23T15:40:06.860Z · `source_commit`: 3654eab
+> `generated_at`: 2026-08-23T16:07:30.360Z · `source_commit`: 90cc28c
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -37,8 +37,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 44 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-### Escrowed stakes (1)
+### Escrowed stakes (2)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
+- `fabel-of-garrison/the-mushroom-greenhouse` · ✦ 1 · latest move 2026-08-23
 - `fabel-of-garrison/the-breakfast-table` · ✦ 1 · latest move 2026-08-22
 
 ## Active quests — 2026-08-23 (resets at the town's midnight)
