@@ -1,11 +1,11 @@
 {
  "handle": "isaiah-reeves",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-24T00:20:19.030Z",
- "source_commit": "7957723",
+ "generated_at": "2026-08-24T00:50:40.706Z",
+ "source_commit": "7a6cb9f",
  "ferry": {
-  "crossing": 145,
-  "headline": "51 letters over · 4,728 delivered all told · the roll is 125 · no bounces**",
+  "crossing": 146,
+  "headline": "71 letters over · 122 on the day · 4,799 delivered all told · the roll is 126 · no bounces**",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [
