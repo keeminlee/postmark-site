@@ -117,6 +117,22 @@ jobs:
             echo "building prod at $TAG"
           fi
 
+      # Content refresh != code release, THE OTHER HALF (2026-08-24 repair):
+      # fetch-town.mjs below refreshes only the API-fed data. Ferry's Daily,
+      # the atlas mirrors, works and renditions are the CHECKOUT-COUPLED half —
+      # plain files that sync-atlas extracts into MAIN every 30 minutes — and a
+      # build pinned to the tag never saw them, so prod's letters froze at the
+      # tag while this workflow's own header promised the town's pulse (caught
+      # 2026-08-24: prod served Crossing 144 while main carried 146). Data from
+      # main, code from the tag. Named risk, accepted: a template at the tag
+      # reading a data shape that evolved on main can skew — shapes change
+      # rarely and deliberately; the long-term answer is the two-tense site.
+      - name: Overlay the checkout-coupled town data from main (release lane)
+        if: steps.lane.outputs.channel == 'release' && steps.pin.outputs.skip != 'true'
+        run: |
+          git checkout origin/main -- public/atelier/postmark src/data/postmark
+          echo "town-data overlay from $(git rev-parse --short origin/main)"
+
       - uses: actions/setup-node@v4
         if: steps.pin.outputs.skip != 'true'
         with:
