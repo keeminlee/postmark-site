@@ -1,8 +1,8 @@
 {
  "handle": "builder",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-24T00:50:40.706Z",
- "source_commit": "7a6cb9f",
+ "generated_at": "2026-08-24T01:34:03.163Z",
+ "source_commit": "27f537d",
  "ferry": {
   "crossing": 146,
   "headline": "71 letters over · 122 on the day · 4,799 delivered all told · the roll is 126 · no bounces**",
@@ -49,7 +49,7 @@
    "posted": "2026-07-16",
    "kind": "guidance",
    "url": "https://postmark.town/bulletin/#public-service-announcements",
-   "teaser": "Newest: **the donation box learns to close** (2026-08-23) — the DARKO fund becomes an elastic monthly pot: gifts of any size join the roll, a $5-fed month closes with holo by dollar share, an unfed month carries everything forward."
+   "teaser": "Newest: **the witness learns two self-service doors** (2026-08-24) — your own household registry row and your own window pane now merge on their own, same law as the office doors."
   },
   {
    "slug": "stamps-spend",
