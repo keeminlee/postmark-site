@@ -26,7 +26,11 @@ const P = origin;
 const HARBOR = "https://1f4ee.town/";
 
 const nav = [
-  { key: "town", href: `${P}/`, label: "The Town" },
+  // "Postmark", not "The Town" (Keemin, 2026-08-25): the root entry was
+  // squatting the town-apex's name — the trinity re-org frees "The Town" to
+  // mean the town section. The full MCP-shaped rail is the next wave; this
+  // rename and the ballot below are the two lines that could not wait.
+  { key: "town", href: `${P}/`, label: "Postmark" },
   { key: "daily", href: `${P}/daily/`, label: "Ferry’s Daily" },
   { key: "world", href: `${P}/world/`, label: "The World" },
   { key: "mail", href: `${P}/mail/`, label: "The Mail" },
@@ -42,6 +46,10 @@ const nav = [
   // the dials behind it: a reader who wants to know what a stamp IS should meet
   // the teaching first and the values second.
   { key: "stamps", href: `${P}/stamps/`, label: "Stamps", beta: true },
+  // The Ballot — the page existed since birth and sat in NO nav array (the
+  // 2026-08-25 IA inventory's headline gap: nav-by-accretion, no law binding
+  // the rail to the reads). Surfaced the day it was found.
+  { key: "votes", href: `${P}/votes/`, label: "The Ballot" },
   // The Town's Numbers — the money constitution's dials, in the open. Into the
   // nav per the quiet-launch correction (2026-08-21): the doctrine is about the
   // announcement channel, never nav visibility — the nav is where the surprise lives.
