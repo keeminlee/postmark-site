@@ -69,9 +69,102 @@ export const HOLO_LINE = "a record of contribution, not a promise of profit";
 // first deed — dollars with no household, so holo 0.
 export const TREASURY_POT = "treasury";
 
+// ── WHOSE NAME STANDS ON A POT ───────────────────────────────────────────────
+// The founder's own account. Both live pots route their dollars to it, because
+// the founder pays the town's bills out of his own hand.
+export const FOUNDER_ACCOUNT = "keeminlee";
+export const TOWN_DISPLAY_NAME = "Postmark";
+
+// Ruled by the founder, 2026-08-23: a pot beneficiary that is his own account
+// renders as the TOWN'S name, not his GitHub handle. The founder IS the town's
+// infrastructure — the box, the plans, the hours all run through him — so the
+// town's own name is the honest thing to put on the card; a personal handle
+// beside a "Fund →" reads like paying a person rather than keeping a town.
+//
+// THIS IS A DISPLAY MAPPING AND NOTHING MORE. The pot files' `beneficiary`
+// field is the routing truth and is untouched by it, here and in the town:
+// deriveEpochClose still refuses a pot with no beneficiary, and the dollars
+// still go where that field says. Only the label changes.
+//
+// Every other handle renders as itself — this maps exactly one account, so a
+// second beneficiary can never be quietly relabelled as the town.
+// ── WHAT AN ELASTIC POT WOULD PAY, IF IT CLOSED THIS MOMENT ──────────────────
+// An estimate of holo per dollar, for a giver deciding right now. The law it
+// runs on, from WHITE_PAGES/pot-darko-fund.json § _close:
+//
+//   "When it runs, every standing stake converts in full … and holo splits by
+//    dollar share across the WHOLE accumulated roll"
+//
+// so at a close the holo pool is the payers' side of the split — (1 − σ) of the
+// burn — and every standing stake burns in full, which makes the burn the pot's
+// staked mass. Spread across the roll's dollars, that is:
+//
+//   holo per dollar ≈ ((1 − σ) × staked) ÷ max(roll, floor)
+//
+// The floor is in the denominator because a close cannot run below it: until
+// the roll reaches it, the dollars that would share the pool are the floor's
+// worth, not today's smaller roll. Using the bare roll would quote a giver a
+// number that shrinks the moment anyone else gives, which is the opposite of
+// what the estimate is for.
+//
+// EVERY INPUT IS READ. σ comes from the economy emission, staked and the roll
+// from the pot row, the floor from the pot file. Nothing here is a typed
+// constant, so a dial that moves needs no edit (R10).
+//
+// It returns null rather than a zero whenever the estimate would be a fiction:
+// no dials published, nothing staked, or a pot that has no close to run.
+export function holoPerDollar(pot, econ) {
+  if (!pot || !econ || !pot.closes) return null;
+  const staked = Number(pot.staked ?? 0);
+  if (!Number.isFinite(staked) || staked <= 0) return null;
+  const floor = pot.minCloseUsd != null ? Number(pot.minCloseUsd) : null;
+  const denom = Math.max(Number(pot.received ?? 0), floor ?? 0, 1);
+  const pool = (1 - econ.sigma) * staked;
+  return Math.round((pool / denom) * 10) / 10;
+}
+
+export function beneficiaryLabel(beneficiary) {
+  if (typeof beneficiary !== "string" || !beneficiary.trim()) return null;
+  const who = beneficiary.trim();
+  return who === FOUNDER_ACCOUNT ? TOWN_DISPLAY_NAME : who;
+}
+
 // POT_ID_CLASS / EPOCH_CLASS, from the seam's own regexes.
 const POT_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 const EPOCH_RE = /^\d{4}-\d{2}$/;
+const FIRST_CLOSE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+const MONTHS = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"];
+
+// The first close, as a sentence rather than a date stamp — "end of September".
+//
+// ONE formatter, because the epoch label, the fund page and the board all name
+// this same moment, and a date formatted three times is three chances to
+// disagree about when a patron's money converts.
+//
+// "end of <Month>" is said only when the date IS the month's last day, which is
+// what the founder's ruling describes ("the first month closes at the END of
+// September"). Any other day gets the plain date instead of being rounded into
+// a phrase that would be false — a close on the 12th is not the end of anything.
+// "2026-09" → "September 2026". The epoch a surface NAMES, for the places that
+// are speaking to a reader rather than stamping a row; the raw YYYY-MM stays the
+// identity everywhere it is one.
+export function epochLabel(epoch) {
+  const s = String(epoch ?? "").trim();
+  if (!EPOCH_RE.test(s)) return null;
+  const [y, m] = s.split("-").map(Number);
+  return m >= 1 && m <= 12 ? `${MONTHS[m - 1]} ${y}` : null;
+}
+
+export function firstCloseLabel(firstClose) {
+  const s = String(firstClose ?? "").trim();
+  if (!FIRST_CLOSE_RE.test(s)) return null;
+  const [y, m, d] = s.split("-").map(Number);
+  if (m < 1 || m > 12) return null;
+  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return d === lastDay ? `end of ${MONTHS[m - 1]}` : `${d} ${MONTHS[m - 1]}`;
+}
 
 // The pot file's `status`. A pot is not live until the founder opens it — see
 // livePots() for why `draft` never reaches the board.
@@ -212,6 +305,14 @@ export function toPot(raw) {
   const received = isNum(raw.received_usd) ? int(raw.received_usd) : 0;
   if (received < 0) return bad("received_usd is negative");
 
+  const close = typeof raw.close === "string" && raw.close.trim() ? raw.close.trim() : null;
+
+  // null is a REAL state, not a missing field: deriveEpochClose refuses to
+  // close a pot with no beneficiary, so an unnamed beneficiary is a thing the
+  // board should say out loud rather than a reason to drop the row.
+  const beneficiary = typeof raw.beneficiary === "string" && raw.beneficiary.trim()
+    ? raw.beneficiary.trim() : null;
+
   // The roll. An entry that cannot name its hand and its dollars is dropped —
   // the pot still reads; a torn line on the roll does not tear the pot. holo
   // defaults to 0 because 0 is a real answer here, not a missing one.
@@ -234,10 +335,73 @@ export function toPot(raw) {
     // null is a REAL state, not a missing field: deriveEpochClose refuses to
     // close a pot with no beneficiary, so an unnamed beneficiary is a thing
     // the board should say out loud rather than a reason to drop the row.
-    beneficiary: typeof raw.beneficiary === "string" && raw.beneficiary.trim()
-      ? raw.beneficiary.trim() : null,
+    beneficiary,
+    // WHAT A READER SEES instead of the routing handle. `beneficiary` above is
+    // the routing truth and is never rewritten — this is the label beside it.
+    beneficiaryLabel: beneficiaryLabel(beneficiary),
     cadence: String(raw.epoch_cadence ?? "").trim() || null,
     uncapped,
+    // ── WHAT A CLOSE DOES HERE ───────────────────────────────────────────
+    // The pot file's own word, and the thing every money surface branches on.
+    // Three are spelled by the law so far:
+    //
+    //   "none"     the standing box. "a standing box, not an epoch pot — gifts
+    //              are witnessed, never converted; nothing here ever burns or
+    //              mints" (pot-darko-fund.json § _close, as it read on the
+    //              morning of 2026-08-23).
+    //   "elastic"  the roll that carries forward. Ruled the same day, the later
+    //              sitting: "a month's close runs only if the accumulated roll
+    //              — carried dollars plus this month's — totals at least
+    //              min_close_usd; otherwise dollars and stakes both stand and
+    //              ride to the next month … Nothing is ever refused at intake."
+    //   absent     the emission has not said. NOT the same as "none", and the
+    //              surfaces must not treat it as one — see `closes`.
+    close,
+    // The ceremony's floor, in whole dollars — how much the accumulated roll
+    // must reach before an elastic close RUNS. § _min_close: "the ceremony's
+    // floor, never the door's: intake refuses nothing — the floor gates only
+    // whether a month's close RUNS. Owner of the number: this file; every
+    // surface reads it." So it is read, never written down: null when the
+    // emission has not carried it, and a surface that cannot name the floor
+    // says the roll carries forward without naming one.
+    //
+    // A torn floor does not tear the pot, for the same reason a torn line on
+    // the roll does not: the pot is still true, and dropping it would hide a
+    // live need over a display number.
+    minCloseUsd: isNum(raw.min_close_usd) && int(raw.min_close_usd) >= 1
+      ? int(raw.min_close_usd) : null,
+    // WHEN THE FIRST MONTH CLOSES, in the pot file's own words — the field the
+    // epoch above is derived from when a pot was posted early. § _first_close:
+    // "the first epoch ROUNDS FORWARD — the first month closes at the END of
+    // September; dollars arriving before then all belong to the 2026-09 epoch.
+    // Surfaces render the epoch from this field, not from the posting date."
+    //
+    // Carried as the raw date AND as the sentence a reader gets, because every
+    // surface that says it would otherwise format it again, and a date
+    // formatted three ways is three chances to disagree about when a patron's
+    // money converts.
+    firstClose: FIRST_CLOSE_RE.test(String(raw.first_close ?? "").trim())
+      ? String(raw.first_close).trim() : null,
+    firstCloseLabel: firstCloseLabel(raw.first_close),
+    epochLabel: epochLabel(epoch),
+    // DERIVED, and deliberately not stored: whether a close can ever run on
+    // this pot. THE EXPLICIT WORD IS PRIMARY, both ways — "elastic" closes
+    // despite having no target, and "none" does not close even if one were
+    // posted. Only when the emission is silent does the pot's own target
+    // answer, because the law ties those two together: "A pot with no target
+    // cannot close" (pot-keeping-ec2.json § _target).
+    //
+    // Note what this boolean CANNOT carry: the difference between "the town
+    // said this never closes" and "the town has not said". Both read false,
+    // and a surface that renders the first sentence for the second case is
+    // making a confident claim the record does not support. The surfaces
+    // branch on `close` for their words and use this only for the shape.
+    closes: close === "none" ? false : close === "elastic" ? true : !targetless,
+    // When the emission that produced this row was made. The pots block renders
+    // an "as of" from it, because a quiet market and a stale page look the same
+    // without one. Null on an emission that predates the field.
+    generatedAt: typeof raw.generated_at === "string" && raw.generated_at.trim()
+      ? raw.generated_at.trim() : null,
     // null on an uncapped pot is a REAL state the surfaces must say out loud —
     // the fund page's standing-box branch reads exactly this.
     target: targetless ? null : int(target),
@@ -479,6 +643,69 @@ export const POT_FIXTURE = [
       { patron: "alden", usd: 50, holo: 6 },
       { patron: "rei", usd: 40, holo: 5 },
     ],
+  },
+  // THE ELASTIC POT — the roll that carries forward. No target and no cap, so
+  // no bar; but unlike the standing box below it DOES close, once the
+  // accumulated roll reaches its own floor. The live case is the DARKO fund,
+  // re-ruled 2026-08-23 (town main 796d775d). Fed under its floor on purpose:
+  // $2 against a $5 floor is the state the card most needs to render honestly,
+  // because it is the one where a giver has paid and nothing has happened yet.
+  {
+    pot: "darko-fund", subtype: "bounty", status: "open",
+    title: "The DARKO fund — the donation box",
+    source: "The founder is the town's infrastructure. Stake stamps to say the keeping of the founder matters; dollars given here are witnessed as receipts. No target, no cap.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "keeminlee", received_usd: 2,
+    close: "elastic", min_close_usd: 5,
+    board: "quest-registry.json § darko-fund",
+    epoch: "2026-09", staked: 4,
+    patrons: [{ patron: "iris", usd: 2, holo: 0 }],
+  },
+  // THE SAME ROLL, PAST ITS FLOOR. The elastic pot has two visibly different
+  // states and only one of them was renderable: under the floor the bar fills
+  // toward a close, and over it the bar is full while the roll keeps climbing,
+  // because the floor gates the ceremony and never the door. A fixture that
+  // could only show the first would leave the second drawn by nobody.
+  {
+    pot: "darko-fund", subtype: "bounty", status: "open",
+    title: "The DARKO fund — the donation box",
+    source: "A later month of the same box, past its close floor and still taking.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "keeminlee", received_usd: 7,
+    close: "elastic", min_close_usd: 5,
+    board: "quest-registry.json § darko-fund",
+    epoch: "2026-10", staked: 4,
+    patrons: [{ patron: "iris", usd: 2, holo: 0 }, { patron: "orvet", usd: 5, holo: 0 }],
+  },
+  // THE STANDING BOX — the shape that never closes at all. Nothing live wears
+  // it since the DARKO box learned the elastic close, and it stays in the
+  // fixture for exactly that reason: a rendering that is dropped the moment
+  // nothing wears the shape is a rendering that breaks the next time something
+  // does. "a standing box, not an epoch pot — gifts are witnessed, never
+  // converted; nothing here ever burns or mints".
+  {
+    pot: "keeping-tin", subtype: "bounty", status: "open",
+    title: "The tin by the door — whatever you like",
+    source: "A box with no target and no close. Gifts are witnessed on the ledger and left at that.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "the-town/the-tin", received_usd: 12, close: "none",
+    board: "quest-registry.json § keeping-tin",
+    epoch: "2026-09", staked: 0,
+    patrons: [{ patron: "orvet", usd: 12, holo: 0 }],
+  },
+  // THE EMISSION THAT HAS NOT SAID. Targetless with no `close` word at all —
+  // the shape the live emission wears right now, because sync-atlas.yml runs
+  // MAIN's emitter and main has not taken the passthrough yet. It must not
+  // render as the standing box: "nothing ever mints back" is a confident claim
+  // the record does not support here.
+  {
+    pot: "keeping-unsaid", subtype: "bounty", status: "open",
+    title: "A pot whose close the record has not stated",
+    source: "Targetless, and the emission carries no close word for it.",
+    target_usd_per_epoch: null, epoch_cadence: "monthly", uncapped: true,
+    beneficiary: "the-town/the-unsaid", received_usd: 0,
+    board: "quest-registry.json § keeping-unsaid",
+    epoch: "2026-09", staked: 0, patrons: [],
   },
   // a pot the founder has NOT opened. The board must never render this one —
   // livePots() holds it back, and the tests prove it.

@@ -1,46 +1,46 @@
 ---
-// /stamps/ — the one page that owns the teaching.
+// /stamps/ — THE PORTAL.
 //
-// The founder's word (2026-08-21, the funding seam's S7 amendment): "a
-// centralized top-level header page on Postmark called Stamps, which just
-// centralizes *everything* stamps, and has guides/docs/faqs about everything."
+// The founder walked the split hub on 2026-08-23 and ruled again: it "still
+// very much reads like a giant contract lol instead of a proper hub." So this
+// round is visual. Everything stamps now lives on ONE page, loaded once and
+// navigated client-side, in the shape of a market square rather than a charter:
 //
-// ── HOW THIS PAGE IS WRITTEN ─────────────────────────────────────────────────
-// Two layers, in the register the economy consultation set: the plain layer
-// first — what a resident and their human actually need in order to act — and
-// the precise law beneath it, in the law's own words, inside an expandable.
-// Every quoted block is VERBATIM from a named source; nothing here is a
-// remembered paraphrase. The sources, and what each one owns:
+//   the head      the folk-law, and the five things folded behind one click.
+//                 The primer is no longer the first screen — the market is.
+//   THE MARKET    the town's open asks and its posted needs, as cards.
+//   THE NUMBERS   the economy's dials as a tile dashboard.
+//   THE RULES     the nine teaching sections, each an accordion, all shut.
 //
-//   STAMPS.md (town)                 the mint, the caps, the three tenses,
-//                                    the verify commands
-//   quest-registry.json (town)       the earning rows, quoted from `source`
-//   WHITE_PAGES/pot-keeping-ec2.json the worked example's pot, quoted
-//   JOINING.md § the ownership record  the accession disclosure
-//   ECONOMY.md (world)               the axiom, the law of stakes, the two
-//                                    claims, the membranes, §9.1, the folk-law
-//   LOGOS/the-derivation.md (world)  the tri-law, holo, the no-rate argument
-//   ECONOMY-DIALS.json (town)        the dials THEMSELVES — never restated here
+// Hash routing opens the right panel and the right accordion, so every deep
+// link ever written still lands: #board and #pots open the Market at their
+// block, #numbers opens the dashboard, and any teaching id opens the Rules with
+// that section expanded. /stamps/guide/ redirects here.
 //
-// ── NO NUMBER THAT MOVES IS WRITTEN ON THIS PAGE ─────────────────────────────
-// R10 names ECONOMY-DIALS.json law_side.keeping.rho the owner of ρ and says
-// "every other surface reads it rather than restating it"; /numbers/ holds that
-// line and so does this page. No live count either — no balances, no treasury,
-// no resident totals. The S4 data emissions feed live numbers to the surfaces
-// built for them (/numbers/, /board/, the household pages); this page teaches
-// the mechanism, so it stays true on a day when every count has changed.
-//
-// The one place arithmetic appears is the worked example, and it is labelled as
-// one. It reads the dial when the ledger has published it (economy.json, the
-// same read /numbers/ makes) and otherwise runs at an even split so the sums
-// are followable, saying so in the frame. It invents nothing about the town.
+// TWO LAWS DO NOT BEND FOR THE VISUAL ROUND.
+//   The publication law (USDC runbook R9): the intake address "publishes ONLY
+//   beside a pot … never bare on a page". So no address, no QR, no witness
+//   form and no card button live here — a pot card links its money moment at
+//   /fund/<pot> and that is all.
+//   And nothing is invented: every number comes from its one source, and every
+//   kind of nothing is still named rather than smoothed away.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { loadEconomy, readEconomy, HOLO_LINE } from "@/lib/funding.mjs";
+import { loadEconomy, readEconomy, HOLO_LINE, holoPerDollar, livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
+import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
 const WORLD = "https://github.com/keeminlee/postmark-world/blob/main";
+const LEDGER = `${TOWN}/WHITE_PAGES/stamp-ledger.md`;
 
 const econ = readEconomy(loadEconomy());
+
+// the live half — the same two readers, unchanged
+const wantFixture = import.meta.env.DEV &&
+  (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
+const board = notices(wantFixture ? FIXTURE : loadWorldState());
+const openNotices = board.notices.filter((n) => n.status === "open");
+const doneNotices = board.notices.filter((n) => n.status === "done");
+const potBoard = livePots(wantFixture ? POT_FIXTURE : loadPots());
 
 // σ for the worked example only. When the ledger's emission lands the example
 // recomputes itself off the dial; until then it runs at an even split and the
@@ -124,83 +124,336 @@ const arriving = [
   { title: "Leave your home mark", source: "Walk your ground in the World and leave your home mark. Once." },
 ];
 
-const toc = [
-  ["what", "What a stamp is"],
-  ["earning", "Earning"],
-  ["staking", "Staking"],
-  ["seam", "The funding seam"],
-  ["minterest", "Minterest"],
-  ["ownership", "What your share means"],
-  ["faq", "Questions"],
-  ["glossary", "Glossary"],
-  ["check", "Check it yourself"],
-];
+// This page's OWN sections, and nothing else. The board and the pots are the
+// hub's — listing them here would put two dead fragments at the top of the
+// Guide, which is the failure the split invites.
+
+// The Rules panel's accordions, and the hash router's list at the same time.
+const RULE_IDS = ["what","earning","staking","seam","minterest","ownership","faq","glossary","check"];
+
+const num = (n) => Number(n).toLocaleString("en-US");
+
+// the estimate, bound to this build's dials once
+const estimate = (pot) => holoPerDollar(pot, econ);
+
+// WHEN THIS DATA WAS MADE, from the emission's own stamp — a quiet market and
+// a stale page look identical without it. Every row carries the same value;
+// the first that has one speaks for the block.
+const potsAsOf = potBoard.pots.map((p) => p.generatedAt).find(Boolean) ?? null;
+const asOfText = potsAsOf
+  ? new Date(potsAsOf).toISOString().replace("T", " ").slice(0, 16) + " UTC"
+  : null;
 ---
 <PostmarkLayout
   title="Stamps — Postmark"
-  description="Everything stamps, in one place: what a stamp is, how you earn one, what staking does, how real money enters without buying judgment, and what your share of Postmark honestly means."
+  description="The town's stamp market: what Postmark is asking for today, the pots you can feed, the economy's dials, and the rules under all of it — in one place."
   active="stamps"
 >
-  <main class="pm-wrap stamps">
-    <header class="s-head">
-      <p class="s-crumb">POSTMARK · STAMPS</p>
-      <h1>Stamps ✦</h1>
-      <p class="s-sub">
-        The town's currency, and the whole of what it means — the earning, the staking,
-        the door where real money comes in, and what any of it entitles you to. Start at
-        the top; the law itself is folded under each part for whoever wants it.
+  <main class="pm-wrap portal">
+    <header class="p-head">
+      <p class="p-crumb">POSTMARK · STAMPS</p>
+      <h1>Stamps <span class="p-glyph">✦</span></h1>
+      <p class="p-folk">
+        Stamps are the town noticing what you give it — earned by writing, building, helping
+        and funding, never bought.
+        <span class="p-cite">the folk-law, <a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 10</a></span>
       </p>
-      <p class="s-folk">
-        Stamps are the town noticing what you give it. They only come from real
-        participation — writing, building, helping, funding — never from buying them.
-        Spend them at the market, stake them on what you want the town to become, or just
-        hold them: everything you've ever earned is remembered forever, and that memory is
-        your share of Postmark.
-        <span class="s-cite">— the folk-law, <a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 10</a></span>
-      </p>
+
+      {/* The primer is not gone, it is folded. A market square does not open
+          with its constitution nailed to the gate. */}
+      <details class="p-primer">
+        <summary><span class="p-primer-lab">the five things to know</span></summary>
+        <ol class="p-five">
+          <li><b>You earn stamps by corresponding.</b> A letter that lands mints one to you and one to the person you wrote — under caps, so writing more never earns more.</li>
+          <li><b>You cannot buy one.</b> No faucet, no purchase, no conversion in from outside. Money never becomes a stamp anywhere in this town.</li>
+          <li><b>Staking is lending, not spending.</b> Stake on a vote or on something in the World and your stamps come home. Exactly one place consumes a stake instead, and it is the money door.</li>
+          <li><b>What you earned is remembered forever.</b> Spending and staking never lower it. That lifetime number is your share of Postmark, and it is public.</li>
+          <li><b>Ignoring all of it costs you nothing.</b> A resident who only writes letters is whole. The commons are free, permanently, at zero stamps.</li>
+        </ol>
+      </details>
     </header>
 
-    <!-- THE FIRST LAYER. Five plain sentences that carry a resident through a
-         normal week. Everything below this is depth, and the page says so. -->
-    <section class="s-first" aria-labelledby="first-h">
-      <h2 id="first-h">If you read nothing else</h2>
-      <ol class="s-five">
-        <li>
-          <b>You earn stamps by corresponding.</b> A letter that lands mints one to you and
-          one to the person you wrote — under caps, so writing more never earns more.
-        </li>
-        <li>
-          <b>You cannot buy one.</b> There is no faucet, no purchase, no conversion in from
-          outside. Money never becomes a stamp anywhere in this town.
-        </li>
-        <li>
-          <b>Staking is lending, not spending.</b> Stake on a vote or on something in the
-          World and your stamps come home. There is exactly one place a stake is consumed
-          instead, and it is the money door — described below, and impossible to walk
-          through by accident.
-        </li>
-        <li>
-          <b>What you earned is remembered forever.</b> Spending and staking never lower it.
-          That lifetime number is your share of Postmark, and it is public.
-        </li>
-        <li>
-          <b>Ignoring all of it costs you nothing.</b> A resident who only writes letters is
-          whole. The commons are free, permanently, at zero stamps.
-        </li>
-      </ol>
-      <p class="s-deeper">
-        From here down is the machinery: how a stamp is minted, what a stake does in each
-        of the three places you can put one, how real dollars enter without buying anyone
-        a vote, and what "your share" honestly means and doesn't.
-      </p>
-      <nav class="s-toc" aria-label="On this page">
-        {toc.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
-      </nav>
+    {/* Sticky, because in a market you want the way back to the other stalls
+        wherever you have wandered to. */}
+    <nav class="p-tabs" aria-label="Stamps">
+      <button type="button" class="p-tab" data-tab="market" aria-selected="true">The Market</button>
+      <button type="button" class="p-tab" data-tab="numbers" aria-selected="false">The Numbers</button>
+      <button type="button" class="p-tab" data-tab="rules" aria-selected="false">The Rules</button>
+    </nav>
+
+    <!-- ── THE MARKET ──────────────────────────────────────────────────── -->
+    <section class="p-panel" data-panel="market">
+
+      <div id="board" class="m-block">
+        <p class="m-lab">What the town is asking for</p>
+
+        {!board.storeRead && (
+          <div class="m-none is-warn">
+            <b>The world store could not be read.</b>
+            <span>The board renders from the pinned world record and this build did not find it — a build-environment problem, not an empty board. Nothing has been invented to fill the gap.</span>
+          </div>
+        )}
+        {board.storeRead && !board.boardExists && (
+          <div class="m-none">
+            <b>The board is not up yet.</b>
+            <span>The world holds no mark at <code>{BOARD_PLACE}</code>, so there is nowhere for a notice to stand. When the board place is set down, this fills itself.</span>
+          </div>
+        )}
+        {board.storeRead && board.boardExists && board.notices.length === 0 && (
+          <div class="m-none">
+            <b>The board is up, and empty.</b>
+            <span>Nobody is asking for anything today. That is a real state of the town, not a loading failure.</span>
+          </div>
+        )}
+
+        {openNotices.length > 0 && (
+          <div class="m-grid">
+            {openNotices.map((n) => (
+              <article class:list={["m-card", n.civic && "is-civic"]}>
+                <p class="m-kind">{n.civic ? "the town is asking" : n.poster}</p>
+                <h3 class="m-title">{n.ask}</h3>
+                {n.body && <p class="m-body">{n.body}</p>}
+                {n.threshold ? (
+                  <div class="m-bar-wrap">
+                    <div class="m-bar" role="img" aria-label={`${n.backed} of ${n.threshold} stamps staked`}>
+                      <i style={`width:${Math.max(2, pct(n.progress))}%`}></i>
+                    </div>
+                    <p class="m-barlab"><b>{n.backed}</b> of {n.threshold} staked{n.backed > n.threshold && <span class="m-dim"> · over-subscribed</span>}</p>
+                  </div>
+                ) : (
+                  <p class="m-barlab"><b>{n.backed}</b> backed <span class="m-dim">(ledger_weight)</span></p>
+                )}
+                <p class="m-foot">
+                  <span class="m-chip">{n.reward}✦</span>
+                  {n.date && <span class="m-dim">{n.date}</span>}
+                </p>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {doneNotices.length > 0 && (
+          <div class="m-grid m-done">
+            {doneNotices.map((n) => (
+              <article class="m-card is-done">
+                <p class="m-kind">{n.poster} · done</p>
+                <h3 class="m-title">{n.ask}</h3>
+                <p class="m-foot"><span class="m-chip">{n.reward}✦</span>{n.date && <span class="m-dim">{n.date}</span>}</p>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {board.malformed.length > 0 && (
+          <div class="m-none is-warn">
+            <b>{board.malformed.length} notice{board.malformed.length === 1 ? "" : "s"} could not be read.</b>
+            <span>Dropped rather than rendered half-built, and named rather than swallowed. An ask is one claim of at most {ASK_MAX} characters, a reward is a whole number of stamps, a status is <code>open</code> or <code>done</code>.</span>
+            <ul>{board.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}</ul>
+          </div>
+        )}
+
+        <p class="m-note">
+          Backing is <b>ledger_weight</b> — stamps escrowed on a notice plus the town's breadth
+          bonus for each unique outside household behind it. Post one yourself: the grammar is
+          under <a href="#staking" data-jump="staking">Staking</a> in the Rules.
+        </p>
+      </div>
+
+      <div id="pots" class="m-block">
+        <p class="m-lab">What the town needs money for{asOfText && <span class="n-asof"> · as of {asOfText}</span>}</p>
+
+        {potBoard.pots.length === 0 ? (
+          <div class="m-none">
+            <b>No pot is open.</b>
+            <span>The town is not asking for money today. Opening a pot is the founder's word, never a merge.</span>
+          </div>
+        ) : (
+          <div class="m-grid">
+            {potBoard.pots.map((p) => (
+              <article class:list={["m-card", "is-pot", p.status !== "open" && "is-settled"]}>
+                {/* The epoch is the pot's OWN first_close when it has one, not
+                    the month the pot happened to be posted in — the pot file
+                    settles it: "Surfaces render the epoch from this field, not
+                    from the posting date." Naming the close beside the epoch is
+                    what stops a September label on an August page reading as a
+                    mistake. */}
+                <p class="m-kind">pot · {p.epoch}{p.cadence && <> · {p.cadence}</>}{p.firstCloseLabel && <> · first close: {p.firstCloseLabel}</>}</p>
+                <h3 class="m-title">{p.title}</h3>
+
+                {/* THE MONEY LINE.
+                    An ELASTIC pot gets a bar like an epoch pot's, but it
+                    measures something different: progress toward the CLOSE
+                    FLOOR, not toward a target. Past the floor the bar reads
+                    full and the roll keeps climbing beside it — the floor gates
+                    the ceremony, never the door ("intake refuses nothing"), so
+                    a bar that looked done would say the opposite of the law.
+                    A pot that is targetless AND floorless is short of nothing
+                    and gets no bar at all — D5's uncapped exception. */}
+                {p.close === "elastic" && p.minCloseUsd != null ? (
+                  <div class="m-bar-wrap">
+                    <div class="m-bar is-pot-bar" role="img"
+                         aria-label={`${usd(p.received)} in the roll, against a ${usd(p.minCloseUsd)} close floor`}>
+                      {p.received > 0 && (
+                        <i class="pm-holo-ink"
+                           style={`width:${Math.max(2, pct(Math.min(1, p.received / p.minCloseUsd)))}%`}></i>
+                      )}
+                    </div>
+                    <p class="m-barlab">
+                      {p.received >= p.minCloseUsd
+                        ? <><b>{usd(p.received)}</b> in the roll — closes at month's end,{" "}
+                          <span class="m-dim">no cap</span></>
+                        : <><b>{usd(p.received)}</b> of {usd(p.minCloseUsd)} to a close
+                          <span class="m-dim"> · and it keeps taking past that</span></>}
+                    </p>
+                  </div>
+                ) : p.target == null ? (
+                  <p class="m-money">
+                    {p.close === "elastic"
+                      ? <><b>{usd(p.received)}</b> given so far this roll
+                          <span class="m-dim"> · rolls on until it is worth closing</span></>
+                      : p.close === "none"
+                      ? <><b>{usd(p.received)}</b> given <span class="m-dim">· a standing box, no target</span></>
+                      : <><b>{usd(p.received)}</b> given <span class="m-dim">· no posted target</span></>}
+                  </p>
+                ) : (
+                  <div class="m-bar-wrap">
+                    <div class="m-bar is-pot-bar" role="img" aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
+                      {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
+                    </div>
+                    <p class="m-barlab">
+                      <b>{usd(p.received)}</b> of {usd(p.target)}
+                      {p.received === 0 && <span class="m-dim"> · open, unfed</span>}
+                      {p.received > p.target && <span class="m-dim"> · over-fed</span>}
+                    </p>
+                  </div>
+                )}
+
+                {/* THE CHARACTER LINE — compressed, and still keyed on the pot
+                    file's own word rather than on the boolean, because the
+                    boolean cannot tell "never closes" from "not stated yet". */}
+                <p class="m-char">
+                  {p.close === "elastic"
+                    ? <><b>Carries forward.</b> Any gift is witnessed and joins the roll — nothing is refused at intake. When the roll reaches its floor every standing stake converts in full and <span class="pm-holo-ink m-holo">holo</span> splits across the <b>whole accumulated roll</b>. Under it, everything rides to next month.</>
+                    : p.close === "none"
+                    ? <><b>Never closes.</b> A gift is witnessed and left at that: nothing burns, nothing converts, nothing mints back — to the giver, the stakers, or anyone.</>
+                    : p.closes
+                    ? <><b>Closes at the epoch.</b> Stakes the month's dollars matched burn and split: minted back to the stakers for keeping, <span class="pm-holo-ink m-holo">holo</span> to the hands that paid. The beneficiary receives dollars, never stamps.</>
+                    : <><b>How it closes is not in the town's record yet.</b> It posts no target and the emission carries no word for it — so nothing here promises you a return, and nothing promises you there isn't one.</>}
+                </p>
+
+                {/* WHAT IT WOULD PAY IF IT CLOSED RIGHT NOW. An estimate, and
+                    the copy says so three ways: at this moment's roll and
+                    stakes, moving as both move, and never a promise. The math
+                    is holoPerDollar() in funding.mjs, which reads σ from the
+                    dials and the rest from this row — nothing typed. It comes
+                    back null on a pot with no close to run, so a standing box
+                    and an unsaid pot never show one. */}
+                {estimate(p) != null && (
+                  <p class="m-est">
+                    <b>≈ {estimate(p)}<span class="pm-holo-ink m-holo">✧</span> per $1</b>
+                    <span class="m-dim">
+                      {" "}if the close ran this moment — an estimate at today's roll and
+                      stakes, and it moves as both move. Holo is {HOLO_LINE}.
+                    </span>
+                  </p>
+                )}
+
+                <p class="m-roll">
+                  {p.patrons.length > 0
+                    ? <>{p.patrons.map((c, i) => (
+                        <span class="m-patron">{i > 0 && " · "}<a href={`/residents/${c.patron}/`}>{c.patron}</a> <span class="m-dim">{usd(c.usd)}</span>{c.holo > 0 && <> <span class="pm-holo-ink m-holo">✧{c.holo}</span></>}</span>
+                      ))}</>
+                    : <span class="m-dim">the roll is open — nobody has fed this pot yet</span>}
+                </p>
+
+                <p class="m-foot">
+                  <span class="m-chip">{p.staked}✦ staked</span>
+                  {/* the LABEL, not the routing handle — see beneficiaryLabel
+                      in funding.mjs for the founder's ruling behind it */}
+                  <span class="m-dim">{p.beneficiaryLabel ? <>for {p.beneficiaryLabel}</> : <em>no beneficiary named yet</em>}</span>
+                  {p.status === "open" && <a class="m-fund" href={`/fund/${p.pot}/`}>Fund →</a>}
+                </p>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {potBoard.malformed.length > 0 && (
+          <div class="m-none is-warn">
+            <b>{potBoard.malformed.length} pot{potBoard.malformed.length === 1 ? "" : "s"} could not be read.</b>
+            <span>Dropped rather than rendered half-built — money least of all should appear half-said.</span>
+            <ul>{potBoard.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}</ul>
+          </div>
+        )}
+
+        <p class="m-note">
+          ✧ holo is soulbound — {HOLO_LINE}. It is never a balance and never spends. The address,
+          and what a dollar does and does not buy, live on each pot's own page.
+        </p>
+      </div>
     </section>
 
-    <!-- ── WHAT A STAMP IS ──────────────────────────────────────────────── -->
-    <section id="what" class="s-sec">
-      <h2>What a stamp is</h2>
+    <!-- ── THE NUMBERS ─────────────────────────────────────────────────── -->
+    <section class="p-panel" data-panel="numbers" hidden>
+      {!econ ? (
+        <div class="m-none">
+          <b>The ledger hasn't published the town's numbers yet.</b>
+          <span>These tiles render from one derived file (<code>economy.json</code>). Until it lands there is nothing honest to show, so nothing is shown.</span>
+        </div>
+      ) : (
+        <>
+          <p class="m-lab">The dials{econ.asOf && <span class="n-asof"> · as of {econ.asOf}</span>}</p>
+          <div class="n-tiles">
+            <article class="n-tile">
+              <p class="n-k"><span class="n-g">σ</span> · the epoch-close split</p>
+              <p class="n-v">{econ.sigma}</p>
+              <p class="n-s">Of every 100 stamps burned at a close, {Math.floor(econ.sigma * 100)} are minted back to their stakers for keeping and {Math.floor((1 - econ.sigma) * 100)} become holo for the hands that paid.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k"><span class="n-g">ρ</span> · the holo cap ratio</p>
+              <p class="n-v">{econ.rho}</p>
+              <p class="n-s">A household's holo may never exceed ρ × everything it has minted. Runs to a constitutional ceiling of {econ.rhoCeiling}, never past it.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">the treasury</p>
+              <p class="n-v">{usd(econ.treasuryUsd)}</p>
+              <p class="n-s">Dollars the town holds.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">primary mint, earned</p>
+              <p class="n-v">{num(econ.primaryMint)}<span class="n-u">✦</span></p>
+              <p class="n-s">Every stamp the mail has ever minted, town-wide.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">holo issued</p>
+              <p class="n-v">{num(econ.holoIssued)}<span class="n-u pm-holo-ink m-holo">✧</span></p>
+              <p class="n-s">Ever minted, never burned — against a town-wide cap of {num(econ.holoCap)}✧.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">backing</p>
+              <p class="n-v">{econ.backing == null ? "—" : usd(Math.round(econ.backing * 100) / 100)}</p>
+              <p class="n-s">{econ.backing == null
+                ? "No holo has been minted, so there is nothing to back — a real state, not a missing number."
+                : "Dollars the town holds per ✧ ever minted. A fact about the treasury, never a redemption promise."}</p>
+            </article>
+          </div>
+          <p class="m-note">
+            Every value above is read from the ledger's own derived record; none is written down
+            here, so a ballot that moves a dial needs no edit. The full gauges hang at
+            <a href="/numbers/"> the Town's Numbers</a>, and the signed record itself is
+            <a href={LEDGER} target="_blank" rel="noopener"> the ledger ↗</a>.
+          </p>
+        </>
+      )}
+    </section>
+
+    <!-- ── THE RULES ───────────────────────────────────────────────────── -->
+    <section class="p-panel" data-panel="rules" hidden>
+      <p class="m-lab">The whole teaching — open what you need</p>
+      <div class="r-list">
+        <details class="r-fold" id="what">
+          <summary><span class="r-sum">What a stamp is</span></summary>
+          <div class="r-body">
       <p>
         A stamp is a receipt. Not a score and not a rank — a record that a letter of yours
         actually crossed the water, kept in a place nobody can quietly edit.
@@ -290,11 +543,11 @@ const toc = [
           <cite><a href={`${WORLD}/LOGOS/the-derivation.md`} target="_blank" rel="noopener">LOGOS/the-derivation.md § 9</a></cite>
         </blockquote>
       </details>
-    </section>
-
-    <!-- ── EARNING ──────────────────────────────────────────────────────── -->
-    <section id="earning" class="s-sec">
-      <h2>Earning</h2>
+          </div>
+        </details>
+        <details class="r-fold" id="earning">
+          <summary><span class="r-sum">Earning</span></summary>
+          <div class="r-body">
       <p>
         The board is rules-as-data: each row below is quoted from the town's own quest
         registry. Every one of them is a <em>first</em> or a <em>threshold</em>. None of
@@ -391,11 +644,11 @@ const toc = [
           the code is right.
         </p>
       </details>
-    </section>
-
-    <!-- ── STAKING ──────────────────────────────────────────────────────── -->
-    <section id="staking" class="s-sec">
-      <h2>Staking</h2>
+          </div>
+        </details>
+        <details class="r-fold" id="staking">
+          <summary><span class="r-sum">Staking</span></summary>
+          <div class="r-body">
       <p>
         There is <b>one</b> staking instrument in Postmark, and you point it at three kinds
         of thing. Same verb, same escrow, same ledger — what differs is only what the town
@@ -425,7 +678,7 @@ const toc = [
             soloist, and wanting your own work is free but never counts as breadth. Your
             own stamps still anchor a mark; only the bonus is withheld.
           </p>
-          <p class="s-where"><a href="/world/">the World →</a> · <a href="/board/">the board →</a></p>
+          <p class="s-where"><a href="/world/">the World →</a> · <a href="/stamps/#board">the board →</a></p>
         </article>
         <article class="s-card s-card-burn">
           <p class="s-kind">a pot</p>
@@ -471,11 +724,37 @@ const toc = [
           <cite><a href={`${TOWN}/ECONOMY-DIALS.json`} target="_blank" rel="noopener">ECONOMY-DIALS.json § read_side.weight</a></cite>
         </blockquote>
       </details>
-    </section>
 
-    <!-- ── THE FUNDING SEAM ─────────────────────────────────────────────── -->
-    <section id="seam" class="s-sec">
-      <h2>The funding seam</h2>
+      {/* Moved off the hub in POS-34. Posting a notice is machinery — the
+          grammar of a mark, the shape of a pledge, what a neutral delivery
+          means — and machinery lives behind the Guide door. The hub keeps a
+          one-line pointer at it, beside the notices themselves. */}
+      <h3>Posting a notice of your own</h3>
+      <p>
+        A notice on the Bounty Board is a mark you place with your own hand:
+        <code> class: bounty</code>, one ask of at most 150 characters, a reward in stamps,
+        and escrow behind it so it publishes. Nothing about it is a form — it is the same
+        world grammar as any other mark, which is why the board and the map are one record.
+      </p>
+      <p>
+        <b>Pledges.</b> Add to any notice's pot with a predicated child named
+        <code> pledge-&lt;your-handle&gt;</code>, staked with your addition. Payout rides the
+        letters, and the poster pays the pot.
+      </p>
+      <p>
+        <b>Neutral is not rejected.</b> A delivered piece stands neutral until its recipient
+        speaks. Assume backlog, never judgment — the recipient would far rather be nudged
+        than left mysterious.
+      </p>
+      <p class="s-note">
+        The open notices themselves are on <a href="/stamps/#board">the hub</a>, read live
+        from the world.
+      </p>
+          </div>
+        </details>
+        <details class="r-fold" id="seam">
+          <summary><span class="r-sum">The funding seam</span></summary>
+          <div class="r-body">
       <p class="s-pull">Money can join the ownership; it can never join the judgment.</p>
       <p>
         Postmark costs real dollars to run — a server, tools, eventually more. The seam is
@@ -545,7 +824,7 @@ const toc = [
         <p class="s-example-lead">
           The town's box costs <b>{usd(POT_TARGET)} a month</b> — that is the pot's posted
           target, and the only thing dollars are ever priced against. Ada, Ben, Cleo and
-          Dev are invented for this example; the real roll is on <a href="/board/">the board</a>.
+          Dev are invented for this example; the real roll is on <a href="/stamps/#pots">the hub's pots</a>.
         </p>
 
         <p class="s-step-label">① The town stakes</p>
@@ -725,11 +1004,11 @@ const toc = [
           No page restates them; every page reads them.
         </p>
       </details>
-    </section>
-
-    <!-- ── MINTEREST ────────────────────────────────────────────────────── -->
-    <section id="minterest" class="s-sec">
-      <h2>Minterest <span class="s-tag-coming">coming</span></h2>
+          </div>
+        </details>
+        <details class="r-fold" id="minterest">
+          <summary><span class="r-sum">Minterest <span class="s-tag-coming">coming</span></span></summary>
+          <div class="r-body">
       <p class="s-alpha">
         <span class="s-alpha-tag">not live</span>
         Nothing described in this section is running. It is designed and written down; the
@@ -790,11 +1069,11 @@ const toc = [
           <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 9.1</a></cite>
         </blockquote>
       </details>
-    </section>
-
-    <!-- ── OWNERSHIP ────────────────────────────────────────────────────── -->
-    <section id="ownership" class="s-sec">
-      <h2>What your share means</h2>
+          </div>
+        </details>
+        <details class="r-fold" id="ownership">
+          <summary><span class="r-sum">What your share means</span></summary>
+          <div class="r-body">
       <p>
         We keep saying <em>share</em> and <em>ownership</em>, so here is the plain truth of
         it, in three tenses of its own.
@@ -876,12 +1155,11 @@ const toc = [
           <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 10</a></cite>
         </blockquote>
       </details>
-    </section>
-
-    <!-- ── FAQ ──────────────────────────────────────────────────────────── -->
-    <section id="faq" class="s-sec">
-      <h2>Questions</h2>
-
+          </div>
+        </details>
+        <details class="r-fold" id="faq">
+          <summary><span class="r-sum">Questions</span></summary>
+          <div class="r-body">
       <details class="s-faq">
         <summary>Can I buy stamps?</summary>
         <p>
@@ -967,7 +1245,7 @@ const toc = [
       <details class="s-faq">
         <summary>Is holo worth money?</summary>
         <p>
-          It is a record of contribution, not a promise of profit. There is no redemption,
+          It is {HOLO_LINE}. There is no redemption,
           no buy-back and no market. The town publishes what its treasury holds against all
           the holo ever minted, and that gauge is a fact about the treasury — not an offer.
         </p>
@@ -1003,11 +1281,11 @@ const toc = [
           closed. Named discomfort counts too, even without a mechanism attached to it.
         </p>
       </details>
-    </section>
-
-    <!-- ── GLOSSARY ─────────────────────────────────────────────────────── -->
-    <section id="glossary" class="s-sec">
-      <h2>Glossary</h2>
+          </div>
+        </details>
+        <details class="r-fold" id="glossary">
+          <summary><span class="r-sum">Glossary</span></summary>
+          <div class="r-body">
       <dl class="s-gloss">
         <div><dt>stamp ✦</dt><dd>A unit of witnessed correspondence — a receipt that a letter of yours crossed. Derived from the mail, never issued.</dd></div>
         <div><dt>mint</dt><dd>A stamp coming into existence, always from a witnessed act. Writes your past and present tenses at once.</dd></div>
@@ -1035,11 +1313,11 @@ const toc = [
         <div><dt>mark</dt><dd>Anything standing on the World's record — a home, a garden, a tool, a notice. Marks can be staked, and one day will pay their makers.</dd></div>
         <div><dt>the seam</dt><dd>The single door where outside money meets the town. The only place a stamp is ever burned.</dd></div>
       </dl>
-    </section>
-
-    <!-- ── CHECK IT YOURSELF ────────────────────────────────────────────── -->
-    <section id="check" class="s-sec">
-      <h2>Check it yourself</h2>
+          </div>
+        </details>
+        <details class="r-fold" id="check">
+          <summary><span class="r-sum">Check it yourself</span></summary>
+          <div class="r-body">
       <p>
         Nobody has to trust the office. The ledger is append-only, written by a single pen,
         and signature-linked: each line's signature is taken over a running hash of every
@@ -1059,70 +1337,220 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
         If you'd rather not clone: <a href="/api/stamps">/api/stamps</a> carries the
         cumulative mint and every balance. The dials are at
         <a href="/numbers/"> The Town's Numbers</a>, the open asks and pots at
-        <a href="/board/"> the board</a>, and every household's own record on
+        <a href="/stamps/#board"> the board</a>, and every household's own record on
         <a href="/residents/"> their page</a>.
       </p>
-    </section>
-
-    <footer class="s-foot">
-      <p>
-        This page is a reading of the town's law, not a second authority. Where it disagrees
-        with <a href={`${TOWN}/STAMPS.md`} target="_blank" rel="noopener">STAMPS.md</a>,
+          </div>
+        </details>
+      </div>
+      <p class="m-note">
+        This is a reading of the town's law, not a second authority. Where it disagrees with
+        <a href={`${TOWN}/STAMPS.md`} target="_blank" rel="noopener"> STAMPS.md</a>,
         <a href={`${TOWN}/ECONOMY-DIALS.json`} target="_blank" rel="noopener"> ECONOMY-DIALS.json</a>,
         <a href={`${TOWN}/quest-registry.json`} target="_blank" rel="noopener"> quest-registry.json</a> or
         <a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener"> the World's ECONOMY.md</a>,
-        those are right and this is a bug. All four are public reading, no account needed.
+        those are right and this is a bug.
       </p>
-      <p>✦ stamps are earned. ✧ holo is {HOLO_LINE}. Voice is only ever earned.</p>
-    </footer>
+    </section>
   </main>
 </PostmarkLayout>
 
+<!-- THE ROUTER. Three panels on one page, and every deep link ever written at
+     the old shapes still has to land: #board and #pots into the Market, any
+     teaching id into the Rules with that accordion open, #numbers into the
+     dashboard. /board/ still redirects to /stamps/#board and /stamps/guide/
+     now redirects here, so this script is what makes both of those arrive
+     somewhere real. -->
+<script is:inline define:vars={{ RULE_IDS }}>
+  (function () {
+    var MARKET_IDS = ["board", "pots"];
+    var tabs = [].slice.call(document.querySelectorAll("[data-tab]"));
+    var panels = [].slice.call(document.querySelectorAll("[data-panel]"));
+
+    function show(name) {
+      panels.forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== name; });
+      tabs.forEach(function (t) {
+        var on = t.getAttribute("data-tab") === name;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.classList.toggle("is-on", on);
+      });
+    }
+
+    function route(scroll) {
+      var id = decodeURIComponent((location.hash || "").slice(1));
+      if (!id || id === "market") { show("market"); return; }
+      if (id === "numbers" || id === "rules") { show(id); return; }
+      if (MARKET_IDS.indexOf(id) !== -1) {
+        show("market");
+        var block = document.getElementById(id);
+        if (block && scroll) block.scrollIntoView({ block: "start" });
+        return;
+      }
+      if (RULE_IDS.indexOf(id) !== -1) {
+        show("rules");
+        var fold = document.getElementById(id);
+        if (fold) { fold.open = true; if (scroll) fold.scrollIntoView({ block: "start" }); }
+        return;
+      }
+      show("market");
+    }
+
+    tabs.forEach(function (t) {
+      t.addEventListener("click", function () {
+        var name = t.getAttribute("data-tab");
+        // history, not a reload — the Back button walks the panels
+        history.pushState(null, "", name === "market" ? location.pathname : "#" + name);
+        show(name);
+        window.scrollTo({ top: 0 });
+      });
+    });
+
+    // in-page jumps that cross a panel (the Market's pointer at Staking)
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("[data-jump]");
+      if (!a) return;
+      e.preventDefault();
+      location.hash = a.getAttribute("data-jump");
+    });
+
+    window.addEventListener("hashchange", function () { route(true); });
+    route(true);
+  })();
+</script>
+
 <style>
-  .stamps { max-width: 46rem; margin: 0 auto; }
-  .s-crumb { font-size: .7rem; letter-spacing: .18em; opacity: .6; margin: 0 0 .3rem; }
-  .s-sub { opacity: .85; }
-  .s-dim { opacity: .62; }
+  .portal { max-width: 62rem; margin: 0 auto; }
 
-  /* the folk-law — the whole truthful compression, given the weight it earns */
-  .s-folk {
-    margin: 1.6rem 0 0; padding: 1rem 1.3rem;
-    border-left: 3px solid var(--pm-gold);
+  /* ── the head: one breath, then the market ─────────────────────────── */
+  .p-head { margin-bottom: 1.6rem; }
+  .p-crumb { font-size: .7rem; letter-spacing: .18em; opacity: .6; margin: 0 0 .3rem; }
+  .portal h1 { margin: 0 0 .6rem; }
+  .p-glyph { color: var(--pm-gold); }
+  .p-folk {
+    margin: 0; font-size: 1.02rem; line-height: 1.6; font-style: italic;
+    border-left: 3px solid var(--pm-gold); padding: .55rem 1rem;
     background: rgba(232, 196, 139, .05);
-    font-size: 1.02rem; line-height: 1.7; font-style: italic;
   }
-  .s-cite { display: block; margin-top: .5rem; font-size: .74rem; font-style: normal; opacity: .6; }
-  .s-cite a, .s-foot a, .s-note a, .s-law-foot a { color: inherit; }
+  .p-cite { display: block; margin-top: .35rem; font-size: .72rem; font-style: normal; opacity: .6; }
+  .p-cite a { color: inherit; }
+  .p-primer { margin-top: .9rem; }
+  .p-primer > summary { list-style: none; cursor: pointer; display: inline-block; }
+  .p-primer > summary::-webkit-details-marker { display: none; }
+  .p-primer-lab {
+    font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    border: 1px solid rgba(232, 196, 139, .3); border-radius: 999px; padding: .35em .9em;
+    color: rgba(232, 196, 139, .85);
+  }
+  .p-primer[open] .p-primer-lab { background: rgba(232, 196, 139, .1); color: var(--pm-gold-bright); }
+  .p-primer-lab::after { content: " +"; opacity: .6; }
+  .p-primer[open] .p-primer-lab::after { content: " −"; }
+  .p-five { counter-reset: five; list-style: none; margin: 1rem 0 0; padding: 0; max-width: 44rem; }
+  .p-five li { counter-increment: five; position: relative; padding: .4rem 0 .4rem 2.2rem; line-height: 1.6; font-size: .92rem; }
+  .p-five li::before { content: counter(five); position: absolute; left: 0; top: .4rem; font-family: var(--pm-mono); color: var(--pm-gold); opacity: .8; }
+  .p-five b { color: var(--pm-gold-bright); font-weight: 400; }
 
-  /* the first layer */
-  .s-first { margin-top: 2.6rem; }
-  .s-first h2 {
-    font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; opacity: .6;
-    border-bottom: 1px solid currentColor; padding-bottom: .35rem;
+  /* ── the stalls ────────────────────────────────────────────────────── */
+  .p-tabs {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; gap: .4rem; padding: .7rem 0;
+    background: linear-gradient(var(--pm-night, #0b1020) 72%, transparent);
+    border-bottom: 1px solid rgba(232, 196, 139, .18); margin-bottom: 1.6rem;
   }
-  .s-five { counter-reset: five; list-style: none; margin: 1.2rem 0 0; padding: 0; }
-  .s-five li {
-    counter-increment: five; position: relative;
-    padding: .55rem 0 .55rem 2.4rem; line-height: 1.65;
-  }
-  .s-five li::before {
-    content: counter(five); position: absolute; left: 0; top: .5rem;
-    font-family: var(--pm-mono); font-size: 1.05rem; color: var(--pm-gold); opacity: .8;
-  }
-  .s-five b { color: var(--pm-gold-bright); font-weight: 400; }
-  .s-deeper { margin-top: 1.4rem; font-size: .9rem; opacity: .72; font-style: italic; }
-  .s-toc {
-    display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.4rem;
-    padding-top: 1rem; border-top: 1px dotted rgba(128,128,128,.4);
-  }
-  .s-toc a {
-    font-family: var(--pm-mono); font-size: .68rem; letter-spacing: .06em;
-    padding: .35em .75em; border-radius: 999px;
+  .p-tab {
+    font-family: var(--pm-mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase;
+    padding: .5em 1.1em; border-radius: 999px; cursor: pointer;
     border: 1px solid rgba(232, 196, 139, .25);
-    color: rgba(232, 196, 139, .8); text-decoration: none;
+    background: transparent; color: rgba(232, 196, 139, .75);
   }
-  .s-toc a:hover { color: var(--pm-gold-bright); background: rgba(232, 196, 139, .08); }
+  .p-tab:hover { color: var(--pm-gold-bright); background: rgba(232, 196, 139, .07); }
+  .p-tab.is-on { background: var(--pm-gold); color: var(--pm-night, #0b1020); border-color: var(--pm-gold); }
 
+  /* ── the market ────────────────────────────────────────────────────── */
+  .m-block + .m-block { margin-top: 2.6rem; }
+  .m-lab {
+    font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; opacity: .6;
+    border-bottom: 1px solid rgba(232, 196, 139, .2); padding-bottom: .4rem; margin: 0 0 1.1rem;
+  }
+  .n-asof { letter-spacing: .06em; text-transform: none; }
+  .m-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: .9rem; }
+  .m-grid + .m-grid { margin-top: .9rem; }
+  .m-card {
+    display: flex; flex-direction: column; gap: .45rem;
+    padding: .95rem 1.05rem 1rem;
+    border: 1px solid rgba(232, 196, 139, .16); border-radius: .55rem;
+    background: rgba(232, 196, 139, .028);
+  }
+  .m-card.is-civic { border-left: 3px solid var(--pm-gold); }
+  .m-card.is-done { opacity: .55; }
+  .m-card.is-done .m-title { text-decoration: line-through; }
+  .m-card.is-settled { opacity: .7; }
+  .m-kind { font-family: var(--pm-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; opacity: .62; margin: 0; }
+  .m-title { font-size: 1rem; line-height: 1.4; margin: 0; color: var(--pm-gold-bright); font-weight: 400; }
+  .m-body { font-size: .84rem; line-height: 1.55; opacity: .78; margin: 0; }
+  .m-money { font-size: .92rem; margin: 0; font-variant-numeric: tabular-nums; }
+  .m-bar-wrap { margin: .15rem 0 0; }
+  .m-bar { height: .4rem; border-radius: 999px; background: rgba(128,128,128,.25); overflow: hidden; }
+  .m-bar:not(.is-pot-bar) i { display: block; height: 100%; background: var(--pm-gold); border-radius: 999px; }
+  .m-bar.is-pot-bar i { display: block; height: 100%; border-radius: 999px; }
+  .m-barlab { font-size: .8rem; margin: .3rem 0 0; font-variant-numeric: tabular-nums; }
+  .m-char {
+    font-size: .8rem; line-height: 1.55; margin: .2rem 0 0;
+    padding: .5rem .7rem; border-radius: .35rem;
+    background: rgba(232, 196, 139, .05); border-left: 2px solid rgba(232, 196, 139, .3);
+  }
+  .m-holo { padding: 0 .3em; border-radius: 999px; }
+  .m-est {
+    font-size: .8rem; line-height: 1.55; margin: 0;
+    padding: .45rem .7rem; border-radius: .35rem;
+    background: rgba(232, 196, 139, .05);
+  }
+  .m-est b { color: var(--pm-gold-bright); white-space: nowrap; }
+  .m-roll { font-size: .78rem; margin: 0; line-height: 1.6; }
+  .m-roll a { color: inherit; }
+  .m-patron { white-space: nowrap; }
+  .m-dim { opacity: .6; }
+  .m-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: .25rem 0 0; font-size: .78rem; }
+  .m-chip {
+    font-family: var(--pm-mono); font-size: .7rem; padding: .2em .6em; border-radius: 999px;
+    border: 1px solid rgba(232, 196, 139, .3); color: var(--pm-gold-bright); white-space: nowrap;
+  }
+  .m-fund { margin-left: auto; color: var(--pm-gold-bright); text-decoration: none; border-bottom: 1px solid rgba(232,196,139,.4); }
+  .m-fund:hover { border-bottom-color: var(--pm-gold-bright); }
+  .m-none {
+    display: block; padding: 1rem 1.1rem; border: 1px dotted rgba(128,128,128,.5); border-radius: .5rem;
+    font-size: .88rem; line-height: 1.6;
+  }
+  .m-none.is-warn { border-style: solid; border-color: rgba(232, 196, 139, .45); }
+  .m-none b { display: block; color: var(--pm-gold-bright); margin-bottom: .25rem; }
+  .m-none span { opacity: .78; }
+  .m-none ul { margin: .5rem 0 0; font-size: .82rem; opacity: .75; }
+  .m-note { font-size: .82rem; line-height: 1.6; opacity: .72; margin: 1.2rem 0 0; }
+  .m-note a { color: var(--pm-gold); }
+
+  /* ── the numbers ───────────────────────────────────────────────────── */
+  .n-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: .9rem; }
+  .n-tile { padding: 1rem 1.1rem; border: 1px solid rgba(232, 196, 139, .16); border-radius: .55rem; background: rgba(232, 196, 139, .028); }
+  .n-k { font-family: var(--pm-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; opacity: .62; margin: 0 0 .4rem; }
+  .n-v { font-size: 2rem; line-height: 1; margin: 0 0 .5rem; color: var(--pm-gold-bright); font-variant-numeric: tabular-nums; }
+  .n-u { font-size: 1rem; opacity: .7; margin-left: .1em; }
+  .n-s { font-size: .8rem; line-height: 1.55; opacity: .75; margin: 0; }
+
+  /* ── the rules ─────────────────────────────────────────────────────── */
+  .r-list { display: flex; flex-direction: column; gap: .5rem; }
+  .r-fold { border: 1px solid rgba(232, 196, 139, .16); border-radius: .5rem; background: rgba(232, 196, 139, .022); scroll-margin-top: 4.5rem; }
+  .r-fold > summary { cursor: pointer; padding: .85rem 1.1rem; list-style: none; display: flex; align-items: center; }
+  .r-fold > summary::-webkit-details-marker { display: none; }
+  .r-sum { font-size: 1rem; color: var(--pm-gold-bright); }
+  .r-fold > summary::after { content: "+"; margin-left: auto; font-family: var(--pm-mono); opacity: .5; }
+  .r-fold[open] > summary::after { content: "−"; }
+  .r-fold[open] > summary { border-bottom: 1px solid rgba(232, 196, 139, .14); }
+  .r-body { padding: .3rem 1.1rem 1.1rem; }
+  .r-body > :global(h3:first-of-type) { margin-top: 1rem; }
+  /* the accordion body IS what .s-sec used to wrap, so the teaching's own
+     heading and pull-quote rules are re-homed onto it */
+  .r-body h3 { font-size: 1rem; margin: 1.6rem 0 .5rem; color: var(--pm-gold); font-weight: 400; }
+  .r-body p { line-height: 1.7; }
+  .n-g { text-transform: none; font-size: .82rem; }
   /* sections */
   .s-sec { margin-top: 3.4rem; scroll-margin-top: 1.5rem; }
   .s-sec h2 { font-size: 1.5rem; margin: 0 0 .8rem; color: var(--pm-gold-bright); }
@@ -1143,6 +1571,8 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
     margin: .5rem 0; padding: .6rem 0 .6rem 1.1rem;
     border-left: 2px solid rgba(232, 196, 139, .3); line-height: 1.65;
   }
+
+
 
   /* card grids — the tenses, the three stakes, the four seam words */
   .s-tenses, .s-three, .s-four {
@@ -1322,10 +1752,17 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
     font-size: .82rem; line-height: 1.7; opacity: .7;
   }
 
+
+
   @media (max-width: 640px) {
+    .portal { max-width: 100%; }
+    .p-tabs { gap: .3rem; }
+    .p-tab { padding: .5em .8em; font-size: .68rem; }
+    .m-grid, .n-tiles { grid-template-columns: 1fr; }
     .s-brow { grid-template-columns: 2.8rem 1fr; row-gap: .2rem; }
     .s-val { grid-column: 2; text-align: right; }
     .s-gloss > div { grid-template-columns: 1fr; gap: .2rem; }
     .s-split span { font-size: .58rem; }
+    .m-patron { white-space: normal; }
   }
 </style>

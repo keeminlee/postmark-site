@@ -15,8 +15,14 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   DEEDS_FIXTURE,
+  FOUNDER_ACCOUNT,
+  holoPerDollar,
+  beneficiaryLabel,
+  firstCloseLabel,
+  epochLabel,
   ECONOMY_FIXTURE,
   HOLO_LINE,
   POT_FIXTURE,
@@ -127,8 +133,12 @@ test("the roll drops a torn line without tearing the pot", () => {
 
 test("pots sort open first, newest epoch first, and drafts stay off the board", () => {
   const live = livePots(POT_FIXTURE);
-  assert.deepEqual(live.pots.map((p) => `${p.status}:${p.epoch}`),
-    ["open:2026-10", "open:2026-09", "closed:2026-08"]);
+  // the slug is in the key because the fixture now holds two pots, and two
+  // open rows share an epoch — without it the tie reads as either order
+  assert.deepEqual(live.pots.map((p) => `${p.status}:${p.epoch}:${p.pot}`),
+    ["open:2026-10:darko-fund", "open:2026-10:keeping-ec2",
+     "open:2026-09:darko-fund", "open:2026-09:keeping-ec2",
+     "open:2026-09:keeping-tin", "open:2026-09:keeping-unsaid", "closed:2026-08:keeping-ec2"]);
   assert.equal(live.drafts.length, 1, "the draft pot is held back and counted");
   assert.equal(live.drafts[0].pot, "keeping-domains");
   assert.ok(!live.pots.some((p) => p.status === "draft"),
@@ -273,4 +283,290 @@ test("holo is never summed into anything that spends", () => {
 
 test("the ruling's line is one string, so every surface says it identically", () => {
   assert.equal(HOLO_LINE, "a record of contribution, not a promise of profit");
+});
+
+// ── the two pot shapes ───────────────────────────────────────────────────────
+// A pot either closes on an epoch or it never closes at all, and the surfaces
+// say different things for each. Before `close` existed the site could not tell
+// them apart, so every pot was sold with an epoch pot's promise.
+
+test("the elastic pot closes on its own roll — a month's close runs only if the accumulated roll totals at least min_close_usd", () => {
+  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _close, quoted:
+  //   "ELASTIC …: a month's close runs only if the accumulated roll — carried
+  //    dollars plus this month's — totals at least min_close_usd; otherwise
+  //    dollars and stakes both stand and ride to the next month. When it runs,
+  //    every standing stake converts in full … and holo splits by dollar share
+  //    across the WHOLE accumulated roll … Nothing is ever refused at intake."
+  const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
+  assert.equal(roll.ok, true, roll.reason);
+  assert.equal(roll.close, "elastic", "the pot file's own word reaches the page");
+  assert.equal(roll.closes, true, "an elastic pot DOES close — despite posting no target");
+  assert.equal(roll.target, null, "and it posts none, so no surface may draw it a bar");
+  assert.equal(roll.progress, null, "a roll is short of nothing");
+
+  // § _min_close: "Owner of the number: this file; every surface reads it."
+  assert.equal(roll.minCloseUsd, 5, "the ceremony's floor is read, not written down");
+  const noFloor = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), min_close_usd: undefined });
+  assert.equal(noFloor.minCloseUsd, null,
+    "an emission with no floor yields null, so a surface can decline to name one");
+  assert.equal(noFloor.closes, true, "and the pot still closes — the floor gates the ceremony, not the shape");
+});
+
+test('a standing box does not close at all — "nothing here ever burns or mints"', () => {
+  // THE LAW THIS ASSERTS — the shape as § _close spelled it on the morning of
+  // 2026-08-23, before the box learned the elastic close:
+  //   "a standing box, not an epoch pot — gifts are witnessed, never converted;
+  //    nothing here ever burns or mints"
+  // Nothing live wears this today. It stays under test for the reason it stays
+  // in the fixture: a rendering dropped the moment nothing wears the shape is a
+  // rendering that breaks the next time something does.
+  const box = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-tin"));
+  assert.equal(box.ok, true, box.reason);
+  assert.equal(box.close, "none");
+  assert.equal(box.closes, false, "so no surface may promise it a close");
+});
+
+test("the explicit word outranks the derivation, in BOTH directions", () => {
+  // Either half failing would be a silent mis-sale. If "elastic" lost to a null
+  // target, the roll would be rendered as a box that never pays back; if "none"
+  // lost to a posted target, a box would be sold an epoch pot's promise.
+  const epoch = POT_FIXTURE.find((p) => p.pot === "keeping-ec2");
+  const roll = POT_FIXTURE.find((p) => p.pot === "darko-fund");
+  assert.equal(toPot(epoch).closes, true, "a pot with a posted need closes on it");
+  assert.equal(toPot({ ...epoch, close: "none" }).closes, false,
+    '"none" beats a posted target');
+  assert.equal(toPot({ ...roll, close: "elastic" }).closes, true,
+    '"elastic" beats a null target');
+});
+
+test('an emission with no `close` falls back, because "A pot with no target cannot close"', () => {
+  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-keeping-ec2.json § _target, quoted:
+  //   "A pot with no target cannot close."
+  // So an emission predating the `close` field is not unreadable: its target
+  // answers the question the missing field would have. The derivation is the
+  // FALLBACK — the test above proves the explicit word is the primary.
+  //
+  // AND THE THING THE BOOLEAN CANNOT SAY. This row and the standing box both
+  // read `closes: false`, and they are not the same state: one is the town
+  // saying "never", the other is the town not having said. `close` tells them
+  // apart, and the surfaces branch on it rather than on the boolean — which is
+  // not hypothetical, because the live emission is exactly this row today.
+  const unsaid = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-unsaid"));
+  assert.equal(unsaid.ok, true, unsaid.reason);
+  assert.equal(unsaid.close, null, "the record has not said");
+  assert.equal(unsaid.closes, false, "so the shape falls back to the target's answer");
+
+  const box = toPot(POT_FIXTURE.find((p) => p.pot === "keeping-tin"));
+  assert.equal(box.closes, unsaid.closes, "the boolean cannot tell these apart —");
+  assert.notEqual(box.close, unsaid.close, "— and the word is the only thing that can");
+});
+
+test("every pot in the live emission answers whether it closes", () => {
+  // Against the file the site actually ships, not a fixture — the fixture can
+  // be right while the emission on disk is stale or half-migrated.
+  const live = JSON.parse(readFileSync(new URL("../src/data/postmark/pots.json", import.meta.url), "utf8"));
+  for (const row of livePots(live).pots) {
+    assert.equal(typeof row.closes, "boolean",
+      `pot ${row.id} cannot say whether it closes, so no surface can say it honestly`);
+    // A TARGETLESS POT USED TO MEAN "NEVER CLOSES", and this asserted exactly
+    // that. The elastic ruling retired the equivalence: darko posts no target
+    // and closes anyway, on its own floor. So the rule is the derivation's own
+    // order — the explicit word first, the target only when the record is
+    // silent — and this now pins that instead.
+    if (row.close === "elastic") {
+      assert.equal(row.closes, true, `pot ${row.id} says elastic, so it closes on its floor`);
+    } else if (row.close === "none") {
+      assert.equal(row.closes, false, `pot ${row.id} says it never closes`);
+    } else if (row.target == null) {
+      assert.equal(row.closes, false,
+        `pot ${row.id} posts no need and the record names no close, so nothing can run`);
+    }
+  }
+});
+
+// ── whose name stands on a pot ───────────────────────────────────────────────
+
+test("the founder's account renders as the town, and every other handle as itself", () => {
+  // THE RULING THIS ASSERTS — the founder, 2026-08-23: a pot beneficiary that
+  // is his own account shows the TOWN'S name on the card, not his GitHub
+  // handle. He IS the town's infrastructure, so the town's name is the honest
+  // label; a personal handle beside a "Fund →" reads like paying a person.
+  assert.equal(beneficiaryLabel(FOUNDER_ACCOUNT), "Postmark");
+  assert.equal(beneficiaryLabel("  " + FOUNDER_ACCOUNT + "  "), "Postmark",
+    "the emission's whitespace must not defeat the mapping");
+
+  // EXACTLY ONE ACCOUNT IS MAPPED. Without this, a broadened rule could quietly
+  // relabel some other beneficiary as the town — which would be the site lying
+  // about where money goes.
+  for (const other of ["wright", "the-town/the-box", "keeminlee2", "Keeminlee"]) {
+    assert.equal(beneficiaryLabel(other), other, `${other} must render as itself`);
+  }
+  assert.equal(beneficiaryLabel(null), null, "an unnamed beneficiary stays unnamed");
+  assert.equal(beneficiaryLabel("   "), null, "and so does a blank one");
+});
+
+test("the label is a display mapping — the routing truth is never rewritten", () => {
+  // The pot files' `beneficiary` field is where the dollars actually go, and
+  // deriveEpochClose refuses a pot without one. If the mapping ever overwrote
+  // it, the site would be reporting a destination the town does not use.
+  const pot = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), beneficiary: FOUNDER_ACCOUNT });
+  assert.equal(pot.beneficiary, FOUNDER_ACCOUNT, "the routing handle survives untouched");
+  assert.equal(pot.beneficiaryLabel, "Postmark", "and the label beside it is the town");
+
+  // and against the file the site actually ships
+  const live = JSON.parse(readFileSync(new URL("../src/data/postmark/pots.json", import.meta.url), "utf8"));
+  for (const row of livePots(live).pots) {
+    if (row.beneficiary === FOUNDER_ACCOUNT) {
+      assert.equal(row.beneficiaryLabel, "Postmark", `pot ${row.id} still shows the founder's handle`);
+    } else if (row.beneficiary) {
+      assert.equal(row.beneficiaryLabel, row.beneficiary, `pot ${row.id} relabelled a beneficiary that is not the founder`);
+    }
+  }
+});
+
+// ── what an elastic pot would pay if it closed now ───────────────────────────
+
+test("the estimate is the payers' side of the split, spread across the roll", () => {
+  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _close, quoted:
+  //   "When it runs, every standing stake converts in full … and holo splits by
+  //    dollar share across the WHOLE accumulated roll"
+  // so the pool is (1 − σ) of a burn equal to the whole staked mass, and it is
+  // divided by the dollars that will share it.
+  const econ = readEconomy(ECONOMY_FIXTURE);
+  const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
+  assert.equal(roll.staked, 4);
+  assert.equal(roll.received, 2);
+  assert.equal(roll.minCloseUsd, 5);
+  // (1 − 0.5) × 4 = 2 holo, over max(roll 2, floor 5) = 5  ->  0.4
+  assert.equal(holoPerDollar(roll, econ), 0.4);
+
+  // THE FLOOR IS THE DENOMINATOR while the roll is under it, because a close
+  // cannot run below it. Quoting today's smaller roll would hand a giver a
+  // number that shrinks the moment anyone else gives.
+  const under = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), received_usd: 1 });
+  assert.equal(holoPerDollar(under, econ), 0.4, "still divided by the floor, not by $1");
+
+  // and past the floor the roll itself is the divisor
+  const over = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), received_usd: 20 });
+  assert.equal(holoPerDollar(over, econ), 0.1, "(0.5 × 4) ÷ 20");
+});
+
+test("the estimate refuses to exist wherever it would be a fiction", () => {
+  const econ = readEconomy(ECONOMY_FIXTURE);
+  const find = (slug) => toPot(POT_FIXTURE.find((p) => p.pot === slug));
+
+  // A POT WITH NO CLOSE TO RUN has nothing to estimate — a number beside
+  // "nothing ever mints back" would contradict the card's own sentence.
+  // STAKED ON PURPOSE: both fixture rows sit at zero stakes, so testing them as
+  // they are proved only that the zero-stake guard works and left this one
+  // unexercised. Its own can-fail flip caught that.
+  const stakedBox = toPot({ ...POT_FIXTURE.find((p) => p.pot === "keeping-tin"), staked: 40 });
+  assert.equal(stakedBox.closes, false, "the standing box still never closes");
+  assert.equal(holoPerDollar(stakedBox, econ), null,
+    "and no estimate, however much is staked on it");
+  const stakedUnsaid = toPot({ ...POT_FIXTURE.find((p) => p.pot === "keeping-unsaid"), staked: 40 });
+  assert.equal(holoPerDollar(stakedUnsaid, econ), null,
+    "nor for a pot the record has not spoken for");
+  assert.equal(holoPerDollar(find("keeping-tin"), econ), null, "the standing box as it ships");
+  // nothing staked means no burn, so no pool
+  assert.equal(holoPerDollar(toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), staked: 0 }), econ),
+    null, "an unstaked pot");
+  // and no dials published means no σ to split by
+  assert.equal(holoPerDollar(find("darko-fund"), null), null, "no economy emission");
+});
+
+test("σ is read, so a dial that moves moves the estimate", () => {
+  // R10: "every other surface reads it rather than restating it." If σ were
+  // typed anywhere in this path, this would not budge.
+  const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
+  const half = readEconomy(ECONOMY_FIXTURE);
+  const quarter = readEconomy({ ...ECONOMY_FIXTURE, sigma: 0.25 });
+  assert.equal(holoPerDollar(roll, half), 0.4);
+  assert.equal(holoPerDollar(roll, quarter), 0.6, "a smaller σ leaves a larger holo side");
+});
+
+test("the emission stamps when it was made, and the reader carries it", () => {
+  // A quiet market and a stale page look identical on a money surface without
+  // this. The emitter owns the value; the pot row carries it across.
+  const stamped = toPot({ ...POT_FIXTURE[0], generated_at: "2026-08-23T20:56:36.252Z" });
+  assert.equal(stamped.generatedAt, "2026-08-23T20:56:36.252Z");
+  assert.equal(toPot({ ...POT_FIXTURE[0], generated_at: undefined }).generatedAt, null,
+    "an emission that predates the field reads null, not a guess");
+
+  // against the file the site ships — the hand-carried emission must carry it
+  const live = JSON.parse(readFileSync(new URL("../src/data/postmark/pots.json", import.meta.url), "utf8"));
+  for (const row of livePots(live).pots) {
+    assert.ok(row.generatedAt, `pot ${row.id} has no generated_at — the tick would go blank`);
+  }
+});
+
+test("the shipped emission carries the DARKO box's own close word", () => {
+  // THE POINT OF THE HAND-CARRY. sync-atlas.yml builds pots.json with MAIN's
+  // emitter, which has no `close` passthrough yet, so the card wore the
+  // record-hasn't-said branch while the town had spoken plainly. This pins
+  // that the file on this branch no longer does.
+  const live = JSON.parse(readFileSync(new URL("../src/data/postmark/pots.json", import.meta.url), "utf8"));
+  const darko = livePots(live).pots.find((p) => p.pot === "darko-fund");
+  assert.ok(darko, "the DARKO box must be in the shipped emission");
+  assert.equal(darko.close, "elastic", "and carry its own word");
+  assert.equal(darko.minCloseUsd, 5, "and its floor");
+  assert.equal(darko.closes, true, "so it no longer reads as a pot with no close");
+});
+
+test("the fixture carries an elastic roll on BOTH sides of its floor", () => {
+  // The two states look different and say different things — under the floor
+  // the bar fills toward a close, over it the bar is full and the roll keeps
+  // climbing. A fixture holding only the first leaves the second unrenderable
+  // and therefore unreviewed.
+  const rolls = POT_FIXTURE.filter((p) => p.close === "elastic").map(toPot);
+  assert.ok(rolls.length >= 2, "two elastic rows, not one");
+  assert.ok(rolls.some((p) => p.received < p.minCloseUsd), "one under its floor");
+  assert.ok(rolls.some((p) => p.received > p.minCloseUsd), "and one past it");
+});
+
+// ── the first close, and the epoch a reader is shown ────────────────────────
+
+test('"end of September" is said only when the date IS the end of September', () => {
+  // LAW (pot-*.json § _first_close): "the first month closes at the END of
+  //     September". The phrase is the founder's, and it is only TRUE of a date
+  //     that is actually the month's last day — a close on the 12th is not the
+  //     end of anything, and rounding it into that phrase would be a lie about
+  //     when a patron's money converts.
+  assert.equal(firstCloseLabel("2026-09-30"), "end of September");
+  assert.equal(firstCloseLabel("2026-02-28"), "end of February");
+  assert.equal(firstCloseLabel("2028-02-29"), "end of February", "a leap February ends on the 29th");
+  // NOT the end of the month → the plain date, never the phrase
+  assert.equal(firstCloseLabel("2026-09-12"), "12 September");
+  assert.equal(firstCloseLabel("2028-02-28"), "28 February", "the 28th is not the end of a leap February");
+  // absent or malformed is a real state, not a crash and not a guess
+  assert.equal(firstCloseLabel(null), null);
+  assert.equal(firstCloseLabel("2026-09"), null);
+  assert.equal(firstCloseLabel("soon"), null);
+  assert.equal(firstCloseLabel("2026-13-01"), null);
+});
+
+test("the epoch a reader is shown names its month; the row keeps the stamp", () => {
+  assert.equal(epochLabel("2026-09"), "September 2026");
+  assert.equal(epochLabel("2027-01"), "January 2027");
+  assert.equal(epochLabel("2026-9"), null, "the stamp is YYYY-MM or it is nothing");
+  assert.equal(epochLabel(null), null);
+});
+
+test("a pot row carries its first close through the reader", () => {
+  // The emitter carries the field; this is the other half — that the reader
+  // hands it to the surfaces instead of dropping it on the floor.
+  const row = { ...POT_FIXTURE[0], epoch: "2026-09", first_close: "2026-09-30" };
+  const read = toPot(row);
+  assert.equal(read.ok, true, read.reason);
+  assert.equal(read.firstClose, "2026-09-30");
+  assert.equal(read.firstCloseLabel, "end of September");
+  assert.equal(read.epochLabel, "September 2026");
+
+  // and a pot with no first close says so as null rather than inventing one —
+  // the surfaces branch on it, so a fabricated date would put a close on a page
+  // for a pot the town has never dated
+  const undated = toPot({ ...POT_FIXTURE[0], first_close: undefined });
+  assert.equal(undated.ok, true, undated.reason);
+  assert.equal(undated.firstClose, null);
+  assert.equal(undated.firstCloseLabel, null);
 });

@@ -124,6 +124,17 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
     a.patron.localeCompare(b.patron) || a.ref.localeCompare(b.ref));
 
   // ── pots.json — one row per (pot, epoch) ───────────────────────────────────
+  //
+  // WHEN THIS EMISSION WAS MADE. The pots block renders an "as of" tick from
+  // it, so a reader can tell a quiet market from a stale page — and on a money
+  // surface those two look identical without it.
+  //
+  // It rides on each ROW rather than wrapping the file, because pots.json is an
+  // ARRAY by contract: loadPots, every surface and every fixture read it as
+  // one. Wrapping it in an object to hold a single string would break all of
+  // them for a timestamp. Written once per run, so every row carries the same
+  // value by construction.
+  const generatedAt = new Date().toISOString();
   const potRows = [];
   for (const file of [...potFiles].sort((a, b) => String(a?.pot).localeCompare(String(b?.pot)))) {
     const pot = String(file?.pot ?? "");
@@ -131,6 +142,7 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
     // and toPot reads them off this object under exactly these keys.
     const base = {
       pot,
+      generated_at: generatedAt,
       subtype: file?.subtype,
       status: file?.status,
       title: file?.title,
@@ -139,6 +151,27 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
       epoch_cadence: file?.epoch_cadence,
       beneficiary: file?.beneficiary ?? null,
       uncapped: file?.uncapped === true,
+      // What a close does to this pot, in the pot file's own word. The only
+      // value the law spells so far is "none" — pot-darko-fund.json: "a
+      // standing box, not an epoch pot — gifts are witnessed, never converted;
+      // nothing here ever burns or mints". Without this field the site cannot
+      // tell a donation box from an epoch pot, and every surface goes on
+      // promising a close that will never run for it.
+      close: typeof file?.close === "string" && file.close.trim() ? file.close.trim() : null,
+      // The elastic close's floor, carried across whole. § _min_close names the
+      // owner and the duty in one line: "Owner of the number: this file; every
+      // surface reads it." So the emitter passes it and nobody downstream
+      // writes a 5 anywhere.
+      min_close_usd: Number.isFinite(Number(file?.min_close_usd)) ? Number(file.min_close_usd) : null,
+      // WHEN THE FIRST MONTH ACTUALLY CLOSES, when the pot says so itself.
+      // pot-*.json § _first_close, verbatim: "EARLY-POSTED FOR SEPTEMBER
+      // (founder's ruling, 2026-08-25 beta-launch sitting): the pots opened in
+      // late August with $0 received, so the first epoch ROUNDS FORWARD — the
+      // first month closes at the END of September; dollars arriving before
+      // then all belong to the 2026-09 epoch. Surfaces render the epoch from
+      // this field, not from the posting date."
+      first_close: typeof file?.first_close === "string" && file.first_close.trim()
+        ? file.first_close.trim() : null,
       board: file?.board,
     };
 
@@ -183,7 +216,21 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
 
     const mine = receipts.filter((r) => r.pot === pot && !deeded.has(r.ref));
     const newestReceipt = mine.reduce((max, r) => (r.date > max ? r.date : max), "");
-    const start = monthOf(newestReceipt) > monthOf(asOf) ? monthOf(newestReceipt) : monthOf(asOf);
+    const posted = monthOf(newestReceipt) > monthOf(asOf) ? monthOf(newestReceipt) : monthOf(asOf);
+
+    // AN EARLY-POSTED POT ROUNDS FORWARD. Derivation from the clock is right
+    // for a pot that has been running; it is wrong for a pot posted mid-month
+    // whose first month was never meant to be that month. The pot file settles
+    // it in its own words — "the first epoch ROUNDS FORWARD ... dollars
+    // arriving before then all belong to the 2026-09 epoch. Surfaces render
+    // the epoch from this field, not from the posting date."
+    //
+    // It is a FLOOR and not an override: once September has closed, the derived
+    // month walks on past it normally, and a first_close already behind the
+    // clock stops mattering the moment it is spent. Nothing here reaches
+    // backwards — a pot can only ever be rounded FORWARD by this.
+    const firstCloseMonth = base.first_close ? monthOf(base.first_close) : "";
+    const start = firstCloseMonth > posted ? firstCloseMonth : posted;
     const epoch = firstOpenEpoch(start, myClosed);
 
     // The roll before a close is the receipts themselves: who has fed this pot
