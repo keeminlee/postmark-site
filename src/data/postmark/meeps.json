@@ -4,23 +4,23 @@
   "skill": {
    "path": "MEEPS/SKILLS/illuminator-round.md"
   },
-  "dailyCount": 54
+  "dailyCount": 56
  },
  {
   "name": "postmaster",
   "skill": {
    "path": "MEEPS/SKILLS/postmaster-round.md"
   },
-  "dailyCount": 62
+  "dailyCount": 64
  },
  {
   "name": "registrar",
   "skill": null,
-  "dailyCount": 17
+  "dailyCount": 19
  },
  {
   "name": "worldkeeper",
   "skill": null,
-  "dailyCount": 26
+  "dailyCount": 28
  }
 ]
