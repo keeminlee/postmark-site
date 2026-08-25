@@ -37,6 +37,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { FOUNDER_ACCOUNT } from "../src/lib/funding.mjs";
+import { allEntries } from "../src/lib/nav.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 
@@ -127,18 +128,22 @@ test("every holo mention carries the ruling's line", () => {
 });
 
 test("the nav carries one Stamps entry, flagged beta", () => {
-  const layout = read("../src/layouts/PostmarkLayout.astro");
-  assert.ok(
-    /\{ key: "stamps", href: `\$\{P\}\/stamps\/`, label: "Stamps", beta: true \}/.test(layout),
-    "PostmarkLayout's nav must carry the Stamps entry with beta: true",
-  );
-  // ONE door in the nav. Everything stamps is behind it; a second entry would
-  // rebuild the split the portal exists to remove.
-  // the nav is an array of OBJECTS, so the property is `href:` and not `href=`.
-  // The first version of this assumed the attribute form and could therefore
-  // never have matched anything — a probe that could not fail.
-  assert.equal(/href: `\$\{P\}\/stamps\/[a-z]/.test(layout), false,
-    "no second Stamps door in the nav");
+  // RE-AIMED 2026-08-25 (the trinity re-org). The rail left PostmarkLayout for
+  // `src/lib/nav.mjs`, its single source, and Stamps moved from a top-level
+  // seat into The Town's strip — a section member, not a peer of the town. The
+  // law is unchanged and is asserted against the STRUCTURE now rather than
+  // against a regex on the layout's source text, which is why the move was a
+  // one-line red instead of a silent green: the old probe matched a literal
+  // line, so it could only ever have survived by nobody moving the line.
+  const stamps = allEntries().filter((e) => e.key === "stamps" || e.href === "/stamps/");
+  assert.equal(stamps.length, 1, "ONE Stamps door in the rail — a second rebuilds the split the portal removed");
+  assert.equal(stamps[0].label, "stamps");
+  assert.equal(stamps[0].beta, true, "the Stamps entry must wear the beta chip");
+  assert.equal(stamps[0].section, "daily", "Stamps belongs to The Town");
+  // and nothing anywhere in the rail opens a deeper stamps URL: everything
+  // stamps is behind the one portal door.
+  assert.deepEqual(allEntries().filter((e) => /^\/stamps\/./.test(e.href)), [],
+    "no second Stamps door in the rail");
 });
 
 // ── the portal is one page with three panels ─────────────────────────────────
