@@ -83,6 +83,13 @@ runs. **The world pin lives HERE now** (`package.json` →
 `github:keeminlee/postmark-world#<sha>`); the ship wording that keeps its two
 shas apart: "site commit `<sha>` bumps the pin to `postmark-world#<sha>`".
 
+Since POS-55 (2026-08-25) that pin is the **floor**, not the last word: the
+scheduled release rebuild resolves the world's newest `settlement/S<n>` tag and
+installs that instead, holding at the pin file whenever it cannot. Bumping the
+pin at each blessing is still the ceremony — it is what keeps the floor fresh.
+The mechanism, its three guardrails, and why it needs no box-side step:
+[`WORLD-PIN.md`](WORLD-PIN.md).
+
 ## Layout
 
 ```
