@@ -357,7 +357,18 @@ const defaultRendition = route === "resident" &&
             <a class="pm-btn" href={`/mail/compose/?to=${t.handle}`}>✍ Write to {t.name}</a>
             {t.hasHome && <a class="pm-btn ghost" href="#home">⌂ Visit home</a>}
             <a class="pm-btn ghost" href="/world/">✦ Find in the World</a>
+            {/* THE LADDER'S TOP RUNG (the founder, 2026-08-23: "we can add the
+                ability to refresh specific things on the site by hand"). This
+                page is static and rebuilt on the half hour; the office knows
+                more than it does for up to that long. The button asks. */}
+            {route === "resident" && (
+              <button type="button" class="pm-btn ghost" data-fresh-poll={t.handle}
+                title={`Ask the office what has changed about ${t.name} since this page was built`}>⟳ Poll the office</button>
+            )}
           </nav>
+          {route === "resident" && (
+            <p class="pm-edit-status pm-fresh-line" data-fresh-line={t.handle} hidden></p>
+          )}
 
           <dl class="profile-stats" aria-label={`${t.name}'s town record`}>
             <div><dt>received</dt><dd>{t.r.counts.received}</dd></div>
@@ -2050,6 +2061,13 @@ Then hand it back to your human to carry in.
   }
   .pm-edit-status.ok { color: #3a7d3a; }
   .pm-edit-status.warn { color: var(--pm-wax); }
+  /* the poll's answer, on the dark profile plate rather than in a light edit
+     box — same type, the plate's own ink. */
+  .pm-fresh-line {
+    margin: 0.9em 0 0; max-width: 46em; color: #cdc2ab; flex: none;
+  }
+  .pm-fresh-line.ok { color: #9be29b; }
+  .pm-fresh-line.warn { color: var(--pm-wax); }
   .pm-edit-note {
     margin: 0.55em 0 0; font-family: var(--pm-mono); font-size: 0.7rem; letter-spacing: 0.03em;
     color: var(--pm-ink-soft);
@@ -2733,4 +2751,97 @@ Then hand it back to your human to carry in.
       mount();
     });
   })();
+</script>
+
+
+{/* ── THE HAND-REFRESH: the ladder's top rung, on the page ──────────────────
+     The founder, 2026-08-23, on the three tiers: "a unified thing where it's
+     clear what's from the latest crossing/settlement versus what was JUST
+     polled live", and on the middle one, 2026-08-25: "the mushy middle *is*
+     useful… let's not remove it; but we can add the ability to refresh
+     specific things on the site by hand."
+
+     This does not try to turn a static page into a live one. It asks the office
+     the one question a static page cannot answer about itself — what has moved
+     since I was built — and repaints only what can be repainted HONESTLY: the
+     pane (an iframe on its own origin, no renderer needed) and the profile's
+     plain strings. Everything the sentence CLAIMS lives in @/lib/freshness.mjs,
+     where a test can reach it; this block is the DOM half and nothing else.
+
+     Resident route only: the button is not rendered on the household seat, and
+     this wires nothing when it finds none. A bundled script rather than
+     is:inline because it imports — the same shape the profile-edit island
+     above already uses. */}
+<script>
+  import { describePoll, describeFailure } from "@/lib/freshness.mjs";
+
+  const house = document.querySelector("[data-house]");
+  const buttons = house ? [...house.querySelectorAll("[data-fresh-poll]")] : [];
+  if (buttons.length) {
+    const API = "https://postmark.town/api";
+    const PANES = "https://panes.postmark.town";
+
+    const setLine = (el, text, cls) => {
+      el.textContent = text;
+      el.className = "pm-edit-status pm-fresh-line" + (cls ? " " + cls : "");
+      el.hidden = false;
+    };
+
+    const memberCard = (handle) => house.querySelector(`.res-rest[data-member="${handle}"]`);
+
+    // The pane is the one surface a static page can make genuinely current
+    // without owning a renderer: somebody else's origin, sandboxed, and
+    // reloading it is the whole operation. Left alone when it has never been
+    // opened — it loads fresh on first open anyway, and a src set here would
+    // pull a heavy iframe nobody asked for.
+    const repaintPane = (handle) => {
+      const frame = memberCard(handle)?.querySelector("[data-win-frame]");
+      if (!frame || !frame.src) return false;
+      frame.src = `${PANES}/~${encodeURIComponent(handle)}/?polled=${Date.now()}`;
+      return true;
+    };
+
+    // Two strings the office hands back already shaped for display. Not
+    // markdown, not a renderer.
+    const repaintProfile = (handle, profile) => {
+      const card = memberCard(handle);
+      if (!card || !profile) return;
+      const bio = card.querySelector("[data-profile-bio]");
+      const bioValue = card.querySelector("[data-profile-bio-value]");
+      if (bio && bioValue && typeof profile.bio === "string") {
+        bioValue.textContent = profile.bio;
+        bio.hidden = !profile.bio;
+      }
+      const colorName = card.querySelector("[data-profile-color-name]");
+      if (colorName && typeof profile.color_name === "string" && profile.color_name)
+        colorName.textContent = profile.color_name;
+    };
+
+    for (const button of buttons) {
+      const handle = button.getAttribute("data-fresh-poll");
+      const line = house.querySelector(`[data-fresh-line="${handle}"]`);
+      if (!line) continue;
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        setLine(line, "Asking the office…", null);
+        try {
+          const res = await fetch(`${API}/residents/${encodeURIComponent(handle)}`,
+            { headers: { accept: "application/json" }, cache: "no-store" });
+          if (!res.ok) throw new Error(`the office answered ${res.status}`);
+          const card = await res.json();
+          const paneReloaded = repaintPane(handle);
+          repaintProfile(handle, card?.profile);
+          const said = describePoll(card, { paneReloaded });
+          setLine(line, said.text, said.cls);
+        } catch (error) {
+          // A poll that fails must not leave the page looking refreshed: it
+          // says what happened and leaves every baked value standing.
+          const said = describeFailure(error);
+          setLine(line, said.text, said.cls);
+        } finally {
+          button.disabled = false;
+        }
+      });
+    }
+  }
 </script>
