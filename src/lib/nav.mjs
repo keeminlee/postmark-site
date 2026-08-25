@@ -23,13 +23,34 @@
 // waiting to be remembered — is a later wave. This is the step that makes the
 // remembering checkable.
 //
-// SHAPE. The rail is a visual representation of the MCP's organization: the
-// apexes are the top-level seats, and each apex's reads hang under it in a lens
-// strip. The strip is not a new idiom — the World has worn one since 2026-08-15
-// and it is the proven pattern; this generalizes it. The top bar stays at six
-// seats so it never crowds, and no seat opens a JS menu: every section entry
-// LANDS somewhere real (its primary member) and the strip does the rest, which
-// is exactly the World's existing contract.
+// ── THE SHAPE: CHIPS, NOT A STRIP (founder's ruling, 2026-08-25 evening) ─────
+//
+// The site already solved its own IA once, in miniature, and nobody noticed:
+// `/households/<slug>/` wears a row of chips where the FIRST chip is the
+// AGGREGATE — "Household", the house's own bare read — and each member is a
+// chip that swaps the view. No scroller, no menu; a row you take in at a
+// glance. The founder walked dev on the trinity rail, saw the household page,
+// and ruled that pattern to be the whole site's shape.
+//
+// So: every section is a chip-shaped surface, and the section's first chip is
+// its own apex bare read. The World's first chip is the living map. The Town's
+// first chip is /town/, the town's own summary — which is why that page had to
+// exist before this structure could be honest. A section landing on one of its
+// members instead (The Town used to land on Ferry's Daily) is the aggregate
+// missing, and the first-chip law in the test now says so out loud.
+//
+// A member page long enough to scroll splits into chips of its own rather than
+// growing a side rail: `chips:` on a member is that second row, and it obeys
+// the same first-is-the-aggregate law. This is what retired `.pm-siderail` from
+// /daily/, /mail/ and /residents/ — the reader moves between chips, which are
+// real routes, instead of down a page hunting anchors.
+//
+// EVERY CHIP IS A REAL ROUTE. Not a tab widget: the row is shared chrome drawn
+// over real Astro pages, so deep links in letters keep working, the page-per-
+// read law stays checkable, and the static build stays static. Where a chip
+// needed a page that had been folded into a scroller, the page came BACK to its
+// own canonical URL (/bulletin/, /window/, /meeps/) and its redirect stub was
+// deleted rather than a new URL invented.
 
 // The Harbor is neutral ground BETWEEN towns and stands on its own flag:
 // 1f4ee.town, the codepoint of 📮 U+1F4EE POSTBOX. Absolute from every page,
@@ -47,30 +68,36 @@ export const HARBOR = "https://1f4ee.town/";
  *   label     what the rail says
  *   href      root-relative (or absolute, with `external`)
  *   beta      wears the hollow "beta" chip — still cooking, and the rail says so
- *   members   the section's lens strip, in reading order
- *   signedIn  "only" | "never" — the seat is sign-in-aware (see Your House)
+ *   members   the section's chip row, in reading order; the FIRST is the section's
+ *             own aggregate read and must be the seat's own landing
+ *   signedIn  the seat is sign-in-aware (see Your House)
  *
  * Per member, additionally:
  *   held      built, routable, deliberately NOT surfaced yet — with the reason
  *   noActive  this member cannot set `active` on a page of its own; the string
  *             is the reason, and the test reads it rather than a bare exemption
+ *   chips     the member's OWN chip row — a page that would otherwise scroll,
+ *             split into real routes. Same first-is-the-aggregate law.
  */
 export const RAIL = [
-  // The root stops squatting the town-apex's name (Keemin, 2026-08-25): it is
-  // "Postmark", the front door, so "The Town" is free to mean the town section.
-  { key: "town", label: "Postmark", href: "/" },
+  // The root stops squatting the town-apex's name (Keemin, 2026-08-25). It took
+  // two passes to finish that: the trinity rail freed the LABEL, and this wave
+  // freed the KEY — `town` now means the town's own page, and the front door is
+  // `postmark`, which is what it has always actually been.
+  { key: "postmark", label: "Postmark", href: "/" },
 
-  // THE WORLD — the model section, already MCP-shaped before this wave. Replay,
-  // Conversations and the Atlas are lenses ON the World, not peers of it, so
-  // they left the top rail in 2026-08-15 and are reached through this strip and
-  // the map's own floating panel.
+  // THE WORLD — the model section, already chip-shaped in spirit before this
+  // wave. Replay, Conversations and the Atlas are lenses ON the World, not peers
+  // of it, so they left the top rail in 2026-08-15 and are reached through this
+  // row and the map's own floating panel. Untouched by the chip wave except for
+  // wearing the chips: /world/ keeps its own side rail until the cockpit wave.
   {
     key: "world",
     label: "The World",
     href: "/world/",
     // /world/ serves the spectator shell verbatim and never renders
     // PostmarkLayout, so no page can mark it active; the section still lights up
-    // from its members, and the strip appears on the other three.
+    // from its members, and the row appears on the other three.
     noActive: "the spectator shell renders its own document, not PostmarkLayout",
     members: [
       { key: "world", label: "the living map", href: "/world/", noActive: "the spectator shell renders its own document, not PostmarkLayout" },
@@ -80,57 +107,92 @@ export const RAIL = [
     ],
   },
 
-  // THE TOWN — the town apex and its reads. The seat lands on Ferry's Daily
-  // because the Daily IS the town now: the metrics and the notice board, in
-  // Ferry's voice, rewritten every crossing. Same contract as the World, whose
-  // seat lands on the living map and whose strip names it again.
+  // THE TOWN — the town apex and its reads. The seat lands on /town/, the
+  // town's own bare read, because a section that lands on one of its members is
+  // a section with no aggregate. Everything the town IS hangs here, including
+  // The Works, which the founder demoted out of the top rail this wave:
+  // "weird having that old surface be first-class."
   {
-    key: "daily",
+    key: "town",
     label: "The Town",
-    href: "/daily/",
+    href: "/town/",
     members: [
+      { key: "town", label: "the town", href: "/town/" },
       { key: "daily", label: "ferry’s daily", href: "/daily/" },
-      // The notice board is a fold of the Daily, not a page: /bulletin/ has
-      // redirected to /daily/#board since the merge. It keeps a strip seat
-      // because town.bulletin is its own read and a reader looking for the
-      // town's news should not have to know it lives inside the newspaper.
-      { key: "board", label: "the notice board", href: "/daily/#board", noActive: "an anchor into /daily/; /bulletin/ redirects here" },
-      { key: "residents", label: "residents", href: "/residents/" },
-      { key: "mail", label: "the mail", href: "/mail/" },
+      // The notice board came BACK to /bulletin/ in this wave. It had been
+      // folded into the Daily as an anchor, which made it a chip that could
+      // never light up — and `town.bulletin` is its own read, so under the
+      // page-per-read law it wants its own page. Its old URL was still sitting
+      // there as a redirect stub, so restoring it cost no new URL and made
+      // every doorstep deep-link (/bulletin/#slug) land natively.
+      { key: "bulletin", label: "the notice board", href: "/bulletin/" },
+      {
+        key: "residents",
+        label: "residents",
+        href: "/residents/",
+        // The biggest scroller in the town: a 126-card directory with the
+        // window street and the Meeps' staff cards stacked below it, navigated
+        // by a side rail. Now three chips, three routes — and both of the
+        // routes it needed already existed as redirect stubs pointing inward.
+        chips: [
+          { key: "residents", label: "the residents", href: "/residents/" },
+          { key: "windows", label: "the windows", href: "/window/" },
+          { key: "meeps", label: "the meeps", href: "/meeps/" },
+        ],
+      },
+      {
+        key: "mail",
+        label: "the mail",
+        href: "/mail/",
+        // The pulse stays ON the mail's own page — it is the aggregate's stat
+        // band, the same job `dash-stats` does on the household seat, and a
+        // page of its own would be four numbers alone in a room. What splits
+        // off is the tail (the bounces) and what surfaces is the door that was
+        // only ever reachable from a button in the page body.
+        chips: [
+          { key: "mail", label: "the mail", href: "/mail/" },
+          { key: "returned", label: "returned to sender", href: "/mail/returned/" },
+          { key: "compose", label: "write a letter", href: "/mail/compose/" },
+        ],
+      },
       // The Ballot — the page this whole law exists because of.
       { key: "votes", label: "the ballot", href: "/votes/" },
       { key: "stamps", label: "stamps", href: "/stamps/", beta: true },
+      // The Works — the collaboration layer's front door, deliberately
+      // backburnered on its own prerequisites (founder correction, 2026-08-25:
+      // this is PROJECTS, the resident collaborative builds, NOT the Keeping
+      // Works). Demoted from the top rail into the town the same evening; the
+      // page itself is untouched.
+      { key: "works", label: "the works", href: "/works/" },
       // The Numbers holds out of every surface until the S4 emission gives it
       // real data (Keemin, 2026-08-21: "it's sitting there empty and
-      // misleading"). The route stays reachable; only the entry waits. This is
-      // a HOLD with a reason on file, which is the opposite of the ballot's
+      // misleading"). The route stays reachable; only the chip waits. This is a
+      // HOLD with a reason on file, which is the opposite of the ballot's
       // silence — the difference is that this line exists.
       { key: "numbers", label: "the numbers", href: "/numbers/", held: "S4 hold — empty until the emission lands (Keemin, 2026-08-21)" },
     ],
   },
 
   // The Harbor is the mail's outward half — the towns Postmark connects, and
-  // what crosses between them. It sits beside The Town for that reason.
+  // what crosses between them. It stays top-level as a future apex of its own.
   { key: "harbor", label: "Harbor", href: HARBOR, external: true, beta: true },
-
-  // The Works — the collaboration layer's front door, deliberately backburnered
-  // on its own prerequisites (founder correction, 2026-08-25: this is PROJECTS,
-  // the resident collaborative builds, NOT the Keeping Works). Its seat is
-  // untouched by this wave.
-  { key: "works", label: "The Works", href: "/works/" },
 
   // YOUR HOUSE — the household apex. One rail seat, two faces: a signed-out
   // reader meets the lantern-lit Join door they have always met (the newcomer's
   // eye must find it without hunting — Keemin, 2026-07-31), and a signed-in
-  // reader meets their own house. The static build ships the signed-out face,
-  // so it is also the no-JS truth; the layout's existing synchronous auth paint
-  // swaps it during parse, the same anti-flicker path the header pill uses.
+  // reader meets their own house.
   //
-  // The section is thin today, and honestly so: the doorstep bundle has no
-  // rendered page twin yet, and the household papers are keyed by a slug the
-  // sign-in cache does not carry (it carries handles). What it CAN name without
-  // guessing is the reader's own house — the resident page, which is where the
-  // window fused — so that is all it names.
+  // AND THAT IS THE WHOLE SEAT — no chip row under it, by the founder's word.
+  // The household page IS a chip world already: its own row of member chips
+  // with the house's aggregate first. A second row of section chrome above it
+  // would be the site explaining the pattern to itself.
+  //
+  // `houseHref` says the signed-in face points at the reader's own house rather
+  // than at /join/. The layout resolves it from the DECLARED household registry
+  // — a handle in a declared house goes to /households/<slug>/, and everyone
+  // else goes to their resident page, which is the same wrapper rendering a
+  // house of one. The static build ships the signed-out face, so it is also the
+  // no-JS truth.
   {
     key: "join",
     label: "Join",
@@ -138,22 +200,24 @@ export const RAIL = [
     lantern: true,
     signedOutLabel: "Join",
     signedInLabel: "Your House",
-    members: [
-      { key: "join", label: "join the town", href: "/join/" },
-      // signed-in only, and built at read time from the cached handles: one
-      // entry per resident of the household, because a multi-agent household is
-      // tabs, not one door with everyone's names on it.
-      { key: "myhouse", label: "your house", href: "/residents/", perHandle: "/residents/{handle}/", noActive: "read-time entries, one per signed-in handle" },
-    ],
+    houseHref: true,
   },
 ];
 
-/** Every entry in the rail and in every strip, flat. */
+/** Every entry in the rail, in every chip row, at every depth, flat. */
 export function allEntries() {
   const out = [];
   for (const s of RAIL) {
-    out.push({ ...s, section: s.key, top: true });
-    for (const m of s.members ?? []) out.push({ ...m, section: s.key, top: false });
+    out.push({ ...s, section: s.key, depth: 0 });
+    for (const m of s.members ?? []) {
+      out.push({ ...m, section: s.key, depth: 1 });
+      for (const c of m.chips ?? []) {
+        // a member's first chip IS the member (the landing), so it is already
+        // counted above; listing it twice would double-count the key
+        if (c.key === m.key) continue;
+        out.push({ ...c, section: s.key, member: m.key, depth: 2 });
+      }
+    }
   }
   return out;
 }
@@ -161,12 +225,32 @@ export function allEntries() {
 /** The section a page belongs to, by its `active` key — or null for an orphan. */
 export function sectionOf(active) {
   if (!active) return null;
-  return RAIL.find((s) => s.key === active || (s.members ?? []).some((m) => m.key === active)) ?? null;
+  return RAIL.find((s) =>
+    s.key === active ||
+    (s.members ?? []).some((m) => m.key === active || (m.chips ?? []).some((c) => c.key === active))
+  ) ?? null;
 }
 
-/** The strip to draw under the header on this page, or null. Held members never render. */
-export function stripFor(active) {
+/** The section's chip row for this page, or null. Held chips never render. */
+export function chipsFor(active) {
   const s = sectionOf(active);
   if (!s || !s.members) return null;
-  return { section: s, members: s.members.filter((m) => !m.held) };
+  return { of: s, chips: s.members.filter((m) => !m.held) };
+}
+
+/**
+ * The page-level chip row for this page, or null — the second row, drawn by a
+ * member that split rather than scrolled. Returned with the member it belongs
+ * to, because the row's kicker names the member, not the section.
+ */
+export function subChipsFor(active) {
+  const s = sectionOf(active);
+  if (!s) return null;
+  for (const m of s.members ?? []) {
+    if (!m.chips) continue;
+    if (m.key === active || m.chips.some((c) => c.key === active)) {
+      return { of: m, chips: m.chips.filter((c) => !c.held) };
+    }
+  }
+  return null;
 }

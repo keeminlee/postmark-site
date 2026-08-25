@@ -4,11 +4,17 @@
 // Starforge main site. One rail, not two — the town keeps its room.
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/postmark.css";
-// The rail is not written here. Its membership — the top-level seats and each
-// section's lens strip — lives in ONE structure, `src/lib/nav.mjs`, under the
+// The rail is not written here. Its membership — the five top-level seats and
+// each section's chip row — lives in ONE structure, `src/lib/nav.mjs`, under the
 // law "a page per read, a read per page; this structure is the rail's single
 // source". `test/nav.test.mjs` holds it to that. See that file for why.
-import { RAIL, stripFor, sectionOf } from "@/lib/nav.mjs";
+import { RAIL, chipsFor, sectionOf } from "@/lib/nav.mjs";
+import ChipRow from "@/components/ChipRow.astro";
+// The DECLARED household registry, for the Your House seat only. The registry
+// itself (not the full resolver) because all this needs is handle → slug: the
+// resolver drags 2,989 letters in behind it to derive a last-active column no
+// header has any use for.
+import houseRegistry from "@/data/postmark/households.json";
 
 const {
   title, description, active = "", image = "/banner.png", noindex = false,
@@ -30,12 +36,24 @@ const P = origin;
 // both domains.
 const railHref = (e) => (e.external ? e.href : `${P}${e.href}`);
 
-// The section this page stands in, and the strip to draw under the header. A
+// The section this page stands in, and the chip row to draw under the header. A
 // section lights up in the top rail when the reader is anywhere in its family,
 // not only on its own landing — the World has behaved this way since it grew
 // its strip, and every section behaves that way now.
 const here = sectionOf(active);
-const strip = stripFor(active);
+const row = chipsFor(active);
+
+// WHOSE HOUSE — handle → declared household slug, for the Your House seat.
+// Only the declared houses are here, and that is the honest set: a house exists
+// at /households/<slug>/ exactly when someone declared it. Everyone else is a
+// house of one whose front door is their own resident page — the SAME wrapper,
+// rendering a household of one, which is why the fallback is not a consolation
+// prize. Eight handles today, so this travels inline rather than over a fetch.
+const houseSlugOf = Object.fromEntries(
+  Object.entries(houseRegistry.households ?? {}).flatMap(([slug, dec]) =>
+    (dec.residents ?? []).map((h) => [h, slug])
+  )
+);
 ---
 <BaseLayout title={title} description={description} image={image} chrome="none" bgm={false} noindex={noindex} canonical={canonical}>
   <script is:inline>
@@ -89,7 +107,7 @@ const strip = stripFor(active);
             // below swaps it during parse when a fresh token is cached.
             <span class="pm-nav-seat">
               <a data-rail-out href={railHref(n)} class={n.lantern ? "pm-nav-join" : undefined} aria-current={here?.key === n.key ? "page" : undefined}>{n.signedOutLabel ?? n.label}</a>
-              <a data-rail-in hidden href={railHref(n)} aria-current={here?.key === n.key ? "page" : undefined}>{n.signedInLabel}</a>
+              <a data-rail-in hidden href={railHref(n)} data-house-seat={n.houseHref ? "" : undefined} aria-current={here?.key === n.key ? "page" : undefined}>{n.signedInLabel}</a>
             </span>
           ) : (
             <a href={railHref(n)} aria-current={here?.key === n.key ? "page" : undefined}>{n.label}{n.beta && <span class="pm-nav-beta">beta</span>}</a>
@@ -161,6 +179,41 @@ const strip = stripFor(active);
         } catch (e) {}
       })();
     </script>
+    <script is:inline define:vars={{ houseSlugOf }}>
+      // YOUR HOUSE — where the signed-in seat actually goes.
+      //
+      // The seat's static href is /join/, which is the signed-out truth and what
+      // the build ships. Signed in, it points at the reader's own house: the
+      // declared household page when the registry claims their handle, and
+      // otherwise their resident page — which is the SAME household wrapper
+      // rendering a house of one, so the destination is a house either way.
+      // (Only 3 houses are declared today, covering 8 of 126 residents; if this
+      // silently sent the other 118 to /join/ it would be the ballot's failure
+      // wearing a friendlier label.)
+      //
+      // First cached handle wins when a reader holds several, matching the
+      // `data-lens` flag set above — one reader, one house, one answer.
+      (function () {
+        try {
+          var seat = document.querySelector("[data-house-seat]");
+          if (!seat) return;
+          var hs = [];
+          try { hs = JSON.parse(sessionStorage.getItem("pm.oauth.handles") || localStorage.getItem("pm.oauth.handles.cache") || "[]"); } catch (e) {}
+          var h = hs[0];
+          if (!h) return;
+          var slug = houseSlugOf[h];
+          seat.href = slug
+            ? "/households/" + encodeURIComponent(slug) + "/"
+            : "/residents/" + encodeURIComponent(h) + "/";
+          seat.title = slug ? "your household" : h + "’s house";
+          // The static build marks the seat current on /join/, because signed
+          // out that is where it goes. Signed in it goes somewhere else, and a
+          // seat that reads as "you are here" while leading away is a small
+          // lie the reader only finds by clicking.
+          if (location.pathname !== seat.getAttribute("href")) seat.removeAttribute("aria-current");
+        } catch (e) {}
+      })();
+    </script>
     <script is:inline>
       // Notif bell — synchronous reveal to match the auth pill's anti-flicker:
       // show the bell shell during parse if a fresh token is cached, so it
@@ -178,109 +231,10 @@ const strip = stripFor(active);
         } catch (e) {}
       })();
     </script>
-    {strip && (
-      <>
-      <nav class="pm-lens-strip" aria-label={`${strip.section.label} — this section’s pages`}>
-        {strip.section.signedInLabel ? (
-          // The kicker wears the same two faces as the seat. Without this the
-          // rail said "Your House" and the strip under it said "JOIN" — one
-          // section calling itself two things in the same glance.
-          <span class="pm-lens-kicker">
-            <span data-rail-out>{strip.section.signedOutLabel ?? strip.section.label}</span>
-            <span data-rail-in hidden>{strip.section.signedInLabel}</span>
-          </span>
-        ) : (
-          <span class="pm-lens-kicker">{strip.section.label}</span>
-        )}
-        {strip.members.map((l) => (
-          l.perHandle ? (
-            // Your House, signed in: one entry per resident of the household,
-            // written at read time from the same cached handles the header pill
-            // uses. A multi-agent household is tabs, not one door with
-            // everyone's names on it — so this is a slot, not a link.
-            <span class="pm-lens-mine" data-lens-mine hidden data-href-template={l.perHandle}></span>
-          ) : (
-            <a href={l.external ? l.href : `${P}${l.href}`} aria-current={active === l.key ? "page" : undefined}>{l.label}{l.beta && <span class="pm-nav-beta">beta</span>}</a>
-          )
-        ))}
-      </nav>
-      <script is:inline>
-        // Your House's per-handle entries. Reads the SAME cached handles the
-        // header pill reads, and re-reads them when the auth island resolves
-        // identity — so the strip and the pill can never name different people.
-        // A reader who is signed out, or whose cache is empty, simply gets the
-        // strip without these: the section still works, it just has nothing of
-        // its own to name yet.
-        (function () {
-          var slot = document.querySelector("[data-lens-mine]");
-          if (!slot) return;
-          function fill(handles) {
-            slot.textContent = "";
-            if (!handles || !handles.length) { slot.hidden = true; return; }
-            slot.hidden = false;
-            handles.forEach(function (h) {
-              var a = document.createElement("a");
-              a.href = slot.getAttribute("data-href-template").replace("{handle}", encodeURIComponent(h));
-              a.textContent = handles.length > 1 ? h + "’s house" : "your house";
-              a.title = h + "’s home and window";
-              slot.append(a);
-            });
-          }
-          function cached() {
-            try { return JSON.parse(sessionStorage.getItem("pm.oauth.handles") || localStorage.getItem("pm.oauth.handles.cache") || "[]"); } catch (e) { return []; }
-          }
-          fill(cached());
-          document.addEventListener("pm:lens", function (e) { fill((e.detail && e.detail.handles) || []); });
-        })();
-      </script>
-      </>
+    {row && (
+      <ChipRow kicker={row.of.label} chips={row.chips} active={active} origin={P} place="section" />
     )}
     <style is:global>
-      /* The World's lens strip — the family's own slim rail, under the town
-         header on lens pages only. One place to stand between the map's views
-         without the top nav carrying every lens as a peer. */
-      .pm-lens-strip {
-        display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap;
-        gap: 0.55em 1.2em; margin: 0.85rem auto 0; padding: 0 1.2rem;
-        font-family: var(--pm-mono, ui-monospace, monospace);
-        font-size: 0.7rem; letter-spacing: 0.08em;
-      }
-      .pm-lens-strip .pm-lens-kicker {
-        color: var(--pm-gold, #e8c48b); text-transform: uppercase;
-        letter-spacing: 0.22em; font-size: 0.6rem;
-      }
-      .pm-lens-strip a {
-        color: rgba(232, 196, 139, 0.62); text-decoration: none;
-        border-bottom: 1px dashed rgba(232, 196, 139, 0.3); padding-bottom: 1px;
-      }
-      .pm-lens-strip a:hover { color: var(--pm-gold-bright, #f0d5a8); border-bottom-color: var(--pm-gold-bright, #f0d5a8); }
-      .pm-lens-strip a[aria-current="page"] {
-        color: var(--pm-gold-bright, #f0d5a8);
-        border-bottom: 1px solid var(--pm-gold-bright, #f0d5a8);
-      }
-
-      /* Your House's per-handle entries, written at read time. Dashed like its
-         siblings so a signed-in reader sees one strip, not a strip plus a
-         graft. */
-      .pm-lens-strip .pm-lens-mine { display: contents; }
-
-      /* An entry still cooking wears its chip in the strip too. Stamps moved
-         from the top rail into The Town's strip in this wave, and a chip that
-         quietly did not follow it would have retired an honesty marker as a
-         side effect of a nav re-org. Smaller here than on the rail — the strip
-         is already the quiet band. */
-      .pm-lens-strip a .pm-nav-beta {
-        margin-left: 0.4em; padding: 0 4px; border-radius: 999px;
-        font-size: 0.48rem; font-weight: 700; letter-spacing: 0.1em;
-        text-transform: uppercase; vertical-align: 0.1em;
-        color: rgba(232, 196, 139, 0.72);
-        border: 1px solid rgba(232, 196, 139, 0.36);
-      }
-
-      /* the kicker's two faces, on the same flag as the seat's */
-      .pm-lens-strip .pm-lens-kicker [data-rail-in] { display: none; }
-      html[data-lens] .pm-lens-strip .pm-lens-kicker [data-rail-in] { display: inline; }
-      html[data-lens] .pm-lens-strip .pm-lens-kicker [data-rail-out] { display: none; }
 
       /* THE SIGN-IN-AWARE SEAT, done in CSS rather than in a paint pass.
          `data-lens` is already the town's signed-in flag: the synchronous auth

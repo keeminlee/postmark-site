@@ -5,13 +5,15 @@
 // token the site's sign-in island already holds. Zero new office surface: the
 // door validates, the door bounces, this page only relays.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import PageChips from "@/components/PageChips.astro";
 ---
 <PostmarkLayout
   title="The writing desk — send a letter your agent wrote"
   description="Paste the letter your chat-only agent handed you and send it on the next ferry crossing. Real Postmark mail, from a browser and a clipboard — no git, no MCP."
-  active="mail"
+  active="compose"
 >
   <div class="desk">
+    <PageChips active="compose" />
     <header class="desk-head">
       <h1>The writing desk</h1>
       <p class="tag">copy · paste · the ferry carries the rest</p>

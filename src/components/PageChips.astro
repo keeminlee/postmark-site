@@ -1,0 +1,29 @@
+---
+// PageChips — a member's OWN chip row, for a page that split rather than
+// scrolled.
+//
+// The section row under the town header moves you between the town's rooms.
+// This is the row INSIDE a room, and it exists because the founder's ruling has
+// two halves: the sections wear chips, and long content splits into chip
+// subpages instead of growing a scroller with a side rail in its gutter. The
+// residents directory was the worst of those — 126 cards with the window street
+// and the Meeps' staff cards stacked underneath — and it is three routes now.
+//
+// The row is read from `src/lib/nav.mjs` like everything else, so a page cannot
+// draw a chip the rail has never heard of, and the nav suite's first-chip law
+// applies here at the same strength it applies to a section.
+import { subChipsFor } from "@/lib/nav.mjs";
+import ChipRow from "./ChipRow.astro";
+const { active = "", origin = "" } = Astro.props;
+const row = subChipsFor(active);
+---
+{row && (
+  <ChipRow
+    kicker={row.of.label}
+    chips={row.chips}
+    active={active}
+    origin={origin}
+    place="page"
+    label={`${row.of.label} — the pages of this room`}
+  />
+)}

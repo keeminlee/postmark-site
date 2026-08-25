@@ -35,11 +35,24 @@
 //      the permitted thing; what is forbidden is writing one down in prose.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { FOUNDER_ACCOUNT } from "../src/lib/funding.mjs";
 import { allEntries } from "../src/lib/nav.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
+
+// every .astro under town/pages — for laws about the pages tree rather than
+// about one named file in it
+function everyPageFile(dir = new URL("../town/pages/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")) {
+  const out = [];
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) out.push(...everyPageFile(full));
+    else if (name.endsWith(".astro")) out.push(full);
+  }
+  return out;
+}
 
 const PORTAL_PATH = "../town/pages/stamps/index.astro";
 const src = read(PORTAL_PATH);
@@ -139,7 +152,9 @@ test("the nav carries one Stamps entry, flagged beta", () => {
   assert.equal(stamps.length, 1, "ONE Stamps door in the rail — a second rebuilds the split the portal removed");
   assert.equal(stamps[0].label, "stamps");
   assert.equal(stamps[0].beta, true, "the Stamps entry must wear the beta chip");
-  assert.equal(stamps[0].section, "daily", "Stamps belongs to The Town");
+  // "town", not "daily": the chip wave gave The Town a page of its own, so the
+  // section's key stopped being its landing page's key. Stamps did not move.
+  assert.equal(stamps[0].section, "town", "Stamps belongs to The Town");
   // and nothing anywhere in the rail opens a deeper stamps URL: everything
   // stamps is behind the one portal door.
   assert.deepEqual(allEntries().filter((e) => /^\/stamps\/./.test(e.href)), [],
@@ -360,11 +375,17 @@ test("both retired routes redirect somewhere that exists", () => {
   assert.ok(raw.includes('data-panel="rules"'), "and the rules panel must still be there");
   assert.equal(existsSync(new URL("../town/pages/stamps/guide/index.astro", import.meta.url)), false,
     "the guide page is gone — a second page beside the portal would be the split this closed");
-  // /board/ is also a public asset prefix, and /daily/ paints with one of them
+  // /board/ is also a public asset prefix, and a page paints with one of them.
+  // RE-AIMED 2026-08-25 (the chip wave): this named daily.astro, which is where
+  // the notice board hung while it was folded in. The board went back to
+  // /bulletin/ and took its plank painting with it, so a probe keyed on WHICH
+  // page paints went red on a move that changed nothing about the law. The law
+  // is that the asset prefix is live, so it asks the pages tree, not one file.
   assert.ok(existsSync(new URL("../public/atelier/postmark/board/quest-board-wood.jpg", import.meta.url)),
     "the redirect must be exact-path: the board's images still live under /board/");
-  assert.ok(read("../town/pages/daily.astro").includes("/board/quest-board-wood.jpg"),
-    "and /daily/ still paints with one");
+  const painters = everyPageFile()
+    .filter((f) => readFileSync(f, "utf8").includes("/board/quest-board-wood.jpg"));
+  assert.ok(painters.length, "no page paints with /board/ any more — the exact-path reason is gone, and so is this test's premise");
 });
 
 test("nothing in the repo still points at a retired route", () => {
