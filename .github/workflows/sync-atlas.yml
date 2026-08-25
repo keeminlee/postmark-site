@@ -96,6 +96,16 @@ jobs:
           git config user.name "atlas-sync"
           git config user.email "atlas-sync@users.noreply.github.com"
           git commit -m "postmark: auto-sync the town (data + atlas + daily + mirrors)"
+          # A code merge landing on main during this job's ~90s window makes a
+          # bare push lose the race (twice on 2026-08-25 alone — 22:42 and
+          # 23:39, each a red run and a sentinel alert for a healthy town).
+          # This job only ever ADDS its own auto-sync commit on top of whatever
+          # main became, so rebase-and-retry is always safe here.
+          for i in 1 2 3; do
+            git push && exit 0
+            echo "push lost the race (attempt $i) — rebasing onto fresh main"
+            git pull --rebase origin main
+          done
           git push
           # unlike a GITHUB_TOKEN push, a deploy-key push DOES trigger the push
           # workflow — deploy.yml fires from this push itself, so the old
