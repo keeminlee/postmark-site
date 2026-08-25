@@ -25,6 +25,24 @@ So: merge the branch, let the train cut a release tag, and the mechanism is
 installed. There is no `systemctl daemon-reload`, no unit to copy into
 `G:/postmark/office/deploy/`, and no box file to edit.
 
+## What the gap was worth, measured 2026-08-25
+
+Not an abstraction. Between the frozen floor `272ed4bb` and `settlement/S45`
+(`016813ad`) the world repo moved **64 commits, 13,387 insertions across 101
+files** — and the site stages a specific subset of those from the pin, so the
+subset is what prod was missing:
+
+- `WORLD/world-state.json`, staged verbatim to `/WORLD/world-state.json`:
+  **7,859 lines changed.** This is the world the browser reads.
+- `WORLD/settlement-publications.json` (+40) — which marks the keeper has
+  blessed. Prod was serving an older answer to "what is published".
+- every non-test `tools/*.mjs`, staged to `/world-engine/tools/`: `geometry.mjs`
+  (+99), `settlement-sweep.mjs` (+417), and two new modules the engine did not
+  have at the floor, `region-outsiders.mjs` and `region-rings-gen.mjs`.
+
+Precisely: `spectator/viewer.mjs` itself is **unchanged** across that range. The
+viewer was not stale; the world it drew and the engine modules it imported were.
+
 ## What changed
 
 | File | What it is |
