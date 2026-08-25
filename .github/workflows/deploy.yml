@@ -114,6 +114,7 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             git checkout "$TAG"
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
             echo "building prod at $TAG"
           fi
 
@@ -128,9 +129,11 @@ jobs:
       # reading a data shape that evolved on main can skew — shapes change
       # rarely and deliberately; the long-term answer is the two-tense site.
       - name: Overlay the checkout-coupled town data from main (release lane)
+        id: overlay
         if: steps.lane.outputs.channel == 'release' && steps.pin.outputs.skip != 'true'
         run: |
           git checkout origin/main -- public/atelier/postmark src/data/postmark
+          echo "town_data_sha=$(git rev-parse origin/main)" >> "$GITHUB_OUTPUT"
           echo "town-data overlay from $(git rev-parse --short origin/main)"
 
       - uses: actions/setup-node@v4
@@ -154,6 +157,39 @@ jobs:
           PUBLIC_CHANNEL: ${{ steps.lane.outputs.channel }}
           PUBLIC_BUILD_SHA: ${{ github.sha }}
         run: npm run build            # town -> dist-town/
+
+      # The deployed site says what it was built from, so a watcher can ask
+      # whether it is current without guessing. Emitted AFTER the build and into
+      # dist-town/ so the rsync below carries it; and after every checkout, so
+      # `git rev-parse HEAD` names the code that was actually compiled rather
+      # than the commit that triggered the run (on the release lane those differ
+      # — the pin step checks out the tag and github.sha does not follow it).
+      #
+      # Two shas because the site has two tenses: code from the release tag,
+      # town data overlaid from main. See tools/build-stamp.mjs for the whole
+      # argument, and the 2026-08-24 freeze in the overlay step's comment above
+      # for what a one-sha stamp cannot express.
+      # The stamper is deploy machinery like the world-pin resolver above: the
+      # release lane's tree sits at the tag, which predates this file, so take
+      # it from main — and if it is somehow still absent, skip with a word
+      # rather than fail the deploy (the sentinel reads absence as UNKNOWN,
+      # never as green).
+      - name: Take the build stamper from main (deploy machinery, not site code)
+        if: steps.lane.outputs.channel == 'release' && steps.pin.outputs.skip != 'true'
+        run: |
+          git checkout origin/main -- tools/build-stamp.mjs             || echo "no build stamper on main yet — /build.json stays absent"
+      - name: Stamp the build (/build.json)
+        if: steps.pin.outputs.skip != 'true'
+        env:
+          PUBLIC_CHANNEL: ${{ steps.lane.outputs.channel }}
+          BUILD_CODE_REF: ${{ steps.pin.outputs.tag || github.ref_name }}
+          BUILD_TOWN_DATA_SHA: ${{ steps.overlay.outputs.town_data_sha }}
+        run: |
+          if [ -f tools/build-stamp.mjs ]; then
+            node tools/build-stamp.mjs --out dist-town/build.json
+          else
+            echo "stamper absent at this ref — /build.json not emitted (sentinel reads UNKNOWN)"
+          fi
 
       - name: Rsync to EC2 (${{ steps.lane.outputs.webroot }})
         if: steps.pin.outputs.skip != 'true'
