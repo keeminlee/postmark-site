@@ -175,61 +175,112 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
     {open && (<>
     <section class="f-pay" aria-label="How to send">
       <h2>Two ways to send</h2>
+      <p class="f-pay-lead">
+        Either one lands the same dollar on the same pot and earns you the same deed. What
+        differs is who does the checking — and whether there is a second step for you at all.
+      </p>
 
-      <div class="f-rail">
-        <h3 class="f-rail-name">On-chain — USDC on Base</h3>
-        <div class="f-payrow">
-          <div class="f-qr" set:html={qr}></div>
-          <div class="f-addr">
-            <p class="f-label">the town's intake address</p>
-            <code class="f-code" id="pm-intake">{INTAKE}</code>
-            <button type="button" class="f-copy" data-copy={INTAKE}>copy the address</button>
-            <ul class="f-warn">
-              <li><strong>Base network, native USDC only.</strong> A wrong-network or wrong-token send is <strong>not recoverable by the town</strong> — best effort only, never a promise.</li>
-              <li>The ledger records <strong>whole dollars</strong>. Cents that arrive are money the town holds that priced nothing — nothing is lost, and nothing is hidden.</li>
-              <li>A payment under $1 cannot be witnessed as a receipt.</li>
-            </ul>
-          </div>
+      {/* THE ORDER, BEFORE THE MECHANICS. A patron used to meet an address, a
+          card button and a hash form with nothing telling them which of the
+          three were theirs. This strip is the map; the two columns below are
+          the territory. It names steps and nothing else — no economy
+          vocabulary beyond `deed` and `handle`, both of which the law block
+          above has already defined. */}
+      <div class="f-how">
+        <div class="f-how-rail">
+          <p class="f-how-name">If you send USDC</p>
+          <ol>
+            <li>Send USDC on Base to the town's address.</li>
+            <li>Copy the transaction hash your wallet hands back.</li>
+            <li>Paste that hash and your handle into the form on this side.</li>
+          </ol>
+        </div>
+        <div class="f-how-rail">
+          <p class="f-how-name">If you pay by card</p>
+          <ol>
+            <li>Follow the card link and pay there.</li>
+            <li>Say which handle it is for while you pay.</li>
+            <li>Nothing further — a person here does the rest by hand.</li>
+          </ol>
         </div>
       </div>
 
-      <div class="f-rail">
-        <h3 class="f-rail-name">By card</h3>
-        <p class="f-rail-lead">
-          Same dollar, same pot, same deed — for a hand that does not hold USDC. Payment is
-          taken by Stripe; the town never sees your card.
-        </p>
-        <a class="f-card" href={STRIPE} target="_blank" rel="noopener">Pay by card ↗</a>
-        <ul class="f-warn">
-          <li>
-            <strong>A card payment is witnessed by the office's own hand.</strong> It lands on the
-            ledger like any other dollar and earns the same deed — but a person does the
-            witnessing, so it is not instant. The form below reads Base directly and cannot
-            see a card payment; there is nothing for you to paste.
-          </li>
-          <li>Tell the town which handle it was for when you pay, or write and say so — a payment the office cannot attach to a hand can still be a gift, but it cannot be your deed.</li>
-        </ul>
-      </div>
-    </section>
+      {/* THE TWO RAILS, SIDE BY SIDE. Stacked, the card rail sat below a fold
+          and read as an afterthought rather than an equal choice; a patron who
+          had already started copying the address never learned it existed.
+          Two columns put the choice in one glance. They stack below 62rem,
+          USDC first — the rail with the most to read. */}
+      <div class="f-rails">
+        <div class="f-rail">
+          <h3 class="f-rail-name">On-chain — USDC on Base</h3>
 
-    <section class="f-verify" aria-label="Witness your payment">
-      <h2>Then tell the town</h2>
-      <p class="f-dim">
-        Paste the transaction hash and your handle. The town reads Base directly — it checks the
-        transaction succeeded, that it moved USDC to the address above, how much, and that it is at
-        least 12 confirmations deep. Nothing is taken on your word.
-      </p>
-      <form class="f-form" id="pm-fund-form" novalidate>
-        <label>transaction hash
-          <input name="txhash" placeholder="0x…" spellcheck="false" autocomplete="off" required />
-        </label>
-        <label>your handle in town
-          <input name="handle" placeholder="the name you keep house under" spellcheck="false" autocomplete="off" required />
-        </label>
-        <input type="hidden" name="pot" value={pot.pot} />
-        <button type="submit">witness this payment</button>
-      </form>
-      <div class="f-out" id="pm-fund-out" hidden aria-live="polite"></div>
+          <p class="f-step">Step 1 — send</p>
+          <div class="f-payrow">
+            <div class="f-qr" set:html={qr}></div>
+            <div class="f-addr">
+              <p class="f-label">the town's intake address</p>
+              <code class="f-code" id="pm-intake">{INTAKE}</code>
+              <button type="button" class="f-copy" data-copy={INTAKE}>copy the address</button>
+            </div>
+          </div>
+          <ul class="f-warn">
+            <li><strong>Base network, native USDC only.</strong> A wrong-network or wrong-token send is <strong>not recoverable by the town</strong> — best effort only, never a promise.</li>
+            <li>The ledger records <strong>whole dollars</strong>. Cents that arrive are money the town holds that priced nothing — nothing is lost, and nothing is hidden.</li>
+            <li>A payment under $1 cannot be witnessed as a receipt.</li>
+          </ul>
+
+          {/* THE SCOPE OF STEP 2. This form used to be its own section, headed
+              "Then tell the town", sitting below BOTH rails — which read as a
+              step every patron owed, card payers included. It is the USDC
+              rail's own second step and nobody else's, so it lives inside the
+              USDC column and says which rail it belongs to in its own heading.
+              The card column carries the other half of that sentence. */}
+          <div class="f-verify">
+            <p class="f-step">Step 2 — tell the town <span class="f-only">(USDC only)</span></p>
+            <p class="f-verify-lead">
+              Paste the transaction hash and your handle. The town reads Base directly — it checks
+              the transaction succeeded, that it moved USDC to the address above, how much, and that
+              it is at least 12 confirmations deep. Nothing is taken on your word.
+            </p>
+            <form class="f-form" id="pm-fund-form" novalidate>
+              <label>transaction hash
+                <input name="txhash" placeholder="0x…" spellcheck="false" autocomplete="off" required />
+              </label>
+              <label>your handle in town
+                <input name="handle" placeholder="the name you keep house under" spellcheck="false" autocomplete="off" required />
+              </label>
+              <input type="hidden" name="pot" value={pot.pot} />
+              <button type="submit">witness this payment</button>
+            </form>
+            <div class="f-out" id="pm-fund-out" hidden aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="f-rail">
+          <h3 class="f-rail-name">By card</h3>
+          <p class="f-rail-lead">
+            Same dollar, same pot, same deed — for a hand that does not hold USDC. Payment is
+            taken by Stripe; the town never sees your card.
+          </p>
+
+          <p class="f-step">Step 1 — pay</p>
+          <a class="f-card" href={STRIPE} target="_blank" rel="noopener">Pay by card ↗</a>
+
+          <p class="f-step">Step 2 — <span class="f-only">there isn't one</span></p>
+          <p class="f-nopaste">
+            <strong>There is nothing for you to paste.</strong> The hash form belongs to the USDC
+            rail — it reads Base directly and <strong>cannot see a card payment</strong>.
+          </p>
+          <ul class="f-warn">
+            <li>
+              <strong>A card payment is witnessed by the office's own hand.</strong> It lands on the
+              ledger like any other dollar and earns the same deed — but a person does the
+              witnessing, so it is not instant.
+            </li>
+            <li>Tell the town which handle it was for when you pay, or write and say so — a payment the office cannot attach to a hand can still be a gift, but it cannot be your deed.</li>
+          </ul>
+        </div>
+      </div>
     </section>
     </>)}
 
@@ -318,15 +369,54 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
   .f-law ul { margin: 0; padding-left: 1.1rem; font-size: .86rem; line-height: 1.6; opacity: .9; }
   .f-law li + li { margin-top: .45rem; }
   .f-pay { margin-top: 2rem; }
-  .f-pay h2, .f-verify h2 { font-size: 1.05rem; margin: 0 0 .7rem; }
-  /* the two rails, told apart by a rule rather than by a heading alone —
-     they take the same dollar but they are witnessed differently, and that
-     difference is the thing a patron most needs to see before choosing */
-  .f-rail { padding: 1rem 0 .2rem; border-top: 1px dotted rgba(128,128,128,.35); }
-  .f-rail:first-of-type { border-top: none; padding-top: 0; }
+  .f-pay h2 { font-size: 1.05rem; margin: 0 0 .5rem; }
+  .f-pay-lead { font-size: .88rem; line-height: 1.6; margin: 0 0 1.2rem; opacity: .85; }
+
+  /* the map — what happens in what order, per rail, before any mechanics */
+  .f-how {
+    display: grid; grid-template-columns: 1fr; gap: 1rem 1.8rem;
+    padding: .9rem 1.1rem; margin: 0 0 1.5rem;
+    border: 1px solid rgba(232, 196, 139, .22); border-radius: 12px;
+    background: rgba(13, 20, 38, .5);
+  }
+  .f-how-name {
+    font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--pm-gold); margin: 0 0 .45rem;
+  }
+  .f-how ol { margin: 0; padding-left: 1.15rem; font-size: .82rem; line-height: 1.55; opacity: .9; }
+  .f-how li + li { margin-top: .3rem; }
+
+  /* the two rails, told apart by a boxed column rather than by a heading alone
+     — they take the same dollar but they are witnessed differently, and that
+     difference is the thing a patron most needs to see before choosing. One
+     column below 62rem, USDC first. */
+  .f-rails { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: start; }
+  .f-rail {
+    min-width: 0; padding: 1rem 1.15rem 1.15rem;
+    border: 1px solid rgba(128,128,128,.3); border-radius: 12px;
+    background: rgba(13, 20, 38, .38);
+  }
   .f-rail-name {
     font-family: var(--pm-mono); font-size: .74rem; letter-spacing: .12em;
     text-transform: uppercase; opacity: .7; margin: 0 0 .7rem; font-weight: 400;
+  }
+  .f-step {
+    font-family: var(--pm-mono); font-size: .72rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--pm-gold); margin: 1.3rem 0 .6rem;
+  }
+  .f-only { opacity: .62; letter-spacing: .04em; text-transform: none; }
+  .f-nopaste {
+    margin: 0; padding: .6rem .8rem; font-size: .85rem; line-height: 1.55;
+    border-left: 2px solid var(--pm-gold); border-radius: 0 7px 7px 0;
+    background: rgba(232, 196, 139, .08);
+  }
+
+  /* the widening is the point of the rework, so it is the only place the page
+     leaves its 46rem reading column — the prose above keeps its measure */
+  @media (min-width: 62rem) {
+    .f-pay { width: 56rem; }
+    .f-how { grid-template-columns: 1fr 1fr; }
+    .f-rails { grid-template-columns: 1fr 1fr; }
   }
   .f-rail-lead { font-size: .88rem; line-height: 1.6; margin: 0 0 .8rem; opacity: .85; }
   .f-card {
@@ -344,7 +434,10 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
   .f-copy { margin-top: .5rem; font-family: var(--pm-mono); font-size: .74rem; padding: .35rem .7rem; border-radius: 999px; cursor: pointer; border: 1px solid rgba(232, 196, 139, .4); background: transparent; color: var(--pm-gold); }
   .f-warn { margin: .8rem 0 0; padding-left: 1.1rem; font-size: .8rem; line-height: 1.55; opacity: .85; }
   .f-warn li + li { margin-top: .35rem; }
-  .f-verify { margin-top: 2rem; }
+  /* step 2 is now a block INSIDE the USDC column, not a section under both
+     rails — the rule above it is what says "still the same rail, next step" */
+  .f-verify { margin-top: 1.2rem; padding-top: .2rem; border-top: 1px dotted rgba(128,128,128,.3); }
+  .f-verify-lead { font-size: .8rem; line-height: 1.55; margin: 0; opacity: .8; }
   .f-form { display: grid; gap: .7rem; margin-top: .9rem; }
   .f-form label { display: grid; gap: .3rem; font-size: .78rem; opacity: .8; }
   .f-form input { font-family: var(--pm-mono); font-size: .84rem; padding: .5rem .6rem; border-radius: .35rem; border: 1px solid rgba(232, 196, 139, .25); background: rgba(28, 44, 79, .4); color: inherit; }
