@@ -271,6 +271,10 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
                 <input name="handle" placeholder="the name you keep house under" spellcheck="false" autocomplete="off" required />
               </label>
               <input type="hidden" name="pot" value={pot.pot} />
+              {/* The pot rides this form invisibly (the hidden field above) — say so
+                  out loud, because the intake address is shared across pots and the
+                  PAGE you claim on is what chooses where the claim files. */}
+              <p class="f-files-to">This form files your payment under <strong>{pot.title ?? pot.pot}</strong> — claiming a payment meant for another pot? Do it from that pot's own page.</p>
               <button type="submit">witness this payment</button>
             </form>
             <div class="f-out" id="pm-fund-out" hidden aria-live="polite"></div>
@@ -285,7 +289,11 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
           </p>
 
           <p class="f-step">Step 1 — pay</p>
-          <a class="f-card" href={STRIPE} target="_blank" rel="noopener">Pay by card ↗</a>
+          {/* client_reference_id lands on the Stripe checkout session, so a card
+              payment names its pot in the dashboard — the shared link stopped
+              carrying intent the day a second pot opened (2026-08-25, the first
+              real $10 found it). */}
+          <a class="f-card" href={`${STRIPE}?client_reference_id=${pot.pot}`} target="_blank" rel="noopener">Pay by card ↗</a>
 
           <p class="f-step">Step 2 — <span class="f-only">there isn't one</span></p>
           <p class="f-nopaste">
@@ -466,6 +474,7 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
      rails — the rule above it is what says "still the same rail, next step" */
   .f-verify { margin-top: 1.2rem; padding-top: .2rem; border-top: 1px dotted rgba(128,128,128,.3); }
   .f-verify-lead { font-size: .8rem; line-height: 1.55; margin: 0; opacity: .8; }
+  .f-files-to { font-size: .8rem; line-height: 1.55; margin: 0; opacity: .8; }
   .f-form { display: grid; gap: .7rem; margin-top: .9rem; }
   .f-form label { display: grid; gap: .3rem; font-size: .78rem; opacity: .8; }
   .f-form input { font-family: var(--pm-mono); font-size: .84rem; padding: .5rem .6rem; border-radius: .35rem; border: 1px solid rgba(232, 196, 139, .25); background: rgba(28, 44, 79, .4); color: inherit; }
