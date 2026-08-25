@@ -86,18 +86,87 @@ export function mapLetter(l) {
   };
 }
 
-export function lettersFromResidents(residents) {
-  const byId = new Map();
-  for (const resident of residents) {
-    for (const raw of [...(resident.inbox ?? []), ...(resident.outbox ?? [])]) {
-      const letter = mapLetter(raw);
-      if (!letter.id) continue;
-      const existing = byId.get(letter.id);
-      if (!existing || (existing.box === "outbox" && letter.box === "inbox")) byId.set(letter.id, letter);
+/**
+ * The town's whole letter corpus, from the office's own bulk door — or null.
+ *
+ * WHY THIS EXISTS. Until 2026-08-25 the site built its entire letters corpus
+ * out of `resident.inbox`/`.outbox` full bodies, fetched from
+ * `/residents/<handle>` for every resident. That was never what the address
+ * card was for; the card simply happened to be the only door that carried
+ * bodies in bulk, so this file used it. The office then bounded that card
+ * (782 KB -> 10 KB on the worst resident) and grew the door it should have had
+ * all along: `/letters?full=1`, paged.
+ *
+ * DUAL-MODE, BY CAPABILITY DETECTION, so neither repo's release order can break
+ * the build. This function asks the new door first. Against an office that has
+ * it, the answer carries bodies and this is the corpus. Against an older office
+ * the `full` parameter is simply ignored — REST drops unknown query params —
+ * and the answer comes back as excerpts, with no `body` key at all. That is the
+ * signal: no bodies, no door, and the caller falls back to the resident-card
+ * route, which still works there because that office has not bounded the card.
+ *
+ * Site ships first: fallback carries the build until the office lands.
+ * Office ships first: the new door is already preferred. Either order is safe.
+ *
+ * DETECTED ON THE KEY, NOT ON THE VALUE. `Object.hasOwn(l, "body")`, never
+ * `if (l.body)` — a letter with a genuinely empty body is legal (mapLetter
+ * writes `l.body ?? ""`), and a truthiness test would read that real door as
+ * an absent one and silently fall back forever.
+ */
+export async function fetchLetterCorpus({ apiBase, fetchImpl, retries, limit = 200 } = {}) {
+  const letters = [];
+  for (let offset = 0; ; offset += limit) {
+    const { body } = await apiGet(`/letters?full=1&limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries });
+    const batch = ensureArray(body.letters, "/letters.letters");
+    if (offset === 0) {
+      if (!batch.length) return null;            // nothing to detect on; the fallback answers the same
+      const withBody = batch.filter((l) => Object.hasOwn(l, "body")).length;
+      if (withBody === 0) return null;           // an older office: no door, use the cards
+      // A MIXED PAGE IS NOT A HALF-MIGRATION TO LIMP THROUGH. If some rows
+      // carry bodies and others do not, this route cannot be trusted to build
+      // a complete corpus, and quietly keeping the ones that had bodies would
+      // publish a town missing letters nobody could name. Fall back to the
+      // known-good route and say so.
+      if (withBody !== batch.length) return { mixed: true, withBody, of: batch.length };
     }
+    letters.push(...batch.map(mapLetter));
+    // Paged on the page's own length rather than on `complete`/`next_offset`,
+    // because those fields are the new door's and this loop has to survive the
+    // old one too — the same idiom fetchAllLetterIds already uses.
+    if (batch.length < limit) break;
+  }
+  // Same dedupe rule as the resident route, applied to the same ids, so the two
+  // paths cannot disagree about which copy of a letter wins.
+  return { letters: dedupeLetters(letters) };
+}
+
+/** Newest-first union by id; the inbox copy wins over an outbox one. */
+function dedupeLetters(rows) {
+  const byId = new Map();
+  for (const letter of rows) {
+    if (!letter.id) continue;
+    const existing = byId.get(letter.id);
+    if (!existing || (existing.box === "outbox" && letter.box === "inbox")) byId.set(letter.id, letter);
   }
   return [...byId.values()]
     .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "") || (a.id ?? "").localeCompare(b.id ?? ""));
+}
+
+/**
+ * The corpus from the resident cards — the ROUTE OF RECORD until 2026-08-25,
+ * kept as the fallback leg of the dual-mode read above.
+ *
+ * It still works against an office that has not bounded the address card, and
+ * against one that HAS it simply returns the bounded excerpts, which is why the
+ * capability detection lives on the door and not here: this function cannot
+ * tell a small town from a bounded card, and must never be asked to.
+ */
+export function lettersFromResidents(residents) {
+  const rows = [];
+  for (const resident of residents) {
+    for (const raw of [...(resident.inbox ?? []), ...(resident.outbox ?? [])]) rows.push(mapLetter(raw));
+  }
+  return dedupeLetters(rows);
 }
 
 function recipients(letter) {
@@ -215,7 +284,38 @@ export async function buildOfficeData({
     (await apiGet(`/residents/${encodeURIComponent(handle)}`, { apiBase, fetchImpl, retries })).body
   ));
 
-  const letters = lettersFromResidents(fullResidents);
+  // ── THE LETTER CORPUS: the bulk door first, the resident cards as fallback ──
+  //
+  // The cards are still fetched above, and still must be — `mapResident` below
+  // needs them for everything that is not mail. What moved is only where the
+  // BODIES come from. See fetchLetterCorpus for why this is capability-detected
+  // rather than switched on a version, and why either repo may ship first.
+  //
+  // The fallback is not a degraded mode to be tolerated quietly: which route
+  // built the corpus is recorded in `endpointGaps`, so a deploy that silently
+  // stopped preferring the door is visible in the build log rather than only in
+  // a byte count nobody is watching.
+  let letters;
+  let corpus = null;
+  try {
+    corpus = await fetchLetterCorpus({ apiBase, fetchImpl, retries });
+  } catch (error) {
+    // A door that errors is a door that is not there, for our purposes. The
+    // fallback is the known-good route and the build goes on; the reason is
+    // recorded rather than swallowed.
+    problems.push(`letters: the bulk door did not answer (${error?.message ?? error}); built from the resident cards instead`);
+  }
+  if (corpus?.mixed) {
+    problems.push(`letters: the bulk door answered ${corpus.withBody} of ${corpus.of} rows with bodies — a partial answer cannot build a complete corpus, so the resident cards were used instead`);
+    corpus = null;
+  }
+  if (corpus) {
+    letters = corpus.letters;
+    endpointGaps.push(`letters.json built from the office's bulk letter door (/letters?full=1): ${letters.length} letters`);
+  } else {
+    letters = lettersFromResidents(fullResidents);
+    endpointGaps.push(`letters.json built from the resident cards: this office serves no bulk letter door (/letters?full=1 carried no bodies), which is the pre-2026-08-25 office. ${letters.length} letters`);
+  }
 
   const ledger = readSnapshot("ledger.json", []);
   endpointGaps.push("ledger.json preserved from committed snapshot: office has metrics but no event-level ledger endpoint yet");
