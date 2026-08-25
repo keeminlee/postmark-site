@@ -332,6 +332,11 @@ test("the explicit word outranks the derivation, in BOTH directions", () => {
   // lost to a posted target, a box would be sold an epoch pot's promise.
   const epoch = POT_FIXTURE.find((p) => p.pot === "keeping-ec2");
   const roll = POT_FIXTURE.find((p) => p.pot === "darko-fund");
+  // THE FIXTURE MUST MATCH THE RECORD. keeping-ec2 says close: "epoch" in the
+  // town since 2026-08-25, and a fixture that lags it is a green suite
+  // asserting a world that no longer exists — which is how the DEV rendering
+  // of this pot went on being drawn by the boolean long after the word existed.
+  assert.equal(epoch.close, "epoch", "the fixture carries the word the town's pot file states");
   assert.equal(toPot(epoch).closes, true, "a pot with a posted need closes on it");
   assert.equal(toPot({ ...epoch, close: "none" }).closes, false,
     '"none" beats a posted target');
