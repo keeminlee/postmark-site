@@ -328,17 +328,27 @@ const asOfText = potsAsOf
                   </div>
                 )}
 
-                {/* THE CHARACTER LINE — compressed, and still keyed on the pot
-                    file's own word rather than on the boolean, because the
-                    boolean cannot tell "never closes" from "not stated yet". */}
+                {/* THE CHARACTER LINE — compressed, and keyed on the pot file's
+                    own word rather than on the boolean, because the boolean
+                    cannot tell "never closes" from "not stated yet".
+
+                    That is what the comment said before 2026-08-25, and the
+                    third arm fell through to `p.closes` anyway — so a pot that
+                    posted a target and named no word was told, in bold, that it
+                    closes at the epoch. On the keeping pot that was live and
+                    visibly wrong: this page promised the epoch close while the
+                    MCP's fund read warned that nothing in the record said when
+                    a stake would burn, and a resident found the pair. The
+                    record now says close: "epoch" and this branches on the
+                    word, so every arm here is something the town SAID. */}
                 <p class="m-char">
                   {p.close === "elastic"
                     ? <><b>Carries forward.</b> Any gift is witnessed and joins the roll — nothing is refused at intake. When the roll reaches its floor every standing stake converts in full and <span class="pm-holo-ink m-holo">holo</span> splits across the <b>whole accumulated roll</b>. Under it, everything rides to next month.</>
                     : p.close === "none"
                     ? <><b>Never closes.</b> A gift is witnessed and left at that: nothing burns, nothing converts, nothing mints back — to the giver, the stakers, or anyone.</>
-                    : p.closes
+                    : p.close === "epoch"
                     ? <><b>Closes at the epoch.</b> Stakes the month's dollars matched burn and split: minted back to the stakers for keeping, <span class="pm-holo-ink m-holo">holo</span> to the hands that paid. The beneficiary receives dollars, never stamps.</>
-                    : <><b>How it closes is not in the town's record yet.</b> It posts no target and the emission carries no word for it — so nothing here promises you a return, and nothing promises you there isn't one.</>}
+                    : <><b>How it closes is not in the town's record yet.</b> The emission carries no word for it — so nothing here promises you a return, and nothing promises you there isn't one.</>}
                 </p>
 
                 {/* WHAT IT WOULD PAY IF IT CLOSED RIGHT NOW. An estimate, and

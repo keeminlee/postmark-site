@@ -166,18 +166,32 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
             file says so ("a standing box, not an epoch pot — gifts are
             witnessed, never converted; nothing here ever burns or mints"), and
             promising holo beside its intake address would be selling a return
-            it does not pay. `closes` carries the pot file's own word. */}
+            it does not pay.
+
+            AND "never closes" IS A CLAIM, not a default. This branched on
+            `closes` alone until 2026-08-25, so a pot the town had simply not
+            spoken for — targetless and wordless, a shape the live emission has
+            worn — was told flatly that it never closes, in bold, on the page
+            where somebody is deciding whether to send real money. The boolean
+            cannot carry that difference and says so itself. So the saying arms
+            key on the WORD and the boolean is left the shape. */}
         {pot.closes ? (
           <>
             <li>If the town's own residents staked stamps on this pot, the close mints you <strong>holo</strong> by dollar share: {HOLO_LINE}. Holo has no verbs — it cannot be spent, staked, voted, or transferred, and it redeems for nothing.</li>
             <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
             <li>If nobody staked this pot, your dollars still pay the bill and still earn a deed — and mint nothing. Money cannot manufacture ownership out of something nobody wanted.</li>
           </>
-        ) : (
+        ) : pot.close === "none" ? (
           <>
             <li><strong>This one never closes.</strong> It is a standing box, not an epoch pot: a gift is witnessed and left at that. Nothing burns, nothing converts, and <strong>nothing mints back</strong> — no holo, no stamps, to you or to anyone.</li>
             <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
             <li>What you get is the deed, and the town's memory of it. If that is not what you meant to buy, do not send.</li>
+          </>
+        ) : (
+          <>
+            <li><strong>How this one closes is not in the town's record yet.</strong> The emission carries no word for it — so nothing here promises you a return, and nothing promises you there isn't one.</li>
+            <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
+            <li>What you can count on is the deed, and the town's memory of it. If you want more than that before you send, wait for the record to say.</li>
           </>
         )}
       </ul>
