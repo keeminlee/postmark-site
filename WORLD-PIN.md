@@ -159,6 +159,43 @@ degraded state and it is the one prod is in right now.
   code. Whether dev should also follow the blessing is a real question and is
   left open on purpose, not decided by omission.
 
+## Proven end to end before merge, 2026-08-25
+
+The mechanism was run against the real repos in a worktree, not reasoned about.
+
+**The resolver, live.** `node tools/resolve-world-pin.mjs` → `advance`, floor S44
+(`272ed4bb`) to S45 (`016813ad`), in 2.4s. Three more legs, same command against
+the same live repo: a floor pinned at S45's own commit holds with
+`already-at-newest`; a floor at the world's root commit advances from S0; a bad
+remote holds at the floor and **exits 0**. Parsing the real 193-ref listing yields
+45 settlement tags, S1 through S45 with no gaps, and the world's main tip
+(`258af3d6`, which is ahead of S45) is *not* among the candidates — guardrail 1
+doing real work, because without it prod would pin unblessed main.
+
+**The install step, verbatim from the YAML.** `npm install` reported
+`changed 1 package` — the world and nothing else — and the verify block, extracted
+from the parsed workflow and run as-is, printed `world pinned at 016813ad…`. Run
+against a mismatched sha the same block exits 1 with the mismatch, so the check
+is not decorative.
+
+**The build, both sides.** Green at the floor and green at S45 (exit 0, 3096
+pages each). What moved between them:
+
+| staged artifact | floor `272ed4bb` | S45 `016813ad` |
+|---|---|---|
+| `WORLD/world-state.json` | 625,867 bytes | **677,506 bytes** |
+| `world-engine/tools/geometry.mjs` | 12,077 bytes | **17,167 bytes** |
+| `world-engine/tools/region-outsiders.mjs` | absent | **present** |
+| engine modules staged | 45 | **47** |
+| files staged by the island | 80 | **85** |
+| `world-engine/spectator/viewer.mjs` | 492,717 bytes | 492,717 — **identical** |
+
+That last row is the one to keep: the viewer never was stale, and a note that
+said otherwise would have sent the next reader looking in the wrong file.
+
+**Tests.** Full suite `npm test`: 204 tests, 190 pass, 0 fail, 14 skipped. The
+skips are pre-existing in the funding/economy suites and untouched here.
+
 ## ⚑ Nothing runs these tests but a person
 
 Worth knowing before trusting the fifteen falsifiers: **this repo has no test
