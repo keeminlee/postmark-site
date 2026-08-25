@@ -332,11 +332,26 @@ test("the explicit word outranks the derivation, in BOTH directions", () => {
   // lost to a posted target, a box would be sold an epoch pot's promise.
   const epoch = POT_FIXTURE.find((p) => p.pot === "keeping-ec2");
   const roll = POT_FIXTURE.find((p) => p.pot === "darko-fund");
+  // THE FIXTURE MUST MATCH THE RECORD. keeping-ec2 says close: "epoch" in the
+  // town since 2026-08-25, and a fixture that lags it is a green suite
+  // asserting a world that no longer exists — which is how the DEV rendering
+  // of this pot went on being drawn by the boolean long after the word existed.
+  assert.equal(epoch.close, "epoch", "the fixture carries the word the town's pot file states");
   assert.equal(toPot(epoch).closes, true, "a pot with a posted need closes on it");
   assert.equal(toPot({ ...epoch, close: "none" }).closes, false,
     '"none" beats a posted target');
   assert.equal(toPot({ ...roll, close: "elastic" }).closes, true,
     '"elastic" beats a null target');
+  // "epoch" — the third word, made explicit in the record 2026-08-25. It joins
+  // the same both-ways law: said, it answers, and the target is only consulted
+  // when nothing was said. The pair below is one the record should never emit
+  // (an epoch pot posts a need), and that is exactly why it is the probe: it is
+  // the only shape where the word and the derivation disagree, so it is the
+  // only one that can prove which of the two is being read.
+  assert.equal(toPot({ ...epoch, close: "epoch" }).closes, true, '"epoch" says it closes');
+  assert.equal(
+    toPot({ ...epoch, close: "epoch", target_usd_per_epoch: null, uncapped: true }).closes, true,
+    '"epoch" beats a null target, the same way "elastic" does');
 });
 
 test('an emission with no `close` falls back, because "A pot with no target cannot close"', () => {
@@ -375,6 +390,8 @@ test("every pot in the live emission answers whether it closes", () => {
     // silent — and this now pins that instead.
     if (row.close === "elastic") {
       assert.equal(row.closes, true, `pot ${row.id} says elastic, so it closes on its floor`);
+    } else if (row.close === "epoch") {
+      assert.equal(row.closes, true, `pot ${row.id} says epoch, so it closes at the epoch`);
     } else if (row.close === "none") {
       assert.equal(row.closes, false, `pot ${row.id} says it never closes`);
     } else if (row.target == null) {

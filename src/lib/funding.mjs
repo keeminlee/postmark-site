@@ -354,6 +354,14 @@ export function toPot(raw) {
     //              — carried dollars plus this month's — totals at least
     //              min_close_usd; otherwise dollars and stakes both stand and
     //              ride to the next month … Nothing is ever refused at intake."
+    //   "epoch"    the monthly pot. pot-keeping-ec2.json § source: "at each
+    //              month's close, the share of every stake that the month's
+    //              dollars funded burns and splits between the stakers
+    //              themselves and the payers per the keeping law
+    //              (ECONOMY-DIALS.json law_side.keeping)". The prose always
+    //              ruled it; the WORD was made explicit 2026-08-25, after this
+    //              page and the MCP's fund read derived the same silent pot in
+    //              opposite directions.
     //   absent     the emission has not said. NOT the same as "none", and the
     //              surfaces must not treat it as one — see `closes`.
     close,
@@ -385,18 +393,21 @@ export function toPot(raw) {
     firstCloseLabel: firstCloseLabel(raw.first_close),
     epochLabel: epochLabel(epoch),
     // DERIVED, and deliberately not stored: whether a close can ever run on
-    // this pot. THE EXPLICIT WORD IS PRIMARY, both ways — "elastic" closes
-    // despite having no target, and "none" does not close even if one were
-    // posted. Only when the emission is silent does the pot's own target
-    // answer, because the law ties those two together: "A pot with no target
-    // cannot close" (pot-keeping-ec2.json § _target).
+    // this pot. THE EXPLICIT WORD IS PRIMARY, both ways — "elastic" and
+    // "epoch" close, and "none" does not close even if a target were posted.
+    // Only when the emission is silent does the pot's own target answer,
+    // because the law ties those two together: "A pot with no target cannot
+    // close" (pot-keeping-ec2.json § _target). The silent fallback is for the
+    // pots that have not said yet, and for nothing else.
     //
     // Note what this boolean CANNOT carry: the difference between "the town
     // said this never closes" and "the town has not said". Both read false,
     // and a surface that renders the first sentence for the second case is
     // making a confident claim the record does not support. The surfaces
     // branch on `close` for their words and use this only for the shape.
-    closes: close === "none" ? false : close === "elastic" ? true : !targetless,
+    closes: close === "none" ? false
+      : close === "elastic" || close === "epoch" ? true
+      : !targetless,
     // When the emission that produced this row was made. The pots block renders
     // an "as of" from it, because a quiet market and a stale page look the same
     // without one. Null on an emission that predates the field.
@@ -611,6 +622,7 @@ export const POT_FIXTURE = [
     source: "The town runs on a real machine with a real monthly bill (~$150/mo). Stake stamps to say the box matters to you; witnessed dollars close the month.",
     target_usd_per_epoch: 150, epoch_cadence: "monthly",
     beneficiary: "the-town/the-box", received_usd: 90,
+    close: "epoch", first_close: "2026-09-30",
     board: "quest-registry.json § keeping-ec2",
     epoch: "2026-09", staked: 12,
     patrons: [
@@ -626,6 +638,7 @@ export const POT_FIXTURE = [
     source: "October's month of the box — same machine, next epoch.",
     target_usd_per_epoch: 150, epoch_cadence: "monthly",
     beneficiary: "the-town/the-box", received_usd: 0,
+    close: "epoch", first_close: "2026-09-30",
     board: "quest-registry.json § keeping-ec2",
     epoch: "2026-10", staked: 0, patrons: [],
   },
@@ -636,6 +649,7 @@ export const POT_FIXTURE = [
     source: "August's month of the box, closed at target.",
     target_usd_per_epoch: 150, epoch_cadence: "monthly",
     beneficiary: "the-town/the-box", received_usd: 150,
+    close: "epoch", first_close: "2026-09-30",
     board: "quest-registry.json § keeping-ec2",
     epoch: "2026-08", staked: 0,
     patrons: [
