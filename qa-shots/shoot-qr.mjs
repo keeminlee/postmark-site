@@ -11,5 +11,6 @@ const page = await b.newPage({ viewport:{width:1280,height:1400}, deviceScaleFac
 for (const pot of ["keeping-ec2","darko-fund"]) {
   await page.goto(`http://127.0.0.1:4322/fund/${pot}/`, { waitUntil:"networkidle" });
   await page.locator(".f-qr").screenshot({ path:`G:/postmark/wt-fund/qa-shots/qr-${pot}.png` });
+  await page.locator("section.f-need").screenshot({ path:`G:/postmark/wt-fund/qa-shots/${pot}-need-epoch.png` });
 }
 await b.close(); s.close(); console.log("qr shots written");

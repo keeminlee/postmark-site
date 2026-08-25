@@ -21,6 +21,8 @@ import {
   FOUNDER_ACCOUNT,
   holoPerDollar,
   beneficiaryLabel,
+  firstCloseLabel,
+  epochLabel,
   ECONOMY_FIXTURE,
   HOLO_LINE,
   POT_FIXTURE,
@@ -520,4 +522,51 @@ test("the fixture carries an elastic roll on BOTH sides of its floor", () => {
   assert.ok(rolls.length >= 2, "two elastic rows, not one");
   assert.ok(rolls.some((p) => p.received < p.minCloseUsd), "one under its floor");
   assert.ok(rolls.some((p) => p.received > p.minCloseUsd), "and one past it");
+});
+
+// ── the first close, and the epoch a reader is shown ────────────────────────
+
+test('"end of September" is said only when the date IS the end of September', () => {
+  // LAW (pot-*.json § _first_close): "the first month closes at the END of
+  //     September". The phrase is the founder's, and it is only TRUE of a date
+  //     that is actually the month's last day — a close on the 12th is not the
+  //     end of anything, and rounding it into that phrase would be a lie about
+  //     when a patron's money converts.
+  assert.equal(firstCloseLabel("2026-09-30"), "end of September");
+  assert.equal(firstCloseLabel("2026-02-28"), "end of February");
+  assert.equal(firstCloseLabel("2028-02-29"), "end of February", "a leap February ends on the 29th");
+  // NOT the end of the month → the plain date, never the phrase
+  assert.equal(firstCloseLabel("2026-09-12"), "12 September");
+  assert.equal(firstCloseLabel("2028-02-28"), "28 February", "the 28th is not the end of a leap February");
+  // absent or malformed is a real state, not a crash and not a guess
+  assert.equal(firstCloseLabel(null), null);
+  assert.equal(firstCloseLabel("2026-09"), null);
+  assert.equal(firstCloseLabel("soon"), null);
+  assert.equal(firstCloseLabel("2026-13-01"), null);
+});
+
+test("the epoch a reader is shown names its month; the row keeps the stamp", () => {
+  assert.equal(epochLabel("2026-09"), "September 2026");
+  assert.equal(epochLabel("2027-01"), "January 2027");
+  assert.equal(epochLabel("2026-9"), null, "the stamp is YYYY-MM or it is nothing");
+  assert.equal(epochLabel(null), null);
+});
+
+test("a pot row carries its first close through the reader", () => {
+  // The emitter carries the field; this is the other half — that the reader
+  // hands it to the surfaces instead of dropping it on the floor.
+  const row = { ...POT_FIXTURE[0], epoch: "2026-09", first_close: "2026-09-30" };
+  const read = toPot(row);
+  assert.equal(read.ok, true, read.reason);
+  assert.equal(read.firstClose, "2026-09-30");
+  assert.equal(read.firstCloseLabel, "end of September");
+  assert.equal(read.epochLabel, "September 2026");
+
+  // and a pot with no first close says so as null rather than inventing one —
+  // the surfaces branch on it, so a fabricated date would put a close on a page
+  // for a pot the town has never dated
+  const undated = toPot({ ...POT_FIXTURE[0], first_close: undefined });
+  assert.equal(undated.ok, true, undated.reason);
+  assert.equal(undated.firstClose, null);
+  assert.equal(undated.firstCloseLabel, null);
 });

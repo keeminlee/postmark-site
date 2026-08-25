@@ -350,3 +350,64 @@ test("the emitter's allowlist names close and min_close_usd", () => {
   assert.ok(block.includes("file?.min_close_usd"),
     "read off the pot file, never computed or defaulted to a number here");
 });
+
+// ── the early-posted pot: the epoch comes from first_close, not the clock ────
+
+test("an early-posted pot's epoch rounds FORWARD to its own first close", { skip: !haveTown }, async () => {
+  // LAW (WHITE_PAGES/pot-*.json § _first_close, verbatim): "EARLY-POSTED FOR
+  //     SEPTEMBER (founder's ruling, 2026-08-25 beta-launch sitting): the pots
+  //     opened in late August with $0 received, so the first epoch ROUNDS
+  //     FORWARD — the first month closes at the END of September; dollars
+  //     arriving before then all belong to the 2026-09 epoch. Surfaces render
+  //     the epoch from this field, not from the posting date."
+  const mint = await loadMint();
+  const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
+  const base = mint.potFile(TOWN, "keeping-ec2");
+
+  const early = { ...base, first_close: "2026-09-30" };
+  const seam = seamFromTown({ mint, entries, potFiles: [early], dial: DIAL, asOf: "2026-08-25" });
+  const open = seam.pots.find((p) => p.status !== "closed");
+  assert.equal(open.epoch, "2026-09", "posted in August, but the first month closes in September");
+  assert.equal(open.first_close, "2026-09-30", "and the field itself is carried, not just consumed");
+
+  // THE CAN-FAIL FLIP. Drop the field and the epoch falls back to the posting
+  // month — which proves the assertion above reads first_close and not the clock.
+  const withoutIt = { ...base, first_close: undefined };
+  const fallback = seamFromTown({ mint, entries, potFiles: [withoutIt], dial: DIAL, asOf: "2026-08-25" });
+  assert.equal(fallback.pots.find((p) => p.status !== "closed").epoch, "2026-08",
+    "with no first_close the derivation is the clock's, exactly as before");
+});
+
+test("first_close is a FLOOR, never an override — it can only round forward", { skip: !haveTown }, async () => {
+  // A first close that is already behind the town's clock has been spent, and
+  // must stop mattering rather than dragging a live pot back into a dead month.
+  // Nothing in this rule may ever reach backwards.
+  const mint = await loadMint();
+  const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
+  const base = mint.potFile(TOWN, "keeping-ec2");
+
+  const past = seamFromTown({
+    mint, entries, potFiles: [{ ...base, first_close: "2026-09-30" }], dial: DIAL, asOf: "2026-11-04",
+  });
+  assert.equal(past.pots.find((p) => p.status !== "closed").epoch, "2026-11",
+    "November's pot asks for November, not for a September that has gone");
+
+  // and a month the pot has already CLOSED is still stepped over, floor or no floor
+  const sameMonth = seamFromTown({
+    mint, entries, potFiles: [{ ...base, first_close: "2026-09-30" }], dial: DIAL, asOf: "2026-09-02",
+  });
+  assert.equal(sameMonth.pots.find((p) => p.status !== "closed").epoch, "2026-09",
+    "the floor's own month is reachable — it is a floor, not a skip");
+});
+
+test("the emitter's allowlist names first_close", () => {
+  // Same reasoning as the close/min_close_usd check above: the emitter copies an
+  // ALLOWLIST, so an un-named field goes silently absent downstream. Reads the
+  // source so it runs on a machine with no town checkout.
+  const src = readFileSync(new URL("../tools/extract-seam.mjs", import.meta.url), "utf8");
+  const base = src.slice(src.indexOf("const base = {"));
+  const block = base.slice(0, base.indexOf("\n    };"));
+  assert.ok(/first_close: /.test(block), "the emitter must carry `first_close`");
+  assert.ok(block.includes("file?.first_close"),
+    "read off the pot file, never computed or defaulted to a date here");
+});

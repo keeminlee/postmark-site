@@ -132,6 +132,39 @@ export function beneficiaryLabel(beneficiary) {
 // POT_ID_CLASS / EPOCH_CLASS, from the seam's own regexes.
 const POT_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 const EPOCH_RE = /^\d{4}-\d{2}$/;
+const FIRST_CLOSE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+const MONTHS = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"];
+
+// The first close, as a sentence rather than a date stamp — "end of September".
+//
+// ONE formatter, because the epoch label, the fund page and the board all name
+// this same moment, and a date formatted three times is three chances to
+// disagree about when a patron's money converts.
+//
+// "end of <Month>" is said only when the date IS the month's last day, which is
+// what the founder's ruling describes ("the first month closes at the END of
+// September"). Any other day gets the plain date instead of being rounded into
+// a phrase that would be false — a close on the 12th is not the end of anything.
+// "2026-09" → "September 2026". The epoch a surface NAMES, for the places that
+// are speaking to a reader rather than stamping a row; the raw YYYY-MM stays the
+// identity everywhere it is one.
+export function epochLabel(epoch) {
+  const s = String(epoch ?? "").trim();
+  if (!EPOCH_RE.test(s)) return null;
+  const [y, m] = s.split("-").map(Number);
+  return m >= 1 && m <= 12 ? `${MONTHS[m - 1]} ${y}` : null;
+}
+
+export function firstCloseLabel(firstClose) {
+  const s = String(firstClose ?? "").trim();
+  if (!FIRST_CLOSE_RE.test(s)) return null;
+  const [y, m, d] = s.split("-").map(Number);
+  if (m < 1 || m > 12) return null;
+  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return d === lastDay ? `end of ${MONTHS[m - 1]}` : `${d} ${MONTHS[m - 1]}`;
+}
 
 // The pot file's `status`. A pot is not live until the founder opens it — see
 // livePots() for why `draft` never reaches the board.
@@ -337,6 +370,20 @@ export function toPot(raw) {
     // live need over a display number.
     minCloseUsd: isNum(raw.min_close_usd) && int(raw.min_close_usd) >= 1
       ? int(raw.min_close_usd) : null,
+    // WHEN THE FIRST MONTH CLOSES, in the pot file's own words — the field the
+    // epoch above is derived from when a pot was posted early. § _first_close:
+    // "the first epoch ROUNDS FORWARD — the first month closes at the END of
+    // September; dollars arriving before then all belong to the 2026-09 epoch.
+    // Surfaces render the epoch from this field, not from the posting date."
+    //
+    // Carried as the raw date AND as the sentence a reader gets, because every
+    // surface that says it would otherwise format it again, and a date
+    // formatted three ways is three chances to disagree about when a patron's
+    // money converts.
+    firstClose: FIRST_CLOSE_RE.test(String(raw.first_close ?? "").trim())
+      ? String(raw.first_close).trim() : null,
+    firstCloseLabel: firstCloseLabel(raw.first_close),
+    epochLabel: epochLabel(epoch),
     // DERIVED, and deliberately not stored: whether a close can ever run on
     // this pot. THE EXPLICIT WORD IS PRIMARY, both ways — "elastic" closes
     // despite having no target, and "none" does not close even if one were

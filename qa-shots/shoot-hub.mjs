@@ -1,0 +1,15 @@
+const { chromium } = await import("file:///G:/Wright-HQ/node_modules/playwright/index.mjs");
+import { createServer } from "node:http";
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { join, extname } from "node:path";
+const ROOT = "G:/postmark/wt-fund/dist-town";
+const T = { ".html":"text/html", ".css":"text/css", ".js":"text/javascript", ".svg":"image/svg+xml", ".png":"image/png", ".jpg":"image/jpeg", ".webp":"image/webp", ".json":"application/json", ".woff2":"font/woff2" };
+const s = createServer((q,r)=>{ let p=decodeURIComponent(q.url.split("?")[0]); let f=join(ROOT,p); if(existsSync(f)&&statSync(f).isDirectory())f=join(f,"index.html"); if(!existsSync(f)){r.writeHead(404);return r.end("nf");} r.writeHead(200,{"content-type":T[extname(f)]??"application/octet-stream"}); r.end(readFileSync(f)); });
+await new Promise(r=>s.listen(4323,r));
+const b = await chromium.launch();
+const page = await b.newPage({ viewport:{width:1280,height:1400}, deviceScaleFactor:2 });
+await page.goto("http://127.0.0.1:4323/stamps/", { waitUntil:"networkidle" });
+await page.locator("#pots").scrollIntoViewIfNeeded().catch(()=>{});
+const grid = page.locator(".m-grid:has(.is-pot)").first();
+await grid.screenshot({ path:"G:/postmark/wt-fund/qa-shots/hub-pot-cards.png" });
+await b.close(); s.close(); console.log("hub shot written");

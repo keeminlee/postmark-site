@@ -271,7 +271,13 @@ const asOfText = potsAsOf
           <div class="m-grid">
             {potBoard.pots.map((p) => (
               <article class:list={["m-card", "is-pot", p.status !== "open" && "is-settled"]}>
-                <p class="m-kind">pot · {p.epoch}{p.cadence && <> · {p.cadence}</>}</p>
+                {/* The epoch is the pot's OWN first_close when it has one, not
+                    the month the pot happened to be posted in — the pot file
+                    settles it: "Surfaces render the epoch from this field, not
+                    from the posting date." Naming the close beside the epoch is
+                    what stops a September label on an August page reading as a
+                    mistake. */}
+                <p class="m-kind">pot · {p.epoch}{p.cadence && <> · {p.cadence}</>}{p.firstCloseLabel && <> · first close: {p.firstCloseLabel}</>}</p>
                 <h3 class="m-title">{p.title}</h3>
 
                 {/* THE MONEY LINE.

@@ -142,6 +142,17 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
           </p>
         </>
       )}
+      {/* WHICH EPOCH "this epoch" IS. The pot file carries its own first close
+          and tells the surfaces to use it: "the first epoch ROUNDS FORWARD —
+          the first month closes at the END of September ... Surfaces render the
+          epoch from this field, not from the posting date." Said here because
+          this is the section that keeps saying "this epoch" at a reader. */}
+      {pot.firstCloseLabel && (
+        <p class="f-epoch">
+          This is the <strong>{pot.epochLabel}</strong> epoch, and its first close is at the{" "}
+          <strong>{pot.firstCloseLabel}</strong>.
+        </p>
+      )}
     </section>
 
     {/* THE DISCLOSURES SIT ABOVE THE ADDRESS. §10's second consent gate: the
@@ -203,6 +214,16 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
             <li>Nothing further — a person here does the rest by hand.</li>
           </ol>
         </div>
+        {/* THE ONE THING BOTH RAILS SHARE, so it sits under both rather than
+            inside either: a patron reading this in August needs to know that an
+            early dollar is not a lost one. */}
+        {pot.firstCloseLabel && (
+          <p class="f-how-note">
+            Either way, dollars arriving now belong to the <strong>{pot.epochLabel}</strong> epoch —
+            this pot's first close is at the <strong>{pot.firstCloseLabel}</strong>. Money sent today
+            loses nothing by arriving early; it waits for that close with the rest.
+          </p>
+        )}
       </div>
 
       {/* THE TWO RAILS, SIDE BY SIDE. Stacked, the card rail sat below a fold
@@ -385,6 +406,13 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
   }
   .f-how ol { margin: 0; padding-left: 1.15rem; font-size: .82rem; line-height: 1.55; opacity: .9; }
   .f-how li + li { margin-top: .3rem; }
+  /* the shared line sits under BOTH rails, so it spans the strip at every width */
+  .f-how-note {
+    grid-column: 1 / -1; margin: .2rem 0 0; padding-top: .7rem;
+    border-top: 1px dotted rgba(232, 196, 139, .25);
+    font-size: .82rem; line-height: 1.55; opacity: .88;
+  }
+  .f-epoch { margin: .7rem 0 0; font-size: .82rem; opacity: .8; }
 
   /* the two rails, told apart by a boxed column rather than by a heading alone
      — they take the same dollar but they are witnessed differently, and that
