@@ -169,13 +169,27 @@ jobs:
       # town data overlaid from main. See tools/build-stamp.mjs for the whole
       # argument, and the 2026-08-24 freeze in the overlay step's comment above
       # for what a one-sha stamp cannot express.
+      # The stamper is deploy machinery like the world-pin resolver above: the
+      # release lane's tree sits at the tag, which predates this file, so take
+      # it from main — and if it is somehow still absent, skip with a word
+      # rather than fail the deploy (the sentinel reads absence as UNKNOWN,
+      # never as green).
+      - name: Take the build stamper from main (deploy machinery, not site code)
+        if: steps.lane.outputs.channel == 'release' && steps.pin.outputs.skip != 'true'
+        run: |
+          git checkout origin/main -- tools/build-stamp.mjs             || echo "no build stamper on main yet — /build.json stays absent"
       - name: Stamp the build (/build.json)
         if: steps.pin.outputs.skip != 'true'
         env:
           PUBLIC_CHANNEL: ${{ steps.lane.outputs.channel }}
           BUILD_CODE_REF: ${{ steps.pin.outputs.tag || github.ref_name }}
           BUILD_TOWN_DATA_SHA: ${{ steps.overlay.outputs.town_data_sha }}
-        run: node tools/build-stamp.mjs --out dist-town/build.json
+        run: |
+          if [ -f tools/build-stamp.mjs ]; then
+            node tools/build-stamp.mjs --out dist-town/build.json
+          else
+            echo "stamper absent at this ref — /build.json not emitted (sentinel reads UNKNOWN)"
+          fi
 
       - name: Rsync to EC2 (${{ steps.lane.outputs.webroot }})
         if: steps.pin.outputs.skip != 'true'
