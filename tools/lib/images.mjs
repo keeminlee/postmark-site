@@ -40,13 +40,26 @@ export function assetName(repoPath, { suffix = "" } = {}) {
   );
 }
 
-// resize + flatten + jpeg, byte-compare write. Returns "wrote" | "kept".
+// resize + flatten + jpeg, byte-compare write. Returns "wrote" | "kept" | "skipped".
+//
+// The decode guard lives HERE, not at call sites. A corrupt upload (truncated
+// PNG/JPEG) is that resident's problem, never the town's: it must skip like a
+// missing image instead of killing the extraction. The 2026-07-30/31 18h sync
+// outage taught that once; the guard was then added at ONE of three call
+// sites, and on 2026-08-25 a corrupt PNG killed every scheduled sync again
+// through an unguarded one. A guard a caller can forget is not a guard.
 export async function processImage(src, dest, { width, quality = 84, background = NIGHT_BG } = {}) {
-  const buf = await sharp(src)
-    .resize({ width, withoutEnlargement: true })
-    .flatten({ background })
-    .jpeg({ quality })
-    .toBuffer();
+  let buf;
+  try {
+    buf = await sharp(src)
+      .resize({ width, withoutEnlargement: true })
+      .flatten({ background })
+      .jpeg({ quality })
+      .toBuffer();
+  } catch (e) {
+    console.warn(`WARN unprocessable image (skipped): ${src} — ${e.message}`);
+    return "skipped";
+  }
   mkdirSync(dirname(dest), { recursive: true });
   if (existsSync(dest) && Buffer.compare(readFileSync(dest), buf) === 0) return "kept";
   writeFileSync(dest, buf);
