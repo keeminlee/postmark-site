@@ -1,7 +1,7 @@
 [
   {
     "pot": "darko-fund",
-    "generated_at": "2026-08-25T22:55:11.530Z",
+    "generated_at": "2026-08-25T23:10:02.723Z",
     "subtype": "bounty",
     "status": "open",
     "title": "The DARKO fund — the donation box",
@@ -21,7 +21,7 @@
   },
   {
     "pot": "keeping-ec2",
-    "generated_at": "2026-08-25T22:55:11.530Z",
+    "generated_at": "2026-08-25T23:10:02.723Z",
     "subtype": "bounty",
     "status": "open",
     "title": "Keep the lights on — the town box",
@@ -30,7 +30,7 @@
     "epoch_cadence": "monthly",
     "beneficiary": "keeminlee",
     "uncapped": false,
-    "close": null,
+    "close": "epoch",
     "min_close_usd": null,
     "first_close": "2026-09-30",
     "board": "quest-registry.json § keeping-ec2",
