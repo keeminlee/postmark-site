@@ -63,7 +63,8 @@ it, main's workflow would invoke a file the standing tag has never heard of.
 
 ## The three guardrails, and where each one lives
 
-Quoted from the founder's ruling, 2026-08-25. Each is falsified in both
+Quoted as the POS-55 brief states them (founder-ruled 2026-08-25); the wording
+below is the brief's, not a paraphrase of it. Each is falsified in both
 directions in `test/world-pin.test.mjs`.
 
 **"tags only, never main tip."** The candidate set is exactly
@@ -140,11 +141,25 @@ degraded state and it is the one prod is in right now.
   code. Whether dev should also follow the blessing is a real question and is
   left open on purpose, not decided by omission.
 
+## ⚑ Nothing runs these tests but a person
+
+Worth knowing before trusting the fifteen falsifiers: **this repo has no test
+CI.** `.github/workflows/` holds exactly two files, `deploy.yml` and
+`sync-atlas.yml`, and neither runs `npm test` — deploy goes straight from
+`npm ci` to `npm run build`. There is no `pull_request` trigger anywhere in the
+repo, so a PR that breaks `test/world-pin.test.mjs` goes red nowhere.
+
+That is a gap in the repo, not in this change, and it is left alone on purpose:
+adding a test gate touches every branch in flight and is a decision above a
+lane's pay grade. But it means the guardrails above are only as live as the last
+person who typed `npm test`, and a falsifier nobody runs cannot fail. Flagging
+it where the next reader of this mechanism will see it.
+
 ## How to check it worked, on a live run
 
 The job summary carries one line per run:
 
-> `world pin: **advance** to settlement **S45** (`016813ad`), from floor S44 (`272ed4bb`)`
+> world pin: **advance** to settlement **S45** (016813ad), from floor S44 (272ed4bb)
 
 and the `Install the blessed world` step logs `world pinned at <sha>` only after
 reading the sha back out of `package-lock.json`. A hold prints the reason it
