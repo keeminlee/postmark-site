@@ -9,7 +9,6 @@
 // chip ruling split them back out to /window/ and /meeps/, the URLs they had
 // before the fold, and this page's chip row is how you move between the three.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import PageChips from "@/components/PageChips.astro";
 import residents from "@/data/postmark/residents.json";
 import media from "@/data/postmark/media.json";
 import { excerpt, fmtDate } from "@/lib/pm.mjs";
@@ -57,7 +56,6 @@ function searchKey(r) {
   active="residents"
 >
   <div class="resdir">
-    <PageChips active="residents" />
 
     <header class="dir-head">
       <h1>The Residents</h1>

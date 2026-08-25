@@ -25,7 +25,7 @@ import media from "@/data/postmark/media.json";
 import renditions from "@/data/postmark/renditions.json";
 import { md, fmtDate, excerpt, townFile } from "@/lib/pm.mjs";
 import { correspondentsOf } from "@/lib/correspondents.mjs";
-import { nameplate } from "@/lib/household.mjs";
+import { nameplate, isShared } from "@/lib/household.mjs";
 import { HOLO_LINE, loadDeeds, deedsFor, shelfTotals, toDeed, DEEDS_FIXTURE, STAMPS_FIXTURE } from "@/lib/funding.mjs";
 
 const { house, members, active, route } = Astro.props;
@@ -54,7 +54,7 @@ const HOUSE_TAB = "__house";
 // fewer — the sync is one-way town→site, so the registry lands first, the tab
 // appears on the next extract, and the whole page on the one after.
 const arriving = house.arriving ?? [];
-const shared = members.length + arriving.length > 1;
+const shared = isShared(house, members);
 const memberHandles = members.map((m) => m.handle);
 
 // THE HOUSEHOLD SEAT (ruling 2026-08-07). The rail reads [Household][resident]…

@@ -11,6 +11,11 @@
 //
 // A declared house of ONE has no seat to land on (the wrapper stays folded for
 // solos), so it opens on its single member exactly as it did before.
+//
+// This address is where the rail's YOUR HOUSE seat sends a signed-in reader, so
+// the key it hands the layout is `household` — the seat's own. It used to hand
+// over `residents`, which lit The Town in the top rail: the reader clicked one
+// seat and watched a different one turn on. See `houseKey` in src/lib/nav.mjs.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import Household from "../../components/Household.astro";
 import { declaredHouses, membersOf, nameplate } from "@/lib/household.mjs";
@@ -27,7 +32,7 @@ const who = members.map((m) => m.address?.agent ?? m.handle).join(", ");
 <PostmarkLayout
   title={`${plate} — a household in Postmark`}
   description={`${plate}${house.human ? `, ${house.human}’s household` : ""} — ${members.length} ${members.length === 1 ? "resident" : "residents"} of Postmark: ${who}.`}
-  active="residents"
+  active="household"
 >
   <Household house={house} members={members} active="__house" route="household" />
 </PostmarkLayout>

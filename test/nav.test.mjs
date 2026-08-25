@@ -35,7 +35,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { RAIL, allEntries, sectionOf, chipsFor, subChipsFor, HARBOR } from "../src/lib/nav.mjs";
+import { RAIL, allEntries, sectionOf, chipsFor, subChipsFor, rowFor, HARBOR } from "../src/lib/nav.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PAGES = join(ROOT, "town", "pages");
@@ -80,12 +80,24 @@ function everyPageFile(dir = PAGES) {
 // document instead of the layout (a redirect stub, the World's shell) claims
 // nothing, which is exactly right: it is not a chip's page.
 const CLAIMED = new Map();   // key -> Set of page files claiming it
+
+/** The opening <PostmarkLayout …> tag of a page file, or null if it renders its
+ *  own document (a redirect stub, the World's spectator shell). */
+function layoutTagOf(file) {
+  return /<PostmarkLayout\b[^>]*>/s.exec(readFileSync(file, "utf8"))?.[0] ?? null;
+}
+
+/** The `active` key THIS page hands the layout — read from the opening tag and
+ *  nowhere else, for the reason in the comment above. "" when it claims none. */
+function activeKeyOf(file) {
+  const open = layoutTagOf(file);
+  if (!open) return "";
+  const m = /\bactive=(?:"([^"]*)"|\{`?([^}`]*)`?\})/.exec(open);
+  return (m?.[1] ?? m?.[2] ?? "").trim();
+}
+
 for (const f of everyPageFile()) {
-  const src = readFileSync(f, "utf8");
-  const open = /<PostmarkLayout\b[^>]*>/s.exec(src);
-  if (!open) continue;
-  const m = /\bactive=(?:"([^"]*)"|\{`?([^}`]*)`?\})/.exec(open[0]);
-  const k = (m?.[1] ?? m?.[2] ?? "").trim();
+  const k = activeKeyOf(f);
   if (!k) continue;
   if (!CLAIMED.has(k)) CLAIMED.set(k, new Set());
   CLAIMED.get(k).add(f);
@@ -312,6 +324,117 @@ test("the routes that came back from a fold are real pages, not stubs", () => {
     assert.ok(src.includes(`active="${key}"`), `${href} does not claim "${key}" — it has folded back into a stub`);
     assert.equal(/http-equiv="refresh"/.test(src), false, `${href} is a redirect again`);
   }
+});
+
+// ── the founder's three, walked on dev 2026-08-25 ────────────────────────────
+//
+// Three defects he named verbatim, and one test each. They are separate from
+// the laws above on purpose: those describe the shape the rail should have,
+// these describe damage he actually met, and a regression on any of them should
+// fail under his own words rather than under a paraphrase of them.
+
+test("YOUR HOUSE — the seat he clicked, and THE TOWN, the seat that lit up", () => {
+  //   "'Your House' click -> selects 'The Town'."
+  //
+  // The seat leads to /households/<slug>/, and that page was handing the layout
+  // `active="residents"` — a key that belongs to The Town's family. So the rail
+  // lit the section the reader had just deliberately left, every time. This
+  // reads the key off the REAL page and runs it through the REAL derivation the
+  // layout uses, so restoring either half of the defect turns it red.
+  const seat = RAIL.find((s) => s.key === "join");
+  const page = join(PAGES, "households", "[slug].astro");
+  assert.ok(existsSync(page), "the Your House destination has no page");
+
+  const key = activeKeyOf(page);
+  assert.equal(key, seat.houseKey, `the household page claims "${key}", which is not this seat's key`);
+
+  const lit = sectionOf(key);
+  assert.ok(lit, `nothing in the rail answers to "${key}" — the page lights no seat at all`);
+  assert.equal(lit.key, "join", `standing on the Your House page lights "${lit.label}"`);
+  assert.notEqual(lit.key, "town", "THE FOUNDER'S DEFECT, restored: Your House lights The Town");
+  assert.equal(lit.signedInLabel, "Your House");
+
+  // and the signed-out face must NOT claim the household page as its own: it is
+  // the Join door, and the Join door is /join/. The layout gates that face on
+  // `active === n.key` rather than on the section, so the key alone settles it.
+  assert.notEqual(key, seat.key, "the household page claims the Join door's own key");
+});
+
+test("ONE CHIP ROW PER PAGE — never the section's AND the room's", () => {
+  //   "we somehow managed to INCREASE the complexity of the site … we just gave
+  //    chips to the sub-header rail IN ADDITION to the household rail."
+  //
+  // Both rows rendered at once, so /residents/ carried the top rail, The Town's
+  // eight chips and its own three. The rows compete now: most specific wins.
+  assert.equal(rowFor("residents").place, "page", "a room with its own row must draw ITS row, not the section's");
+  assert.deepEqual(rowFor("residents").chips.map((c) => c.key), ["residents", "windows", "meeps"]);
+  assert.equal(rowFor("windows").place, "page");
+  assert.equal(rowFor("compose").place, "page");
+  // a page in a section but in no room of its own still gets the section's row —
+  // collapsing to one row must not mean collapsing to none
+  assert.equal(rowFor("daily").place, "section");
+  assert.equal(rowFor("daily").of.key, "town");
+  assert.equal(rowFor("atlas").place, "section");
+  // Your House takes none, by the founder's word; nor does an orphan page
+  assert.equal(rowFor("household"), null, "a section row appeared over the household's own");
+  assert.equal(rowFor("join"), null);
+  assert.equal(rowFor("darkroom"), null);
+  assert.equal(rowFor(""), null);
+  // and a page that says it draws its own row gets nothing from the nav
+  assert.equal(rowFor("residents", { ownChips: true }), null);
+
+  // THE LAYOUT DRAWS THE ROW ONCE. `rowFor` returning one answer is worthless
+  // if the shell renders two components — which is exactly the shape the
+  // founder met — so the count is part of the claim.
+  // Comment lines are dropped before counting, and that is not tidiness: the
+  // first run of this assertion went red on the layout's own sentence saying
+  // there is one row. A probe that counts prose fails on documentation and
+  // passes on a second render tucked inside a conditional.
+  const shell = readFileSync(join(ROOT, "src", "layouts", "PostmarkLayout.astro"), "utf8")
+    .split("\n").filter((l) => !/^\s*(\/\/|\*|\{?\/\*)/.test(l)).join("\n");
+  assert.equal((shell.match(/<ChipRow\b/g) ?? []).length, 1,
+    "PostmarkLayout renders more than one chip row — the stack is back");
+
+  // and no page smuggles a second row in past the shell: the only component
+  // that draws its own is the household wrapper, and a page rendering it must
+  // either declare `ownChips` or claim a key the nav draws nothing for.
+  const doubled = [];
+  for (const f of everyPageFile()) {
+    if (!/<Household\b/.test(readFileSync(f, "utf8"))) continue;
+    const declares = /\bownChips=/.test(layoutTagOf(f) ?? "");
+    if (!declares && rowFor(activeKeyOf(f)) !== null) doubled.push(f.replace(ROOT, ""));
+  }
+  assert.deepEqual(doubled, [], `these pages draw their own chip row AND take one from the nav:\n  ${doubled.join("\n  ")}`);
+});
+
+test("/town/ IS NOT A DASHBOARD — no cards restating the chips, no wall of counts", () => {
+  //   "https://dev.postmark.town/town/ where we have the same chips AND cards
+  //    on the same page, which itself is just filled with… a generic dashboard
+  //    of aggregate numbers."
+  //
+  // The page listed the section's own rooms a second time as a card grid, over
+  // four aggregate counts. Both are gone; this is what keeps them gone.
+  const src = readFileSync(join(PAGES, "town", "index.astro"), "utf8");
+
+  // THE CARDS. The grid was built by mapping the rail's own members, so the
+  // tell is the page reaching for the rail at all — it has a chip row drawn
+  // from that same structure directly above it.
+  assert.equal(/\bfrom "@\/lib\/nav\.mjs"/.test(src), false,
+    "/town/ reads the rail again to restate its own chip row as cards");
+  assert.equal(/t-rooms|t-room\b|ROOM_NOTE/.test(src), false, "the card grid is back on /town/");
+
+  // THE DIALS. Four counts assembled from whatever the extracts happened to
+  // carry. The town's numbers live at /numbers/, held until S4.
+  assert.equal(/t-stats|t-dials|t-stat-note|\bdials\b/.test(src), false,
+    "the aggregate-numbers dashboard is back on /town/");
+  assert.equal(/from "@\/data\/postmark\/stats\.json"|from "@\/data\/postmark\/economy\.json"/.test(src), false,
+    "/town/ imports the counts again");
+
+  // and it is still the section's landing and its first chip — deleting the
+  // body must not have deleted the page
+  assert.ok(CLAIMED.get("town")?.has(join(PAGES, "town", "index.astro")));
+  assert.equal(rowFor("town").place, "section");
+  assert.equal(rowFor("town").chips[0].key, "town");
 });
 
 test("the Harbor keeps its own flag — a root-relative spelling would be wrong from one of the two domains", () => {

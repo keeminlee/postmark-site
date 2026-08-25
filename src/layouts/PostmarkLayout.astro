@@ -8,7 +8,7 @@ import "../styles/postmark.css";
 // each section's chip row — lives in ONE structure, `src/lib/nav.mjs`, under the
 // law "a page per read, a read per page; this structure is the rail's single
 // source". `test/nav.test.mjs` holds it to that. See that file for why.
-import { RAIL, chipsFor, sectionOf } from "@/lib/nav.mjs";
+import { RAIL, rowFor, sectionOf } from "@/lib/nav.mjs";
 import ChipRow from "@/components/ChipRow.astro";
 // The DECLARED household registry, for the Your House seat only. The registry
 // itself (not the full resolver) because all this needs is handle → slug: the
@@ -26,6 +26,11 @@ const {
   // Without it, "The Mail" on the harbor page would walk the reader into the
   // mirror — a whole second copy of the town under the wrong flag.
   origin = "",
+  // THIS PAGE ALREADY DRAWS A CHIP ROW OF ITS OWN, so the nav draws none over
+  // it. Only the household wrapper sets it, and only when the house is shared
+  // enough to grow its member rail — a house of one stays folded and has no row
+  // of its own, so it takes the nav's like any other page.
+  ownChips = false,
 } = Astro.props;
 // The town serves at the postmark.town ROOT, so nav paths are root-relative.
 const P = origin;
@@ -41,14 +46,21 @@ const railHref = (e) => (e.external ? e.href : `${P}${e.href}`);
 // not only on its own landing — the World has behaved this way since it grew
 // its strip, and every section behaves that way now.
 const here = sectionOf(active);
-const row = chipsFor(active);
+
+// ONE CHIP ROW, chosen in `nav.mjs` — see `rowFor` there for why there is one
+// and not two. The founder's words are the reason: "we somehow managed to
+// INCREASE the complexity of the site … we just gave chips to the sub-header
+// rail IN ADDITION to the household rail."
+//
+// There is exactly one <ChipRow> in this file, and the suite counts it.
+const row = rowFor(active, { ownChips });
 
 // WHOSE HOUSE — handle → declared household slug, for the Your House seat.
 // Only the declared houses are here, and that is the honest set: a house exists
 // at /households/<slug>/ exactly when someone declared it. Everyone else is a
 // house of one whose front door is their own resident page — the SAME wrapper,
 // rendering a household of one, which is why the fallback is not a consolation
-// prize. Eight handles today, so this travels inline rather than over a fetch.
+// prize. A handful of KB, so this travels inline rather than over a fetch.
 const houseSlugOf = Object.fromEntries(
   Object.entries(houseRegistry.households ?? {}).flatMap(([slug, dec]) =>
     (dec.residents ?? []).map((h) => [h, slug])
@@ -106,7 +118,14 @@ const houseSlugOf = Object.fromEntries(
             // ships, so it is also the no-JS truth; the synchronous auth paint
             // below swaps it during parse when a fresh token is cached.
             <span class="pm-nav-seat">
-              <a data-rail-out href={railHref(n)} class={n.lantern ? "pm-nav-join" : undefined} aria-current={here?.key === n.key ? "page" : undefined}>{n.signedOutLabel ?? n.label}</a>
+              {/* The two faces answer to DIFFERENT keys, because they lead to
+                  different places. The signed-out face is the Join door and is
+                  current only on /join/ itself — a household page is not the
+                  Join door and must not claim to be. The signed-in face is Your
+                  House, so it takes the highlight anywhere in this seat's family
+                  (that is what `houseKey` adds), and the script below withdraws
+                  it if the reader's own house turns out to be somewhere else. */}
+              <a data-rail-out href={railHref(n)} class={n.lantern ? "pm-nav-join" : undefined} aria-current={active === n.key ? "page" : undefined}>{n.signedOutLabel ?? n.label}</a>
               <a data-rail-in hidden href={railHref(n)} data-house-seat={n.houseHref ? "" : undefined} aria-current={here?.key === n.key ? "page" : undefined}>{n.signedInLabel}</a>
             </span>
           ) : (
@@ -187,9 +206,10 @@ const houseSlugOf = Object.fromEntries(
       // declared household page when the registry claims their handle, and
       // otherwise their resident page — which is the SAME household wrapper
       // rendering a house of one, so the destination is a house either way.
-      // (Only 3 houses are declared today, covering 8 of 126 residents; if this
-      // silently sent the other 118 to /join/ it would be the ballot's failure
-      // wearing a friendlier label.)
+      // (Whoever the registry does not claim must still land on a house, not on
+      // /join/ — silently sending them to the door they already walked through
+      // would be the ballot's failure wearing a friendlier label. How many that
+      // is changes with the registry, so no count is written down here.)
       //
       // First cached handle wins when a reader holds several, matching the
       // `data-lens` flag set above — one reader, one house, one answer.
@@ -206,11 +226,27 @@ const houseSlugOf = Object.fromEntries(
             ? "/households/" + encodeURIComponent(slug) + "/"
             : "/residents/" + encodeURIComponent(h) + "/";
           seat.title = slug ? "your household" : h + "’s house";
-          // The static build marks the seat current on /join/, because signed
-          // out that is where it goes. Signed in it goes somewhere else, and a
-          // seat that reads as "you are here" while leading away is a small
-          // lie the reader only finds by clicking.
-          if (location.pathname !== seat.getAttribute("href")) seat.removeAttribute("aria-current");
+          // WHERE THE SEAT POINTS IS THE ONLY THING THAT MAKES IT CURRENT.
+          //
+          // Two ways to get this wrong and the reader meets both. Signed in on
+          // /join/, the static build had marked the seat current while it now
+          // leads to a house — "you are here" pointing away. And standing on
+          // your OWN house, the build had marked THE TOWN current instead,
+          // because a resident with no declared house has their resident page
+          // AS their house, and that page genuinely is a room of the town for
+          // everybody except its owner.
+          //
+          // The seat knows its own destination by now, so it settles both: it
+          // is current exactly when the reader is standing on it, and when it
+          // takes the highlight no other seat keeps one.
+          var mine = location.pathname === seat.getAttribute("href");
+          if (!mine) { seat.removeAttribute("aria-current"); return; }
+          seat.setAttribute("aria-current", "page");
+          var rail = seat.closest(".pm-townnav-links");
+          if (!rail) return;
+          Array.prototype.forEach.call(rail.querySelectorAll('a[aria-current="page"]'), function (a) {
+            if (a !== seat) a.removeAttribute("aria-current");
+          });
         } catch (e) {}
       })();
     </script>
@@ -232,7 +268,16 @@ const houseSlugOf = Object.fromEntries(
       })();
     </script>
     {row && (
-      <ChipRow kicker={row.of.label} chips={row.chips} active={active} origin={P} place="section" />
+      <ChipRow
+        kicker={row.of.label}
+        chips={row.chips}
+        active={active}
+        origin={P}
+        place={row.place}
+        label={row.place === "page"
+          ? `${row.of.label} — the pages of this room`
+          : `${row.of.label} — this section’s pages`}
+      />
     )}
     <style is:global>
 

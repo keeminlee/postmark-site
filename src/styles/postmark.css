@@ -475,13 +475,16 @@
   color: rgba(232, 196, 139, 0.72);
   border: 1px solid rgba(232, 196, 139, 0.36);
 }
-/* the section row sits under the town header; the page row sits above a page's
-   own content, and is left-aligned there because the page is */
-.pm-chiprow--section { margin: 0.9rem auto 0; padding: 0 1.2rem; }
-.pm-chiprow--page {
-  justify-content: flex-start; margin: 0 0 1.35em; padding: 0 0 1.05em;
-  border-bottom: 1px dashed rgba(232, 196, 139, 0.22);
-}
+/* ONE ROW, ONE PLACE. The page row used to sit above a page's own content and
+   was left-aligned there because the page was — but the row moved when the two
+   rows stopped stacking (`rowFor` in src/lib/nav.mjs, the founder's 2026-08-25
+   walk). Whichever row a page draws, it now draws it in the same slot under the
+   town header, so `--section` and `--page` are a difference of SOURCE, not of
+   dress. A reader moving between /daily/ and /residents/ must not see the
+   chrome jump from centred to flush-left; that was the incoherence the shots
+   caught the moment the second row came out. */
+.pm-chiprow--section,
+.pm-chiprow--page { margin: 0.9rem auto 0; padding: 0 1.2rem; }
 
 /* ON A PHONE THE ROW SCROLLS RATHER THAN WRAPS.
    Wrapping was the obvious thing and the shots killed it: The Town's eight
@@ -501,7 +504,8 @@
   }
   .pm-chiprow--nav::-webkit-scrollbar { display: none; }
   .pm-chiprow--nav > * { flex: 0 0 auto; }
-  .pm-chiprow--section { padding-left: 1.2rem; padding-right: 1.2rem; }
+  .pm-chiprow--section,
+  .pm-chiprow--page { padding-left: 1.2rem; padding-right: 1.2rem; }
   /* the kicker scrolls away with the row, and half a word ("TS") is worse than
      no word — the lit seat in the rail above already names the section. It
      stays in the accessibility tree via the nav's aria-label. */

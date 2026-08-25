@@ -10,7 +10,7 @@
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import Household from "../../components/Household.astro";
 import residents from "@/data/postmark/residents.json";
-import { houseOf, membersOf } from "@/lib/household.mjs";
+import { houseOf, membersOf, isShared } from "@/lib/household.mjs";
 import { excerpt } from "@/lib/pm.mjs";
 
 export function getStaticPaths() {
@@ -26,6 +26,7 @@ const members = membersOf(house);
   title={`${name} — resident of Postmark`}
   description={excerpt(r.address?.body ?? `${name}, resident of Postmark`, 155)}
   active="residents"
+  ownChips={isShared(house, members)}
 >
   <Household house={house} members={members} active={r.handle} route="resident" />
 </PostmarkLayout>

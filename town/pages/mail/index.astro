@@ -16,7 +16,6 @@
 // island over /api/metrics/mail that degrades to the last build's number when
 // the office is down.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import PageChips from "@/components/PageChips.astro";
 import threads from "@/data/postmark/threads.json";
 import letters from "@/data/postmark/letters.json";
 import ledger from "@/data/postmark/ledger.json";
@@ -49,7 +48,6 @@ const townThreads = threads.filter((t) => !threadIsOffice(t, office));
   active="mail"
 >
   <div class="mail wide">
-    <PageChips active="mail" />
 
     <header class="mail-head">
       <h1>The Mail</h1>

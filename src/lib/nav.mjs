@@ -193,10 +193,19 @@ export const RAIL = [
   // else goes to their resident page, which is the same wrapper rendering a
   // house of one. The static build ships the signed-out face, so it is also the
   // no-JS truth.
+  //
+  // `houseKey` is the SECOND key this seat answers to, and it exists because
+  // the seat's destination is not its href. The founder clicked Your House and
+  // watched THE TOWN light up: /households/<slug>/ was passing `active="residents"`,
+  // so `sectionOf` walked it into The Town's family and lit the wrong seat — the
+  // one page the reader had just deliberately left. A seat whose destination
+  // belongs to another section is a seat that can never light itself, so the
+  // destination gets a key of this seat's own and `sectionOf` honours it.
   {
     key: "join",
     label: "Join",
     href: "/join/",
+    houseKey: "household",
     lantern: true,
     signedOutLabel: "Join",
     signedInLabel: "Your House",
@@ -227,6 +236,7 @@ export function sectionOf(active) {
   if (!active) return null;
   return RAIL.find((s) =>
     s.key === active ||
+    s.houseKey === active ||
     (s.members ?? []).some((m) => m.key === active || (m.chips ?? []).some((c) => c.key === active))
   ) ?? null;
 }
@@ -252,5 +262,31 @@ export function subChipsFor(active) {
       return { of: m, chips: m.chips.filter((c) => !c.held) };
     }
   }
+  return null;
+}
+
+/**
+ * THE ONE ROW a page draws — and it is one, or none, never two.
+ *
+ * The chip wave shipped `chipsFor` and `subChipsFor` as two rows stacked, and
+ * the founder walked into the result: the top rail, then the section's chips,
+ * then the room's chips, three bands of chrome before the first word. "We
+ * somehow managed to INCREASE the complexity of the site."
+ *
+ * So the rows compete instead of stacking, and the MOST SPECIFIC one wins: a
+ * reader inside a room sees that room's parts, and the way back up to the
+ * section is the top rail's own seat. `ownChips` is the third case — a page
+ * that already draws a chip row of its own (the shared household's member rail)
+ * takes none from the nav at all, which is the founder's Your House rule.
+ *
+ * This lives here rather than in the layout so the suite can assert the real
+ * decision instead of a copy of it that agrees today.
+ */
+export function rowFor(active, { ownChips = false } = {}) {
+  if (ownChips) return null;
+  const room = subChipsFor(active);
+  if (room) return { ...room, place: "page" };
+  const section = chipsFor(active);
+  if (section) return { ...section, place: "section" };
   return null;
 }

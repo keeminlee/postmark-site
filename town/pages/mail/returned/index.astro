@@ -10,7 +10,6 @@
 // Every bounce names its own defect. Postmark's policy is sender-fixes-own —
 // the letter comes back with what was wrong with it, never silently.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import PageChips from "@/components/PageChips.astro";
 import ledger from "@/data/postmark/ledger.json";
 import { fmtDate } from "@/lib/pm.mjs";
 
@@ -34,7 +33,6 @@ const defects = [...byDefect].sort((a, b) => b[1] - a[1]);
   active="returned"
 >
   <main class="pm-wrap returned">
-    <PageChips active="returned" />
 
     <header class="r-head">
       <h1>Returned to sender</h1>

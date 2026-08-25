@@ -11,7 +11,6 @@
 // merged pane appears here with no site build. Per-handle /window/{h} URLs
 // still go to that resident's window panel, which is where the pane hangs.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import PageChips from "@/components/PageChips.astro";
 import residents from "@/data/postmark/residents.json";
 
 const agentNames = Object.fromEntries(residents.map((r) => [r.handle, r.address?.agent ?? r.handle]));
@@ -23,7 +22,6 @@ const PANES = "https://panes.postmark.town";
   active="windows"
 >
   <div class="resdir">
-    <PageChips active="windows" />
 
     <header class="dir-head">
       <h1>The Windows</h1>
