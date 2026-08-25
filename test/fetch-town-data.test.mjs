@@ -12,7 +12,22 @@ function writeJson(dir, name, value) {
   writeFileSync(join(dir, name), jsonText(value));
 }
 
-function fixtureFetch() {
+/**
+ * A fixture office, in two flavours.
+ *
+ *   fixtureFetch()               an office WITH the bulk letter door: /letters
+ *                                honours full=1 and answers rows with bodies.
+ *   fixtureFetch({ door: false }) an office WITHOUT it: the pre-2026-08-25
+ *                                office, which IGNORES an unknown `full` param
+ *                                — REST drops what it does not know — and
+ *                                answers excerpts with no `body` key at all.
+ *
+ * The second flavour is the one that matters and the one easy to get wrong: an
+ * old office does NOT 404 the new call, it answers it with the wrong shape. A
+ * fixture that 404'd would exercise the error path and leave the real
+ * capability detection — no bodies, therefore no door — completely untested.
+ */
+function fixtureFetch({ door = true } = {}) {
   const fullLetters = {
     "wright-2026-07-01-hello": {
       id: "wright-2026-07-01-hello",
@@ -79,15 +94,23 @@ function fixtureFetch() {
     }],
     ["/bulletin", [{ slug: "settling-in", title: "settling-in", first_line: "# Settling in" }]],
     ["/bulletin/settling-in", { slug: "settling-in", data: { posted: "2026-07-02" }, body: "# Settling in", path: "TOWN_BULLETIN/settling-in.md" }],
-    ["/letters?limit=200&offset=0", {
-      count: 2,
-      limit: 200,
-      offset: 0,
-      letters: [
-        { id: "rei-2026-07-02-reply", from: "rei", to: "wright", date: "2026-07-02", thread: "wright-2026-07-01-hello", first_line: "Wright -" },
-        { id: "wright-2026-07-01-hello", from: "wright", to: "rei", date: "2026-07-01", thread: null, first_line: "Rei -" },
-      ],
-    }],
+    // Keyed on the bare path so ANY /letters?... query lands here — which is
+    // exactly how an office treats a query param it does not know.
+    ["/letters", door
+      ? {
+        total: 2, shown: 2, count: 2, limit: 200, offset: 0, complete: true, full: true,
+        letters: [
+          { ...fullLetters["rei-2026-07-02-reply"], first_line: "Wright -" },
+          { ...fullLetters["wright-2026-07-01-hello"], first_line: "Rei -" },
+        ],
+      }
+      : {
+        count: 2, limit: 200, offset: 0,
+        letters: [
+          { id: "rei-2026-07-02-reply", from: "rei", to: "wright", date: "2026-07-02", thread: "wright-2026-07-01-hello", first_line: "Wright -" },
+          { id: "wright-2026-07-01-hello", from: "wright", to: "rei", date: "2026-07-01", thread: null, first_line: "Rei -" },
+        ],
+      }],
     ["/letters/rei-2026-07-02-reply", fullLetters["rei-2026-07-02-reply"]],
     ["/letters/wright-2026-07-01-hello", fullLetters["wright-2026-07-01-hello"]],
   ]);
@@ -147,6 +170,105 @@ test("buildOfficeData maps public API payloads to site data files", async () => 
   assert.equal(result.files["meeps.json"][0].name, "ferry");
   assert.equal(result.files["ledger.json"].length, 2);
   assert.match(result.endpointGaps.join("\n"), /ledger\.json preserved/);
+});
+
+// ── the dual-mode letter corpus (2026-08-25) ────────────────────────────────
+//
+// The office bounded the address card, which is where this file used to get
+// every letter body. `fetchLetterCorpus` asks the office's new bulk door first
+// and falls back to the cards when the office has not got one, so NEITHER
+// REPO'S RELEASE ORDER CAN BREAK THE BUILD. These are the falsifiers for that,
+// and the load-bearing one is the first: the two routes must produce the same
+// town, or the fallback is not a fallback, it is a second answer.
+
+test("THE CORPUS IS IDENTICAL through the door and through the cards", async () => {
+  const a = fixtureSnapshot();
+  const b = fixtureSnapshot();
+  const withDoor = await buildOfficeData({ apiBase: "https://example.test", dataDir: a.data, townRoot: a.town, fetchImpl: fixtureFetch({ door: true }) });
+  const without = await buildOfficeData({ apiBase: "https://example.test", dataDir: b.data, townRoot: b.town, fetchImpl: fixtureFetch({ door: false }) });
+
+  assert.equal(jsonText(withDoor.files["letters.json"]), jsonText(without.files["letters.json"]),
+    "THE FALSIFIER: a dual-mode read whose two modes disagree is not a fallback, it is a second answer");
+  // and everything derived from the letters, because a corpus that matches
+  // while its derivations drift would be the more dangerous half-failure
+  assert.equal(jsonText(withDoor.files["threads.json"]), jsonText(without.files["threads.json"]));
+  assert.equal(jsonText(withDoor.files["residents.json"]), jsonText(without.files["residents.json"]));
+  assert.equal(jsonText(withDoor.files), jsonText(without.files), "every file the build writes, byte for byte");
+});
+
+test("the door is PREFERRED when it is there, and the build says which route it took", async () => {
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch({ door: true }) });
+  assert.match(r.endpointGaps.join("\n"), /built from the office's bulk letter door/);
+  assert.doesNotMatch(r.endpointGaps.join("\n"), /built from the resident cards/,
+    "THE FALSIFIER: a deploy that silently stopped preferring the door must be visible in the log, not only in a byte count");
+  assert.deepEqual(r.problems, [], "taking the door is the ordinary case, not a problem");
+});
+
+test("an older office falls back to the cards, and that is recorded rather than silent", async () => {
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch({ door: false }) });
+  assert.equal(r.files["letters.json"].length, 2, "the build still produces the whole town");
+  assert.match(r.endpointGaps.join("\n"), /built from the resident cards/);
+  assert.match(r.endpointGaps.join("\n"), /pre-2026-08-25 office/);
+  // An old office ANSWERS the new call with the wrong shape rather than
+  // failing it, so this is a capability detection and not an error path.
+  assert.deepEqual(r.problems, [], "an office without the door is a supported state, not a fault");
+});
+
+test("detection reads the KEY, not the value: an empty body is still a body", async () => {
+  // mapLetter writes `l.body ?? ""`, so a letter with a genuinely empty body is
+  // legal. `if (l.body)` would read that real door as an absent one and fall
+  // back forever, on a town whose newest letter happened to be blank.
+  const base = fixtureFetch({ door: true });
+  const emptied = async (url) => {
+    const res = await base(url);
+    if (!new URL(url).pathname.startsWith("/letters") || new URL(url).pathname.length > 8) return res;
+    const body = await res.json();
+    return { ...res, json: async () => ({ ...body, letters: body.letters.map((l) => ({ ...l, body: "" })) }) };
+  };
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: emptied });
+  assert.match(r.endpointGaps.join("\n"), /built from the office's bulk letter door/,
+    "THE FALSIFIER: swap Object.hasOwn for a truthiness check and this goes red");
+  assert.equal(r.files["letters.json"].length, 2);
+  assert.equal(r.files["letters.json"][0].body, "");
+});
+
+test("a MIXED page falls back rather than publishing a corpus missing letters nobody can name", async () => {
+  const base = fixtureFetch({ door: true });
+  const half = async (url) => {
+    const res = await base(url);
+    const u = new URL(url);
+    if (!u.pathname.startsWith("/letters") || u.pathname.length > 8) return res;
+    const body = await res.json();
+    return { ...res, json: async () => ({ ...body, letters: body.letters.map((l, i) => {
+      if (i === 0) return l;
+      const { body: _drop, ...rest } = l;   // one row arrives without a body
+      return rest;
+    }) }) };
+  };
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: half });
+  assert.match(r.problems.join("\n"), /1 of 2 rows with bodies/);
+  assert.match(r.endpointGaps.join("\n"), /built from the resident cards/);
+  assert.equal(r.files["letters.json"].length, 2,
+    "THE FALSIFIER: keeping only the rows that had bodies would publish a town silently short a letter");
+  assert.ok(r.files["letters.json"].every((l) => typeof l.body === "string" && l.body.length > 0));
+});
+
+test("a door that ERRORS is a door that is not there — the build goes on and says why", async () => {
+  const base = fixtureFetch({ door: true });
+  const broken = async (url) => {
+    const u = new URL(url);
+    if (u.pathname === "/letters") throw new Error("connection reset");
+    return base(url);
+  };
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: broken, retries: 1 });
+  assert.match(r.problems.join("\n"), /the bulk door did not answer/);
+  assert.match(r.endpointGaps.join("\n"), /built from the resident cards/);
+  assert.equal(r.files["letters.json"].length, 2, "the town still builds");
 });
 
 test("buildOfficeData preserves committed profiles when no checkout is supplied", async () => {
