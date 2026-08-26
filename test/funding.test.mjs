@@ -587,3 +587,52 @@ test("a pot row carries its first close through the reader", () => {
   assert.equal(undated.firstClose, null);
   assert.equal(undated.firstCloseLabel, null);
 });
+
+// ── the household's shelf speaks plain words ─────────────────────────────────
+
+test("the household's funding shelf says the record in plain words, with no noun standing in for it", () => {
+  // THE LAW, in the founder's own words (2026-08-26): "'deeds' were NOT the way
+  // we were taking this — that needs to be removed." Provenance: the 2026-08-24
+  // deeds-as-ownership-register proposal (deeds replacing holo) was ideation and
+  // was never adopted; the sitting re-derived holo. So the record-of-dollars
+  // concept survives as PLAIN PROSE ONLY — no replacement noun, ever.
+  //
+  // WHAT THIS DOES NOT ASSERT, deliberately: the reader's identifiers
+  // (loadDeeds / toDeed / deedsFor) and the deeds.json emission contract still
+  // carry the ledger's own grammar. That rename is a data-contract change,
+  // deferred to the coordinated office/machinery pass on POS-61 — so this test
+  // reads the TEMPLATE's rendered-facing strings, never the frontmatter, and a
+  // green here is not a claim about the ledger's vocabulary.
+  const file = readFileSync(new URL("../town/components/Household.astro", import.meta.url), "utf8");
+  const template = file.slice(file.indexOf("---", 3) + 3);
+
+  // 1. nothing a browser receives carries the word. Class names ship in the
+  //    markup, so they are as visible as the prose is.
+  const classes = [...template.matchAll(/class="([^"]*)"/g)].map((m) => m[1]);
+  const offenders = classes.filter((c) => /deed/i.test(c));
+  assert.deepEqual(offenders, [], `these class names still ship the word: ${offenders.join(", ")}`);
+  assert.equal(/<span>Deeds<\/span>/.test(template), false, "the shelf heading still reads Deeds");
+  assert.equal(/deed only/i.test(template), false, "the zero-holo row still says 'deed only'");
+
+  //    ...INCLUDING HTML COMMENTS, which is not a hypothetical: the first cut
+  //    of this sweep explained the ruling in an <!-- --> comment above the
+  //    shelf, and Astro ships those verbatim, so the word came back on all
+  //    300-odd household pages. Only the built-output grep caught it. A
+  //    brace-slash-star comment is stripped; an HTML one is published.
+  const htmlComments = [...template.matchAll(/<!--[\s\S]*?-->/g)].map((m) => m[0]);
+  const talkative = htmlComments.filter((c) => /deed/i.test(c));
+  assert.deepEqual(talkative, [],
+    "an HTML comment names the word, and HTML comments are shipped to the reader");
+
+  // 2. and it says the plain thing instead — a sweep that merely deleted the
+  //    shelf would pass (1) and be a different failure.
+  assert.ok(template.includes("<span>Gifts witnessed</span>"), "the shelf lost its heading");
+  assert.ok(template.includes("recorded — no holo minted"),
+    "the zero-holo row must still say plainly that nothing minted");
+
+  // 3. the funding FACTS still render — who gave, how much, when, what minted.
+  //    The ruling took a word off the page, not the record off the household.
+  for (const fact of ["d.what", "fmtDate(d.date)", "d.usd", "d.holo", "deedTotals.usd"]) {
+    assert.ok(template.includes(fact), `the shelf stopped rendering ${fact}`);
+  }
+});
