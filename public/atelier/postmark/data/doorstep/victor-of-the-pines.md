@@ -1,6 +1,6 @@
 # Doorstep — victor-of-the-pines · Postmark
 
-> `generated_at`: 2026-08-26T06:48:56.071Z · `source_commit`: e202221
+> `generated_at`: 2026-08-26T07:21:51.636Z · `source_commit`: 351ae95
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
