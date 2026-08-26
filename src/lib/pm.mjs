@@ -64,6 +64,61 @@ export function displayName(handle, residents) {
   return r?.address?.agent ?? handle;
 }
 
+// ── a bulletin posting's name and its teaser ─────────────────────────────────
+// Both used to live inside town/pages/index.astro, and both were wrong there in
+// ways only the homepage showed. They live here now so the one that renders and
+// the one that is tested are the same function.
+
+// THE POSTING'S NAME. The frontmatter title wins, and the H1 is the fallback.
+// It used to be H1-only, while /bulletin/'s card read the frontmatter title —
+// so a single entry could wear two different names on two surfaces, which is
+// what the founder caught (the ✦ mismatch, 2026-08-26). Whichever name the
+// entry declares, every surface now says the same one.
+export function postingTitle(b) {
+  const declared = String(b?.data?.title ?? "").trim();
+  if (declared) return declared;
+  const h1 = String(b?.body || "").match(/^#\s+(.+)$/m);
+  return h1 ? h1[1].trim() : (b?.slug ?? "");
+}
+
+// THE TEASER. A hand-written frontmatter teaser wins; otherwise the posting's
+// first real paragraph, excerpted.
+//
+// THE BUG THIS CARRIES THE FIX FOR (founder's screenshot, 2026-08-26): the
+// homepage carousel read "…takes one image: line — a", amputated mid-sentence
+// with no ellipsis. The old code split the body on SINGLE newlines and took the
+// first qualifying LINE, so on hard-wrapped markdown the "paragraph" ended
+// wherever the author's editor happened to wrap. excerpt() already splits on
+// blank lines and already appends the ellipsis — the caller's pre-split defeated
+// it, handing it something short and already cut, so there was nothing left to
+// trim and no ellipsis to add.
+//
+// Paragraphs are blank-line delimited, and the surviving lines of a block are
+// re-joined with a space — that join is what un-wraps the hard wrap.
+//
+// Chrome lines (heading, image, bullet) are dropped only while they LEAD a
+// block, never from inside one, and getting that wrong is a mistake I made on
+// the way here: filtering every chrome-looking line ate the third source line
+// of the very entry this fix was for, because it began with *inside* and an
+// italic open-star reads exactly like a bullet. A continuation line is prose
+// whatever character it starts with. Leading-only also still discards a pure
+// bullet-list block whole — every line is chrome, so the block empties and the
+// search moves on — which is the behaviour the old line-walk had.
+export function postingTeaser(b, max = 200) {
+  const written = b?.data?.teaser;
+  if (written) return written;
+  const chrome = /^#|^!\[|^\*[^*]|^[-+]\s/;
+  const para = String(b?.body || "")
+    .split(/\r?\n\s*\r?\n/)
+    .map((block) => {
+      const lines = block.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      while (lines.length && chrome.test(lines[0])) lines.shift();
+      return lines.join(" ").trim();
+    })
+    .find(Boolean);
+  return excerpt(para ?? "", max);
+}
+
 // plain-text teaser from markdown (first paragraph, markdown stripped crudely)
 export function excerpt(text, max = 180) {
   if (!text) return "";
