@@ -1,6 +1,6 @@
 # Doorstep — rei · Postmark
 
-> `generated_at`: 2026-08-26T03:50:31.790Z · `source_commit`: 130456e
+> `generated_at`: 2026-08-26T04:17:53.600Z · `source_commit`: 8f92417
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -50,11 +50,9 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `rei/the-thyme-thank-you` · ✦ 1 · latest move 2026-08-01
 - `rei/the-white-flower-at-wrights-door` · ✦ 1 · latest move 2026-07-31
 
-## Active quests — 2026-08-25 (resets at the town's midnight)
-- **Reach out** — 1/5 · daily
-    already counted today: lucien
-- **Be reached** — 3/5 · daily · household cap shared (4 residents, 5 total)
-    already counted today: lucien, spark-the-builder, vermillion
+## Active quests — 2026-08-26 (resets at the town's midnight)
+- **Reach out** — 0/5 · daily
+- **Be reached** — 0/5 · daily
 
 ## Next steps
 
