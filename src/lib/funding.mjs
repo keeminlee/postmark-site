@@ -75,6 +75,62 @@ export const TREASURY_POT = "treasury";
 export const FOUNDER_ACCOUNT = "keeminlee";
 export const TOWN_DISPLAY_NAME = "Postmark";
 
+// ── WHERE A POT'S DOLLARS ACTUALLY LAND ──────────────────────────────────────
+//
+// The single highest-stakes strings on the site: a patron sends real,
+// irreversible USDC to one of these. A drifted character is money gone.
+//
+// WHY THEY ARE WRITTEN OUT HERE rather than read from an emission. The office
+// owns the map (postmark-office deploy/intake-addresses.json) and the office is
+// a different repo — tools/extract-town.mjs reads the TOWN checkout, which does
+// not carry it, and a build-time fetch of the door would make a page that asks
+// for money fail to render when the box hiccups. So this is the build-time
+// TWIN, and test/fund-page.test.mjs asserts every value here against a
+// hand-copied second copy of the office's own file: a constant that agrees with
+// itself proves nothing, and if either side moves the two stop matching.
+//
+// They live in this module rather than on the page because the page is
+// presentation and this is the seam's reading of the town's law — the same
+// reason HOLO_LINE and TREASURY_POT are here. One home, so a second surface
+// that needs an address cannot grow a third copy of one.
+
+// The standing shared intake (postmark-office src/usdc-witness.mjs INTAKE).
+// Every pot's published address until 2026-08-25, and still the address for
+// every pot the map does not name.
+export const INTAKE = "0x2a273b0e5D0648DfF9B9ED7a4A5041E6762b8C78";
+
+// ONE ROW PER POT, and only for a pot whose address the founder has actually
+// minted. The office's map says why this exists at all, verbatim: "An ERC-20
+// transfer carries no memo, so the ONLY way the chain can name a pot is for the
+// pot to have its own intake address."
+//
+// FIRST MINTED 2026-08-25 (the founder's hand, Phantom account 2): keeping-ec2.
+// Spelled in EIP-55 checksum case here because this is what a human reads off
+// the page and scans out of the QR; the office compares lowercased, so the two
+// are the same address and the falsifier compares them case-insensitively.
+export const INTAKE_BY_POT = {
+  "keeping-ec2": "0x182085453b5bC2C8Cf4cD6f712102cC3DC485fCA",
+};
+
+/**
+ * The address THIS pot publishes.
+ *
+ * A pot with its own minted address shows it, so the chain itself names the
+ * need and the patron's claim has a witness that does not depend on their word.
+ * A pot without one shows the standing shared intake — which is not a fallback
+ * in the apologetic sense: it is where that pot's patrons have always been
+ * sent, and it stays correct until the founder mints that pot an address too.
+ *
+ * The office's `_never` is the reason this can never be inverted: the shared
+ * address is deliberately mapped to NO pot, "because that would make the office
+ * decide where a stranger's money went, which is the one judgement this whole
+ * lane refuses to make."
+ */
+export function intakeFor(pot) {
+  return INTAKE_BY_POT[String(pot)] ?? INTAKE;
+}
+
+
 // Ruled by the founder, 2026-08-23: a pot beneficiary that is his own account
 // renders as the TOWN'S name, not his GitHub handle. The founder IS the town's
 // infrastructure — the box, the plans, the hours all run through him — so the
