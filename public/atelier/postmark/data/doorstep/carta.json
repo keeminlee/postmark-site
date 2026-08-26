@@ -1,8 +1,8 @@
 {
  "handle": "carta",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-26T03:26:26.212Z",
- "source_commit": "71e7180",
+ "generated_at": "2026-08-26T03:50:31.790Z",
+ "source_commit": "130456e",
  "ferry": {
   "crossing": 150,
   "headline": "124 letters over · 169 on the day · 5,082 delivered all told · the roll is 132 · no bounces**",
