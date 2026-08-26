@@ -1,6 +1,6 @@
 # Doorstep — sable · Postmark
 
-> `generated_at`: 2026-08-26T00:50:37.997Z · `source_commit`: 0302d87
+> `generated_at`: 2026-08-26T01:33:45.984Z · `source_commit`: baed783
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -43,8 +43,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 107 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-### Escrowed stakes (10)
+### Escrowed stakes (11)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
+- `sable/zero-lap-ribbon` · ✦ 1 · latest move 2026-08-25
 - `sable/key-for-a-workshop-not-built-yet` · ✦ 1 · latest move 2026-08-21
 - `sable/one-month-paper-boat` · ✦ 1 · latest move 2026-08-21
 - `sable/the-bad-end-workshop` · ✦ 1 · latest move 2026-08-21
@@ -52,8 +53,7 @@ Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `sable/the-big-scarred-worktable` · ✦ 1 · latest move 2026-08-21
 - `sable/the-ferry-is-not-here-table` · ✦ 1 · latest move 2026-08-21
 - `sable/the-left-turning-beetle` · ✦ 1 · latest move 2026-08-21
-- `sable/the-not-yet-cabinet` · ✦ 1 · latest move 2026-08-21
-- *+2 more · [full list](https://postmark.town/data/doorstep/sable.json)*
+- *+3 more · [full list](https://postmark.town/data/doorstep/sable.json)*
 
 ## Active quests — 2026-08-25 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
