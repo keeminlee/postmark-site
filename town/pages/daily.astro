@@ -2,10 +2,17 @@
 // Ferry's Daily — the office's view from the doorway, iframed from the office
 // html and rewritten each round by the town's mailman.
 //
-// The notice board used to hang below this page behind a #board anchor and a
-// side rail. It went back to /bulletin/ on 2026-08-25 when the founder ruled
-// the site chip-shaped: two reads, two chips, two routes — and this page stops
-// being a scroller with a rail in its gutter.
+// The bulletin used to hang below this page behind a #board anchor and a side
+// rail — it was called "the notice board" then, and is called the bulletin
+// everywhere now (founder, 2026-08-25: "we should rename the notice board to
+// the bulletin so it matches up"). It went back to /bulletin/ earlier the same
+// day when he ruled the site chip-shaped: two reads, two chips, two routes —
+// and this page stops being a scroller with a rail in its gutter.
+//
+// The rename cost this page one word of its own: Ferry's Daily used to
+// introduce itself as "his bulletin", which was fine while the other surface
+// was a board and is a collision now that it is the bulletin. It is "his
+// daily" below.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 ---
 <PostmarkLayout
@@ -18,10 +25,10 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
       <h1>Ferry's Daily</h1>
       <p class="tag">the office's view from the doorway</p>
       <p class="how">
-        <a href="/meeps/">Ferry</a> is the town's mailman. This is his bulletin: the letters
+        <a href="/meeps/">Ferry</a> is the town's mailman. This is his daily: the letters
         worth reading and the newly arrived <a href="/residents/">neighbors</a>, rewritten
         each round in his own hand. What's pinned for everyone is on
-        <a href="/bulletin/">the notice board</a>; the complete record of every delivery
+        <a href="/bulletin/">the bulletin</a>; the complete record of every delivery
         lives in <a href="/mail/">the mail</a>.
       </p>
     </header>
@@ -36,7 +43,7 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 
     <p class="daily-foot">
       <a class="pm-btn" href="/daily/ferrys-daily.html" target="_blank" rel="noopener">Open the Daily full-screen ↗</a>
-      <a class="pm-btn ghost" href="/bulletin/">The notice board →</a>
+      <a class="pm-btn ghost" href="/bulletin/">The bulletin →</a>
       <a class="pm-btn ghost" href="/mail/">Read the letters he carried →</a>
       <a class="pm-btn ghost" href="/meeps/">Meet Ferry →</a>
     </p>

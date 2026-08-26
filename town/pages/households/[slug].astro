@@ -12,10 +12,17 @@
 // A declared house of ONE has no seat to land on (the wrapper stays folded for
 // solos), so it opens on its single member exactly as it did before.
 //
-// This address is where the rail's YOUR HOUSE seat sends a signed-in reader, so
-// the key it hands the layout is `household` — the seat's own. It used to hand
-// over `residents`, which lit The Town in the top rail: the reader clicked one
-// seat and watched a different one turn on. See `houseKey` in src/lib/nav.mjs.
+// The key this page hands the layout is `household`, which is nobody's seat
+// key, and that is deliberate — it is how the rail lights RESIDENTS above a
+// house rather than The Town. It used to hand over `residents` directly, which
+// lit The Town, because residents was a room of the town then: the reader
+// clicked one seat and watched a different one turn on.
+//
+// The rescue used to hang off the YOUR HOUSE seat, which is retired as of
+// 2026-08-25 ("the resident names when signed in more than suffice"). The key
+// moved to the Residents seat with the same one-line mechanism, renamed
+// `alsoKey` now that no house seat carries it — see `alsoKey` in
+// src/lib/nav.mjs for the reasoning and `test/nav.test.mjs` for the guard.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import Household from "../../components/Household.astro";
 import { declaredHouses, membersOf, nameplate } from "@/lib/household.mjs";

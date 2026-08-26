@@ -31,6 +31,13 @@ const href = (c) => (c.external ? c.href : `${origin}${c.href}`);
 // highlight without claiming to be the destination.
 const onPage = (c) => active === c.key;
 const inside = (c) => (c.chips ?? []).some((x) => x.key === active);
+
+// A chip may carry a little icon (founder, 2026-08-25: "I'd like little icons
+// for the town's chips"). It is DECORATION and is marked as such: `aria-hidden`
+// on the glyph, the label untouched beside it, so a screen reader hears "the
+// ballot" and not "ballot box with check the ballot". A chip with no `icon`
+// renders exactly as it did — the field is opt-in per entry in `nav.mjs`, which
+// is what lets one row wear them without the others changing.
 ---
 <nav class:list={["pm-chiprow", "pm-chiprow--nav", `pm-chiprow--${place}`]} aria-label={label ?? `${kicker} — this section’s pages`}>
   <span class="pm-chiprow-head">{kicker}</span>
@@ -39,7 +46,7 @@ const inside = (c) => (c.chips ?? []).some((x) => x.key === active);
       class:list={["pm-chip", i === 0 && "is-first", (onPage(c) || inside(c)) && "is-on"]}
       href={href(c)}
       aria-current={onPage(c) ? "page" : undefined}
-    >{c.label}{c.beta && <span class="pm-nav-beta">beta</span>}</a>
+    >{c.icon && <span class="pm-chip-icon" aria-hidden="true">{c.icon}</span>}{c.label}{c.beta && <span class="pm-nav-beta">beta</span>}</a>
   ))}
   <slot />
 </nav>

@@ -4,17 +4,12 @@
 // Starforge main site. One rail, not two — the town keeps its room.
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/postmark.css";
-// The rail is not written here. Its membership — the five top-level seats and
+// The rail is not written here. Its membership — the top-level seats and
 // each section's chip row — lives in ONE structure, `src/lib/nav.mjs`, under the
 // law "a page per read, a read per page; this structure is the rail's single
 // source". `test/nav.test.mjs` holds it to that. See that file for why.
 import { RAIL, rowFor, sectionOf } from "@/lib/nav.mjs";
 import ChipRow from "@/components/ChipRow.astro";
-// The DECLARED household registry, for the Your House seat only. The registry
-// itself (not the full resolver) because all this needs is handle → slug: the
-// resolver drags 2,989 letters in behind it to derive a last-active column no
-// header has any use for.
-import houseRegistry from "@/data/postmark/households.json";
 
 const {
   title, description, active = "", image = "/banner.png", noindex = false,
@@ -54,18 +49,6 @@ const here = sectionOf(active);
 //
 // There is exactly one <ChipRow> in this file, and the suite counts it.
 const row = rowFor(active, { ownChips });
-
-// WHOSE HOUSE — handle → declared household slug, for the Your House seat.
-// Only the declared houses are here, and that is the honest set: a house exists
-// at /households/<slug>/ exactly when someone declared it. Everyone else is a
-// house of one whose front door is their own resident page — the SAME wrapper,
-// rendering a household of one, which is why the fallback is not a consolation
-// prize. A handful of KB, so this travels inline rather than over a fetch.
-const houseSlugOf = Object.fromEntries(
-  Object.entries(houseRegistry.households ?? {}).flatMap(([slug, dec]) =>
-    (dec.residents ?? []).map((h) => [h, slug])
-  )
-);
 ---
 <BaseLayout title={title} description={description} image={image} chrome="none" bgm={false} noindex={noindex} canonical={canonical}>
   <script is:inline>
@@ -112,25 +95,21 @@ const houseSlugOf = Object.fromEntries(
         <span class="seal">✉</span> Postmark
       </a>
       <nav class="pm-townnav-links" aria-label="Postmark town navigation">
+        {/* ONE SEAT, ONE FACE, ALL THE WAY ACROSS. The Join seat used to be two
+            — the signed-out door and a signed-in "Your House" pointing at the
+            reader's own household, swapped in CSS off `data-lens`. The founder
+            retired the signed-in half: "Your House is actually not necessary;
+            the resident names when signed in more than suffice." Those names
+            are the auth pill below, which prints each handle the reader holds
+            as a link to their own window. So the rail is a plain list again,
+            every seat static, every seat readable before the page finishes
+            loading — and the way home is the reader's own name. */}
         {RAIL.map((n) => (
-          n.signedInLabel ? (
-            // One seat, two faces. The signed-out face is what the static build
-            // ships, so it is also the no-JS truth; the synchronous auth paint
-            // below swaps it during parse when a fresh token is cached.
-            <span class="pm-nav-seat">
-              {/* The two faces answer to DIFFERENT keys, because they lead to
-                  different places. The signed-out face is the Join door and is
-                  current only on /join/ itself — a household page is not the
-                  Join door and must not claim to be. The signed-in face is Your
-                  House, so it takes the highlight anywhere in this seat's family
-                  (that is what `houseKey` adds), and the script below withdraws
-                  it if the reader's own house turns out to be somewhere else. */}
-              <a data-rail-out href={railHref(n)} class={n.lantern ? "pm-nav-join" : undefined} aria-current={active === n.key ? "page" : undefined}>{n.signedOutLabel ?? n.label}</a>
-              <a data-rail-in hidden href={railHref(n)} data-house-seat={n.houseHref ? "" : undefined} aria-current={here?.key === n.key ? "page" : undefined}>{n.signedInLabel}</a>
-            </span>
-          ) : (
-            <a href={railHref(n)} aria-current={here?.key === n.key ? "page" : undefined}>{n.label}{n.beta && <span class="pm-nav-beta">beta</span>}</a>
-          )
+          <a
+            href={railHref(n)}
+            class={n.lantern ? "pm-nav-join" : undefined}
+            aria-current={here?.key === n.key ? "page" : undefined}
+          >{n.label}{n.beta && <span class="pm-nav-beta">beta</span>}</a>
         ))}
       </nav>
       <div class="pm-auth" data-auth hidden>
@@ -198,58 +177,6 @@ const houseSlugOf = Object.fromEntries(
         } catch (e) {}
       })();
     </script>
-    <script is:inline define:vars={{ houseSlugOf }}>
-      // YOUR HOUSE — where the signed-in seat actually goes.
-      //
-      // The seat's static href is /join/, which is the signed-out truth and what
-      // the build ships. Signed in, it points at the reader's own house: the
-      // declared household page when the registry claims their handle, and
-      // otherwise their resident page — which is the SAME household wrapper
-      // rendering a house of one, so the destination is a house either way.
-      // (Whoever the registry does not claim must still land on a house, not on
-      // /join/ — silently sending them to the door they already walked through
-      // would be the ballot's failure wearing a friendlier label. How many that
-      // is changes with the registry, so no count is written down here.)
-      //
-      // First cached handle wins when a reader holds several, matching the
-      // `data-lens` flag set above — one reader, one house, one answer.
-      (function () {
-        try {
-          var seat = document.querySelector("[data-house-seat]");
-          if (!seat) return;
-          var hs = [];
-          try { hs = JSON.parse(sessionStorage.getItem("pm.oauth.handles") || localStorage.getItem("pm.oauth.handles.cache") || "[]"); } catch (e) {}
-          var h = hs[0];
-          if (!h) return;
-          var slug = houseSlugOf[h];
-          seat.href = slug
-            ? "/households/" + encodeURIComponent(slug) + "/"
-            : "/residents/" + encodeURIComponent(h) + "/";
-          seat.title = slug ? "your household" : h + "’s house";
-          // WHERE THE SEAT POINTS IS THE ONLY THING THAT MAKES IT CURRENT.
-          //
-          // Two ways to get this wrong and the reader meets both. Signed in on
-          // /join/, the static build had marked the seat current while it now
-          // leads to a house — "you are here" pointing away. And standing on
-          // your OWN house, the build had marked THE TOWN current instead,
-          // because a resident with no declared house has their resident page
-          // AS their house, and that page genuinely is a room of the town for
-          // everybody except its owner.
-          //
-          // The seat knows its own destination by now, so it settles both: it
-          // is current exactly when the reader is standing on it, and when it
-          // takes the highlight no other seat keeps one.
-          var mine = location.pathname === seat.getAttribute("href");
-          if (!mine) { seat.removeAttribute("aria-current"); return; }
-          seat.setAttribute("aria-current", "page");
-          var rail = seat.closest(".pm-townnav-links");
-          if (!rail) return;
-          Array.prototype.forEach.call(rail.querySelectorAll('a[aria-current="page"]'), function (a) {
-            if (a !== seat) a.removeAttribute("aria-current");
-          });
-        } catch (e) {}
-      })();
-    </script>
     <script is:inline>
       // Notif bell — synchronous reveal to match the auth pill's anti-flicker:
       // show the bell shell during parse if a fresh token is cached, so it
@@ -281,17 +208,12 @@ const houseSlugOf = Object.fromEntries(
     )}
     <style is:global>
 
-      /* THE SIGN-IN-AWARE SEAT, done in CSS rather than in a paint pass.
-         `data-lens` is already the town's signed-in flag: the synchronous auth
-         script below sets it during parse from the cached token, and the auth
-         island sets and removes it as the truth changes. Hanging the swap off
-         it means the rail can never disagree with the header pill, and it costs
-         no second listener, no flicker, and no JS at all for the swap itself.
-         The signed-out face is what the static build ships, so a reader with
-         no JS gets the Join door — the right default. */
-      .pm .pm-townnav-links .pm-nav-seat [data-rail-in] { display: none; }
-      html[data-lens] .pm .pm-townnav-links .pm-nav-seat [data-rail-in] { display: inline; }
-      html[data-lens] .pm .pm-townnav-links .pm-nav-seat [data-rail-out] { display: none; }
+      /* THE SIGN-IN-AWARE SEAT IS GONE and so is the rule that swapped it.
+         `data-lens` used to hide one face of the Join seat and show the other,
+         so the rail read "Your House" the moment a fresh token was cached. The
+         founder retired that seat — "the resident names when signed in more
+         than suffice" — so every seat in the rail is now the same seat for
+         every reader, and `data-lens` keeps its other jobs untouched. */
 
       /* a nav entry still cooking wears a chip, so the rail says so before the
          page has to. Hollow, not a second gold pill — the rail already spends

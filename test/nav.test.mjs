@@ -251,19 +251,77 @@ test("THE TOWN COMES BEFORE THE WORLD", () => {
 
 // ── the shape ────────────────────────────────────────────────────────────────
 
-test("the top bar is FIVE seats — the founder's ruling, not a ceiling", () => {
-  // Postmark · The World · The Town · Harbor · Join/Your House. A sixth seat is
-  // a decision someone has to make on purpose, and so is a fifth going missing.
-  assert.equal(RAIL.length, 5,
-    `the top rail has ${RAIL.length} seats: ${RAIL.map((s) => s.label).join(" · ")}`);
-  // The Town ahead of The World — "the town comes before the world" (founder,
-  // 2026-08-25). The dedicated ordering test above names that ruling on its
-  // own; this one carries the full seat list so a reorder cannot pass by
-  // agreeing with only half of it.
-  assert.deepEqual(RAIL.map((s) => s.key), ["postmark", "town", "world", "harbor", "join"]);
-  // and the rest genuinely IS carried below — five seats naming nothing else
-  // would pass the count and fail the reader
-  assert.ok(allEntries().length > RAIL.length * 2, "the sections carry almost nothing; the chip rows are empty");
+test("THE TOP RAIL IS FOR HUMANS — Residents, the Mail and Stamps are lifted back onto it", () => {
+  //   "I actually think Residents and the Mail and Stamps deserve to be lifted
+  //    back to the top rail. because the site is for humans, and for humans, the
+  //    residents and the mail are important to get across what postmark is all
+  //    about, and Stamps are... well, important to keeping Postmark going."
+  //                                              — the founder, 2026-08-25
+  //
+  // BOTH STATES, on purpose. The chip wave had pulled these three DOWN into The
+  // Town — Postmark · The Town · The World · Harbor · Join, five seats, and a
+  // test right here asserting five as "the founder's ruling". That ruling was
+  // real and is superseded by this one from the same founder eight hours later,
+  // so the earlier shape is recorded rather than scrubbed: the argument for
+  // pulling them down was structural (they are rooms of the town) and the
+  // argument for lifting them back is a reader's (they are what the town IS).
+  // The reader's argument wins, and that is the transferable part.
+  assert.deepEqual(RAIL.map((s) => s.key),
+    ["postmark", "town", "residents", "mail", "stamps", "world", "harbor", "join"],
+    `the rail reads: ${RAIL.map((s) => s.label).join(" · ")}`);
+
+  // the three by name, each a SEAT and no longer a chip of The Town
+  const town = RAIL.find((s) => s.key === "town");
+  for (const [key, label, href] of [
+    ["residents", "Residents", "/residents/"],
+    ["mail", "The Mail", "/mail/"],
+    ["stamps", "Stamps", "/stamps/"],
+  ]) {
+    const seat = RAIL.find((s) => s.key === key);
+    assert.ok(seat, `"${label}" is not on the top rail`);
+    assert.equal(seat.label, label);
+    assert.equal(seat.href, href);
+    assert.equal(town.members.some((m) => m.key === key), false,
+      `"${label}" is on the top rail AND still a chip of The Town`);
+    assert.equal(sectionOf(key).key, key, `a page in ${label} still lights another seat`);
+  }
+
+  // Stamps keeps the honesty marker it wore as a chip. A promotion is exactly
+  // when a beta flag goes missing without anyone deciding to drop it.
+  assert.equal(RAIL.find((s) => s.key === "stamps").beta, true,
+    "Stamps lost its beta chip on the way up to the top rail");
+
+  // and the rest genuinely IS carried below — seats naming nothing else would
+  // pass the list and fail the reader
+  assert.ok(allEntries().length > RAIL.length + 4, "the sections carry almost nothing; the chip rows are empty");
+});
+
+test("THE TOWN KEEPS THE FOUNDER'S OWN LIST, and the meeps is back in it", () => {
+  //   "the Town can keep ferry's daily, the bulletin, the ballot, and the works.
+  //    and we can put the meeps back in town too"
+  //                                              — the founder, 2026-08-25
+  //
+  // His list, in his order, and the meeps appended where he appended it. The
+  // Numbers is the one entry not in that sentence and it is not in the row
+  // either — it is held, with its reason on file, and the assertion below is
+  // over what a reader actually SEES.
+  const town = RAIL.find((s) => s.key === "town");
+  assert.deepEqual(chipsFor("daily").chips.map((c) => c.key),
+    ["daily", "bulletin", "votes", "works", "meeps"],
+    `The Town's row reads: ${chipsFor("daily").chips.map((c) => c.label).join(" · ")}`);
+  assert.equal(town.members.some((m) => m.key === "numbers" && m.held), true,
+    "the S4 hold left the structure — the chip must still be there, waiting, with its reason");
+
+  // THE MEEPS RETURNED, and its page answers to its own name again. It had been
+  // struck from the residents row hours earlier and borrowed `residents` while
+  // it was a room of a section; that section is a seat now, so the borrowing
+  // would light the wrong thing.
+  const meeps = town.members.find((m) => m.key === "meeps");
+  assert.ok(meeps, "the meeps did not come back to The Town");
+  assert.equal(meeps.href, "/meeps/");
+  assert.equal(activeKeyOf(pageFileFor("/meeps/")), "meeps",
+    "/meeps/ still borrows another room's key — it lights that room instead of itself");
+  assert.equal(sectionOf("meeps").key, "town");
 });
 
 test("The Works is inside The Town, not beside it", () => {
@@ -274,18 +332,53 @@ test("The Works is inside The Town, not beside it", () => {
   assert.ok(pageFileFor("/works/"), "The Works was demoted into a 404");
 });
 
-test("Your House is the one seat with no row under it", () => {
-  // The founder's word, and it is a shape claim, not a laziness one: the
-  // household page IS a chip world already, so a section row above it would be
-  // the site explaining its own pattern to itself.
-  const join = RAIL.find((s) => s.key === "join");
-  assert.equal(join.members, undefined, "Your House grew a chip row");
+test("YOUR HOUSE IS GONE — one seat, one face, and the way home is the reader's own name", () => {
+  //   "Your House is actually not necessary; the resident names when signed in
+  //    more than suffice"                        — the founder, 2026-08-25
+  //
+  // BOTH STATES, again. The seat was two faces on one seat: the Join door the
+  // static build ships, and a signed-in "Your House" pointing at the reader's
+  // household, swapped in CSS off `data-lens` and re-pointed by a script from
+  // the declared-household registry. Two waves of work, one of them fixing a
+  // defect this seat caused. It is retired because the thing it led to already
+  // had a better-labelled door — the auth pill's resident names.
+  const joinSeat = RAIL.find((s) => s.key === "join");
+  assert.ok(joinSeat, "the Join door left the rail");
+  assert.equal(joinSeat.href, "/join/");
+  assert.equal(joinSeat.label, "Join");
+  assert.equal(joinSeat.members, undefined, "the Join door grew a chip row");
   assert.equal(chipsFor("join"), null);
-  assert.equal(join.signedInLabel, "Your House");
-  assert.equal(join.houseHref, true, "the signed-in seat no longer points at the reader's own house");
-  // the signed-out face is what the static build ships, and it is the Join door
-  assert.equal(join.href, "/join/");
-  assert.equal(join.signedOutLabel, "Join");
+
+  // NO SEAT ANYWHERE is sign-in-aware any more. Asserted over the whole rail
+  // rather than over this one seat, so re-growing the mechanism somewhere else
+  // costs a failure too.
+  for (const s of RAIL) {
+    for (const gone of ["signedInLabel", "signedOutLabel", "houseHref", "houseKey"]) {
+      assert.equal(s[gone], undefined, `${s.key} still carries \`${gone}\` — the two-faced seat is back`);
+    }
+  }
+
+  // and the LAYOUT has no second face to paint. A structure with the fields
+  // removed and markup that still renders them is the half-done version of this
+  // change, and it is invisible to every assertion above.
+  const shell = readFileSync(join(ROOT, "src", "layouts", "PostmarkLayout.astro"), "utf8");
+  for (const gone of ["data-rail-in", "data-rail-out", "data-house-seat", "pm-nav-seat", "houseSlugOf", "signedInLabel"]) {
+    assert.equal(shell.includes(gone), false, `PostmarkLayout still renders \`${gone}\``);
+  }
+
+  // THE THING HE SAID SUFFICES MUST STILL BE THERE. This is the half a
+  // deletion-shaped change forgets: he did not say "remove the way home", he
+  // said the resident names already are it. So the auth pill still prints each
+  // handle as a link into that resident's own page.
+  assert.ok(/data-auth-handles/.test(shell), "the signed-in resident names left the header");
+  assert.ok(/"\/residents\/" \+ encodeURIComponent\(h\)/.test(shell),
+    "the resident names no longer link to the reader's own page — nothing carries Your House's job");
+
+  // THE LANTERN STAYS. A different ruling from a different sitting (Keemin,
+  // 2026-07-31 — a newcomer's eye must find Join without hunting), and it would
+  // be easy to lose while dismantling the seat around it.
+  assert.equal(joinSeat.lantern, true, "the Join door lost its lantern");
+  assert.ok(/n\.lantern \? "pm-nav-join"/.test(shell), "the lantern class stopped being rendered");
 });
 
 test("no key is used twice — a duplicate silently steals the other's highlight", () => {
@@ -310,12 +403,15 @@ test("no key is used twice — a duplicate silently steals the other's highlight
 // ── the lookups the layout renders from ──────────────────────────────────────
 
 test("a page anywhere in a family finds its section, so the seat lights up", () => {
-  assert.equal(sectionOf("mail").key, "town");         // a room of The Town
-  assert.equal(sectionOf("residents").key, "town");    // and the other room that lost its row
+  assert.equal(sectionOf("mail").key, "mail");         // its own seat since the lift
+  assert.equal(sectionOf("residents").key, "residents");
+  assert.equal(sectionOf("stamps").key, "stamps");
   assert.equal(sectionOf("town").key, "town");         // /town/, hidden from the row but still in the family
+  assert.equal(sectionOf("meeps").key, "town");        // back in The Town this wave
+  assert.equal(sectionOf("bulletin").key, "town");
   assert.equal(sectionOf("atlas").key, "world");       // a lens on The World
   assert.equal(sectionOf("votes").key, "town");
-  assert.equal(sectionOf("works").key, "town");        // demoted this wave
+  assert.equal(sectionOf("works").key, "town");
   assert.equal(sectionOf("postmark").key, "postmark"); // the front door, its own seat
   assert.equal(sectionOf("harbor").key, "harbor");
   // an orphan page (the darkroom, the ops desk) is deliberately in no section
@@ -323,8 +419,31 @@ test("a page anywhere in a family finds its section, so the seat lights up", () 
   assert.equal(sectionOf("darkroom"), null);
 });
 
+test("A HOUSEHOLD IS A HOUSEHOLD OF RESIDENTS — the key the retired seat used to carry", () => {
+  // /households/<slug>/ answers to `household`, which is nobody's seat key. It
+  // used to be rescued by the Your House seat's `houseKey`; that seat is gone,
+  // and without somewhere to put the key the page would light NOTHING — a
+  // reader standing deep inside a house with the whole rail dark, which is the
+  // /votes/ silence in miniature and the exact defect the founder himself
+  // reported one wave ago ("'Your House' click -> selects 'The Town'").
+  //
+  // FLAGGED AS AN INTERPRETATION: he retired the seat and said nothing about
+  // where the household page belongs. This is the smallest home for it that is
+  // also true — a household is a household of residents.
+  assert.equal(sectionOf("household").key, "residents",
+    "the household page lights no seat, or the wrong one");
+  assert.equal(RAIL.find((s) => s.key === "residents").alsoKey, "household");
+  assert.equal(activeKeyOf(join(PAGES, "households", "[slug].astro")), "household",
+    "the household page renamed itself — the seat's second key now points at nothing");
+
+  // and it still takes NO row from the nav, which was the founder's own ruling
+  // about this page and survives the seat that used to carry it: the household
+  // page is a chip world already.
+  assert.equal(rowFor("household"), null, "a section row appeared over the household's own");
+});
+
 test("the section row a page draws never shows a held chip, and never appears where there is no family", () => {
-  const town = chipsFor("mail");
+  const town = chipsFor("daily");
   assert.equal(town.of.label, "The Town");
   assert.ok(town.chips.some((m) => m.key === "votes"), "the ballot is missing from its own row");
   assert.ok(town.chips.some((m) => m.key === "works"), "The Works is missing from the row it was demoted into");
@@ -333,8 +452,13 @@ test("the section row a page draws never shows a held chip, and never appears wh
   assert.equal(chipsFor("numbers").of.key, "town");
   // and so does the hidden one — /town/ is out of the row, not out of the town
   assert.equal(chipsFor("town").of.key, "town");
-  // and a seat with no members draws nothing at all
+  // and a seat with no members draws nothing at all — Harbor never had one, and
+  // the three lifted seats have none because their families were emptied by the
+  // founder's own earlier strikes, not because a row was withheld from them
   assert.equal(chipsFor("harbor"), null);
+  assert.equal(chipsFor("residents"), null);
+  assert.equal(chipsFor("mail"), null);
+  assert.equal(chipsFor("stamps"), null);
   assert.equal(chipsFor(""), null);
 });
 
@@ -353,24 +477,29 @@ test("NO SUBPAGE REPLACES THE TOWN-LEVEL SUBRAIL WITH ITS OWN", () => {
   assert.deepEqual(withRows, [], `these rooms declare a row of their own:\n  ${withRows.join("\n  ")}`);
 
   // and therefore no page anywhere draws one
-  for (const key of ["residents", "mail", "daily", "votes", "atlas", "town", ""]) {
+  for (const key of ["residents", "mail", "daily", "votes", "atlas", "town", "meeps", "bulletin", "stamps", ""]) {
     assert.equal(subChipsFor(key), null, `"${key}" still draws a second row`);
   }
 });
 
-test("THE FOUR STRUCK CHIPS — the pages stay, at the URLs they had", () => {
+test("THE THREE STILL-STRUCK CHIPS — the pages stay, at the URLs they had", () => {
   //   "remove 'the windows' and 'the meeps' from residents/; restore the town
   //    subrail" · "remove 'returned to sender' and 'write a letter'"
   //                                              — the founder, 2026-08-25
   //
-  // Struck from the ROW, not from the site. Each page keeps its URL and now
-  // tells the layout its room's key, so it draws The Town's row with that room
-  // lit — which is the positive half of the ruling above and the half a reader
-  // actually sees. Read off the REAL page files: a lane that repoints one of
-  // these keys, or lets a page fall out of the section, goes red here.
+  // It was FOUR. The meeps came back the same night, one level up — "we can put
+  // the meeps back in town too" — so it is asserted by the returned-chip test
+  // above and struck from this list here. Both rulings are his, hours apart,
+  // and the second is not a correction of the first: the meeps left the
+  // RESIDENTS row and joined THE TOWN's, which only became possible once
+  // residents left the town for the top rail.
+  //
+  // The other three are struck from the ROW, not from the site. Each keeps its
+  // URL and answers to its room's key, so the room's seat lights above it. Read
+  // off the REAL page files: a lane that repoints one of these keys, or lets a
+  // page fall out of its section, goes red here.
   const struck = [
     ["/window/", "residents", "the windows"],
-    ["/meeps/", "residents", "the meeps"],
     ["/mail/returned/", "mail", "returned to sender"],
     ["/mail/compose/", "mail", "write a letter"],
   ];
@@ -383,12 +512,15 @@ test("THE FOUR STRUCK CHIPS — the pages stay, at the URLs they had", () => {
     const key = activeKeyOf(file);
     assert.equal(key, room, `${href} claims "${key}" — it should answer to its room, ${room}`);
 
-    const row = rowFor(key);
-    assert.ok(row, `${href} draws no row at all — the town subrail is what it must show`);
-    assert.equal(row.place, "section", `${href} draws a row of its own again`);
-    assert.equal(row.of.key, "town", `${href} draws ${row.of.key}'s row instead of The Town's`);
-    assert.ok(row.chips.some((c) => c.key === room),
-      `${href} draws The Town's row with no chip lit — the rail goes dark where the reader is deepest`);
+    // AND THE SEAT ABOVE IT LIGHTS. Before the lift this asserted a chip inside
+    // The Town's row; the rooms are top-rail seats now, so what a reader
+    // standing here sees is their own seat lit in the rail itself. The claim is
+    // the same one — the chrome must say where you are — and it moved with the
+    // rail rather than being dropped when its old shape stopped applying.
+    const lit = sectionOf(key);
+    assert.ok(lit, `${href} lights no seat at all — the rail goes dark where the reader is deepest`);
+    assert.equal(lit.key, room, `${href} lights "${lit.label}" instead of its own room`);
+    assert.equal(rowFor(key), null, `${href} draws a chip row; neither of these rooms has one`);
   }
 });
 
@@ -399,12 +531,13 @@ test("the routes that came back from a fold are real pages, not stubs", () => {
   // it — a redirect page renders its own document and claims no `active` key —
   // so this names them, because a silent re-fold is exactly the kind of thing
   // that took a year to find last time.
-  // The keys moved when the founder struck the windows and the meeps chips
-  // (2026-08-25): those two pages answer to their ROOM now, `residents`. What
-  // has not changed is the thing this test is for — all three render the
-  // layout with real content behind their own URL, and none has quietly
-  // become a redirect again.
-  for (const [key, href] of [["bulletin", "/bulletin/"], ["residents", "/window/"], ["residents", "/meeps/"]]) {
+  // The keys have moved twice since. The founder struck the windows and the
+  // meeps chips, so both borrowed their room's key (`residents`); then he put
+  // the meeps back in The Town, so /meeps/ answers to `meeps` again. /window/
+  // still borrows. What has not changed across either move is the thing this
+  // test is for — all three render the layout with real content behind their
+  // own URL, and none has quietly become a redirect again.
+  for (const [key, href] of [["bulletin", "/bulletin/"], ["residents", "/window/"], ["meeps", "/meeps/"]]) {
     const file = pageFileFor(href);
     assert.ok(file, `${href} has no page`);
     const src = readFileSync(file, "utf8");
@@ -420,31 +553,31 @@ test("the routes that came back from a fold are real pages, not stubs", () => {
 // these describe damage he actually met, and a regression on any of them should
 // fail under his own words rather than under a paraphrase of them.
 
-test("YOUR HOUSE — the seat he clicked, and THE TOWN, the seat that lit up", () => {
-  //   "'Your House' click -> selects 'The Town'."
+test("THE HOUSEHOLD PAGE STILL DOES NOT LIGHT THE TOWN — the defect outlived the seat it broke", () => {
+  //   "'Your House' click -> selects 'The Town'."   — the founder, 2026-08-25
   //
-  // The seat leads to /households/<slug>/, and that page was handing the layout
-  // `active="residents"` — a key that belongs to The Town's family. So the rail
-  // lit the section the reader had just deliberately left, every time. This
-  // reads the key off the REAL page and runs it through the REAL derivation the
-  // layout uses, so restoring either half of the defect turns it red.
-  const seat = RAIL.find((s) => s.key === "join");
+  // The original: /households/<slug>/ handed the layout `active="residents"`,
+  // a key in The Town's family, so the rail lit the section the reader had just
+  // deliberately left. It was fixed by giving the Your House seat a second key.
+  //
+  // THAT SEAT IS NOW RETIRED, and this test survives it deliberately — the
+  // defect was never about the seat, it was about a page lighting a section it
+  // is not in. So the assertion is kept and re-aimed: the household page must
+  // light the seat it actually belongs to, and must not light The Town. It goes
+  // red both if `alsoKey` is dropped (nothing lights) and if the page reverts to
+  // claiming `residents`-as-a-town-room (The Town lights).
   const page = join(PAGES, "households", "[slug].astro");
-  assert.ok(existsSync(page), "the Your House destination has no page");
+  assert.ok(existsSync(page), "the household page is gone");
 
   const key = activeKeyOf(page);
-  assert.equal(key, seat.houseKey, `the household page claims "${key}", which is not this seat's key`);
-
   const lit = sectionOf(key);
   assert.ok(lit, `nothing in the rail answers to "${key}" — the page lights no seat at all`);
-  assert.equal(lit.key, "join", `standing on the Your House page lights "${lit.label}"`);
-  assert.notEqual(lit.key, "town", "THE FOUNDER'S DEFECT, restored: Your House lights The Town");
-  assert.equal(lit.signedInLabel, "Your House");
+  assert.notEqual(lit.key, "town", "THE FOUNDER'S DEFECT, restored: the household page lights The Town");
+  assert.equal(lit.key, "residents", `standing on a household page lights "${lit.label}"`);
 
-  // and the signed-out face must NOT claim the household page as its own: it is
-  // the Join door, and the Join door is /join/. The layout gates that face on
-  // `active === n.key` rather than on the section, so the key alone settles it.
-  assert.notEqual(key, seat.key, "the household page claims the Join door's own key");
+  // and it must not claim the Join door's key either — the Join door is /join/,
+  // and a household is not the door you came in by.
+  assert.notEqual(key, "join", "the household page claims the Join door's own key");
 });
 
 test("ONE CHIP ROW PER PAGE — never the section's AND the room's", () => {
@@ -455,23 +588,32 @@ test("ONE CHIP ROW PER PAGE — never the section's AND the room's", () => {
   // eight chips and its own three. The rows compete now: most specific wins.
   // The founder's later ruling collapsed the second row entirely rather than
   // making the two compete ("no subpage removes the town level subrail and
-  // replaces with its own", 2026-08-25) — so /residents/ now draws The Town's
-  // row, which is the stronger form of the same fix. `rowFor` keeps the
+  // replaces with its own", 2026-08-25) — so a room drew its SECTION's row,
+  // which is the stronger form of the same fix. `rowFor` keeps the
   // most-specific-wins branch; nothing declares a row for it to prefer.
-  assert.equal(rowFor("residents").place, "section", "a room drew a row of its own again");
-  assert.equal(rowFor("residents").of.key, "town");
+  //
+  // /residents/ was the example here until the lift made it a seat with no row
+  // of its own. The Town's rooms carry the claim now — the meeps is one of
+  // them, and it is the chip that made the round trip.
+  assert.equal(rowFor("meeps").place, "section", "a room drew a row of its own again");
+  assert.equal(rowFor("meeps").of.key, "town");
   // a page in a section but in no room of its own still gets the section's row —
   // collapsing to one row must not mean collapsing to none
   assert.equal(rowFor("daily").place, "section");
   assert.equal(rowFor("daily").of.key, "town");
   assert.equal(rowFor("atlas").place, "section");
-  // Your House takes none, by the founder's word; nor does an orphan page
+  // and a lifted seat draws none at all, because its family is one read
+  assert.equal(rowFor("residents"), null);
+  assert.equal(rowFor("mail"), null);
+  assert.equal(rowFor("stamps"), null);
+  // the household page takes none, by the founder's word, and that survived the
+  // retirement of the seat that used to carry the rule; nor does an orphan page
   assert.equal(rowFor("household"), null, "a section row appeared over the household's own");
   assert.equal(rowFor("join"), null);
   assert.equal(rowFor("darkroom"), null);
   assert.equal(rowFor(""), null);
   // and a page that says it draws its own row gets nothing from the nav
-  assert.equal(rowFor("residents", { ownChips: true }), null);
+  assert.equal(rowFor("meeps", { ownChips: true }), null);
 
   // THE LAYOUT DRAWS THE ROW ONCE. `rowFor` returning one answer is worthless
   // if the shell renders two components — which is exactly the shape the
@@ -534,4 +676,79 @@ test("the Harbor keeps its own flag — a root-relative spelling would be wrong 
   const h = RAIL.find((s) => s.key === "harbor");
   assert.equal(h.external, true);
   assert.equal(h.href, HARBOR);
+});
+
+// ── the founder's four, walked on dev 2026-08-25 night ───────────────────────
+
+test("THE NOTICE BOARD IS THE BULLETIN, so it matches up", () => {
+  //   "we should rename the notice board to the bulletin so it matches up"
+  //                                              — the founder, 2026-08-25
+  //
+  // "matches up" is the operative half and it names a target: the read is
+  // `bulletin` in the URL, in the `active` key, in the frontmatter, in every
+  // doorstep deep link and at the MCP door (`town read:"bulletin"`). Only the
+  // words a human saw said "notice board". So the assertion is that ONE name
+  // survives, and that it is the machine's — moving the other way would have
+  // meant renaming a URL that letters already point at.
+  const chip = allEntries().find((e) => e.key === "bulletin");
+  assert.ok(chip, "the bulletin left the rail");
+  assert.equal(chip.label, "the bulletin", `the chip still reads "${chip.label}"`);
+  assert.equal(chip.href, "/bulletin/", "the URL moved; the rename was supposed to make the name match it");
+
+  // NOTHING THE RAIL SAYS carries the old name any more, at any depth
+  for (const e of allEntries()) {
+    assert.equal(/notice board/i.test(e.label ?? ""), false,
+      `"${e.label}" still says notice board`);
+  }
+
+  // and the PAGE agrees — its <title> and its own heading. A chip renamed over
+  // a page that still calls itself something else is the mismatch he asked to
+  // remove, one layer down.
+  const page = readFileSync(pageFileFor("/bulletin/"), "utf8");
+  const tag = layoutTagOf(pageFileFor("/bulletin/"));
+  assert.match(tag, /title="The bulletin — Postmark"/, "the page title still says notice board");
+  assert.match(page, /<h1>The bulletin<\/h1>/, "the page's own heading still says notice board");
+  assert.equal(/>[^<]*notice board/i.test(page), false,
+    "the bulletin page still calls itself the notice board somewhere a reader can see");
+
+  // THE POSTINGS THEMSELVES ARE NOT TOUCHED. Residents wrote those words, and a
+  // rename of the site's chrome does not reach into what a resident said. The
+  // town's letters mention "the notice board" in prose and must keep doing so.
+  assert.ok(existsSync(join(ROOT, "src", "data", "postmark", "letters.json")),
+    "the letters are gone; this guard has nothing to guard");
+});
+
+test("LITTLE ICONS FOR THE TOWN'S CHIPS — decoration, never the name", () => {
+  //   "I'd like little icons for the town's chips"  — the founder, 2026-08-25
+  //
+  // THE TOWN'S chips, by his words, so that is the scope: The World's row is
+  // deliberately still bare and extending it is an open option, not something
+  // done quietly here. Every rendered chip in The Town's row wears one; a chip
+  // that arrives later without one is a gap a reader sees as a ragged row.
+  const row = chipsFor("daily").chips;
+  const bare = row.filter((c) => !c.icon).map((c) => c.label);
+  assert.deepEqual(bare, [], `these Town chips have no icon: ${bare.join(", ")}`);
+
+  // and they are DISTINCT — the whole value of an icon is telling one chip from
+  // another at a glance, and two chips wearing the same glyph is worse than
+  // none wearing any.
+  const icons = row.map((c) => c.icon);
+  assert.equal(new Set(icons).size, icons.length, `two Town chips share a glyph: ${icons.join(" ")}`);
+
+  // THE LABEL IS UNCHANGED. An icon that replaced a word would be a different
+  // request; his was for icons on the chips, not instead of them.
+  assert.deepEqual(row.map((c) => c.label),
+    ["ferry’s daily", "the bulletin", "the ballot", "the works", "the meeps"]);
+
+  // AND THEY ARE HIDDEN FROM A SCREEN READER, because a decorative glyph read
+  // aloud beside its own label says the chip twice in two vocabularies.
+  const chipRow = readFileSync(join(ROOT, "src", "components", "ChipRow.astro"), "utf8");
+  assert.match(chipRow, /class="pm-chip-icon" aria-hidden="true"/,
+    "the icon is rendered without aria-hidden — it will be read aloud beside the label");
+
+  // and no seat in the TOP rail grew one: the seats are words, and the layout
+  // renders `n.label` with nothing before it.
+  for (const s of RAIL) {
+    assert.equal(s.icon, undefined, `the ${s.label} seat grew an icon; only the chips were asked for`);
+  }
 });

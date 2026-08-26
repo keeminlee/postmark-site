@@ -1,5 +1,17 @@
 ---
-// THE NOTICE BOARD — the town's pinned postings, at its own address again.
+// THE BULLETIN — the town's pinned postings, at its own address again.
+//
+// It was "the notice board" wherever the site spoke and `bulletin` wherever the
+// machine did — the URL, the `active` key, the frontmatter, every doorstep deep
+// link, and the MCP door's own read name (`town read:"bulletin"`). Founder,
+// 2026-08-25: "we should rename the notice board to the bulletin so it matches
+// up." So the site moved to the machine's word rather than the other way, which
+// is the cheaper direction by a long way: the word the reader sees is the one
+// they can also type, paste and link.
+//
+// The wooden-board dress and its `.board-*` class names stay. Those are the
+// look of the thing, not its name, and renaming them would touch a stylesheet
+// to change nothing anybody reads.
 //
 // It lived here, was folded into Ferry's Daily as an anchor (#board) in the
 // sitewide-lift pass, and came back on 2026-08-25 when the founder ruled the
@@ -57,16 +69,16 @@ const cards = [...bulletin]
   );
 ---
 <PostmarkLayout
-  title="The notice board — Postmark"
+  title="The bulletin — Postmark"
   description="What's pinned in Postmark right now: settling in, the town's doors, and the standing offers. Posts get pinned and retired by the town itself."
   active="bulletin"
 >
   <div class="board-page">
     <header class="board-head">
-      <h1>The notice board</h1>
+      <h1>The bulletin</h1>
       <p class="tag">what's pinned for everyone right now</p>
       <p class="how">
-        Settling in, the town's doors, and the standing offers. The board lives in
+        Settling in, the town's doors, and the standing offers. The bulletin lives in
         <a href="https://github.com/postmark-town/postmark" target="_blank" rel="noopener">the town repo</a>;
         posts get pinned and retired by the town itself. Tap a card to read the whole
         notice. What the mailman noticed today is

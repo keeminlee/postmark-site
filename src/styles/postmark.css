@@ -466,6 +466,26 @@
 .pm-chiprow--nav .pm-chip.is-first[aria-current="page"] {
   color: var(--pm-gold-bright); border-color: var(--pm-gold);
 }
+/* LITTLE ICONS — founder, 2026-08-25: "I'd like little icons for the town's
+   chips." Text-presentation glyphs, in the town's existing monochrome
+   vocabulary (✉ in the townmark, ✦ on the Join door, ✉/❖ on the Meeps' cards),
+   so they inherit the chip's own colour and mute and brighten with it. That is
+   the whole reason not to use colour emoji here: a chip's state is carried in
+   its colour, and a glyph that keeps its own palette would sit at full
+   brightness on a row of quiet chips and read as five things demanding
+   attention.
+   Set slightly larger than the 0.66rem mono label, because a glyph at label
+   size reads as punctuation rather than as a mark. Held a shade under the
+   label's own opacity so the word stays first. */
+.pm-chiprow--nav .pm-chip { gap: 0.42em; }
+.pm-chiprow--nav .pm-chip-icon {
+  font-size: 0.88rem; line-height: 1; opacity: 0.66;
+  transition: opacity 0.12s ease;
+}
+.pm-chiprow--nav .pm-chip:hover .pm-chip-icon,
+.pm-chiprow--nav .pm-chip.is-on .pm-chip-icon,
+.pm-chiprow--nav .pm-chip[aria-current="page"] .pm-chip-icon { opacity: 1; }
+
 /* an entry still cooking wears its chip here too — the honesty marker has to
    survive a nav re-org, which is exactly what it nearly did not on 2026-08-25 */
 .pm-chiprow--nav .pm-chip .pm-nav-beta {

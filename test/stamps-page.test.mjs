@@ -141,20 +141,24 @@ test("every holo mention carries the ruling's line", () => {
 });
 
 test("the nav carries one Stamps entry, flagged beta", () => {
-  // RE-AIMED 2026-08-25 (the trinity re-org). The rail left PostmarkLayout for
-  // `src/lib/nav.mjs`, its single source, and Stamps moved from a top-level
-  // seat into The Town's strip — a section member, not a peer of the town. The
-  // law is unchanged and is asserted against the STRUCTURE now rather than
-  // against a regex on the layout's source text, which is why the move was a
-  // one-line red instead of a silent green: the old probe matched a literal
-  // line, so it could only ever have survived by nobody moving the line.
+  // RE-AIMED TWICE IN ONE DAY, 2026-08-25, and the two moves are worth keeping
+  // side by side because this test survived both by asserting the LAW instead
+  // of a location. (1) The trinity re-org moved the rail out of PostmarkLayout
+  // into `src/lib/nav.mjs` and demoted Stamps from a top-level seat into The
+  // Town's strip. (2) The founder lifted it straight back that night — "and
+  // Stamps are... well, important to keeping Postmark going" — so it is a seat
+  // again, with a capital S.
+  //
+  // What has never moved is the law: ONE door, wearing the beta chip. Both
+  // moves cost a one-line red rather than a silent green, which is the whole
+  // reason this reads the structure and not a regex over the layout's text.
   const stamps = allEntries().filter((e) => e.key === "stamps" || e.href === "/stamps/");
   assert.equal(stamps.length, 1, "ONE Stamps door in the rail — a second rebuilds the split the portal removed");
-  assert.equal(stamps[0].label, "stamps");
+  assert.equal(stamps[0].label, "Stamps");
   assert.equal(stamps[0].beta, true, "the Stamps entry must wear the beta chip");
-  // "town", not "daily": the chip wave gave The Town a page of its own, so the
-  // section's key stopped being its landing page's key. Stamps did not move.
-  assert.equal(stamps[0].section, "town", "Stamps belongs to The Town");
+  // its own seat: a top-level entry is its own section, so `section` is its key
+  assert.equal(stamps[0].section, "stamps", "Stamps is not a top-rail seat");
+  assert.equal(stamps[0].depth, 0, "Stamps is a chip of some section again");
   // and nothing anywhere in the rail opens a deeper stamps URL: everything
   // stamps is behind the one portal door.
   assert.deepEqual(allEntries().filter((e) => /^\/stamps\/./.test(e.href)), [],
