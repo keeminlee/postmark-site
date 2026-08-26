@@ -164,7 +164,15 @@ export const RAIL = [
     label: "The Town",
     href: "/daily/",
     members: [
-      { key: "daily", label: "ferry’s daily", href: "/daily/", icon: "☼" },
+      // ▤ U+25A4 — a page of ruled type, which is what a daily is. It is NOT
+      // the first glyph tried: ☼ U+263C reads "white sun with rays" in a code
+      // editor and renders as a SETTINGS COG in the browser, which the suite
+      // could never have caught (it was green on "has an icon" and on "the
+      // icons are distinct" while the chip said settings). Photographed at
+      // 40px before choosing — see `G:/Wright-HQ/rail3-glyph-probe.mjs`, which
+      // also disqualified ⚓ and ✍: both render as COLOUR emoji here, which is
+      // the whole thing this row is built to avoid.
+      { key: "daily", label: "ferry’s daily", href: "/daily/", icon: "▤" },
       // THE BULLETIN. It came back to /bulletin/ in the chip wave — it had been
       // folded into the Daily as an anchor, which made it a chip that could
       // never light up, and `town.bulletin` is its own read, so under the
