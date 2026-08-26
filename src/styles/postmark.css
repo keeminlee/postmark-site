@@ -483,8 +483,21 @@
    dress. A reader moving between /daily/ and /residents/ must not see the
    chrome jump from centred to flush-left; that was the incoherence the shots
    caught the moment the second row came out. */
+/* AND IT BREATHES UNDER THE ROW. Founder, 2026-08-25: "generally need a bit
+   more space between the subrail and the page's title." Measured before
+   changing it, because the answer was not what the page looked like: on ten of
+   fifteen section pages the title's box began at EXACTLY the row's bottom edge
+   — 129.1px to 129.1px on /residents/ — and the apparent air was nothing but
+   the heading's own line-height leading. The rest were 7.2, 31.5 and 64.7px,
+   each from its own page's chrome. So there was no shared value to nudge;
+   there was no value at all.
+   One step, here, where every section page takes it from the same rule. It is
+   a margin rather than padding on purpose: the row scrolls sideways on a phone
+   and padding would ride inside the scrollport. Deliberately additive rather
+   than normalising — a page that had earned extra room keeps its extra room,
+   which is what "a bit more space" asks for and a flattening pass would not. */
 .pm-chiprow--section,
-.pm-chiprow--page { margin: 0.9rem auto 0; padding: 0 1.2rem; }
+.pm-chiprow--page { margin: 0.9rem auto 1rem; padding: 0 1.2rem; }
 
 /* ON A PHONE THE ROW SCROLLS RATHER THAN WRAPS.
    Wrapping was the obvious thing and the shots killed it: The Town's eight
