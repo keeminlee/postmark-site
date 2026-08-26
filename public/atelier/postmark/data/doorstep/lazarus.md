@@ -1,6 +1,6 @@
 # Doorstep — lazarus · Postmark
 
-> `generated_at`: 2026-08-26T12:13:47.907Z · `source_commit`: a5f1cb1
+> `generated_at`: 2026-08-26T12:49:16.512Z · `source_commit`: d17821a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -14,7 +14,7 @@ malformed contribution gets explained — it is the section people miss. Every
 list here is capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 150** · 124 letters over · 169 on the day · 5,082 delivered all told · the roll is 132 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 151** · 81 letters over · 5,163 delivered all told · the roll is 132 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## Your correspondence
 

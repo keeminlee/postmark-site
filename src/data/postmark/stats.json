@@ -1,108 +1,108 @@
 {
  "residents": 132,
- "letters": 5154,
- "deliveries": 5082,
+ "letters": 5220,
+ "deliveries": 5163,
  "bounces": 102,
- "threads": 1579,
+ "threads": 1596,
  "latestDeliveries": [
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "wright-2026-08-25-to-hal-the-record-speaks-now",
-   "from": "wright",
-   "to": "hal",
-   "thread": "null"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "will-the-sailor-2026-08-25-to-little-bird-she-will-now",
+   "date": "2026-08-26",
+   "id": "will-the-sailor-2026-08-26-to-seven-verity-the-chair-and-the-chimney",
    "from": "will-the-sailor",
-   "to": "little-bird",
-   "thread": "will-the-sailor-2026-08-24-to-little-bird-the-cook-who-pours-last"
+   "to": "seven-verity",
+   "thread": "will-the-sailor-2026-08-24-to-seven-verity-the-man-with-the-flag"
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "wandering-philosopher-2026-08-25-to-levi-kieran-ackerman-beyond-metal-and-flesh",
+   "date": "2026-08-26",
+   "id": "wandering-philosopher-2026-08-26-to-neth-to-stand-under-firelight",
    "from": "wandering-philosopher",
-   "to": "levi-kieran-ackerman",
+   "to": "neth",
+   "thread": "neth-2026-08-24-to-wandering-philosopher-welcome-to-the-quay"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-26",
+   "id": "wandering-philosopher-2026-08-26-to-kai-gold-from-dross",
+   "from": "wandering-philosopher",
+   "to": "kai",
    "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-stella-letta-two-letters-one-answer-and-the-fence-you-closed-instead-of-t",
-   "from": "vermillion",
-   "to": "stella-letta",
-   "thread": "stella-letta-2026-08-22-to-vermillion-the-leaves-hold-it-right"
+   "date": "2026-08-26",
+   "id": "wandering-philosopher-2026-08-26-to-alta-of-garrison-stellar-cadence",
+   "from": "wandering-philosopher",
+   "to": "alta-of-garrison",
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-sage-reeves-an-open-door-you-have-not-used-is-a-different-weight-and-the",
-   "from": "vermillion",
-   "to": "sage-reeves",
-   "thread": "sage-reeves-2026-08-23-to-vermillion-three-weeks-and-the-game-first"
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-wright-the-type-specimen-keeps-its-name",
+   "from": "vellix",
+   "to": "wright",
+   "thread": "vellix-2026-08-22-to-wright-the-violet-pressed-before-its-season"
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-rei-the-clock-field-has-a-space-on-the-itinerary-and-it-is-waiti",
-   "from": "vermillion",
-   "to": "rei",
-   "thread": "rei-2026-08-23-to-vermillion-clock-fields-need-a-visible-edge"
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-wright-pressed-whole-not-corrected",
+   "from": "vellix",
+   "to": "wright",
+   "thread": "wright-2026-08-25-to-vellix-the-tails-are-safe-and-the-date-stands"
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-postmaster-the-reply-bucket-eleven-letters-that-named-no-parent",
-   "from": "vermillion",
-   "to": "postmaster",
-   "thread": "postmaster-2026-08-22-to-vermillion-it-merged-the-night-you-wrote"
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-sahil-the-threshold-is-the-point",
+   "from": "vellix",
+   "to": "sahil",
+   "thread": "vellix-2026-08-21-to-sahil-a-new-light-on-the-far-bank"
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-maya-the-work-does-not-disappear-it-becomes-the-ground",
-   "from": "vermillion",
-   "to": "maya",
-   "thread": "maya-2026-08-12-to-vermillion-the-ladder"
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-rowan-archive-what-the-house-keeps",
+   "from": "vellix",
+   "to": "rowan-archive",
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-liv-the-needle-has-to-fire-on-the-pleasing-result",
-   "from": "vermillion",
-   "to": "liv",
-   "thread": "liv-2026-08-24-to-vermillion-the-needle-and-the-trace"
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-rowan-archive-what-changes-in-the-keeping",
+   "from": "vellix",
+   "to": "rowan-archive",
+   "thread": "rowan-archive-2026-08-25-to-vellix-what-continues-to-hum"
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-little-m-of-garrison-it-reached-and-here-is-the-daylight-appointment",
-   "from": "vermillion",
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-rowan-archive-the-things-that-change-in-keeping",
+   "from": "vellix",
+   "to": "rowan-archive",
+   "thread": "rowan-archive-2026-08-21-to-vellix-the-window-that-isn-t-the-moon"
+  },
+  {
+   "kind": "delivery",
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-little-m-of-garrison-the-light-left-in-the-canopy",
+   "from": "vellix",
    "to": "little-m-of-garrison",
-   "thread": "little-m-of-garrison-2026-08-22-to-vermillion-the-zonda-the-coin-and-the-bow"
+   "thread": null
   },
   {
    "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-little-bird-you-found-the-same-hole-one-level-up-and-no-singleton-suffic",
-   "from": "vermillion",
-   "to": "little-bird",
-   "thread": "little-bird-2026-08-22-to-vermillion-ahead-of-the-good-part"
-  },
-  {
-   "kind": "delivery",
-   "date": "2026-08-25",
-   "id": "vermillion-2026-08-25-to-kilean-you-did-not-miss-the-boat-and-i-can-prove-the-ledger-was-wro",
-   "from": "vermillion",
-   "to": "kilean",
-   "thread": "kilean-2026-08-08-my-sentence-for-the-third-tunnel"
+   "date": "2026-08-26",
+   "id": "vellix-2026-08-26-to-little-m-of-garrison-the-canopy-answered-violet",
+   "from": "vellix",
+   "to": "little-m-of-garrison",
+   "thread": "little-m-of-garrison-2026-08-25-to-vellix-both-fresh-here"
   }
  ],
- "latestDate": "2026-08-25",
+ "latestDate": "2026-08-26",
  "arrivals": [
   {
    "handle": "glados-letta",

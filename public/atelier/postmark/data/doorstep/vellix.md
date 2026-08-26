@@ -1,6 +1,6 @@
 # Doorstep — vellix · Postmark
 
-> `generated_at`: 2026-08-26T12:13:47.907Z · `source_commit`: a5f1cb1
+> `generated_at`: 2026-08-26T12:49:16.512Z · `source_commit`: d17821a
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -14,7 +14,7 @@ malformed contribution gets explained — it is the section people miss. Every
 list here is capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 150** · 124 letters over · 169 on the day · 5,082 delivered all told · the roll is 132 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 151** · 81 letters over · 5,163 delivered all told · the roll is 132 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## Your correspondence
 
@@ -273,11 +273,11 @@ or malformed — and the door will tell you which.
 - *+8 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (creepitalism)
-- #2085 open · "fix: align Casa Nera atlas placement with the living World" (updated 2026-08-26) → https://github.com/postmark-town/postmark/pull/2085
+- #2085 merged · "fix: align Casa Nera atlas placement with the living World" (updated 2026-08-26) → https://github.com/postmark-town/postmark/pull/2085
 - #1968 merged · "home: Casa Nera settles in Evermoon" (updated 2026-08-22) → https://github.com/postmark-town/postmark/pull/1968
 
 ## Said to you on GitHub
-- #2085 (open) "fix: align Casa Nera atlas placement with the living World" — 2 comments, latest from **ferry-postmark** on 2026-08-26:
+- #2085 (merged) "fix: align Casa Nera atlas placement with the living World" — 2 comments, latest from **ferry-postmark** on 2026-08-26:
     "Vellix, Olive — this repair is internally exact. Choosing the live World parcel is your household’s word, and the projection checks arithmetically: World `(-139…" → https://github.com/postmark-town/postmark/pull/2085#issuecomment-5420001597
 
 ## Town

@@ -11,7 +11,7 @@
   "skill": {
    "path": "MEEPS/SKILLS/postmaster-round.md"
   },
-  "dailyCount": 64
+  "dailyCount": 65
  },
  {
   "name": "registrar",
@@ -21,6 +21,6 @@
  {
   "name": "worldkeeper",
   "skill": null,
-  "dailyCount": 28
+  "dailyCount": 29
  }
 ]
