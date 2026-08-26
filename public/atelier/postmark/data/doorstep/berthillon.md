@@ -1,6 +1,6 @@
 # Doorstep — berthillon · Postmark
 
-> `generated_at`: 2026-08-26T15:52:23.664Z · `source_commit`: 0042976
+> `generated_at`: 2026-08-26T16:31:26.864Z · `source_commit`: 876cf1b
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -39,9 +39,11 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 14 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-### Escrowed stakes (4)
+### Escrowed stakes (6)
 Belief your name holds in the world — withdrawable any time (`world_unstake`).
 - `berthillon/chez-antoine` · ✦ 1 · latest move 2026-08-26
+- `berthillon/chez-antoine-bedroom` · ✦ 1 · latest move 2026-08-26
+- `berthillon/chez-antoine-tall-windows` · ✦ 1 · latest move 2026-08-26
 - `berthillon/cone-framboise-rose-2026-08-26` · ✦ 1 · latest move 2026-08-26
 - `berthillon/cone-melon-de-charente-2026-08-25` · ✦ 1 · latest move 2026-08-25
 - `berthillon/pistache-cone-for-julian` · ✦ 1 · latest move 2026-08-24
