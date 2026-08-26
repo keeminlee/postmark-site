@@ -159,9 +159,12 @@ test("the nav carries one Stamps entry, flagged beta", () => {
   // its own seat: a top-level entry is its own section, so `section` is its key
   assert.equal(stamps[0].section, "stamps", "Stamps is not a top-rail seat");
   assert.equal(stamps[0].depth, 0, "Stamps is a chip of some section again");
-  // and nothing anywhere in the rail opens a deeper stamps URL: everything
-  // stamps is behind the one portal door.
-  assert.deepEqual(allEntries().filter((e) => /^\/stamps\/./.test(e.href)), [],
+  // and nothing anywhere in the rail opens a deeper stamps PAGE: everything
+  // stamps is behind the one portal door. A fragment on the portal itself is
+  // not a second door -- The Town's bounty-board chip (founder, 2026-08-26:
+  // "we need the Bounty Board in The Town") deep-links /stamps/#board, the
+  // same page the seat opens, just scrolled to the block.
+  assert.deepEqual(allEntries().filter((e) => /^\/stamps\/[^#]/.test(e.href)), [],
     "no second Stamps door in the rail");
 });
 
@@ -188,18 +191,31 @@ test("the market opens first, and the other panels start hidden", () => {
     "and the market tab must start selected");
 });
 
-test("the primer is folded, not the first thing a reader wades through", () => {
-  // Same ruling. The five sentences are still here in full — they are just
-  // behind one click, so the market is what the page opens with.
-  assert.ok(/<details class="p-primer">/.test(raw), "the primer must be a fold");
-  // bounded to the fold itself — slicing to the end of the page would count
-  // every <li> on the portal and pass no matter what the primer held
-  const from = raw.indexOf('<details class="p-primer">');
-  const primer = raw.slice(from, raw.indexOf("</details>", from));
-  assert.equal(/^<details class="p-primer"[^>]*\bopen\b/.test(primer), false,
-    "and it must start shut");
-  assert.equal((primer.match(/<li>/g) || []).length, 5,
-    "with all five sentences still inside it — exactly five, not four");
+test("the head answers WHAT IS THIS unfolded, with the five things behind one click", () => {
+  // TWO rulings hold here at once, and the second amends the first.
+  //   2026-08-26, off a real reader who read the page three times and could not
+  //   say what a stamp was (discussion #2036): "a reader needs to understand
+  //   WHAT THIS IS before they can digest any information about WHAT IT DOES...
+  //   WHAT IS THIS is the utmost priority." That is the unfolded one-breath
+  //   definition, and the giver's door beside it.
+  //   2026-08-26, later, on the three sentences that replaced the primer: "I
+  //   prefer the old 'The Five Things To Know' to the three (and I like how
+  //   it's hidden and expandable)." That is the fold, back, with five in it.
+  // So: nothing folded stands between a first-timer and the ground, AND the
+  // teaching is five things under one click rather than three in the open.
+  const head = raw.slice(raw.indexOf('<header class="p-head">'), raw.indexOf("</header>"));
+  const primer = head.indexOf('<details class="p-primer">');
+  assert.ok(head.includes('class="p-folk"'), "the head lost its plain one-breath definition");
+  assert.ok(primer > 0, "the five things must be in the head, folded");
+  assert.ok(head.indexOf('class="p-folk"') < primer,
+    "the plain definition comes BEFORE the fold — the ground first, always");
+  assert.equal(/<details class="p-primer"[^>]*\bopen\b/.test(head), false,
+    "the primer must start shut — an expanded fold is the wall coming back");
+  assert.equal((head.match(/<li>/g) || []).length, 5,
+    "the five things to know are five");
+  // and the giver's door: a reader who only wants to help pay the bills is
+  // pointed at the pots without having to learn the economy first.
+  assert.ok(head.includes('href="#pots"'), "the head must point a giver at the pots");
 });
 
 // ── the teaching, re-homed as accordions ─────────────────────────────────────
@@ -260,56 +276,50 @@ test("the four kinds of nothing survived into the cards", () => {
   assert.ok(body.includes("No pot is open"), "and a town asking for no money says so");
 });
 
-test("each pot says what IT does, keyed on the word and never on the boolean", () => {
-  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _close, quoted:
-  //   "a month's close runs only if the accumulated roll — carried dollars plus
-  //    this month's — totals at least min_close_usd; otherwise dollars and
-  //    stakes both stand and ride to the next month … Nothing is ever refused
-  //    at intake: a gift of any size is witnessed and joins the roll."
-  // and the shape it superseded, § _close as it read that morning:
-  //   "a standing box, not an epoch pot — gifts are witnessed, never converted;
-  //    nothing here ever burns or mints"
+test("the card says WHAT the pot is; the close mechanics live on its fund page", () => {
+  // THE CARD LAW — the founder, 2026-08-26: "THE MAIN PAGE CARDS EXPLAIN WHAT
+  // THE THING IS, THE FUND PAGE DIRECTS TO WHERE YOU CAN PAY, AND OFFERS MORE
+  // DETAILS ABOUT WHAT IT IS. ... Before you expose something on The Market,
+  // ask yourself: 'is this the reason somebody would be on this page?'"
+  // So the card's teaching is ONE sentence — the pot file's own first sentence,
+  // via potGist, never invented copy — and the character line + estimate moved
+  // to the pot's own fund page. The close-word discipline (the Hal finding,
+  // 2026-08-25: every promise keys on the WORD the town said, never the
+  // boolean) survives the move — asserted below against the fund page, where
+  // the sentences now live.
   const pots = raw.slice(raw.indexOf('<div id="pots"'));
   const section = pots.slice(0, pots.indexOf("\n    </section>"));
   const sBody = flat(section);
 
-  // THREE sites branch on the word, and each is a different promise: the bar
-  // (measured against the close floor, not a target), the figure line for a
-  // floorless roll, and the character line. Losing any one of them leaves the
-  // pot half-described.
-  assert.equal(section.split('p.close === "elastic"').length - 1, 3,
-    "the bar, the figure line and the character line must each branch on the word");
-  assert.ok(section.includes('p.close === "none"'), "and the standing box has its own branch");
-  // THE EPOCH ARM, AND THE DEFECT IT CLOSES. The comment above the character
-  // line claimed the whole branch was "keyed on the pot file's own word rather
-  // than on the boolean, because the boolean cannot tell 'never closes' from
-  // 'not stated yet'" — and the third arm fell through to `p.closes` anyway.
-  // So a pot that posted a target and said nothing was told, in bold, that it
-  // closes at the epoch. That was LIVE on the keeping pot: this page promised
-  // the epoch close while the MCP's fund read warned that nothing in the
-  // record said when a stake would burn, and a resident found the pair. The
-  // record now says close: "epoch" (pot-keeping-ec2.json § _close, the
-  // founder's explicit-word ruling of 2026-08-25) and the arm keys on it.
-  assert.ok(section.includes('p.close === "epoch"'),
-    "the epoch promise must key on the word the town said, never on the boolean");
-  assert.equal(/:\s*p\.closes\s*$/m.test(section), false,
-    "no arm of the character line may fall through to the derived boolean");
-  assert.ok(sBody.includes("Closes at the epoch"), "and the epoch pot still says so");
+  // the card answers WHAT IS THIS, from the record
+  assert.ok(section.includes("potGist(p.source)"), "the card's what-line is the pot file's own sentence");
+  assert.ok(section.includes('class="m-what"'), "and it renders");
+
+  // the mechanics are OFF the market: no close promises, no estimate
+  assert.equal(sBody.includes("Closes at the epoch"), false, "the epoch promise left the card");
+  assert.equal(sBody.includes("Never closes"), false, "the never-closes promise left the card");
+  assert.equal(section.includes("estimate("), false, "the estimate left the card");
+
+  // the money line still branches on the WORD for its two shapes
+  assert.equal(section.split('p.close === "elastic"').length - 1, 2,
+    "the bar and the figure line each branch on the word");
   assert.ok(sBody.includes("given so far this roll"),
     "an elastic pot's figure is a running roll, not one epoch's takings");
-  assert.ok(sBody.includes("Carries forward"), "the elastic pot says the roll carries forward");
-  assert.ok(sBody.includes("whole accumulated roll"),
-    "and that holo splits across the whole roll, not just the closing month");
-  assert.ok(sBody.includes("nothing is refused at intake"), "and that intake refuses nothing");
-  assert.ok(sBody.includes("Never closes"), "the standing box still says so");
-  assert.ok(sBody.includes("nothing mints back"), "in the words that leave no room");
 
-  // THE UNSAID CASE. `closes` is false both when the town said "never" and when
-  // the town has not said at all, and only one of those may be rendered as a
-  // promise. Not hypothetical: the live emission carries no close word today,
-  // because sync-atlas.yml builds it from MAIN's emitter.
-  assert.ok(sBody.includes("not in the town's record yet"),
-    "a pot whose close the record has not stated must say exactly that");
+  // and the fund page carries every sentence the card gave up, still keyed on
+  // the word, arm by arm — elastic, epoch, never, unsaid.
+  const fund = flat(read("../town/pages/fund/[pot].astro"));
+  for (const [what, needle] of [
+    ["the elastic pot's carry-forward", "This pot carries forward"],
+    ["the whole-roll split", "whole accumulated roll"],
+    ["intake refuses nothing", "nothing is refused at intake"],
+    ["the epoch close", "This pot closes at the epoch"],
+    ["the standing box", "This one never closes"],
+    ["the no-mint words that leave no room", "nothing mints back"],
+    ["the humble unsaid case", "not in the town's record yet"],
+  ]) {
+    assert.ok(fund.includes(needle), `the fund page lost ${what}`);
+  }
 });
 
 test("the floor is read from the pot file, never written into the page", () => {
@@ -380,7 +390,8 @@ test("the card rail rides the same gate and the same disclosures as the address"
 
 test("no pot page promises a close it does not run", () => {
   const fund = read("../town/pages/fund/[pot].astro");
-  assert.ok(fund.includes("{pot.closes ? ("), "the disclosure branches on the pot's own word");
+  assert.ok(fund.includes('pot.close === "elastic" ? (') && fund.includes("pot.closes ? ("),
+    "the disclosure branches on the pot's own word");
   assert.ok(flat(fund.slice(fund.indexOf("---", 3) + 3)).includes("nothing mints back"),
     "and a pot that mints nothing says so beside its own intake address");
 });
@@ -457,23 +468,23 @@ test("an elastic pot gets a bar against its floor, and the bar says the roll kee
 });
 
 test("the estimate renders only where a close could run, and never as a promise", () => {
-  // THE RULING THIS ASSERTS — the founder, 2026-08-23: the card carries an
-  // estimated return "as of this moment". The honesty is the whole point: it
-  // is an estimate at today's roll and stakes, it moves as both move, and it
-  // is {HOLO_LINE} — never a promise of profit.
-  const pots = raw.slice(raw.indexOf('<div id="pots"'));
-  const section = pots.slice(0, pots.indexOf("\n    </section>"));
-  const sBody = flat(section);
+  // THE RULING THIS ASSERTS — the founder, 2026-08-23: an estimated return may
+  // show "as of this moment", honestly: at today's roll and stakes, moving as
+  // both move, {HOLO_LINE} — never a promise. RE-HOMED 2026-08-26 by the card
+  // law: what a dollar mints is the FUND PAGE's detail, not the market's, so
+  // the assertions moved with the sentence.
+  const fund = read("../town/pages/fund/[pot].astro");
+  const fbody = flat(fund.slice(fund.indexOf("---", 3) + 3));
 
-  assert.ok(section.includes("estimate(p) != null &&"),
+  assert.ok(fund.includes("{estimate != null && ("),
     "the estimate is gated on the helper, which returns null where no close can run");
-  assert.ok(sBody.includes("if the close ran this moment"), "it says when it would apply");
-  assert.ok(sBody.includes("it moves as both move"), "and that it is not fixed");
-  assert.ok(section.includes("{HOLO_LINE}"), "and it carries the ruling's line");
+  assert.ok(fbody.includes("if the close ran this moment"), "it says when it would apply");
+  assert.ok(fbody.includes("it moves as both move"), "and that it is not fixed");
+  assert.ok(fund.includes("{HOLO_LINE}"), "and the page carries the ruling's line");
   // the number comes from the reader, not from the page
-  assert.ok(/const estimate = \(pot\) => holoPerDollar\(pot, econ\)/.test(src),
+  assert.ok(/const estimate = holoPerDollar\(pot, econ\)/.test(fund),
     "the math lives in funding.mjs and the page only calls it");
-  assert.equal(/per \$1[^<]*0\.\d/.test(sBody), false, "no estimate is typed into the markup");
+  assert.equal(/per \$1[^<]*0\.\d/.test(fbody), false, "no estimate is typed into the markup");
 });
 
 test("the pots block says when its data was made", () => {

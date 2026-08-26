@@ -15,7 +15,7 @@ import residents from "@/data/postmark/residents.json";
 import media from "@/data/postmark/media.json";
 import bulletin from "@/data/postmark/bulletin.json";
 import { fetchBuiltMintedCumulative } from "@/lib/build-mint.mjs";
-import { fmtDate, threadTitle, excerpt, emph } from "@/lib/pm.mjs";
+import { fmtDate, threadTitle, emph, postingTitle, postingTeaser } from "@/lib/pm.mjs";
 
 const MINT_GOAL = 5000;
 const builtMintedCumulative = await fetchBuiltMintedCumulative({
@@ -75,17 +75,10 @@ for (const r of residents) {
 }
 
 // the lens card band: bulletin postings as teaser cards (the teaser is a
-// hand-maintained frontmatter field, Keemin's pen; first paragraph fallback)
-function postingTitle(b) {
-  const m = (b.body || "").match(/^#\s+(.+)$/m);
-  return m ? m[1].trim() : b.slug;
-}
-function postingTeaser(b) {
-  if (b.data?.teaser) return b.data.teaser;
-  const para = (b.body || "").split(/\r?\n/)
-    .find((l) => l.trim() && !/^#|^!\[|^\*[^*]/.test(l.trim()));
-  return excerpt(para ?? "", 200);
-}
+// hand-maintained frontmatter field, Keemin's pen; first paragraph fallback).
+// Both helpers moved into pm.mjs so the function that renders here is the one
+// the suite tests — they were page-local, and page-local is why a hard-wrapped
+// entry could ship an amputated teaser with nobody's test able to see it.
 const lensCards = bulletin
   .filter((b) => b.slug !== "ferrys-daily")
   .sort((a, b) => (b.data?.posted ?? "").localeCompare(a.data?.posted ?? ""))

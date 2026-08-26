@@ -15,10 +15,12 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import {
   DEEDS_FIXTURE,
   FOUNDER_ACCOUNT,
+  HOLO_NAME_LINE,
   holoPerDollar,
   beneficiaryLabel,
   firstCloseLabel,
@@ -586,4 +588,192 @@ test("a pot row carries its first close through the reader", () => {
   assert.equal(undated.ok, true, undated.reason);
   assert.equal(undated.firstClose, null);
   assert.equal(undated.firstCloseLabel, null);
+});
+
+// ── the household's shelf speaks plain words ─────────────────────────────────
+
+test("the household's funding shelf says the record in plain words, with no noun standing in for it", () => {
+  // THE LAW, in the founder's own words (2026-08-26): "'deeds' were NOT the way
+  // we were taking this — that needs to be removed." Provenance: the 2026-08-24
+  // deeds-as-ownership-register proposal (deeds replacing holo) was ideation and
+  // was never adopted; the sitting re-derived holo. So the record-of-dollars
+  // concept survives as PLAIN PROSE ONLY — no replacement noun, ever.
+  //
+  // WHAT THIS DOES NOT ASSERT, deliberately: the reader's identifiers
+  // (loadDeeds / toDeed / deedsFor) and the deeds.json emission contract still
+  // carry the ledger's own grammar. That rename is a data-contract change,
+  // deferred to the coordinated office/machinery pass on POS-61 — so this test
+  // reads the TEMPLATE's rendered-facing strings, never the frontmatter, and a
+  // green here is not a claim about the ledger's vocabulary.
+  const file = readFileSync(new URL("../town/components/Household.astro", import.meta.url), "utf8");
+  const template = file.slice(file.indexOf("---", 3) + 3);
+
+  // 1. nothing a browser receives carries the word. Class names ship in the
+  //    markup, so they are as visible as the prose is.
+  const classes = [...template.matchAll(/class="([^"]*)"/g)].map((m) => m[1]);
+  const offenders = classes.filter((c) => /deed/i.test(c));
+  assert.deepEqual(offenders, [], `these class names still ship the word: ${offenders.join(", ")}`);
+  assert.equal(/<span>Deeds<\/span>/.test(template), false, "the shelf heading still reads Deeds");
+  assert.equal(/deed only/i.test(template), false, "the zero-holo row still says 'deed only'");
+
+  //    ...INCLUDING HTML COMMENTS, which is not a hypothetical: the first cut
+  //    of this sweep explained the ruling in an <!-- --> comment above the
+  //    shelf, and Astro ships those verbatim, so the word came back on all
+  //    300-odd household pages. Only the built-output grep caught it. A
+  //    brace-slash-star comment is stripped; an HTML one is published.
+  const htmlComments = [...template.matchAll(/<!--[\s\S]*?-->/g)].map((m) => m[0]);
+  const talkative = htmlComments.filter((c) => /deed/i.test(c));
+  assert.deepEqual(talkative, [],
+    "an HTML comment names the word, and HTML comments are shipped to the reader");
+
+  // 2. and it says the plain thing instead — a sweep that merely deleted the
+  //    shelf would pass (1) and be a different failure.
+  assert.ok(template.includes("<span>Gifts witnessed</span>"), "the shelf lost its heading");
+  assert.ok(template.includes("recorded — no holo minted"),
+    "the zero-holo row must still say plainly that nothing minted");
+
+  // 3. the funding FACTS still render — who gave, how much, when, what minted.
+  //    The ruling took a word off the page, not the record off the household.
+  for (const fact of ["d.what", "fmtDate(d.date)", "d.usd", "d.holo", "deedTotals.usd"]) {
+    assert.ok(template.includes(fact), `the shelf stopped rendering ${fact}`);
+  }
+});
+
+// ── holo is short for holographic stamps, taught once per page ───────────────
+
+// The four surfaces that speak the word. Each must IMPORT the sentence; none
+// may retype it, because a second copy is a sentence that can drift.
+const HOLO_SURFACES = [
+  "../town/pages/stamps/index.astro",
+  "../town/pages/numbers/index.astro",
+  "../town/pages/fund/[pot].astro",
+  "../town/components/Household.astro",
+];
+
+test("the holo expansion has one home, and every surface imports it rather than retyping it", () => {
+  // THE LAW, the founder's own (2026-08-26): holo is short for HOLOGRAPHIC
+  // STAMPS, and the pages should teach it. The sentence is a shared constant
+  // for the same reason HOLO_LINE is one — one home, so a second surface
+  // cannot drift a word of it.
+  assert.equal(
+    HOLO_NAME_LINE,
+    "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.",
+    "the founder's sentence is verbatim or it is not the founder's sentence",
+  );
+
+  for (const rel of HOLO_SURFACES) {
+    const src = readFileSync(new URL(rel, import.meta.url), "utf8");
+    assert.match(src, /import \{[^}]*\bHOLO_NAME_LINE\b[^}]*\} from "@\/lib\/funding\.mjs"/,
+      `${rel} must import HOLO_NAME_LINE from the seam's reader`);
+    assert.ok(src.includes("{HOLO_NAME_LINE}"),
+      `${rel} imports the constant but never renders it`);
+    // the half that catches drift: a surface that retyped the sentence would
+    // still render correctly today and go quietly wrong at the first edit.
+    assert.equal(src.includes("short for holographic stamp"), false,
+      `${rel} retypes the sentence instead of reading the constant`);
+  }
+});
+
+// The built pages are the real surface for the placement rule, so this reads
+// them rather than the source: on the fund page the expansion MOVES with the
+// pot's close shape, and on a household page it moves with whether the house
+// has a shared dashboard — both of which only resolve at render.
+const DIST = new URL("../dist-town/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+const built = existsSync(DIST);
+
+// Astro escapes the apostrophe in "the collector's shiny kind" to &#39;, so a
+// raw includes() of the constant finds NOTHING in built HTML. The first cut of
+// these two tests counted zero on every page and went green on the "not twice"
+// half — a probe that could not fail. Both now read through here.
+const holoTimes = (html) => {
+  const plain = String(html).replace(/&#0*39;|&#x0*27;|&apos;/gi, "'");
+  return plain.split(HOLO_NAME_LINE).length - 1;
+};
+const everyBuiltPage = (dir = DIST, out = []) => {
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) everyBuiltPage(full, out);
+    else if (name.endsWith(".html")) out.push(full);
+  }
+  return out;
+};
+
+// THE GLOSSARY IS EXEMPT from the once-per-page count (founder, 2026-08-26):
+// it is where a reader goes to look the word UP, so an entry that withholds
+// what the name is short for is the one place restraint becomes a defect.
+// Counting "outside the glossary" means CUTTING it out first, and the cut has
+// to be anchored on something that survives the build — Astro appends a cid to
+// every class, so this anchors on the s-gloss list's opening tag rather than an
+// exact class match.
+//
+// WHICH WAY THIS FAILS, checked rather than assumed: if the anchor ever stops
+// matching, the cut becomes a no-op, the glossary's copy stays IN the counted
+// text, and /stamps/ reads 2 — RED. A no-op cut cannot hide a violation here;
+// it can only invent one. That direction is the whole reason the anchor is
+// allowed to be a regex at all.
+const GLOSS_OPEN = /<dl class="s-gloss[^"]*"[^>]*>/;
+const outsideGlossary = (html) => {
+  const open = GLOSS_OPEN.exec(html);
+  if (!open) return html;
+  const end = html.indexOf("</dl>", open.index);
+  return end < 0 ? html : html.slice(0, open.index) + html.slice(end);
+};
+const insideGlossary = (html) => {
+  const open = GLOSS_OPEN.exec(html);
+  if (!open) return "";
+  const end = html.indexOf("</dl>", open.index);
+  return end < 0 ? "" : html.slice(open.index, end);
+};
+
+test("no built page teaches the expansion twice in flowing prose", { skip: !built }, () => {
+  // THE PLACEMENT RULE, and the whole of it: the FIRST holo mention on a page
+  // carries the expansion; every later mention stays bare "✧ holo". A page that
+  // said it twice would be the prose budget going, which is the thing the rule
+  // exists to prevent. The glossary entry is cut out first and governed by its
+  // own test below. Skipped without a build — run `npm run build` first for
+  // this one to mean anything.
+  const twice = everyBuiltPage()
+    .map((p) => [p, holoTimes(outsideGlossary(readFileSync(p, "utf8")))])
+    .filter(([, n]) => n > 1);
+  assert.deepEqual(twice, [], `these pages teach it more than once: ${twice.map(([p, n]) => `${p} (${n})`).join(", ")}`);
+});
+
+test("the glossary's holo entry says what the name is short for", { skip: !built }, () => {
+  // The exemption, asserted from the other side: the once-per-page tests cut
+  // the glossary out, so without this the entry could quietly lose the
+  // expansion and every other probe would stay green.
+  const stamps = readFileSync(join(DIST, "stamps", "index.html"), "utf8");
+  const gloss = insideGlossary(stamps);
+  assert.ok(gloss, "the glossary anchor stopped matching — the cut in the tests above is a no-op");
+  // the cid Astro appends to every tag is why this is not a bare `<dt>holo`
+  assert.ok(/<dt[^>]*>holo/.test(gloss), "the glossary lost its holo entry");
+  assert.equal(holoTimes(gloss), 1,
+    "the glossary's holo entry must carry the expansion, once — it is where a reader looks the word up");
+});
+
+test("each money surface teaches it exactly once outside the glossary, in both of the household's shapes", { skip: !built }, () => {
+  // Named surfaces first. Every fund page counts, not a sampled one, because
+  // the expansion moves between the fine print and the footer with the pot's
+  // close shape — a pot whose bullets never name holo would otherwise ship a
+  // page that never expands the word at all.
+  const named = [join(DIST, "stamps", "index.html"), join(DIST, "numbers", "index.html")];
+  const fundDir = join(DIST, "fund");
+  if (existsSync(fundDir)) {
+    for (const pot of readdirSync(fundDir)) named.push(join(fundDir, pot, "index.html"));
+  }
+
+  // ...and one household page of EACH shape, discovered rather than named, so
+  // this keeps testing both shapes as the town's households change. The shared
+  // house has a house-level dashboard and the expansion rides its note; the
+  // unshared one has no such note and it rides the first member's stamp bar.
+  const houses = everyBuiltPage(join(DIST, "households")).map((p) => [p, readFileSync(p, "utf8")]);
+  const shared = houses.find(([, h]) => h.includes('class="dash-stamps"'));
+  const solo = houses.find(([, h]) => !h.includes('class="dash-stamps"'));
+  assert.ok(shared, "no shared household page in the build — the shared shape went untested");
+  assert.ok(solo, "no single-resident household page in the build — that shape went untested");
+
+  for (const p of [...named, shared[0], solo[0]]) {
+    const n = holoTimes(outsideGlossary(readFileSync(p, "utf8")));
+    assert.equal(n, 1, `${p} carries the expansion ${n} times outside the glossary, and the rule is exactly once`);
+  }
 });

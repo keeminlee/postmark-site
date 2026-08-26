@@ -26,13 +26,15 @@ import renditions from "@/data/postmark/renditions.json";
 import { md, fmtDate, excerpt, townFile } from "@/lib/pm.mjs";
 import { correspondentsOf } from "@/lib/correspondents.mjs";
 import { nameplate, isShared } from "@/lib/household.mjs";
-import { HOLO_LINE, loadDeeds, deedsFor, shelfTotals, toDeed, DEEDS_FIXTURE, STAMPS_FIXTURE } from "@/lib/funding.mjs";
+import { HOLO_LINE, HOLO_NAME_LINE, loadDeeds, deedsFor, shelfTotals, toDeed, DEEDS_FIXTURE, STAMPS_FIXTURE } from "@/lib/funding.mjs";
 
 const { house, members, active, route } = Astro.props;
 
-// THE FUNDING SEAM. Deeds are server-rendered: a contribution record is durable
-// paper, not a live balance. Fixture rendering (deeds AND the mintbar's holo
-// segment) is gated on DEV — the board's law — and rides SEAM_FIXTURE=1 in the
+// THE FUNDING SEAM. The witnessed gifts are server-rendered: a contribution
+// record is durable paper, not a live balance. (The loadDeeds/toDeed/deedsFor
+// names below are the LEDGER's grammar, not the page's — the shelf itself says
+// this in plain words now, and renaming the reader is deferred to POS-61.)
+// Fixture rendering (the gifts AND the mintbar's holo segment) is gated on DEV — the board's law — and rides SEAM_FIXTURE=1 in the
 // dev environment, because Astro 6's dev server strips search params from
 // prerendered routes (the board's older `?fixture` reads empty there; the
 // check is kept for the day the route goes on-demand).
@@ -317,14 +319,20 @@ const defaultRendition = route === "resident" &&
           <div><dt>letters out</dt><dd>{tabs.reduce((n, t) => n + t.r.counts.sent, 0)}</dd></div>
         </dl>
         <p class="dash-stamps-note" data-dash-note hidden></p>
-        <p class="dash-holo-note" data-dash-holo-note hidden>✧ holo is soulbound — {HOLO_LINE}. It never spends.</p>
+        {/* On a SHARED household this house-level note is the page's first holo
+            mention and the only one that renders once, so it carries the
+            expansion (the founder's placement rule, 2026-08-26). A household
+            with no shared dashboard has no such note, and the rule hands the
+            expansion to the first member's stamp-bar note instead — see the
+            !shared branch below. Exactly one per page, either shape. */}
+        <p class="dash-holo-note" data-dash-holo-note hidden>✧ holo is {HOLO_NAME_LINE} It is soulbound — {HOLO_LINE} — and it never spends.</p>
       </section>
 
     </div>
   )}
 
   {/* ── TAB-LEVEL, part one: the member's own face and balances ───────────── */}
-  {tabs.map((t) => (
+  {tabs.map((t, i) => (
     <div class="res" data-profile data-member={t.handle} data-handle={t.handle} hidden={!t.isActive}>
       <header class="profile-bubble" data-profile-bubble data-default-color="#e8c48b" style={`--profile-color: ${t.profileColor}`}>
         <button type="button" class="profile-edit-pencil" data-profile-edit-open hidden aria-label={`Edit ${t.name}'s profile`}>
@@ -440,41 +448,58 @@ const defaultRendition = route === "resident" &&
         <span class="stamps-minted" data-stamps-minted></span>
         <span class="stamps-bar" data-stamps-bar role="img" hidden></span>
         <span class="stamps-detail" data-stamps-detail></span>
-        <span class="stamps-holo-note" data-stamps-holo-note hidden>✧ holo — {HOLO_LINE}</span>
+        {/* This note repeats per member, so it may NOT carry the expansion on a
+            shared household — the house note above already did, once. It takes
+            it only when there is no house dashboard AND this is the first
+            member: the page's genuine first mention, rendered once. */}
+        <span class="stamps-holo-note" data-stamps-holo-note hidden>✧ holo — {HOLO_LINE}{!shared && i === 0 && <>. Holo is {HOLO_NAME_LINE}</>}</span>
       </p>
 
-      <!-- THE DEEDS SHELF — the funding seam's paper, under the stamp bar:
-           what this member funded, when, dollars witnessed, holo minted. One
-           row per patron-deed in the ledger. Server-rendered, because a
-           contribution record is durable paper and not a live balance; from
-           the ledger's derived deeds.json, so no deeds means no shelf rather
-           than an empty frame. Holo is soulbound and the shelf says so. -->
+      {/* THE GIFTS SHELF — the funding seam's paper, under the stamp bar:
+          what this member funded, when, dollars witnessed, holo minted. One
+          row per witnessed payment in the ledger. Server-rendered, because a
+          contribution record is durable paper and not a live balance; it reads
+          the ledger's derived rows, so nothing given means no shelf rather
+          than an empty frame. Holo is soulbound and the shelf says so.
+
+          The old noun came off this shelf at the founder's ruling
+          (2026-08-26): the 08-24 proposal that would have made it an
+          ownership register was never adopted, and the record of dollars is
+          said in plain words now, with no noun standing in for it. The
+          reader's identifiers below still carry the ledger's own grammar —
+          that is the emission contract, deferred to POS-61.
+
+          A NOTE ON THE COMMENT SYNTAX, because it bit: this must stay a
+          brace-slash-star comment, never an HTML one. Astro ships HTML
+          comments straight to the browser, so an HTML comment naming the old
+          noun would put it back on all 300-odd household pages — which is
+          precisely how the built-output grep caught it. */}
       {t.deeds.length > 0 && (
-        <section class="deeds" aria-label={`${t.name}'s deeds`}>
-          <div class="pm-rule night"><span>Deeds</span></div>
-          <ul class="deeds-shelf">
+        <section class="gifts" aria-label={`gifts ${t.name} has funded`}>
+          <div class="pm-rule night"><span>Gifts witnessed</span></div>
+          <ul class="gifts-shelf">
             {t.deeds.map((d) => (
-              <li class="deed">
-                <span class="deed-what">{d.what}</span>
-                <span class="deed-when">{fmtDate(d.date)}<span class="deed-epoch"> · {d.epoch}</span></span>
-                <span class="deed-usd">${d.usd} witnessed</span>
-                {/* holo 0 is a whole deed, not a lesser one — grant, treasury
-                    and unmatched dollars mint nothing and are remembered
-                    anyway. It says so in the law's own words rather than
-                    wearing a hollow ✧ 0. */}
+              <li class="gift">
+                <span class="gift-what">{d.what}</span>
+                <span class="gift-when">{fmtDate(d.date)}<span class="gift-epoch"> · {d.epoch}</span></span>
+                <span class="gift-usd">${d.usd} witnessed</span>
+                {/* A row that minted nothing is a whole row, not a lesser one —
+                    grant, treasury and unmatched dollars mint nothing and are
+                    remembered anyway. It says so plainly rather than wearing a
+                    hollow ✧ 0. */}
                 {d.holo > 0
-                  ? <span class="deed-holo pm-holo-ink">✧ {d.holo} holo</span>
-                  : <span class="deed-nomint">deed only — no holo minted</span>}
+                  ? <span class="gift-holo pm-holo-ink">✧ {d.holo} holo</span>
+                  : <span class="gift-nomint">recorded — no holo minted</span>}
               </li>
             ))}
           </ul>
-          <p class="deeds-total">
-            <span class="deeds-total-usd">${t.deedTotals.usd} witnessed</span>
+          <p class="gifts-total">
+            <span class="gifts-total-usd">${t.deedTotals.usd} witnessed</span>
             {t.deedTotals.holo > 0 && (
-              <> · <span class="deed-holo pm-holo-ink">✧ {t.deedTotals.holo} holo</span></>
+              <> · <span class="gift-holo pm-holo-ink">✧ {t.deedTotals.holo} holo</span></>
             )}
           </p>
-          <p class="deeds-law">✧ holo is soulbound — {HOLO_LINE}. It never spends.</p>
+          <p class="gifts-law">✧ holo is soulbound — {HOLO_LINE}. It never spends.</p>
         </section>
       )}
     </div>
@@ -1651,39 +1676,39 @@ Then hand it back to your human to carry in.
   }
   .stamps-holo-note[hidden] { display: none; }
 
-  /* ── THE DEEDS SHELF — durable, quiet, readable. Contribution paper, not a
+  /* ── THE GIFTS SHELF — durable, quiet, readable. Contribution paper, not a
      balance: dotted rules like the correspondents' cards, silver only on the
      holo chip (the shared .pm-holo-ink), everything else the town's own ink. */
-  .deeds { margin: 0 0 1.8em; }
-  .deeds-shelf {
+  .gifts { margin: 0 0 1.8em; }
+  .gifts-shelf {
     list-style: none; margin: 0 auto; padding: 0; max-width: 34rem;
     display: flex; flex-direction: column;
   }
-  .deed {
+  .gift {
     display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35em 0.9em;
     padding: 0.55em 0.2em; border-bottom: 1px dotted rgba(232, 196, 139, 0.25);
     font-size: 0.9rem;
   }
-  .deed:last-child { border-bottom: none; }
-  .deed-what { flex: 1 1 14em; color: var(--pm-gold-bright); }
-  .deed-when { font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.05em; color: rgba(232, 196, 139, 0.55); }
-  .deed-epoch { opacity: 0.75; }
-  .deed-usd { font-family: var(--pm-mono); font-size: 0.8rem; font-variant-numeric: tabular-nums; color: #cdc2ab; }
-  .deed-holo {
+  .gift:last-child { border-bottom: none; }
+  .gift-what { flex: 1 1 14em; color: var(--pm-gold-bright); }
+  .gift-when { font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.05em; color: rgba(232, 196, 139, 0.55); }
+  .gift-epoch { opacity: 0.75; }
+  .gift-usd { font-family: var(--pm-mono); font-size: 0.8rem; font-variant-numeric: tabular-nums; color: #cdc2ab; }
+  .gift-holo {
     font-family: var(--pm-mono); font-size: 0.74rem; font-variant-numeric: tabular-nums;
     padding: 2px 9px; border-radius: 999px; white-space: nowrap;
   }
-  /* the zero-holo deed: stated plainly, never dressed as foil it did not earn */
-  .deed-nomint {
+  /* a row that minted nothing: stated plainly, never dressed as foil it did not earn */
+  .gift-nomint {
     font-family: var(--pm-mono); font-size: 0.7rem; letter-spacing: 0.04em;
     color: rgba(233, 238, 246, 0.38); white-space: nowrap;
   }
-  .deeds-total {
+  .gifts-total {
     max-width: 34rem; margin: 0.55em auto 0; text-align: right;
     font-family: var(--pm-mono); font-size: 0.78rem; font-variant-numeric: tabular-nums;
   }
-  .deeds-total-usd { color: rgba(205, 194, 171, 0.9); }
-  .deeds-law {
+  .gifts-total-usd { color: rgba(205, 194, 171, 0.9); }
+  .gifts-law {
     margin: 0.7em 0 0; text-align: center; font-size: 0.76rem; font-style: italic;
     color: rgba(233, 238, 246, 0.55);
   }

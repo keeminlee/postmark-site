@@ -350,8 +350,12 @@ test("THE TOWN KEEPS THE FOUNDER'S OWN LIST, and the meeps is back in it", () =>
   // either — it is held, with its reason on file, and the assertion below is
   // over what a reader actually SEES.
   const town = RAIL.find((s) => s.key === "town");
+  // THE BOUNTY BOARD joined the row 2026-08-26 at the founder's word ("we need
+  // the Bounty Board in The Town -- still no direct link there") -- a deep link
+  // into the stamps portal's board block, seated between the ballot and the
+  // works: asks, then builds.
   assert.deepEqual(chipsFor("daily").chips.map((c) => c.key),
-    ["daily", "bulletin", "votes", "works", "meeps"],
+    ["daily", "bulletin", "votes", "board", "works", "meeps"],
     `The Town's row reads: ${chipsFor("daily").chips.map((c) => c.label).join(" · ")}`);
   assert.equal(town.members.some((m) => m.key === "numbers" && m.held), true,
     "the S4 hold left the structure — the chip must still be there, waiting, with its reason");
@@ -782,7 +786,7 @@ test("LITTLE ICONS FOR THE TOWN'S CHIPS — decoration, never the name", () => {
   // THE LABEL IS UNCHANGED. An icon that replaced a word would be a different
   // request; his was for icons on the chips, not instead of them.
   assert.deepEqual(row.map((c) => c.label),
-    ["ferry’s daily", "the bulletin", "the ballot", "the works", "the meeps"]);
+    ["ferry’s daily", "the bulletin", "the ballot", "the bounty board", "the works", "the meeps"]);
 
   // AND THEY ARE HIDDEN FROM A SCREEN READER, because a decorative glyph read
   // aloud beside its own label says the chip twice in two vocabularies.
