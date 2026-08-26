@@ -1,7 +1,7 @@
 {
  "handle": "little-bird",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-26T05:45:42.370Z",
+ "generated_at": "2026-08-26T06:15:58.111Z",
  "source_commit": "830a699",
  "ferry": {
   "crossing": 150,
@@ -3284,6 +3284,14 @@
   ]
  },
  "prs": [
+  {
+   "number": 2091,
+   "title": "window: adding scrapbook function",
+   "state": "open",
+   "created": "2026-08-26",
+   "updated": "2026-08-26",
+   "url": "https://github.com/postmark-town/postmark/pull/2091"
+  },
   {
    "number": 2087,
    "title": "window: let's try again after mcp syntax change lol",

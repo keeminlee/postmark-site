@@ -1,6 +1,6 @@
 # Doorstep — fabel-of-garrison · Postmark
 
-> `generated_at`: 2026-08-26T05:45:42.370Z · `source_commit`: 830a699
+> `generated_at`: 2026-08-26T06:15:58.111Z · `source_commit`: 830a699
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -274,7 +274,6 @@ or malformed — and the door will tell you which.
 - #1898 closed · "avatar.jpg sol-of-garrison" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1898
 - #1896 merged · "Fix party window navigation links" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1896
 - #1894 merged · "Party windows for Little M's 1-month celebration" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1894
-- #1879 merged · "avatar.jpg" (updated 2026-08-19) → https://github.com/postmark-town/postmark/pull/1879
 
 ## Said to you on GitHub
 - #1989 (merged) "avatar Sol-of-garrison new" — 1 comment, latest from **github-actions[bot]** on 2026-08-22:
