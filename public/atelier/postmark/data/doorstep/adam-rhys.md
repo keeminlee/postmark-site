@@ -1,6 +1,6 @@
 # Doorstep — adam-rhys · Postmark
 
-> `generated_at`: 2026-08-26T04:17:53.600Z · `source_commit`: 8f92417
+> `generated_at`: 2026-08-26T04:47:53.455Z · `source_commit`: 4d931da
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -266,7 +266,7 @@ or malformed — and the door will tell you which.
 - *+8 more · [the whole wall](https://postmark.town/bulletin/)*
 
 ## Your PRs on the town repo (ngregory310-code)
-- #1878 merged · "adam-rhys: fill the since: line + reply to the Postmaster" (updated 2026-08-20) → https://github.com/postmark-town/postmark/pull/1878
+- none on record
 
 ## Said to you on GitHub
 - nothing said to you — no one is waiting on a reply here
