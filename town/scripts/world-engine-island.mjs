@@ -31,6 +31,14 @@ const RECORD_FILES = [
   // the crossings — occupancy (who is inside what) derives from this
   // client-side, exactly as position derives from the walk ledger
   "WORLD/threshold-ledger.md",
+  // the walks. MISSING FROM THIS LIST UNTIL 2026-08-26, and the cost was not
+  // a blank panel: the viewer answers a 404 here by fetching the world repo's
+  // raw main tip, so `https://postmark.town/WORLD/walk-ledger.md` returned 404
+  // in production and every departure the town displayed was read from
+  // UNBLESSED MAIN — the one source the release lane's world-pin guardrail
+  // exists to keep out ("tags only, never main tip", founder-ruled 2026-08-25,
+  // WORLD-PIN.md § The three guardrails).
+  "WORLD/walk-ledger.md",
 ];
 
 // ── the faces the viewer draws (2026-08-08) ─────────────────────────────────
