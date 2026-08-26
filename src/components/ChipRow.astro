@@ -1,0 +1,68 @@
+---
+// ChipRow — the section shell, abstracted from the household page's member tabs.
+//
+// The household page had already solved this: a row whose first chip is the
+// AGGREGATE and whose rest swap the view. The founder ruled that shape to be
+// the site's shape (2026-08-25), so the row is a component now and the pill
+// lives in `postmark.css` as `.pm-chip`, worn by the household tabs and by
+// these nav rows alike.
+//
+// WHAT THIS IS NOT: a tab widget. Every chip here is an <a> to a REAL ROUTE, so
+// a letter's deep link still lands, the page-per-read law stays checkable, and
+// the static build stays static. The household's row uses <button> because its
+// panes genuinely are one page; this one never can.
+//
+// Props:
+//   kicker   the row's head — the section (or member) this row belongs to
+//   chips    entries from `src/lib/nav.mjs`, in reading order; [0] is the aggregate
+//   active   the current page's `active` key
+//   origin   the layout's origin prefix, for pages served off another domain
+//   place    "section" (under the town header) | "page" (above a page's content)
+//   label    aria-label for the nav landmark
+const { kicker, chips, active = "", origin = "", place = "section", label } = Astro.props;
+const href = (c) => (c.external ? c.href : `${origin}${c.href}`);
+
+// A chip is lit when the reader is ON it OR anywhere INSIDE it. The second half
+// matters and the shots are what found it missing: standing on /meeps/, the top
+// rail lit The Town and the page row lit the meeps, while the section row in
+// between lit nothing at all — the one band that could have said which room you
+// were in went dark exactly when you were deepest in it. `aria-current="page"`
+// stays reserved for the page you are actually on; the ancestor wears the
+// highlight without claiming to be the destination.
+const onPage = (c) => active === c.key;
+const inside = (c) => (c.chips ?? []).some((x) => x.key === active);
+
+// A chip may carry a little icon (founder, 2026-08-25: "I'd like little icons
+// for the town's chips"). It is DECORATION and is marked as such: `aria-hidden`
+// on the glyph, the label untouched beside it, so a screen reader hears "the
+// ballot" and not "ballot box with check the ballot". A chip with no `icon`
+// renders exactly as it did — the field is opt-in per entry in `nav.mjs`, which
+// is what lets one row wear them without the others changing.
+---
+<nav class:list={["pm-chiprow", "pm-chiprow--nav", `pm-chiprow--${place}`]} aria-label={label ?? `${kicker} — this section’s pages`}>
+  <span class="pm-chiprow-head">{kicker}</span>
+  {chips.map((c, i) => (
+    <a
+      class:list={["pm-chip", i === 0 && "is-first", (onPage(c) || inside(c)) && "is-on"]}
+      href={href(c)}
+      aria-current={onPage(c) ? "page" : undefined}
+    >{c.icon && <span class="pm-chip-icon" aria-hidden="true">{c.icon}</span>}{c.label}{c.beta && <span class="pm-nav-beta">beta</span>}</a>
+  ))}
+  <slot />
+</nav>
+<script is:inline>
+  // On a phone the row scrolls sideways, and the shots caught what that costs:
+  // standing on /mail/, the visible chips were "the town · ferry's daily · the
+  // not…" and the reader's own position was off the right edge. A row that
+  // hides where you are is worse than a row that wraps. So bring the lit chip
+  // into view — no smooth scroll, because this runs at load and a page that
+  // animates its own chrome on arrival reads as a glitch.
+  (function () {
+    for (const row of document.querySelectorAll(".pm-chiprow--nav")) {
+      if (row.scrollWidth <= row.clientWidth) continue;
+      const on = row.querySelector(".pm-chip.is-on");
+      if (!on) continue;
+      row.scrollLeft = Math.max(0, on.offsetLeft - row.offsetLeft - 24);
+    }
+  })();
+</script>

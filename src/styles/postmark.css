@@ -360,42 +360,189 @@
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 
-/* ── the side rail: in-page navigation, sitewide pattern ──
-   The rail floats in the LEFT GUTTER beside the page's content column —
-   content keeps its original width and centering, always. Markup:
-   .pm-railwrap > .pm-gutter > nav.pm-siderail, then .rail-main.
-   The gutter is display:none by default; each page turns it on at its own
-   breakpoint (whenever the real gutter has ~160px of room). Low-specificity
-   selectors on purpose: page-scoped styles may override (the resident pills). */
+/* The side rail is retired. It navigated /daily/, /mail/ and /residents/ by
+   anchor until 2026-08-25, when the founder ruled the site chip-shaped and
+   those three pages split into real routes instead — a reader moves between
+   chips now, not down a page. Its voice survives in `.pm-chiprow--nav` above,
+   which is deliberate: the founder said he preferred the rail s chrome to the
+   main content style, so the rail lost its job and kept its typography.
+   These two lines were never the rail s; they are the page s. */
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 .pm [id] { scroll-margin-top: 24px; }
-.pm-railwrap { position: relative; }
-.pm-gutter {
-  display: none;
-  position: absolute; left: -156px; top: 0; bottom: 0; width: 140px;
+
+/* ── THE CHIP ROW: the site's section shape, sitewide pattern ──
+   Lifted whole from the household page's member tabs, which had quietly solved
+   site IA in miniature: a row you take in at a glance, whose FIRST chip is the
+   aggregate (the house's own bare read) and whose rest swap the view. The
+   founder walked dev on 2026-08-25, saw it, and ruled it the whole site's
+   shape — so the pill that was `.house-tab` lives here now and the household
+   page wears it like everybody else.
+
+   Two dresses, one garment. The default is the household's: a face (avatar or
+   monogram), a name, a sub-line — chips that are PEOPLE. `--nav` is the
+   section rows in the town header: no face, and the type scale and restraint
+   borrowed from the side rail above, which is the chrome the founder said he
+   prefers to the main content style. The rail is retired from the pages it
+   navigated; its voice is what stayed.
+
+   The aggregate wears the house gold rather than a member's colour, so every
+   row reads [the whole][its parts] at a glance — the one rule that makes the
+   pattern legible without a caption. */
+.pm-chiprow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5em;
 }
-.pm-siderail {
-  position: sticky; top: 26px;
-  display: flex; flex-direction: column; gap: 0.1em;
-  padding: 0.3em 0;
-  border-left: 1px solid rgba(232, 196, 139, 0.18);
-}
-.pm-siderail .rail-head {
+.pm-chiprow-head {
   font-family: var(--pm-mono); font-size: 0.56rem; letter-spacing: 0.18em;
   text-transform: uppercase; color: rgba(232, 196, 139, 0.45);
-  padding: 0.3em 0.85em 0.55em;
+  padding-right: 0.35em;
 }
-.pm-siderail a, .pm-siderail button {
-  display: block; text-align: left; background: none; border: 0; cursor: pointer;
+.pm-chip {
+  display: flex; align-items: center; gap: 0.55em;
+  padding: 0.4em 0.75em 0.4em 0.4em; cursor: pointer;
+  color: inherit; font: inherit; text-align: left; text-decoration: none;
+  background: rgba(13, 20, 38, 0.6);
+  border: 1px solid rgba(232, 196, 139, 0.18); border-radius: 999px;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.pm-chip:hover { border-color: rgba(232, 196, 139, 0.5); transform: translateY(-1px); }
+.pm-chip.is-on,
+.pm-chip[aria-selected="true"],
+.pm-chip[aria-current="page"] {
+  background: rgba(28, 44, 79, 0.65);
+  border-color: var(--pm-chip-color, rgba(232, 196, 139, 0.9));
+  box-shadow: 0 0 12px rgba(232, 196, 139, 0.16);
+}
+.pm-chip-face {
+  width: 32px; height: 32px; flex: 0 0 auto; overflow: hidden;
+  display: grid; place-items: center; border-radius: 999px;
+  color: var(--pm-chip-color); background: color-mix(in srgb, var(--pm-chip-color) 15%, #101b31);
+  border: 1px solid var(--pm-chip-color);
+  font-size: 0.95rem; font-weight: 700; line-height: 1;
+}
+.pm-chip-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pm-chip-txt { display: flex; flex-direction: column; gap: 0.1em; min-width: 0; }
+.pm-chip-name { font-size: 0.86rem; font-weight: 700; color: #fff4d7; line-height: 1.15; }
+.pm-chip-sub {
+  font-family: var(--pm-mono); font-size: 0.6rem; letter-spacing: 0.08em;
+  color: rgba(232, 196, 139, 0.62);
+}
+.pm-chip.is-on .pm-chip-sub,
+.pm-chip[aria-selected="true"] .pm-chip-sub,
+.pm-chip[aria-current="page"] .pm-chip-sub { color: rgba(232, 196, 139, 0.85); }
+/* THE AGGREGATE — the row's first chip, and the reason the row reads as a
+   whole thing with parts rather than as a list of peers. */
+.pm-chip.is-first { --pm-chip-color: var(--pm-gold); }
+.pm-chip.is-first .pm-chip-face { font-size: 1.05rem; }
+@media (max-width: 540px) {
+  .pm-chiprow .pm-chip-txt { max-width: 8.5em; }
+  .pm-chiprow .pm-chip-name, .pm-chiprow .pm-chip-sub {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+}
+
+/* the nav dress: the side rail's voice, in a row. Quiet until you are on it or
+   reaching for it, which is the whole reason the gutter rail read better than
+   the page did. */
+.pm-chiprow--nav { justify-content: center; gap: 0.4em 0.5em; }
+.pm-chiprow--nav .pm-chip {
+  padding: 0.34em 0.85em;
   font-family: var(--pm-mono); font-size: 0.66rem; letter-spacing: 0.08em;
-  color: rgba(232, 196, 139, 0.55); text-decoration: none;
-  padding: 0.5em 0.85em;
-  border-left: 2px solid transparent; margin-left: -1px;
-  transition: color 0.12s ease, border-color 0.12s ease;
+  color: rgba(232, 196, 139, 0.55);
+  background: rgba(13, 20, 38, 0.45);
+  border-color: rgba(232, 196, 139, 0.14);
 }
-.pm-siderail a:hover, .pm-siderail button:hover { color: var(--pm-gold); }
-.pm-siderail a.is-on, .pm-siderail button[aria-selected="true"] {
-  color: var(--pm-gold-bright); border-left-color: var(--pm-gold);
+.pm-chiprow--nav .pm-chip:hover { color: var(--pm-gold); }
+.pm-chiprow--nav .pm-chip.is-on,
+.pm-chiprow--nav .pm-chip[aria-current="page"] {
+  color: var(--pm-gold-bright); background: rgba(28, 44, 79, 0.6);
+  border-color: rgba(232, 196, 139, 0.55); box-shadow: none;
+}
+/* the aggregate in a nav row: gold before you touch it, because it is the
+   section itself and not one of its pages */
+.pm-chiprow--nav .pm-chip.is-first {
+  color: rgba(240, 213, 168, 0.82); border-color: rgba(232, 196, 139, 0.34);
+}
+.pm-chiprow--nav .pm-chip.is-first.is-on,
+.pm-chiprow--nav .pm-chip.is-first[aria-current="page"] {
+  color: var(--pm-gold-bright); border-color: var(--pm-gold);
+}
+/* LITTLE ICONS — founder, 2026-08-25: "I'd like little icons for the town's
+   chips." Text-presentation glyphs, in the town's existing monochrome
+   vocabulary (✉ in the townmark, ✦ on the Join door, ✉/❖ on the Meeps' cards),
+   so they inherit the chip's own colour and mute and brighten with it. That is
+   the whole reason not to use colour emoji here: a chip's state is carried in
+   its colour, and a glyph that keeps its own palette would sit at full
+   brightness on a row of quiet chips and read as five things demanding
+   attention.
+   Set slightly larger than the 0.66rem mono label, because a glyph at label
+   size reads as punctuation rather than as a mark. Held a shade under the
+   label's own opacity so the word stays first. */
+.pm-chiprow--nav .pm-chip { gap: 0.42em; }
+.pm-chiprow--nav .pm-chip-icon {
+  font-size: 0.88rem; line-height: 1; opacity: 0.66;
+  transition: opacity 0.12s ease;
+}
+.pm-chiprow--nav .pm-chip:hover .pm-chip-icon,
+.pm-chiprow--nav .pm-chip.is-on .pm-chip-icon,
+.pm-chiprow--nav .pm-chip[aria-current="page"] .pm-chip-icon { opacity: 1; }
+
+/* an entry still cooking wears its chip here too — the honesty marker has to
+   survive a nav re-org, which is exactly what it nearly did not on 2026-08-25 */
+.pm-chiprow--nav .pm-chip .pm-nav-beta {
+  margin-left: 0.45em; padding: 0 4px; border-radius: 999px;
+  font-size: 0.48rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; vertical-align: 0.1em;
+  color: rgba(232, 196, 139, 0.72);
+  border: 1px solid rgba(232, 196, 139, 0.36);
+}
+/* ONE ROW, ONE PLACE. The page row used to sit above a page's own content and
+   was left-aligned there because the page was — but the row moved when the two
+   rows stopped stacking (`rowFor` in src/lib/nav.mjs, the founder's 2026-08-25
+   walk). Whichever row a page draws, it now draws it in the same slot under the
+   town header, so `--section` and `--page` are a difference of SOURCE, not of
+   dress. A reader moving between /daily/ and /residents/ must not see the
+   chrome jump from centred to flush-left; that was the incoherence the shots
+   caught the moment the second row came out. */
+/* AND IT BREATHES UNDER THE ROW. Founder, 2026-08-25: "generally need a bit
+   more space between the subrail and the page's title." Measured before
+   changing it, because the answer was not what the page looked like: on ten of
+   fifteen section pages the title's box began at EXACTLY the row's bottom edge
+   — 129.1px to 129.1px on /residents/ — and the apparent air was nothing but
+   the heading's own line-height leading. The rest were 7.2, 31.5 and 64.7px,
+   each from its own page's chrome. So there was no shared value to nudge;
+   there was no value at all.
+   One step, here, where every section page takes it from the same rule. It is
+   a margin rather than padding on purpose: the row scrolls sideways on a phone
+   and padding would ride inside the scrollport. Deliberately additive rather
+   than normalising — a page that had earned extra room keeps its extra room,
+   which is what "a bit more space" asks for and a flattening pass would not. */
+.pm-chiprow--section,
+.pm-chiprow--page { margin: 0.9rem auto 1rem; padding: 0 1.2rem; }
+
+/* ON A PHONE THE ROW SCROLLS RATHER THAN WRAPS.
+   Wrapping was the obvious thing and the shots killed it: The Town's eight
+   chips became four stacked rows at 390px, so the header, the section row and
+   a page row together stood taller than the fold — chrome you scroll past to
+   reach the page. A row you take in at a glance is the whole point of the
+   pattern, so on a narrow screen it stays ONE row and moves sideways.
+   The scroll lives in this container, never on the body. The household's
+   face-bearing chips keep wrapping: they are content, not navigation, and a
+   house of seven should show you seven. */
+@media (max-width: 700px) {
+  .pm-chiprow--nav {
+    flex-wrap: nowrap; justify-content: flex-start;
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5em;
+  }
+  .pm-chiprow--nav::-webkit-scrollbar { display: none; }
+  .pm-chiprow--nav > * { flex: 0 0 auto; }
+  .pm-chiprow--section,
+  .pm-chiprow--page { padding-left: 1.2rem; padding-right: 1.2rem; }
+  /* the kicker scrolls away with the row, and half a word ("TS") is worse than
+     no word — the lit seat in the rail above already names the section. It
+     stays in the accessibility tree via the nav's aria-label. */
+  .pm-chiprow--nav .pm-chiprow-head { display: none; }
 }
 
 /* ── responsive helpers ── */

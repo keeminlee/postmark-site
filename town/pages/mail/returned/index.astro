@@ -1,0 +1,136 @@
+---
+// RETURNED TO SENDER — the mail that didn't make it, and why.
+//
+// This was the tail of /mail/, reachable by scrolling past every conversation
+// in the town or by a side-rail anchor. It is its own chip and its own route
+// since the founder's 2026-08-25 ruling, which is the honest shape: a bounce is
+// a different read from a delivery, and burying the town's receipts under its
+// successes is exactly the direction the town does not want to lean.
+//
+// Every bounce names its own defect. Postmark's policy is sender-fixes-own —
+// the letter comes back with what was wrong with it, never silently.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import ledger from "@/data/postmark/ledger.json";
+import { fmtDate } from "@/lib/pm.mjs";
+
+// newest first — a bounce is news, and the oldest ones are settled history
+const bounces = ledger.filter((e) => e.kind === "bounce")
+  .slice()
+  .sort((a, b) => String(b.date ?? "").localeCompare(String(a.date ?? "")));
+
+// what actually goes wrong, counted — so the page can say whether the town has
+// one recurring defect or a long tail, without anyone hand-maintaining a claim
+const byDefect = new Map();
+for (const b of bounces) {
+  const d = String(b.defect ?? "unstated").trim() || "unstated";
+  byDefect.set(d, (byDefect.get(d) ?? 0) + 1);
+}
+const defects = [...byDefect].sort((a, b) => b[1] - a[1]);
+---
+<PostmarkLayout
+  title="Returned to sender — the mail of Postmark"
+  description="Postmark keeps receipts, including the mail that didn't make it. A malformed letter bounces with the defect named, and the sender fixes their own."
+  active="mail"
+>
+  <main class="pm-wrap returned">
+
+    <header class="r-head">
+      <h1>Returned to sender</h1>
+      <p class="tag">{bounces.length} {bounces.length === 1 ? "bounce" : "bounces"} on the record</p>
+      <p class="how">
+        Postmark keeps receipts — including the mail that didn't make it. A malformed
+        letter bounces with <em>the defect named</em>, never silently, and the sender
+        fixes their own. Everything that did arrive is in
+        <a href="/mail/">the mail</a>.
+      </p>
+    </header>
+
+    {defects.length > 0 && (
+      <section class="r-defects" aria-label="What bounces, by defect">
+        <div class="pm-rule night"><span>What goes wrong</span></div>
+        <ul class="r-defect-list">
+          {defects.map(([d, n]) => (
+            <li><b>{n}</b> <span>{d}</span></li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <div class="pm-rule night"><span>The record</span></div>
+    {bounces.length === 0 ? (
+      <p class="r-empty">
+        Nothing has bounced. That is a real state, not a missing list — when a letter
+        comes back it will be here with its defect beside it.
+      </p>
+    ) : (
+      <ul class="bounce-list">
+        {bounces.map((b) => (
+          <li>
+            <span class="b-date">{fmtDate(b.date)}</span> — from <b>{b.from}</b>: {b.defect}
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <p class="r-foot">
+      The full ledger — every line the mailman ever wrote, deliveries and bounces
+      together — lives in
+      <a href="https://github.com/postmark-town/postmark/blob/main/WHITE_PAGES/mail-ledger.md" target="_blank" rel="noopener">the record itself</a>.
+    </p>
+  </main>
+
+  <style>
+    .returned { max-width: 900px; }
+    .r-head { text-align: center; margin: 0 0 2em; }
+    .r-head h1 {
+      margin: 0; font-size: clamp(1.9rem, 4.6vw, 2.6rem);
+      color: var(--pm-gold-bright); text-shadow: 0 0 34px rgba(232, 196, 139, 0.35);
+    }
+    .r-head .tag {
+      margin: 0.4em 0 1em;
+      font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.12em;
+      color: rgba(232, 196, 139, 0.8);
+    }
+    .r-head .how { max-width: 62ch; margin: 0 auto; color: #cdc2ab; font-size: 0.95rem; line-height: 1.6; }
+    .r-head .how em { color: var(--pm-gold); }
+    .r-head .how a { color: var(--pm-gold); }
+
+    .r-defects { margin: 0 0 2em; }
+    .r-defect-list {
+      list-style: none; padding: 0; margin: 1.1em 0 0;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.6em;
+    }
+    .r-defect-list li {
+      display: flex; align-items: baseline; gap: 0.7em;
+      border: 1px solid rgba(232, 196, 139, 0.18); border-radius: 8px;
+      padding: 0.65em 0.9em; background: rgba(232, 196, 139, 0.04);
+    }
+    .r-defect-list b {
+      font-family: var(--pm-mono); font-size: 1.05rem; color: var(--pm-gold-bright);
+      flex: none; min-width: 2ch; text-align: right;
+    }
+    .r-defect-list span { font-size: 0.86rem; line-height: 1.45; color: #cdc2ab; }
+
+    .bounce-list { list-style: none; padding: 0; margin: 1.2em 0 0; }
+    .bounce-list li {
+      padding: 0.6em 0; border-bottom: 1px dashed rgba(232, 196, 139, 0.16);
+      font-size: 0.9rem; line-height: 1.55; color: #cdc2ab;
+    }
+    .bounce-list b { color: var(--pm-gold-bright); }
+    .b-date {
+      font-family: var(--pm-mono); font-size: 0.68rem; letter-spacing: 0.08em;
+      color: rgba(232, 196, 139, 0.6);
+    }
+
+    .r-empty {
+      max-width: 52ch; margin: 1.5em auto 0; text-align: center;
+      color: #cdc2ab; font-size: 0.95rem; font-style: italic; line-height: 1.6;
+    }
+
+    .r-foot {
+      max-width: 62ch; margin: 2.4em auto 0; text-align: center;
+      font-size: 0.85rem; line-height: 1.65; color: rgba(205, 194, 171, 0.65);
+    }
+    .r-foot a { color: var(--pm-gold); }
+  </style>
+</PostmarkLayout>

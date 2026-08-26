@@ -33,8 +33,8 @@ import { emitSeam } from "./extract-seam.mjs";
 import { threadTitle } from "./lib/ids.mjs";
 import { PRESETS, assetName, processImage, ownDir } from "./lib/images.mjs";
 import {
-  ageInDays, budgetItems, ferryHeadline, formatRemainder, nextStepsSection,
-  stakePositions, waitingCrossing,
+  ageInDays, budgetItems, excerptOf, ferryHeadline, formatRemainder,
+  nextStepsSection, stakePositions, waitingCrossing,
 } from "./lib/doorstep.mjs";
 import {
   QUOTED_IMAGE_REF_RE, ATTR_REF_RE, githubUrl, byteMirror,
@@ -277,18 +277,9 @@ emit("stats.json", {
 {
   const byId = new Map(town.letters.map((l) => [l.id, l]));
   const rcpt = (l) => (l.toList?.length ? l.toList : [l.to]).filter(Boolean);
-  const plain = (text, max = 200) => {
-    if (!text) return "";
-    const paras = text.split(/\r?\n\s*\r?\n/).map((p) =>
-      p.replace(/[#>*_`]|\!\[[^\]]*\]\([^)]*\)/g, "")
-        .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-        .replace(/\s+/g, " ").trim()
-    ).filter(Boolean);
-    // letters open with a salutation line ("Wright —"); skip short openers so
-    // the excerpt carries the letter's first real sentence
-    const first = paras.find((p) => p.length >= 30) ?? paras[0] ?? "";
-    return first.length > max ? first.slice(0, max - 1).trimEnd() + "…" : first;
-  };
+  // one reader, in tools/lib/doorstep.mjs, with a test around it — see the
+  // comment there for the heading-as-teaser defect that moved it out of here
+  const plain = excerptOf;
   // letter id -> thread key, for site URLs
   const threadOf = new Map();
   for (const t of town.threads) for (const id of t.letterIds) threadOf.set(id, t.key);

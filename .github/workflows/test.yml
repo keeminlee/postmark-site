@@ -1,0 +1,21 @@
+# test.yml — the falsifiers get a pulse (born 2026-08-25, POS-55 review's flag:
+# "a falsifier nobody runs cannot fail" — this repo had no test CI at all).
+# Non-required by design: it reports, it does not yet gate. Making it a
+# required check is a repo-settings act and the founder's call, once this has
+# run green for a while on real traffic.
+name: test
+on:
+  push:
+    branches: ["main", "train/**"]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test

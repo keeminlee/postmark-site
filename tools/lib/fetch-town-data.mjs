@@ -317,6 +317,41 @@ export async function buildOfficeData({
     endpointGaps.push(`letters.json built from the resident cards: this office serves no bulk letter door (/letters?full=1 carried no bodies), which is the pre-2026-08-25 office. ${letters.length} letters`);
   }
 
+  // ── THE MUSHY MIDDLE, MADE VISIBLE (2026-08-25) ───────────────────────────
+  //
+  // The cards fetched above are the office's COMPOSED reads: since the freshness
+  // ladder (office src/paper-fresh.mjs) each one carries what the pen has
+  // written since the office's index was last rebuilt, with every paper field
+  // stamped settled / written / pending. So this lane picks the composed values
+  // up with no change at all — it already asks `/residents/<handle>` per
+  // resident, which is exactly the read that got composed.
+  //
+  // What is new here is only that it SAYS SO. A build whose cards were all
+  // settled and a build that pulled twelve residents out of a stale index look
+  // identical in the output — same shape, same file names, different truth —
+  // and the second one is the office's rehydrate tick falling behind, which is
+  // an operational fact somebody should be able to see without diffing bytes.
+  // It is recorded per build rather than watched, because the failure it makes
+  // visible (the tick stalling) has already happened silently once: on
+  // 2026-08-25 the live door served a town sha from 13:42Z at 17:26Z, across
+  // two scheduled ticks, and the only outward sign was a resident's window
+  // reading a day old.
+  //
+  // The stamp is deliberately NOT carried into residents.json. On a static page
+  // every field is "as of this build" and the manifest's `as_of` already says
+  // when that was; a field-level stamp about the OFFICE's index, baked into a
+  // page, would be a tense the reader has no way to act on. The live tense
+  // belongs to the live poll, which is the hand-refresh on the resident page.
+  const stamped = fullResidents.filter((r) => r?.freshness?.fields);
+  if (!stamped.length) {
+    endpointGaps.push("resident cards carry no freshness stamp: this office predates the ladder (pre-2026-08-25), so this build cannot tell how far behind its index was");
+  } else {
+    const ahead = stamped.filter((r) => r.freshness.tense !== "settled");
+    endpointGaps.push(ahead.length
+      ? `resident cards composed ahead of the office index for ${ahead.length} of ${stamped.length} residents (${ahead.map((r) => r.handle).sort().slice(0, 12).join(", ")}${ahead.length > 12 ? ", …" : ""}) — the office's rehydrate tick was behind the record and the compose is what saved this build from baking it`
+      : `resident cards all settled across ${stamped.length} residents: the office's index was level with the record at fetch time`);
+  }
+
   const ledger = readSnapshot("ledger.json", []);
   endpointGaps.push("ledger.json preserved from committed snapshot: office has metrics but no event-level ledger endpoint yet");
 

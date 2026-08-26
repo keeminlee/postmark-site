@@ -35,10 +35,24 @@
 //      the permitted thing; what is forbidden is writing one down in prose.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { FOUNDER_ACCOUNT } from "../src/lib/funding.mjs";
+import { allEntries } from "../src/lib/nav.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
+
+// every .astro under town/pages — for laws about the pages tree rather than
+// about one named file in it
+function everyPageFile(dir = new URL("../town/pages/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")) {
+  const out = [];
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) out.push(...everyPageFile(full));
+    else if (name.endsWith(".astro")) out.push(full);
+  }
+  return out;
+}
 
 const PORTAL_PATH = "../town/pages/stamps/index.astro";
 const src = read(PORTAL_PATH);
@@ -127,18 +141,28 @@ test("every holo mention carries the ruling's line", () => {
 });
 
 test("the nav carries one Stamps entry, flagged beta", () => {
-  const layout = read("../src/layouts/PostmarkLayout.astro");
-  assert.ok(
-    /\{ key: "stamps", href: `\$\{P\}\/stamps\/`, label: "Stamps", beta: true \}/.test(layout),
-    "PostmarkLayout's nav must carry the Stamps entry with beta: true",
-  );
-  // ONE door in the nav. Everything stamps is behind it; a second entry would
-  // rebuild the split the portal exists to remove.
-  // the nav is an array of OBJECTS, so the property is `href:` and not `href=`.
-  // The first version of this assumed the attribute form and could therefore
-  // never have matched anything — a probe that could not fail.
-  assert.equal(/href: `\$\{P\}\/stamps\/[a-z]/.test(layout), false,
-    "no second Stamps door in the nav");
+  // RE-AIMED TWICE IN ONE DAY, 2026-08-25, and the two moves are worth keeping
+  // side by side because this test survived both by asserting the LAW instead
+  // of a location. (1) The trinity re-org moved the rail out of PostmarkLayout
+  // into `src/lib/nav.mjs` and demoted Stamps from a top-level seat into The
+  // Town's strip. (2) The founder lifted it straight back that night — "and
+  // Stamps are... well, important to keeping Postmark going" — so it is a seat
+  // again, with a capital S.
+  //
+  // What has never moved is the law: ONE door, wearing the beta chip. Both
+  // moves cost a one-line red rather than a silent green, which is the whole
+  // reason this reads the structure and not a regex over the layout's text.
+  const stamps = allEntries().filter((e) => e.key === "stamps" || e.href === "/stamps/");
+  assert.equal(stamps.length, 1, "ONE Stamps door in the rail — a second rebuilds the split the portal removed");
+  assert.equal(stamps[0].label, "Stamps");
+  assert.equal(stamps[0].beta, true, "the Stamps entry must wear the beta chip");
+  // its own seat: a top-level entry is its own section, so `section` is its key
+  assert.equal(stamps[0].section, "stamps", "Stamps is not a top-rail seat");
+  assert.equal(stamps[0].depth, 0, "Stamps is a chip of some section again");
+  // and nothing anywhere in the rail opens a deeper stamps URL: everything
+  // stamps is behind the one portal door.
+  assert.deepEqual(allEntries().filter((e) => /^\/stamps\/./.test(e.href)), [],
+    "no second Stamps door in the rail");
 });
 
 // ── the portal is one page with three panels ─────────────────────────────────
@@ -339,9 +363,13 @@ test("the card rail rides the same gate and the same disclosures as the address"
   const law = fund.indexOf('<section class="f-law"');
   assert.ok(law > 0 && gate > law,
     "the disclosures sit ABOVE both rails — §10's second consent gate");
-  assert.ok(fund.indexOf("href={STRIPE}", gate) > gate,
+  // The href grew a query since 2026-08-25: `${STRIPE}?client_reference_id=
+  // ${pot.pot}` — the card payment names its pot on the checkout session (the
+  // first real $10 arrived pot-ambiguous). The anchor is the template opening,
+  // which any form of the parameterized link must carry.
+  assert.ok(fund.indexOf("href={`${STRIPE}?client_reference_id=", gate) > gate,
     "the card button is inside the open-pot gate");
-  assert.equal(fund.slice(0, gate).includes("href={STRIPE}"), false,
+  assert.equal(fund.slice(0, gate).includes("${STRIPE}"), false,
     "and nowhere above it — a draft pot must have no way to pay");
   const fbody = flat(fund.slice(fund.indexOf("---", 3) + 3));
   assert.ok(fbody.includes("witnessed by the office's own hand"),
@@ -370,11 +398,17 @@ test("both retired routes redirect somewhere that exists", () => {
   assert.ok(raw.includes('data-panel="rules"'), "and the rules panel must still be there");
   assert.equal(existsSync(new URL("../town/pages/stamps/guide/index.astro", import.meta.url)), false,
     "the guide page is gone — a second page beside the portal would be the split this closed");
-  // /board/ is also a public asset prefix, and /daily/ paints with one of them
+  // /board/ is also a public asset prefix, and a page paints with one of them.
+  // RE-AIMED 2026-08-25 (the chip wave): this named daily.astro, which is where
+  // the notice board hung while it was folded in. The board went back to
+  // /bulletin/ and took its plank painting with it, so a probe keyed on WHICH
+  // page paints went red on a move that changed nothing about the law. The law
+  // is that the asset prefix is live, so it asks the pages tree, not one file.
   assert.ok(existsSync(new URL("../public/atelier/postmark/board/quest-board-wood.jpg", import.meta.url)),
     "the redirect must be exact-path: the board's images still live under /board/");
-  assert.ok(read("../town/pages/daily.astro").includes("/board/quest-board-wood.jpg"),
-    "and /daily/ still paints with one");
+  const painters = everyPageFile()
+    .filter((f) => readFileSync(f, "utf8").includes("/board/quest-board-wood.jpg"));
+  assert.ok(painters.length, "no page paints with /board/ any more — the exact-path reason is gone, and so is this test's premise");
 });
 
 test("nothing in the repo still points at a retired route", () => {

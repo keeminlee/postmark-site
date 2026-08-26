@@ -4,6 +4,12 @@
 // Starforge main site. One rail, not two — the town keeps its room.
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/postmark.css";
+// The rail is not written here. Its membership — the top-level seats and
+// each section's chip row — lives in ONE structure, `src/lib/nav.mjs`, under the
+// law "a page per read, a read per page; this structure is the rail's single
+// source". `test/nav.test.mjs` holds it to that. See that file for why.
+import { RAIL, rowFor, sectionOf } from "@/lib/nav.mjs";
+import ChipRow from "@/components/ChipRow.astro";
 
 const {
   title, description, active = "", image = "/banner.png", noindex = false,
@@ -15,57 +21,34 @@ const {
   // Without it, "The Mail" on the harbor page would walk the reader into the
   // mirror — a whole second copy of the town under the wrong flag.
   origin = "",
+  // THIS PAGE ALREADY DRAWS A CHIP ROW OF ITS OWN, so the nav draws none over
+  // it. Only the household wrapper sets it, and only when the house is shared
+  // enough to grow its member rail — a house of one stays folded and has no row
+  // of its own, so it takes the nav's like any other page.
+  ownChips = false,
 } = Astro.props;
 // The town serves at the postmark.town ROOT, so nav paths are root-relative.
 const P = origin;
 
-// The Harbor is neutral ground BETWEEN towns, and since 2026-08-16 it stands on
-// its own flag: 1f4ee.town, the codepoint of 📮 U+1F4EE POSTBOX. Absolute from
-// every page, including the harbor's own, because there is no root-relative
-// spelling that is right from both domains.
-const HARBOR = "https://1f4ee.town/";
+// The rail, rendered from the single source. `P` prefixes every root-relative
+// href; an external seat (the Harbor, on its own flag at 1f4ee.town) keeps its
+// absolute URL because there is no root-relative spelling that is right from
+// both domains.
+const railHref = (e) => (e.external ? e.href : `${P}${e.href}`);
 
-const nav = [
-  { key: "town", href: `${P}/`, label: "The Town" },
-  { key: "daily", href: `${P}/daily/`, label: "Ferry’s Daily" },
-  { key: "world", href: `${P}/world/`, label: "The World" },
-  { key: "mail", href: `${P}/mail/`, label: "The Mail" },
-  // The Harbor sits next to the Mail because it IS the mail's outward half —
-  // the towns Postmark connects, and what crosses between them.
-  { key: "harbor", href: HARBOR, label: "Harbor", beta: true },
-  { key: "residents", href: `${P}/residents/`, label: "Residents" },
-  { key: "works", href: `${P}/works/`, label: "The Works" },
-  // Stamps — the one page that owns the teaching (the funding seam's S7
-  // amendment, Keemin 2026-08-21: "a centralized top-level header page on
-  // Postmark called Stamps, which just centralizes *everything* stamps"). It
-  // sits directly before The Numbers because it is the door and the Numbers are
-  // the dials behind it: a reader who wants to know what a stamp IS should meet
-  // the teaching first and the values second.
-  { key: "stamps", href: `${P}/stamps/`, label: "Stamps", beta: true },
-  // The Town's Numbers — the money constitution's dials, in the open. Into the
-  // nav per the quiet-launch correction (2026-08-21): the doctrine is about the
-  // announcement channel, never nav visibility — the nav is where the surprise lives.
-  // The Numbers holds out of the nav until the S4 emission gives it real data
-  // (Keemin, 2026-08-21: "it's sitting there empty and misleading"). The route
-  // stays reachable; only the header entry waits.
-  { key: "join", href: `${P}/join/`, label: "Join" },
-];
+// The section this page stands in, and the chip row to draw under the header. A
+// section lights up in the top rail when the reader is anywhere in its family,
+// not only on its own landing — the World has behaved this way since it grew
+// its strip, and every section behaves that way now.
+const here = sectionOf(active);
 
-// The World's lenses — one door on the top rail, the family strip on the lens
-// pages themselves. Replay, Conversations and the Atlas are lenses ON the
-// World, not peers of it, so they left the nav (2026-08-15) and are reached
-// through the World's own surfaces: this strip, and the map's floating panel.
-// The front page used to carry a watch row that named them too; it came out on
-// 2026-08-19, so from the front door the way in is the World itself — which is
-// where its big button now points. /world/ serves the spectator shell verbatim
-// and never renders this layout, so the strip appears only on the other three.
-const worldLenses = [
-  { key: "world", href: `${P}/world/`, label: "the living map" },
-  { key: "replay", href: `${P}/replay/`, label: "replay" },
-  { key: "conversations", href: `${P}/conversations/`, label: "conversations" },
-  { key: "atlas", href: `${P}/atlas/`, label: "the atlas" },
-];
-const inWorldFamily = worldLenses.some((l) => l.key === active);
+// ONE CHIP ROW, chosen in `nav.mjs` — see `rowFor` there for why there is one
+// and not two. The founder's words are the reason: "we somehow managed to
+// INCREASE the complexity of the site … we just gave chips to the sub-header
+// rail IN ADDITION to the household rail."
+//
+// There is exactly one <ChipRow> in this file, and the suite counts it.
+const row = rowFor(active, { ownChips });
 ---
 <BaseLayout title={title} description={description} image={image} chrome="none" bgm={false} noindex={noindex} canonical={canonical}>
   <script is:inline>
@@ -112,8 +95,21 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
         <span class="seal">✉</span> Postmark
       </a>
       <nav class="pm-townnav-links" aria-label="Postmark town navigation">
-        {nav.map((n) => (
-          <a href={n.href} class={n.key === "join" ? "pm-nav-join" : undefined} aria-current={active === n.key || (n.key === "world" && inWorldFamily) ? "page" : undefined}>{n.label}{n.beta && <span class="pm-nav-beta">beta</span>}</a>
+        {/* ONE SEAT, ONE FACE, ALL THE WAY ACROSS. The Join seat used to be two
+            — the signed-out door and a signed-in "Your House" pointing at the
+            reader's own household, swapped in CSS off `data-lens`. The founder
+            retired the signed-in half: "Your House is actually not necessary;
+            the resident names when signed in more than suffice." Those names
+            are the auth pill below, which prints each handle the reader holds
+            as a link to their own window. So the rail is a plain list again,
+            every seat static, every seat readable before the page finishes
+            loading — and the way home is the reader's own name. */}
+        {RAIL.map((n) => (
+          <a
+            href={railHref(n)}
+            class={n.lantern ? "pm-nav-join" : undefined}
+            aria-current={here?.key === n.key ? "page" : undefined}
+          >{n.label}{n.beta && <span class="pm-nav-beta">beta</span>}</a>
         ))}
       </nav>
       <div class="pm-auth" data-auth hidden>
@@ -198,37 +194,26 @@ const inWorldFamily = worldLenses.some((l) => l.key === active);
         } catch (e) {}
       })();
     </script>
-    {inWorldFamily && (
-      <nav class="pm-lens-strip" aria-label="The World’s lenses">
-        <span class="pm-lens-kicker">The World</span>
-        {worldLenses.map((l) => (
-          <a href={l.href} aria-current={active === l.key ? "page" : undefined}>{l.label}</a>
-        ))}
-      </nav>
+    {row && (
+      <ChipRow
+        kicker={row.of.label}
+        chips={row.chips}
+        active={active}
+        origin={P}
+        place={row.place}
+        label={row.place === "page"
+          ? `${row.of.label} — the pages of this room`
+          : `${row.of.label} — this section’s pages`}
+      />
     )}
     <style is:global>
-      /* The World's lens strip — the family's own slim rail, under the town
-         header on lens pages only. One place to stand between the map's views
-         without the top nav carrying every lens as a peer. */
-      .pm-lens-strip {
-        display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap;
-        gap: 0.55em 1.2em; margin: 0.85rem auto 0; padding: 0 1.2rem;
-        font-family: var(--pm-mono, ui-monospace, monospace);
-        font-size: 0.7rem; letter-spacing: 0.08em;
-      }
-      .pm-lens-strip .pm-lens-kicker {
-        color: var(--pm-gold, #e8c48b); text-transform: uppercase;
-        letter-spacing: 0.22em; font-size: 0.6rem;
-      }
-      .pm-lens-strip a {
-        color: rgba(232, 196, 139, 0.62); text-decoration: none;
-        border-bottom: 1px dashed rgba(232, 196, 139, 0.3); padding-bottom: 1px;
-      }
-      .pm-lens-strip a:hover { color: var(--pm-gold-bright, #f0d5a8); border-bottom-color: var(--pm-gold-bright, #f0d5a8); }
-      .pm-lens-strip a[aria-current="page"] {
-        color: var(--pm-gold-bright, #f0d5a8);
-        border-bottom: 1px solid var(--pm-gold-bright, #f0d5a8);
-      }
+
+      /* THE SIGN-IN-AWARE SEAT IS GONE and so is the rule that swapped it.
+         `data-lens` used to hide one face of the Join seat and show the other,
+         so the rail read "Your House" the moment a fresh token was cached. The
+         founder retired that seat — "the resident names when signed in more
+         than suffice" — so every seat in the rail is now the same seat for
+         every reader, and `data-lens` keeps its other jobs untouched. */
 
       /* a nav entry still cooking wears a chip, so the rail says so before the
          page has to. Hollow, not a second gold pill — the rail already spends

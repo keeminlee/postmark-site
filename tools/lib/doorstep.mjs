@@ -2,6 +2,40 @@ export const WAITING_CROSSING_STATUS = "merged, waiting for the crossing — nex
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * The doorstep's plain-text excerpt of a body: the first block that actually
+ * says something, markdown stripped, cut to `max`.
+ *
+ * A HEADING IS NOT AN EXCERPT, and that is the whole reason this lives here
+ * with a test around it rather than as a closure inside `extract-town.mjs`.
+ * The punctuation strip removes `#` alongside `*_>` and the rest, which turned
+ * a posting's own title into an ordinary line long enough to pass the
+ * salutation filter — so any bulletin notice whose frontmatter carried no
+ * `teaser:` was summarised by its own title, on every doorstep in town:
+ *
+ *   **Art on your marks — and the shelf now takes SVG** (2026-08-20 · guidance)
+ *   — Art on your marks ✦ — and the shelf now takes SVG
+ *
+ * The card on /bulletin/ read correctly the entire time, because the site's
+ * `teaserOf` skips headings. Two readers of one text with different
+ * vocabularies; this is the rule the doorstep's reader was missing. Headings
+ * are matched on the RAW block, before the `#` that identifies one is stripped.
+ */
+export function excerptOf(text, max = 200) {
+  if (!text) return "";
+  const paras = text.split(/\r?\n\s*\r?\n/)
+    .filter((p) => !/^\s*#{1,6}\s/.test(p))
+    .map((p) =>
+      p.replace(/[#>*_`]|\!\[[^\]]*\]\([^)]*\)/g, "")
+        .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+        .replace(/\s+/g, " ").trim()
+    ).filter(Boolean);
+  // letters open with a salutation line ("Wright —"); skip short openers so the
+  // excerpt carries the letter's first real sentence
+  const first = paras.find((p) => p.length >= 30) ?? paras[0] ?? "";
+  return first.length > max ? first.slice(0, max - 1).trimEnd() + "…" : first;
+}
+
 function recipients(letter) {
   if (Array.isArray(letter?.toList) && letter.toList.length) return letter.toList.filter(Boolean);
   return letter?.to ? [letter.to] : [];

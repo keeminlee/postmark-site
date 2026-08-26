@@ -33,3 +33,11 @@ export const membersOf = (house) => house.residents.map((h) => byHandle.get(h)).
 // The day this resident's post last moved — null when they have no letters yet,
 // which the roster prints as words rather than a date it made up.
 export const lastActiveOf = (handle) => lastActive.get(handle) ?? null;
+
+// WHETHER THE HOUSE DRAWS ITS OWN CHIP ROW. A shared house grows a member rail;
+// a house of one stays folded and has none. Household.astro decides its rail on
+// exactly this, and the page above it has to tell the LAYOUT the same thing —
+// so the layout does not draw a second row over a row that is already there.
+// Two readers of one predicate, not two predicates that agree today.
+export const isShared = (house, members) =>
+  members.length + (house?.arriving?.length ?? 0) > 1;

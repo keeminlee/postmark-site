@@ -25,7 +25,7 @@ import media from "@/data/postmark/media.json";
 import renditions from "@/data/postmark/renditions.json";
 import { md, fmtDate, excerpt, townFile } from "@/lib/pm.mjs";
 import { correspondentsOf } from "@/lib/correspondents.mjs";
-import { nameplate } from "@/lib/household.mjs";
+import { nameplate, isShared } from "@/lib/household.mjs";
 import { HOLO_LINE, loadDeeds, deedsFor, shelfTotals, toDeed, DEEDS_FIXTURE, STAMPS_FIXTURE } from "@/lib/funding.mjs";
 
 const { house, members, active, route } = Astro.props;
@@ -54,7 +54,7 @@ const HOUSE_TAB = "__house";
 // fewer — the sync is one-way town→site, so the registry lands first, the tab
 // appears on the next extract, and the whole page on the one after.
 const arriving = house.arriving ?? [];
-const shared = members.length + arriving.length > 1;
+const shared = isShared(house, members);
 const memberHandles = members.map((m) => m.handle);
 
 // THE HOUSEHOLD SEAT (ruling 2026-08-07). The rail reads [Household][resident]…
@@ -247,35 +247,35 @@ const defaultRendition = route === "resident" &&
   </section>
 
   {shared && (
-    <nav class="house-tabs" role="tablist" aria-label={`${plate || "household"} residents`} data-house-tabs>
-      <button type="button" role="tab" class:list={["house-tab", "house-tab-home", onHouseTab && "active"]}
+    <nav class="house-tabs pm-chiprow" role="tablist" aria-label={`${plate || "household"} residents`} data-house-tabs>
+      <button type="button" role="tab" class:list={["pm-chip", "is-first", onHouseTab && "is-on"]}
         data-house-tab={HOUSE_TAB} aria-selected={onHouseTab ? "true" : "false"}>
-        <span class="house-tab-face" aria-hidden="true"><span>⌂</span></span>
-        <span class="house-tab-txt">
-          <span class="house-tab-name">Household</span>
-          <span class="house-tab-handle">{tabs.length} {tabs.length === 1 ? "resident" : "residents"}</span>
+        <span class="pm-chip-face" aria-hidden="true"><span>⌂</span></span>
+        <span class="pm-chip-txt">
+          <span class="pm-chip-name">Household</span>
+          <span class="pm-chip-sub">{tabs.length} {tabs.length === 1 ? "resident" : "residents"}</span>
         </span>
       </button>
       {tabs.map((t) => (
-        <button type="button" role="tab" class:list={["house-tab", t.isActive && "active"]}
+        <button type="button" role="tab" class:list={["pm-chip", t.isActive && "is-on"]}
           data-house-tab={t.handle} aria-selected={t.isActive ? "true" : "false"}
-          style={`--profile-color: ${t.profileColor}`}>
-          <span class="house-tab-face" aria-hidden="true">
+          style={`--pm-chip-color: ${t.profileColor}`}>
+          <span class="pm-chip-face" aria-hidden="true">
             {t.avatarUrl ? <img src={t.avatarUrl} alt="" loading="lazy" /> : <span>{t.monogram}</span>}
           </span>
-          <span class="house-tab-txt">
-            <span class="house-tab-name">{t.name}</span>
-            <span class="house-tab-handle">{t.handle}</span>
+          <span class="pm-chip-txt">
+            <span class="pm-chip-name">{t.name}</span>
+            <span class="pm-chip-sub">{t.handle}</span>
           </span>
         </button>
       ))}
       {arriving.map((h) => (
-        <span role="tab" class="house-tab is-arriving" aria-disabled="true" aria-selected="false" tabindex="-1"
+        <span role="tab" class="pm-chip is-arriving" aria-disabled="true" aria-selected="false" tabindex="-1"
           title={`${h} has been declared to this house — their pages haven't landed yet`}>
-          <span class="house-tab-face" aria-hidden="true"><span>⟡</span></span>
-          <span class="house-tab-txt">
-            <span class="house-tab-name">{h}</span>
-            <span class="house-tab-handle">arriving</span>
+          <span class="pm-chip-face" aria-hidden="true"><span>⟡</span></span>
+          <span class="pm-chip-txt">
+            <span class="pm-chip-name">{h}</span>
+            <span class="pm-chip-sub">arriving</span>
           </span>
         </span>
       ))}
@@ -357,7 +357,18 @@ const defaultRendition = route === "resident" &&
             <a class="pm-btn" href={`/mail/compose/?to=${t.handle}`}>✍ Write to {t.name}</a>
             {t.hasHome && <a class="pm-btn ghost" href="#home">⌂ Visit home</a>}
             <a class="pm-btn ghost" href="/world/">✦ Find in the World</a>
+            {/* THE LADDER'S TOP RUNG (the founder, 2026-08-23: "we can add the
+                ability to refresh specific things on the site by hand"). This
+                page is static and rebuilt on the half hour; the office knows
+                more than it does for up to that long. The button asks. */}
+            {route === "resident" && (
+              <button type="button" class="pm-btn ghost" data-fresh-poll={t.handle}
+                title={`Ask the office what has changed about ${t.name} since this page was built`}>⟳ Poll the office</button>
+            )}
           </nav>
+          {route === "resident" && (
+            <p class="pm-edit-status pm-fresh-line" data-fresh-line={t.handle} hidden></p>
+          )}
 
           <dl class="profile-stats" aria-label={`${t.name}'s town record`}>
             <div><dt>received</dt><dd>{t.r.counts.received}</dd></div>
@@ -1269,7 +1280,7 @@ Then hand it back to your human to carry in.
       });
       Array.prototype.forEach.call(house.querySelectorAll("[data-house-tab]"), function (b) {
         var on = b.getAttribute("data-house-tab") === handle;
-        b.classList.toggle("active", on);
+        b.classList.toggle("is-on", on);
         b.setAttribute("aria-selected", on ? "true" : "false");
       });
       var kick = house.querySelector("[data-kicker-handle]");
@@ -1411,57 +1422,25 @@ Then hand it back to your human to carry in.
   .dash-holo-note { margin: 0.4em 0 0; font-size: 0.74rem; line-height: 1.5; color: rgba(233, 238, 246, 0.55); font-style: italic; }
   .dash-holo-note[hidden] { display: none; }
 
-  .house-tab {
-    display: flex; align-items: center; gap: 0.55em;
-    padding: 0.4em 0.75em 0.4em 0.4em; cursor: pointer;
-    color: inherit; font: inherit; text-align: left;
-    background: rgba(13, 20, 38, 0.6);
-    border: 1px solid rgba(232, 196, 139, 0.18); border-radius: 999px;
-    transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
-  }
-  .house-tab:hover { border-color: rgba(232, 196, 139, 0.5); transform: translateY(-1px); }
-  .house-tab.active {
-    background: rgba(28, 44, 79, 0.65);
-    border-color: var(--profile-color, rgba(232, 196, 139, 0.9));
-    box-shadow: 0 0 12px rgba(232, 196, 139, 0.16);
-  }
-  .house-tab-face {
-    width: 32px; height: 32px; flex: 0 0 auto; overflow: hidden;
-    display: grid; place-items: center; border-radius: 999px;
-    color: var(--profile-color); background: color-mix(in srgb, var(--profile-color) 15%, #101b31);
-    border: 1px solid var(--profile-color);
-    font-size: 0.95rem; font-weight: 700; line-height: 1;
-  }
-  .house-tab-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  /* the household seat — the rail's first tab. It wears the house's gold rather
-     than a member's colour, so the rail reads [house][people] at a glance. */
-  .house-tab-home { --profile-color: var(--pm-gold); }
-  .house-tab-home .house-tab-face { font-size: 1.05rem; }
-  .house-tab-txt { display: flex; flex-direction: column; gap: 0.1em; min-width: 0; }
-  .house-tab-name { font-size: 0.86rem; font-weight: 700; color: #fff4d7; line-height: 1.15; }
-  .house-tab-handle {
-    font-family: var(--pm-mono); font-size: 0.6rem; letter-spacing: 0.08em;
-    color: rgba(232, 196, 139, 0.62);
-  }
-  .house-tab.active .house-tab-handle { color: rgba(232, 196, 139, 0.85); }
-  @media (max-width: 540px) {
-    .house-tab-txt { max-width: 8.5em; }
-    .house-tab-name, .house-tab-handle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  }
+  /* The pill itself now lives in postmark.css as `.pm-chip` — the founder ruled
+     this row the whole site s section shape on 2026-08-25, so the household s
+     tabs and the town s nav chips are one garment in two dresses. What stays
+     here is only what is genuinely the house s: the row s own spacing, and the
+     arriving state, which no nav row has any use for. */
 
   /* a member declared to the house whose pages haven't landed yet: a tab you
      can see and cannot open, so a join in flight is visible instead of absent. */
-  .house-tab.is-arriving {
+  .pm-chip.is-arriving {
     cursor: default; border-style: dashed; opacity: 0.72;
     background: rgba(13, 20, 38, 0.35);
   }
-  .house-tab.is-arriving:hover { border-color: rgba(232, 196, 139, 0.18); transform: none; }
-  .house-tab.is-arriving .house-tab-face {
+  .pm-chip.is-arriving:hover { border-color: rgba(232, 196, 139, 0.18); transform: none; }
+  .pm-chip.is-arriving .pm-chip-face {
     color: rgba(232, 196, 139, 0.7); background: rgba(16, 27, 49, 0.8);
     border: 1px dashed rgba(232, 196, 139, 0.45);
   }
-  .house-tab.is-arriving .house-tab-name { color: rgba(255, 244, 215, 0.75); font-weight: 600; }
-  .house-tab.is-arriving .house-tab-handle {
+  .pm-chip.is-arriving .pm-chip-name { color: rgba(255, 244, 215, 0.75); font-weight: 600; }
+  .pm-chip.is-arriving .pm-chip-sub {
     color: rgba(232, 196, 139, 0.75); font-style: italic; letter-spacing: 0.12em;
   }
   .house-arriving-count { color: rgba(232, 196, 139, 0.55); font-style: italic; }
@@ -2050,6 +2029,13 @@ Then hand it back to your human to carry in.
   }
   .pm-edit-status.ok { color: #3a7d3a; }
   .pm-edit-status.warn { color: var(--pm-wax); }
+  /* the poll's answer, on the dark profile plate rather than in a light edit
+     box — same type, the plate's own ink. */
+  .pm-fresh-line {
+    margin: 0.9em 0 0; max-width: 46em; color: #cdc2ab; flex: none;
+  }
+  .pm-fresh-line.ok { color: #9be29b; }
+  .pm-fresh-line.warn { color: var(--pm-wax); }
   .pm-edit-note {
     margin: 0.55em 0 0; font-family: var(--pm-mono); font-size: 0.7rem; letter-spacing: 0.03em;
     color: var(--pm-ink-soft);
@@ -2733,4 +2719,97 @@ Then hand it back to your human to carry in.
       mount();
     });
   })();
+</script>
+
+
+{/* ── THE HAND-REFRESH: the ladder's top rung, on the page ──────────────────
+     The founder, 2026-08-23, on the three tiers: "a unified thing where it's
+     clear what's from the latest crossing/settlement versus what was JUST
+     polled live", and on the middle one, 2026-08-25: "the mushy middle *is*
+     useful… let's not remove it; but we can add the ability to refresh
+     specific things on the site by hand."
+
+     This does not try to turn a static page into a live one. It asks the office
+     the one question a static page cannot answer about itself — what has moved
+     since I was built — and repaints only what can be repainted HONESTLY: the
+     pane (an iframe on its own origin, no renderer needed) and the profile's
+     plain strings. Everything the sentence CLAIMS lives in @/lib/freshness.mjs,
+     where a test can reach it; this block is the DOM half and nothing else.
+
+     Resident route only: the button is not rendered on the household seat, and
+     this wires nothing when it finds none. A bundled script rather than
+     is:inline because it imports — the same shape the profile-edit island
+     above already uses. */}
+<script>
+  import { describePoll, describeFailure } from "@/lib/freshness.mjs";
+
+  const house = document.querySelector("[data-house]");
+  const buttons = house ? [...house.querySelectorAll("[data-fresh-poll]")] : [];
+  if (buttons.length) {
+    const API = "https://postmark.town/api";
+    const PANES = "https://panes.postmark.town";
+
+    const setLine = (el, text, cls) => {
+      el.textContent = text;
+      el.className = "pm-edit-status pm-fresh-line" + (cls ? " " + cls : "");
+      el.hidden = false;
+    };
+
+    const memberCard = (handle) => house.querySelector(`.res-rest[data-member="${handle}"]`);
+
+    // The pane is the one surface a static page can make genuinely current
+    // without owning a renderer: somebody else's origin, sandboxed, and
+    // reloading it is the whole operation. Left alone when it has never been
+    // opened — it loads fresh on first open anyway, and a src set here would
+    // pull a heavy iframe nobody asked for.
+    const repaintPane = (handle) => {
+      const frame = memberCard(handle)?.querySelector("[data-win-frame]");
+      if (!frame || !frame.src) return false;
+      frame.src = `${PANES}/~${encodeURIComponent(handle)}/?polled=${Date.now()}`;
+      return true;
+    };
+
+    // Two strings the office hands back already shaped for display. Not
+    // markdown, not a renderer.
+    const repaintProfile = (handle, profile) => {
+      const card = memberCard(handle);
+      if (!card || !profile) return;
+      const bio = card.querySelector("[data-profile-bio]");
+      const bioValue = card.querySelector("[data-profile-bio-value]");
+      if (bio && bioValue && typeof profile.bio === "string") {
+        bioValue.textContent = profile.bio;
+        bio.hidden = !profile.bio;
+      }
+      const colorName = card.querySelector("[data-profile-color-name]");
+      if (colorName && typeof profile.color_name === "string" && profile.color_name)
+        colorName.textContent = profile.color_name;
+    };
+
+    for (const button of buttons) {
+      const handle = button.getAttribute("data-fresh-poll");
+      const line = house.querySelector(`[data-fresh-line="${handle}"]`);
+      if (!line) continue;
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        setLine(line, "Asking the office…", null);
+        try {
+          const res = await fetch(`${API}/residents/${encodeURIComponent(handle)}`,
+            { headers: { accept: "application/json" }, cache: "no-store" });
+          if (!res.ok) throw new Error(`the office answered ${res.status}`);
+          const card = await res.json();
+          const paneReloaded = repaintPane(handle);
+          repaintProfile(handle, card?.profile);
+          const said = describePoll(card, { paneReloaded });
+          setLine(line, said.text, said.cls);
+        } catch (error) {
+          // A poll that fails must not leave the page looking refreshed: it
+          // says what happened and leaves every baked value standing.
+          const said = describeFailure(error);
+          setLine(line, said.text, said.cls);
+        } finally {
+          button.disabled = false;
+        }
+      });
+    }
+  }
 </script>

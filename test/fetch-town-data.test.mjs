@@ -27,7 +27,7 @@ function writeJson(dir, name, value) {
  * fixture that 404'd would exercise the error path and leave the real
  * capability detection — no bodies, therefore no door — completely untested.
  */
-function fixtureFetch({ door = true } = {}) {
+function fixtureFetch({ door = true, stamp = null } = {}) {
   const fullLetters = {
     "wright-2026-07-01-hello": {
       id: "wright-2026-07-01-hello",
@@ -78,6 +78,12 @@ function fixtureFetch({ door = true } = {}) {
       is_office: false,
     },
   };
+  // THE FRESHNESS STAMP (2026-08-25). `stamp: null` is the PRE-LADDER office —
+  // it does not 404 the read, it answers the same card with no `freshness` key
+  // at all, which is the shape an office one release behind actually has. Any
+  // other value is spread onto every card.
+  if (stamp) for (const r of Object.values(residents)) r.freshness = stamp;
+
   const routes = new Map([
     ["/town", { as_of: "abc123", counts: { residents: 2, letters: 2, threads: 1, ledger: 2, bulletin: 1 }, offices: [] }],
     ["/residents", [
@@ -306,4 +312,85 @@ test("fetch-town CLI keeps the committed snapshot when the API is down", () => {
   });
   assert.equal(result.status, 0);
   assert.match(`${result.stdout}\n${result.stderr}`, /keeping committed data snapshot/);
+});
+
+// ── THE MUSHY MIDDLE, VERIFIED (2026-08-25) ────────────────────────────────
+//
+// The question this lane was asked to answer with receipts: does the extract
+// pick up the office's composed reads automatically once the office serves
+// them? These are that answer, made into something that can go red.
+//
+// It does, and the reason is one line up in this file rather than anything
+// clever: `buildOfficeData` already fetches `/residents/<handle>` for every
+// resident, which is EXACTLY the read the office composed. No endpoint changed.
+// What was added is only that the build now SAYS how far behind the office's
+// index was, because a build that pulled twelve residents out of a stale index
+// and a build where nothing was stale produce identical files and different
+// truths, and the second is an operational fact somebody should be able to see.
+
+const SETTLED_STAMP = {
+  tense: "settled", settled_as_of: "abc123",
+  fields: {
+    "address.body": { tense: "settled", act: "address-body" },
+    "address.data": { tense: "settled", act: "address-fields" },
+    home: { tense: "settled", act: "home" },
+    profile: { tense: "settled", act: "profile" },
+    window_state: { tense: "settled", act: "window" },
+  },
+};
+const AHEAD_STAMP = {
+  tense: "pending", settled_as_of: "abc123", settles_at: "the next ferry crossing (00:00 / 12:00 UTC)",
+  fields: {
+    ...SETTLED_STAMP.fields,
+    "address.body": { tense: "written", act: "address-body", file: "WHITE_PAGES/x/ADDRESS.md" },
+    window_state: { tense: "pending", act: "window", seq: 41 },
+  },
+};
+
+test("E1 · the extract needs no endpoint change: the composed card IS the card it already fetched", async () => {
+  const plain = fixtureSnapshot();
+  const composed = fixtureSnapshot();
+  const a = await buildOfficeData({ apiBase: "https://example.test", dataDir: plain.data, townRoot: plain.town, fetchImpl: fixtureFetch() });
+  const b = await buildOfficeData({ apiBase: "https://example.test", dataDir: composed.data, townRoot: composed.town, fetchImpl: fixtureFetch({ stamp: SETTLED_STAMP }) });
+
+  assert.equal(jsonText(a.files["residents.json"]), jsonText(b.files["residents.json"]),
+    "an office that stamps and one that does not build the same residents.json from the same values — the stamp rides beside the data, never in it");
+  assert.equal(jsonText(a.files), jsonText(b.files), "every file the build writes, byte for byte");
+});
+
+test("E2 · THE STAMP IS NOT BAKED: a static page carries its build's as_of, never the office's field tenses", async () => {
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch({ stamp: AHEAD_STAMP }) });
+  for (const resident of r.files["residents.json"])
+    assert.equal(resident.freshness, undefined,
+      "a field-level tense about the OFFICE's index, baked into a page, is a claim the reader has no way to act on — the live tense belongs to the live poll");
+  assert.ok(r.asOf, "what a static page owes its reader is when IT was built, and that it still has");
+});
+
+test("E3 · a build that saved itself from a stale index SAYS SO, by name", async () => {
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch({ stamp: AHEAD_STAMP }) });
+  const gaps = r.endpointGaps.join("\n");
+  assert.match(gaps, /composed ahead of the office index for 2 of 2 residents/);
+  assert.match(gaps, /rei, wright/, "the residents are named — a count alone cannot be followed up");
+  assert.match(gaps, /rehydrate tick was behind the record/);
+});
+
+test("E4 · a build where nothing was stale says THAT, and the two are not the same sentence", async () => {
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch({ stamp: SETTLED_STAMP }) });
+  const gaps = r.endpointGaps.join("\n");
+  assert.match(gaps, /all settled across 2 residents/);
+  assert.doesNotMatch(gaps, /composed ahead/,
+    "THE FALSIFIER: one sentence for both states would make the log decoration rather than information");
+});
+
+test("E5 · an office one release behind is a NAMED state, not silence", async () => {
+  const { data, town } = fixtureSnapshot();
+  const r = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch({ stamp: null }) });
+  const gaps = r.endpointGaps.join("\n");
+  assert.match(gaps, /carry no freshness stamp: this office predates the ladder/,
+    "the two repos ride their own trains; 'I cannot tell' must never read as 'nothing was stale'");
+  assert.doesNotMatch(gaps, /all settled across/);
+  assert.doesNotMatch(gaps, /composed ahead/);
 });

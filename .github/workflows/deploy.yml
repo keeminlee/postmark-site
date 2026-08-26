@@ -136,6 +136,30 @@ jobs:
           echo "town_data_sha=$(git rev-parse origin/main)" >> "$GITHUB_OUTPUT"
           echo "town-data overlay from $(git rev-parse --short origin/main)"
 
+      # THE WORLD PIN FOLLOWS THE BLESSING (POS-55, founder-ruled 2026-08-25).
+      # The world pin was release-time CONFIG — a sha frozen into package.json
+      # when the train was cut. release/2026-w35 froze 272ed4bb, cut hours
+      # before settlement/S45 existed, and the keeper's pin-bump lane runs on
+      # site main, which a release build never looks at. Blessing S45 changed
+      # nothing prod served. The pin becomes rebuild-time DATA instead: the
+      # scheduled build resolves the world's newest settlement/S<n> tag itself,
+      # every 30 minutes. Data at crossing pace, code at release pace — the same
+      # split the town-data overlay above already makes.
+      #
+      # THIRD TENSE, NAMED: the resolver itself comes from main, like the
+      # workflow file it is called from (Actions reads deploy.yml off the
+      # default branch on a schedule run, while `git checkout $TAG` above moved
+      # the tree to the tag). Deploy machinery travels with the lane, not with
+      # the release. Without this, main's workflow would call a script the
+      # standing tag has never heard of. The `||` is the bootstrap: until a
+      # release tag carries this change, the resolver is simply absent and the
+      # pin stays at the floor, which is what every release before it shipped.
+      - name: Take the world-pin resolver from main (deploy machinery, not site code)
+        if: steps.lane.outputs.channel == 'release' && steps.pin.outputs.skip != 'true'
+        run: |
+          git checkout origin/main -- tools/resolve-world-pin.mjs tools/lib/world-pin.mjs \
+            || echo "no world-pin resolver on main yet — the pin holds at the release floor"
+
       - uses: actions/setup-node@v4
         if: steps.pin.outputs.skip != 'true'
         with:
@@ -144,6 +168,52 @@ jobs:
 
       - run: npm ci
         if: steps.pin.outputs.skip != 'true'
+
+      # npm ci above installed THE FLOOR — the release's frozen pin. That is
+      # deliberate ordering: the fallback is not a code path to be trusted, it
+      # is already on disk before anything is resolved. Three guardrails decide
+      # whether it moves, and they live in tools/lib/world-pin.mjs with their
+      # falsifiers in test/world-pin.test.mjs: tags only, never main tip ·
+      # monotonic by settlement number, the pin never rolls backwards · on any
+      # tag-resolution failure, fall back to the release's frozen pin file.
+      # The resolver exits 0 on every failure — a rebuild that cannot resolve a
+      # settlement is not a broken rebuild, it is one that ships the floor.
+      - name: Resolve the world pin from the newest settlement tag (release lane)
+        id: worldpin
+        if: steps.lane.outputs.channel == 'release' && steps.pin.outputs.skip != 'true'
+        run: |
+          if [ -f tools/resolve-world-pin.mjs ]; then
+            node tools/resolve-world-pin.mjs
+          else
+            echo "world-pin resolver absent at this tag — holding at the release floor"
+            echo "decision=hold" >> "$GITHUB_OUTPUT"
+            echo "reason=resolver-absent" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The advance is an overlay on top of the floor, never a rewrite of the
+      # pin file: the keeper's ceremony (bumping package.json on site main at
+      # each blessing) is what keeps the floor fresh, and this must not race it.
+      # The verify is a hard fail on purpose — a build that silently ships the
+      # wrong world is worse than a build that does not ship. Prod keeps serving
+      # the previous rsync and the next half-hour's run tries again.
+      - name: Install the blessed world (settlement S${{ steps.worldpin.outputs.settlement }})
+        if: steps.worldpin.outputs.decision == 'advance'
+        env:
+          WORLD_SHA: ${{ steps.worldpin.outputs.sha }}
+        run: |
+          npm install --no-audit --no-fund "postmark-world@github:keeminlee/postmark-world#$WORLD_SHA"
+          node -e '
+            const { readFileSync } = require("node:fs");
+            const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+            const got = lock.packages["node_modules/postmark-world"]?.resolved ?? "";
+            const want = process.env.WORLD_SHA;
+            if (!got.endsWith("#" + want)) {
+              console.error(`world pin mismatch: asked for ${want}, lock resolved ${got}`);
+              process.exit(1);
+            }
+            console.log(`world pinned at ${want}`);
+          '
+          echo "world: floor ${{ steps.worldpin.outputs.floor_sha }} (S${{ steps.worldpin.outputs.floor_settlement }}) -> S${{ steps.worldpin.outputs.settlement }} $WORLD_SHA"
 
       - name: Refresh Postmark data from office API
         if: steps.pin.outputs.skip != 'true'
