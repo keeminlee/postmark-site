@@ -191,19 +191,28 @@ test("the market opens first, and the other panels start hidden", () => {
     "and the market tab must start selected");
 });
 
-test("the head answers WHAT IS THIS in plain words, unfolded", () => {
-  // SUPERSEDES the folded-primer law. The founder's ruling, 2026-08-26, off a
-  // real reader who read the page three times and could not say what a stamp
-  // was (discussion #2036): "a reader needs to understand WHAT THIS IS before
-  // they can digest any information about WHAT IT DOES... WHAT IS THIS is the
-  // utmost priority." So the head opens with the plain definition and three
-  // unfolded sentences — no click between a first-timer and the ground.
-  assert.equal(raw.includes('<details class="p-primer">'), false,
-    "the primer went back behind a fold — the head must be unfolded");
+test("the head answers WHAT IS THIS unfolded, with the five things behind one click", () => {
+  // TWO rulings hold here at once, and the second amends the first.
+  //   2026-08-26, off a real reader who read the page three times and could not
+  //   say what a stamp was (discussion #2036): "a reader needs to understand
+  //   WHAT THIS IS before they can digest any information about WHAT IT DOES...
+  //   WHAT IS THIS is the utmost priority." That is the unfolded one-breath
+  //   definition, and the giver's door beside it.
+  //   2026-08-26, later, on the three sentences that replaced the primer: "I
+  //   prefer the old 'The Five Things To Know' to the three (and I like how
+  //   it's hidden and expandable)." That is the fold, back, with five in it.
+  // So: nothing folded stands between a first-timer and the ground, AND the
+  // teaching is five things under one click rather than three in the open.
   const head = raw.slice(raw.indexOf('<header class="p-head">'), raw.indexOf("</header>"));
+  const primer = head.indexOf('<details class="p-primer">');
   assert.ok(head.includes('class="p-folk"'), "the head lost its plain one-breath definition");
-  assert.equal((head.match(/<li>/g) || []).length, 3,
-    "the head carries exactly three sentences — more is the wall coming back");
+  assert.ok(primer > 0, "the five things must be in the head, folded");
+  assert.ok(head.indexOf('class="p-folk"') < primer,
+    "the plain definition comes BEFORE the fold — the ground first, always");
+  assert.equal(/<details class="p-primer"[^>]*\bopen\b/.test(head), false,
+    "the primer must start shut — an expanded fold is the wall coming back");
+  assert.equal((head.match(/<li>/g) || []).length, 5,
+    "the five things to know are five");
   // and the giver's door: a reader who only wants to help pay the bills is
   // pointed at the pots without having to learn the economy first.
   assert.ok(head.includes('href="#pots"'), "the head must point a giver at the pots");

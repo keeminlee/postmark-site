@@ -111,8 +111,9 @@ test("the consent line sits ABOVE the address, and the full terms below it", () 
   // §10's second consent gate, RESHAPED at the founder's word (2026-08-26):
   // the reader who clicked "Fund" wants what-this-is, then how-to-pay -- the
   // deep terms are theirs to open, not a wall before the money moment. What
-  // survives the reshape is the gate's ORDER: one honest sentence -- deed, no
-  // say, no promised return -- still precedes the first copyable character,
+  // survives the reshape is the gate's ORDER: one honest sentence -- written
+  // down in your name, no say, no promised return -- precedes the first
+  // copyable character,
   // and the full disclosures still live on this page, behind one click.
   const law = PAGE.indexOf('class="f-law-line"');
   const addr = PAGE.indexOf('<code class="f-code"');

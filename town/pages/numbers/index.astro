@@ -115,7 +115,8 @@ const holoPer100 = econ ? Math.floor((1 - econ.sigma) * 100) : 0;
             <p class="n-note">
               A household's holo may never exceed ρ × everything it has <em>minted</em> —
               the stamps it earned from the mail, plus what it was minted for keeping.
-              Dollars past that cap are remembered as a deed and mint nothing. The dial
+              Dollars past that cap are still written down in the payer's name, permanently
+              and publicly, and mint nothing. The dial
               runs to a <strong>constitutional ceiling of {econ.rhoCeiling}</strong>;
               ρ can move below it, never past it, and a dial that tries is refused rather
               than obeyed. {econ.rho >= econ.rhoCeiling
@@ -160,7 +161,7 @@ const holoPer100 = econ ? Math.floor((1 - econ.sigma) * 100) : 0;
             or transfer, it is excluded from every tally, and no dial on this page changes
             that. Stamps (✦) are the town's own tender and live on the
             <a href="/stamps/#board"> board</a> and the residents' pages; dollars enter through the
-            <a href="/stamps/#pots"> pots</a> and leave a deed where they landed.
+            <a href="/stamps/#pots"> pots</a> and leave a permanent public record where they landed.
           </p>
           {econ.asOf && <p class="n-asof">as of {econ.asOf}</p>}
         </footer>

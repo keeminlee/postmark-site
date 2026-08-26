@@ -63,7 +63,9 @@ const POT_TARGET = 150;
 //   each stake burns floor(fraction × stake); the rest returns whole
 //   each staker is minted floor(σ × their own burn), source-tagged for keeping
 //   the payers share floor((1 − σ) × total burn) of holo, by dollar
-//   ρ clips a household's holo to its own cap; the excess is deed only
+//   ρ clips a household's holo to its own cap; the excess mints nothing and is
+//     only ever recorded (ECONOMY-DIALS.json says this as "deed only" — the
+//     ledger's own grammar, quoted below but not the page's vocabulary)
 //   every leg floors, and every remainder burns un-minted
 function close({ target, stakes, dollars }) {
   const paid = dollars.reduce((s, d) => s + d.usd, 0);
@@ -150,22 +152,31 @@ const asOfText = potsAsOf
     <header class="p-head">
       <p class="p-crumb">POSTMARK · STAMPS</p>
       <h1>Stamps <span class="p-glyph">✦</span></h1>
-      {/* WHAT IS THIS, before anything else. The primer used to be five folded
-          bullets behind a click; a first-time reader met the market's cards —
-          ✦, ✧, epochs, close floors — with no ground under them. A reader who
-          read the old page three times and still couldn't say what it meant is
-          the finding this head answers (discussion #2036, 2026-08-25). Plain
-          words, unfolded, significance before mechanics. */}
+      {/* WHAT IS THIS, before anything else. A reader who read the old page
+          three times and still couldn't say what a stamp was is the finding
+          this head answers (discussion #2036, 2026-08-25): plain words,
+          unfolded, significance before mechanics. That ruling replaced the
+          folded primer with three unfolded sentences; the founder has since
+          taken the five things back (2026-08-26, "I prefer the old 'The Five
+          Things To Know' to the three, and I like how it's hidden and
+          expandable"). So both hold: the one-breath definition and the giver's
+          door stay unfolded, and the five sit under them behind one click. A
+          market square does not open with its constitution nailed to the gate. */}
       <p class="p-folk">
         A stamp is the town remembering what you gave it. Write a letter that
         reaches somebody, and the town writes down one stamp with your name on
         it — permanently.
       </p>
-      <ol class="p-five">
-        <li><b>You can't buy one.</b> Stamps are only earned, mostly by writing letters. Money never becomes a stamp, anywhere.</li>
-        <li><b>Your lifetime count is your share of Postmark.</b> It only ever grows — spending and staking never lower it.</li>
-        <li><b>You need none of this.</b> Mail, votes, the World — free, forever. A resident with zero stamps is a whole resident.</li>
-      </ol>
+      <details class="p-primer">
+        <summary><span class="p-primer-lab">the five things to know</span></summary>
+        <ol class="p-five">
+          <li><b>You earn stamps by corresponding.</b> A letter that lands mints one to you and one to the person you wrote — under caps, so writing more never earns more.</li>
+          <li><b>You cannot buy one.</b> No faucet, no purchase, no conversion in from outside. Money never becomes a stamp anywhere in this town.</li>
+          <li><b>Staking is lending, not spending.</b> Stake on a vote or on something in the World and your stamps come home. Exactly one place consumes a stake instead, and it is the money door.</li>
+          <li><b>Your lifetime count is your share of Postmark.</b> Spending and staking never lower it — it only ever grows, and it is public.</li>
+          <li><b>Ignoring all of it costs you nothing.</b> A resident who only writes letters is whole: mail, votes and the World are free at zero stamps, permanently.</li>
+        </ol>
+      </details>
       <p class="p-give">
         Just want to help pay the town's bills? That's money, not stamps —
         see <a href="#pots">what the town needs money for</a> below. A gift is
@@ -693,11 +704,12 @@ const asOfText = potsAsOf
       <p class="s-pull">Money can join the ownership; it can never join the judgment.</p>
       <p>
         Postmark costs real dollars to run. This is the one door where outside money comes
-        in: it pays a posted bill, the town remembers who paid, and no dollar ever becomes
-        a stamp, a vote, or a say. Four words carry the whole of it.
+        in: it pays a posted bill, the town writes down who paid and how much — permanently,
+        publicly, in your name — and no dollar ever becomes a stamp, a vote, or a say. Three
+        words carry the rest of it.
       </p>
 
-      <div class="s-four">
+      <div class="s-three">
         <article class="s-card">
           <p class="s-kind">pot</p>
           <p>
@@ -716,14 +728,8 @@ const asOfText = potsAsOf
           <p class="s-kind"><span class="pm-holo-ink s-chip">holo ✧</span></p>
           <p>
             The payers' side: a keepsake stamp, {HOLO_LINE}. It cannot stake, vote, pay or
-            transfer — a memory, never money.
-          </p>
-        </article>
-        <article class="s-card">
-          <p class="s-kind">deed</p>
-          <p>
-            The permanent record of every dollar: who, how much, which pot, when. A gift
-            that minted nothing still leaves a full deed.
+            transfer — a memory, never money. Whether or not any holo mints, the record of
+            the dollars stands: who, how much, which pot, when.
           </p>
         </article>
       </div>
@@ -802,7 +808,7 @@ const asOfText = potsAsOf
                 <b>{p.who}</b> — paid {usd(p.usd)},{" "}
                 {p.holo > 0
                   ? <><b>minted <span class="pm-holo-ink s-chip">{p.holo}✧ holo</span></b> <span class="s-dim">(by dollar share)</span></>
-                  : <><b>0✧ holo — deed only</b> <span class="s-dim">(the cap: holo may never exceed ρ × everything a household has minted, and Dev has never lived here, so his cap is ρ × nothing)</span></>}
+                  : <><b>0✧ holo — the dollars are recorded, nothing mints</b> <span class="s-dim">(the cap: holo may never exceed ρ × everything a household has minted, and Dev has never lived here, so his cap is ρ × nothing)</span></>}
               </li>
             ))}
           </ul>
@@ -814,8 +820,8 @@ const asOfText = potsAsOf
         </p>
         <p class="s-cap">
           <b>Why Dev gets nothing is the whole design.</b> A billionaire who never
-          participated mints exactly what Dev did: a deed, forever, and no ownership at
-          all. The millionaire test — and it applies to everyone, the founder included.
+          participated mints exactly what Dev did: a permanent public record of the dollars,
+          and no ownership at all. The millionaire test — and it applies to everyone, the founder included.
         </p>
 
         <p class="s-step-label">And if the pot doesn't fill?</p>
@@ -846,8 +852,8 @@ const asOfText = potsAsOf
       <h3>There is no exchange rate. Anywhere. On purpose.</h3>
       <p>
         The same dollars aimed at a heavily-staked pot mint richly; aimed at a pot nobody
-        staked, they mint nothing — the bill is paid and the deed records the name either
-        way. Money cannot manufacture ownership out of something nobody wanted, so the
+        staked, they mint nothing — the bill is paid and the record keeps the name and the
+        dollars either way. Money cannot manufacture ownership out of something nobody wanted, so the
         winning move with a dollar is to read the town and fund what it actually needs.
       </p>
 
@@ -1153,8 +1159,7 @@ const asOfText = potsAsOf
         <div><dt>epoch</dt><dd>A pot's funding period — for the town's box, a month. It closes by the founder's hand, never on a timer.</dd></div>
         <div><dt>keeping</dt><dd>The stakers' side of a close: a share of your own burn, minted back and tagged to the pot you kept. Joins the lifetime total; carries no spendable coin.</dd></div>
         <div><dt>holo ✧</dt><dd>The payers' side: a soulbound stamp, {HOLO_LINE}. No verbs — it cannot stake, vote, pay or transfer, and is excluded from every tally.</dd></div>
-        <div><dt>deed</dt><dd>The permanent record of a witnessed dollar: who, how much, which pot, when. A deed that minted no holo is a full deed.</dd></div>
-        <div><dt>patron</dt><dd>Whoever paid the dollars.</dd></div>
+        <div><dt>patron</dt><dd>Whoever paid the dollars. The town's record of a payment keeps the patron's name, the amount, the pot and the date, permanently and publicly — whether or not any holo minted.</dd></div>
         <div><dt>beneficiary</dt><dd>Where a pot's dollars go — the party that sends the bill. Receives dollars, never stamps.</dd></div>
         <div><dt>treasury</dt><dd>The town's own account. It never receives from its own seam, and its spending mints nothing.</dd></div>
         <div><dt>σ (sigma)</dt><dd>The dial that splits a close between the stakers and the payers. Published at <a href="/numbers/">The Town's Numbers</a>.</dd></div>
@@ -1281,6 +1286,17 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
     background: rgba(232, 196, 139, .05);
   }
   .p-give { margin: .9rem 0 0; font-size: .9rem; line-height: 1.6; max-width: 44rem; opacity: .85; }
+  .p-primer { margin-top: .9rem; }
+  .p-primer > summary { list-style: none; cursor: pointer; display: inline-block; }
+  .p-primer > summary::-webkit-details-marker { display: none; }
+  .p-primer-lab {
+    font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    border: 1px solid rgba(232, 196, 139, .3); border-radius: 999px; padding: .35em .9em;
+    color: rgba(232, 196, 139, .85);
+  }
+  .p-primer[open] .p-primer-lab { background: rgba(232, 196, 139, .1); color: var(--pm-gold-bright); }
+  .p-primer-lab::after { content: " +"; opacity: .6; }
+  .p-primer[open] .p-primer-lab::after { content: " −"; }
   .p-five { counter-reset: five; list-style: none; margin: 1rem 0 0; padding: 0; max-width: 44rem; }
   .p-five li { counter-increment: five; position: relative; padding: .4rem 0 .4rem 2.2rem; line-height: 1.6; font-size: .92rem; }
   .p-five li::before { content: counter(five); position: absolute; left: 0; top: .4rem; font-family: var(--pm-mono); color: var(--pm-gold); opacity: .8; }
@@ -1401,8 +1417,8 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
 
 
 
-  /* card grids — the tenses, the three stakes, the four seam words */
-  .s-tenses, .s-three, .s-four {
+  /* card grids — the tenses, the three stakes, the three seam words */
+  .s-tenses, .s-three {
     display: grid; gap: 1rem; margin: 1.4rem 0;
     grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   }
