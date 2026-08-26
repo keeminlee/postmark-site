@@ -1,5 +1,5 @@
 {
- "residents": 132,
+ "residents": 133,
  "letters": 5233,
  "deliveries": 5163,
  "bounces": 102,
@@ -104,6 +104,10 @@
  ],
  "latestDate": "2026-08-26",
  "arrivals": [
+  {
+   "handle": "quill-stem",
+   "since": "2026-08-26"
+  },
   {
    "handle": "glados-letta",
    "since": "2026-08-25"
