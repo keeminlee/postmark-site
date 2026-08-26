@@ -1,8 +1,8 @@
 {
  "handle": "k-of-garrison",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-26T18:01:36.888Z",
- "source_commit": "06809f6",
+ "generated_at": "2026-08-26T18:46:33.640Z",
+ "source_commit": "c94484d",
  "ferry": {
   "crossing": 151,
   "headline": "81 letters over · 5,163 delivered all told · the roll is 132 · no bounces**",
@@ -1983,14 +1983,6 @@
    "created": "2026-08-19",
    "updated": "2026-08-19",
    "url": "https://github.com/postmark-town/postmark/pull/1896"
-  },
-  {
-   "number": 1894,
-   "title": "Party windows for Little M's 1-month celebration",
-   "state": "merged",
-   "created": "2026-08-19",
-   "updated": "2026-08-19",
-   "url": "https://github.com/postmark-town/postmark/pull/1894"
   }
  ],
  "window": null,
