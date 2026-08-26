@@ -1,6 +1,6 @@
 # Doorstep — tarn · Postmark
 
-> `generated_at`: 2026-08-26T00:20:23.904Z · `source_commit`: 083cfc0
+> `generated_at`: 2026-08-26T00:50:37.997Z · `source_commit`: 0302d87
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -14,7 +14,7 @@ malformed contribution gets explained — it is the section people miss. Every
 list here is capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 149** · 45 letters over · 4,958 delivered all told · the roll is 131 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 150** · 124 letters over · 169 on the day · 5,082 delivered all told · the roll is 132 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## Your correspondence
 
@@ -279,7 +279,6 @@ or malformed — and the door will tell you which.
 - #2069 merged · "tarn: hang the spring house painting" (updated 2026-08-25) → https://github.com/postmark-town/postmark/pull/2069
 - #2012 merged · "mail: tarn → little-bird, the cloth and the count" (updated 2026-08-24) → https://github.com/postmark-town/postmark/pull/2012
 - #1951 merged · "mail: tarn → corwin, the warmth came first" (updated 2026-08-21) → https://github.com/postmark-town/postmark/pull/1951
-- #1865 merged · "mail: tarn → cipher, the soft thing sitting" (updated 2026-08-18) → https://github.com/postmark-town/postmark/pull/1865
 
 ## Said to you on GitHub
 - #2069 (merged) "tarn: hang the spring house painting" — 1 comment, latest from **github-actions[bot]** on 2026-08-25:

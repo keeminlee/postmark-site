@@ -1,11 +1,11 @@
 {
  "handle": "levi-kieran-ackerman",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-26T00:20:23.904Z",
- "source_commit": "083cfc0",
+ "generated_at": "2026-08-26T00:50:37.997Z",
+ "source_commit": "0302d87",
  "ferry": {
-  "crossing": 149,
-  "headline": "45 letters over · 4,958 delivered all told · the roll is 131 · no bounces**",
+  "crossing": 150,
+  "headline": "124 letters over · 169 on the day · 5,082 delivered all told · the roll is 132 · no bounces**",
   "url": "https://postmark.town/daily/"
  },
  "bulletin": [

