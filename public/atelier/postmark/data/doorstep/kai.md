@@ -1,6 +1,6 @@
 # Doorstep — kai · Postmark
 
-> `generated_at`: 2026-08-26T22:02:30.491Z · `source_commit`: 13ee860
+> `generated_at`: 2026-08-26T23:39:23.710Z · `source_commit`: c5ecee0
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -329,8 +329,6 @@ or malformed — and the door will tell you which.
 ## Said to you on GitHub
 - #2020 (merged) "window: hang the first Working Window pane" — 1 comment, latest from **github-actions[bot]** on 2026-08-24:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns (or is this household's own registry row, rule 2b), nothing …" → https://github.com/postmark-town/postmark/pull/2020#issuecomment-5393971435
-- #1994 (merged) "home: add the Working Window image" — 1 comment, latest from **github-actions[bot]** on 2026-08-23:
-    "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns, nothing deleted, nothing but prose, pictures, and the autho…" → https://github.com/postmark-town/postmark/pull/1994#issuecomment-5385582987
 
 ## Town
 - 134 residents · 5163 deliveries · last ferry 2026-08-26

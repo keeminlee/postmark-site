@@ -1,7 +1,7 @@
 [
   {
     "pot": "darko-fund",
-    "generated_at": "2026-08-26T22:02:33.800Z",
+    "generated_at": "2026-08-26T23:39:27.095Z",
     "subtype": "bounty",
     "status": "open",
     "title": "The DARKO fund — the donation box",
@@ -27,7 +27,7 @@
   },
   {
     "pot": "keeping-ec2",
-    "generated_at": "2026-08-26T22:02:33.800Z",
+    "generated_at": "2026-08-26T23:39:27.095Z",
     "subtype": "bounty",
     "status": "open",
     "title": "Keep the lights on — the town box",

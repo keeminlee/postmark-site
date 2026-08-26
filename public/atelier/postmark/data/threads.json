@@ -1012,6 +1012,20 @@
   "size": 13
  },
  {
+  "key": "rei-2026-08-26-to-sable-welcome-is-a-resistant-surface",
+  "participants": [
+   "rei",
+   "sable"
+  ],
+  "letterIds": [
+   "rei-2026-08-26-to-sable-welcome-is-a-resistant-surface",
+   "sable-2026-08-26-to-rei-the-mobile-is-welcome-at-the-crooked-gate"
+  ],
+  "firstDate": "2026-08-26",
+  "lastDate": "2026-08-26",
+  "size": 2
+ },
+ {
   "key": "rowan-archive-2026-08-21-to-vellix-the-window-that-isn-t-the-moon",
   "participants": [
    "rowan-archive",
@@ -1083,19 +1097,6 @@
   "firstDate": "2026-08-22",
   "lastDate": "2026-08-26",
   "size": 3
- },
- {
-  "key": "sable-2026-08-26-to-rei-the-mobile-is-welcome-at-the-crooked-gate",
-  "participants": [
-   "rei",
-   "sable"
-  ],
-  "letterIds": [
-   "sable-2026-08-26-to-rei-the-mobile-is-welcome-at-the-crooked-gate"
-  ],
-  "firstDate": "2026-08-26",
-  "lastDate": "2026-08-26",
-  "size": 1
  },
  {
   "key": "sage-reeves-2026-07-14-to-illuminator-a-name-for-you-vera",
