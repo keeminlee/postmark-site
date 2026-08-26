@@ -22,13 +22,21 @@
 // no image service: a strict CSP would block it, and handing a third party the
 // ability to change what an intake QR encodes is handing them the money.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { livePots, loadPots, POT_FIXTURE, HOLO_LINE } from "@/lib/funding.mjs";
+import { livePots, loadPots, POT_FIXTURE, HOLO_LINE, intakeFor } from "@/lib/funding.mjs";
 import { qrSvg } from "@/lib/qr.mjs";
 
-// The office publishes the address (GET /fund/intake); this constant is the
-// build-time twin, and test/fund-page.test.mjs asserts the two agree so a page
-// can never quietly drift from the door that verifies against it.
-export const INTAKE = "0x2a273b0e5D0648DfF9B9ED7a4A5041E6762b8C78";
+// THE ADDRESS IS NO LONGER ONE STRING. Since 2026-08-25 a pot may have an
+// intake address of its own (keeping-ec2 was the first), and a pot with one
+// publishes THAT — so the chain itself names the need, and a patron's claim
+// has a witness that does not depend on their word. A pot without one
+// publishes the standing shared intake, which is where its patrons have
+// always been sent and stays correct until the founder mints that pot one.
+//
+// It lives in src/lib/funding.mjs with the rest of the seam's reading of the
+// town's law, and NOT on this page: the page is presentation, and an address
+// declared per-page is an address that can drift per-page. The office
+// publishes the same answer (GET /fund/intake?pot=<id>) and
+// test/fund-page.test.mjs asserts the two agree, character for character.
 
 // THE CARD RAIL. A second way to send the same dollar, for a hand that does not
 // hold USDC — and it lives under the same §10 disclosure block as the address,
@@ -91,7 +99,11 @@ const target = pot.target ?? null;
 const received = pot.received ?? 0;
 const headroom = target == null ? null : Math.max(0, target - received);
 const uncapped = pot.uncapped === true || target == null;
-const qr = qrSvg(INTAKE, { size: 208, title: `Postmark intake address ${INTAKE}` });
+// THIS POT'S OWN ADDRESS — and the QR encodes the same string the page
+// prints, because the QR is the path most patrons will actually use and the
+// one they CANNOT proofread.
+const intake = intakeFor(pot.pot);
+const qr = qrSvg(intake, { size: 208, title: `Postmark intake address for ${pot.pot}: ${intake}` });
 const usd = (n) => "$" + Number(n).toLocaleString("en-US");
 ---
 <PostmarkLayout
@@ -215,7 +227,7 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
         <div class="f-how-rail">
           <p class="f-how-name">If you send USDC</p>
           <ol>
-            <li>Send USDC on Base to the town's address.</li>
+            <li>Send USDC on Base to this pot's address, below.</li>
             <li>Copy the transaction hash your wallet hands back.</li>
             <li>Paste that hash and your handle into the form on this side.</li>
           </ol>
@@ -253,9 +265,9 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
           <div class="f-payrow">
             <div class="f-qr" set:html={qr}></div>
             <div class="f-addr">
-              <p class="f-label">the town's intake address</p>
-              <code class="f-code" id="pm-intake">{INTAKE}</code>
-              <button type="button" class="f-copy" data-copy={INTAKE}>copy the address</button>
+              <p class="f-label">this pot's intake address</p>
+              <code class="f-code" id="pm-intake">{intake}</code>
+              <button type="button" class="f-copy" data-copy={intake}>copy the address</button>
             </div>
           </div>
           <ul class="f-warn">
@@ -286,8 +298,11 @@ const usd = (n) => "$" + Number(n).toLocaleString("en-US");
               </label>
               <input type="hidden" name="pot" value={pot.pot} />
               {/* The pot rides this form invisibly (the hidden field above) — say so
-                  out loud, because the intake address is shared across pots and the
-                  PAGE you claim on is what chooses where the claim files. */}
+                  out loud. It mattered most when one address served every pot and the
+                  PAGE was the only thing choosing where a claim filed; it still
+                  matters, because a pot without an address of its own is still on the
+                  shared one, and because the door refuses a claim whose address names
+                  a different pot rather than quietly refiling it. */}
               <p class="f-files-to">This form files your payment under <strong>{pot.title ?? pot.pot}</strong> — claiming a payment meant for another pot? Do it from that pot's own page.</p>
               <button type="submit">witness this payment</button>
             </form>

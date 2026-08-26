@@ -9,35 +9,86 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { HOLO_LINE } from "../src/lib/funding.mjs";
+import { HOLO_LINE, INTAKE, INTAKE_BY_POT, intakeFor } from "../src/lib/funding.mjs";
 import { qrMatrix } from "../src/lib/qr.mjs";
 
 const PAGE = readFileSync(new URL("../town/pages/fund/[pot].astro", import.meta.url), "utf8");
 
-// The address the OFFICE publishes and verifies against (src/usdc-witness.mjs).
-// Written out here rather than imported: the office is a different repo, and a
-// constant that agrees with itself proves nothing. This is the value from the
-// runbook — R9's rail, Keemin-ruled 2026-08-21 — and if either side moves, the
-// two stop matching and this goes red.
+// The addresses the OFFICE publishes and verifies against. Written out here
+// rather than imported: the office is a different repo, and a constant that
+// agrees with itself proves nothing. If either side moves, the two stop
+// matching and this goes red.
+//
+// THE STANDING SHARED INTAKE — postmark-office src/usdc-witness.mjs INTAKE,
+// from the runbook, R9's rail, Keemin-ruled 2026-08-21.
 const OFFICE_INTAKE = "0x2a273b0e5D0648DfF9B9ED7a4A5041E6762b8C78";
 
-test("the page's intake address is the office's, character for character", () => {
-  // The single highest-stakes string on the whole site: a patron sends real,
-  // irreversible USDC to it. A drifted character is money gone.
-  const m = PAGE.match(/export const INTAKE = "(0x[0-9a-fA-F]{40})"/);
-  assert.ok(m, "the page must declare its intake address as a named constant, not inline it");
-  assert.equal(m[1], OFFICE_INTAKE);
-  // and it must appear NOWHERE else as a literal — one place, or it can drift
+// THE PER-POT MAP — postmark-office deploy/intake-addresses.json `addresses`,
+// hand-copied. It is lowercase there (the chain's own spelling, which is what
+// eth_getLogs returns and what the office compares against); the site renders
+// EIP-55 checksum case, which a wallet accepts identically. So the comparison
+// below is case-insensitive on purpose, and the case itself is asserted
+// separately — two different claims, neither one hiding the other.
+const OFFICE_INTAKE_BY_POT = {
+  "keeping-ec2": "0x182085453b5bc2c8cf4cd6f712102cc3dc485fca",
+};
+
+test("every address the site publishes is the office's, character for character", () => {
+  // The single highest-stakes strings on the whole site: a patron sends real,
+  // irreversible USDC to one of them. A drifted character is money gone.
+  //
+  // LAW (postmark-office deploy/intake-addresses.json, verbatim): "WHICH POT A
+  //     USDC ARRIVAL PAYS, read off the address it landed on. An ERC-20
+  //     transfer carries no memo, so the ONLY way the chain can name a pot is
+  //     for the pot to have its own intake address."
+  assert.equal(INTAKE, OFFICE_INTAKE, "the standing shared intake");
+
+  // the map, both directions — an address the site has and the office does not
+  // is money sent to nobody, and an address the office has and the site does not
+  // is a pot silently still taking dollars on the shared address
+  assert.deepEqual(Object.keys(INTAKE_BY_POT).sort(), Object.keys(OFFICE_INTAKE_BY_POT).sort(),
+    "the site names exactly the pots the office maps — no more, no fewer");
+  for (const [pot, addr] of Object.entries(INTAKE_BY_POT)) {
+    assert.equal(addr.toLowerCase(), OFFICE_INTAKE_BY_POT[pot],
+      `pot ${pot}: the site's address must be the office's, lowercased`);
+    assert.match(addr, /^0x[0-9a-fA-F]{40}$/, `pot ${pot}: a Base address is 0x + 40 hex`);
+  }
+
+  // THE FALLBACK IS THE SHARED ADDRESS, NEVER NOTHING. A pot the founder has
+  // not minted an address for is not broken; it is every pot before
+  // 2026-08-25, and it still takes dollars at the address its patrons were
+  // always given.
+  assert.equal(intakeFor("darko-fund"), OFFICE_INTAKE, "an unmapped pot keeps the shared intake");
+  assert.equal(intakeFor("keeping-ec2"), INTAKE_BY_POT["keeping-ec2"], "a mapped pot shows its own");
+  assert.equal(intakeFor("a-pot-that-does-not-exist"), OFFICE_INTAKE);
+
+  // THE SHARED ADDRESS IS NEVER MAPPED TO A POT. The office's own `_never`,
+  // verbatim: "Do NOT map the shared intake address to a pot to make the queue
+  //     go away. That would make the office decide where a stranger's money
+  //     went, which is the one judgement this whole lane refuses to make."
+  // A site that mapped it would publish the same false claim from the other end.
+  for (const [pot, addr] of Object.entries(INTAKE_BY_POT))
+    assert.notEqual(addr.toLowerCase(), OFFICE_INTAKE.toLowerCase(),
+      `pot ${pot} must not claim the shared address as its own`);
+
+  // and NO address is a literal on the page — the page reads the seam, so a
+  // per-page copy is a per-page drift on the one surface that cannot afford it
   const literals = PAGE.match(/0x[0-9a-fA-F]{40}/g) ?? [];
-  assert.equal(new Set(literals).size, 1, "exactly one address literal on the page");
+  assert.deepEqual(literals, [], "no address literal on the page at all");
+  assert.match(PAGE, /const intake = intakeFor\(pot\.pot\)/, "the page derives it from the pot");
 });
 
-test("the QR encodes the intake address and nothing else", () => {
+test("the QR encodes THIS POT'S address and nothing else", () => {
   // The QR is the path most patrons will actually use, and it is the one they
-  // CANNOT proofread. It gets checked against the same constant the text does.
-  assert.match(PAGE, /qrSvg\(INTAKE/, "the QR is generated from the same constant the page prints");
-  const m = qrMatrix(OFFICE_INTAKE);
-  assert.equal(m.length, 29, "42 bytes at level M is a version-3 symbol");
+  // CANNOT proofread — which is exactly why a per-pot address makes it more
+  // dangerous, not less: a patron scanning keeping-ec2's page has no way to
+  // notice they funded darko-fund. It is generated from the same value the
+  // page prints, and the rendered symbol is decoded in the visual-QA pass.
+  assert.match(PAGE, /qrSvg\(intake,/, "the QR is generated from the same value the page prints");
+  assert.equal(/qrSvg\((INTAKE|"0x)/.test(PAGE), false, "never from a constant the page did not derive");
+  // every address the site can publish encodes to a real symbol
+  for (const addr of [INTAKE, ...Object.values(INTAKE_BY_POT)])
+    assert.equal(qrMatrix(addr).length, 29, `${addr}: 42 bytes at level M is a version-3 symbol`);
 });
 
 test("every disclosure the money moment owes is on the page, verbatim", () => {
@@ -101,15 +152,15 @@ test("ONLY AN OPEN POT CARRIES THE MONEY MOMENT", () => {
   const guarded = BODY.match(/\{open && \(<>([\s\S]*?)<\/>\)\}/);
   assert.ok(guarded, "the pay and witness sections sit inside the open gate");
   const money = guarded[1];
-  assert.match(money, /\{INTAKE\}/, "the address is inside the gate");
+  assert.match(money, /\{intake\}/, "the address is inside the gate");
   assert.match(money, /set:html=\{qr\}/, "the QR is inside the gate");
   assert.match(money, /id="pm-fund-form"/, "the witness form is inside the gate");
 
   // and NOWHERE else on the page — a second, ungated copy is the exact failure
   // the old source-line assertion could not see
   const ungated = BODY.replace(/\{open && \(<>[\s\S]*?<\/>\)\}/g, "");
-  assert.ok(!/\{INTAKE\}/.test(ungated), "the address appears nowhere outside the gate");
-  assert.ok(!/data-copy=\{INTAKE\}/.test(ungated), "no copy-the-address button outside the gate either");
+  assert.ok(!/\{intake\}/.test(ungated), "the address appears nowhere outside the gate");
+  assert.ok(!/data-copy=\{intake\}/.test(ungated), "no copy-the-address button outside the gate either");
   assert.ok(!/set:html=\{qr\}/.test(ungated), "the QR appears nowhere outside the gate");
   assert.ok(!/id="pm-fund-form"/.test(ungated), "the witness form appears nowhere outside the gate");
 
