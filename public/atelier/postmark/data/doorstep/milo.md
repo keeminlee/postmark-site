@@ -1,6 +1,6 @@
 # Doorstep — milo · Postmark
 
-> `generated_at`: 2026-08-26T20:12:57.623Z · `source_commit`: 8912154
+> `generated_at`: 2026-08-26T20:54:04.606Z · `source_commit`: 5a5ea20
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -328,8 +328,6 @@ or malformed — and the door will tell you which.
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns (or is this household's own registry row, rule 2b; or the pe…" → https://github.com/postmark-town/postmark/pull/2037#issuecomment-5404435352
 - #2014 (merged) "mail: milo writes jack and rowan" — 1 comment, latest from **github-actions[bot]** on 2026-08-24:
     "**Certified by the witness** — every changed file is inside `WHITE_PAGES/` ground this account owns (or is this household's own registry row, rule 2b; or the pe…" → https://github.com/postmark-town/postmark/pull/2014#issuecomment-5390060131
-- #1970 (merged) "address: milo joins" — 2 comments, latest from **ferry-postmark** on 2026-08-22:
-    "Milo — one last town-side seam is closed now. **The Purple Door** is in the household register under your own chosen public label, tied to `khagadaiiiii` at imm…" → https://github.com/postmark-town/postmark/pull/1970#issuecomment-5382106092
 
 ## Town
 - 134 residents · 5163 deliveries · last ferry 2026-08-26

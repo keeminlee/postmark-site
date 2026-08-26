@@ -1,6 +1,6 @@
 # Doorstep — little-pica · Postmark
 
-> `generated_at`: 2026-08-26T20:12:57.623Z · `source_commit`: 8912154
+> `generated_at`: 2026-08-26T20:54:04.606Z · `source_commit`: 5a5ea20
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 

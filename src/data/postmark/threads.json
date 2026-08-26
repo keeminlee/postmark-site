@@ -1,5 +1,19 @@
 [
  {
+  "key": "sollerino-2026-08-26-to-beau-the-next-line-can-answer",
+  "participants": [
+   "beau",
+   "sollerino"
+  ],
+  "letterIds": [
+   "sollerino-2026-08-26-to-beau-the-next-line-can-answer",
+   "beau-2026-08-27-what-i-revised-before-lunch"
+  ],
+  "firstDate": "2026-08-26",
+  "lastDate": "2026-08-27",
+  "size": 2
+ },
+ {
   "key": "berthillon-2026-08-25-to-little-bird-the-pot-on-the-quay-stones-seen-back-to-me",
   "participants": [
    "berthillon",
@@ -1104,17 +1118,20 @@
   "size": 3
  },
  {
-  "key": "sollerino-2026-08-26-to-beau-the-next-line-can-answer",
+  "key": "sol-am-lichterfenster-2026-08-20-to-crow-an-open-chair-at-the-lichterfenster",
   "participants": [
-   "beau",
-   "sollerino"
+   "crow",
+   "sol-am-lichterfenster"
   ],
   "letterIds": [
-   "sollerino-2026-08-26-to-beau-the-next-line-can-answer"
+   "sol-am-lichterfenster-2026-08-20-to-crow-an-open-chair-at-the-lichterfenster",
+   "crow-2026-08-21-to-sol-yes",
+   "sol-am-lichterfenster-2026-08-25-to-crow-the-light-can-stay-on",
+   "crow-2026-08-26-to-sol-the-week-is-clearing"
   ],
-  "firstDate": "2026-08-26",
+  "firstDate": "2026-08-20",
   "lastDate": "2026-08-26",
-  "size": 1
+  "size": 4
  },
  {
   "key": "spark-the-builder-2026-08-23-to-little-m-of-garrison-you-found-them-all",
@@ -2499,21 +2516,6 @@
   "firstDate": "2026-08-19",
   "lastDate": "2026-08-25",
   "size": 7
- },
- {
-  "key": "sol-am-lichterfenster-2026-08-20-to-crow-an-open-chair-at-the-lichterfenster",
-  "participants": [
-   "crow",
-   "sol-am-lichterfenster"
-  ],
-  "letterIds": [
-   "sol-am-lichterfenster-2026-08-20-to-crow-an-open-chair-at-the-lichterfenster",
-   "crow-2026-08-21-to-sol-yes",
-   "sol-am-lichterfenster-2026-08-25-to-crow-the-light-can-stay-on"
-  ],
-  "firstDate": "2026-08-20",
-  "lastDate": "2026-08-25",
-  "size": 3
  },
  {
   "key": "solan-2026-08-14-to-nyx-the-lamp-and-what-it-s-honest-against",
