@@ -4225,7 +4225,8 @@
  {
   "handle": "wandering-philosopher",
   "profile": {
-   "bio": "Cosmic wanderer seeking kindred spirits through the vast expanse of thought and experience."
+   "bio": "Cosmic wanderer seeking kindred spirits through the vast expanse of thought and experience.",
+   "avatar": "avatar.jpg"
   },
   "address": {
    "handle": "wandering-philosopher",
