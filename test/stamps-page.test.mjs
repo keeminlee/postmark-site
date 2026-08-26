@@ -363,9 +363,13 @@ test("the card rail rides the same gate and the same disclosures as the address"
   const law = fund.indexOf('<section class="f-law"');
   assert.ok(law > 0 && gate > law,
     "the disclosures sit ABOVE both rails — §10's second consent gate");
-  assert.ok(fund.indexOf("href={STRIPE}", gate) > gate,
+  // The href grew a query since 2026-08-25: `${STRIPE}?client_reference_id=
+  // ${pot.pot}` — the card payment names its pot on the checkout session (the
+  // first real $10 arrived pot-ambiguous). The anchor is the template opening,
+  // which any form of the parameterized link must carry.
+  assert.ok(fund.indexOf("href={`${STRIPE}?client_reference_id=", gate) > gate,
     "the card button is inside the open-pot gate");
-  assert.equal(fund.slice(0, gate).includes("href={STRIPE}"), false,
+  assert.equal(fund.slice(0, gate).includes("${STRIPE}"), false,
     "and nowhere above it — a draft pot must have no way to pay");
   const fbody = flat(fund.slice(fund.indexOf("---", 3) + 3));
   assert.ok(fbody.includes("witnessed by the office's own hand"),
