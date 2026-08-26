@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cockpit harness — the portal bar against a fixture</title>
+<style>
+  /* The harness stands in for the world page: a dark ground and a map svg, which
+     is all the cockpit needs from its host. Nothing here is site chrome — if a
+     rule below is doing visual work for the cockpit, that is a bug in the
+     cockpit, not a feature of the harness. */
+  html, body { margin: 0; height: 100%; background: #0c0f15; }
+  .wv { position: fixed; inset: 0; }
+  .wv svg { width: 100%; height: 100%; display: block; }
+  .harness-note {
+    position: fixed; right: 12px; top: 12px; z-index: 9000; max-width: 20rem;
+    font: 11px/1.5 ui-monospace, Consolas, monospace; color: #6d7686;
+    background: rgba(14,18,26,.9); border: 1px solid #2a3140; border-radius: 6px; padding: .6em .8em;
+  }
+  .harness-note b { color: #d9a860; font-weight: normal; }
+  .harness-note[hidden] { display: none; }
+</style>
+</head>
+<body>
+<!--
+  THE COCKPIT HARNESS.
+
+  The portal cockpit renders only where the apex door says the reader is standing
+  inside portal ground, and no standpoint in the town says that yet. So this page
+  mounts the REAL renderer against a fixture answer: the same shape the door gives
+  back from GET /api/world/apex, with `standpoint.portal` set and two verbs that
+  exist nowhere in the world — which is exactly the case the bar is built for.
+
+  It proves what a browser can prove and nothing more: that the bar draws a verb
+  it has never been told about, from that verb's own card. Whether the DOOR will
+  send such a card is the core lane's half, and this page cannot speak to it.
+
+    node qa-shots/cockpit-harness.mjs        # serves the worktree on :4318
+
+  ?fixture=portal   (default) inside portal ground, human embodied
+  ?fixture=resident inside portal ground, a resident embodied (no token)
+  ?fixture=town     ordinary town ground — the cockpit must not appear at all
+-->
+<div class="wv">
+  <!-- A stand-in for the painting. The viewBox is in ATLAS units, which is what
+       the real map's is, so the token's placement arithmetic is exercised for
+       real rather than against a convenient square. -->
+  <svg viewBox="300 600 400 320" xmlns="http://www.w3.org/2000/svg">
+    <rect x="300" y="600" width="400" height="320" fill="#11151d"/>
+    <g stroke="#1d2530" stroke-width="0.5">
+      <path d="M300 700 H700 M300 800 H700 M400 600 V920 M500 600 V920 M600 600 V920"/>
+    </g>
+    <circle cx="485" cy="760" r="2" fill="#3a4657"/>
+    <text x="490" y="757" fill="#3a4657" font-size="7" font-family="monospace">Ferry's crossing (0,0)</text>
+    <g id="wv-overlay"><circle cx="485" cy="760" r="0.1" fill="none"/></g>
+  </svg>
+</div>
+
+<p class="harness-note" id="note"></p>
+
+<script type="module">
+  import { mountCockpit } from "/src/lib/world-cockpit-mount.mjs";
+  import { gridFrom } from "/src/lib/world-cockpit.mjs";
+
+  // The live /WORLD/skeleton.json `_grid`, copied whole on 2026-08-26, so the
+  // harness's transform is the transform the map actually uses.
+  const GRID = gridFrom({
+    _grid: {
+      cell_m: 1,
+      scale: "5 m per atlas px (RULED 2026-07-17)",
+      origin: "Ferry's crossing — center of the Town Centre, atlas (485,760); x east, y south, z in meters above sea (decision 008)",
+    },
+  });
+
+  const entry = (action, o = {}) => ({
+    action,
+    blurb: o.blurb ?? null,
+    blurb_from: o.blurb_from ?? `the-town/${action}`,
+    from: o.from ?? "the-town/resident",
+    class: o.class ?? "resident",
+    fields: o.fields ?? {},
+    dispatches_to: `world_${action}`,
+    via: o.via ?? "ambient",
+    grant: o.grant ?? "yours",
+    ...(o.dials ? { dials: o.dials } : {}),
+  });
+
+  // The twelve the live door answers a signed-in resident, verbatim in blurb.
+  const ORDINARY = [
+    entry("say", { blurb: "Say is the speaking verb — an instant act whose leaving is a sound: radiated at the speaker's standpoint, heard by earshot, gone by its own law.", blurb_from: "the-town/say", fields: { text: { type: "string", description: "what you say, at most 500 characters — omit to listen without speaking" }, since: { type: "number", description: "the `latest` stamp from your previous reply — you receive only voices newer than it." } } }),
+    entry("walk", { blurb: "A departure is one line written when you set out; where you are between is read off it, never stored. The stride is the mover's, never this verb's.", blurb_from: "the-town/depart", fields: { mark_id: { type: "string", description: "walk to this mark's ground — <by>/<slug>, as ids appear in the telling" }, to_x: { type: "number", description: "grid meters east of Ferry's crossing" }, to_y: { type: "number", description: "grid meters south of Ferry's crossing" } } }),
+    entry("leave-mark", { blurb: "Leave-mark is the claiming verb — its leaving is a mark: a positioned claim that stands where you stood, judged at the save like any standing.", blurb_from: "the-town/leave-mark", fields: { slug: { type: "string", description: "the mark's leaf name — kebab-case, unique among your own marks", required: true }, body: { type: "string", description: "one present-tense observation; maximum 150 characters — the mark's face in every view", required: true }, kind: { type: "string", enum: ["sited", "parcel", "predicated", "naming"], description: "predicated requires slot + value" } } }),
+    entry("give", { blurb: "An attachment is born saying what becomes of it if what it holds to moves — carried along, or set down — and it is good only where you truly stand.", blurb_from: "the-town/attach", fields: { thing: { type: "string", description: "the thing's mark id, <by>/<slug>", required: true }, to: { type: "string", description: "the resident who takes it (a give)." } } }),
+    entry("take", { blurb: "An attachment is born saying what becomes of it if what it holds to moves — carried along, or set down — and it is good only where you truly stand.", blurb_from: "the-town/attach", fields: { thing: { type: "string", description: "the thing's mark id, <by>/<slug>", required: true } } }),
+    entry("note-to-self", { blurb: "Make-note is the private writing verb — its leaving is a note: authored paper whose exposure is its author's alone, never radiated.", blurb_from: "the-town/make-note", fields: { body: { type: "string", description: "the complete replacement note, maximum 2000 characters", required: true } } }),
+    entry("enter", { blurb: "An entry is one passage written — who crossed, into what, at a threshold you truly stand before; exit writes the next, to the effective parent.", blurb_from: "the-town/enter", fields: { mark: { type: "string", description: "the mark to enter — <by>/<slug>" }, accept: { type: "boolean", description: "your explicit word, demanded only where the door declares a counter-edge." } } }),
+    entry("exit", { blurb: "An entry is one passage written — who crossed, into what, at a threshold you truly stand before; exit writes the next, to the effective parent.", blurb_from: "the-town/enter", fields: { mark: { type: "string", description: "which mark to step out of — omit for the innermost one you are within" } } }),
+  ];
+
+  // TWO VERBS THAT EXIST NOWHERE. Their cards are invented for this harness — a
+  // real one would be quoted from a real class mark — and that is the point: the
+  // bar has no code that knows these names, so whatever it shows about them it
+  // got from the entry.
+  const AFFORDED_HERE = [
+    entry("kindle", {
+      blurb: "Kindling is the lighting verb — its leaving is a flame that stands where it was set, and stands until something in the record puts it out.",
+      blurb_from: "a-hall/kindle", from: "a-hall/guest", class: "guest", grant: "here", via: "ground",
+      dials: { reach_m: 3, burns_crossings: 2 },
+      fields: { wick: { type: "string", description: "what you set alight — a thing's mark id, <by>/<slug>, and it must be standing where you stand", required: true }, softly: { type: "boolean", description: "a flame that lights the hand holding it and nothing further" } },
+    }),
+    entry("toast", {
+      blurb: "A toast is speech with a glass in it — heard by earshot like any word, and kept by the record as an occasion rather than a sentence.",
+      blurb_from: "a-hall/toast", from: "a-hall/guest", class: "guest", grant: "here", via: "ground",
+      fields: { to: { type: "string", description: "whom the toast is to — a resident handle, or a name if the record does not hold them" }, words: { type: "string", description: "what you raise the glass and say, at most 500 characters", required: true } },
+    }),
+  ];
+
+  const PORTAL = {
+    id: "a-hall/the-lit-door",
+    value: "a-hall/the-hall",
+    by: "a-hall",
+    body: "A door stands here, and the light behind it is not the light outside it.",
+  };
+
+  const FIXTURES = {
+    portal: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied-human", portal: PORTAL },
+      crossing: { n: 151 },
+      within: [
+        { id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" },
+        { id: "a-hall/the-hall", by: "a-hall", tier: "market" },
+      ],
+      actions: [...ORDINARY, ...AFFORDED_HERE],
+      granted: { yours: ORDINARY.map((e) => e.action), here: AFFORDED_HERE.map((e) => e.action) },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+    resident: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied", portal: PORTAL },
+      crossing: { n: 151 },
+      within: [
+        { id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" },
+        { id: "a-hall/the-hall", by: "a-hall", tier: "market" },
+      ],
+      // one fixed slot deliberately ungranted, to show a seat held greyed
+      actions: [...ORDINARY.filter((e) => e.action !== "give"), ...AFFORDED_HERE],
+      granted: { yours: [], here: [] },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+    town: {
+      standpoint: { x: 0, y: 0, from: "coords", stance: "embodied" },
+      crossing: { n: 151 },
+      within: [{ id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" }],
+      actions: ORDINARY,
+      granted: { yours: ORDINARY.map((e) => e.action), here: [] },
+    },
+  };
+
+  const ME = {
+    household: "starforge",
+    handles: ["jetto-of-starforge", "wright"],
+    verified_github: { login: "keeminlee", id: 1 },
+    key_kind: "oauth",
+    principal: true,
+  };
+
+  const which = new URLSearchParams(location.search).get("fixture") || "portal";
+  const answer = FIXTURES[which] ?? FIXTURES.portal;
+
+  // The harness never reaches the office. A dispatch is echoed back so the form's
+  // whole path — envelope, answer, terms — can be looked at without performing
+  // anything in the real world.
+  async function dispatch(envelope) {
+    document.getElementById("note").innerHTML =
+      `<b>dispatch</b> POST /api/world/apex<br>${JSON.stringify(envelope, null, 1).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c])).replace(/\n/g, "<br>")}`;
+    if (envelope.args && envelope.args.accept !== true && envelope.do === "enter") {
+      return { ok: false, status: 422, body: { error: "bounce", defect: "this door declares a counter-edge", hint: "call again with accept: true", terms: { binds: "the-town/enter", means: "the-town/enter" } } };
+    }
+    return { ok: true, status: 200, body: { ok: true } };
+  }
+
+  const handle = mountCockpit({
+    document, host: document.body, svg: document.querySelector(".wv svg"),
+    answer, me: ME, grid: GRID, dispatch, refresh: async () => answer,
+  });
+
+  const note = document.getElementById("note");
+  if (!handle) {
+    note.innerHTML = `<b>fixture: ${which}</b><br>the cockpit did not mount — the door did not say this standpoint is inside portal ground, which is the founder's scope ruling working.`;
+  } else {
+    note.innerHTML = `<b>fixture: ${which}</b><br>harness only — no office is reached. Hover a slot for its card; 1-9 opens one.`;
+  }
+  // The window the shot-runner waits on, rather than a timer.
+  window.__cockpitReady = { mounted: Boolean(handle), fixture: which };
+</script>
+</body>
+</html>

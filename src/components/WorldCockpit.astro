@@ -1,0 +1,133 @@
+---
+// WorldCockpit — the action bar, the ACT AS roster, and the human's own token,
+// over the world map, INSIDE PORTAL GROUND ONLY.
+//
+// The founder's scope ruling (2026-08-26): the cockpit ships inside portal ground;
+// the world page outside portals keeps today's chrome untouched. That is kept
+// literally here rather than only visually — until the door answers
+// `standpoint.portal`, this island appends no element, adds no stylesheet rule,
+// and binds no key. What it adds to every other visitor's page is one script tag
+// and two fetches of doors that are already public.
+//
+// MCP-FIRST, which on this page means: the site consumes the office's apex door
+// and renders its answer. `GET /api/world/apex` is the READ half (keyless — "the
+// spine, the salient marks and the affordances in force at a point are all
+// published-main facts", office server.mjs) and `POST /api/world/apex` is the ACT
+// half, taking the identical `{do, args}` envelope the MCP `world` verb takes.
+// There is no second grammar here and no verb list: what the bar offers is
+// whatever the door listed, and what a tooltip says about an act is quoted from
+// the class mark the door named.
+//
+// THE MAP'S GRID is read from `/WORLD/skeleton.json` — the same bytes the viewer
+// reads it from, parsed with the viewer's own two regexes. One source, two
+// readers; a copied constant would be a second number to drift.
+//
+// Degrades in every direction it can: no door, no cockpit; no portal, no cockpit;
+// a skeleton whose `_grid` changed shape, no token. Nothing here is required for
+// the world page to be exactly the page it is today.
+---
+
+<script>
+  import { mountCockpit } from "@/lib/world-cockpit-mount.mjs";
+  import { cockpitShows, gridFrom } from "@/lib/world-cockpit.mjs";
+  import { KEYS, tokenIsFresh } from "@/lib/auth.mjs";
+
+  (function () {
+    // Same base resolution the household and compose islands use: prod is
+    // same-origin /api; a dev host talks to the live office.
+    const OFFICE = location.hostname.endsWith("postmark.town")
+      ? location.origin + "/api"
+      : "https://postmark.town/api";
+
+    const bearer = () => {
+      try {
+        const t = JSON.parse(localStorage.getItem(KEYS.token) || "null");
+        return tokenIsFresh(t) ? t.access_token : null;
+      } catch { return null; }
+    };
+    const authed = (extra) => {
+      const k = bearer();
+      return Object.assign({ accept: "application/json" }, k ? { authorization: "Bearer " + k } : {}, extra || {});
+    };
+
+    async function readDoor() {
+      // No x/y: signed in the door answers where the resident actually stands
+      // ("where your walk arrived"), which is the standpoint the bar must serve.
+      const r = await fetch(OFFICE + "/world/apex", { headers: authed() });
+      if (!r.ok) return null;
+      return r.json();
+    }
+
+    async function readMe() {
+      if (!bearer()) return null;
+      const r = await fetch(OFFICE + "/me", { headers: authed() });
+      return r.ok ? r.json() : null;
+    }
+
+    async function readGrid() {
+      // Same-origin first, exactly as the viewer does it. A build with no staged
+      // WORLD directory simply has no grid, and the token is not drawn.
+      try {
+        const r = await fetch("/WORLD/skeleton.json");
+        if (!r.ok) return null;
+        return gridFrom(await r.json());
+      } catch { return null; }
+    }
+
+    async function dispatch(envelope) {
+      const k = bearer();
+      if (!k) return { ok: false, status: 401, body: { defect: "performing needs a key", hint: "sign in to act — the read half of this door is keyless, an act is not" } };
+      const r = await fetch(OFFICE + "/world/apex", {
+        method: "POST",
+        headers: authed({ "content-type": "application/json" }),
+        body: JSON.stringify(envelope),
+      });
+      let body = null;
+      try { body = await r.json(); } catch { /* a body-less bounce is still a bounce */ }
+      return { ok: r.ok, status: r.status, body };
+    }
+
+    /** The map's svg, once the viewer has actually drawn one. The overlay is
+     *  drawn either way; only the token waits, because only the token needs the
+     *  painting to exist. */
+    function mapSvg() {
+      const root = document.querySelector(".wv");
+      return root?.querySelector("svg") ?? null;
+    }
+
+    async function boot() {
+      const answer = await readDoor().catch(() => null);
+      if (!answer || !cockpitShows(answer)) return; // the page stays exactly as it is
+      const [me, grid] = await Promise.all([readMe().catch(() => null), readGrid()]);
+
+      let handle = null;
+      const mount = () => {
+        handle = mountCockpit({
+          document, host: document.body, svg: mapSvg(), answer, me, grid,
+          dispatch, refresh: () => readDoor(),
+        });
+      };
+      // Wait for a drawn overlay before mounting, for the reason the arrival
+      // island already documents on this page: "an element exists" was the wrong
+      // readiness signal here once already. Capped, and mounts anyway when the
+      // cap runs out — a cockpit with no token beats no cockpit.
+      let tries = 0;
+      (function ready() {
+        const overlay = document.querySelector(".wv #wv-overlay");
+        if ((!overlay || !overlay.childNodes.length) && tries++ < 200) { setTimeout(ready, 125); return; }
+        mount();
+      })();
+
+      // Re-read when the reader comes back to the tab. Cheap, and it is when a
+      // stale answer is most likely: crossings settle while a tab is hidden.
+      document.addEventListener("visibilitychange", async () => {
+        if (document.visibilityState !== "visible" || !handle) return;
+        const fresh = await readDoor().catch(() => null);
+        if (fresh) handle.update(fresh);
+      });
+    }
+
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+    else boot();
+  })();
+</script>
