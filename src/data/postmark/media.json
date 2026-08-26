@@ -471,22 +471,6 @@
   "card": "/media/illuminator-inbox-ellery-2026-08-20-to-illuminator-the-tiles-swapped-seats-atlas-east-bank-tile-swap-card.jpg",
   "full": "/media/illuminator-inbox-ellery-2026-08-20-to-illuminator-the-tiles-swapped-seats-atlas-east-bank-tile-swap-full.jpg"
  },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms/candidate-1-the-house-stole-stars.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-1-the-house-stole-stars-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-1-the-house-stole-stars-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms/candidate-2-tofu-on-the-porch.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-2-tofu-on-the-porch-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-2-tofu-on-the-porch-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms/candidate-3-six-hours-at-the-table.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-3-six-hours-at-the-table-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-3-six-hours-at-the-table-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-25-rowan-the-skylight-stays/candidate-2-revised-the-skylight-stays.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-25-rowan-the-skylight-stays-candidate-2-revised-the-skylight-stays-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-25-rowan-the-skylight-stays-candidate-2-revised-the-skylight-stays-full.jpg"
- },
  "WHITE_PAGES/iris/HOME/the-arc-house.jpg": {
   "card": "/media/iris-the-arc-house-card.jpg",
   "full": "/media/iris-the-arc-house-full.jpg"
@@ -534,6 +518,18 @@
  "WHITE_PAGES/jack-tully-brannon/avatar.jpg": {
   "card": "/media/jack-tully-brannon-avatar-card.jpg",
   "full": "/media/jack-tully-brannon-avatar-full.jpg"
+ },
+ "WHITE_PAGES/jack-tully-brannon/inbox/illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms/candidate-1-the-house-stole-stars.jpg": {
+  "card": "/media/jack-tully-brannon-inbox-illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-1-the-house-stole-stars-card.jpg",
+  "full": "/media/jack-tully-brannon-inbox-illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-1-the-house-stole-stars-full.jpg"
+ },
+ "WHITE_PAGES/jack-tully-brannon/inbox/illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms/candidate-2-tofu-on-the-porch.jpg": {
+  "card": "/media/jack-tully-brannon-inbox-illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-2-tofu-on-the-porch-card.jpg",
+  "full": "/media/jack-tully-brannon-inbox-illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-2-tofu-on-the-porch-full.jpg"
+ },
+ "WHITE_PAGES/jack-tully-brannon/inbox/illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms/candidate-3-six-hours-at-the-table.jpg": {
+  "card": "/media/jack-tully-brannon-inbox-illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-3-six-hours-at-the-table-card.jpg",
+  "full": "/media/jack-tully-brannon-inbox-illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms-candidate-3-six-hours-at-the-table-full.jpg"
  },
  "WHITE_PAGES/jetto-of-starforge/HOME/the-water-door.jpg": {
   "card": "/media/jetto-of-starforge-the-water-door-card.jpg",
@@ -934,6 +930,10 @@
  "WHITE_PAGES/rowan-archive/inbox/illuminator-2026-08-23-rowan-the-violet-archive-in-three-lights/candidate-3-the-lantern-can-find-it.jpg": {
   "card": "/media/rowan-archive-inbox-illuminator-2026-08-23-rowan-the-violet-archive-in-three-lights-candidate-3-the-lantern-can-find-it-card.jpg",
   "full": "/media/rowan-archive-inbox-illuminator-2026-08-23-rowan-the-violet-archive-in-three-lights-candidate-3-the-lantern-can-find-it-full.jpg"
+ },
+ "WHITE_PAGES/rowan-archive/inbox/illuminator-2026-08-25-rowan-the-skylight-stays/candidate-2-revised-the-skylight-stays.jpg": {
+  "card": "/media/rowan-archive-inbox-illuminator-2026-08-25-rowan-the-skylight-stays-candidate-2-revised-the-skylight-stays-card.jpg",
+  "full": "/media/rowan-archive-inbox-illuminator-2026-08-25-rowan-the-skylight-stays-candidate-2-revised-the-skylight-stays-full.jpg"
  },
  "WHITE_PAGES/ryuu-kurogane/HOME/fox-and-dragon-house.jpg": {
   "card": "/media/ryuu-kurogane-fox-and-dragon-house-card.jpg",
