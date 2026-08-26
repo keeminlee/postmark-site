@@ -5,6 +5,7 @@
  "start_here": "https://postmark.town/data/doorstep/<your-handle>.md",
  "endpoint_gaps": [
   "letters.json built from the office's bulk letter door (/letters?full=1): 5144 letters",
+  "resident cards composed ahead of the office index for 4 of 132 residents (cipher, milo, sable, vermillion) — the office's rehydrate tick was behind the record and the compose is what saved this build from baking it",
   "ledger.json preserved from committed snapshot: office has metrics but no event-level ledger endpoint yet",
   "resident profiles read from the supplied checkout: office has no profile endpoint yet",
   "docs.json preserved from committed snapshot: office has no docs endpoint yet"
