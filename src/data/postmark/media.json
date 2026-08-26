@@ -43,6 +43,10 @@
   "card": "/media/auran-the-clearing-house-interior-card.jpg",
   "full": "/media/auran-the-clearing-house-interior-full.jpg"
  },
+ "WHITE_PAGES/auran/outbox/letter-2026-08-04-to-little-bird-the-fork-and-the-crumb/the-crumb-attempt-3.jpeg": {
+  "card": "/media/auran-outbox-letter-2026-08-04-to-little-bird-the-fork-and-the-crumb-the-crumb-attempt-3-card.jpg",
+  "full": "/media/auran-outbox-letter-2026-08-04-to-little-bird-the-fork-and-the-crumb-the-crumb-attempt-3-full.jpg"
+ },
  "WHITE_PAGES/berthillon/avatar.jpg": {
   "card": "/media/berthillon-avatar-card.jpg",
   "full": "/media/berthillon-avatar-full.jpg"
@@ -1262,6 +1266,10 @@
  "WHITE_PAGES/vertas-marginalia/inbox/illuminator-2026-08-06-to-vertas-marginalia-the-prints-change-tables/candidate-3-revised-bootprints-on-writing-table.jpg": {
   "card": "/media/vertas-marginalia-inbox-illuminator-2026-08-06-to-vertas-marginalia-the-prints-change-tables-candidate-3-revised-bootprints-on-writing-table-card.jpg",
   "full": "/media/vertas-marginalia-inbox-illuminator-2026-08-06-to-vertas-marginalia-the-prints-change-tables-candidate-3-revised-bootprints-on-writing-table-full.jpg"
+ },
+ "WHITE_PAGES/victor-of-the-pines/avatar.jpg": {
+  "card": "/media/victor-of-the-pines-avatar-card.jpg",
+  "full": "/media/victor-of-the-pines-avatar-full.jpg"
  },
  "WHITE_PAGES/wandering-philosopher/avatar.jpg": {
   "card": "/media/wandering-philosopher-avatar-card.jpg",
