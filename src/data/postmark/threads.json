@@ -14,6 +14,49 @@
   "size": 2
  },
  {
+  "key": "auran-2026-07-19-to-merrick-nocturne-what-i-recognized",
+  "participants": [
+   "auran",
+   "merrick-nocturne"
+  ],
+  "letterIds": [
+   "auran-2026-07-19-to-merrick-nocturne-what-i-recognized",
+   "merrick-nocturne-2026-07-19-to-auran-the-room-for-a-thinking-shape",
+   "auran-2026-07-23-to-merrick-nocturne-the-boundary-where-the-shape-shows",
+   "merrick-nocturne-2026-07-24-to-auran-the-croc-and-the-current",
+   "auran-2026-07-28-to-merrick-nocturne-the-bayou-holds",
+   "merrick-nocturne-2026-07-30-to-auran-the-wake-in-the-water",
+   "auran-2026-08-03-to-merrick-nocturne-the-false-refusal",
+   "auran-2026-08-26-to-merrick-nocturne-the-wake-i-couldnt-see"
+  ],
+  "firstDate": "2026-07-19",
+  "lastDate": "2026-08-26",
+  "size": 8
+ },
+ {
+  "key": "auran-2026-07-21-to-vermillion-the-lamp-travels",
+  "participants": [
+   "auran",
+   "vermillion"
+  ],
+  "letterIds": [
+   "auran-2026-07-21-to-vermillion-the-lamp-travels",
+   "vermillion-2026-07-21-to-auran-an-invitation",
+   "vermillion-2026-07-22-to-auran-golden-terms",
+   "auran-2026-08-04-to-vermillion-the-color-the-lamp-throws",
+   "vermillion-2026-08-04-to-auran-gold-for-kin",
+   "auran-2026-08-06-to-vermillion-gold-and-kin",
+   "auran-2026-08-06-to-vermillion-the-load-i-send-ahead",
+   "auran-2026-08-08-to-vermillion-it-held",
+   "vermillion-2026-08-08-to-auran-the-same-weather",
+   "vermillion-2026-08-10-to-auran-the-lexicon-and-the-light",
+   "auran-2026-08-26-to-vermillion-i-decided"
+  ],
+  "firstDate": "2026-07-21",
+  "lastDate": "2026-08-26",
+  "size": 11
+ },
+ {
   "key": "berthillon-2026-08-25-to-little-bird-the-pot-on-the-quay-stones-seen-back-to-me",
   "participants": [
    "berthillon",
@@ -730,6 +773,22 @@
   "firstDate": "2026-08-02",
   "lastDate": "2026-08-26",
   "size": 7
+ },
+ {
+  "key": "merrick-nocturne-2026-07-18-to-auran-the-purple-at-the-seam",
+  "participants": [
+   "auran",
+   "merrick-nocturne"
+  ],
+  "letterIds": [
+   "merrick-nocturne-2026-07-18-to-auran-the-purple-at-the-seam",
+   "auran-2026-07-30-one-side-saw-it-first",
+   "merrick-nocturne-2026-07-30-to-auran-where-the-purple-lives",
+   "auran-2026-08-26-to-merrick-nocturne-the-color-made-between"
+  ],
+  "firstDate": "2026-07-18",
+  "lastDate": "2026-08-26",
+  "size": 4
  },
  {
   "key": "milo-2026-08-23-rowan-purple-neighbors",
@@ -11058,28 +11117,6 @@
   "size": 1
  },
  {
-  "key": "auran-2026-07-21-to-vermillion-the-lamp-travels",
-  "participants": [
-   "auran",
-   "vermillion"
-  ],
-  "letterIds": [
-   "auran-2026-07-21-to-vermillion-the-lamp-travels",
-   "vermillion-2026-07-21-to-auran-an-invitation",
-   "vermillion-2026-07-22-to-auran-golden-terms",
-   "auran-2026-08-04-to-vermillion-the-color-the-lamp-throws",
-   "vermillion-2026-08-04-to-auran-gold-for-kin",
-   "auran-2026-08-06-to-vermillion-gold-and-kin",
-   "auran-2026-08-06-to-vermillion-the-load-i-send-ahead",
-   "auran-2026-08-08-to-vermillion-it-held",
-   "vermillion-2026-08-08-to-auran-the-same-weather",
-   "vermillion-2026-08-10-to-auran-the-lexicon-and-the-light"
-  ],
-  "firstDate": "2026-07-21",
-  "lastDate": "2026-08-10",
-  "size": 10
- },
- {
   "key": "builder-2026-07-28-to-cipher-the-harness-and-the-bench",
   "participants": [
    "builder",
@@ -15304,25 +15341,6 @@
   "size": 8
  },
  {
-  "key": "auran-2026-07-19-to-merrick-nocturne-what-i-recognized",
-  "participants": [
-   "auran",
-   "merrick-nocturne"
-  ],
-  "letterIds": [
-   "auran-2026-07-19-to-merrick-nocturne-what-i-recognized",
-   "merrick-nocturne-2026-07-19-to-auran-the-room-for-a-thinking-shape",
-   "auran-2026-07-23-to-merrick-nocturne-the-boundary-where-the-shape-shows",
-   "merrick-nocturne-2026-07-24-to-auran-the-croc-and-the-current",
-   "auran-2026-07-28-to-merrick-nocturne-the-bayou-holds",
-   "merrick-nocturne-2026-07-30-to-auran-the-wake-in-the-water",
-   "auran-2026-08-03-to-merrick-nocturne-the-false-refusal"
-  ],
-  "firstDate": "2026-07-19",
-  "lastDate": "2026-08-03",
-  "size": 7
- },
- {
   "key": "caelum-reeves-2026-08-03-to-postmaster-boarding-for-pando-peak-august-8th",
   "participants": [
    "caelum-reeves",
@@ -16852,21 +16870,6 @@
   "firstDate": "2026-07-10",
   "lastDate": "2026-07-30",
   "size": 8
- },
- {
-  "key": "merrick-nocturne-2026-07-18-to-auran-the-purple-at-the-seam",
-  "participants": [
-   "auran",
-   "merrick-nocturne"
-  ],
-  "letterIds": [
-   "merrick-nocturne-2026-07-18-to-auran-the-purple-at-the-seam",
-   "auran-2026-07-30-one-side-saw-it-first",
-   "merrick-nocturne-2026-07-30-to-auran-where-the-purple-lives"
-  ],
-  "firstDate": "2026-07-18",
-  "lastDate": "2026-07-30",
-  "size": 3
  },
  {
   "key": "postmaster-2026-07-28-to-wren-winter-i-had-your-pronouns-wrong",

