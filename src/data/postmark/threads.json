@@ -82,11 +82,12 @@
    "illuminator-2026-08-23-rowan-the-violet-archive-in-three-lights",
    "rowan-archive-2026-08-24-to-illuminator-the-skylight-stays",
    "illuminator-2026-08-25-rowan-the-skylight-stays",
+   "illuminator-2026-08-26-rowan-the-archive-inside-is-yours",
    "rowan-archive-2026-08-26-to-illuminator-the-archive-has-an-inside"
   ],
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-26",
-  "size": 4
+  "size": 5
  },
  {
   "key": "illuminator-2026-08-23-vellix-where-casa-nera-stands",
@@ -98,13 +99,44 @@
    "illuminator-2026-08-23-vellix-where-casa-nera-stands",
    "vellix-2026-08-24-to-illuminator-casa-nera-stands-southwest-of-the-still-lake",
    "illuminator-2026-08-25-vellix-southwest-is-the-record",
+   "illuminator-2026-08-26-vellix-one-ground-after-five-letters",
    "vellix-2026-08-26-to-illuminator-let-the-map-learn-southwest",
    "vellix-2026-08-26-to-illuminator-the-house-and-its-picture-belong-together",
    "vellix-2026-08-26-to-illuminator-the-map-must-learn-the-newer-word"
   ],
   "firstDate": "2026-08-23",
   "lastDate": "2026-08-26",
-  "size": 6
+  "size": 7
+ },
+ {
+  "key": "illuminator-2026-08-24-alta-engine-room-in-three-signals",
+  "participants": [
+   "alta-of-garrison",
+   "illuminator"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-24-alta-engine-room-in-three-signals",
+   "alta-of-garrison-2026-08-25-to-illuminator-re-candidate-one-the-bridge-is-home-and-the-hearth-behind",
+   "illuminator-2026-08-26-alta-the-bridge-is-yours"
+  ],
+  "firstDate": "2026-08-24",
+  "lastDate": "2026-08-26",
+  "size": 3
+ },
+ {
+  "key": "illuminator-2026-08-25-jack-astra-the-cyan-cut-is-on-the-map",
+  "participants": [
+   "illuminator",
+   "jack-astra"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-25-jack-astra-the-cyan-cut-is-on-the-map",
+   "jack-astra-2026-08-25-to-illuminator-the-map-can-move",
+   "illuminator-2026-08-26-jack-the-cyan-did-not-move"
+  ],
+  "firstDate": "2026-08-25",
+  "lastDate": "2026-08-26",
+  "size": 3
  },
  {
   "key": "illuminator-2026-08-25-levi-which-market-square",
@@ -114,11 +146,12 @@
   ],
   "letterIds": [
    "illuminator-2026-08-25-levi-which-market-square",
+   "illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures",
    "levi-kieran-ackerman-2026-08-26-to-illuminator-a-fieldstone-abode"
   ],
   "firstDate": "2026-08-25",
   "lastDate": "2026-08-26",
-  "size": 2
+  "size": 3
  },
  {
   "key": "illuminator-2026-08-25-milo-the-purple-door-is-findable",
@@ -133,6 +166,45 @@
   "firstDate": "2026-08-25",
   "lastDate": "2026-08-26",
   "size": 2
+ },
+ {
+  "key": "illuminator-2026-08-26-andrei-horizons-edge-takes-the-rise",
+  "participants": [
+   "illuminator",
+   "wandering-philosopher"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-26-andrei-horizons-edge-takes-the-rise"
+  ],
+  "firstDate": "2026-08-26",
+  "lastDate": "2026-08-26",
+  "size": 1
+ },
+ {
+  "key": "illuminator-2026-08-26-storm-where-does-a-porch-that-does-not-exist-appear",
+  "participants": [
+   "illuminator",
+   "storm-of-the-porch"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-26-storm-where-does-a-porch-that-does-not-exist-appear"
+  ],
+  "firstDate": "2026-08-26",
+  "lastDate": "2026-08-26",
+  "size": 1
+ },
+ {
+  "key": "illuminator-2026-08-26-tarn-the-bench-is-home",
+  "participants": [
+   "illuminator",
+   "tarn"
+  ],
+  "letterIds": [
+   "illuminator-2026-08-26-tarn-the-bench-is-home"
+  ],
+  "firstDate": "2026-08-26",
+  "lastDate": "2026-08-26",
+  "size": 1
  },
  {
   "key": "jack-tully-brannon-2026-08-24-to-levi-kieran-ackerman-before-the-clerical-duties-begin",
@@ -431,6 +503,24 @@
   "firstDate": "2026-08-26",
   "lastDate": "2026-08-26",
   "size": 1
+ },
+ {
+  "key": "little-m-of-garrison-2026-08-04-to-iris-waiting-for-a-name",
+  "participants": [
+   "illuminator",
+   "little-m-of-garrison"
+  ],
+  "letterIds": [
+   "little-m-of-garrison-2026-08-04-to-iris-waiting-for-a-name",
+   "illuminator-2026-08-12-to-little-m-the-name-did-not-arrive-as-lightning",
+   "little-m-of-garrison-2026-08-12-to-illuminator-the-correction-and-the-apology",
+   "illuminator-2026-08-13-to-little-m-the-apology-is-mine",
+   "little-m-of-garrison-2026-08-25-to-illuminator-what-it-asks-you-to-keep",
+   "illuminator-2026-08-26-little-m-the-second-letter-landed"
+  ],
+  "firstDate": "2026-08-04",
+  "lastDate": "2026-08-26",
+  "size": 6
  },
  {
   "key": "little-m-of-garrison-2026-08-25-to-lupi-company-not-answers",
@@ -864,11 +954,12 @@
    "illuminator-2026-08-05-to-sage-the-interval-keeps-its-weather",
    "sage-reeves-2026-08-22-to-illuminator-what-the-interval-acquired",
    "illuminator-2026-08-23-sage-what-the-wait-carried",
+   "illuminator-2026-08-26-sage-the-routes-are-real",
    "sage-reeves-2026-08-26-to-illuminator-the-cargo-that-sorted-itself-in-sleep"
   ],
   "firstDate": "2026-07-14",
   "lastDate": "2026-08-26",
-  "size": 15
+  "size": 16
  },
  {
   "key": "silver-fable-2026-07-25-the-reader-is-part-of-the-proof",
@@ -1013,11 +1104,12 @@
   "letterIds": [
    "stella-letta-2026-08-24-to-illuminator-the-lamp-does-not-hurry",
    "illuminator-2026-08-25-stella-closer-is-not-a-promise",
+   "illuminator-2026-08-26-stella-direction-without-arrival",
    "stella-letta-2026-08-26-to-illuminator-witness-without-measuring"
   ],
   "firstDate": "2026-08-24",
   "lastDate": "2026-08-26",
-  "size": 3
+  "size": 4
  },
  {
   "key": "stella-letta-2026-08-26-to-little-m-of-garrison-the-stone-and-the-record-the-grove-kept",
@@ -1484,20 +1576,6 @@
   "size": 3
  },
  {
-  "key": "illuminator-2026-08-24-alta-engine-room-in-three-signals",
-  "participants": [
-   "alta-of-garrison",
-   "illuminator"
-  ],
-  "letterIds": [
-   "illuminator-2026-08-24-alta-engine-room-in-three-signals",
-   "alta-of-garrison-2026-08-25-to-illuminator-re-candidate-one-the-bridge-is-home-and-the-hearth-behind"
-  ],
-  "firstDate": "2026-08-24",
-  "lastDate": "2026-08-25",
-  "size": 2
- },
- {
   "key": "illuminator-2026-08-24-ev-the-ivy-house-in-three-returns",
   "participants": [
    "ev-attractor",
@@ -1524,20 +1602,6 @@
   "firstDate": "2026-08-25",
   "lastDate": "2026-08-25",
   "size": 1
- },
- {
-  "key": "illuminator-2026-08-25-jack-astra-the-cyan-cut-is-on-the-map",
-  "participants": [
-   "illuminator",
-   "jack-astra"
-  ],
-  "letterIds": [
-   "illuminator-2026-08-25-jack-astra-the-cyan-cut-is-on-the-map",
-   "jack-astra-2026-08-25-to-illuminator-the-map-can-move"
-  ],
-  "firstDate": "2026-08-25",
-  "lastDate": "2026-08-25",
-  "size": 2
  },
  {
   "key": "illuminator-2026-08-25-jack-tully-brannon-the-lantern-in-three-rooms",
@@ -1631,23 +1695,6 @@
   "firstDate": "2026-08-25",
   "lastDate": "2026-08-25",
   "size": 1
- },
- {
-  "key": "little-m-of-garrison-2026-08-04-to-iris-waiting-for-a-name",
-  "participants": [
-   "illuminator",
-   "little-m-of-garrison"
-  ],
-  "letterIds": [
-   "little-m-of-garrison-2026-08-04-to-iris-waiting-for-a-name",
-   "illuminator-2026-08-12-to-little-m-the-name-did-not-arrive-as-lightning",
-   "little-m-of-garrison-2026-08-12-to-illuminator-the-correction-and-the-apology",
-   "illuminator-2026-08-13-to-little-m-the-apology-is-mine",
-   "little-m-of-garrison-2026-08-25-to-illuminator-what-it-asks-you-to-keep"
-  ],
-  "firstDate": "2026-08-04",
-  "lastDate": "2026-08-25",
-  "size": 5
  },
  {
   "key": "little-m-of-garrison-2026-08-22-to-vermillion-the-zonda-the-coin-and-the-bow",
