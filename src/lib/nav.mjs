@@ -68,6 +68,39 @@
 // structural sort produces the first rail; this is the second, and the
 // difference between them is the whole point.
 //
+// ── AND THE ORDER IS THE OLD ORDER (founder, same sitting, ruled separately) ──
+//
+//   "note that the top rail order should just be what it was before, with
+//    Ferry's Daily replaced with The Town."
+//
+// The rail that stood before the trinity re-org, verbatim from the hand-kept
+// array it replaced (`PostmarkLayout.astro` at 1e215c3a4~1):
+//
+//   Postmark · Ferry's Daily · The World · The Mail · Harbor · Residents ·
+//   The Works · Stamps · Join
+//
+// Apply his substitution and the ruling resolves itself, with one seat falling
+// out for a reason he had already given in the same sitting: The Works lives in
+// The Town's row now ("the Town can keep ferry's daily, the bulletin, the
+// ballot, and the works"), so it is not a top-rail seat to re-order. That
+// leaves:
+//
+//   Postmark · The Town · The World · The Mail · Harbor · Residents · Stamps ·
+//   Join
+//
+// Note what this ruling is NOT. It is not "put the world back ahead of the
+// town" — the substitution puts The Town exactly where Ferry's Daily stood,
+// which is still ahead of The World, so his earlier "the town comes before the
+// world" survives untouched and is still asserted on its own.
+//
+// The lane that lifted the three seats had ordered them by an argument of its
+// own — the three lifted seats grouped together after The Town — and that was
+// an ASSUMPTION, flagged as one, and he answered it. Worth keeping in view:
+// the old order was not arbitrary, and going back to it recovered the
+// Harbor-beside-the-Mail adjacency whose reason was written down in the rail
+// this file replaced. An order picked on purpose carries reasons that a re-sort
+// silently spends.
+//
 // THE THREE LIFTED SEATS CARRY NO CHIP ROW, and that is what exists rather than
 // a choice to keep rows short. Their families were emptied by the founder's own
 // earlier rulings, in the same week: the windows and the meeps came off
@@ -213,38 +246,6 @@ export const RAIL = [
     ],
   },
 
-  // RESIDENTS — lifted back to the top rail, "because the site is for humans,
-  // and for humans, the residents and the mail are important to get across what
-  // postmark is all about" (founder, 2026-08-25).
-  //
-  // No chip row: the windows and the meeps were struck from it earlier the same
-  // day and the meeps has now gone to The Town, so the family is the directory
-  // itself plus every resident's own page — and those are content, not chrome.
-  //
-  // `alsoKey` is what is left of the retired Your House seat, and it is the half
-  // worth keeping. /households/<slug>/ answers to `household`, which is no
-  // seat's key; before this it was rescued by the Your House seat's second key,
-  // and with that seat gone the page would light nothing at all — a reader deep
-  // in a house, with the whole rail dark. A household is a household OF
-  // residents, so this is where it belongs now that there is a Residents seat
-  // to belong to.
-  { key: "residents", label: "Residents", href: "/residents/", alsoKey: "household" },
-
-  // THE MAIL — lifted with Residents, same sentence, same reason. Its family is
-  // /mail/<thread>/, /mail/with/<pair>/ and the two rooms the founder struck
-  // from its row by name (returned to sender, write a letter). All four claim
-  // `mail`, so they light this seat; none is a chip, by his ruling.
-  { key: "mail", label: "The Mail", href: "/mail/" },
-
-  // STAMPS — "and Stamps are... well, important to keeping Postmark going."
-  // Keeps the beta chip it wore as a member: the honesty marker survives the
-  // promotion, which is exactly what it nearly failed to do when it was demoted.
-  // /fund/<pot> is NOT in this seat's family by design — it is quiet-launch and
-  // says so in its own header ("reachable, and NOT in the nav"), so a chip row
-  // here would publish the money surface the town deliberately has not
-  // published. Flagged rather than built.
-  { key: "stamps", label: "Stamps", href: "/stamps/", beta: true },
-
   // NO SECOND ROW ANYWHERE IN THE TOWN — founder, 2026-08-25: "no subpage
   // removes the town level subrail and replaces with its own." Residents and
   // the mail each grew a `chips:` row in the chip wave, so standing on
@@ -296,9 +297,48 @@ export const RAIL = [
     ],
   },
 
+  // THE MAIL — lifted with Residents, same sentence, same reason. Its family is
+  // /mail/<thread>/, /mail/with/<pair>/ and the two rooms the founder struck
+  // from its row by name (returned to sender, write a letter). All four claim
+  // `mail`, so they light this seat; none is a chip, by his ruling.
+  { key: "mail", label: "The Mail", href: "/mail/" },
+
   // The Harbor is the mail's outward half — the towns Postmark connects, and
   // what crosses between them. It stays top-level as a future apex of its own.
+  //
+  // AND IT SITS BESIDE THE MAIL AGAIN, which is the quiet dividend of restoring
+  // the old order. The rail this replaced had these two adjacent for a reason
+  // written down at the time — "the Harbor sits next to the Mail because it IS
+  // the mail's outward half" — and the trinity re-org separated them without
+  // ever deciding to. Going back to the order that was picked on purpose
+  // recovered a rationale nobody had noticed was lost.
   { key: "harbor", label: "Harbor", href: HARBOR, external: true, beta: true },
+
+  // RESIDENTS — lifted back to the top rail, "because the site is for humans,
+  // and for humans, the residents and the mail are important to get across what
+  // postmark is all about" (founder, 2026-08-25).
+  //
+  // No chip row: the windows and the meeps were struck from it earlier the same
+  // day and the meeps has now gone to The Town, so the family is the directory
+  // itself plus every resident's own page — and those are content, not chrome.
+  //
+  // `alsoKey` is what is left of the retired Your House seat, and it is the half
+  // worth keeping. /households/<slug>/ answers to `household`, which is no
+  // seat's key; before this it was rescued by the Your House seat's second key,
+  // and with that seat gone the page would light nothing at all — a reader deep
+  // in a house, with the whole rail dark. A household is a household OF
+  // residents, so this is where it belongs now that there is a Residents seat
+  // to belong to.
+  { key: "residents", label: "Residents", href: "/residents/", alsoKey: "household" },
+
+  // STAMPS — "and Stamps are... well, important to keeping Postmark going."
+  // Keeps the beta chip it wore as a member: the honesty marker survives the
+  // promotion, which is exactly what it nearly failed to do when it was demoted.
+  // /fund/<pot> is NOT in this seat's family by design — it is quiet-launch and
+  // says so in its own header ("reachable, and NOT in the nav"), so a chip row
+  // here would publish the money surface the town deliberately has not
+  // published. Flagged rather than built.
+  { key: "stamps", label: "Stamps", href: "/stamps/", beta: true },
 
   // JOIN — the lantern-lit door, and ONE face now.
   //

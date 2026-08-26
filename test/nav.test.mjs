@@ -266,8 +266,11 @@ test("THE TOP RAIL IS FOR HUMANS — Residents, the Mail and Stamps are lifted b
   // pulling them down was structural (they are rooms of the town) and the
   // argument for lifting them back is a reader's (they are what the town IS).
   // The reader's argument wins, and that is the transferable part.
-  assert.deepEqual(RAIL.map((s) => s.key),
-    ["postmark", "town", "residents", "mail", "stamps", "world", "harbor", "join"],
+  // MEMBERSHIP is this test's claim; ORDER is ruled separately and asserted in
+  // its own test below, so a re-order cannot pass by agreeing with only half of
+  // either ruling.
+  assert.deepEqual([...RAIL.map((s) => s.key)].sort(),
+    ["harbor", "join", "mail", "postmark", "residents", "stamps", "town", "world"],
     `the rail reads: ${RAIL.map((s) => s.label).join(" · ")}`);
 
   // the three by name, each a SEAT and no longer a chip of The Town
@@ -294,6 +297,47 @@ test("THE TOP RAIL IS FOR HUMANS — Residents, the Mail and Stamps are lifted b
   // and the rest genuinely IS carried below — seats naming nothing else would
   // pass the list and fail the reader
   assert.ok(allEntries().length > RAIL.length + 4, "the sections carry almost nothing; the chip rows are empty");
+});
+
+test("THE ORDER IS THE OLD ORDER, with Ferry's Daily replaced by The Town", () => {
+  //   "note that the top rail order should just be what it was before, with
+  //    Ferry's Daily replaced with The Town."
+  //                                              — the founder, 2026-08-25
+  //
+  // The rail before the trinity re-org, read off the hand-kept array this file's
+  // subject replaced (`PostmarkLayout.astro` at 1e215c3a4~1) rather than off
+  // anyone's memory of it:
+  //
+  //   Postmark · Ferry's Daily · The World · The Mail · Harbor · Residents ·
+  //   The Works · Stamps · Join
+  //
+  // Substitute, and drop The Works because he had already put it inside The
+  // Town's row in the same sitting. That is the whole derivation, and it is
+  // written here because the ORDER of a rail is the one property with no
+  // internal logic to re-derive it from — get it wrong and everything still
+  // resolves, every seat still lights, and only the founder can tell.
+  assert.deepEqual(RAIL.map((s) => s.key),
+    ["postmark", "town", "world", "mail", "harbor", "residents", "stamps", "join"],
+    `the rail reads: ${RAIL.map((s) => s.label).join(" · ")}`);
+
+  // THE SUBSTITUTION, stated as itself: whatever stands second is the seat that
+  // leads where Ferry's Daily used to lead.
+  assert.equal(RAIL[1].key, "town", "the second seat is no longer The Town");
+  assert.equal(RAIL[1].href, "/daily/",
+    "The Town no longer stands where Ferry's Daily stood — the substitution is undone");
+
+  // and The Works is not a seat, because it is a chip (his own earlier ruling,
+  // and the reason the old rail's ninth entry has no successor here)
+  assert.equal(RAIL.some((s) => s.key === "works"), false,
+    "The Works came back to the top rail; it lives in The Town's row");
+
+  // THE HARBOR IS BESIDE THE MAIL AGAIN. The old rail put them adjacent with the
+  // reason written next to them — "the Harbor sits next to the Mail because it
+  // IS the mail's outward half" — and the re-org separated them without ever
+  // deciding to. Asserted so a future re-sort has to break it on purpose.
+  const keys = RAIL.map((s) => s.key);
+  assert.equal(keys.indexOf("harbor") - keys.indexOf("mail"), 1,
+    "the Harbor left the Mail's side; the old rail had them adjacent for a stated reason");
 });
 
 test("THE TOWN KEEPS THE FOUNDER'S OWN LIST, and the meeps is back in it", () => {
