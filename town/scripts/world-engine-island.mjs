@@ -9,29 +9,66 @@
 // middleware in `astro dev`. So world.astro can emit spectator/index.html verbatim
 // and its `import "/world-engine/spectator/viewer.mjs"` resolves in both.
 //
-// If the postmark-world pin lacks spectator/viewer.mjs (pre-bump), the copy warns
-// and skips — the page still builds; the island viewer just won't load until the
-// dependency is bumped (Wright's step).
+// A PIN THAT CANNOT SERVE THIS BUILD FAILS IT. Until 2026-08-26 a package with
+// no spectator/viewer.mjs warned and skipped — the page built green and rendered
+// nothing — and a record file the package did not carry warned too, which is how
+// WORLD/walk-ledger.md 404'd in production for weeks while every build passed.
+// Both are hard failures now; `tools/lib/world-staging.mjs` carries the reasons.
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, extname } from "node:path";
+import { dirname, join, extname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { houseName } from "../../src/lib/houses.mjs";
 import { REPLAY_DIR, replayFiles } from "./replay-record.mjs";
+import { recordsToStage, stagingComplaints, stagingFailure } from "../../tools/lib/world-staging.mjs";
 
 const META_PATH = "/world-engine/residents-meta.json";
 
 const MIME = { ".mjs": "text/javascript; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8" };
-const RECORD_FILES = [
-  "WORLD/world-state.json",
-  "WORLD/skeleton.json",
-  "seeding/manifest.json",
-  // which marks the keeper has blessed — the viewer reads it to say what has
-  // been published, and it is staged like any other record file
-  "WORLD/settlement-publications.json",
-  // the crossings — occupancy (who is inside what) derives from this
-  // client-side, exactly as position derives from the walk ledger
-  "WORLD/threshold-ledger.md",
-];
+
+// ── which record files get staged, and why it is no longer a list ───────────
+//
+// It WAS a list — five paths typed by hand, kept in step with the world package
+// by nothing. `WORLD/walk-ledger.md` was not on it, `postmark.town/WORLD/walk-ledger.md`
+// answered 404, and the viewer answers a 404 for a record by reading the world
+// repo's raw MAIN TIP. So the town's departures were told from an unblessed
+// branch while the release lane's guardrail said "tags only, never main tip"
+// (founder-ruled 2026-08-25; WORLD-PIN.md § The three guardrails).
+//
+// The engine modules a dozen lines below had already been through this exact
+// failure and were fixed by walking the package instead of naming its files.
+// The records now have a channel too, and it is the honest one: a record is
+// staged because some reader ASKS THIS ORIGIN FOR IT. The demand is read off the
+// package's own viewer and off this repo's own pages, so a reader that starts
+// fetching a new record causes it to be staged, with nobody to remember.
+//
+// Reading the sources is a few dozen small files once per build, next to a build
+// that emits three thousand pages.
+const SOURCE_DIRS = ["town", "src"];
+const SOURCE_EXT = new Set([".mjs", ".js", ".astro", ".ts"]);
+
+function readSources(dir, base, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const abs = join(dir, entry.name);
+    if (entry.isDirectory()) { readSources(abs, base, out); continue; }
+    if (!SOURCE_EXT.has(extname(entry.name))) continue;
+    out.push({ name: relative(base, abs).split(sep).join("/"), text: readFileSync(abs, "utf8") });
+  }
+  return out;
+}
+
+/** every reader whose same-origin record demands this build must satisfy */
+function recordReaders(pkg, projectRoot) {
+  const readers = [];
+  const viewer = join(pkg, "spectator", "viewer.mjs");
+  // the package's own viewer FIRST — it is the module both habitats run, and it
+  // is its unmet demand that caused the leak
+  if (existsSync(viewer)) readers.push({ name: "postmark-world/spectator/viewer.mjs", text: readFileSync(viewer, "utf8") });
+  for (const dir of SOURCE_DIRS) {
+    const abs = join(projectRoot, dir);
+    if (existsSync(abs)) readSources(abs, projectRoot, readers);
+  }
+  return readers;
+}
 
 // ── the faces the viewer draws (2026-08-08) ─────────────────────────────────
 //
@@ -85,14 +122,30 @@ function pkgRoot(projectRoot) {
   return existsSync(p) ? p : null;
 }
 
+/** does the pinned package carry this file? the one seam the checks touch */
+const packageHas = (pkg) => (rel) => existsSync(join(pkg, ...rel.split("/")));
+
+// THE GATE. Called from the build hook, where a throw stops the release rather
+// than scrolling past in a log. Everything it can complain about used to be a
+// console.warn beside a green build.
+function assertPackageCanServe(pkg, projectRoot) {
+  const complaints = stagingComplaints({
+    sources: recordReaders(pkg, projectRoot),
+    exists: packageHas(pkg),
+  });
+  if (complaints.length) throw stagingFailure(complaints);
+}
+
 // One walk defines both surfaces: what the build copies and what dev may serve.
-// Public paths deliberately match the viewer's existing same-origin-first fetches.
-function stagingWalk(pkg) {
+// Public paths deliberately match the viewer's own same-origin fetches, because
+// they are now DERIVED from them.
+function stagingWalk(pkg, projectRoot) {
   const viewer = join(pkg, "spectator", "viewer.mjs");
-  if (!existsSync(viewer)) {
-    console.warn("[world-engine-island] postmark-world has no spectator/viewer.mjs — island viewer will not load until the dependency pin is bumped.");
-    return [];
-  }
+  // In a build this is unreachable — assertPackageCanServe has already thrown.
+  // In `astro dev` it is the honest answer to a request for a file that is not
+  // there: nothing to serve, and the browser's own 404 says so where a developer
+  // is already looking.
+  if (!existsSync(viewer)) return [];
   const files = [
     { source: viewer, publicPath: "/world-engine/spectator/viewer.mjs" },
   ];
@@ -102,16 +155,16 @@ function stagingWalk(pkg) {
   // what the viewer references; staging the rest is inert public source.
   for (const f of readdirSync(join(pkg, "tools")).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")))
     files.push({ source: join(pkg, "tools", f), publicPath: `/world-engine/tools/${f}` });
-  for (const rel of RECORD_FILES) {
-    const source = join(pkg, ...rel.split("/"));
-    if (existsSync(source)) files.push({ source, publicPath: `/${rel}` });
-    else console.warn(`[world-engine-island] postmark-world has no ${rel} — viewer fallback remains active.`);
+  // and every record some reader asks this origin for — derived, not listed
+  for (const { record } of recordsToStage(recordReaders(pkg, projectRoot))) {
+    const source = join(pkg, ...record.split("/"));
+    if (existsSync(source)) files.push({ source, publicPath: `/${record}` });
   }
   return files;
 }
 
 function stage(pkg, dest, projectRoot) {
-  const files = stagingWalk(pkg);
+  const files = stagingWalk(pkg, projectRoot);
   for (const file of files) {
     const output = join(dest, ...file.publicPath.slice(1).split("/"));
     mkdirSync(dirname(output), { recursive: true });
@@ -216,7 +269,7 @@ export default function worldEngineIsland() {
             res.setHeader("content-type", MIME[".json"]);
             return res.end(file.body);
           }
-          const file = stagingWalk(pkg).find((entry) => entry.publicPath === pathname);
+          const file = stagingWalk(pkg, projectRoot).find((entry) => entry.publicPath === pathname);
           if (!file) return next();
           res.setHeader("content-type", MIME[extname(file.source)] ?? "application/octet-stream");
           res.end(readFileSync(file.source));
@@ -225,7 +278,11 @@ export default function worldEngineIsland() {
       // build: copy into the emitted output so the same paths are served statically
       "astro:build:done": ({ dir }) => {
         const pkg = pkgRoot(projectRoot);
-        if (!pkg) { console.warn("[world-engine-island] postmark-world not installed — skipping island stage."); return; }
+        // NOT A SKIP. A build with no world package emits a world page whose
+        // every module and record 404s — the widest version of the same hole the
+        // gate below closes, and it used to print one line and exit 0.
+        if (!pkg) throw stagingFailure(["postmark-world is not installed — run `npm ci` (the world page would emit with no engine and no record at all)."]);
+        assertPackageCanServe(pkg, projectRoot);
         const dest = fileURLToPath(dir);
         const files = stage(pkg, dest, projectRoot);
         if (files.length) {
