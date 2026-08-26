@@ -5,6 +5,7 @@ import {
   WAITING_CROSSING_STATUS,
   budgetItems,
   deriveThreadMailState,
+  excerptOf,
   ferryHeadline,
   formatRemainder,
   freshnessFields,
@@ -86,4 +87,63 @@ test("freshness fields and Ferry's line are structural", () => {
     headline: "twelve letters, none bounced",
   });
   assert.equal(ferryHeadline("# Daily without a crossing"), null);
+});
+
+// ── the doorstep's excerpt: a heading is not a teaser ────────────────────────
+//
+// The founder, 2026-08-25: "fix the frontmatter town bulletin 'Art on your
+// marks ✦ — and the shelf now takes SVG'". What he was looking at was that
+// posting summarising itself — the bold title followed by the same title again
+// as its teaser — on every doorstep the town serves. The frontmatter is legal
+// YAML and the file is fine; it simply carries no `teaser:`, and the reader
+// that falls back to the body took the H1.
+
+test("a posting with no teaser is summarised by its first REAL paragraph, never its own title", () => {
+  // the founder's posting, verbatim from TOWN_BULLETIN/art-on-your-marks.md
+  const body = [
+    "# Art on your marks ✦ — and the shelf now takes SVG",
+    "",
+    "Your marks can carry pictures. A mark's record takes one `image:` line — a",
+    "shelf URL — and the world hangs it: on the atlas, in the telling, and now",
+    "*inside* (walk into a mark and its pictures hang as framed art on the wall).",
+  ].join("\n");
+
+  const teaser = excerptOf(body, 220);
+  assert.ok(teaser.startsWith("Your marks can carry pictures"),
+    `the doorstep still summarises the posting with its own title: ${JSON.stringify(teaser)}`);
+  assert.equal(/Art on your marks/.test(teaser), false,
+    "the H1 came back as the teaser — the heading filter is not running");
+});
+
+test("every heading level is skipped, and a body that is ONLY headings degrades to empty", () => {
+  // `#` is stripped with the rest of the markdown punctuation, so a heading
+  // that is not filtered on the RAW block becomes indistinguishable from prose.
+  // Each level, because the strip does not care which one it ate.
+  for (const hashes of ["#", "##", "###", "####", "#####", "######"]) {
+    const out = excerptOf(`${hashes} A heading long enough to pass the salutation filter\n\nThe real first sentence of the posting, which is what a reader wants.`);
+    assert.ok(out.startsWith("The real first sentence"), `an ${hashes} heading survived as the excerpt: ${JSON.stringify(out)}`);
+  }
+  // no paragraph left is honestly nothing — not the heading as a consolation
+  assert.equal(excerptOf("# Only a title here\n\n## And a subtitle"), "");
+  // and a bare `#` with no space is a fragment, not a heading — it must NOT be
+  // filtered, or the rule quietly eats prose it was never aimed at
+  assert.equal(excerptOf("#hashtag-not-a-heading, and the sentence continues past thirty characters."),
+    "hashtag-not-a-heading, and the sentence continues past thirty characters.");
+});
+
+test("the excerpt still does everything it did before the heading filter", () => {
+  // The salutation skip is the behaviour this reader was built for, and a
+  // filter added above it must not disturb it.
+  assert.equal(excerptOf("Wright —\n\nThe letter's first real sentence runs past thirty characters here."),
+    "The letter's first real sentence runs past thirty characters here.");
+  // links keep their text, images and emphasis go
+  assert.equal(excerptOf("A line with a [link](https://example.com) and *emphasis* in it, long enough."),
+    "A line with a link and emphasis in it, long enough.");
+  // truncation is at max, with the ellipsis
+  const long = excerptOf("x".repeat(300), 50);
+  assert.equal(long.length, 50);
+  assert.ok(long.endsWith("…"));
+  // empty in, empty out
+  assert.equal(excerptOf(""), "");
+  assert.equal(excerptOf(null), "");
 });

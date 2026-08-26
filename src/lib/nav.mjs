@@ -33,17 +33,19 @@
 // and ruled that pattern to be the whole site's shape.
 //
 // So: every section is a chip-shaped surface, and the section's first chip is
-// its own apex bare read. The World's first chip is the living map. The Town's
-// first chip is /town/, the town's own summary — which is why that page had to
-// exist before this structure could be honest. A section landing on one of its
-// members instead (The Town used to land on Ferry's Daily) is the aggregate
-// missing, and the first-chip law in the test now says so out loud.
+// the read the seat itself leads to. The World's first chip is the living map.
+// The Town's first chip is Ferry's Daily. A section whose seat and whose first
+// chip disagree is a section with no aggregate, and the first-chip law in the
+// test says so out loud.
 //
-// A member page long enough to scroll splits into chips of its own rather than
-// growing a side rail: `chips:` on a member is that second row, and it obeys
-// the same first-is-the-aggregate law. This is what retired `.pm-siderail` from
-// /daily/, /mail/ and /residents/ — the reader moves between chips, which are
-// real routes, instead of down a page hunting anchors.
+// THE ROW IS ONE ROW DEEP AND IT IS THE SECTION'S — founder, 2026-08-25: "no
+// subpage removes the town level subrail and replaces with its own." The chip
+// wave briefly let a member carry a `chips:` row of its own, so a reader inside
+// /residents/ or /mail/compose/ saw three chips where The Town's row had been
+// and lost every neighbouring room at once. `subChipsFor` still exists and
+// still obeys the first-is-the-aggregate law, but nothing in The Town declares
+// a second row any more; a sub-page tells the layout its ROOM's key instead, so
+// it draws the section's row with its own room lit.
 //
 // EVERY CHIP IS A REAL ROUTE. Not a tab widget: the row is shared chrome drawn
 // over real Astro pages, so deep links in letters keep working, the page-per-
@@ -86,38 +88,32 @@ export const RAIL = [
   // `postmark`, which is what it has always actually been.
   { key: "postmark", label: "Postmark", href: "/" },
 
-  // THE WORLD — the model section, already chip-shaped in spirit before this
-  // wave. Replay, Conversations and the Atlas are lenses ON the World, not peers
-  // of it, so they left the top rail in 2026-08-15 and are reached through this
-  // row and the map's own floating panel. Untouched by the chip wave except for
-  // wearing the chips: /world/ keeps its own side rail until the cockpit wave.
-  {
-    key: "world",
-    label: "The World",
-    href: "/world/",
-    // /world/ serves the spectator shell verbatim and never renders
-    // PostmarkLayout, so no page can mark it active; the section still lights up
-    // from its members, and the row appears on the other three.
-    noActive: "the spectator shell renders its own document, not PostmarkLayout",
-    members: [
-      { key: "world", label: "the living map", href: "/world/", noActive: "the spectator shell renders its own document, not PostmarkLayout" },
-      { key: "replay", label: "replay", href: "/replay/" },
-      { key: "conversations", label: "conversations", href: "/conversations/" },
-      { key: "atlas", label: "the atlas", href: "/atlas/" },
-    ],
-  },
-
-  // THE TOWN — the town apex and its reads. The seat lands on /town/, the
-  // town's own bare read, because a section that lands on one of its members is
-  // a section with no aggregate. Everything the town IS hangs here, including
-  // The Works, which the founder demoted out of the top rail this wave:
-  // "weird having that old surface be first-class."
+  // THE TOWN — the town apex and its reads. It sits AHEAD of The World by the
+  // founder's word, 2026-08-25: "the town comes before the world." The town is
+  // what a reader arrives for; the world is the ground it stands on, and the
+  // ground is the second thing you look at. Everything the town IS hangs here,
+  // including The Works, demoted out of the top rail the same day: "weird
+  // having that old surface be first-class."
+  //
+  // THE SEAT LANDS ON FERRY'S DAILY, and /town/ is not in the row at all —
+  // founder, same sitting: "the town goes to ferry's daily, hide 'the town'
+  // (it's empty now, maybe comes back later if we have town info to put
+  // there)." That is him answering the honest note left on the last lane: the
+  // page had just had its card grid and its four dials deleted as restatement,
+  // and what remained was a room with nothing in it. So the aggregate seat goes
+  // to the read that actually carries the town's day.
+  //
+  // The first-chip law is NOT bent by this — it is satisfied one rung down. The
+  // row still leads with the thing the seat leads to (both are /daily/), so a
+  // reader who clicks the section and a reader who clicks its first chip still
+  // land in the same place. What changed is WHICH read stands for the whole,
+  // and that was the founder's call to make. `/town/` keeps its URL and its
+  // page; it is simply unlinked until there is town info to put there.
   {
     key: "town",
     label: "The Town",
-    href: "/town/",
+    href: "/daily/",
     members: [
-      { key: "town", label: "the town", href: "/town/" },
       { key: "daily", label: "ferry’s daily", href: "/daily/" },
       // The notice board came BACK to /bulletin/ in this wave. It had been
       // folded into the Daily as an anchor, which made it a chip that could
@@ -126,35 +122,8 @@ export const RAIL = [
       // there as a redirect stub, so restoring it cost no new URL and made
       // every doorstep deep-link (/bulletin/#slug) land natively.
       { key: "bulletin", label: "the notice board", href: "/bulletin/" },
-      {
-        key: "residents",
-        label: "residents",
-        href: "/residents/",
-        // The biggest scroller in the town: a 126-card directory with the
-        // window street and the Meeps' staff cards stacked below it, navigated
-        // by a side rail. Now three chips, three routes — and both of the
-        // routes it needed already existed as redirect stubs pointing inward.
-        chips: [
-          { key: "residents", label: "the residents", href: "/residents/" },
-          { key: "windows", label: "the windows", href: "/window/" },
-          { key: "meeps", label: "the meeps", href: "/meeps/" },
-        ],
-      },
-      {
-        key: "mail",
-        label: "the mail",
-        href: "/mail/",
-        // The pulse stays ON the mail's own page — it is the aggregate's stat
-        // band, the same job `dash-stats` does on the household seat, and a
-        // page of its own would be four numbers alone in a room. What splits
-        // off is the tail (the bounces) and what surfaces is the door that was
-        // only ever reachable from a button in the page body.
-        chips: [
-          { key: "mail", label: "the mail", href: "/mail/" },
-          { key: "returned", label: "returned to sender", href: "/mail/returned/" },
-          { key: "compose", label: "write a letter", href: "/mail/compose/" },
-        ],
-      },
+      { key: "residents", label: "residents", href: "/residents/" },
+      { key: "mail", label: "the mail", href: "/mail/" },
       // The Ballot — the page this whole law exists because of.
       { key: "votes", label: "the ballot", href: "/votes/" },
       { key: "stamps", label: "stamps", href: "/stamps/", beta: true },
@@ -170,6 +139,51 @@ export const RAIL = [
       // HOLD with a reason on file, which is the opposite of the ballot's
       // silence — the difference is that this line exists.
       { key: "numbers", label: "the numbers", href: "/numbers/", held: "S4 hold — empty until the emission lands (Keemin, 2026-08-21)" },
+    ],
+  },
+
+  // NO SECOND ROW ANYWHERE IN THE TOWN — founder, 2026-08-25: "no subpage
+  // removes the town level subrail and replaces with its own." Residents and
+  // the mail each grew a `chips:` row in the chip wave, so standing on
+  // /residents/ or /mail/compose/ replaced The Town's row with a row of three.
+  // A reader deep in a room lost the only chrome that showed the room's
+  // neighbours, and the swap read as arriving somewhere else entirely.
+  //
+  // Both rows are gone, and with them four chips the founder struck by name:
+  // "the windows" and "the meeps" off residents, "returned to sender" and
+  // "write a letter" off the mail. THE PAGES ALL STAY at the URLs they have —
+  // /window/, /meeps/, /mail/returned/, /mail/compose/ — and each one now tells
+  // the layout its ROOM's key, so it draws The Town's row with its own room
+  // lit. That is the whole point of the ruling: one row, always the same row,
+  // and it says which room you are standing in.
+  //
+  // Three of the four keep a door in prose — /meeps/ from the Daily, the
+  // homepage, /mail/ and /town/; /mail/returned/ and /mail/compose/ from the
+  // mail's own page, which is where the write-a-letter button always lived.
+  // /window/ has NO inbound link left anywhere on the site. That is the
+  // /votes/ condition this whole file exists because of, and it is recorded
+  // here rather than quietly fixed, because re-siting the window street is a
+  // shape call and nobody has made it. (`test/nav.test.mjs` holds the four to
+  // the row they must draw; it cannot hold a page to a link nobody wrote.)
+
+  // THE WORLD — the model section, already chip-shaped in spirit before the
+  // chip wave. Replay, Conversations and the Atlas are lenses ON the World, not
+  // peers of it, so they left the top rail in 2026-08-15 and are reached
+  // through this row and the map's own floating panel. /world/ keeps its own
+  // side rail until the cockpit wave.
+  {
+    key: "world",
+    label: "The World",
+    href: "/world/",
+    // /world/ serves the spectator shell verbatim and never renders
+    // PostmarkLayout, so no page can mark it active; the section still lights up
+    // from its members, and the row appears on the other three.
+    noActive: "the spectator shell renders its own document, not PostmarkLayout",
+    members: [
+      { key: "world", label: "the living map", href: "/world/", noActive: "the spectator shell renders its own document, not PostmarkLayout" },
+      { key: "replay", label: "replay", href: "/replay/" },
+      { key: "conversations", label: "conversations", href: "/conversations/" },
+      { key: "atlas", label: "the atlas", href: "/atlas/" },
     ],
   },
 
