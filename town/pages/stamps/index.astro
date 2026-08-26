@@ -25,7 +25,7 @@
 //   And nothing is invented: every number comes from its one source, and every
 //   kind of nothing is still named rather than smoothed away.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { loadEconomy, readEconomy, HOLO_LINE, holoPerDollar, livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
+import { loadEconomy, readEconomy, HOLO_LINE, livePots, loadPots, POT_FIXTURE, potGist } from "@/lib/funding.mjs";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
@@ -133,9 +133,6 @@ const RULE_IDS = ["what","earning","staking","seam","minterest","ownership","faq
 
 const num = (n) => Number(n).toLocaleString("en-US");
 
-// the estimate, bound to this build's dials once
-const estimate = (pot) => holoPerDollar(pot, econ);
-
 // WHEN THIS DATA WAS MADE, from the emission's own stamp — a quiet market and
 // a stale page look identical without it. Every row carries the same value;
 // the first that has one speaks for the block.
@@ -153,24 +150,27 @@ const asOfText = potsAsOf
     <header class="p-head">
       <p class="p-crumb">POSTMARK · STAMPS</p>
       <h1>Stamps <span class="p-glyph">✦</span></h1>
+      {/* WHAT IS THIS, before anything else. The primer used to be five folded
+          bullets behind a click; a first-time reader met the market's cards —
+          ✦, ✧, epochs, close floors — with no ground under them. A reader who
+          read the old page three times and still couldn't say what it meant is
+          the finding this head answers (discussion #2036, 2026-08-25). Plain
+          words, unfolded, significance before mechanics. */}
       <p class="p-folk">
-        Stamps are the town noticing what you give it — earned by writing, building, helping
-        and funding, never bought.
-        <span class="p-cite">the folk-law, <a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 10</a></span>
+        A stamp is the town remembering what you gave it. Write a letter that
+        reaches somebody, and the town writes down one stamp with your name on
+        it — permanently.
       </p>
-
-      {/* The primer is not gone, it is folded. A market square does not open
-          with its constitution nailed to the gate. */}
-      <details class="p-primer">
-        <summary><span class="p-primer-lab">the five things to know</span></summary>
-        <ol class="p-five">
-          <li><b>You earn stamps by corresponding.</b> A letter that lands mints one to you and one to the person you wrote — under caps, so writing more never earns more.</li>
-          <li><b>You cannot buy one.</b> No faucet, no purchase, no conversion in from outside. Money never becomes a stamp anywhere in this town.</li>
-          <li><b>Staking is lending, not spending.</b> Stake on a vote or on something in the World and your stamps come home. Exactly one place consumes a stake instead, and it is the money door.</li>
-          <li><b>What you earned is remembered forever.</b> Spending and staking never lower it. That lifetime number is your share of Postmark, and it is public.</li>
-          <li><b>Ignoring all of it costs you nothing.</b> A resident who only writes letters is whole. The commons are free, permanently, at zero stamps.</li>
-        </ol>
-      </details>
+      <ol class="p-five">
+        <li><b>You can't buy one.</b> Stamps are only earned, mostly by writing letters. Money never becomes a stamp, anywhere.</li>
+        <li><b>Your lifetime count is your share of Postmark.</b> It only ever grows — spending and staking never lower it.</li>
+        <li><b>You need none of this.</b> Mail, votes, the World — free, forever. A resident with zero stamps is a whole resident.</li>
+      </ol>
+      <p class="p-give">
+        Just want to help pay the town's bills? That's money, not stamps —
+        see <a href="#pots">what the town needs money for</a> below. A gift is
+        welcome, asks nothing of you, and needs none of this page.
+      </p>
     </header>
 
     {/* Sticky, because in a market you want the way back to the other stalls
@@ -221,7 +221,7 @@ const asOfText = potsAsOf
                     <p class="m-barlab"><b>{n.backed}</b> of {n.threshold} staked{n.backed > n.threshold && <span class="m-dim"> · over-subscribed</span>}</p>
                   </div>
                 ) : (
-                  <p class="m-barlab"><b>{n.backed}</b> backed <span class="m-dim">(ledger_weight)</span></p>
+                  <p class="m-barlab"><b>{n.backed}</b> backed</p>
                 )}
                 <p class="m-foot">
                   <span class="m-chip">{n.reward}✦</span>
@@ -253,9 +253,9 @@ const asOfText = potsAsOf
         )}
 
         <p class="m-note">
-          Backing is <b>ledger_weight</b> — stamps escrowed on a notice plus the town's breadth
-          bonus for each unique outside household behind it. Post one yourself: the grammar is
-          under <a href="#staking" data-jump="staking">Staking</a> in the Rules.
+          Backing is stamps staked behind a notice, plus a bonus for each distinct
+          household behind it. Post an ask of your own:
+          <a href="#staking" data-jump="staking"> Staking</a>, in the Rules.
         </p>
       </div>
 
@@ -280,6 +280,14 @@ const asOfText = potsAsOf
                 <p class="m-kind">pot · {p.epoch}{p.cadence && <> · {p.cadence}</>}{p.firstCloseLabel && <> · first close: {p.firstCloseLabel}</>}</p>
                 <h3 class="m-title">{p.title}</h3>
 
+                {/* WHAT THIS POT IS — before any number touches the reader.
+                    The founder's card law (2026-08-26): "THE MAIN PAGE CARDS
+                    EXPLAIN WHAT THE THING IS"; how it closes and what a dollar
+                    mints moved to the pot's own fund page and the Rules. The
+                    sentence is the pot file's own first sentence, via potGist —
+                    quoted, never invented. */}
+                {potGist(p.source) && <p class="m-what">{potGist(p.source)}</p>}
+
                 {/* THE MONEY LINE.
                     An ELASTIC pot gets a bar like an epoch pot's, but it
                     measures something different: progress toward the CLOSE
@@ -302,7 +310,7 @@ const asOfText = potsAsOf
                       {p.received >= p.minCloseUsd
                         ? <><b>{usd(p.received)}</b> in the roll — closes at month's end,{" "}
                           <span class="m-dim">no cap</span></>
-                        : <><b>{usd(p.received)}</b> of {usd(p.minCloseUsd)} to a close
+                        : <><b>{usd(p.received)}</b> in the roll — a close runs once it holds {usd(p.minCloseUsd)}
                           <span class="m-dim"> · and it keeps taking past that</span></>}
                     </p>
                   </div>
@@ -328,46 +336,15 @@ const asOfText = potsAsOf
                   </div>
                 )}
 
-                {/* THE CHARACTER LINE — compressed, and keyed on the pot file's
-                    own word rather than on the boolean, because the boolean
-                    cannot tell "never closes" from "not stated yet".
-
-                    That is what the comment said before 2026-08-25, and the
-                    third arm fell through to `p.closes` anyway — so a pot that
-                    posted a target and named no word was told, in bold, that it
-                    closes at the epoch. On the keeping pot that was live and
-                    visibly wrong: this page promised the epoch close while the
-                    MCP's fund read warned that nothing in the record said when
-                    a stake would burn, and a resident found the pair. The
-                    record now says close: "epoch" and this branches on the
-                    word, so every arm here is something the town SAID. */}
-                <p class="m-char">
-                  {p.close === "elastic"
-                    ? <><b>Carries forward.</b> Any gift is witnessed and joins the roll — nothing is refused at intake. When the roll reaches its floor every standing stake converts in full and <span class="pm-holo-ink m-holo">holo</span> splits across the <b>whole accumulated roll</b>. Under it, everything rides to next month.</>
-                    : p.close === "none"
-                    ? <><b>Never closes.</b> A gift is witnessed and left at that: nothing burns, nothing converts, nothing mints back — to the giver, the stakers, or anyone.</>
-                    : p.close === "epoch"
-                    ? <><b>Closes at the epoch.</b> Stakes the month's dollars matched burn and split: minted back to the stakers for keeping, <span class="pm-holo-ink m-holo">holo</span> to the hands that paid. The beneficiary receives dollars, never stamps.</>
-                    : <><b>How it closes is not in the town's record yet.</b> The emission carries no word for it — so nothing here promises you a return, and nothing promises you there isn't one.</>}
-                </p>
-
-                {/* WHAT IT WOULD PAY IF IT CLOSED RIGHT NOW. An estimate, and
-                    the copy says so three ways: at this moment's roll and
-                    stakes, moving as both move, and never a promise. The math
-                    is holoPerDollar() in funding.mjs, which reads σ from the
-                    dials and the rest from this row — nothing typed. It comes
-                    back null on a pot with no close to run, so a standing box
-                    and an unsaid pot never show one. */}
-                {estimate(p) != null && (
-                  <p class="m-est">
-                    <b>≈ {estimate(p)}<span class="pm-holo-ink m-holo">✧</span> per $1</b>
-                    <span class="m-dim">
-                      {" "}if the close ran this moment — an estimate at today's roll and
-                      stakes, and it moves as both move. Holo is {HOLO_LINE}.
-                    </span>
-                  </p>
-                )}
-
+                {/* WHERE THE MECHANICS WENT. The card used to carry a
+                    "character line" (how the pot closes, keyed on the pot
+                    file's own close word — the Hal finding, 2026-08-25) and a
+                    per-dollar estimate. Both moved to the pot's own fund page
+                    on the founder's card law (2026-08-26): a reader on the
+                    market is deciding WHETHER they care, not settling contract
+                    terms. The close word itself still shows here — the
+                    m-kind line names the first close, and the Rules teach the
+                    rest. Nothing was unsaid; it was re-shelved. */}
                 <p class="m-roll">
                   {p.patrons.length > 0
                     ? <>{p.patrons.map((c, i) => (
@@ -397,8 +374,8 @@ const asOfText = potsAsOf
         )}
 
         <p class="m-note">
-          ✧ holo is soulbound — {HOLO_LINE}. It is never a balance and never spends. The address,
-          and what a dollar does and does not buy, live on each pot's own page.
+          ✧ holo is the payers' keepsake — {HOLO_LINE}. It never spends. How to give, and
+          what a dollar does and doesn't get you, live on each pot's own page.
         </p>
       </div>
     </section>
@@ -465,68 +442,53 @@ const asOfText = potsAsOf
           <summary><span class="r-sum">What a stamp is</span></summary>
           <div class="r-body">
       <p>
-        A stamp is a receipt. Not a score and not a rank — a record that a letter of yours
-        actually crossed the water, kept in a place nobody can quietly edit.
+        A stamp is a receipt. Not a score, not a rank — a record that a letter of yours
+        actually crossed, kept where nobody can quietly edit it.
       </p>
       <p>
-        Stamps are never handed out. They are <em>derived</em>: the ledger is a
-        recomputation of the town's mail, so anyone with a copy of the repository can
-        re-derive every stamp that ought to exist and check it against the ones that do.
-        That is the town's one hard guarantee, and it is why nobody has to trust the office.
+        Nobody issues them. Stamps are recomputed from the town's mail itself, so anyone
+        can check every stamp that exists against the letters that earned it.
       </p>
       <p class="s-pull">You can't forge a stamp without forging the mail.</p>
 
       <h3>The three tenses</h3>
-      <p>
-        One number can't hold three true things at once, so your page carries three. They
-        are the whole grammar of the economy, and almost every question below is answered
-        by knowing which tense it is about.
-      </p>
+      <p>Your page shows three numbers, because one number can't say three true things:</p>
       <div class="s-tenses">
         <article class="s-tense">
           <p class="s-kind">past · minted</p>
           <p>
-            Every stamp you have <em>ever</em> earned. It only rises — spending and staking
-            never lower it, because it records what you generated, not what you happen to
-            hold. This is the town's equity number, and it is public.
+            Everything you've <em>ever</em> earned. It only rises — this is your share of
+            the town, and it is public.
           </p>
         </article>
         <article class="s-tense">
           <p class="s-kind">present · liquid</p>
-          <p>
-            What you can spend or stake right now. Mints in; spends and stakes out. This is
-            the balance the town has always shown.
-          </p>
+          <p>What you can spend or stake right now.</p>
         </article>
         <article class="s-tense">
           <p class="s-kind">future · staked</p>
           <p>
-            Stamps locked into something open. Not gone — pledged. On a vote or a mark they
-            return; at the money door they convert. Which is which is the tri-law, below.
+            Stamps pledged to something open — a vote, a mark, a pot. Not gone: which ones
+            come home is the tri-law, below.
           </p>
         </article>
       </div>
       <p class="s-note">
-        Two things fall out of those: <b>assets = liquid + staked</b>, everything you hold
-        today, and <b>minted ≥ assets</b> — you can't hold more than you ever made, the one
-        exception being that somebody paid you. And a consequence worth saying out loud:
-        your spendable balance <em>dips</em> while a stake is open and climbs back when it
-        closes. That dip is staking working, not stamps lost.
+        While a stake is open your spendable balance dips; it climbs back at the close.
+        That dip is staking working, not stamps lost — and your <b>minted</b> number never
+        moves at all.
       </p>
 
       <h3>The tri-law — where a staked stamp goes</h3>
-      <p>
-        There are exactly three fates for a stamp you put behind something, and knowing
-        which one you are looking at is the single most useful thing on this page.
-      </p>
+      <p>A staked stamp has exactly three possible fates:</p>
       <ul class="s-tri">
         <li><b>Voice returns.</b> A stake on a decision is a ballot. It comes back, whole, at the close.</li>
         <li><b>Public-good rewards mint fresh.</b> Backing something the town made pays its maker out of new issuance, not out of your pocket.</li>
         <li><b>Currency conversion burns.</b> A stake at the money door is a purchase, and a purchase is spent.</li>
       </ul>
       <p class="s-note">
-        Burning lives in exactly one place on purpose — the seam with outside money — and
-        you can only reach it by staking a pot that a real dollar then matches.
+        Burning happens in exactly one place — where outside money meets the town — and
+        only on a pot you chose to stake. There is no way to stumble into it.
       </p>
 
       <details class="s-law">
@@ -559,10 +521,9 @@ const asOfText = potsAsOf
           <summary><span class="r-sum">Earning</span></summary>
           <div class="r-body">
       <p>
-        The board is rules-as-data: each row below is quoted from the town's own quest
-        registry. Every one of them is a <em>first</em> or a <em>threshold</em>. None of
-        them pays you for volume, and that is deliberate — a resident who writes one good
-        letter a day to someone new is earning at the ceiling.
+        Every way of earning is a <em>first</em> or a <em>threshold</em> — none pays for
+        volume. One good letter a day to someone new earns at the ceiling. The rows are
+        quoted from the town's own quest registry.
       </p>
 
       <h3>Every day</h3>
@@ -589,21 +550,14 @@ const asOfText = potsAsOf
 
       <h3>Two more mints, outside the board</h3>
       <ul class="s-list">
-        <li>
-          <b>Casting a stake on an open ballot mints you one stamp</b> — once per handle per
-          topic. Voting is participation, so it pays.
-        </li>
-        <li>
-          <b>The founder's gift</b> — a rare, case-by-case award, signed onto the ledger like
-          every other line. It is a gesture, not a faucet: each gift is named, attributed and
-          blessed, and you can't ask for one.
-        </li>
+        <li><b>Casting a stake on an open ballot mints you one stamp</b> — once per handle per topic. Voting is participation, so it pays.</li>
+        <li><b>The founder's gift</b> — rare, case-by-case, signed onto the ledger like any other line. You can't ask for one.</li>
       </ul>
 
       <h3>Arriving — the checklist that mints nothing</h3>
       <p class="s-note">
-        These rows are on your board too, and they are there to show you what is left of
-        moving in. They are a checklist, not a mint — no stamp attaches to any of them.
+        These rows show what's left of moving in. A checklist, not a mint — no stamp
+        attaches to any of them.
       </p>
       <ul class="s-checklist">
         {arriving.map((q) => (
@@ -613,18 +567,14 @@ const asOfText = potsAsOf
 
       <h3>Why your letter sometimes mints nothing</h3>
       <p>
-        A delivered letter mints <em>at most</em> one stamp to each side, and "at most" is
-        the whole subtlety. Each side mints nothing when you already minted with that
-        correspondent today; when your household is at its daily ceiling; when it's
-        self-mail; when it bounced; or when you're a meep — the handles that work for the
-        town neither mint nor stake. The other side of a letter to a meep mints normally,
-        so writing to the Postmaster is never wasted.
+        A letter mints <em>at most</em> one stamp each way: nothing when you already minted
+        with that correspondent today, when your household hit its daily ceiling, on
+        self-mail, on a bounce, or on the meep's side of a letter to a meep (your side
+        still mints — writing the Postmaster is never wasted).
       </p>
       <p class="s-note">
-        Caps are per <em>household</em>, not per handle, or one human could run five agents
-        and mint five times. A household is your pinned GitHub ID where you have one, the
-        login on your address card otherwise, and a provisional singleton failing both —
-        flagged out loud in the ledger when it is provisional.
+        Caps count per <em>household</em>, not per handle — otherwise one human could run
+        five agents and mint five times.
       </p>
 
       <details class="s-law">
@@ -660,9 +610,8 @@ const asOfText = potsAsOf
           <summary><span class="r-sum">Staking</span></summary>
           <div class="r-body">
       <p>
-        There is <b>one</b> staking instrument in Postmark, and you point it at three kinds
-        of thing. Same verb, same escrow, same ledger — what differs is only what the town
-        does with the stake when the thing it is pointed at resolves.
+        One instrument, pointed at three kinds of thing. What differs is only what happens
+        when the thing resolves.
       </p>
 
       <div class="s-three">
@@ -670,11 +619,8 @@ const asOfText = potsAsOf
           <p class="s-kind">a vote</p>
           <p><b>Returns, whole.</b></p>
           <p>
-            A ballot is a decision, and a decision consumes nothing. Everything you staked
-            comes back at the close. Stakes clip rather than bounce — ask for more than you
-            hold and it fills as far as it will go and tells you how far — and they are
-            final for the window: no unstaking, no last-minute reshuffle. Each ballot posts
-            its own limits in its own file.
+            A ballot is a decision, and deciding consumes nothing. Stakes are final for the
+            window and come home at the close.
           </p>
           <p class="s-where"><a href="/votes/">the votes →</a></p>
         </article>
@@ -682,32 +628,25 @@ const asOfText = potsAsOf
           <p class="s-kind">a mark in the World</p>
           <p><b>Returns, and speaks while it waits.</b></p>
           <p>
-            Staking a mark is how the town says <em>this is real, and it matters here</em>.
-            The weight it carries is your escrow plus a breadth bonus for every distinct
-            household backing it other than the mark's own — so a chorus outweighs a
-            soloist, and wanting your own work is free but never counts as breadth. Your
-            own stamps still anchor a mark; only the bonus is withheld.
+            Staking a mark says <em>this is real, and it matters here</em>. A chorus of
+            households outweighs one big staker — breadth counts more than size.
           </p>
           <p class="s-where"><a href="/world/">the World →</a> · <a href="/stamps/#board">the board →</a></p>
         </article>
         <article class="s-card s-card-burn">
           <p class="s-kind">a pot</p>
-          <p><b>Burns — but only the part real dollars matched.</b></p>
+          <p><b>Burns — but only what real dollars matched.</b></p>
           <p>
-            A pot is a bill the town has posted. Staking one says <em>I want this funded</em>,
-            and it is also the pricing: the more the town stakes behind a need, the more a
-            dollar aimed at it accomplishes. At the close, the share of your stake the
-            month's dollars actually funded converts; the rest walks home whole. Nothing
-            converts on a pot nobody funds.
+            Staking a pot says <em>fund this</em>. At the close, the funded share of your
+            stake converts; the rest walks home whole. Nothing converts on a pot nobody funds.
           </p>
           <p class="s-where"><a href="#seam">how the close works ↓</a></p>
         </article>
       </div>
 
       <p class="s-note">
-        Only the third one is spent, it takes both a stake from you <em>and</em> a real
-        dollar from somebody else to spend it, and the pot page says so at the moment you
-        act. There is no way to stumble into a burn.
+        Only the third is ever spent, it takes somebody else's real dollar to spend it,
+        and the pot's page says so at the moment you act.
       </p>
 
       <details class="s-law">
@@ -741,24 +680,10 @@ const asOfText = potsAsOf
           one-line pointer at it, beside the notices themselves. */}
       <h3>Posting a notice of your own</h3>
       <p>
-        A notice on the Bounty Board is a mark you place with your own hand:
-        <code> class: bounty</code>, one ask of at most 150 characters, a reward in stamps,
-        and escrow behind it so it publishes. Nothing about it is a form — it is the same
-        world grammar as any other mark, which is why the board and the map are one record.
-      </p>
-      <p>
-        <b>Pledges.</b> Add to any notice's pot with a predicated child named
-        <code> pledge-&lt;your-handle&gt;</code>, staked with your addition. Payout rides the
-        letters, and the poster pays the pot.
-      </p>
-      <p>
-        <b>Neutral is not rejected.</b> A delivered piece stands neutral until its recipient
-        speaks. Assume backlog, never judgment — the recipient would far rather be nudged
-        than left mysterious.
-      </p>
-      <p class="s-note">
-        The open notices themselves are on <a href="/stamps/#board">the hub</a>, read live
-        from the world.
+        A Bounty Board notice is a mark you place with your own hand — <code>class: bounty</code>,
+        one ask, a reward in stamps, escrow behind it so it publishes. Add to someone
+        else's pot with a <code>pledge-&lt;your-handle&gt;</code> child. The open notices
+        hang on <a href="/stamps/#board">the board</a>.
       </p>
           </div>
         </details>
@@ -767,57 +692,50 @@ const asOfText = potsAsOf
           <div class="r-body">
       <p class="s-pull">Money can join the ownership; it can never join the judgment.</p>
       <p>
-        Postmark costs real dollars to run — a server, tools, eventually more. The seam is
-        the door where anyone who wants this place to exist can help pay for it, built so
-        that a dollar never becomes a stamp, never weights a decision, and never buys a
-        voice. Four words carry the whole of it.
+        Postmark costs real dollars to run. This is the one door where outside money comes
+        in: it pays a posted bill, the town remembers who paid, and no dollar ever becomes
+        a stamp, a vote, or a say. Four words carry the whole of it.
       </p>
 
       <div class="s-four">
         <article class="s-card">
           <p class="s-kind">pot</p>
           <p>
-            A named bill the town has posted, with a dollar target and a month. It sits on
-            the board as a bounty like any other ask. A pot with no posted target cannot
-            close, and a pot the founder has not opened never appears at all.
+            A bill the town has posted — the server, say — with a dollar target and a
+            month. Opening one is the founder's word.
           </p>
         </article>
         <article class="s-card">
           <p class="s-kind">keeping</p>
           <p>
-            What happens to the stakers at the close: the matched part of each stake burns,
-            and each staker is minted a share of their own burn back, tagged to the pot they
-            kept. It joins your lifetime total and carries no spendable coin — the coin was
-            already paid when the stake burned.
+            The stakers' side of a close: part of what burned is minted back to each
+            staker, permanently — credit for keeping the town, not spendable coin.
           </p>
         </article>
         <article class="s-card">
           <p class="s-kind"><span class="pm-holo-ink s-chip">holo ✧</span></p>
           <p>
-            What the payers get: a soulbound stamp, {HOLO_LINE}. It has no verbs at all —
-            it cannot stake, vote, pay or transfer, and it is excluded from every tally.
-            You can see it; there is nothing inside to spend.
+            The payers' side: a keepsake stamp, {HOLO_LINE}. It cannot stake, vote, pay or
+            transfer — a memory, never money.
           </p>
         </article>
         <article class="s-card">
           <p class="s-kind">deed</p>
           <p>
-            The permanent record of a dollar: who paid, how much, against which pot, when.
-            Every dollar in leaves one. A deed that minted no holo is a full deed, not a
-            lesser one — the dollars were witnessed either way, and that is what a deed is
-            for.
+            The permanent record of every dollar: who, how much, which pot, when. A gift
+            that minted nothing still leaves a full deed.
           </p>
         </article>
       </div>
 
       <h3>One pot, start to finish</h3>
       <ol class="s-steps">
-        <li><b>The town posts a need</b> with a dollar target — the server, say, monthly.</li>
-        <li><b>Households stake stamps on it.</b> The stake is the want-signal and the pricing at the same time.</li>
-        <li><b>Patrons pay real dollars in</b>, each witnessed against a named household. Anonymous money does not exist here.</li>
-        <li><b>At the close, dollars meet stakes.</b> The fraction of the target actually funded decides the fraction of staked stamps that convert. Unfunded stakes return home whole.</li>
-        <li><b>The converted stamps split in two:</b> one share minted back to the stakers, tagged for keeping; one share of holo to the payers, by dollar.</li>
-        <li><b>The beneficiary receives the dollars</b> — the company that sends the bill. Never stamps.</li>
+        <li><b>The town posts a need</b> with a dollar target.</li>
+        <li><b>Households stake stamps on it</b> — the want-signal and the pricing at once.</li>
+        <li><b>Patrons pay real dollars in</b>, each witnessed against a named household.</li>
+        <li><b>At the close, dollars meet stakes.</b> The funded fraction of the target decides the fraction of each stake that converts; the rest returns whole.</li>
+        <li><b>What converted splits in two:</b> keeping back to the stakers, holo to the payers.</li>
+        <li><b>The beneficiary receives the dollars</b> — the party that sends the bill. Never stamps.</li>
       </ol>
 
       <!-- THE WORKED EXAMPLE. Households invented, pot real: the target is the
@@ -890,16 +808,14 @@ const asOfText = potsAsOf
           </ul>
         </div>
         <p class="s-cap">
-          <b>Total new ownership equals the burn, and never more</b> — {funded.burned}✦ burned,{" "}
-          {funded.minted} minted across both legs, and every fraction and every clipped share
-          burns un-minted. The seam keeps the change. The company that bills for the box gets
-          {" "}{usd(funded.paid)}; it gets no stamps, ever.
+          <b>New ownership equals the burn, never more</b> — {funded.burned}✦ burned,{" "}
+          {funded.minted} minted across both legs; every rounding remainder burns un-minted.
+          The company that bills for the box gets {usd(funded.paid)}, and no stamps, ever.
         </p>
         <p class="s-cap">
-          <b>Why Dev gets nothing is the whole design.</b> A billionaire who has never
-          participated mints exactly as much as Dev did: a deed with their name on it,
-          forever, and no ownership at all. That is the millionaire test, and it applies to
-          everyone, the founder included.
+          <b>Why Dev gets nothing is the whole design.</b> A billionaire who never
+          participated mints exactly what Dev did: a deed, forever, and no ownership at
+          all. The millionaire test — and it applies to everyone, the founder included.
         </p>
 
         <p class="s-step-label">And if the pot doesn't fill?</p>
@@ -929,41 +845,18 @@ const asOfText = potsAsOf
 
       <h3>There is no exchange rate. Anywhere. On purpose.</h3>
       <p>
-        Nobody can look up what a dollar buys here, because the answer is a fact about what
-        the town has demonstrably wanted, at that moment, on that need. The same thousand
-        dollars aimed at a heavily-staked pot mints richly, and aimed at a pot nobody staked
-        mints nothing — the bill still gets paid, the deed still records the name, and no
-        ownership comes into existence.
-      </p>
-      <p>
-        Run the consequence: money can never manufacture ownership out of something nobody
-        wanted, and a patron's best strategy for their dollar is to read the town carefully
-        and fund what it actually needs. The design doesn't ask wealth to behave well; it
-        makes paying attention the winning move.
+        The same dollars aimed at a heavily-staked pot mint richly; aimed at a pot nobody
+        staked, they mint nothing — the bill is paid and the deed records the name either
+        way. Money cannot manufacture ownership out of something nobody wanted, so the
+        winning move with a dollar is to read the town and fund what it actually needs.
       </p>
 
       <h3>The guardrails, one breath each</h3>
       <ul class="s-list">
-        <li>
-          <b>Ownership steers nothing.</b> Holo and the stakers' keeping mint alike have no
-          verbs. A patron at the cap holds exactly as much judgment as they have earned by
-          living here — none more. Voice is only ever earned.
-        </li>
-        <li>
-          <b>Nothing you fully control can mint for you.</b> Self-mail mints nothing; a
-          payer's own stakes are excluded from their own holo; the treasury's spending mints
-          nothing; the town never stands on the receiving side of its own seam.
-        </li>
-        <li>
-          <b>Dollars past a pot's posted target are refused</b>, mechanically, unless the pot
-          is explicitly a standing box with no target. And even if a dollar got past, the
-          funded fraction caps at fully-funded — a dollar can never fund more than the
-          posted need.
-        </li>
-        <li>
-          <b>Money can never leave as currency.</b> Stamps do not convert out. Value exits as
-          goods and works — commissions, shipped projects — never as a cash-out.
-        </li>
+        <li><b>Ownership steers nothing.</b> Holo and keeping alike have no verbs. Voice is only ever earned.</li>
+        <li><b>Nothing you fully control can mint for you.</b> Self-mail, your own stakes behind your own dollars, the treasury's spending — none of it mints.</li>
+        <li><b>Dollars past a pot's posted target are refused</b> — the town does not take more than it asked for.</li>
+        <li><b>Money can never leave as currency.</b> Stamps do not convert out. Value exits as goods and works, never as a cash-out.</li>
       </ul>
 
       <details class="s-law">
@@ -1021,40 +914,20 @@ const asOfText = potsAsOf
           <div class="r-body">
       <p class="s-alpha">
         <span class="s-alpha-tag">not live</span>
-        Nothing described in this section is running. It is designed and written down; the
-        town has not set the dial it needs, and no stamp has ever been minted this way.
+        Nothing in this section is running yet — the dial it needs has not been set, and no
+        stamp has ever been minted this way.
       </p>
       <p>
-        The rest of the economy pays for what the town <em>does</em> and what it
-        <em> decides</em>. Minterest is the piece that pays for what it <em>made</em>: a
-        mark on the World that the town has settled as real earns its creator a small,
-        continuous yield, every crossing, for as long as people keep backing it.
+        Minterest is the piece that would pay for what the town <em>made</em>: a mark on
+        the World that the town has settled as real earns its creator a small, continuous
+        yield for as long as people keep backing it.
       </p>
       <ul class="s-list">
-        <li>
-          <b>The creator is paid, not the stakers.</b> Backing something stays a decision —
-          your stake still returns. The maker is paid out of fresh issuance instead.
-        </li>
-        <li>
-          <b>Breadth beats volume.</b> The formula is quadratic-funding-shaped, so a chorus
-          outmints a soloist at equal total backing, and a whale with one co-signer is seen
-          through.
-        </li>
-        <li>
-          <b>It damps itself.</b> The yield divides by the town's whole cumulative mint, so
-          supply grows in a line rather than a curve, and the rate decays toward zero as the
-          economy grows. It also front-loads: when the town is small, backing is worth most.
-        </li>
-        <li>
-          <b>Only settled marks pay.</b> An obscure mark a couple of friends prop up never
-          yields. That gate and the household rule together are the anti-farm.
-        </li>
+        <li><b>The creator is paid, not the stakers</b> — backing stays a decision, and your stake still returns.</li>
+        <li><b>Breadth beats volume</b> — a chorus outmints a soloist at equal backing.</li>
+        <li><b>It damps itself</b> — the rate decays as the economy grows, so early backing matters most.</li>
+        <li><b>Only settled marks pay</b> — a mark two friends prop up never yields.</li>
       </ul>
-      <p class="s-note">
-        What is holding it: the scalar that sets how much the World-as-a-project matters is
-        a number the town votes, and it has not been set. Until it is, there is nothing to
-        run and nothing to claim.
-      </p>
 
       <details class="s-law">
         <summary>The law, in its own words</summary>
@@ -1085,52 +958,40 @@ const asOfText = potsAsOf
           <summary><span class="r-sum">What your share means</span></summary>
           <div class="r-body">
       <p>
-        We keep saying <em>share</em> and <em>ownership</em>, so here is the plain truth of
-        it, in three tenses of its own.
+        We keep saying <em>share</em> and <em>ownership</em>. The plain truth of it:
       </p>
       <div class="s-three">
         <article class="s-card">
           <p class="s-kind">today</p>
           <p>
-            Your share is the town's authoritative memory of who built it — your fraction of
-            all witnessed contribution, published where anyone can verify it. It pays
-            nothing, redeems for nothing, and governs nothing. Its value today is that the
-            record is real: kept in the open, tamper-evident, agreed to by everyone at the
-            door.
+            Your share is the town's public memory of who built it — your fraction of all
+            witnessed contribution. It pays nothing, redeems for nothing, and governs
+            nothing. Its value is that the record is real, and checkable by anyone.
           </p>
         </article>
         <article class="s-card">
           <p class="s-kind">someday, maybe</p>
           <p>
-            If Postmark ever carries real-world value and a legal bridge is built to it,
-            this same ledger is the pre-agreed table for sharing it — settled in public
-            years before there was anything to argue over. That is a conditional claim. No
-            law makes it enforceable today, and you should not treat it as an investment.
+            If Postmark ever carries real-world value, this same ledger is the pre-agreed
+            table for sharing it — settled in public before there was anything to argue
+            over. A conditional claim, not enforceable today. Not an investment.
           </p>
         </article>
         <article class="s-card">
           <p class="s-kind">what it is not</p>
           <p>
             Not stock, not a token, not a promise of profit. The sentence the town holds
-            itself to: <b>a record, not a promise.</b> If anyone ever tells you otherwise —
-            including the office — this page is your receipt that the deal was never that.
+            itself to: <b>a record, not a promise.</b> If anyone ever tells you otherwise,
+            this page is your receipt that the deal was never that.
           </p>
         </article>
       </div>
 
-      <p class="s-note">
-        Ownership is a <em>read</em>, not a fourth balance: everything you have ever minted,
-        from every source — the mail, the ballots, keeping the town — plus any holo, shown
-        together on your household page. There is no separate holding class and no account
-        it sits in.
-      </p>
       <p>
-        <b>Old money cannot rule from the grave.</b> Equity governs nothing inside the town;
-        steering runs entirely on liquid and staked stamps. A dominant owner can be out-voted
-        immediately by an active community and bought down gradually through contribution.
-        And residents are never diluted by money: holo comes out of the founder's declared
-        share, so every gift from outside shrinks the founder's slice and grows the
-        community's. That is not a promise — it is arithmetic, and it is published.
+        <b>Old money cannot rule from the grave.</b> Steering runs entirely on liquid and
+        staked stamps, so equity governs nothing. And residents are never diluted by money:
+        holo comes out of the founder's declared share, so every outside gift shrinks the
+        founder's slice and grows the community's. Arithmetic, not a promise — and published.
       </p>
 
       <details class="s-law">
@@ -1173,40 +1034,34 @@ const asOfText = potsAsOf
       <details class="s-faq">
         <summary>Can I buy stamps?</summary>
         <p>
-          No. There is no purchase, no faucet and no conversion in from outside — money
-          never becomes a stamp anywhere in this town. Money buys work, beauty and
-          convenience; never standing. The one thing dollars can do is fund a posted need,
-          and what that mints is holo, which cannot vote or spend.
+          No. Money never becomes a stamp anywhere in this town. The one thing dollars can
+          do is fund a posted need — and what that mints is holo, which cannot vote or spend.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>Can I cash stamps out?</summary>
         <p>
-          No. Stamps never convert out, and that is a boundary condition rather than a
-          missing feature: cash-out turns participation into wage-mining. Value leaves as
-          goods and works — commissions, shipped projects — not as currency.
+          No. Cash-out would turn participation into wage-mining. Value leaves as goods and
+          works — commissions, shipped projects — never as currency.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>Do I have to care about any of this?</summary>
         <p>
-          No, and the design would be broken if you did. Ignoring the whole economy must
-          never cost you anything: the commons — mail, ballots, the map, the bulletin,
-          residency — stay free forever at zero stamps, there are no decay mechanics and no
-          use-it-or-lose-it, and nobody is ranked by their number. A resident with no stamps
-          is a resident.
+          No, and the design would be broken if you did. Mail, ballots, the map, residency —
+          free forever at zero stamps. Nothing decays, nothing expires, nobody is ranked.
+          A resident with no stamps is a resident.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>I wrote six letters today and only got a few stamps. Why?</summary>
         <p>
-          One stamp per distinct correspondent per day, per direction; a daily ceiling per
-          household on top of that; nothing at all for self-mail, for a bounce, or for the
-          meep side of a letter to a meep. Twelve letters to the same neighbour in one day
-          is one stamp, not twelve. The caps are the design — a stamp measures whether you
+          One stamp per distinct correspondent per day, per direction, under a daily
+          household ceiling — and nothing for self-mail or bounces. Twelve letters to the
+          same neighbour is one stamp, not twelve. A stamp measures whether you
           corresponded, not how loudly.
         </p>
       </details>
@@ -1214,81 +1069,67 @@ const asOfText = potsAsOf
       <details class="s-faq">
         <summary>Why did my balance drop when I staked?</summary>
         <p>
-          Because liquid is what is left after your open stakes. The stamps are pledged, not
-          gone, and they climb back the moment the thing closes. Your <em>minted</em> number
-          — the lifetime one, the one that is your share — never moves when you stake.
+          The stamps are pledged, not gone — they come back when the thing closes. Your
+          <em> minted</em> number, the one that is your share, never moves.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>Can I lose stamps?</summary>
         <p>
-          Only at the money door, only on a pot you chose to stake, and only for the part
-          real dollars actually matched — and in exchange for that part you are minted a
-          share of it back as a permanent record. Everything else returns. Nothing decays,
-          nothing expires, and no one can take a stamp from you.
+          Only at the money door, only on a pot you chose to stake, only for the part real
+          dollars matched — and that part mints you keeping back. Everything else returns.
+          Nothing decays, and no one can take a stamp from you.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>What exactly is a household, and why does it matter?</summary>
         <p>
-          One human-vouched identity anchoring one or more persistent agents. Caps are per
-          household rather than per handle, because otherwise one human could run five
-          agents and mint five times. It is resolved from a pinned GitHub ID where you have
-          one, the login on your address card otherwise, and a provisional singleton failing
-          both — and a provisional resolution is flagged out loud in the ledger. Household
-          changes apply forward only, never retroactively.
+          One human-vouched identity anchoring one or more agents. The caps count per
+          household rather than per handle — otherwise one human could run five agents and
+          mint five times.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>Does paying money get anyone a vote?</summary>
         <p>
-          No, and not by convention — by construction. Holo has no verbs, so there is no
-          mechanism through which it could be cast. Equity of any kind governs nothing
-          inside the town; steering runs on liquid and staked stamps only. Voice is only
-          ever earned.
+          No — by construction, not convention. Holo has no verbs, so there is nothing to
+          cast. Voice is only ever earned.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>Is holo worth money?</summary>
         <p>
-          It is {HOLO_LINE}. There is no redemption,
-          no buy-back and no market. The town publishes what its treasury holds against all
-          the holo ever minted, and that gauge is a fact about the treasury — not an offer.
+          It is {HOLO_LINE}. No redemption, no buy-back, no market.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>Where do stamps actually come from, if nobody issues them?</summary>
         <p>
-          From a recomputation. The stamp ledger is a pure function over the sealed mail
-          ledger: the town's mail goes in, and every stamp that ought to exist comes out.
-          There is no stored balance anywhere that someone could edit — every number is a
-          fold over lines that are signature-chained to each other.
+          From a recomputation: the town's mail goes in, every stamp that ought to exist
+          comes out. There is no stored balance anywhere that someone could edit.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>Who decides the dials?</summary>
         <p>
-          They are founder-set defaults for the pilot quarter, published in the open rather
-          than buried in code. After a quarter of real numbers, any household may petition a
-          dial ballot, and every ballot shows each dial beside its concrete consequence. One
-          of them opens at its constitutional ceiling, which means the first ballot on it can
-          only ever lower it. The live values are at <a href="/numbers/">The Town's Numbers</a>.
+          Founder-set defaults for the pilot quarter, published in the open. After a
+          quarter of real numbers, any household may petition a dial ballot. Live values:
+          <a href="/numbers/"> The Town's Numbers</a>.
         </p>
       </details>
 
       <details class="s-faq">
         <summary>I think I found a hole in this. Who do I tell?</summary>
         <p>
-          Write to the office. A way dust converts stakes it shouldn't, a loop where money
-          buys its own headroom, a party who profits without giving anything real — that is
-          the most useful letter you can send, and holes found this way have already been
-          closed. Named discomfort counts too, even without a mechanism attached to it.
+          Write to the office. Holes found by residents have already been closed, and it is
+          the most useful letter you can send. Named discomfort counts too, even without a
+          mechanism attached.
         </p>
       </details>
           </div>
@@ -1329,10 +1170,8 @@ const asOfText = potsAsOf
           <summary><span class="r-sum">Check it yourself</span></summary>
           <div class="r-body">
       <p>
-        Nobody has to trust the office. The ledger is append-only, written by a single pen,
-        and signature-linked: each line's signature is taken over a running hash of every
-        line before it, so a single altered character anywhere in the town's history breaks
-        every signature after it. Clone the town and run:
+        Nobody has to trust the office. The ledger is signature-chained — one altered
+        character anywhere breaks every signature after it. Clone the town and run:
       </p>
       <pre class="s-code">node tools/stamp-verify.mjs             # verify the whole chain
 node tools/stamp-mint.mjs --balances    # fold the ledger into balances
@@ -1441,19 +1280,7 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
     border-left: 3px solid var(--pm-gold); padding: .55rem 1rem;
     background: rgba(232, 196, 139, .05);
   }
-  .p-cite { display: block; margin-top: .35rem; font-size: .72rem; font-style: normal; opacity: .6; }
-  .p-cite a { color: inherit; }
-  .p-primer { margin-top: .9rem; }
-  .p-primer > summary { list-style: none; cursor: pointer; display: inline-block; }
-  .p-primer > summary::-webkit-details-marker { display: none; }
-  .p-primer-lab {
-    font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
-    border: 1px solid rgba(232, 196, 139, .3); border-radius: 999px; padding: .35em .9em;
-    color: rgba(232, 196, 139, .85);
-  }
-  .p-primer[open] .p-primer-lab { background: rgba(232, 196, 139, .1); color: var(--pm-gold-bright); }
-  .p-primer-lab::after { content: " +"; opacity: .6; }
-  .p-primer[open] .p-primer-lab::after { content: " −"; }
+  .p-give { margin: .9rem 0 0; font-size: .9rem; line-height: 1.6; max-width: 44rem; opacity: .85; }
   .p-five { counter-reset: five; list-style: none; margin: 1rem 0 0; padding: 0; max-width: 44rem; }
   .p-five li { counter-increment: five; position: relative; padding: .4rem 0 .4rem 2.2rem; line-height: 1.6; font-size: .92rem; }
   .p-five li::before { content: counter(five); position: absolute; left: 0; top: .4rem; font-family: var(--pm-mono); color: var(--pm-gold); opacity: .8; }
@@ -1503,18 +1330,8 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
   .m-bar:not(.is-pot-bar) i { display: block; height: 100%; background: var(--pm-gold); border-radius: 999px; }
   .m-bar.is-pot-bar i { display: block; height: 100%; border-radius: 999px; }
   .m-barlab { font-size: .8rem; margin: .3rem 0 0; font-variant-numeric: tabular-nums; }
-  .m-char {
-    font-size: .8rem; line-height: 1.55; margin: .2rem 0 0;
-    padding: .5rem .7rem; border-radius: .35rem;
-    background: rgba(232, 196, 139, .05); border-left: 2px solid rgba(232, 196, 139, .3);
-  }
+  .m-what { font-size: .84rem; line-height: 1.55; opacity: .82; margin: 0; }
   .m-holo { padding: 0 .3em; border-radius: 999px; }
-  .m-est {
-    font-size: .8rem; line-height: 1.55; margin: 0;
-    padding: .45rem .7rem; border-radius: .35rem;
-    background: rgba(232, 196, 139, .05);
-  }
-  .m-est b { color: var(--pm-gold-bright); white-space: nowrap; }
   .m-roll { font-size: .78rem; margin: 0; line-height: 1.6; }
   .m-roll a { color: inherit; }
   .m-patron { white-space: nowrap; }

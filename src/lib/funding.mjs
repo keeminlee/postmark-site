@@ -64,6 +64,18 @@ function readEmission(name, override) {
 
 export const HOLO_LINE = "a record of contribution, not a promise of profit";
 
+// The one-breath answer to "what is this pot?" — the FIRST SENTENCE of the pot
+// file's own prose, never invented copy. Born of the founder's 2026-08-26
+// ruling on the market's cards: "THE MAIN PAGE CARDS EXPLAIN WHAT THE THING
+// IS" — and the cards were leading with close mechanics instead. The full
+// paragraph stays on the pot's own fund page; a card owes a reader only this.
+export function potGist(source) {
+  const s = String(source ?? "").trim();
+  if (!s) return "";
+  const m = /^.*?\.(?=\s|$)/.exec(s);
+  return m ? m[0] : s;
+}
+
 // The reserved direct-to-town pot (TREASURY_POT in stamp-mint.mjs): deeds only,
 // never a file, never stakes, never a close. The founding family grant is its
 // first deed — dollars with no household, so holo 0.

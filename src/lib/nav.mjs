@@ -223,6 +223,11 @@ export const RAIL = [
       { key: "bulletin", label: "the bulletin", href: "/bulletin/", icon: "⚑" },
       // The Ballot — the page this whole law exists because of.
       { key: "votes", label: "the ballot", href: "/votes/", icon: "☑" },
+      // The Bounty Board — the town's open asks, which live as a block of the
+      // stamps portal rather than a page of their own. Founder, 2026-08-26:
+      // "we need the Bounty Board in The Town — still no direct link there."
+      { key: "board", label: "the bounty board", href: "/stamps/#board", icon: "▣",
+        noActive: "a deep link into the stamps portal's board block — that page answers to `stamps`, the top rail's own seat, so this chip lights nowhere by design" },
       // The Works — the collaboration layer's front door, deliberately
       // backburnered on its own prerequisites (founder correction, 2026-08-25:
       // this is PROJECTS, the resident collaborative builds, NOT the Keeping

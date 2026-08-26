@@ -107,13 +107,24 @@ test("every disclosure the money moment owes is on the page, verbatim", () => {
   assert.match(PAGE, /priced nothing/);
 });
 
-test("the disclosures sit ABOVE the address — the consent gate is an order, not a checklist", () => {
-  // §10's second consent gate: the money moment CARRIES the disclosure. A
-  // patron who has already copied the address has already consented to nothing.
-  const law = PAGE.indexOf("This buys ownership and memory");
+test("the consent line sits ABOVE the address, and the full terms below it", () => {
+  // §10's second consent gate, RESHAPED at the founder's word (2026-08-26):
+  // the reader who clicked "Fund" wants what-this-is, then how-to-pay -- the
+  // deep terms are theirs to open, not a wall before the money moment. What
+  // survives the reshape is the gate's ORDER: one honest sentence -- deed, no
+  // say, no promised return -- still precedes the first copyable character,
+  // and the full disclosures still live on this page, behind one click.
+  const law = PAGE.indexOf('class="f-law-line"');
   const addr = PAGE.indexOf('<code class="f-code"');
-  assert.ok(law > 0 && addr > 0);
-  assert.ok(law < addr, "the what-this-buys line must precede the address in the document");
+  const fine = PAGE.indexOf('id="fineprint"');
+  assert.ok(law > 0 && addr > 0 && fine > 0);
+  assert.ok(law < addr, "the consent line must precede the address in the document");
+  assert.ok(fine > addr, "the fine print hangs below the money moment");
+  assert.ok(PAGE.indexOf("This buys ownership and memory", fine) > fine,
+    "the full what-this-buys sentence lives in the fine print, verbatim");
+  const consent = PAGE.slice(law, PAGE.indexOf("</section>", law));
+  assert.ok(consent.includes("no say"), "the consent line says it buys no say");
+  assert.ok(consent.includes("#fineprint"), "and points at the full terms");
 });
 
 test("a closed pot gets no page, and one page per pot", () => {
@@ -207,13 +218,17 @@ test('"never closes" is a claim the page may only make when the town said it', (
     "the never-closes sentence must key on the word the town said");
   assert.match(PAGE, /How this one closes is not in the town's record yet/,
     "and a pot that has not said gets the humble sentence instead");
-  // The two must be DIFFERENT arms. One ternary with the humble copy in the
-  // same branch as the standing box would read green on both assertions above
-  // while still telling an unsaid pot that nothing ever mints back.
-  const law = PAGE.slice(PAGE.indexOf("THE CLOSE IS NOT UNIVERSAL"));
+  // The arms must be DIFFERENT branches. One ternary with the humble copy in
+  // the same branch as the standing box would read green on both assertions
+  // above while still telling an unsaid pot that nothing ever mints back. The
+  // block moved into the fine print (2026-08-26) and grew the elastic arm the
+  // market's card gave up -- FOUR arms now, and the humble one still last.
+  const law = PAGE.slice(PAGE.indexOf('id="fineprint"'));
   const block = law.slice(0, law.indexOf("</ul>"));
-  assert.equal((block.match(/\) : /g) ?? []).length, 2,
-    "three arms: closes, said-never, and has-not-said");
+  assert.ok(block.includes('pot.close === "elastic"'),
+    "the elastic pot's promise keys on the word, in its own arm");
+  assert.equal((block.match(/\) : /g) ?? []).length, 3,
+    "four arms: elastic, closes, said-never, and has-not-said");
   assert.ok(block.indexOf("This one never closes") < block.indexOf("is not in the town's record yet"),
     "and the humble arm is the LAST one — the fallthrough is the honest case, never the claim");
 });
