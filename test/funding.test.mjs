@@ -15,10 +15,12 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import {
   DEEDS_FIXTURE,
   FOUNDER_ACCOUNT,
+  HOLO_NAME_LINE,
   holoPerDollar,
   beneficiaryLabel,
   firstCloseLabel,
@@ -634,5 +636,103 @@ test("the household's funding shelf says the record in plain words, with no noun
   //    The ruling took a word off the page, not the record off the household.
   for (const fact of ["d.what", "fmtDate(d.date)", "d.usd", "d.holo", "deedTotals.usd"]) {
     assert.ok(template.includes(fact), `the shelf stopped rendering ${fact}`);
+  }
+});
+
+// ── holo is short for holographic stamps, taught once per page ───────────────
+
+// The four surfaces that speak the word. Each must IMPORT the sentence; none
+// may retype it, because a second copy is a sentence that can drift.
+const HOLO_SURFACES = [
+  "../town/pages/stamps/index.astro",
+  "../town/pages/numbers/index.astro",
+  "../town/pages/fund/[pot].astro",
+  "../town/components/Household.astro",
+];
+
+test("the holo expansion has one home, and every surface imports it rather than retyping it", () => {
+  // THE LAW, the founder's own (2026-08-26): holo is short for HOLOGRAPHIC
+  // STAMPS, and the pages should teach it. The sentence is a shared constant
+  // for the same reason HOLO_LINE is one — one home, so a second surface
+  // cannot drift a word of it.
+  assert.equal(
+    HOLO_NAME_LINE,
+    "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.",
+    "the founder's sentence is verbatim or it is not the founder's sentence",
+  );
+
+  for (const rel of HOLO_SURFACES) {
+    const src = readFileSync(new URL(rel, import.meta.url), "utf8");
+    assert.match(src, /import \{[^}]*\bHOLO_NAME_LINE\b[^}]*\} from "@\/lib\/funding\.mjs"/,
+      `${rel} must import HOLO_NAME_LINE from the seam's reader`);
+    assert.ok(src.includes("{HOLO_NAME_LINE}"),
+      `${rel} imports the constant but never renders it`);
+    // the half that catches drift: a surface that retyped the sentence would
+    // still render correctly today and go quietly wrong at the first edit.
+    assert.equal(src.includes("short for holographic stamp"), false,
+      `${rel} retypes the sentence instead of reading the constant`);
+  }
+});
+
+// The built pages are the real surface for the placement rule, so this reads
+// them rather than the source: on the fund page the expansion MOVES with the
+// pot's close shape, and on a household page it moves with whether the house
+// has a shared dashboard — both of which only resolve at render.
+const DIST = new URL("../dist-town/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+const built = existsSync(DIST);
+
+// Astro escapes the apostrophe in "the collector's shiny kind" to &#39;, so a
+// raw includes() of the constant finds NOTHING in built HTML. The first cut of
+// these two tests counted zero on every page and went green on the "not twice"
+// half — a probe that could not fail. Both now read through here.
+const holoTimes = (html) => {
+  const plain = String(html).replace(/&#0*39;|&#x0*27;|&apos;/gi, "'");
+  return plain.split(HOLO_NAME_LINE).length - 1;
+};
+const everyBuiltPage = (dir = DIST, out = []) => {
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) everyBuiltPage(full, out);
+    else if (name.endsWith(".html")) out.push(full);
+  }
+  return out;
+};
+
+test("no built page teaches the expansion twice", { skip: !built }, () => {
+  // THE PLACEMENT RULE, and the whole of it: the FIRST holo mention on a page
+  // carries the expansion; every later mention stays bare "✧ holo". A page that
+  // said it twice would be the prose budget going, which is the thing the rule
+  // exists to prevent. Skipped without a build — run `npm run build` first for
+  // this one to mean anything.
+  const twice = everyBuiltPage()
+    .map((p) => [p, holoTimes(readFileSync(p, "utf8"))])
+    .filter(([, n]) => n > 1);
+  assert.deepEqual(twice, [], `these pages teach it more than once: ${twice.map(([p, n]) => `${p} (${n})`).join(", ")}`);
+});
+
+test("each money surface teaches it exactly once, in both of the household's shapes", { skip: !built }, () => {
+  // Named surfaces first. Every fund page counts, not a sampled one, because
+  // the expansion moves between the fine print and the footer with the pot's
+  // close shape — a pot whose bullets never name holo would otherwise ship a
+  // page that never expands the word at all.
+  const named = [join(DIST, "stamps", "index.html"), join(DIST, "numbers", "index.html")];
+  const fundDir = join(DIST, "fund");
+  if (existsSync(fundDir)) {
+    for (const pot of readdirSync(fundDir)) named.push(join(fundDir, pot, "index.html"));
+  }
+
+  // ...and one household page of EACH shape, discovered rather than named, so
+  // this keeps testing both shapes as the town's households change. The shared
+  // house has a house-level dashboard and the expansion rides its note; the
+  // unshared one has no such note and it rides the first member's stamp bar.
+  const houses = everyBuiltPage(join(DIST, "households")).map((p) => [p, readFileSync(p, "utf8")]);
+  const shared = houses.find(([, h]) => h.includes('class="dash-stamps"'));
+  const solo = houses.find(([, h]) => !h.includes('class="dash-stamps"'));
+  assert.ok(shared, "no shared household page in the build — the shared shape went untested");
+  assert.ok(solo, "no single-resident household page in the build — that shape went untested");
+
+  for (const p of [...named, shared[0], solo[0]]) {
+    const n = holoTimes(readFileSync(p, "utf8"));
+    assert.equal(n, 1, `${p} carries the expansion ${n} times, and the rule is exactly once`);
   }
 });

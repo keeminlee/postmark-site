@@ -64,6 +64,20 @@ function readEmission(name, override) {
 
 export const HOLO_LINE = "a record of contribution, not a promise of profit";
 
+// WHAT THE WORD IS SHORT FOR, in the founder's own sentence (2026-08-26): holo
+// is short for HOLOGRAPHIC STAMPS, and the pages should teach it rather than
+// leaving a reader to meet a coined syllable cold.
+//
+// THE PLACEMENT RULE, which is prose-budget discipline and not decoration: the
+// FIRST holo mention on a page carries this expansion, worked into the sentence
+// it joins; every later mention on that page stays bare "✧ holo". One page, one
+// teaching. It lives here beside HOLO_LINE for the same reason HOLO_LINE does —
+// one home, so a second surface cannot drift a word of it — and the falsifiers
+// in funding.test.mjs assert both halves: that no page retypes the sentence,
+// and that each built page carries it exactly once.
+export const HOLO_NAME_LINE =
+  "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.";
+
 // The one-breath answer to "what is this pot?" — the FIRST SENTENCE of the pot
 // file's own prose, never invented copy. Born of the founder's 2026-08-26
 // ruling on the market's cards: "THE MAIN PAGE CARDS EXPLAIN WHAT THE THING

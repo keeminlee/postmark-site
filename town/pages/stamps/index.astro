@@ -25,7 +25,7 @@
 //   And nothing is invented: every number comes from its one source, and every
 //   kind of nothing is still named rather than smoothed away.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { loadEconomy, readEconomy, HOLO_LINE, livePots, loadPots, POT_FIXTURE, potGist } from "@/lib/funding.mjs";
+import { loadEconomy, readEconomy, HOLO_LINE, HOLO_NAME_LINE, livePots, loadPots, POT_FIXTURE, potGist } from "@/lib/funding.mjs";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
@@ -384,9 +384,14 @@ const asOfText = potsAsOf
           </div>
         )}
 
+        {/* THE PAGE'S FIRST HOLO MENTION, so it is the one that carries the
+            expansion (the founder's placement rule, 2026-08-26): a reader meets
+            the word here before the seam card or the glossary, and both of those
+            stay bare below. */}
         <p class="m-note">
-          ✧ holo is the payers' keepsake — {HOLO_LINE}. It never spends. How to give, and
-          what a dollar does and doesn't get you, live on each pot's own page.
+          ✧ holo is {HOLO_NAME_LINE} Here it is the payers' keepsake — {HOLO_LINE}. It
+          never spends. How to give, and what a dollar does and doesn't get you, live on
+          each pot's own page.
         </p>
       </div>
     </section>

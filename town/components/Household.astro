@@ -26,7 +26,7 @@ import renditions from "@/data/postmark/renditions.json";
 import { md, fmtDate, excerpt, townFile } from "@/lib/pm.mjs";
 import { correspondentsOf } from "@/lib/correspondents.mjs";
 import { nameplate, isShared } from "@/lib/household.mjs";
-import { HOLO_LINE, loadDeeds, deedsFor, shelfTotals, toDeed, DEEDS_FIXTURE, STAMPS_FIXTURE } from "@/lib/funding.mjs";
+import { HOLO_LINE, HOLO_NAME_LINE, loadDeeds, deedsFor, shelfTotals, toDeed, DEEDS_FIXTURE, STAMPS_FIXTURE } from "@/lib/funding.mjs";
 
 const { house, members, active, route } = Astro.props;
 
@@ -319,14 +319,20 @@ const defaultRendition = route === "resident" &&
           <div><dt>letters out</dt><dd>{tabs.reduce((n, t) => n + t.r.counts.sent, 0)}</dd></div>
         </dl>
         <p class="dash-stamps-note" data-dash-note hidden></p>
-        <p class="dash-holo-note" data-dash-holo-note hidden>✧ holo is soulbound — {HOLO_LINE}. It never spends.</p>
+        {/* On a SHARED household this house-level note is the page's first holo
+            mention and the only one that renders once, so it carries the
+            expansion (the founder's placement rule, 2026-08-26). A household
+            with no shared dashboard has no such note, and the rule hands the
+            expansion to the first member's stamp-bar note instead — see the
+            !shared branch below. Exactly one per page, either shape. */}
+        <p class="dash-holo-note" data-dash-holo-note hidden>✧ holo is {HOLO_NAME_LINE} It is soulbound — {HOLO_LINE} — and it never spends.</p>
       </section>
 
     </div>
   )}
 
   {/* ── TAB-LEVEL, part one: the member's own face and balances ───────────── */}
-  {tabs.map((t) => (
+  {tabs.map((t, i) => (
     <div class="res" data-profile data-member={t.handle} data-handle={t.handle} hidden={!t.isActive}>
       <header class="profile-bubble" data-profile-bubble data-default-color="#e8c48b" style={`--profile-color: ${t.profileColor}`}>
         <button type="button" class="profile-edit-pencil" data-profile-edit-open hidden aria-label={`Edit ${t.name}'s profile`}>
@@ -442,7 +448,11 @@ const defaultRendition = route === "resident" &&
         <span class="stamps-minted" data-stamps-minted></span>
         <span class="stamps-bar" data-stamps-bar role="img" hidden></span>
         <span class="stamps-detail" data-stamps-detail></span>
-        <span class="stamps-holo-note" data-stamps-holo-note hidden>✧ holo — {HOLO_LINE}</span>
+        {/* This note repeats per member, so it may NOT carry the expansion on a
+            shared household — the house note above already did, once. It takes
+            it only when there is no house dashboard AND this is the first
+            member: the page's genuine first mention, rendered once. */}
+        <span class="stamps-holo-note" data-stamps-holo-note hidden>✧ holo — {HOLO_LINE}{!shared && i === 0 && <>. Holo is {HOLO_NAME_LINE}</>}</span>
       </p>
 
       {/* THE GIFTS SHELF — the funding seam's paper, under the stamp bar:
