@@ -698,19 +698,60 @@ const everyBuiltPage = (dir = DIST, out = []) => {
   return out;
 };
 
-test("no built page teaches the expansion twice", { skip: !built }, () => {
+// THE GLOSSARY IS EXEMPT from the once-per-page count (founder, 2026-08-26):
+// it is where a reader goes to look the word UP, so an entry that withholds
+// what the name is short for is the one place restraint becomes a defect.
+// Counting "outside the glossary" means CUTTING it out first, and the cut has
+// to be anchored on something that survives the build — Astro appends a cid to
+// every class, so this anchors on the s-gloss list's opening tag rather than an
+// exact class match.
+//
+// WHICH WAY THIS FAILS, checked rather than assumed: if the anchor ever stops
+// matching, the cut becomes a no-op, the glossary's copy stays IN the counted
+// text, and /stamps/ reads 2 — RED. A no-op cut cannot hide a violation here;
+// it can only invent one. That direction is the whole reason the anchor is
+// allowed to be a regex at all.
+const GLOSS_OPEN = /<dl class="s-gloss[^"]*"[^>]*>/;
+const outsideGlossary = (html) => {
+  const open = GLOSS_OPEN.exec(html);
+  if (!open) return html;
+  const end = html.indexOf("</dl>", open.index);
+  return end < 0 ? html : html.slice(0, open.index) + html.slice(end);
+};
+const insideGlossary = (html) => {
+  const open = GLOSS_OPEN.exec(html);
+  if (!open) return "";
+  const end = html.indexOf("</dl>", open.index);
+  return end < 0 ? "" : html.slice(open.index, end);
+};
+
+test("no built page teaches the expansion twice in flowing prose", { skip: !built }, () => {
   // THE PLACEMENT RULE, and the whole of it: the FIRST holo mention on a page
   // carries the expansion; every later mention stays bare "✧ holo". A page that
   // said it twice would be the prose budget going, which is the thing the rule
-  // exists to prevent. Skipped without a build — run `npm run build` first for
+  // exists to prevent. The glossary entry is cut out first and governed by its
+  // own test below. Skipped without a build — run `npm run build` first for
   // this one to mean anything.
   const twice = everyBuiltPage()
-    .map((p) => [p, holoTimes(readFileSync(p, "utf8"))])
+    .map((p) => [p, holoTimes(outsideGlossary(readFileSync(p, "utf8")))])
     .filter(([, n]) => n > 1);
   assert.deepEqual(twice, [], `these pages teach it more than once: ${twice.map(([p, n]) => `${p} (${n})`).join(", ")}`);
 });
 
-test("each money surface teaches it exactly once, in both of the household's shapes", { skip: !built }, () => {
+test("the glossary's holo entry says what the name is short for", { skip: !built }, () => {
+  // The exemption, asserted from the other side: the once-per-page tests cut
+  // the glossary out, so without this the entry could quietly lose the
+  // expansion and every other probe would stay green.
+  const stamps = readFileSync(join(DIST, "stamps", "index.html"), "utf8");
+  const gloss = insideGlossary(stamps);
+  assert.ok(gloss, "the glossary anchor stopped matching — the cut in the tests above is a no-op");
+  // the cid Astro appends to every tag is why this is not a bare `<dt>holo`
+  assert.ok(/<dt[^>]*>holo/.test(gloss), "the glossary lost its holo entry");
+  assert.equal(holoTimes(gloss), 1,
+    "the glossary's holo entry must carry the expansion, once — it is where a reader looks the word up");
+});
+
+test("each money surface teaches it exactly once outside the glossary, in both of the household's shapes", { skip: !built }, () => {
   // Named surfaces first. Every fund page counts, not a sampled one, because
   // the expansion moves between the fine print and the footer with the pot's
   // close shape — a pot whose bullets never name holo would otherwise ship a
@@ -732,7 +773,7 @@ test("each money surface teaches it exactly once, in both of the household's sha
   assert.ok(solo, "no single-resident household page in the build — that shape went untested");
 
   for (const p of [...named, shared[0], solo[0]]) {
-    const n = holoTimes(readFileSync(p, "utf8"));
-    assert.equal(n, 1, `${p} carries the expansion ${n} times, and the rule is exactly once`);
+    const n = holoTimes(outsideGlossary(readFileSync(p, "utf8")));
+    assert.equal(n, 1, `${p} carries the expansion ${n} times outside the glossary, and the rule is exactly once`);
   }
 });

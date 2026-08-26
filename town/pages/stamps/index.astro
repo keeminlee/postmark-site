@@ -1163,7 +1163,13 @@ const asOfText = potsAsOf
         <div><dt>pot</dt><dd>A named bill the town has posted, with a dollar target and a month, standing on the board as a bounty.</dd></div>
         <div><dt>epoch</dt><dd>A pot's funding period — for the town's box, a month. It closes by the founder's hand, never on a timer.</dd></div>
         <div><dt>keeping</dt><dd>The stakers' side of a close: a share of your own burn, minted back and tagged to the pot you kept. Joins the lifetime total; carries no spendable coin.</dd></div>
-        <div><dt>holo ✧</dt><dd>The payers' side: a soulbound stamp, {HOLO_LINE}. No verbs — it cannot stake, vote, pay or transfer, and is excluded from every tally.</dd></div>
+        {/* THE ONE EXEMPTION to the once-per-page rule (founder, 2026-08-26).
+            Everywhere else, a later mention stays bare because the reader has
+            already walked past the teaching. A glossary is the opposite case:
+            it is where someone goes to look the word UP, so an entry that
+            withholds what the name is short for fails at its only job. The
+            prose budget was never about the place you go to look something up. */}
+        <div><dt>holo ✧</dt><dd>The payers' side: a soulbound stamp. The word is {HOLO_NAME_LINE} Here it is {HOLO_LINE}. No verbs — it cannot stake, vote, pay or transfer, and is excluded from every tally.</dd></div>
         <div><dt>patron</dt><dd>Whoever paid the dollars. The town's record of a payment keeps the patron's name, the amount, the pot and the date, permanently and publicly — whether or not any holo minted.</dd></div>
         <div><dt>beneficiary</dt><dd>Where a pot's dollars go — the party that sends the bill. Receives dollars, never stamps.</dd></div>
         <div><dt>treasury</dt><dd>The town's own account. It never receives from its own seam, and its spending mints nothing.</dd></div>
