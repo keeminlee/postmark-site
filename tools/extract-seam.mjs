@@ -151,12 +151,15 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
       epoch_cadence: file?.epoch_cadence,
       beneficiary: file?.beneficiary ?? null,
       uncapped: file?.uncapped === true,
-      // What a close does to this pot, in the pot file's own word. The only
-      // value the law spells so far is "none" — pot-darko-fund.json: "a
-      // standing box, not an epoch pot — gifts are witnessed, never converted;
-      // nothing here ever burns or mints". Without this field the site cannot
-      // tell a donation box from an epoch pot, and every surface goes on
-      // promising a close that will never run for it.
+      // What a close does to this pot, in the pot file's own word. Three are
+      // spelled by the law: "none" — pot-darko-fund.json: "a standing box, not
+      // an epoch pot — gifts are witnessed, never converted; nothing here ever
+      // burns or mints"; "elastic", the roll that carries forward; and
+      // "epoch", the monthly pot, made explicit in the record 2026-08-25.
+      // Without this field the site cannot tell a donation box from an epoch
+      // pot, and every surface goes on promising a close that will never run
+      // for it. Carried BY NAME — a new WORD rides through untouched, and a new
+      // FIELD does not: anything the town adds here must be named here too.
       close: typeof file?.close === "string" && file.close.trim() ? file.close.trim() : null,
       // The elastic close's floor, carried across whole. § _min_close names the
       // owner and the duty in one line: "Owner of the number: this file; every

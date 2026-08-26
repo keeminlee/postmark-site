@@ -96,14 +96,8 @@ async function claimImage(repoPath) {
     // the town's: skip it like a missing image instead of dying — one bad
     // enclosure killed every scheduled sync (doorsteps included) for 18h on
     // 2026-07-30/31 before this guard existed.
-    let r;
-    try {
-      r = await processImage(src, join(MEDIA_DIR, name), PRESETS[size]);
-    } catch (e) {
-      console.warn(`WARN unprocessable image (skipped): ${repoPath} — ${e.message}`);
-      mMissing++;
-      return null;
-    }
+    const r = await processImage(src, join(MEDIA_DIR, name), PRESETS[size]);
+    if (r === "skipped") { mMissing++; return null; }
     r === "wrote" ? mWrote++ : mKept++;
     entry[size] = `${MEDIA_URL}/${name}`;
   }
@@ -864,7 +858,9 @@ const ATLAS_ASSETS = join(ATLAS_OUT, "assets");
     if (!existsSync(src)) { console.warn(`WARN missing atlas asset: ${repoPath}`); missing++; continue; }
     wanted.add(name);
     const r = await processImage(src, join(ATLAS_ASSETS, name), PRESETS.thumb);
-    r === "wrote" ? wrote++ : kept++;
+    // "skipped" still rewrites the ref: a 404 thumb for one corrupt image
+    // beats an unrewritten ref (FATAL below) or a dead sync.
+    r === "wrote" ? wrote++ : r === "kept" ? kept++ : missing++;
   }
   for (const gone of ownDir(ATLAS_ASSETS, wanted)) console.log(`removed stray atlas asset: ${gone}`);
   html = html.replace(QUOTED_IMAGE_REF_RE, (whole, quote, dots, repoPath) =>
@@ -954,7 +950,7 @@ await emitSeam(TOWN);
     let office = readFileSync(officeSrc, "utf8");
     mkdirSync(DAILY_ASSETS, { recursive: true });
     const wanted = new Set();
-    let wrote = 0, kept = 0;
+    let wrote = 0, kept = 0, missing = 0;
     const rewrites = new Map();
     for (const m of office.matchAll(ATTR_REF_RE)) {
       const ref = m[2];
@@ -966,7 +962,8 @@ await emitSeam(TOWN);
         const name = assetName(repoRel);
         wanted.add(name);
         const r = await processImage(abs, join(DAILY_ASSETS, name), PRESETS.full);
-        r === "wrote" ? wrote++ : kept++;
+        // "skipped" still rewrites: a 404 asset beats a dead sync.
+        r === "wrote" ? wrote++ : r === "kept" ? kept++ : missing++;
         rewrites.set(ref, `assets/${name}`);
       } else {
         rewrites.set(ref, githubUrl(repoRel));

@@ -280,6 +280,21 @@ test("each pot says what IT does, keyed on the word and never on the boolean", (
   assert.equal(section.split('p.close === "elastic"').length - 1, 3,
     "the bar, the figure line and the character line must each branch on the word");
   assert.ok(section.includes('p.close === "none"'), "and the standing box has its own branch");
+  // THE EPOCH ARM, AND THE DEFECT IT CLOSES. The comment above the character
+  // line claimed the whole branch was "keyed on the pot file's own word rather
+  // than on the boolean, because the boolean cannot tell 'never closes' from
+  // 'not stated yet'" — and the third arm fell through to `p.closes` anyway.
+  // So a pot that posted a target and said nothing was told, in bold, that it
+  // closes at the epoch. That was LIVE on the keeping pot: this page promised
+  // the epoch close while the MCP's fund read warned that nothing in the
+  // record said when a stake would burn, and a resident found the pair. The
+  // record now says close: "epoch" (pot-keeping-ec2.json § _close, the
+  // founder's explicit-word ruling of 2026-08-25) and the arm keys on it.
+  assert.ok(section.includes('p.close === "epoch"'),
+    "the epoch promise must key on the word the town said, never on the boolean");
+  assert.equal(/:\s*p\.closes\s*$/m.test(section), false,
+    "no arm of the character line may fall through to the derived boolean");
+  assert.ok(sBody.includes("Closes at the epoch"), "and the epoch pot still says so");
   assert.ok(sBody.includes("given so far this roll"),
     "an elastic pot's figure is a running roll, not one epoch's takings");
   assert.ok(sBody.includes("Carries forward"), "the elastic pot says the roll carries forward");

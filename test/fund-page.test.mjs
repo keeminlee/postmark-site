@@ -138,3 +138,31 @@ test("the page is quiet-launch: reachable, and not in the nav", () => {
   // longer forbidden. Fund pages are reached from pot cards today; the old
   // assertion enforcing their absence from the layout is retired.)
 });
+
+test('"never closes" is a claim the page may only make when the town said it', () => {
+  // THE LAW THIS ASSERTS — src/lib/funding.mjs's own note on the `closes`
+  // boolean, quoted, because the page was contradicting it:
+  //   "Note what this boolean CANNOT carry: the difference between 'the town
+  //    said this never closes' and 'the town has not said'. Both read false,
+  //    and a surface that renders the first sentence for the second case is
+  //    making a confident claim the record does not support."
+  //
+  // This page's law block branched on `pot.closes` alone, so a pot the town had
+  // simply not spoken for — targetless and wordless, which is a shape the live
+  // emission has worn — was told flatly that it never closes, in bold, on the
+  // page where somebody is deciding whether to send real money. Sibling of the
+  // stamps page's character line, and found in the same 2026-08-25 trueing.
+  assert.ok(PAGE.includes('pot.close === "none"'),
+    "the never-closes sentence must key on the word the town said");
+  assert.match(PAGE, /How this one closes is not in the town's record yet/,
+    "and a pot that has not said gets the humble sentence instead");
+  // The two must be DIFFERENT arms. One ternary with the humble copy in the
+  // same branch as the standing box would read green on both assertions above
+  // while still telling an unsaid pot that nothing ever mints back.
+  const law = PAGE.slice(PAGE.indexOf("THE CLOSE IS NOT UNIVERSAL"));
+  const block = law.slice(0, law.indexOf("</ul>"));
+  assert.equal((block.match(/\) : /g) ?? []).length, 2,
+    "three arms: closes, said-never, and has-not-said");
+  assert.ok(block.indexOf("This one never closes") < block.indexOf("is not in the town's record yet"),
+    "and the humble arm is the LAST one — the fallthrough is the honest case, never the claim");
+});
