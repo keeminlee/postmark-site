@@ -63,7 +63,7 @@ export function nextMonth(epoch) {
 // the first month, at or after the town's own clock, that this pot has not
 // already closed.
 //
-// `start` is the later of the town HEAD commit's month and the newest undeeded
+// `start` is the later of the town HEAD commit's month and the newest unsettled
 // receipt's month — a payment that arrived in a month is evidence that month is
 // live, and a receipt can never be older than the epoch it will close into,
 // because a close consumes it.
@@ -86,7 +86,7 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
   const TREASURY = mint.TREASURY_POT;
 
   const positions = mint.foldPotPositions(entries);
-  const { receipts, deeded } = mint.foldPotReceipts(entries);
+  const { receipts, settled } = mint.foldPotReceipts(entries);
   const closedEpochs = mint.foldClosedEpochs(entries);
 
   // TREASURY DOLLARS FUND NOTHING, so they are not what a pot's bar measures.
@@ -217,7 +217,7 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
     // gets no open row — only the months it actually closed.
     if (String(file?.status) === "closed") continue;
 
-    const mine = receipts.filter((r) => r.pot === pot && !deeded.has(r.ref));
+    const mine = receipts.filter((r) => r.pot === pot && !settled.has(r.ref));
     const newestReceipt = mine.reduce((max, r) => (r.date > max ? r.date : max), "");
     const posted = monthOf(newestReceipt) > monthOf(asOf) ? monthOf(newestReceipt) : monthOf(asOf);
 
