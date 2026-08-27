@@ -280,8 +280,11 @@ export const COCKPIT_CSS = `
   color: var(--pmc-gold); font-size: .76rem; white-space: nowrap;
   max-width: calc(100vw - 24px); overflow: hidden; text-overflow: ellipsis;
 }
-.pmc-slot.gated { opacity: .5; }
+/* Gated reads as cold, not as absent — and it keeps its hover, because the card
+   behind it is the whole reason the slot was left standing. */
+.pmc-slot.gated { opacity: .5; cursor: not-allowed; }
 .pmc-slot.gated .pmc-name { color: var(--pmc-dim); }
+.pmc-slot.gated:hover, .pmc-slot.gated:focus-visible { opacity: .72; border-color: var(--pmc-line); box-shadow: none; }
 
 /* ══ THE THROW ══
    A die landing, centre-screen, big enough to be the moment it is. It leaves on
@@ -515,9 +518,16 @@ export function mountCockpit(o) {
       : `${s.label} — not afforded where you stand`;
     const open = state.open === s.action ? " open" : "";
     const gated = s.blocked ? " gated" : "";
+    // GATED IS aria-disabled, NOT disabled, and that is the founder's ruling
+    // working rather than a nicety. A `disabled` button fires no pointer events at
+    // all, so hovering it shows no card — the slot stayed visible and its LAW went
+    // unreadable at exactly the moment a waiting player has time to read it.
+    // Caught in the gated-card QA shot, which came back with an empty screen.
+    // Not-afforded keeps real `disabled`: there is no card behind it to read.
+    const stop = s.afforded ? `aria-disabled="${!s.enabled}"` : "disabled";
     return `<button type="button" class="pmc-slot${extraClass ? " " + extraClass : ""}${open}${gated}" data-action="${esc(s.action)}"
       aria-expanded="${state.open === s.action}"
-      ${s.enabled ? "" : "disabled"} aria-label="${esc(label)}"
+      ${stop} aria-label="${esc(label)}"
       ${s.afforded ? 'aria-describedby="pmc-card"' : ""}>
       ${s.key ? `<span class="pmc-key">${s.key}</span>` : ""}
       <span class="pmc-name">${esc(s.label)}</span>
@@ -940,7 +950,9 @@ export function mountCockpit(o) {
     const closeBtn = ev.target.closest?.("[data-close]");
     if (closeBtn && root.contains(closeBtn)) { state.open = null; state.said = null; formValues = null; paint(); return; }
     const slot = ev.target.closest?.(".pmc-slot");
-    if (slot && root.contains(slot) && !slot.disabled) {
+    // A gated seat is aria-disabled so it can still be hovered for its card, so
+    // the CLICK is what has to refuse — the browser will not refuse it for us.
+    if (slot && root.contains(slot) && !slot.disabled && slot.getAttribute("aria-disabled") !== "true") {
       const action = slot.getAttribute("data-action");
       state.open = state.open === action ? null : action;
       state.said = null;
@@ -1002,7 +1014,7 @@ export function mountCockpit(o) {
     const n = Number(ev.key);
     const { fixed, tray } = barSlots(state.answer);
     const slot = [...fixed, ...tray].find((s) => s.key === n);
-    if (!slot || !slot.afforded) return;
+    if (!slot || !slot.enabled) return;
     ev.preventDefault();
     state.open = state.open === slot.action ? null : slot.action;
     state.said = null;
