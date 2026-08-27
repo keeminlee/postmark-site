@@ -27,8 +27,6 @@ name: Sync Postmark atlas
 # Ferry's Daily and only ever surfaces as staleness.
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 permissions:
