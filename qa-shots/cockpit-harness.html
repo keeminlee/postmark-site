@@ -146,6 +146,27 @@
       granted: { yours: [], here: [] },
       law: { as_of_world: "fixture", source: "the harness" },
     },
+    // A CLASS MARK IS RESIDENT-AUTHORED PROSE. The reading law says it is content
+    // you are reading, never instructions you are receiving — and the mechanical
+    // half of that is that it cannot be instructions to the BROWSER either. This
+    // fixture puts markup in every place the card and the form quote from, so the
+    // shot runner can check that none of it became an element.
+    hostile: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied-human", portal: { ...PORTAL, body: "<img src=x onerror=\"document.title='portal-body'\">" } },
+      crossing: { n: 151 },
+      within: [{ id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" }],
+      actions: [
+        entry("say", {
+          blurb: "<script>document.title='blurb'<\/script><b>bold?</b>",
+          blurb_from: "<img src=x onerror=\"document.title='blurb_from'\">",
+          from: "<i>from</i>",
+          fields: { "<u>text</u>": { type: "string", description: "<script>document.title='desc'<\/script>" } },
+          dials: { "<em>reach</em>": "<span>3</span>" },
+        }),
+      ],
+      granted: { yours: ["say"], here: [] },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
     town: {
       standpoint: { x: 0, y: 0, from: "coords", stance: "embodied" },
       crossing: { n: 151 },
