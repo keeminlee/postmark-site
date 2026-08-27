@@ -420,7 +420,17 @@ export function mountCockpit(o) {
   function askTerms(action) {
     if (termsCache.has(action) || !o.readTerms) return;
     termsCache.set(action, undefined);
-    o.readTerms(action).then((body) => {
+    // A SHADOW NEEDS A RESIDENT NAMED. The office's read path builds its fields
+    // as `{ ...envelope, ...(args.handle ? { handle } : {}) }` with the comment
+    // that "a multi-resident key that named its handle must not meet the
+    // which-resident bounce on a read" — so a key holding more than one resident
+    // bounces without it, and this key usually does. The terms are a property of
+    // the CLASS rather than of the asker, so acting as the human simply asks in
+    // the name of a resident on the same key; the answer is the same either way.
+    const asking = state.acting && state.acting !== HUMAN_ACTOR
+      ? state.acting
+      : (Array.isArray(o.me?.handles) ? o.me.handles[0] : null);
+    o.readTerms(action, asking).then((body) => {
       termsCache.set(action, termsFromRead(body));
       // Re-render only if this act is still the one under the pointer — a card
       // that repaints for an act the reader has already moved off is a flicker.

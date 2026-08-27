@@ -86,11 +86,11 @@
      * because a shadow reads YOUR domain — what is in your earshot, your
      * holdings, your note.
      */
-    async function readTerms(action) {
+    async function readTerms(action, handle) {
       const r = await fetch(OFFICE + "/world/apex", {
         method: "POST",
         headers: authed({ "content-type": "application/json" }),
-        body: JSON.stringify({ read: action }),
+        body: JSON.stringify(handle ? { read: action, handle } : { read: action }),
       });
       if (!r.ok) return null;
       return r.json();
