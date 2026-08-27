@@ -14,7 +14,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 /** The module's own source, for the assertion that it does not name the dungeon's
@@ -434,6 +434,32 @@ test("a field's shape comes from the limit the door states, not the site's guess
   assert.equal(wantsTextarea({ name: "text", description: "what you say, at most 500 characters" }), true);
   assert.equal(wantsTextarea({ name: "body", description: "one present-tense observation; maximum 150 characters" }), true, "150 is the world's own smallest prose limit, so it is the floor");
   assert.equal(wantsTextarea({ name: "slug", description: "kebab-case" }), false);
+});
+
+// ── the token is a file the BUILD will actually serve ───────────────────────
+
+test("every token the registry names is a file under the build's own publicDir", () => {
+  // THE DEFECT THIS EXISTS FOR, caught by reading the config rather than by
+  // anything failing: this project's publicDir is `public/atelier/postmark`, not
+  // `public`. A token dropped in `public/birthday/` is never copied into the
+  // build, so the roster face and the map token would both have been broken
+  // images on the deployed site while every test here stayed green and the local
+  // harness — which was serving plain `public/` — showed the picture happily.
+  //
+  // So the check reads the directory out of astro.config.town.mjs instead of
+  // writing it down, and fails if the file the registry points at is not there.
+  const config = readFileSync(fileURLToPath(new URL("../astro.config.town.mjs", import.meta.url)), "utf8");
+  const m = /publicDir:\s*['"]([^'"]+)['"]/.exec(config);
+  assert.ok(m, "astro.config.town.mjs must state a publicDir for this check to mean anything");
+  const publicDir = m[1];
+  assert.notEqual(publicDir, "public", "if this ever becomes plain `public`, re-read the note above before moving anything");
+
+  for (const [who, token] of Object.entries(HUMAN_TOKENS)) {
+    assert.ok(token.src.startsWith("/"), `${who}: a token src is a site-absolute path`);
+    const onDisk = fileURLToPath(new URL(`../${publicDir}${token.src}`, import.meta.url));
+    assert.ok(existsSync(onDisk), `${who}: ${token.src} must exist at ${publicDir}${token.src} or the build will not serve it`);
+    assert.ok(statSync(onDisk).size > 0, `${who}: the token file is empty`);
+  }
 });
 
 // ── terms, from the act's shadow ────────────────────────────────────────────
