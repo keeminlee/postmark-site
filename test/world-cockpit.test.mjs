@@ -26,6 +26,7 @@ import {
   actorsFor, barSlots, cardOf, cockpitShows, dialLine, dispatchEnvelope,
   gridFrom, ownParcelIn, portalOf, readBounce, statedLimit, tokenFor, tokenPlacement,
   termsFromRead, termsRows, wantsTextarea, worldToPx,
+  blockedReason, encounterOf, looseThings, rollsFrom, spaceOf, yourTurnRow,
 } from "../src/lib/world-cockpit.mjs";
 import { COCKPIT_CSS } from "../src/lib/world-cockpit-mount.mjs";
 
@@ -434,6 +435,174 @@ test("a field's shape comes from the limit the door states, not the site's guess
   assert.equal(wantsTextarea({ name: "text", description: "what you say, at most 500 characters" }), true);
   assert.equal(wantsTextarea({ name: "body", description: "one present-tense observation; maximum 150 characters" }), true, "150 is the world's own smallest prose limit, so it is the floor");
   assert.equal(wantsTextarea({ name: "slug", description: "kebab-case" }), false);
+});
+
+// ── the encounter: turn order, dice, the two spaces, the floor ──────────────
+
+/** An encounter mid-round: a creature holds a real slot, one ally is down, and a
+ *  late joiner has been appended after the wheel had already passed them. */
+const IN_COMBAT = {
+  ...INSIDE_PORTAL,
+  standpoint: { ...INSIDE_PORTAL.standpoint, portal: { ...INSIDE_PORTAL.standpoint.portal, space: "arena" } },
+  encounter: {
+    id: "a-hall/the-boss-room",
+    round: 3,
+    turn: "the-cellar-thing",
+    order: [
+      { id: "the-cellar-thing", kind: "creature", label: "the cellar thing", initiative: 19, hp: { now: 40, max: 55 } },
+      { id: "jetto-of-starforge", kind: "resident", label: "jetto-of-starforge", initiative: 14, hp: { now: 7, max: 12 }, you: true },
+      { id: "vermillion", kind: "resident", label: "vermillion", initiative: 11, down: true, hp: { now: 0, max: 14 } },
+      { id: "keeminlee", kind: "human", label: "DARKO", initiative: 6, hp: { now: 10, max: 10 }, joined_round: 3 },
+    ],
+  },
+};
+
+test("the wheel is rendered in the door's order, never re-sorted", () => {
+  // The founder's ruling: late joiners APPEND. Initiative order is the
+  // encounter's own record — ties are its business — and a client that re-sorted
+  // by the `initiative` number would silently undo the append and drop the
+  // newcomer into the middle of a round that had already passed them. DARKO
+  // joined at round 3 with the LOWEST initiative and belongs last either way;
+  // the fixture below is the one that would expose a re-sort.
+  const enc = encounterOf(IN_COMBAT);
+  assert.deepEqual(enc.order.map((a) => a.id), ["the-cellar-thing", "jetto-of-starforge", "vermillion", "keeminlee"]);
+
+  // THE CASE THAT ACTUALLY EXPOSES A RE-SORT, and the first spelling of it did
+  // not: it listed the high roll FIRST, which is already descending order, so a
+  // sort was a no-op and the mutation testing this walked away green. The append
+  // rule only bites when the newcomer's number would have put them EARLIER —
+  // a 20 arriving at round 4 and taking the last seat anyway.
+  const appendedHigh = {
+    ...IN_COMBAT,
+    encounter: { ...IN_COMBAT.encounter, order: [
+      { id: "early", kind: "resident", label: "early", initiative: 3 },
+      { id: "late", kind: "resident", label: "late", initiative: 20, joined_round: 4 },
+    ] },
+  };
+  assert.deepEqual(encounterOf(appendedHigh).order.map((a) => a.id), ["early", "late"],
+    "a 20 sitting AFTER a 3 is the append, and sorting would undo the founder's ruling");
+});
+
+test("the wheel carries hostiles, the downed, the late, and which is current", () => {
+  const enc = encounterOf(IN_COMBAT);
+  assert.equal(enc.round, 3);
+  assert.equal(enc.turn, "the-cellar-thing");
+  const [thing, me, verm, darko] = enc.order;
+  assert.equal(thing.kind, "creature", "a hostile holds a real slot on the wheel");
+  assert.equal(thing.current, true);
+  assert.equal(me.you, true);
+  assert.equal(me.current, false);
+  assert.equal(verm.down, true, "downed-not-dead is a state on the wheel, not a removal from it");
+  assert.deepEqual(verm.hp, { now: 0, max: 14 });
+  assert.equal(darko.joinedRound, 3, "a late joiner says which round they came in");
+  assert.equal(darko.kind, "human");
+  // and no encounter at all is the free-roam case
+  assert.equal(encounterOf(INSIDE_PORTAL), null);
+  assert.equal(encounterOf({ encounter: { order: [] } }), null, "an empty wheel is not an encounter");
+});
+
+test("not your turn: every slot disabled with the reason, and NONE hidden", () => {
+  // The founder's ruling, verbatim: "when it is not your turn, the slots render
+  // disabled with the reason … never hidden, so the grammar stays legible."
+  const { fixed, tray, blocked } = barSlots(IN_COMBAT);
+  assert.equal(blocked.reason, "it is the cellar thing's turn");
+  assert.equal(fixed.length, FIXED_SLOTS.length, "the six seats are all still there");
+  assert.deepEqual(tray.map((t) => t.action), ["strike", "loot"], "so is the whole afforded tray");
+  const afforded = [...fixed, ...tray].filter((s) => s.afforded);
+  assert.ok(afforded.length > 0);
+  assert.ok(afforded.every((s) => s.enabled === false), "afforded and blocked: disabled, not removed");
+  assert.ok(afforded.every((s) => s.blocked === "it is the cellar thing's turn"), "each says why");
+  // the cards survive the gate — the law is still readable while you wait
+  assert.ok(afforded.every((s) => s.card !== null));
+  assert.equal(tray[0].card.blurbFrom, "the-hall/strike");
+});
+
+test("downed: your own bar says so, and the door's words win over ours", () => {
+  const downed = {
+    ...IN_COMBAT,
+    encounter: { ...IN_COMBAT.encounter, turn: "jetto-of-starforge",
+      order: IN_COMBAT.encounter.order.map((a) => (a.you ? { ...a, down: true, hp: { now: 0, max: 12 } } : a)) },
+  };
+  const b = blockedReason(downed);
+  assert.equal(b.reason, "you are down — an ally can lift you");
+  assert.equal(b.from, "derived");
+  assert.ok(barSlots(downed).fixed.filter((s) => s.afforded).every((s) => s.enabled === false));
+
+  // CONTRACT: one field for every cause, because the causes are the world's to
+  // enumerate. A door that speaks its own sentence is quoted, not second-guessed.
+  const spoken = { ...downed, standpoint: { ...downed.standpoint, acting_blocked: { reason: "the room holds its breath" } } };
+  assert.deepEqual(blockedReason(spoken), { reason: "the room holds its breath", from: "the door" });
+
+  // your turn, standing: nothing blocks
+  const yours = { ...IN_COMBAT, encounter: { ...IN_COMBAT.encounter, turn: "jetto-of-starforge" } };
+  assert.equal(blockedReason(yours), null);
+  assert.ok(barSlots(yours).fixed.filter((s) => s.afforded).every((s) => s.enabled === true));
+  // and outside an encounter entirely
+  assert.equal(blockedReason(INSIDE_PORTAL), null);
+});
+
+test("a crit is READ from the door, never computed from the number", () => {
+  // A crit is a rule of the encounter — natural max, max-after-modifiers, or
+  // whatever the class mark says. A client that decided it by comparing value to
+  // faces would be inventing law, and would be wrong the first time a class ruled
+  // otherwise. So `atMax` is offered as an observation about the NUMBER and
+  // `crit` is only ever the door's word.
+  const [natural] = rollsFrom({ roll: { die: "d20", value: 20, modifier: 3, for: "strike" } });
+  assert.equal(natural.atMax, true, "20 on a d20 is at max, which is a fact about the number");
+  assert.equal(natural.crit, false, "…and not a crit, because the door did not say so");
+  assert.equal(natural.total, 23, "total is derived only when the door omitted it");
+
+  const [ruled] = rollsFrom({ roll: { die: "d20", value: 18, crit: true, total: 18 } });
+  assert.equal(ruled.crit, true, "an 18 IS a crit if the encounter says it is");
+  assert.equal(ruled.atMax, false);
+
+  // one throw or several, both spellings, because a strike throws once and a
+  // room's initiative throws many
+  assert.equal(rollsFrom({ rolls: [{ die: "d20", value: 4 }, { die: "d6", value: 6 }] }).length, 2);
+  assert.deepEqual(rollsFrom({}), []);
+  assert.deepEqual(rollsFrom(null), []);
+  assert.deepEqual(rollsFrom({ roll: { die: "d20" } }), [], "a roll with no value is not a throw");
+  // faces from the die name when the door did not spell them out
+  assert.equal(rollsFrom({ roll: { die: "d6", value: 6 } })[0].faces, 6);
+  assert.equal(rollsFrom({ roll: { value: 3 } })[0].faces, null, "no die, no faces, and no invented ones");
+});
+
+test("the space is the door's word, and absent means the calm one", () => {
+  // The founder ruled two rooms: an antechamber (free-roam, social) and a boss
+  // room. Absent falls back to the antechamber deliberately — dressing a social
+  // room as a fight is the worse error of the two.
+  assert.equal(spaceOf(IN_COMBAT), "arena");
+  assert.equal(spaceOf(INSIDE_PORTAL), "antechamber", "no word said: the calm one");
+  assert.equal(spaceOf({ standpoint: { portal: { space: "somewhere-else" } } }), "antechamber");
+
+  // AN ENCOUNTER DOES NOT MAKE A ROOM AN ARENA. A fight happens in a room; it is
+  // not the room. The wipe rule is exactly where inferring would be wrong: it
+  // returns everyone to the antechamber with the boss restored, and an encounter
+  // may still be settling as they arrive.
+  const fightingInTheAntechamber = { ...IN_COMBAT, standpoint: { ...INSIDE_PORTAL.standpoint } };
+  assert.equal(encounterOf(fightingInTheAntechamber) !== null, true);
+  assert.equal(spaceOf(fightingInTheAntechamber), "antechamber");
+});
+
+test("a dropped weapon is drawn where it fell", () => {
+  // Downed-not-dead drops the weapon loose, and it becomes takeable ground loot.
+  // Everything needed to draw it is already in `nearby` — including `at` — so the
+  // contract is one flag rather than a new block.
+  const withLoot = {
+    ...IN_COMBAT,
+    nearby: [
+      { id: "the-town/the-deck", at: { x: -9, y: 28 }, kind: "sited", tier: "market" },
+      { id: "vermillion/the-long-knife", at: { x: 140, y: -30 }, kind: "sited", loose: true, dropped_by: "vermillion" },
+    ],
+  };
+  const loose = looseThings(withLoot);
+  assert.equal(loose.length, 1, "only what the door flagged loose");
+  assert.deepEqual(loose[0].at, { x: 140, y: -30 });
+  assert.equal(loose[0].label, "the long knife", "a slug reads as words when nothing better was sent");
+  assert.equal(loose[0].dropped_by, "vermillion");
+  assert.deepEqual(looseThings(INSIDE_PORTAL), [], "nothing flagged, nothing on the floor");
+  // a loose mark with no position cannot be drawn where it fell, so it is not drawn
+  assert.deepEqual(looseThings({ nearby: [{ id: "a/b", loose: true }] }), []);
 });
 
 // ── the token is a file the BUILD will actually serve ───────────────────────

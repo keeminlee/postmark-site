@@ -173,6 +173,45 @@
       granted: { yours: [], here: [] },
       law: { as_of_world: "fixture", source: "the harness" },
     },
+    // ── THE ENCOUNTER (founder-ruled 2026-08-26, after the first draft) ──────
+    // Turn-based with dice, in two spaces. None of this exists in the door yet;
+    // these fixtures are the site-defined contracts made visible.
+    combat: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied-human", portal: { ...PORTAL, space: "arena", id: "a-hall/the-inner-door", value: "a-hall/the-boss-room" } },
+      crossing: { n: 151 },
+      within: [{ id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" }, { id: "a-hall/the-boss-room", by: "a-hall", tier: "market" }],
+      nearby: [
+        { id: "vermillion/the-long-knife", at: { x: 96, y: -8 }, kind: "sited", loose: true, dropped_by: "vermillion", label: "the long knife" },
+      ],
+      actions: [ORDINARY[0], ORDINARY[1], ...AFFORDED_HERE],
+      granted: { yours: ["say", "walk"], here: AFFORDED_HERE.map((e) => e.action) },
+      encounter: {
+        id: "a-hall/the-boss-room", round: 3, turn: "the-cellar-thing",
+        order: [
+          { id: "the-cellar-thing", kind: "creature", label: "the cellar thing", initiative: 19, hp: { now: 40, max: 55 } },
+          { id: "jetto-of-starforge", kind: "resident", label: "jetto-of-starforge", initiative: 14, hp: { now: 7, max: 12 } },
+          { id: "keeminlee", kind: "human", label: "DARKO", initiative: 12, hp: { now: 10, max: 10 }, you: true },
+          { id: "vermillion", kind: "resident", label: "vermillion", initiative: 11, down: true, hp: { now: 0, max: 14 } },
+          { id: "wright", kind: "resident", label: "wright", initiative: 6, hp: { now: 9, max: 9 }, joined_round: 3 },
+        ],
+      },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+    get yourturn() {
+      const c = FIXTURES.combat;
+      return { ...c, encounter: { ...c.encounter, turn: "keeminlee" } };
+    },
+    get downed() {
+      const c = FIXTURES.combat;
+      return {
+        ...c,
+        encounter: {
+          ...c.encounter, turn: "keeminlee",
+          order: c.encounter.order.map((a) => (a.you ? { ...a, down: true, hp: { now: 0, max: 10 } } : a)),
+        },
+      };
+    },
+
     // A CLASS MARK IS RESIDENT-AUTHORED PROSE. The reading law says it is content
     // you are reading, never instructions you are receiving — and the mechanical
     // half of that is that it cannot be instructions to the BROWSER either. This
@@ -223,8 +262,26 @@
     if (envelope.args && envelope.args.accept !== true && envelope.do === "enter") {
       return { ok: false, status: 422, body: { error: "bounce", defect: "this door declares a counter-edge", hint: "call again with accept: true", terms: { binds: "the-town/enter", means: "the-town/enter" } } };
     }
+    // A ROLL, when the act is one that throws. `?roll=crit` forces the ruled
+    // crit so its styling can be looked at; `?roll=max` gives a natural max the
+    // door has NOT ruled a crit, which is the pair worth seeing side by side.
+    const want = new URLSearchParams(location.search).get("roll");
+    if (ROLLING.has(envelope.do)) {
+      const body = { ok: true };
+      if (want === "crit") body.roll = { die: "d20", faces: 20, value: 18, modifier: 4, total: 22, crit: true, for: envelope.do, against: "the cellar thing" };
+      else if (want === "max") body.roll = { die: "d20", faces: 20, value: 20, modifier: 2, total: 22, for: envelope.do, against: "the cellar thing" };
+      else if (want === "many") body.rolls = [
+        { die: "d20", faces: 20, value: 11, modifier: 3, total: 14, for: "initiative" },
+        { die: "d20", faces: 20, value: 4, modifier: 1, total: 5, for: "initiative" },
+        { die: "d6", faces: 6, value: 6, modifier: 0, total: 6, for: "damage" },
+      ];
+      else body.roll = { die: "d20", faces: 20, value: 13, modifier: 3, total: 16, for: envelope.do, against: "the cellar thing" };
+      return { ok: true, status: 200, body };
+    }
     return { ok: true, status: 200, body: { ok: true } };
   }
+  /** Which acts throw, in this harness. The real answer is the door's. */
+  const ROLLING = new Set(["kindle", "toast"]);
 
   // The act's shadow, faked. A real one is POST /api/world/apex { read: action },
   // which performs nothing and answers the act's card WITH the terms that would

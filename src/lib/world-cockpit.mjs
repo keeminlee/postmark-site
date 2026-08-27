@@ -166,23 +166,36 @@ export function barSlots(answer) {
   const byName = new Map();
   for (const e of actions) if (e && typeof e.action === "string") byName.set(e.action, e);
 
+  // TURN-GATING IS A SEPARATE FACT FROM AFFORDANCE, and keeping them separate is
+  // the point. `afforded` says the ground grants this act; `blocked` says you may
+  // not take it THIS INSTANT. An act that is afforded here and blocked until your
+  // turn still shows its card, its fields and its terms — the grammar stays
+  // legible, which is the founder's ruling in one word: disabled, never hidden.
+  const blocked = blockedReason(answer);
+
   let key = 0;
+  const dress = (slot) => ({
+    ...slot,
+    blocked: slot.afforded && blocked ? blocked.reason : null,
+    enabled: slot.afforded && !blocked,
+  });
+
   const fixed = FIXED_SLOTS.map((slot) => {
     const entry = byName.get(slot.action) ?? null;
-    return {
+    return dress({
       action: slot.action,
       label: slot.label,
       key: ++key <= MAX_KEYED ? key : null,
       card: entry ? cardOf(entry) : null,
       afforded: Boolean(entry),
-    };
+    });
   });
 
   const tray = [];
   for (const e of actions) {
     if (!e || typeof e.action !== "string" || FIXED_NAMES.has(e.action)) continue;
     const n = ++key;
-    tray.push({
+    tray.push(dress({
       action: e.action,
       // A verb the site has never seen names itself. Upper-cased for the bar's
       // voice only; the card and every dispatch use the door's own spelling.
@@ -190,9 +203,9 @@ export function barSlots(answer) {
       key: n <= MAX_KEYED ? n : null,
       card: cardOf(e),
       afforded: true,
-    });
+    }));
   }
-  return { fixed, tray };
+  return { fixed, tray, blocked };
 }
 
 // ── portal ground ───────────────────────────────────────────────────────────
@@ -420,6 +433,199 @@ export function termsRows(terms) {
 export function termsFromRead(body) {
   const t = body?.card?.terms;
   return t && typeof t === "object" ? t : null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THE ENCOUNTER — turn order, dice, the two spaces, and what is on the floor
+//
+// Founder-ruled 2026-08-26, after this file's first draft: the dungeon is proper
+// turn-based with dice, in TWO spaces. None of it exists in the door yet, so
+// everything below is a SITE-DEFINED CONTRACT — built to, documented here, and
+// waiting for the core lane to reconcile. Every one of them is additive and
+// absent-means-off, so a door that never grows them leaves this half inert.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * The encounter, if one is running.
+ *
+ * CONTRACT: `answer.encounter`, absent when nothing is being fought.
+ *
+ *   encounter = {
+ *     id,                       // the ground the fight is in
+ *     round: 3,
+ *     turn: "vermillion",       // whose turn it is — matches an order entry's id
+ *     order: [                  // the wheel, in initiative order, hostiles included
+ *       { id, kind: "resident" | "human" | "creature",
+ *         label, initiative: 17,
+ *         down: false,          // downed-not-dead: skipped, acts refused
+ *         hp: { now, max },     // optional
+ *         joined_round: 3,      // optional — a late joiner, appended
+ *         you: true }           // optional — this is the caller
+ *     ]
+ *   }
+ *
+ * The wheel is rendered in the ORDER THE DOOR SENT. It is not re-sorted here:
+ * initiative order is the encounter's own record, ties are its business, and a
+ * late joiner appends by the founder's ruling — a client that re-sorted by the
+ * `initiative` number would silently undo that append and put the newcomer in
+ * the middle of a round that had already passed them.
+ */
+export function encounterOf(answer) {
+  const e = answer?.encounter;
+  if (!e || typeof e !== "object") return null;
+  const order = Array.isArray(e.order) ? e.order.filter((a) => a && typeof a === "object") : [];
+  if (!order.length) return null;
+  return {
+    id: typeof e.id === "string" ? e.id : null,
+    round: Number.isFinite(e.round) ? e.round : null,
+    turn: typeof e.turn === "string" ? e.turn : null,
+    order: order.map((a) => ({
+      id: typeof a.id === "string" ? a.id : null,
+      kind: a.kind === "creature" || a.kind === "human" ? a.kind : "resident",
+      label: typeof a.label === "string" && a.label ? a.label : (typeof a.id === "string" ? a.id : "?"),
+      initiative: Number.isFinite(a.initiative) ? a.initiative : null,
+      down: a.down === true,
+      hp: a.hp && Number.isFinite(a.hp.now) && Number.isFinite(a.hp.max) ? { now: a.hp.now, max: a.hp.max } : null,
+      joinedRound: Number.isFinite(a.joined_round) ? a.joined_round : null,
+      you: a.you === true,
+      current: typeof e.turn === "string" && a.id === e.turn,
+    })),
+  };
+}
+
+/** The caller's own row on the wheel, or null. */
+export function yourTurnRow(encounter) {
+  return encounter?.order.find((a) => a.you) ?? null;
+}
+
+/**
+ * Why this standpoint may not act right now — the door's words, or ours.
+ *
+ * CONTRACT: `answer.standpoint.acting_blocked = { reason: "…" }`, absent when the
+ * standpoint may act. ONE field for every cause, because the causes are the
+ * world's to enumerate and will grow (not your turn, you are down, and whatever
+ * the encounter rules add next); a site that switched on a closed list of causes
+ * would go quiet the first time a new one appeared.
+ *
+ * When the door has not said it, this derives the two the founder ruled tonight
+ * from the encounter itself — and says so, so a reader can tell a quoted reason
+ * from a deduced one.
+ *
+ * IT NEVER HIDES A SLOT. The founder's ruling: disabled with the reason, never
+ * hidden, so the grammar stays legible. A bar that empties out when it is not
+ * your turn teaches a reader that the acts went away.
+ */
+export function blockedReason(answer) {
+  const said = answer?.standpoint?.acting_blocked;
+  if (said && typeof said.reason === "string" && said.reason.trim()) {
+    return { reason: said.reason, from: "the door" };
+  }
+  const enc = encounterOf(answer);
+  if (!enc) return null;
+  const you = yourTurnRow(enc);
+  if (you?.down) return { reason: "you are down — an ally can lift you", from: "derived" };
+  if (enc.turn && you && !you.current) {
+    const whose = enc.order.find((a) => a.current);
+    return { reason: `it is ${whose?.label ?? enc.turn}'s turn`, from: "derived" };
+  }
+  return null;
+}
+
+/**
+ * The rolls an act's answer carried.
+ *
+ * CONTRACT: `roll` (one) or `rolls` (several) on the answer to a `do:`, each:
+ *
+ *   { die: "d20", faces: 20, value: 17, modifier: 3, total: 20,
+ *     crit: true, for: "<the act>", against: "<whoever it was aimed at>" }
+ *
+ * Both spellings are accepted because one act plainly throws once (a blow) and
+ * another plainly throws several (initiative for a room), and guessing which
+ * spelling the core lane picks would be a coin-flip that fails silently.
+ *
+ * NOTE FOR THE NEXT EDITOR: this file must not contain the dungeon's verb names,
+ * even in prose — a falsifier reads this source for them, because the whole
+ * design is that the bar has no verb list. Say "the act", not the act's name.
+ *
+ * `crit` is READ, not computed. A crit is a rule of the encounter — natural max,
+ * or max-after-modifiers, or something the class mark says — and a client that
+ * decided it by comparing value to faces would be inventing law and would be
+ * wrong the first time a class ruled otherwise. When the door says nothing, the
+ * throw simply is not a crit, and `atMax` is offered separately as an honest
+ * observation about the number rather than a claim about the rules.
+ */
+export function rollsFrom(body) {
+  const raw = Array.isArray(body?.rolls) ? body.rolls : body?.roll ? [body.roll] : [];
+  return raw
+    .filter((r) => r && typeof r === "object" && Number.isFinite(r.value))
+    .map((r) => {
+      const faces = Number.isFinite(r.faces) ? r.faces : dieFaces(r.die);
+      const modifier = Number.isFinite(r.modifier) ? r.modifier : 0;
+      return {
+        die: typeof r.die === "string" ? r.die : faces ? `d${faces}` : null,
+        faces,
+        value: r.value,
+        modifier,
+        total: Number.isFinite(r.total) ? r.total : r.value + modifier,
+        crit: r.crit === true,
+        atMax: Boolean(faces) && r.value === faces,
+        for: typeof r.for === "string" ? r.for : null,
+        against: typeof r.against === "string" ? r.against : null,
+      };
+    });
+}
+
+function dieFaces(die) {
+  const m = /^d(\d+)$/i.exec(String(die ?? ""));
+  const n = m ? Number(m[1]) : NaN;
+  return Number.isFinite(n) && n > 1 ? n : null;
+}
+
+/**
+ * Which of the dungeon's two spaces this is.
+ *
+ * CONTRACT: `standpoint.portal.space = "antechamber" | "arena"`.
+ *
+ * The founder ruled the dungeon as two: an antechamber — free-roam, social,
+ * where a weapon is picked up and spectators stand — and a boss room behind an
+ * inner door where crossing joins the fight. They read differently and they
+ * should FEEL different, so the site needs the word.
+ *
+ * Absent falls back to the ANTECHAMBER, deliberately: it is the calm one, and a
+ * page that guessed "arena" would dress a social room as a fight. An encounter
+ * being under way is not used to infer the space either — a fight is a thing that
+ * happens in a room, not the room itself, and the wipe rule returns everyone to
+ * the antechamber with the boss restored, which is exactly the moment an
+ * inference would be wrong.
+ */
+export const SPACES = Object.freeze(["antechamber", "arena"]);
+
+export function spaceOf(answer) {
+  const s = answer?.standpoint?.portal?.space;
+  return SPACES.includes(s) ? s : "antechamber";
+}
+
+/**
+ * Things lying loose on the ground, from the nearby marks.
+ *
+ * CONTRACT: `nearby[].loose = true` on a thing that is on the floor rather than
+ * in a hand — which is what a downed actor's dropped weapon becomes. Everything
+ * else about it is what `nearby` already carries, including `at`, so it can be
+ * drawn where it actually fell rather than in a list somewhere.
+ */
+export function looseThings(answer) {
+  const nearby = Array.isArray(answer?.nearby) ? answer.nearby : [];
+  return nearby
+    .filter((m) => m?.loose === true && m.at && Number.isFinite(m.at.x) && Number.isFinite(m.at.y))
+    .map((m) => ({
+      id: typeof m.id === "string" ? m.id : null,
+      at: { x: m.at.x, y: m.at.y },
+      by: typeof m.by === "string" ? m.by : (typeof m.id === "string" ? m.id.split("/")[0] : null),
+      label: typeof m.label === "string" && m.label
+        ? m.label
+        : String(m.id ?? "").split("/").pop()?.replace(/-/g, " ") || "something",
+      dropped_by: typeof m.dropped_by === "string" ? m.dropped_by : null,
+    }));
 }
 
 // ── the map transform ───────────────────────────────────────────────────────

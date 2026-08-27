@@ -13,6 +13,7 @@ import {
   HUMAN_ACTOR, actorsFor, barSlots, cockpitShows, dialLine, dispatchEnvelope,
   portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
+  blockedReason, encounterOf, looseThings, rollsFrom, spaceOf,
 } from "./world-cockpit.mjs";
 
 const NS = "http://www.w3.org/2000/svg";
@@ -189,6 +190,134 @@ export const COCKPIT_CSS = `
 .pmc-said .hint { display: block; color: var(--pmc-dim); font-size: .92em; margin-top: .3em; }
 .pmc-terms { margin: .6em 0 0; padding: .5em .7em; border-left: 2px solid var(--pmc-gold-dim); font-size: .72rem; line-height: 1.55; color: var(--pmc-dim); }
 
+/* ══ THE TWO SPACES ══
+   The founder ruled the dungeon as two rooms that should FEEL different: an
+   antechamber — free-roam, social, where a weapon is picked up and spectators
+   stand — and a boss room where crossing the inner door joins the fight. The
+   difference is carried by the palette and the ground wash, not by new furniture,
+   so every panel below is the same panel in both and only its temperature moves.
+   These are the two tokens that do it; everything else reads them.
+
+   The antechamber is the cockpit's own gold over ink — hearth-side. The arena
+   pulls the accent toward ember and lays a low red wash along the floor of the
+   screen, so a reader knows which room they are in before they read a word. */
+.pmc[data-space="antechamber"] { --pmc-gold:#d9a860; --pmc-accent:#e0b25c; --pmc-wash:rgba(217,168,96,.05); }
+.pmc[data-space="arena"] { --pmc-gold:#e0894e; --pmc-accent:#e2603f; --pmc-wash:rgba(190,60,40,.10); }
+.pmc::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 42%;
+  background: linear-gradient(to top, var(--pmc-wash), transparent);
+  pointer-events: none;
+}
+.pmc[data-space="arena"]::after { height: 55%; }
+
+/* ══ THE INITIATIVE WHEEL ══
+   The turn order, rendered — hostiles hold real slots, the current turn is lit,
+   the downed are visibly skipped rather than removed, and a late joiner wears the
+   round they came in on. It sits top-centre: the one thing every player at the
+   party needs to read at a glance is whose turn it is. */
+.pmc-wheel { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); max-width: calc(100vw - 28px); padding: .5em .7em .6em; }
+.pmc-wheel-cap { display: flex; align-items: baseline; gap: .8em; justify-content: center; margin-bottom: .5em; }
+.pmc-wheel-cap b { color: var(--pmc-gold); font: .62rem/1 ui-monospace, Consolas, monospace; letter-spacing: .18em; font-weight: normal; }
+.pmc-wheel-cap span { color: var(--pmc-dim); font-size: .66rem; }
+/* An ORDERED list, because initiative order is the whole meaning of it — but the
+   markers are painted over the seats by the browser, so they are turned off and
+   the order is carried by position and by the ol itself for a screen reader. */
+.pmc-wheel-row {
+  display: flex; align-items: flex-end; gap: .35em; overflow-x: auto; scrollbar-width: thin;
+  padding: 0 0 2px; margin: 0; list-style: none;
+}
+.pmc-wheel-row > li::marker { content: none; }
+.pmc-turn {
+  flex: 0 0 auto; width: 4.6em; text-align: center; padding: .4em .25em .35em;
+  border: 1px solid transparent; border-radius: 7px; position: relative;
+}
+.pmc-turn .pip {
+  width: 2.1em; height: 2.1em; margin: 0 auto .3em; border-radius: 50%;
+  background: #1b2230; border: 2px solid rgba(154,161,173,.35); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--pmc-dim); font: .82rem/1 ui-monospace, Consolas, monospace;
+}
+.pmc-turn .pip img { width: 100%; height: 100%; object-fit: cover; }
+.pmc-turn .nm { display: block; color: var(--pmc-ink); font-size: .64rem; line-height: 1.25; overflow-wrap: anywhere; }
+.pmc-turn .init { display: block; color: var(--pmc-dim); font: .58rem/1.4 ui-monospace, Consolas, monospace; }
+.pmc-turn .hp { display: block; height: 3px; margin: .25em .2em 0; background: rgba(154,161,173,.22); border-radius: 2px; overflow: hidden; }
+.pmc-turn .hp i { display: block; height: 100%; background: var(--pmc-accent); }
+/* a hostile is not one of us: square shoulders, ember ring, no monogram circle */
+.pmc-turn.is-creature .pip { border-radius: 5px; border-color: rgba(226,96,63,.55); color: #e2603f; }
+/* the current turn is the loudest thing on the screen after the map */
+.pmc-turn.is-current { border-color: var(--pmc-gold); background: rgba(217,168,96,.12); }
+.pmc-turn.is-current .pip { border-color: var(--pmc-gold); box-shadow: 0 0 12px rgba(217,168,96,.55); }
+.pmc-turn.is-current .nm { color: var(--pmc-gold); }
+/* YOU, so a player can find themselves on a crowded wheel */
+.pmc-turn.is-you .nm::after { content: " (you)"; color: var(--pmc-dim); }
+/* DOWNED-NOT-DEAD. Greyed and struck, and still ON the wheel — being skipped is
+   a thing that must be watchable, and a row that vanished would read as death. */
+.pmc-turn.is-down { opacity: .45; }
+.pmc-turn.is-down .pip { border-style: dashed; }
+.pmc-turn.is-down .nm { text-decoration: line-through; }
+.pmc-turn.is-down .init::after { content: " · down"; color: var(--pmc-accent); }
+.pmc-turn .late {
+  position: absolute; top: -.2em; right: -.1em; font: .52rem/1 ui-monospace, Consolas, monospace;
+  color: #0d1426; background: var(--pmc-gold); border-radius: 999px; padding: .18em .38em;
+}
+
+/* ══ THE TURN GATE ══
+   One line above the bar saying why the slots are cold. The slots stay, with
+   their cards — the grammar stays legible; only the taking is withheld. */
+.pmc-gate {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
+  padding: .4em .9em; border-radius: 999px; pointer-events: none;
+  background: rgba(14,18,26,.94); border: 1px solid var(--pmc-line);
+  color: var(--pmc-gold); font-size: .76rem; white-space: nowrap;
+  max-width: calc(100vw - 24px); overflow: hidden; text-overflow: ellipsis;
+}
+.pmc-slot.gated { opacity: .5; }
+.pmc-slot.gated .pmc-name { color: var(--pmc-dim); }
+
+/* ══ THE THROW ══
+   A die landing, centre-screen, big enough to be the moment it is. It leaves on
+   its own; nothing waits for a reader to dismiss a result they already saw. */
+.pmc-throw-layer { z-index: 7100; }
+/* Raised well clear of the act form, which opens from the bottom and reaches the
+   middle of the screen — at 42% the caption landed straight across the form's own
+   blurb and neither could be read. */
+.pmc-throw {
+  position: fixed; left: 50%; top: 27%; transform: translate(-50%, -50%); z-index: 6;
+  display: flex; gap: 1.1em; align-items: flex-start; pointer-events: none;
+}
+.pmc-die { text-align: center; animation: pmc-land .5s cubic-bezier(.2,1.5,.4,1) both; }
+/* The caption carries its own ground. It can land over the painting, over a
+   panel, or over a resident's name — a number nobody can read is not a moment. */
+.pmc-die .sum, .pmc-die .whose {
+  background: rgba(10,13,20,.92); border-radius: 5px; padding: .15em .5em;
+  display: inline-block; max-width: 16em;
+}
+.pmc-die .whose { margin-top: .4em; }
+.pmc-die .face {
+  width: 3.4em; height: 3.4em; display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--pmc-gold); border-radius: 12px; background: rgba(14,18,26,.95);
+  color: var(--pmc-ink); font: 1.9rem/1 Georgia, serif;
+  box-shadow: 0 6px 26px rgba(0,0,0,.6);
+}
+.pmc-die .sum { display: block; margin-top: .35em; color: var(--pmc-dim); font: .64rem/1.4 ui-monospace, Consolas, monospace; }
+.pmc-die .whose { display: block; color: var(--pmc-gold); font-size: .62rem; letter-spacing: .1em; }
+/* A CRIT IS THE DOOR'S WORD, and it is dressed as the loud thing it is. At-max
+   with no ruling gets a quieter mark, because the number is remarkable even when
+   the rules have not said it means anything. */
+.pmc-die.is-crit .face { border-color: #ffd98a; color: #ffe6b0; box-shadow: 0 0 34px rgba(255,217,138,.6); animation: pmc-crit 1.1s ease-in-out infinite; }
+.pmc-die.is-crit .sum { color: #ffd98a; }
+.pmc-die.at-max .face { border-color: var(--pmc-accent); }
+@keyframes pmc-land {
+  0% { opacity: 0; transform: translateY(-38px) rotate(-26deg) scale(.7); }
+  70% { opacity: 1; transform: translateY(4px) rotate(4deg) scale(1.06); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes pmc-crit { 50% { box-shadow: 0 0 52px rgba(255,217,138,.9); } }
+@media (prefers-reduced-motion: reduce) {
+  .pmc-die { animation: none; }
+  .pmc-die.is-crit .face { animation: none; }
+}
+
 /* ── the standpoint plate ── */
 .pmc-here { position: absolute; left: 14px; top: 14px; max-width: 24em; padding: .55em .8em; }
 .pmc-here .who { color: var(--pmc-gold); font-size: .95rem; }
@@ -249,6 +378,16 @@ export function mountCockpit(o) {
   root.className = "pmc";
   root.setAttribute("data-pmc", "");
   o.host.appendChild(root);
+
+  // A SEPARATE LAYER FOR THE THROW, and it is not decoration — `paint()` replaces
+  // root.innerHTML wholesale, so a die appended into root is wiped by the very
+  // repaint that follows the act which threw it. Measured: every throw rendered
+  // and vanished inside the same tick, and the QA twin read an empty list while
+  // the code looked right. It lives beside root, outside that churn.
+  const throwLayer = doc.createElement("div");
+  throwLayer.className = "pmc pmc-throw-layer";
+  throwLayer.setAttribute("data-pmc-throws", "");
+  o.host.appendChild(throwLayer);
 
   let tokenLayer = null;
   if (o.svg) {
@@ -359,11 +498,17 @@ export function mountCockpit(o) {
   }
 
   function slotHtml(s, extraClass) {
-    const label = `${s.label}${s.afforded ? "" : " — not afforded where you stand"}`;
+    // Three states, and they are three different sentences. Not afforded here is
+    // the ground's answer; blocked is the clock's; enabled is neither. A slot that
+    // collapsed the last two would tell a waiting player their act had gone away.
+    const label = s.afforded
+      ? `${s.label}${s.blocked ? " — " + s.blocked : ""}`
+      : `${s.label} — not afforded where you stand`;
     const open = state.open === s.action ? " open" : "";
-    return `<button type="button" class="pmc-slot${extraClass ? " " + extraClass : ""}${open}" data-action="${esc(s.action)}"
+    const gated = s.blocked ? " gated" : "";
+    return `<button type="button" class="pmc-slot${extraClass ? " " + extraClass : ""}${open}${gated}" data-action="${esc(s.action)}"
       aria-expanded="${state.open === s.action}"
-      ${s.afforded ? "" : "disabled"} aria-label="${esc(label)}"
+      ${s.enabled ? "" : "disabled"} aria-label="${esc(label)}"
       ${s.afforded ? 'aria-describedby="pmc-card"' : ""}>
       ${s.key ? `<span class="pmc-key">${s.key}</span>` : ""}
       <span class="pmc-name">${esc(s.label)}</span>
@@ -372,12 +517,13 @@ export function mountCockpit(o) {
   }
 
   function drawBar() {
-    const { fixed, tray } = barSlots(state.answer);
+    const { fixed, tray, blocked } = barSlots(state.answer);
     return `<div class="pmc-bar" role="toolbar" aria-label="what can be done from here">
       ${fixed.map((s) => slotHtml(s)).join("")}
       ${tray.length ? `<div class="pmc-gap"><span>HERE</span></div>` : ""}
       ${tray.map((s) => slotHtml(s, "afford")).join("")}
     </div>
+    ${blocked ? `<p class="pmc-gate" role="status">${esc(blocked.reason)}</p>` : ""}
     <span class="pmc-more" data-more="left" aria-hidden="true" hidden>‹</span>
     <span class="pmc-more" data-more="right" aria-hidden="true" hidden>›</span>
     <div class="pmc-card" id="pmc-card" role="tooltip" hidden></div>
@@ -557,6 +703,81 @@ export function mountCockpit(o) {
     </form>`;
   }
 
+  // ── the initiative wheel ──────────────────────────────────────────────────
+  function drawWheel() {
+    const enc = encounterOf(state.answer);
+    if (!enc) return "";
+    const faces = actorsFor(state.answer, o.me, { acting: state.acting });
+    const pictureFor = (a) => {
+      if (a.kind === "creature") return null;
+      const human = a.kind === "human" ? faces.find((f) => f.kind === "human") : null;
+      return human ? tokenFor(human) : null;
+    };
+    const seat = (a) => {
+      const token = pictureFor(a);
+      const inner = token?.src
+        ? `<img src="${esc(token.src)}" alt="">`
+        : esc((a.label || "?").slice(0, 1).toUpperCase());
+      const hp = a.hp
+        // A bar that reads 0% is indistinguishable from a bar that failed to
+        // render, so a downed actor's rail is shown empty by an explicit width.
+        ? `<span class="hp"><i style="width:${Math.max(0, Math.min(100, Math.round((a.hp.now / a.hp.max) * 100)))}%"></i></span>`
+        : "";
+      const cls = ["pmc-turn",
+        a.current ? "is-current" : "",
+        a.down ? "is-down" : "",
+        a.you ? "is-you" : "",
+        a.kind === "creature" ? "is-creature" : ""].filter(Boolean).join(" ");
+      const label = `${a.label}${a.down ? " — down" : ""}${a.current ? " — acting now" : ""}${a.joinedRound ? `, joined at round ${a.joinedRound}` : ""}`;
+      return `<li class="${cls}" aria-label="${esc(label)}"${a.current ? ' aria-current="true"' : ""}>
+        ${a.joinedRound ? `<span class="late" title="joined at round ${a.joinedRound}">+${a.joinedRound}</span>` : ""}
+        <span class="pip">${inner}</span>
+        <span class="nm">${esc(a.label)}</span>
+        <span class="init">${a.initiative == null ? "" : esc(String(a.initiative))}</span>
+        ${hp}
+      </li>`;
+    };
+    const whose = enc.order.find((a) => a.current);
+    return `<div class="pmc-plate pmc-wheel">
+      <div class="pmc-wheel-cap">
+        <b>INITIATIVE</b>
+        <span>${enc.round == null ? "" : `round ${esc(String(enc.round))} · `}${whose ? esc(whose.label) + " is acting" : "waiting"}</span>
+      </div>
+      <ol class="pmc-wheel-row">${enc.order.map(seat).join("")}</ol>
+    </div>`;
+  }
+
+  // ── the throw ─────────────────────────────────────────────────────────────
+  /**
+   * Show a roll the door sent back. Nothing here decides what a throw MEANS —
+   * `crit` is read, never computed, because a crit is a rule of the encounter and
+   * a client comparing value to faces would be inventing law.
+   */
+  function showThrow(rolls) {
+    if (!rolls.length) return;
+    const host = doc.createElement("div");
+    host.className = "pmc-throw";
+    host.setAttribute("role", "status");
+    host.innerHTML = rolls.slice(0, 4).map((r, i) => {
+      const cls = ["pmc-die", r.crit ? "is-crit" : "", !r.crit && r.atMax ? "at-max" : ""].filter(Boolean).join(" ");
+      const sum = r.modifier
+        ? `${r.value} ${r.modifier > 0 ? "+" : "−"} ${Math.abs(r.modifier)} = ${r.total}`
+        : String(r.total);
+      const said = r.crit ? "CRIT" : r.for ? r.for.toUpperCase() : "";
+      return `<div class="${cls}" style="animation-delay:${i * 90}ms">
+        <div class="face">${esc(String(r.value))}</div>
+        ${said ? `<span class="whose">${esc(said)}</span>` : ""}
+        <span class="sum">${esc(r.die ? r.die + " · " : "")}${esc(sum)}${r.against ? " → " + esc(r.against) : ""}</span>
+      </div>`;
+    }).join("");
+    throwLayer.appendChild(host);
+    // It leaves on its own. A result the reader has already watched land should
+    // not wait to be dismissed, and a crit is given longer because it is the
+    // thing people will look up for.
+    const stay = rolls.some((r) => r.crit) ? 4200 : 2600;
+    doc.defaultView?.setTimeout(() => host.remove(), stay);
+  }
+
   // ── the standpoint plate ──────────────────────────────────────────────────
   function drawHere() {
     const p = portalOf(state.answer);
@@ -580,9 +801,43 @@ export function mountCockpit(o) {
     return vb[2] / w;
   }
 
+  /**
+   * What is lying on the floor, drawn where it fell.
+   *
+   * A downed actor's weapon drops loose and becomes takeable by whoever is
+   * standing there — the founder called it the dramatic moment, so it is drawn on
+   * the ground rather than listed in a panel. Screen-sized like the token and the
+   * walkers, for the same reason: a thing that changed size relative to the people
+   * around it would be saying something about the thing.
+   */
+  function drawLoose() {
+    if (!tokenLayer || !o.grid) return "";
+    const u = unitsPerPx();
+    return looseThings(state.answer).map((t) => {
+      const at = worldToPx(o.grid, t.at);
+      if (!at) return "";
+      const r = 9 * u;
+      const who = t.dropped_by ? ` — dropped by ${t.dropped_by}` : "";
+      return `<g class="pmc-loose" transform="translate(${at.x} ${at.y})">
+        <circle cx="0" cy="0" r="${r * 1.9}" fill="#e0894e" fill-opacity="0.12"/>
+        <circle cx="0" cy="0" r="${r}" fill="none" stroke="#e0894e" stroke-width="${r * 0.2}" stroke-dasharray="${r * 0.5} ${r * 0.34}"/>
+        <path d="M ${-r * 0.62} ${r * 0.62} L ${r * 0.62} ${-r * 0.62}" stroke="#e0894e" stroke-width="${r * 0.26}" stroke-linecap="round"/>
+        <title>${esc(t.label)} — on the ground${esc(who)}</title>
+      </g>`;
+    }).join("");
+  }
+
   function drawToken() {
     if (!tokenLayer) return;
     tokenLayer.textContent = "";
+    // whatever is on the floor draws first, so a face always paints over an object
+    const loose = drawLoose();
+    if (loose) {
+      const g = doc.createElementNS(NS, "g");
+      g.setAttribute("class", "pmc-loose-layer");
+      g.innerHTML = loose;
+      tokenLayer.appendChild(g);
+    }
     const human = faces().find((f) => f.kind === "human");
     const place = tokenPlacement(state.answer, o.grid, human);
     if (!place) return;
@@ -624,11 +879,22 @@ export function mountCockpit(o) {
     const active = doc.activeElement;
     const keepAction = active?.closest?.("[data-form]") ? active.getAttribute?.("data-field") : null;
     const values = readForm();
-    root.innerHTML = drawHere() + drawRoster() + drawBar();
+    root.setAttribute("data-space", spaceOf(state.answer));
+    root.innerHTML = drawHere() + drawWheel() + drawRoster() + drawBar();
+    // THE BAR MOVES FIRST. Everything below is positioned against the bar's real
+    // box, and the bar's own placement lifts it clear of the viewer's bottom-edge
+    // furniture — so measuring before that lift put the gate pill straight across
+    // the middle of the slots it was explaining. Seen in the combat QA shot.
+    placeBar();
     const form = root.querySelector("[data-form]");
     if (form) placeAbove(form, root.querySelector(".pmc-bar"));
+    // The gate rides above whichever panel is actually the top of the stack. A
+    // form cannot normally be open while gated — a gated slot is disabled, so it
+    // cannot be clicked — but a turn can pass while one is already open, and then
+    // both are on screen.
+    const gate = root.querySelector(".pmc-gate");
+    if (gate) placeAbove(gate, form ?? root.querySelector(".pmc-bar"));
     root.querySelector(".pmc-bar")?.addEventListener("scroll", markOverflow, { passive: true });
-    placeBar();
     markOverflow();
     if (state.open && values) writeForm(values);
     if (keepAction) root.querySelector(`[data-field="${CSS.escape ? CSS.escape(keepAction) : keepAction}"]`)?.focus();
@@ -695,6 +961,12 @@ export function mountCockpit(o) {
     if (go) { go.disabled = true; go.textContent = "…"; }
     try {
       const res = await o.dispatch(dispatchEnvelope({ action, args, acting: state.acting }));
+      // THE THROW IS SHOWN WHETHER THE ACT LANDED OR NOT. A blow that misses still
+      // threw the die, and a bounce can carry the roll that caused it — hiding the
+      // number on a refusal would make the one moment a player most wants to see
+      // the one moment they cannot.
+      const rolls = rollsFrom(res.body);
+      if (rolls.length) showThrow(rolls);
       if (res.ok) {
         state.said = { ok: true, text: "done — the door took it." };
         formValues = null;
@@ -782,6 +1054,7 @@ export function mountCockpit(o) {
       (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
       camera?.disconnect();
       root.remove();
+      throwLayer.remove();
       tokenLayer?.remove();
     },
   };
