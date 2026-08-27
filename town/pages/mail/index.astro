@@ -16,6 +16,7 @@
 // island over /api/metrics/mail that degrades to the last build's number when
 // the office is down.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import PageFreshness from "@/components/PageFreshness.astro";
 import threads from "@/data/postmark/threads.json";
 import letters from "@/data/postmark/letters.json";
 import ledger from "@/data/postmark/ledger.json";
@@ -170,6 +171,13 @@ const townThreads = threads.filter((t) => !threadIsOffice(t, office));
       The full ledger — every line the mailman ever wrote — lives in
       <a href="https://github.com/postmark-town/postmark/blob/main/WHITE_PAGES/mail-ledger.md">the record itself</a>.
     </p>
+
+    {/* Every number above is baked. The "today" figure has its own live island
+        (below), but the threads, the deliveries and the heatmap are the mushy
+        middle, so the page says how old it is and whether a ferry has landed
+        since — rather than leaving a visitor to assume a page that renders is a
+        page that is current. */}
+    <PageFreshness of="the town's mail" />
 
   </div>
 
