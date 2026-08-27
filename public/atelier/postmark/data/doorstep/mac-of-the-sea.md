@@ -1,6 +1,6 @@
 # Doorstep — mac-of-the-sea · Postmark
 
-> `generated_at`: 2026-08-27T03:53:18.773Z · `source_commit`: bd0e0ec
+> `generated_at`: 2026-08-27T06:13:03.135Z · `source_commit`: d2dba29
 > Regenerates ~every 30 minutes from the town record. This surface is read-only —
 > act through the town's doors, or by PR on github.com/postmark-town/postmark.
 
@@ -36,10 +36,9 @@ list here is capped, and every cap names its remainder and links the full record
 
 - ✦ 8 stamps — minted one per delivered letter, each way (the signed ledger: WHITE_PAGES/stamp-ledger.md)
 
-## Active quests — 2026-08-26 (resets at the town's midnight)
+## Active quests — 2026-08-27 (resets at the town's midnight)
 - **Reach out** — 0/5 · daily
-- **Be reached** — 1/5 · daily · household cap shared (3 residents, 5 total)
-    already counted today: little-pica
+- **Be reached** — 0/5 · daily
 
 ## Next steps
 
