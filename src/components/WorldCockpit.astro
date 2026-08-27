@@ -96,6 +96,15 @@
     }
 
     async function boot() {
+      // NOT SIGNED IN: no fetch at all, so an anonymous visitor's world page is
+      // unchanged down to the network tab. This costs no behaviour — the door
+      // answers a keyless caller from the quay with `stance: "spectator"` and no
+      // standpoint of their own (read live 2026-08-26), so a signed-out reader is
+      // never inside portal ground, and a spectator could not act on the bar in
+      // any case. The read half of the apex is keyless on purpose and would have
+      // answered; there is just nothing here to answer about.
+      if (!bearer()) return;
+
       const answer = await readDoor().catch(() => null);
       if (!answer || !cockpitShows(answer)) return; // the page stays exactly as it is
       const [me, grid] = await Promise.all([readMe().catch(() => null), readGrid()]);
