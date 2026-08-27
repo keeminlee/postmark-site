@@ -109,12 +109,20 @@
       return { ok: r.ok, status: r.status, body };
     }
 
-    /** The map's svg, once the viewer has actually drawn one. The overlay is
-     *  drawn either way; only the token waits, because only the token needs the
-     *  painting to exist. */
+    /**
+     * The map's svg — found through the overlay it contains, never as "the first
+     * svg in .wv". The viewer renders small `.wv-arrow` svgs of its own
+     * (spectator/viewer.mjs mints them for the telling's direction glyphs), so
+     * the first svg under `.wv` is not reliably the painting, and a token layer
+     * appended to a 10x10 arrow would be invisible and blameless.
+     *
+     * `#wv-overlay` is created by the viewer and appended to the map svg itself,
+     * so its ownerSVGElement IS the map — and the site's own arrival island on
+     * this page already treats that id as the honest readiness signal.
+     */
     function mapSvg() {
-      const root = document.querySelector(".wv");
-      return root?.querySelector("svg") ?? null;
+      const overlay = document.querySelector(".wv #wv-overlay");
+      return overlay?.ownerSVGElement ?? null;
     }
 
     async function boot() {
