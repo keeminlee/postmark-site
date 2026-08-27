@@ -74,6 +74,28 @@
       } catch { return null; }
     }
 
+    /**
+     * The act's SHADOW, for the tooltip's terms. `read: <action>` returns the
+     * act's full card WITH the terms that would bind it and performs nothing —
+     * "A read never performs" is the apex's own law, and the office's
+     * `readNeverPerforms` enforces it. This is how a card can show the terms
+     * before the reader does anything, which is where the law says they belong.
+     *
+     * One request per act for the life of the mount (the mount caches). It is a
+     * POST because the apex's GET half takes no `read:`, and it needs the key
+     * because a shadow reads YOUR domain — what is in your earshot, your
+     * holdings, your note.
+     */
+    async function readTerms(action) {
+      const r = await fetch(OFFICE + "/world/apex", {
+        method: "POST",
+        headers: authed({ "content-type": "application/json" }),
+        body: JSON.stringify({ read: action }),
+      });
+      if (!r.ok) return null;
+      return r.json();
+    }
+
     async function dispatch(envelope) {
       const k = bearer();
       if (!k) return { ok: false, status: 401, body: { defect: "performing needs a key", hint: "sign in to act — the read half of this door is keyless, an act is not" } };
@@ -113,7 +135,7 @@
       const mount = () => {
         handle = mountCockpit({
           document, host: document.body, svg: mapSvg(), answer, me, grid,
-          dispatch, refresh: () => readDoor(),
+          dispatch, readTerms, refresh: () => readDoor(),
         });
       };
       // Wait for a drawn overlay before mounting, for the reason the arrival

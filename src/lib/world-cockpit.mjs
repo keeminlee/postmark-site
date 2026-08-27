@@ -391,6 +391,37 @@ export function readBounce(body, status) {
   };
 }
 
+/**
+ * The terms, as rows, in the door's own keys.
+ *
+ * Generic on purpose — one row per key, whatever keys arrive. The terms block is
+ * the door's to shape ("the granting class (`binds`), the defining class with its
+ * dials (`means`), any schedule you are consenting to, and the charter articles
+ * overhead"), and a site-side template naming those four would go quietly blank
+ * the day a fifth is added, which is the worst way for a legal disclosure to fail.
+ */
+export function termsRows(terms) {
+  if (!terms || typeof terms !== "object" || Array.isArray(terms)) return [];
+  return Object.entries(terms).map(([key, value]) => ({
+    key,
+    value: typeof value === "string" ? value : JSON.stringify(value),
+  }));
+}
+
+/**
+ * The terms for one act, out of a `read:` answer.
+ *
+ * `read: <action>` is the act's shadow: it performs nothing — "A read never
+ * performs", the apex's own words — and its answer carries the act's full card
+ * WITH the terms that would bind it. That is how a tooltip can show the terms
+ * before anything is done, which is the whole of "you cannot be bound by law you
+ * were not shown at the door". The bare standpoint read does not carry them.
+ */
+export function termsFromRead(body) {
+  const t = body?.card?.terms;
+  return t && typeof t === "object" ? t : null;
+}
+
 // ── the map transform ───────────────────────────────────────────────────────
 
 /**

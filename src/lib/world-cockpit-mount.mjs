@@ -11,7 +11,8 @@
 
 import {
   HUMAN_ACTOR, actorsFor, barSlots, cockpitShows, dialLine, dispatchEnvelope,
-  portalOf, readBounce, statedLimit, tokenFor, tokenPlacement, wantsTextarea, worldToPx,
+  portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
+  wantsTextarea, worldToPx,
 } from "./world-cockpit.mjs";
 
 const NS = "http://www.w3.org/2000/svg";
@@ -333,7 +334,23 @@ export function mountCockpit(o) {
     const via = card.via || card.grant
       ? `<p class="pmc-row"><b>reached you</b> ${esc([card.via, card.grant === "here" ? "granted by the ground" : card.grant === "yours" ? "travels with what you are" : null].filter(Boolean).join(" · "))}</p>`
       : "";
-    return `${blurb}${from}${dials}${fields}${via}`;
+    // THE TERMS, ON THE CARD, BEFORE ANYTHING IS DONE. The bare standpoint read
+    // does not carry them; the act's SHADOW does — `read: <action>` returns the
+    // act's full card with the terms that would bind it, and performs nothing
+    // ("A read never performs", the apex's own law). So the card asks for them
+    // once per act, caches the answer, and shows them where the law says they
+    // belong: at the door, ahead of the act.
+    const known = termsCache.get(card.action);
+    const terms = known === undefined
+      ? `<p class="pmc-row"><b>terms</b> reading the act's shadow…</p>`
+      : known === null ? ""
+      : `<div class="pmc-terms"><b>terms</b> — what would bind this act${termsHtml(known)}</div>`;
+    return `${blurb}${from}${dials}${fields}${via}${terms}`;
+  }
+
+  /** One row per key, whatever keys the door sent. */
+  function termsHtml(terms) {
+    return termsRows(terms).map((r) => `<p class="pmc-row"><b>${esc(r.key)}</b> ${esc(r.value)}</p>`).join("");
   }
 
   function slotHtml(s, extraClass) {
@@ -395,6 +412,23 @@ export function mountCockpit(o) {
     }
   }
 
+  /** action → terms | null (asked and the door had none, or the read failed).
+   *  `undefined` means not asked yet, which is what the card's "reading…" line
+   *  is showing. One request per act, for the life of the mount. */
+  const termsCache = new Map();
+
+  function askTerms(action) {
+    if (termsCache.has(action) || !o.readTerms) return;
+    termsCache.set(action, undefined);
+    o.readTerms(action).then((body) => {
+      termsCache.set(action, termsFromRead(body));
+      // Re-render only if this act is still the one under the pointer — a card
+      // that repaints for an act the reader has already moved off is a flicker.
+      const still = root.querySelector(".pmc-slot:hover, .pmc-slot:focus-visible");
+      if (still?.getAttribute("data-action") === action) showCard(still);
+    }).catch(() => { termsCache.set(action, null); });
+  }
+
   function showCard(slotEl) {
     const host = root.querySelector("#pmc-card");
     if (!host || !slotEl) return;
@@ -405,6 +439,7 @@ export function mountCockpit(o) {
     const all = barSlots(state.answer);
     const s = [...all.fixed, ...all.tray].find((x) => x.action === slotEl.getAttribute("data-action"));
     if (!s?.card) return;
+    askTerms(s.action);
     host.innerHTML = cardHtml(s.card);
     host.hidden = false;
     placeAbove(host, slotEl);
@@ -451,16 +486,12 @@ export function mountCockpit(o) {
     const said = state.said
       ? `<p class="pmc-said${state.said.ok ? "" : " bad"}">${esc(state.said.text)}${state.said.hint ? `<span class="hint">${esc(state.said.hint)}</span>` : ""}</p>`
       : "";
-    // The terms, in the door's own keys. Rendered generically — one row per key,
-    // whatever keys the door sent — because the terms block is the door's to
-    // shape ("the granting class (binds), the defining class with its dials
-    // (means), any schedule you are consenting to, and the charter articles
-    // overhead") and a site-side template of those four names would go quietly
-    // blank the day a fifth is added.
-    const terms = state.said?.terms
-      ? `<div class="pmc-terms"><b>terms</b> — delivered before the act binds, because you cannot be bound by law you were not shown at the door
-          ${Object.entries(state.said.terms).map(([k, v]) =>
-            `<p class="pmc-row"><b>${esc(k)}</b> ${esc(typeof v === "string" ? v : JSON.stringify(v))}</p>`).join("")}</div>`
+    // The terms the door has stated for this act — from the shadow read if the
+    // card already asked for them, and replaced by whatever the door hands back
+    // at the act itself, which is the authoritative delivery.
+    const shown = state.said?.terms ?? termsCache.get(action) ?? null;
+    const terms = shown
+      ? `<div class="pmc-terms"><b>terms</b> — delivered before the act binds, because you cannot be bound by law you were not shown at the door${termsHtml(shown)}</div>`
       : "";
     const actorWords = state.acting === HUMAN_ACTOR ? "as yourself" : `as ${esc(state.acting ?? "—")}`;
     return `<form class="pmc-plate pmc-form" data-form="${esc(action)}">

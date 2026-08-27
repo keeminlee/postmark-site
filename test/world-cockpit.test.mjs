@@ -25,7 +25,7 @@ import {
   FIXED_SLOTS, HUMAN_ACTOR, HUMAN_TOKENS, MAX_KEYED,
   actorsFor, barSlots, cardOf, cockpitShows, dialLine, dispatchEnvelope,
   gridFrom, ownParcelIn, portalOf, readBounce, statedLimit, tokenFor, tokenPlacement,
-  wantsTextarea, worldToPx,
+  termsFromRead, termsRows, wantsTextarea, worldToPx,
 } from "../src/lib/world-cockpit.mjs";
 import { COCKPIT_CSS } from "../src/lib/world-cockpit-mount.mjs";
 
@@ -434,6 +434,43 @@ test("a field's shape comes from the limit the door states, not the site's guess
   assert.equal(wantsTextarea({ name: "text", description: "what you say, at most 500 characters" }), true);
   assert.equal(wantsTextarea({ name: "body", description: "one present-tense observation; maximum 150 characters" }), true, "150 is the world's own smallest prose limit, so it is the floor");
   assert.equal(wantsTextarea({ name: "slug", description: "kebab-case" }), false);
+});
+
+// ── terms, from the act's shadow ────────────────────────────────────────────
+
+test("terms come off the act's SHADOW, which performs nothing", () => {
+  // LOGOS/reads-and-affordances.md § The apex: "the terms delivered before an
+  // act binds are the class-nodes' own content, because you cannot be bound by
+  // law you were not shown at the door."
+  //
+  // The bare standpoint read carries no terms — measured against the live door
+  // 2026-08-26, no entry in `actions` has a `terms` key. `read: <action>` does,
+  // and it is the act's shadow: "A read never performs" (the apex's own words;
+  // office world-apex.mjs answers `{ read, card: { ...entry, terms }, ...domain }`).
+  // So the card asks the shadow, never the act.
+  const shadow = { read: "kindle", card: { action: "kindle", blurb: "…", terms: { binds: "a-hall/guest", means: "a-hall/kindle", schedule: "settles at the crossing" } } };
+  assert.deepEqual(termsFromRead(shadow), { binds: "a-hall/guest", means: "a-hall/kindle", schedule: "settles at the crossing" });
+
+  // an act whose classes state none, and a read that failed, both answer null —
+  // and null must never render as an empty terms box claiming there are none
+  assert.equal(termsFromRead({ read: "loot", card: { action: "loot" } }), null);
+  assert.equal(termsFromRead(null), null);
+  assert.equal(termsFromRead({}), null);
+  // the bare standpoint answer is NOT a shadow and must not be read as one
+  assert.equal(termsFromRead(SIGNED_IN), null);
+});
+
+test("terms render in the door's own keys, however many there are", () => {
+  // The apex names four — binds, means, the schedule, the charter overhead — and
+  // a template naming those four goes quietly blank the day a fifth is added,
+  // which is the worst way for a legal disclosure to fail.
+  const rows = termsRows({ binds: "a-hall/guest", means: "a-hall/kindle", schedule: "settles at the crossing", charter: "…", a_fifth_thing: { deep: 1 } });
+  assert.deepEqual(rows.map((r) => r.key), ["binds", "means", "schedule", "charter", "a_fifth_thing"]);
+  assert.equal(rows[0].value, "a-hall/guest");
+  assert.equal(rows[4].value, '{"deep":1}', "a structured term is shown, not dropped");
+  assert.deepEqual(termsRows(null), []);
+  assert.deepEqual(termsRows("binding"), [], "a non-object is not a terms block");
+  assert.deepEqual(termsRows([1, 2]), []);
 });
 
 // ── the stylesheet arrives whole ────────────────────────────────────────────

@@ -178,9 +178,25 @@
     return { ok: true, status: 200, body: { ok: true } };
   }
 
+  // The act's shadow, faked. A real one is POST /api/world/apex { read: action },
+  // which performs nothing and answers the act's card WITH the terms that would
+  // bind it. The delay is deliberate: it makes the card's "reading the act's
+  // shadow…" line visible, which is a state a real reader will see.
+  const TERMS = {
+    kindle: { binds: "a-hall/guest", means: "a-hall/kindle", schedule: "settles at the crossing", charter: "the light is the town's, and what is lit by it is seen by it" },
+    toast: { binds: "a-hall/guest", means: "a-hall/toast", schedule: "settles at the crossing" },
+    say: { binds: "the-town/resident", means: "the-town/say", schedule: "settles at the crossing" },
+    enter: { binds: "the-town/resident", means: "the-town/enter" },
+  };
+  async function readTerms(action) {
+    await new Promise((r) => setTimeout(r, 250));
+    const terms = TERMS[action];
+    return terms ? { read: action, card: { action, terms } } : { read: action, card: { action } };
+  }
+
   const handle = mountCockpit({
     document, host: document.body, svg: document.querySelector(".wv svg"),
-    answer, me: ME, grid: GRID, dispatch, refresh: async () => answer,
+    answer, me: ME, grid: GRID, dispatch, readTerms, refresh: async () => answer,
   });
 
   const note = document.getElementById("note");
