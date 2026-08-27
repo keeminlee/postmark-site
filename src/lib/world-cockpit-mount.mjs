@@ -636,6 +636,8 @@ export function mountCockpit(o) {
       state.said = null;
       formValues = null;
       paint();
+      root.querySelector(".pmc-slot.open")?.scrollIntoView?.({ inline: "nearest", block: "nearest" });
+      markOverflow();
       root.querySelector("[data-form] [data-field]")?.focus();
     }
   }
@@ -697,7 +699,12 @@ export function mountCockpit(o) {
     // 2 then 9 left slot 1 open the whole time and put "29" in its first field.
     // Clicking a seat is the committing gesture and still dives in; the numbers
     // stay the bar's own navigation, which is what makes them worth having.
-    root.querySelector("[data-form]")?.scrollIntoView?.({ block: "nearest" });
+    // Bring the SEAT into view, not the form. On a narrow screen the row scrolls,
+    // so a seat opened by key 9 can be off the right edge while its form fills the
+    // screen — the bar then shows a different seat lit and says nothing about
+    // where the form came from. Seen at 390.
+    root.querySelector(".pmc-slot.open")?.scrollIntoView?.({ inline: "nearest", block: "nearest" });
+    markOverflow();
   }
 
   // The card follows the pointer AND the keyboard, because a bar with numbered
