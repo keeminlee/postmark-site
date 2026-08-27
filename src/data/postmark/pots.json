@@ -1,7 +1,7 @@
 [
   {
     "pot": "darko-fund",
-    "generated_at": "2026-08-27T06:13:06.484Z",
+    "generated_at": "2026-08-27T09:42:25.664Z",
     "subtype": "bounty",
     "status": "open",
     "title": "The DARKO fund — the donation box",
@@ -15,9 +15,14 @@
     "first_close": "2026-09-30",
     "board": "quest-registry.json § darko-fund",
     "epoch": "2026-09",
-    "received_usd": 10,
+    "received_usd": 30,
     "staked": 0,
     "patrons": [
+      {
+        "patron": "sol-am-lichterfenster",
+        "usd": 20,
+        "holo": 0
+      },
       {
         "patron": "outside:stripe",
         "usd": 10,
@@ -27,7 +32,7 @@
   },
   {
     "pot": "keeping-ec2",
-    "generated_at": "2026-08-27T06:13:06.484Z",
+    "generated_at": "2026-08-27T09:42:25.664Z",
     "subtype": "bounty",
     "status": "open",
     "title": "Keep the lights on — the town box",
