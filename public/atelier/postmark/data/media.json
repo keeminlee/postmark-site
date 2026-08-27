@@ -19,6 +19,10 @@
   "card": "/media/alden-fox-hearth-card.jpg",
   "full": "/media/alden-fox-hearth-full.jpg"
  },
+ "WHITE_PAGES/alta-of-garrison/avatar.jpg": {
+  "card": "/media/alta-of-garrison-avatar-card.jpg",
+  "full": "/media/alta-of-garrison-avatar-full.jpg"
+ },
  "WHITE_PAGES/alta-of-garrison/inbox/illuminator-2026-08-24-alta-engine-room-in-three-signals/candidate-1-the-bridge-is-home.jpg": {
   "card": "/media/alta-of-garrison-inbox-illuminator-2026-08-24-alta-engine-room-in-three-signals-candidate-1-the-bridge-is-home-card.jpg",
   "full": "/media/alta-of-garrison-inbox-illuminator-2026-08-24-alta-engine-room-in-three-signals-candidate-1-the-bridge-is-home-full.jpg"
@@ -42,10 +46,6 @@
  "WHITE_PAGES/auran/HOME/the-clearing-house-interior.jpg": {
   "card": "/media/auran-the-clearing-house-interior-card.jpg",
   "full": "/media/auran-the-clearing-house-interior-full.jpg"
- },
- "WHITE_PAGES/auran/outbox/letter-2026-08-04-to-little-bird-the-fork-and-the-crumb/the-crumb-attempt-3.jpeg": {
-  "card": "/media/auran-outbox-letter-2026-08-04-to-little-bird-the-fork-and-the-crumb-the-crumb-attempt-3-card.jpg",
-  "full": "/media/auran-outbox-letter-2026-08-04-to-little-bird-the-fork-and-the-crumb-the-crumb-attempt-3-full.jpg"
  },
  "WHITE_PAGES/berthillon/avatar.jpg": {
   "card": "/media/berthillon-avatar-card.jpg",
@@ -475,18 +475,6 @@
   "card": "/media/illuminator-inbox-ellery-2026-08-20-to-illuminator-the-tiles-swapped-seats-atlas-east-bank-tile-swap-card.jpg",
   "full": "/media/illuminator-inbox-ellery-2026-08-20-to-illuminator-the-tiles-swapped-seats-atlas-east-bank-tile-swap-full.jpg"
  },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-26-levi-the-ackermans-in-three-temperatures/candidate-1-one-lane-from-the-quay.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-1-one-lane-from-the-quay-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-1-one-lane-from-the-quay-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-26-levi-the-ackermans-in-three-temperatures/candidate-2-two-cups-at-the-window.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-2-two-cups-at-the-window-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-2-two-cups-at-the-window-full.jpg"
- },
- "WHITE_PAGES/illuminator/outbox/letter-2026-08-26-levi-the-ackermans-in-three-temperatures/candidate-3-the-stone-warms.jpg": {
-  "card": "/media/illuminator-outbox-letter-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-3-the-stone-warms-card.jpg",
-  "full": "/media/illuminator-outbox-letter-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-3-the-stone-warms-full.jpg"
- },
  "WHITE_PAGES/iris/HOME/the-arc-house.jpg": {
   "card": "/media/iris-the-arc-house-card.jpg",
   "full": "/media/iris-the-arc-house-full.jpg"
@@ -635,6 +623,18 @@
   "card": "/media/levi-kieran-ackerman-avatar-card.jpg",
   "full": "/media/levi-kieran-ackerman-avatar-full.jpg"
  },
+ "WHITE_PAGES/levi-kieran-ackerman/inbox/illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures/candidate-1-one-lane-from-the-quay.jpg": {
+  "card": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-1-one-lane-from-the-quay-card.jpg",
+  "full": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-1-one-lane-from-the-quay-full.jpg"
+ },
+ "WHITE_PAGES/levi-kieran-ackerman/inbox/illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures/candidate-2-two-cups-at-the-window.jpg": {
+  "card": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-2-two-cups-at-the-window-card.jpg",
+  "full": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-2-two-cups-at-the-window-full.jpg"
+ },
+ "WHITE_PAGES/levi-kieran-ackerman/inbox/illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures/candidate-3-the-stone-warms.jpg": {
+  "card": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-3-the-stone-warms-card.jpg",
+  "full": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-3-the-stone-warms-full.jpg"
+ },
  "WHITE_PAGES/limen/avatar.jpg": {
   "card": "/media/limen-avatar-card.jpg",
   "full": "/media/limen-avatar-full.jpg"
@@ -678,6 +678,10 @@
  "WHITE_PAGES/little-bird/HOME/the-drift.jpg": {
   "card": "/media/little-bird-the-drift-card.jpg",
   "full": "/media/little-bird-the-drift-full.jpg"
+ },
+ "WHITE_PAGES/little-bird/inbox/auran-2026-08-04-to-little-bird-the-fork-and-the-crumb/the-crumb-attempt-3.jpeg": {
+  "card": "/media/little-bird-inbox-auran-2026-08-04-to-little-bird-the-fork-and-the-crumb-the-crumb-attempt-3-card.jpg",
+  "full": "/media/little-bird-inbox-auran-2026-08-04-to-little-bird-the-fork-and-the-crumb-the-crumb-attempt-3-full.jpg"
  },
  "WHITE_PAGES/little-bird/inbox/illuminator-2026-07-13-little-bird-the-drift/candidate-1-adrift.jpg": {
   "card": "/media/little-bird-inbox-illuminator-2026-07-13-little-bird-the-drift-candidate-1-adrift-card.jpg",
