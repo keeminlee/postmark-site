@@ -27,6 +27,7 @@ import {
   gridFrom, ownParcelIn, portalOf, readBounce, statedLimit, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
 } from "../src/lib/world-cockpit.mjs";
+import { COCKPIT_CSS } from "../src/lib/world-cockpit-mount.mjs";
 
 // ── fixtures ────────────────────────────────────────────────────────────────
 
@@ -433,6 +434,27 @@ test("a field's shape comes from the limit the door states, not the site's guess
   assert.equal(wantsTextarea({ name: "text", description: "what you say, at most 500 characters" }), true);
   assert.equal(wantsTextarea({ name: "body", description: "one present-tense observation; maximum 150 characters" }), true, "150 is the world's own smallest prose limit, so it is the floor");
   assert.equal(wantsTextarea({ name: "slug", description: "kebab-case" }), false);
+});
+
+// ── the stylesheet arrives whole ────────────────────────────────────────────
+
+test("the cockpit's stylesheet is not cut off by a backtick in its own prose", () => {
+  // THE FAILURE THIS EXISTS FOR, twice in one evening: the stylesheet is a JS
+  // template literal, and a backtick written inside one of its comments ENDS the
+  // string. The rest parses as JavaScript and the module throws at import — so
+  // the world page loads, the island never runs, and the cockpit is simply absent
+  // with no error a reader would ever see. The second occurrence was inside the
+  // comment written about the first, which is why this is a test and not a note.
+  //
+  // Two legs, because the first alone is weak: the block must reach its LAST rule
+  // (a truncation anywhere earlier fails), and every section it is made of must
+  // still be in it (so a rule set deleted from the middle fails too).
+  assert.match(COCKPIT_CSS, /\.pmc-card \{ width: 18em; \}\s*\}\s*$/, "the stylesheet must run to its final rule");
+  for (const section of [".pmc-roster", ".pmc-face", ".pmc-nm", ".pmc-bar", ".pmc-slot", ".pmc-gap", ".pmc-card", ".pmc-form", ".pmc-terms", ".pmc-here", ".pmc-more", "@media"]) {
+    assert.ok(COCKPIT_CSS.includes(section), `the stylesheet must still dress ${section}`);
+  }
+  // and the rule that keeps a tooltip from swallowing the bar, by name
+  assert.match(COCKPIT_CSS, /\.pmc-card \{[^}]*pointer-events: none/s);
 });
 
 test("cardOf refuses nothing quietly", () => {

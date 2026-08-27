@@ -21,7 +21,14 @@ const NS = "http://www.w3.org/2000/svg";
 // viewer shell), so there are no site tokens on this page to inherit. These are
 // the values from the cockpit mockup — panel/gold/ink — and they are the viewer's
 // own family, not a second visual language.
-const COCKPIT_CSS = `
+//
+// ⚠ NO BACKTICKS BELOW, INCLUDING IN THE COMMENTS. This is a template literal, and
+// a backtick in prose ENDS IT — the rest of the stylesheet then parses as JS and
+// the whole module throws at import. It happened twice in one evening, the second
+// time inside the comment written about the first, which is why the export and the
+// falsifier below exist: care was not enough, so the last rule in this block is
+// now something a test can look for.
+export const COCKPIT_CSS = `
 .pmc, .pmc * { box-sizing: border-box; }
 .pmc {
   --pmc-ink:#e8e4da; --pmc-dim:#9aa1ad; --pmc-gold:#d9a860; --pmc-gold-dim:#8a6a30;
@@ -43,13 +50,18 @@ const COCKPIT_CSS = `
 
 /* ── the roster ── */
 .pmc-roster { position: absolute; left: 14px; top: 30%; width: 5.6em; padding: .6em .4em .5em; text-align: center; }
+/* THE PICTURE IS CLIPPED, NOT THE BUTTON. An overflow:hidden here rounded the
+   token off nicely and also ate the name box, which hangs outside the circle by
+   design: the box was in the DOM with opacity 1 and a 239px width, and no reader
+   could see a pixel of it. The machine twin read the text and reported it present;
+   the screenshot is what caught it. */
 .pmc-face {
   width: 3em; height: 3em; margin: 0 auto .55em; border-radius: 50%; padding: 0;
   background: #1b2230; border: 2px solid rgba(154,161,173,.35); cursor: pointer;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
   color: var(--pmc-dim); font: 1em/1 ui-monospace, Consolas, monospace; position: relative;
 }
-.pmc-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pmc-face img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
 .pmc-face[aria-pressed="true"] { border-color: var(--pmc-gold); box-shadow: 0 0 12px rgba(217,168,96,.5); color: var(--pmc-gold); }
 .pmc-face[disabled] { opacity: .4; cursor: not-allowed; }
 .pmc-face:focus-visible { outline: 2px solid var(--pmc-gold); outline-offset: 2px; }
@@ -62,6 +74,8 @@ const COCKPIT_CSS = `
   white-space: nowrap; max-width: 22em; opacity: 0; transition: opacity .12s; pointer-events: none;
 }
 .pmc-face:hover .pmc-nm, .pmc-face:focus-visible .pmc-nm { opacity: 1; }
+/* the hovered face rises, so its name box is never painted under the next face */
+.pmc-face:hover, .pmc-face:focus-visible { z-index: 2; }
 .pmc-nm.wrap { white-space: normal; width: 16em; }
 
 /* ── the bar ── */
@@ -281,9 +295,15 @@ export function mountCockpit(o) {
       const words = f.allowed
         ? (f.kind === "human" ? `${esc(f.label)} · yourself — ${esc(f.because ?? "where ground allows")}` : esc(f.label))
         : `${esc(f.label)} — ${esc(f.reason ?? "not here")}`;
+      // The box wraps when its words are a SENTENCE rather than a handle — keyed
+      // on the length, not on whether the face was refused. Keyed on refusal, an
+      // allowed human's "yourself — a portal's ground seats a human" ran straight
+      // out through the right-hand border under nowrap + max-width, which the
+      // screenshot showed and no DOM read would have.
+      const wrap = words.replace(/&[a-z#0-9]+;/g, "x").length > 28 ? " wrap" : "";
       return `<button type="button" class="pmc-face" data-actor="${esc(id)}"
         aria-pressed="${on}"${f.allowed ? "" : " disabled"}
-        aria-label="${esc(f.label)}">${inner}<span class="pmc-nm${f.allowed ? "" : " wrap"}">${words}</span></button>`;
+        aria-label="${esc(f.label)}">${inner}<span class="pmc-nm${wrap}">${words}</span></button>`;
     };
     return `<div class="pmc-plate pmc-roster">
       <div class="pmc-cap">ACT AS</div>
