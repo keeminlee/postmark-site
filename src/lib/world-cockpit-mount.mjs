@@ -138,6 +138,11 @@ export const COCKPIT_CSS = `
 }
 .pmc-slot.afford { border-style: dashed; }
 .pmc-slot.afford .pmc-name { color: var(--pmc-gold); }
+/* WHICH SEAT IS OPEN, said on the seat. Opened by mouse the seat is under the
+   pointer and reads as chosen; opened by a number key nothing on the bar changed
+   at all, so the form floated over a row with no sign of where it came from. */
+.pmc-slot.open { border-color: var(--pmc-gold); background: rgba(217,168,96,.14); }
+.pmc-slot.open .pmc-name { color: var(--pmc-gold); }
 .pmc-gap { width: .7em; border-left: 1px dotted rgba(154,161,173,.4); margin: 0 .25em; align-self: stretch; display: flex; align-items: flex-end; }
 .pmc-gap span { writing-mode: vertical-rl; color: var(--pmc-dim); font: .6rem/1 ui-monospace, Consolas, monospace; letter-spacing: .2em; padding-bottom: .4em; }
 
@@ -355,7 +360,9 @@ export function mountCockpit(o) {
 
   function slotHtml(s, extraClass) {
     const label = `${s.label}${s.afforded ? "" : " — not afforded where you stand"}`;
-    return `<button type="button" class="pmc-slot${extraClass ? " " + extraClass : ""}" data-action="${esc(s.action)}"
+    const open = state.open === s.action ? " open" : "";
+    return `<button type="button" class="pmc-slot${extraClass ? " " + extraClass : ""}${open}" data-action="${esc(s.action)}"
+      aria-expanded="${state.open === s.action}"
       ${s.afforded ? "" : "disabled"} aria-label="${esc(label)}"
       ${s.afforded ? 'aria-describedby="pmc-card"' : ""}>
       ${s.key ? `<span class="pmc-key">${s.key}</span>` : ""}
