@@ -50,6 +50,11 @@
 //        BUILD_TOWN_DATA_SHA    the origin/main sha the town-data overlay used
 //                               (release lane only; on snapshot the data rode
 //                               the checkout, so the code sha IS the data sha)
+//        BUILD_TOWN_SHA         the postmark-town/postmark commit the extractors
+//                               actually read — the town record this page shows
+//        BUILD_CROSSING         that moment in ferry crossings, asked of the
+//                               office (GET /api/ -> crossing.number). Never
+//                               derived here: one clock, and it is the office's.
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
@@ -66,7 +71,7 @@ export const SCHEMA = 1;
  * wrong is worse than one that admits it cannot say, because the watcher
  * downstream believes it.
  */
-export function composeStamp({ channel, codeSha, codeRef, townDataSha, builtAt }) {
+export function composeStamp({ channel, codeSha, codeRef, townDataSha, townSha, crossing, builtAt }) {
   const notes = [];
   const lane = channel === "release" || channel === "snapshot" ? channel : null;
   if (!lane) notes.push("PUBLIC_CHANNEL was not release or snapshot, so the lane is unknown");
@@ -86,6 +91,42 @@ export function composeStamp({ channel, codeSha, codeRef, townDataSha, builtAt }
     dataFrom = "the checkout itself — the snapshot lane has no tag pin and no overlay, so code and town data share one commit";
   }
 
+  // ── THE THIRD TENSE, AND THE ONE A READER ACTUALLY FEELS ──────────────────
+  //
+  // `town_data_sha` above names where the data was COPIED FROM (site main, or
+  // the checkout). It does not name the town record the page is showing, and
+  // that is the thing a resident cares about: not "which commit of the site
+  // carried my letters" but "is my mail on this page yet".
+  //
+  // Two fields answer it. `town_sha` is the postmark-town/postmark commit the
+  // extractors read. `crossing` is that moment in the town's OWN units — mail
+  // does not move on a wall clock, it moves at ferry crossings, so "how old is
+  // this page" is only answerable in crossings.
+  //
+  // THE CROSSING IS READ FROM THE OFFICE, NEVER DERIVED HERE. The office's
+  // src/crossings.mjs exists precisely because "the two honest options were a
+  // second copy of the arithmetic — which is how two clocks are born — or this
+  // file". So the builder asks GET /api/ for the number and passes it in; a
+  // site that computed its own would be the second clock, and the page's whole
+  // claim is that it is comparable to the office's.
+  //
+  // Both are absent-not-guessed. An older builder, or one that could not reach
+  // the office, leaves them null with a note, and every reader downstream —
+  // site-sentinel's crossing probe, the page's own disclosure line — treats
+  // null as "cannot tell", never as "current".
+  //
+  // The notes are RELEASE-LANE ONLY. On the snapshot lane there is no town
+  // checkout to name and no box refresh asking the office — the data rode the
+  // commit, as `town_data_from` already says — so a note there would be a
+  // standing complaint about a thing that is working as designed, and a stamp
+  // whose notes are always populated is a stamp nobody reads the notes of.
+  const town = /^[0-9a-f]{7,40}$/i.test(String(townSha ?? "")) ? String(townSha) : null;
+  const cross = Number.isInteger(crossing) && crossing >= 0 ? crossing : null;
+  if (lane === "release") {
+    if (!town) notes.push("this build did not report the town commit it read — the page can say when it was made, but not which town record it reflects");
+    if (cross === null) notes.push("no crossing number for this build — the office was not reachable when it was made, so the page cannot say which ferry crossing it reflects");
+  }
+
   return {
     schema: SCHEMA,
     channel: lane,
@@ -94,6 +135,8 @@ export function composeStamp({ channel, codeSha, codeRef, townDataSha, builtAt }
     code_ref: codeRef || null,
     town_data_sha: dataSha,
     town_data_from: dataFrom,
+    town_sha: town,
+    crossing: cross,
     // Said on every stamp, not only when the two differ. The whole reason this
     // file exists is that one number could not hold both tenses, and a reader
     // meeting the stamp for the first time should meet that fact here.
@@ -106,11 +149,20 @@ export function composeStamp({ channel, codeSha, codeRef, townDataSha, builtAt }
 export function gather({ env = process.env, exec = execFileSync, now = () => new Date() } = {}) {
   let codeSha = null;
   try { codeSha = String(exec("git", ["rev-parse", "HEAD"], { encoding: "utf8" })).trim() || null; } catch { codeSha = null; }
+  // BUILD_CROSSING arrives as a string from the environment and must survive
+  // every shape a shell can hand it: unset, empty (the box script's
+  // `$(crossing_now)` when the office did not answer), or a number. Number("")
+  // is 0, which would stamp crossing ZERO — the very first ferry, in June — on
+  // every build that could not reach the office. Hence the explicit blank test
+  // before the parse, and its falsifier.
+  const rawCrossing = String(env.BUILD_CROSSING ?? "").trim();
   return composeStamp({
     channel: env.PUBLIC_CHANNEL ?? null,
     codeSha,
     codeRef: env.BUILD_CODE_REF ?? null,
     townDataSha: env.BUILD_TOWN_DATA_SHA ?? null,
+    townSha: env.BUILD_TOWN_SHA ?? null,
+    crossing: /^\d+$/.test(rawCrossing) ? Number(rawCrossing) : null,
     builtAt: now().toISOString(),
   });
 }

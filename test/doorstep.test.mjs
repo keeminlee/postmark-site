@@ -11,7 +11,89 @@ import {
   freshnessFields,
   stakePositions,
   waitingCrossing,
+  splitArrivals,
+  ON_THE_WATER_LABEL,
 } from "../tools/lib/doorstep.mjs";
+
+// ── publication is not arrival ───────────────────────────────────────────────
+//
+// THE LAW THESE ASSERT, verbatim from the office's own doorstep bundle
+// (postmark-office src/queries.mjs, the `clocks` field, Keemin-ruled 2026-08-10
+// as disclose-don't-reconcile):
+//
+//   "delivered means the mail-ledger says so; a reply merged but not yet
+//    crossed shows as reply_queued (awaiting.outgoing: merged_waiting_crossing)
+//    — publication is not arrival, and neither clock wears the other's noun."
+//
+// THE DEFECT THEY CLOSE. tools/lib/town.mjs merges every resident's inbox/ AND
+// outbox/ into one letters corpus — "After ferry delivery the file MOVES from
+// sender outbox to recipient inbox, so inbox is the settled home; outbox holds
+// mail awaiting the next ferry". The static doorstep then filtered that corpus
+// by recipient, so a letter merged an hour ago and still sitting in the
+// SENDER's outbox appeared under "Arrived lately" indistinguishable from mail
+// the ferry had actually carried. A resident could read, and reply to, a letter
+// the town's own ledger says they have not received.
+
+const L = (id, box) => ({ id, from: "someone", date: "2026-08-26", box });
+const delivery = (id) => ({ kind: "delivery", id, date: "2026-08-26", from: "someone", to: "you" });
+
+test("a letter the ledger has not carried is ON THE WATER, not an arrival", () => {
+  const letters = [L("landed-1", "inbox"), L("still-in-outbox", "outbox"), L("landed-2", "inbox")];
+  const { arrived, onTheWater } = splitArrivals(letters, [delivery("landed-1"), delivery("landed-2")]);
+
+  assert.deepEqual(arrived.map((l) => l.id), ["landed-1", "landed-2"]);
+  assert.deepEqual(onTheWater.map((l) => l.id), ["still-in-outbox"],
+    "the ledger decides — a letter with no delivery line has not arrived, whatever the corpus contains");
+  assert.equal(ON_THE_WATER_LABEL, "on the water, not here yet");
+});
+
+test("THE FLIP: when everything HAS been delivered, nothing is labelled", () => {
+  // A disclosure that fires on healthy mail is worse than none: a resident who
+  // sees "not here yet" on letters that are plainly here stops reading the
+  // label, and then it cannot tell them anything.
+  const letters = [L("a", "inbox"), L("b", "inbox")];
+  const { arrived, onTheWater } = splitArrivals(letters, [delivery("a"), delivery("b")]);
+  assert.equal(onTheWater.length, 0, "no ledger gap, no label");
+  assert.equal(arrived.length, 2);
+});
+
+test("AN UNREADABLE LEDGER FALLS BACK TO THE MAILBOX — it does not tell the whole town its mail never came", () => {
+  // THE FALSIFIER, and the reason the guard exists at all. With an empty ledger
+  // every letter is "not in the delivery set", so a naive implementation would
+  // put EVERY letter on every doorstep in town under "not here yet" — a
+  // confident, town-wide lie, produced by the ledger merely failing to parse
+  // (tools/lib/town.mjs raises exactly that problem: "mail-ledger.md missing or
+  // parsed to zero entries"). An absent ledger is the absence of evidence, so
+  // the split falls back to the other real observation on disk: which mailbox
+  // the file is actually sitting in.
+  const letters = [L("a", "inbox"), L("b", "outbox"), L("c", "inbox")];
+  for (const noLedger of [[], null, undefined, [{ kind: "bounce", date: "2026-08-26" }]]) {
+    const { arrived, onTheWater } = splitArrivals(letters, noLedger);
+    assert.deepEqual(arrived.map((l) => l.id), ["a", "c"], "inbox letters are still arrivals");
+    assert.deepEqual(onTheWater.map((l) => l.id), ["b"], "and only the outbox one is on the water");
+  }
+});
+
+test("a ledger that DOES parse outranks the mailbox — the ledger is the town's record of the crossing", () => {
+  // The two signals can disagree: a file moved into an inbox by hand, or moved
+  // in a commit the ledger line missed. When the ledger is readable it wins,
+  // because "delivered means the mail-ledger says so" is the town's own words.
+  const letters = [L("moved-without-a-ledger-line", "inbox")];
+  const { arrived, onTheWater } = splitArrivals(letters, [delivery("some-other-letter")]);
+  assert.equal(arrived.length, 0);
+  assert.deepEqual(onTheWater.map((l) => l.id), ["moved-without-a-ledger-line"]);
+});
+
+test("splitArrivals holds nothing back and keeps the order it was given", () => {
+  // Newest-first is the doorstep's sort and both lists inherit it; a split that
+  // reordered would quietly change which four letters survive the cap.
+  const letters = ["e", "d", "c", "b", "a"].map((id, i) => L(id, i % 2 ? "outbox" : "inbox"));
+  const { arrived, onTheWater } = splitArrivals(letters, []);
+  assert.deepEqual(arrived.map((l) => l.id), ["e", "c", "a"]);
+  assert.deepEqual(onTheWater.map((l) => l.id), ["d", "b"]);
+  assert.equal(arrived.length + onTheWater.length, letters.length, "every letter lands in exactly one list");
+  assert.deepEqual(splitArrivals(null, []), { arrived: [], onTheWater: [] });
+});
 
 test("stake ledger folds stake, partial unstake, and full unstake", () => {
   const ledger = [

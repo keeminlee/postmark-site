@@ -17,6 +17,8 @@ test("the release lane stamps two shas on two different clocks", () => {
     codeSha: "aaaaaaaaaaaaaaaa",
     codeRef: "release/2026-w35.1",
     townDataSha: "bbbbbbbbbbbbbbbb",
+    townSha: "cccccccccccccccc",
+    crossing: 149,
     builtAt: AT,
   });
   assert.equal(s.schema, SCHEMA);
@@ -35,6 +37,12 @@ test("the snapshot lane says the two shas share one commit rather than leaving a
   assert.equal(s.town_data_sha, "cccccccc");
   assert.match(s.town_data_from, /the checkout itself/);
   assert.deepEqual(s.notes, [], "a snapshot build with no overlay is complete, not degraded");
+  // …and that stays true now that the stamp carries a town commit and a
+  // crossing. Dev has no town checkout and no box refresh asking the office, so
+  // those two are absent BY DESIGN here — noting them every time would make the
+  // notes array a standing complaint nobody reads.
+  assert.equal(s.town_sha, null);
+  assert.equal(s.crossing, null);
 });
 
 test("an unknown is null plus a note — never a plausible guess", () => {
@@ -76,6 +84,74 @@ test("gather reads HEAD, not github.sha, and survives a git that will not answer
   const broken = gather({ env: { PUBLIC_CHANNEL: "snapshot" }, exec: () => { throw new Error("not a git repo"); }, now: () => new Date(AT) });
   assert.equal(broken.code_sha, null);
   assert.equal(broken.town_data_sha, null);
+});
+
+// ── the town record and the crossing ────────────────────────────────────────
+//
+// THE LAW THESE ASSERT, verbatim from EPICS/POSTMARK/freshness-architecture.md
+// § the mushy middle:
+//
+//   "mushiness must be disclosed — the page states when it was generated and
+//    which ferry crossing it reflects, says 'a ferry has landed since this page
+//    was made' when true, and never prints a cadence promise it does not
+//    control."
+//
+// A page cannot say which crossing it reflects unless the build writes it down.
+// These are the field that makes the sentence possible.
+
+test("the stamp names the TOWN record it read and the crossing it reflects", () => {
+  const s = composeStamp({
+    channel: "release", codeSha: "a".repeat(40), codeRef: "release/2026-w35.1",
+    townDataSha: "b".repeat(40), townSha: "c".repeat(40), crossing: 149, builtAt: AT,
+  });
+  assert.equal(s.town_sha, "c".repeat(40));
+  assert.equal(s.crossing, 149);
+  assert.deepEqual(s.notes, [], "a build that knows both is complete, not degraded");
+  assert.notEqual(s.town_sha, s.town_data_sha,
+    "the town commit and the site commit the data was copied from are DIFFERENT questions — one field cannot answer both");
+});
+
+test("crossing ZERO is a real crossing and must survive — the falsifier for a truthy test", () => {
+  // `if (crossing)` would drop 0, and 0 is the town's first ferry. The bug
+  // would be invisible for the rest of the town's life and wrong on the one
+  // day it mattered, which is exactly the kind that ships.
+  const s = composeStamp({ channel: "release", codeSha: "a", codeRef: "r", townDataSha: "b", townSha: "c", crossing: 0, builtAt: AT });
+  assert.equal(s.crossing, 0);
+  assert.deepEqual(s.notes.filter((n) => /crossing/.test(n)), [], "zero is known, not unknown");
+});
+
+test("an unreachable office is null plus a note — NEVER crossing 0, which is a real ferry in June", () => {
+  // THE FALSIFIER. gather() takes BUILD_CROSSING from a shell, and the box
+  // script passes `$(crossing_now)`, which is the EMPTY STRING when the office
+  // did not answer. Number("") is 0. A build that could not ask would then
+  // stamp the town's very first crossing and the site would report itself 150
+  // ferries behind — a loud, confident lie, which is worse than the silence.
+  for (const raw of ["", "   ", undefined, "not-a-number", "-3"]) {
+    const s = gather({
+      env: { PUBLIC_CHANNEL: "release", BUILD_CODE_REF: "r", BUILD_TOWN_DATA_SHA: "b", BUILD_TOWN_SHA: "c".repeat(40), ...(raw === undefined ? {} : { BUILD_CROSSING: raw }) },
+      exec: () => "a".repeat(40) + "\n",
+      now: () => new Date(AT),
+    });
+    assert.equal(s.crossing, null, `BUILD_CROSSING=${JSON.stringify(raw)} must be unknown, not a number`);
+    assert.ok(s.notes.some((n) => /cannot say which ferry crossing/.test(n)),
+      "and it must say WHY, so a reader of the stamp knows the office was unreachable rather than the field being new");
+  }
+
+  // and a real number still gets through the same gate
+  assert.equal(gather({
+    env: { PUBLIC_CHANNEL: "release", BUILD_CODE_REF: "r", BUILD_TOWN_DATA_SHA: "b", BUILD_TOWN_SHA: "c".repeat(40), BUILD_CROSSING: "149" },
+    exec: () => "a".repeat(40) + "\n", now: () => new Date(AT),
+  }).crossing, 149);
+});
+
+test("a town sha that is not a sha is unknown, not repeated back", () => {
+  // The box passes this through a shell too. A stamp that echoes "none" or a
+  // half-written value would put it on the page as if it were a commit.
+  for (const bad of [null, "", "none", "HEAD", "not a sha"]) {
+    const s = composeStamp({ channel: "release", codeSha: "a", codeRef: "r", townDataSha: "b", townSha: bad, crossing: 1, builtAt: AT });
+    assert.equal(s.town_sha, null);
+    assert.ok(s.notes.some((n) => /which town record it reflects/.test(n)));
+  }
 });
 
 test("main writes valid JSON the sentinel can parse, at the path it was given", () => {
