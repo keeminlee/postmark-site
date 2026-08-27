@@ -384,6 +384,40 @@ export function mountCockpit(o) {
     ${state.open ? formHtml(state.open) : ""}`;
   }
 
+  /**
+   * WHERE THE BAR IS ALLOWED TO SIT.
+   *
+   * The viewer already owns the bottom edge: `.wv-spectator-coordinate` is pinned
+   * bottom-centre (z-index 6) and `.wv-walkdesk` bottom-right (z-index 8), and
+   * this overlay sits at 7000 — so a bar pinned to the bottom wins every time and
+   * covers a resident's coordinate readout and the left edge of the desk they
+   * confirm a departure in. That is the mistake this page has already been
+   * scolded for once, in the founder's own words about the time-travel panel:
+   * "Time Travel sits ON TOP of walking."
+   *
+   * So the bar is MEASURED into the free space above them rather than guessed
+   * into a corner — the same move the time-travel panel's own `place()` makes,
+   * and for the same reason: those elements' sizes are the viewer's business and
+   * a number copied here would be a second one to drift. With neither present
+   * (the harness, a viewer that moved them) it falls back to the bottom, which is
+   * exactly where it sat before this existed.
+   */
+  function placeBar() {
+    const bar = root.querySelector(".pmc-bar");
+    if (!bar) return;
+    const h = doc.defaultView?.innerHeight ?? 0;
+    let clear = 18;
+    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies"]) {
+      const el = doc.querySelector(sel);
+      if (!el || !el.getClientRects().length) continue;
+      const box = el.getBoundingClientRect();
+      if (!box.height) continue;
+      clear = Math.max(clear, h - box.top + 12);
+    }
+    // never push the bar off the top of a short window
+    bar.style.bottom = `${Math.min(clear, Math.max(18, h - 120))}px`;
+  }
+
   /** Measured, never assumed: the arrows and the edge fade come and go with the
    *  bar's real scroll position. */
   function markOverflow() {
@@ -594,6 +628,7 @@ export function mountCockpit(o) {
     const form = root.querySelector("[data-form]");
     if (form) placeAbove(form, root.querySelector(".pmc-bar"));
     root.querySelector(".pmc-bar")?.addEventListener("scroll", markOverflow, { passive: true });
+    placeBar();
     markOverflow();
     if (state.open && values) writeForm(values);
     if (keepAction) root.querySelector(`[data-field="${CSS.escape ? CSS.escape(keepAction) : keepAction}"]`)?.focus();
@@ -731,7 +766,7 @@ export function mountCockpit(o) {
     camera = new MutationObserver(() => drawToken());
     camera.observe(o.svg, { attributes: true, attributeFilter: ["viewBox"] });
   }
-  const onResize = () => { drawToken(); markOverflow(); };
+  const onResize = () => { drawToken(); placeBar(); markOverflow(); };
   (doc.defaultView ?? globalThis).addEventListener?.("resize", onResize);
 
   paint();
