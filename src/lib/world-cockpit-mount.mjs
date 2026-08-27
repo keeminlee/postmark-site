@@ -201,14 +201,23 @@ export const COCKPIT_CSS = `
    The antechamber is the cockpit's own gold over ink — hearth-side. The arena
    pulls the accent toward ember and lays a low red wash along the floor of the
    screen, so a reader knows which room they are in before they read a word. */
-.pmc[data-space="antechamber"] { --pmc-gold:#d9a860; --pmc-accent:#e0b25c; --pmc-wash:rgba(217,168,96,.05); }
-.pmc[data-space="arena"] { --pmc-gold:#e0894e; --pmc-accent:#e2603f; --pmc-wash:rgba(190,60,40,.10); }
-.pmc::after {
-  content: ""; position: absolute; inset: auto 0 0 0; height: 42%;
-  background: linear-gradient(to top, var(--pmc-wash), transparent);
-  pointer-events: none;
+.pmc[data-space="antechamber"] { --pmc-gold:#d9a860; --pmc-accent:#e0b25c; }
+.pmc[data-space="arena"] { --pmc-gold:#e0894e; --pmc-accent:#e2603f; }
+/* The ground each room stands on. One element, two paintings — and it has to be
+   readable in the first half-second rather than on comparison, which is what the
+   ruling asks for: the antechamber is a hearth glow rising off the floor, the
+   arena is that glow gone to ember PLUS a vignette closing in from every edge, so
+   the boss room feels like a room with walls and the antechamber does not. */
+.pmc::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.pmc[data-space="antechamber"]::after {
+  background:
+    radial-gradient(120% 62% at 50% 118%, rgba(224,178,92,.16), transparent 70%);
 }
-.pmc[data-space="arena"]::after { height: 55%; }
+.pmc[data-space="arena"]::after {
+  background:
+    radial-gradient(120% 70% at 50% 118%, rgba(214,74,44,.24), transparent 68%),
+    radial-gradient(88% 76% at 50% 44%, transparent 42%, rgba(6,4,6,.62) 100%);
+}
 
 /* ══ THE INITIATIVE WHEEL ══
    The turn order, rendered — hostiles hold real slots, the current turn is lit,
