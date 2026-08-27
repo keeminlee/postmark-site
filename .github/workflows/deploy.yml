@@ -33,8 +33,6 @@ on:
   push:
     branches: [main, "train/**"]
     tags: ["release/*"]
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       channel:
