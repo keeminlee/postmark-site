@@ -1,0 +1,86 @@
+---
+// PageFreshness — a baked page says how old it is, in the town's own units.
+//
+// THE LAW, verbatim from EPICS/POSTMARK/freshness-architecture.md § the mushy
+// middle: "mushiness must be disclosed — the page states when it was generated
+// and which ferry crossing it reflects, says 'a ferry has landed since this page
+// was made' when true, and never prints a cadence promise it does not control."
+//
+// THE SHAPE IS THE ARCHITECTURE'S OWN: static floor, live island. The paragraph
+// below is baked and says only the mechanism — a sentence that is true whether
+// or not anything is reachable, and which claims nothing about THIS page's age.
+// The island then upgrades it to the specific claim by reading two numbers: the
+// baked crossing out of this site's own /build.json, and the current one out of
+// the office's GET /api/. Neither is computed here; the office's crossings.mjs
+// is the town's one clock and this compares its readings, it does not keep time.
+//
+// Every failure lands on the floor. No /build.json, no office, a body that will
+// not parse — the mechanism sentence stands alone and the page says nothing it
+// cannot support. The judgment about WHAT may be said lives in
+// src/lib/page-freshness.mjs with its falsifiers; this file is two fetches and
+// one textContent.
+import { CADENCE_FLOOR } from "@/lib/page-freshness.mjs";
+
+interface Props {
+  /** What this page is showing, for the floor sentence: "the town record", "your mail". */
+  of?: string;
+}
+const { of: subject = "the town record" } = Astro.props;
+const floor = subject === "the town record"
+  ? CADENCE_FLOOR
+  : CADENCE_FLOOR.replace("the town record", subject);
+---
+
+<p class="pm-freshness" data-page-freshness>
+  <span data-freshness-live></span>
+  <span class="pm-freshness-floor">{floor}</span>
+</p>
+
+<script>
+  import { describeFreshness } from "@/lib/page-freshness.mjs";
+
+  (async function () {
+    const line = document.querySelector("[data-freshness-live]");
+    const box = document.querySelector("[data-page-freshness]");
+    if (!line) return;
+
+    // Same-origin for our own stamp; the office by absolute URL, because this
+    // component also renders on dev, where the site's origin is not the town's.
+    const get = async (url) => {
+      try {
+        const r = await fetch(url, { headers: { accept: "application/json" } });
+        return r.ok ? await r.json() : null;
+      } catch { return null; }
+    };
+    const [stamp, manifest] = await Promise.all([
+      get("/build.json"),
+      get("https://postmark.town/api/"),
+    ]);
+
+    const officeCrossing = Number.isInteger(manifest?.crossing?.number) ? manifest.crossing.number : null;
+    const said = describeFreshness({ stamp, officeCrossing, nowMs: Date.now() });
+    if (!said.text) return;          // nothing to add — the floor sentence stands
+    line.textContent = said.text + " ";
+    if (said.cls && box) box.classList.add(`is-${said.cls}`);
+  })();
+</script>
+
+<style>
+  .pm-freshness {
+    margin: 0.9em auto 0;
+    max-width: 68ch;
+    text-align: center;
+    font-family: var(--pm-mono);
+    font-size: 0.66rem;
+    line-height: 1.7;
+    letter-spacing: 0.06em;
+    color: rgba(232, 196, 139, 0.55);
+  }
+  /* The floor sentence is deliberately quieter than the live one: it is the
+     thing that is always true, not the thing that just changed. */
+  .pm-freshness-floor { opacity: 0.75; }
+  .pm-freshness.is-ok [data-freshness-live] { color: rgba(232, 196, 139, 0.8); }
+  /* A landed ferry is NEWS, not an error — the reader's mail is on its way, so
+     this reads as an arrival notice rather than a warning stripe. */
+  .pm-freshness.is-warn [data-freshness-live] { color: var(--pm-gold-bright); font-weight: 600; }
+</style>

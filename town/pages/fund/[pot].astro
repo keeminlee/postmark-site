@@ -22,7 +22,7 @@
 // no image service: a strict CSP would block it, and handing a third party the
 // ability to change what an intake QR encodes is handing them the money.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { livePots, loadPots, POT_FIXTURE, HOLO_LINE, HOLO_NAME_LINE, intakeFor, potGist, holoPerDollar, loadEconomy, readEconomy } from "@/lib/funding.mjs";
+import { livePots, loadPots, POT_FIXTURE, HOLO_LINE, HOLO_NAME_LINE, intakeFor, potGist, holoPerDollar, loadEconomy, readEconomy, patronLabel } from "@/lib/funding.mjs";
 import { qrSvg } from "@/lib/qr.mjs";
 
 // THE ADDRESS IS NO LONGER ONE STRING. Since 2026-08-25 a pot may have an
@@ -121,6 +121,20 @@ const estimate = holoPerDollar(pot, econ);
 // first mention and takes the expansion instead. Exactly one, either way —
 // which is the property funding.test.mjs asserts over the built pages.
 const holoNamedInFinePrint = pot.close === "elastic" || Boolean(pot.closes);
+
+// THE ROLL — every receipt this pot holds this epoch, one line each.
+//
+// Founder's ruling, 2026-08-27: the pot pages display EVERY receipt against a
+// pot, INCLUDING the ones the office could not attach to a hand. Until now this
+// page rendered no rows at all: the seam has always emitted `patrons` with the
+// unattached gifts already in it (`outside:stripe` passes every gate in
+// extract-seam.mjs — the only payer it drops is the treasury, whose dollars the
+// door itself excludes from the count), and the page simply never read the
+// field. So nothing about the ECONOMY moves here. What moves is that the money
+// the town was already holding is now shown.
+const roll = (pot.patrons ?? []).map((p) => ({ ...patronLabel(p.patron), usd: p.usd, holo: p.holo }));
+const rollTotal = roll.reduce((n, r) => n + r.usd, 0);
+const anyOutside = roll.some((r) => !r.attached);
 ---
 <PostmarkLayout
   title={`Fund ${pot.title ?? pot.id} — Postmark`}
@@ -156,7 +170,23 @@ const holoNamedInFinePrint = pot.close === "elastic" || Boolean(pot.closes);
 
     <section class="f-need" aria-label="What this pot asks">
       {uncapped ? (
-        <p class="f-big">a standing box — <span class="f-dim">no target, whatever arrives is welcome</span></p>
+        <>
+          {/* AN UNCAPPED POT STILL HAS A NUMBER. This branch used to print the
+              standing-box line and nothing else, so a pot with no target showed
+              no total either — darko-fund held a witnessed $10 and said only
+              that gifts were welcome. "No posted need" is a fact about the ASK;
+              it was never a reason to withhold what arrived. */}
+          <p class="f-big">
+            {usd(received)} <span class="f-dim">received this epoch</span>
+          </p>
+          {/* the capped arm has always guarded this sentence on `open`; this one
+              had not, so a DRAFT standing box invited money it cannot take. */}
+          <p class="f-room">
+            {!open
+              ? <>Nothing can be sent against this pot while it is a draft.</>
+              : <>A standing box — no target, whatever arrives is welcome.</>}
+          </p>
+        </>
       ) : (
         <>
           <p class="f-big">{usd(received)} <span class="f-of">of</span> {usd(target)} <span class="f-dim">this epoch</span></p>
@@ -176,6 +206,48 @@ const holoNamedInFinePrint = pot.close === "elastic" || Boolean(pot.closes);
       )}
       {/* Which epoch "this epoch" is now rides the how-strip's shared note
           below — one saying of it on the page, not two. */}
+    </section>
+
+    {/* WHAT HAS ARRIVED — the roll, by name, every receipt of it.
+        Placed between the ask and the consent line because that is the order a
+        reader needs: what this pot wants, what it already has, what a dollar
+        does, and only then how to send one. */}
+    <section class="f-roll" aria-label="What has arrived against this pot">
+      <h2 class="f-roll-head">What has arrived{pot.epochLabel && <span class="f-dim"> — {pot.epochLabel}</span>}</h2>
+      {roll.length === 0 ? (
+        <p class="f-roll-empty f-dim">
+          Nothing has been recorded against this pot yet. An empty roll is a real answer,
+          not a missing one — every dollar the town has witnessed here would be on it.
+        </p>
+      ) : (
+        <>
+          <ul class="f-roll-list">
+            {roll.map((r) => (
+              <li class="f-roll-row">
+                <span class="f-roll-who">
+                  {r.href
+                    ? <a href={r.href}>{r.label}</a>
+                    : <>{r.label}{" "}<code class="f-roll-raw">{r.patron}</code></>}
+                </span>
+                <span class="f-roll-usd">{usd(r.usd)}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="f-roll-sum">
+            <span>{roll.length === 1 ? "one receipt" : `${roll.length} receipts`}</span>
+            <span class="f-roll-usd">{usd(rollTotal)}</span>
+          </p>
+          {anyOutside && (
+            <p class="f-roll-note f-dim">
+              An <strong>outside gift</strong> is a payment the office could not attach to a hand —
+              the payer gave no handle, or one the town does not know. The dollars are real, they
+              are witnessed on the public ledger, and they count toward this pot exactly like any
+              other. What they cannot do is mint holo, because there is no one to mint it to.
+              If one of these was yours, write to the town and it can be put right.
+            </p>
+          )}
+        </>
+      )}
     </section>
 
     {/* THE CONSENT LINE — one sentence, still ABOVE the address (§10's second
@@ -439,6 +511,23 @@ const holoNamedInFinePrint = pot.close === "elastic" || Boolean(pot.closes);
   .f-bar { height: .55rem; border-radius: 999px; background: rgba(28, 44, 79, .6); overflow: hidden; margin: 0 0 .6rem; }
   .f-bar i { display: block; height: 100%; border-radius: 999px 2px 2px 999px; background: linear-gradient(90deg, var(--pm-gold), var(--pm-gold-bright)); }
   .f-room { font-size: .85rem; margin: 0; opacity: .85; }
+  /* the roll — every receipt, one line each */
+  .f-roll { margin-top: 1.7rem; }
+  .f-roll-head { font-size: 1.05rem; margin: 0 0 .6rem; }
+  .f-roll-empty { font-size: .85rem; line-height: 1.6; margin: 0; }
+  .f-roll-list { list-style: none; margin: 0; padding: 0; }
+  .f-roll-row, .f-roll-sum {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    padding: .4rem 0; border-bottom: 1px solid rgba(232, 196, 139, .16);
+  }
+  .f-roll-who { min-width: 0; overflow-wrap: anywhere; }
+  .f-roll-raw { font-family: var(--pm-mono); font-size: .72rem; opacity: .55; }
+  .f-roll-usd { font-family: var(--pm-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .f-roll-sum {
+    border-bottom: none; border-top: 1px solid rgba(232, 196, 139, .3);
+    margin-top: .1rem; font-size: .82rem; opacity: .75;
+  }
+  .f-roll-note { font-size: .82rem; line-height: 1.6; margin: .7rem 0 0; }
   .f-law { margin-top: 1.8rem; padding: 1rem 1.15rem; border: 1px solid rgba(232, 196, 139, .28); border-radius: 12px; background: rgba(13, 20, 38, .72); }
   .f-law-line { margin: 0; line-height: 1.6; }
   .f-law-more { white-space: nowrap; }

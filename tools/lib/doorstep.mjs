@@ -1,5 +1,56 @@
 export const WAITING_CROSSING_STATUS = "merged, waiting for the crossing — next: Ferry.";
 
+/**
+ * THE TWO CLOCKS, AT THE ARRIVALS LIST.
+ *
+ * The town reader merges every resident's inbox/ AND outbox/ into one letters
+ * corpus (tools/lib/town.mjs: "After ferry delivery the file MOVES from sender
+ * outbox to recipient inbox, so inbox is the settled home; outbox holds mail
+ * awaiting the next ferry"). The doorstep then filters that corpus by recipient
+ * — which means a letter merged an hour ago and still sitting in the SENDER's
+ * outbox, with no ferry between it and you, has been appearing under
+ * "Arrived lately" indistinguishably from mail that actually landed.
+ *
+ * The office already answers this correctly and says so in its own words
+ * (src/queries.mjs, the doorstep bundle's `clocks` field, Keemin-ruled
+ * 2026-08-10 as disclose-don't-reconcile):
+ *
+ *   "delivered means the mail-ledger says so; a reply merged but not yet
+ *    crossed shows as reply_queued — publication is not arrival, and neither
+ *    clock wears the other's noun."
+ *
+ * This is that sentence applied to the static page's arrivals list: PUBLICATION
+ * IS NOT ARRIVAL. The ledger decides, because the ledger is the town's own
+ * record of what the ferry carried.
+ *
+ * @param {Array} letters   letters addressed to this resident, newest first
+ * @param {Array} deliveries the ledger's delivery entries ({ kind, id, ... })
+ * @returns {{ arrived: Array, onTheWater: Array }}
+ */
+export const ON_THE_WATER_LABEL = "on the water, not here yet";
+
+export function splitArrivals(letters, deliveries) {
+  const landed = new Set();
+  for (const e of deliveries ?? []) if (e?.kind === "delivery" && e.id) landed.add(e.id);
+
+  // THE GUARD, and it is the whole difference between a disclosure and a
+  // catastrophe. If the ledger could not be read — missing file, a parse that
+  // yielded nothing (tools/lib/town.mjs pushes exactly that problem) — then
+  // EVERY letter is "not in the delivery set" and every doorstep in town would
+  // announce that none of its mail has arrived. So an empty ledger is not
+  // evidence; it is the absence of evidence, and the fallback is the other real
+  // signal on disk: which mailbox the file is sitting in. Two independent
+  // observations of the same fact, and neither is a guess.
+  const isLanded = landed.size
+    ? (l) => landed.has(l?.id)
+    : (l) => l?.box !== "outbox";
+
+  const arrived = [];
+  const onTheWater = [];
+  for (const l of letters ?? []) (isLanded(l) ? arrived : onTheWater).push(l);
+  return { arrived, onTheWater };
+}
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**

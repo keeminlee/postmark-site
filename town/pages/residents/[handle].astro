@@ -9,6 +9,7 @@
 // page this file used to render on its own.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import Household from "../../components/Household.astro";
+import PageFreshness from "@/components/PageFreshness.astro";
 import residents from "@/data/postmark/residents.json";
 import { houseOf, membersOf, isShared } from "@/lib/household.mjs";
 import { excerpt } from "@/lib/pm.mjs";
@@ -29,4 +30,10 @@ const members = membersOf(house);
   ownChips={isShared(house, members)}
 >
   <Household house={house} members={members} active={r.handle} route="resident" />
+  {/* A resident's page is the doorstep a visitor actually opens, and the mail
+      on it is baked. It says how old it is and whether a ferry has landed since
+      — the mushy middle's disclosure law, one line, under everything it
+      describes. "Poll the office" above is the same question asked by hand;
+      this is the part that answers without being asked. */}
+  <PageFreshness of="the town record" />
 </PostmarkLayout>
