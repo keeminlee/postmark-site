@@ -25,7 +25,7 @@
 //   And nothing is invented: every number comes from its one source, and every
 //   kind of nothing is still named rather than smoothed away.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { loadEconomy, readEconomy, HOLO_LINE, HOLO_NAME_LINE, livePots, loadPots, POT_FIXTURE, potGist } from "@/lib/funding.mjs";
+import { loadEconomy, readEconomy, HOLO_LINE, HOLO_NAME_LINE, livePots, loadPots, POT_FIXTURE, potGist, patronLabel } from "@/lib/funding.mjs";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
@@ -357,10 +357,18 @@ const asOfText = potsAsOf
                     m-kind line names the first close, and the Rules teach the
                     rest. Nothing was unsaid; it was re-shelved. */}
                 <p class="m-roll">
+                  {/* EVERY PATRON, AND THE UNATTACHED ONES TOLD APART. This
+                      roll linked every payer to /residents/<payer>/ — which for
+                      an unattached gift is a DEAD LINK presenting a payment the
+                      office could not attach to a hand as though it were a
+                      resident. darko-fund's witnessed $10 sits under
+                      `outside:stripe` and shipped exactly that. patronLabel is
+                      the one shape-rule (funding.mjs); it links a hand and
+                      names a gift. */}
                   {p.patrons.length > 0
-                    ? <>{p.patrons.map((c, i) => (
-                        <span class="m-patron">{i > 0 && " · "}<a href={`/residents/${c.patron}/`}>{c.patron}</a> <span class="m-dim">{usd(c.usd)}</span>{c.holo > 0 && <> <span class="pm-holo-ink m-holo">✧{c.holo}</span></>}</span>
-                      ))}</>
+                    ? <>{p.patrons.map((c, i) => { const who = patronLabel(c.patron); return (
+                        <span class="m-patron">{i > 0 && " · "}{who.href ? <a href={who.href}>{who.label}</a> : <span class="m-gift">{who.label}</span>} <span class="m-dim">{usd(c.usd)}</span>{c.holo > 0 && <> <span class="pm-holo-ink m-holo">✧{c.holo}</span></>}</span>
+                      ); })}</>
                     : <span class="m-dim">the roll is open — nobody has fed this pot yet</span>}
                 </p>
 
@@ -1361,6 +1369,7 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
   .m-holo { padding: 0 .3em; border-radius: 999px; }
   .m-roll { font-size: .78rem; margin: 0; line-height: 1.6; }
   .m-roll a { color: inherit; }
+  .m-gift { font-style: italic; opacity: .8; }
   .m-patron { white-space: nowrap; }
   .m-dim { opacity: .6; }
   .m-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: .25rem 0 0; font-size: .78rem; }

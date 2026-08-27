@@ -211,6 +211,45 @@ export function beneficiaryLabel(beneficiary) {
   return who === FOUNDER_ACCOUNT ? TOWN_DISPLAY_NAME : who;
 }
 
+// A RESIDENT HANDLE'S SHAPE, from postmark-office src/residency.mjs: lowercase
+// letters, digits and single hyphens. Written out here rather than imported —
+// the office is a different repo, and a constant that agrees with itself proves
+// nothing (the same reasoning the intake addresses are held to in
+// test/fund-page.test.mjs).
+const HANDLE_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/**
+ * WHO PAID, as the roll should say it — and whether the town could attach the
+ * dollars to a hand at all.
+ *
+ * Told BY SHAPE, with no list to consult, because the office chose the spelling
+ * precisely so it could be. postmark-office tools/stripe-watch.mjs, verbatim:
+ * "`outside:stripe` is chosen because a handle can never look like it:
+ * `isResidentHandle` admits only `[a-z0-9-]`, so a colon makes the string
+ * unmintable as a name. A future reader can therefore tell an unattached gift
+ * from an attached one by shape alone, with no list to consult."
+ *
+ * WHY IT GETS A LINE RATHER THAN A TOTAL. An unattached gift is real money that
+ * reached the town and was witnessed on the public ledger. Showing only the
+ * named patrons and folding the rest into the sum would hide a gift behind the
+ * arithmetic: the pot's number would stop adding up in public, and the one
+ * patron the town could not thank by name would be the one it did not show. So
+ * the roll carries every receipt, and an unattached one says what it is —
+ * including that it minted no holo, which is the honest half of the same fact.
+ */
+export function patronLabel(patron) {
+  const who = String(patron ?? "").trim();
+  const attached = HANDLE_RE.test(who);
+  return {
+    patron: who,
+    attached,
+    // the resident's own name when the town has one, and otherwise a phrase
+    // that describes what happened rather than a handle nobody holds
+    label: attached ? who : "an outside gift",
+    href: attached ? `/residents/${who}/` : null,
+  };
+}
+
 // POT_ID_CLASS / EPOCH_CLASS, from the seam's own regexes.
 const POT_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 const EPOCH_RE = /^\d{4}-\d{2}$/;

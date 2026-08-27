@@ -41,6 +41,7 @@ import {
   shelfTotals,
   toDeed,
   toPot,
+  patronLabel,
 } from "../src/lib/funding.mjs";
 
 // ── nothing published yet ────────────────────────────────────────────────────
@@ -775,5 +776,113 @@ test("each money surface teaches it exactly once outside the glossary, in both o
   for (const p of [...named, shared[0], solo[0]]) {
     const n = holoTimes(outsideGlossary(readFileSync(p, "utf8")));
     assert.equal(n, 1, `${p} carries the expansion ${n} times outside the glossary, and the rule is exactly once`);
+  }
+});
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// THE ROLL SHOWS EVERY RECEIPT — including the ones with no hand on them
+// ════════════════════════════════════════════════════════════════════════════
+
+test("a payer the office could not attach to a hand is told apart BY SHAPE, with no list to consult", () => {
+  // LAW (postmark-office tools/stripe-watch.mjs, verbatim): "`outside:stripe`
+  //     is chosen because a handle can never look like it: `isResidentHandle`
+  //     admits only `[a-z0-9-]`, so a colon makes the string unmintable as a
+  //     name. A future reader can therefore tell an unattached gift from an
+  //     attached one by shape alone, with no list to consult."
+  //
+  // The site is that future reader. If this ever needed a list of known
+  // outside-spellings, the office's whole argument for the spelling would have
+  // been wasted and a new rail would silently render as a resident.
+  const gift = patronLabel("outside:stripe");
+  assert.equal(gift.attached, false);
+  assert.equal(gift.label, "an outside gift");
+  assert.equal(gift.href, null, "there is no resident page to send a reader to");
+  assert.equal(gift.patron, "outside:stripe", "the recorded payer is kept verbatim, never swallowed");
+
+  // a rail nobody has built yet must ALSO read as a gift, on shape alone
+  assert.equal(patronLabel("outside:cheque").attached, false);
+  assert.equal(patronLabel("outside:cheque").label, "an outside gift");
+
+  const hand = patronLabel("sol-am-lichterfenster");
+  assert.equal(hand.attached, true);
+  assert.equal(hand.label, "sol-am-lichterfenster");
+  assert.equal(hand.href, "/residents/sol-am-lichterfenster/");
+});
+
+test("the fund page reads the roll the seam has always emitted", () => {
+  // LAW (the founder, 2026-08-27): the pot pages display every receipt against
+  //     a pot, INCLUDING unattributed gifts — visible as line items with their
+  //     honest hand, not folded into a total silently.
+  //
+  // This is a SOURCE claim on purpose: the defect it guards was not a wrong
+  // number, it was a field the page never read. tools/extract-seam.mjs has
+  // always emitted `patrons` with the unattached gifts in it — its only
+  // exclusion is the treasury — and the page rendered none of them.
+  const page = readFileSync(new URL("../town/pages/fund/[pot].astro", import.meta.url), "utf8");
+  assert.match(page, /pot\.patrons/, "the page reads the roll");
+  assert.match(page, /patronLabel/, "through the one shape-rule, not a second copy");
+  // the LABEL is the lib's (asserted above, where it lives); what the PAGE owes
+  // is the disclosure beside it — a reader meeting an unattached line deserves
+  // to be told what it is and what it could not do.
+  assert.match(page, /could not attach to a hand/, "and says what an unattached payer is");
+  assert.match(page, /cannot do is mint holo/, "including the honest half");
+});
+
+test("an UNCAPPED pot publishes what arrived — no posted need was never a reason to hide the total", () => {
+  // LAW (the pot file, pot-darko-fund.json § source, verbatim): "It is
+  //     deliberately ELASTIC: no posted target, no cap — whatever arrives in a
+  //     month is, by definition, what it cost to run DARKO that month."
+  //
+  // darko-fund held a witnessed $10 while its page printed only "a standing
+  // box — no target, whatever arrives is welcome". The absence of a TARGET says
+  // nothing about whether the town should show what it RECEIVED.
+  const page = readFileSync(new URL("../town/pages/fund/[pot].astro", import.meta.url), "utf8");
+  const uncappedArm = page.slice(page.indexOf("{uncapped ? ("), page.indexOf(") : ("));
+  assert.match(uncappedArm, /usd\(received\)/, "the uncapped arm prints the total it received");
+});
+
+test("the BUILT fund page carries the outside gift as its own line", { skip: !built }, () => {
+  // The render is the claim here, not the source: `roll` resolves from the
+  // synced seam at build time, so only the built page can say whether a real
+  // recorded gift reached a reader's eyes.
+  const potsPath = new URL("../src/data/postmark/pots.json", import.meta.url);
+  const pots = JSON.parse(readFileSync(potsPath, "utf8"));
+  const withOutside = pots.find((p) => (p.patrons ?? []).some((x) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(x.patron))));
+  if (!withOutside) return; // no unattached gift in today's data: nothing to prove, and saying so beats a green lie
+
+  const file = join(DIST, "fund", withOutside.pot, "index.html");
+  assert.ok(existsSync(file), `the built page for ${withOutside.pot} exists at ${file}`);
+  const html = readFileSync(file, "utf8");
+  assert.match(html, /an outside gift/, "the gift is a visible line, not arithmetic");
+  assert.match(html, /What has arrived/, "under a heading that says what the section is");
+  const gift = withOutside.patrons.find((x) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(x.patron)));
+  assert.ok(html.includes(String(gift.patron)), "and the recorded payer string itself is shown, never hidden");
+  assert.match(html, new RegExp(`\\$${withOutside.received_usd}`), "with the dollars it brought");
+});
+
+
+test("NO pot surface links an unattached gift to a resident page that cannot exist", () => {
+  // LAW (postmark-office src/residency.mjs, quoted by tools/stripe-watch.mjs):
+  //     a handle is lowercase letters, digits and single hyphens, so
+  //     `outside:stripe` "can never look like it" and can never be minted as a
+  //     name — which also means /residents/outside:stripe/ is a page the town
+  //     is incapable of building.
+  //
+  // THE LIVE DEFECT THIS CAUGHT, shipped and on the site today: the Stamps hub
+  // rendered every roll entry as `<a href={`/residents/${c.patron}/`}>`, so
+  // darko-fund's witnessed $10 appeared as a LINK NAMED `outside:stripe`
+  // pointing at a 404 — an unattached gift dressed as a resident. Showing every
+  // receipt is only half the founder's ruling; the other half is that each one
+  // shows its HONEST hand.
+  const surfaces = ["../town/pages/stamps/index.astro", "../town/pages/fund/[pot].astro"];
+  for (const rel of surfaces) {
+    const src = readFileSync(new URL(rel, import.meta.url), "utf8");
+    assert.doesNotMatch(
+      src, /\/residents\/\$\{(?:c|p|r)\.patron\}/,
+      `${rel} builds a resident href straight from a payer string`,
+    );
+    if (/\.patrons/.test(src))
+      assert.match(src, /patronLabel/, `${rel} routes payers through the one shape-rule`);
   }
 });
