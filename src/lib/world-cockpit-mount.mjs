@@ -642,7 +642,14 @@ export function mountCockpit(o) {
     state.said = null;
     formValues = null;
     paint();
-    root.querySelector("[data-form] [data-field]")?.focus();
+    // DELIBERATELY NO FOCUS INTO THE FORM on the keyboard path. Focus belongs in
+    // the field only when the reader has committed to filling it, and a digit
+    // typed into a focused text box must type a digit — so auto-focusing here
+    // killed the numbered bar the moment it was used: measured, pressing 1 then
+    // 2 then 9 left slot 1 open the whole time and put "29" in its first field.
+    // Clicking a seat is the committing gesture and still dives in; the numbers
+    // stay the bar's own navigation, which is what makes them worth having.
+    root.querySelector("[data-form]")?.scrollIntoView?.({ block: "nearest" });
   }
 
   // The card follows the pointer AND the keyboard, because a bar with numbered
