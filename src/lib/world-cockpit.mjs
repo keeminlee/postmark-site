@@ -366,6 +366,33 @@ export function actorsFor(answer, me, opts = {}) {
   return faces;
 }
 
+/**
+ * The human face's own sentence — the door's words wherever it sent any.
+ *
+ * FIELD DRIFT, found 2026-08-27. The roster contract this site declared on 08-26
+ * named `because`, and the bridge above writes one. The office's own roster emits
+ * `says` on every row and `stance` on the human's, and no `because` at all
+ * (office human-actor.mjs `actorRoster`, commit 7f0b56e, 2026-08-27).
+ *
+ * So the drift bit at exactly the wrong moment: the day the door started answering
+ * `actors` — the thing the whole contract was waiting for — the bridge stopped
+ * being walked, `because` stopped existing, and the human's face fell through to
+ * the site's stand-in "where ground allows". The one row whose words were most
+ * worth reading was the one that went quiet, and it went quiet by succeeding.
+ *
+ * READ IN BOTH DIRECTIONS, deliberately. The office half may be trued separately
+ * toward this site's spelling, so `because` is still read first; whichever name
+ * the door settles on, the door's sentence is the one that shows. The `stance`
+ * fallback QUOTES rather than paraphrases — a word is not a sentence, and dressing
+ * one up as prose would be the site writing law again.
+ */
+export function humanWords(face) {
+  const said = [face?.because, face?.says].find((s) => typeof s === "string" && s.trim());
+  if (said) return said;
+  const stance = typeof face?.stance === "string" && face.stance.trim() ? face.stance : null;
+  return stance ? `the door calls this standing "${stance}"` : "where ground allows";
+}
+
 /** The innermost parcel in the containment spine that one of these handles holds,
  *  or null. A parcel's `by` is its household's own resident — the same reading the
  *  world's ids carry everywhere (`vermillion/the-pando-peak-parcel`). */

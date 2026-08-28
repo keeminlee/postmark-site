@@ -22,7 +22,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { apexUrl, bounceLine, bounceWords, orientingHandle, readDoor } from "../src/lib/world-cockpit-door.mjs";
-import { HUMAN_ACTOR, actorsFor, cockpitShows, portalOf, rosterOf } from "../src/lib/world-cockpit.mjs";
+import { HUMAN_ACTOR, actorsFor, cockpitShows, humanWords, portalOf, rosterOf } from "../src/lib/world-cockpit.mjs";
 import { mountCockpit } from "../src/lib/world-cockpit-mount.mjs";
 
 // ── the door, as it actually answered ───────────────────────────────────────
@@ -319,6 +319,42 @@ test("the bridge's parcel arm reads a parcel — and is not reachable from the b
   // code under the 08-27 one, for a different reason: the door answers `actors`
   // now (office 7f0b56e).
   assert.equal(cockpitShows(noRoster), false, "the gate cannot mount the answer the bridge needs");
+});
+
+// ── the human row's own sentence ────────────────────────────────────────────
+
+test("the door's sentence for the human is the one on the face", () => {
+  // FIELD DRIFT. The site's contract named `because`; the office's roster emits
+  // `says` and `stance` and no `because` (office human-actor.mjs `actorRoster`,
+  // 7f0b56e, 2026-08-27). So the sentence disappeared at the moment the contract
+  // was FULFILLED — the bridge that wrote `because` stopped being walked, and the
+  // face fell through to the site's own stand-in.
+  const doc = tinyDom();
+  const mounted = mountCockpit({
+    document: doc, host: doc.body, svg: null, answer: IN_PORTAL, me: MULTI_RESIDENT_ME, grid: null,
+    dispatch: async () => ({ ok: true, status: 200, body: {} }),
+    readTerms: async () => null, refresh: null,
+  });
+  const html = paintedRoster(doc);
+  assert.ok(html.includes("on ground that grants them feet"),
+    "the office's own words for an embodied human are on the face");
+  assert.ok(!html.includes("where ground allows"),
+    "…and the site's stand-in is nowhere near it");
+  mounted.destroy();
+});
+
+test("humanWords reads both spellings, and quotes a stance rather than dressing it up", () => {
+  // Read in BOTH directions on purpose: the office half may be trued toward this
+  // site's spelling separately, and whichever name it settles on must win.
+  assert.equal(humanWords({ says: "the office's sentence" }), "the office's sentence");
+  assert.equal(humanWords({ because: "the site's sentence" }), "the site's sentence");
+  assert.equal(humanWords({ because: "the site's sentence", says: "the office's" }), "the site's sentence",
+    "`because` first, so the bridge still reads while it exists");
+  // A word is not a sentence. Quoted, never paraphrased into prose the door did
+  // not write — this surface must never put its own words where law goes.
+  assert.equal(humanWords({ stance: "embodied-human" }), 'the door calls this standing "embodied-human"');
+  assert.equal(humanWords({}), "where ground allows", "and with nothing at all, the honest stand-in");
+  assert.equal(humanWords({ says: "   " }), "where ground allows", "whitespace is not a sentence");
 });
 
 test("a key with no residents resolves to no handle rather than to a guess", () => {

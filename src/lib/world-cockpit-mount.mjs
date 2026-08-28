@@ -13,7 +13,7 @@ import {
   HUMAN_ACTOR, actorsFor, barSlots, cockpitShows, dialLine, dispatchEnvelope,
   portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
-  blockedReason, encounterOf, looseThings, rollsFrom, spaceOf,
+  blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
 } from "./world-cockpit.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
 // — so the bar cannot be drawn for one standpoint and act from another.
@@ -451,9 +451,13 @@ export function mountCockpit(o) {
         : esc((f.label ?? "?").slice(0, 1).toUpperCase());
       // The name box carries the REASON when a face is refused — a greyed circle
       // that will not say why is the surface refusing to explain the law it is
-      // enforcing, which is the opposite of what this page is for.
+      // enforcing, which is the opposite of what this page is for. And an ALLOWED
+      // human's box carries the door's own sentence, through `humanWords`: this
+      // read `f.because` until 08-27, which is a field the office's roster does
+      // not emit, so the door's words vanished the day the door started sending
+      // them. See humanWords for the drift and why it is read both ways.
       const words = f.allowed
-        ? (f.kind === "human" ? `${esc(f.label)} · yourself — ${esc(f.because ?? "where ground allows")}` : esc(f.label))
+        ? (f.kind === "human" ? `${esc(f.label)} · yourself — ${esc(humanWords(f))}` : esc(f.label))
         : `${esc(f.label)} — ${esc(f.reason ?? "not here")}`;
       // The box wraps when its words are a SENTENCE rather than a handle — keyed
       // on the length, not on whether the face was refused. Keyed on refusal, an
