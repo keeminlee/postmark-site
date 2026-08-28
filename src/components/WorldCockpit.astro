@@ -59,8 +59,17 @@
     const bearer = () => {
       try {
         const t = JSON.parse(localStorage.getItem(KEYS.token) || "null");
-        return tokenIsFresh(t) ? t.access_token : null;
-      } catch { return null; }
+        if (tokenIsFresh(t)) return t.access_token;
+      } catch {}
+      // THE PAGE'S OTHER SIGN-IN (2026-08-28, found at the dress rehearsal):
+      // the viewer signs a reader in as a bare Bearer in localStorage['pm_key']
+      // (WorldSignIn plants it "before the viewer boots, so the lens is live on
+      // load"). The cockpit read only the OAuth token shape, so for a pm_key
+      // reader — every stage key, and any resident signed in the viewer's way —
+      // bearer() answered null and the cockpit degraded to nothing, silently,
+      // on the very standpoints it was built for. One page, one signed-in
+      // reader: the cockpit accepts the same word the viewer does.
+      try { return localStorage.getItem("pm_key") || null; } catch { return null; }
     };
     const authed = (extra) => {
       const k = bearer();

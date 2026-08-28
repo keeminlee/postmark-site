@@ -520,3 +520,15 @@ test("THE CLASS: one place spells the apex's path", () => {
   assert.deepEqual(spellers, ["lib/world-cockpit-door.mjs"],
     "every other reader of this door must take the path from APEX_PATH");
 });
+
+test("the cockpit accepts the page's own sign-in word", () => {
+  // Found at the 2026-08-28 dress rehearsal: the viewer signs a reader in as a
+  // bare Bearer in localStorage['pm_key'] (WorldSignIn: "before the viewer
+  // boots, so the lens is live on load"); the cockpit's bearer() read only the
+  // OAuth token shape, so for every pm_key reader it degraded to nothing —
+  // silently, on the very standpoints it was built for. One page must not hold
+  // two opinions about whether its reader is signed in.
+  const astro = readFileSync(new URL("../src/components/WorldCockpit.astro", import.meta.url), "utf8");
+  assert.match(astro, /localStorage\.getItem\("pm_key"\)/,
+    "bearer() falls back to the viewer's pm_key — the page's other sign-in");
+});
