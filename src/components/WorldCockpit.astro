@@ -34,10 +34,14 @@
 
   (function () {
     // Same base resolution the household and compose islands use: prod is
-    // same-origin /api; a dev host talks to the live office.
-    const OFFICE = location.hostname.endsWith("postmark.town")
-      ? location.origin + "/api"
-      : "https://postmark.town/api";
+    // same-origin /api; a dev host talks to the live office. A BUILD-TIME env
+    // (never a query param — a shared ?office= link would post the reader's
+    // bearer to whoever minted the link) lets a local walk aim at a local
+    // office; prod builds set nothing and keep the standing resolution.
+    const OFFICE = import.meta.env.PUBLIC_OFFICE_BASE
+      ?? (location.hostname.endsWith("postmark.town")
+        ? location.origin + "/api"
+        : "https://postmark.town/api");
 
     const bearer = () => {
       try {
