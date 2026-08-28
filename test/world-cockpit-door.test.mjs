@@ -20,6 +20,9 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, relative, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { apexUrl, bounceLine, bounceWords, orientingHandle, readDoor } from "../src/lib/world-cockpit-door.mjs";
 import { HUMAN_ACTOR, actorsFor, cockpitShows, humanWords, portalOf, rosterOf } from "../src/lib/world-cockpit.mjs";
@@ -363,4 +366,157 @@ test("a key with no residents resolves to no handle rather than to a guess", () 
   assert.equal(orientingHandle(null), null);
   assert.equal(orientingHandle({ handles: [] }), null);
   assert.equal(orientingHandle({ handles: [null, "x"] }), "x");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THE CLASS
+//
+// Three defects were found in the cockpit on 2026-08-27 and they were one defect
+// wearing three coats: a call to the apex that named no resident. The boot read
+// (the bar never mounted), the act envelope (every human act refused at orient),
+// and — the near miss — the tooltip's shadow-read, which happened to name one
+// because it was written second and by somebody who had already hit the bounce.
+//
+// A KEY IN THIS TOWN HOLDS MANY RESIDENTS. The founder's does. That is the DEFAULT
+// shape, so a call site that names nobody is a defect rather than a rough edge,
+// and no amount of care per-site prevents the next one. This is the guard for the
+// class: it enumerates the call sites out of the SOURCE and asks each the same
+// question. It is deliberately crude — regex over text, no parser — because
+// catching the class is the point and a crude guard that fires is worth more than
+// a precise one nobody writes.
+//
+// It would have caught all three on 08-26.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const SRC = fileURLToPath(new URL("../src", import.meta.url));
+
+function sourceFiles(dir = SRC, out = []) {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) sourceFiles(p, out);
+    else if (/\.(mjs|js|ts|astro)$/.test(e.name)) out.push(p);
+  }
+  return out;
+}
+
+/** Prose out, code left. Crude on purpose: block comments, and any line whose
+ *  first non-space is `//` or `*`. This repo keeps its reasoning in exactly those
+ *  two shapes. A trailing comment that slipped through would make the guard FIRE
+ *  rather than go quiet, which is the safe direction for it to be wrong in. */
+function codeOnly(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .split("\n")
+    .map((l) => (/^\s*(\/\/|\*)/.test(l) ? "" : l))
+    .join("\n");
+}
+
+/** The text of a call, from its `(` to the paren that closes it. */
+function callFrom(src, open) {
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    if (src[i] === "(") depth++;
+    else if (src[i] === ")" && !--depth) return src.slice(open, i + 1);
+  }
+  return src.slice(open);
+}
+
+const lineOf = (src, idx) => src.slice(0, idx).split("\n").length;
+
+/**
+ * Every call to something fetch-shaped that reaches the apex, with the fifteen
+ * lines above it — because the resident may be named on the envelope a line
+ * earlier rather than inside the call's own parentheses, which is how the act
+ * site legitimately names one.
+ *
+ * DECLARATIONS ARE STRIPPED OUT OF THAT WINDOW, and finding out why is the reason
+ * this note exists. The first draft of this guard passed the flip: the boot read
+ * was put back to its 08-26 shape and the guard stayed green, because fifteen
+ * lines above the fetch sat `function readDoor({ fetch, office, handle, … })` and
+ * the word `handle` was right there in the parameter list. The guard was reading
+ * a NAME, not a value handed to the door — green for the wrong reason on the exact
+ * site it was written for. A line that declares rather than passes is blanked now.
+ */
+function apexCallSites() {
+  const sites = [];
+  for (const file of sourceFiles()) {
+    const code = codeOnly(readFileSync(file, "utf8"));
+    for (const m of code.matchAll(/\bfetch\w*\(/g)) {
+      const call = callFrom(code, m.index + m[0].length - 1);
+      if (!/apexUrl|APEX_PATH|\/world\/apex/.test(call)) continue;
+      const before = code.slice(0, m.index).split("\n").slice(-15)
+        .map((l) => (/\bfunction\b|=>/.test(l) ? "" : l))
+        .join("\n");
+      sites.push({ file: relative(SRC, file), line: lineOf(code, m.index), text: before + call });
+    }
+  }
+  return sites;
+}
+
+test("THE CLASS: every call that reaches the apex names a resident", () => {
+  const sites = apexCallSites();
+  // The guard must be able to find anything at all. A regex that quietly matched
+  // nothing would be a green test asserting there are no defects in an empty set,
+  // which is how this whole night's 34 green assertions came to describe a bar
+  // that did not exist.
+  assert.ok(sites.length >= 3, `expected the read, the shadow-read and the act; found ${sites.length}`);
+  for (const s of sites) {
+    assert.match(s.text, /\bhandle\b/,
+      `${s.file}:${s.line} reaches the apex naming no resident — on a multi-resident key the door refuses it, and this town's keys are multi-resident by default`);
+  }
+});
+
+test("THE CLASS: the read's URL is built with a resident, not with a null", () => {
+  // The sharp end of the same question, and the one the window cannot fudge:
+  // `apexUrl` takes the resident as its SECOND ARGUMENT, so a read that names
+  // nobody is visible as a literal in the source. This is what actually caught the
+  // 08-26 boot read when the window-based check above went green on its own
+  // parameter list.
+  const bad = [];
+  let calls = 0;
+  for (const file of sourceFiles()) {
+    const code = codeOnly(readFileSync(file, "utf8"));
+    for (const m of code.matchAll(/\bapexUrl\(/g)) {
+      // the definition is not a call site
+      if (/function\s+$/.test(code.slice(Math.max(0, m.index - 20), m.index))) continue;
+      calls++;
+      const args = callFrom(code, m.index + m[0].length - 1);
+      const second = /,\s*([A-Za-z_$][\w$]*)\s*\)$/.exec(args)?.[1] ?? null;
+      // `null` is identifier-SHAPED and slipped through the first draft of this
+      // check, which is the whole defect written as a literal. Naming nothing is
+      // the thing being guarded against; it does not get to look like a name.
+      if (!second || second === "null" || second === "undefined") {
+        bad.push(`${relative(SRC, file)}:${lineOf(code, m.index)} — ${args}`);
+      }
+    }
+  }
+  assert.ok(calls >= 1, "the guard found no apexUrl call site at all");
+  assert.deepEqual(bad, [], "a read of the apex is composed with a named resident, never with a null or nothing");
+});
+
+test("THE CLASS: every act's envelope carries the standing it is oriented from", () => {
+  const sites = [];
+  for (const file of sourceFiles()) {
+    const code = codeOnly(readFileSync(file, "utf8"));
+    for (const m of code.matchAll(/\bdispatchEnvelope\(/g)) {
+      // the definition is not a call site
+      if (/function\s+$/.test(code.slice(Math.max(0, m.index - 20), m.index))) continue;
+      sites.push({ file: relative(SRC, file), line: lineOf(code, m.index), text: callFrom(code, m.index + m[0].length - 1) });
+    }
+  }
+  assert.ok(sites.length >= 1, "the guard found no dispatchEnvelope call site at all");
+  for (const s of sites) {
+    assert.match(s.text, /\bhandle\b/,
+      `${s.file}:${s.line} builds an act naming no standing — a human's act then bounces at orient, before the human seam runs`);
+  }
+});
+
+test("THE CLASS: one place spells the apex's path", () => {
+  // A second speller is a second place the resident can go missing, which is
+  // exactly how 08-26 ended with three calls to one door that disagreed about it.
+  const spellers = sourceFiles()
+    .filter((f) => /["'`][^"'`]*\/world\/apex/.test(codeOnly(readFileSync(f, "utf8"))))
+    .map((f) => relative(SRC, f).split(sep).join("/"));
+  assert.deepEqual(spellers, ["lib/world-cockpit-door.mjs"],
+    "every other reader of this door must take the path from APEX_PATH");
 });
