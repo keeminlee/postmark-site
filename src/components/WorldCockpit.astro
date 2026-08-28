@@ -30,6 +30,7 @@
 <script>
   import { mountCockpit } from "@/lib/world-cockpit-mount.mjs";
   import { cockpitShows, gridFrom } from "@/lib/world-cockpit.mjs";
+  import { APEX_PATH, orientingHandle, readDoor } from "@/lib/world-cockpit-door.mjs";
   import { KEYS, tokenIsFresh } from "@/lib/auth.mjs";
 
   (function () {
@@ -53,14 +54,6 @@
       const k = bearer();
       return Object.assign({ accept: "application/json" }, k ? { authorization: "Bearer " + k } : {}, extra || {});
     };
-
-    async function readDoor() {
-      // No x/y: signed in the door answers where the resident actually stands
-      // ("where your walk arrived"), which is the standpoint the bar must serve.
-      const r = await fetch(OFFICE + "/world/apex", { headers: authed() });
-      if (!r.ok) return null;
-      return r.json();
-    }
 
     async function readMe() {
       if (!bearer()) return null;
@@ -91,7 +84,7 @@
      * holdings, your note.
      */
     async function readTerms(action, handle) {
-      const r = await fetch(OFFICE + "/world/apex", {
+      const r = await fetch(OFFICE + APEX_PATH, {
         method: "POST",
         headers: authed({ "content-type": "application/json" }),
         body: JSON.stringify(handle ? { read: action, handle } : { read: action }),
@@ -103,7 +96,13 @@
     async function dispatch(envelope) {
       const k = bearer();
       if (!k) return { ok: false, status: 401, body: { defect: "performing needs a key", hint: "sign in to act — the read half of this door is keyless, an act is not" } };
-      const r = await fetch(OFFICE + "/world/apex", {
+      // AN ACT NAMES THE RESIDENT IT ORIENTS FROM, the human's act included —
+      // `dispatchEnvelope` puts it in `handle`. Said here as well as there because
+      // this is the wire, and on a multi-resident key a nameless act bounces at
+      // orient before the human seam is ever reached: the act would look refused
+      // when it was only unaddressed.
+      if (!envelope.handle) console.warn("world cockpit: an act is going out naming no resident — on a multi-resident key the door bounces it at orient", envelope);
+      const r = await fetch(OFFICE + APEX_PATH, {
         method: "POST",
         headers: authed({ "content-type": "application/json" }),
         body: JSON.stringify(envelope),
@@ -139,15 +138,34 @@
       // answered; there is just nothing here to answer about.
       if (!bearer()) return;
 
-      const answer = await readDoor().catch(() => null);
+      // /me COMES FIRST, and the order is the fix. The apex answers a NAMED
+      // resident's standpoint, and a key holding several residents is this town's
+      // default shape — the founder's own key is one — so a read naming nobody is
+      // refused 422 rather than answered. On 08-26 the read went first, took that
+      // refusal, and the island could not tell it apart from "you are not in a
+      // portal": the cockpit built that day never mounted, silently. So the
+      // resident is resolved BEFORE the door is asked.
+      const me = await readMe().catch(() => null);
+      const acting = orientingHandle(me);
+      if (!acting) console.warn("world cockpit: /api/me named no resident on this key, so the apex read cannot say whose standpoint to answer");
+      // One composition, used by the boot read, the refresh after an act, and the
+      // re-read on return to the tab — so the handle cannot be threaded into one
+      // of the three and forgotten in the others, which is exactly how 08-26 got
+      // three calls to one door that disagreed about naming a resident.
+      const door = () => readDoor({ fetch, office: OFFICE, handle: acting, headers: authed() });
+
+      const answer = await door().catch((err) => {
+        console.warn("world cockpit: the apex could not be reached at all", err);
+        return null;
+      });
       if (!answer || !cockpitShows(answer)) return; // the page stays exactly as it is
-      const [me, grid] = await Promise.all([readMe().catch(() => null), readGrid()]);
+      const grid = await readGrid();
 
       let handle = null;
       const mount = () => {
         handle = mountCockpit({
           document, host: document.body, svg: mapSvg(), answer, me, grid,
-          dispatch, readTerms, refresh: () => readDoor(),
+          dispatch, readTerms, refresh: door,
         });
       };
       // Wait for a drawn overlay before mounting, for the reason the arrival
@@ -165,7 +183,7 @@
       // stale answer is most likely: crossings settle while a tab is hidden.
       document.addEventListener("visibilitychange", async () => {
         if (document.visibilityState !== "visible" || !handle) return;
-        const fresh = await readDoor().catch(() => null);
+        const fresh = await door().catch(() => null);
         if (fresh) handle.update(fresh);
       });
     }
