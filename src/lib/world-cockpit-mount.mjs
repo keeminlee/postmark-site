@@ -357,8 +357,29 @@ export const COCKPIT_CSS = `
   .pmc-die.is-crit .face { animation: none; }
 }
 
-/* ── the standpoint plate ── */
-.pmc-here { position: absolute; left: 14px; top: 14px; max-width: 24em; padding: .55em .8em; }
+/* ── the standpoint plate, ON HOVER, OVER THE DOCK ──
+   RULED 2026-08-28, at the live rehearsal: "let's make the card appear ON HOVER
+   when you hover over the act as bottom bar."
+
+   IT SUPERSEDES an always-on card pinned at left 14px / top 14px, kept named here
+   because a reversal that hides what it reversed reads as somebody's regression.
+   That card was the second element caught sitting on the site's own left rail —
+   the first was the bar, fenced at placeBar; the fix for this one was the same
+   fence, and it held for parcels and failed in the open world, where the map svg
+   is full-bleed and its rect's left edge IS the viewport's. There was no third
+   fence worth writing. Anchored to the dock the question does not arise: the
+   plate hangs off a box that is already inside the painting, exactly as the
+   faces' own name boxes do, and no page furniture can be underneath it.
+
+   Its clearance is measured against those name boxes rather than guessed: a face
+   box sits at 100% + .6em and stands about two ems tall, so the plate starts
+   above the tallest of them and hovering a FACE shows both without a collision. */
+.pmc-here {
+  position: absolute; left: 0; bottom: calc(100% + 3.2em);
+  width: max-content; max-width: min(30em, 60vw); padding: .55em .8em;
+  opacity: 0; transition: opacity .12s; pointer-events: none;
+}
+.pmc-roster:hover .pmc-here, .pmc-roster:focus-within .pmc-here { opacity: 1; }
 .pmc-here .who { color: var(--pmc-gold); font-size: .95rem; }
 .pmc-here .spine { color: var(--pmc-dim); font-size: .78rem; margin-top: .25em; line-height: 1.45; }
 
@@ -497,9 +518,12 @@ export function mountCockpit(o) {
     // DOCKED, not floating (2026-08-28): the roster is the bar's leftmost cell —
     // who-acts beside what-they-do. The law line rides as the dock's own title
     // now that a horizontal strip has no room for a paragraph.
+    // The standpoint plate hangs off THIS box (2026-08-28 ruling) — a hover
+    // reveal on the dock, the same way the faces' own name boxes are.
     return `<div class="pmc-plate pmc-roster pmc-dock" role="group" aria-label="act as"
       title="the hand journals on every act — recorded, never gated">
       <div class="pmc-cap">ACT AS</div>
+      ${drawHere()}
       ${residents.map(face).join("")}
       ${humans.length ? `<div class="pmc-rule"></div>${humans.map(face).join("")}` : ""}
     </div>`;
@@ -611,7 +635,22 @@ export function mountCockpit(o) {
     if (!bar) return;
     const h = doc.defaultView?.innerHeight ?? 0;
     let clear = 18;
-    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies"]) {
+    // THE WAY OUT IS ON THIS LIST TOO (founder-caught 2026-08-28: "step outside"
+    // and the room's own name printed on top of each other at the dock's end of
+    // the row). `.wv-scene-exit` is the viewer's exit pill, pinned into the
+    // painting's bottom-left at bottom:58px — and it is NEWER than this fence,
+    // so it was simply never measured. The arithmetic that made it collide:
+    // `.wv-walkdesk` ships hidden and only appears while a walk is armed, so on
+    // an ordinary frame the tallest thing here is the coordinate chip (bottom 8,
+    // ~26 tall) and the row lands at about 46px — a band that runs straight
+    // through the pill's 58-to-86. The dock is the row's leftmost cell and the
+    // pill is at the painting's left edge, which is why it read as the DOCK's
+    // collision rather than the bar's.
+    //
+    // Measured, not moved: the pill is the viewer's element and restyling it
+    // from here would be the second writer this fence exists to avoid. The row
+    // lifts over it exactly as it lifts over the walk desk.
+    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit"]) {
       const el = doc.querySelector(sel);
       if (!el || !el.getClientRects().length) continue;
       const box = el.getBoundingClientRect();
@@ -632,16 +671,14 @@ export function mountCockpit(o) {
       bar.style.left = `${paint.left + paint.width / 2}px`;
       bar.style.maxWidth = `${Math.max(280, paint.width - 20)}px`;
     }
-    // THE HERE-PLATE RIDES THE SAME FENCE (founder-caught 2026-08-28, second
-    // element in the class): `.pmc-here`'s CSS left is 14px OF THE VIEWPORT,
-    // so inside a portal the where-you-stand card sat on the site rail
-    // (Postmark · CONVERSATIONS · sign out — the screenshot in the night's
-    // record). The painting is the card's world too; same rect, same pass.
-    const here = root.querySelector(".pmc-here");
-    if (here && paint && paint.width > 300) {
-      here.style.left = `${paint.left + 14}px`;
-      here.style.maxWidth = `${Math.max(200, Math.min(384, paint.width - 40))}px`;
-    }
+    // THE HERE-PLATE NEEDS NO FENCE ANY MORE, and its absence here is the point
+    // rather than an omission. It rode this same rect until 2026-08-28 — the
+    // second element caught sitting on the site's rail — and the fence held for
+    // parcels and failed in the open world, where the map svg is full-bleed so
+    // this rect's left edge IS the viewport's. The founder's ruling moved the
+    // plate onto the dock instead, where it hangs off a box already inside the
+    // painting and there is nothing left to clamp. A third fence would have been
+    // the third instance of one bug.
   }
 
   /** Measured, never assumed: the arrows and the edge fade come and go with the
@@ -867,10 +904,12 @@ export function mountCockpit(o) {
   }
 
   // ── the standpoint plate ──────────────────────────────────────────────────
+  /** Drawn INTO the dock (see drawRoster) and revealed on its hover. It keeps its
+   *  own plate chrome, because it is still a card — only its anchor moved. */
   function drawHere() {
     const p = portalOf(state.answer);
     const spine = (state.answer.within ?? []).map((w) => w?.id).filter(Boolean).reverse();
-    return `<div class="pmc-plate pmc-here">
+    return `<div class="pmc-plate pmc-here" role="tooltip">
       <div class="who">${esc(state.acting === HUMAN_ACTOR ? "yourself" : state.acting ?? "a spectator")} <span style="color:var(--pmc-dim)">· inside</span> ${esc(p?.id ?? "")}</div>
       <div class="spine">the read roots at <b>${esc(p?.value ?? "—")}</b>${spine.length ? `<br>within: ${esc(spine.join(" ‹ "))}` : ""}</div>
     </div>`;
@@ -968,7 +1007,9 @@ export function mountCockpit(o) {
     const keepAction = active?.closest?.("[data-form]") ? active.getAttribute?.("data-field") : null;
     const values = readForm();
     root.setAttribute("data-space", spaceOf(state.answer));
-    root.innerHTML = drawHere() + drawWheel() + drawBar(); // the roster rides inside drawBar's row now
+    // the roster rides inside drawBar's row, and the standpoint plate inside the
+    // roster — one row owns the bottom edge and everything hangs off it
+    root.innerHTML = drawWheel() + drawBar();
     // THE BAR MOVES FIRST. Everything below is positioned against the bar's real
     // box, and the bar's own placement lifts it clear of the viewer's bottom-edge
     // furniture — so measuring before that lift put the gate pill straight across

@@ -486,4 +486,26 @@ const html = rawHtml.replace(/<head>/i,
     .pm-tt-body { width: auto; }
     .pm-tt-open { align-self: flex-end; }
   }
+
+  /* ── THE PILL STANDS DOWN INSIDE THE COCKPIT (2026-08-28, founder-ruled) ──
+     "we should just remove the time travel icon when in this portal."
+
+     Inside portal ground this control offers a reader the one thing that ground
+     is not: a past crossing is READ-ONLY by construction (the lens above bounces
+     every write with "this is a past crossing"), so arming it from inside a
+     fight would take a player out of the fight to look at a map they cannot act
+     on. It is also crowded there — the pill and the viewer's way-out pill share
+     the painting's bottom-left corner by an explicit arrangement, and the
+     cockpit's own row arrived in that corner after both.
+
+     Keyed on data-pmc-dock, which is the cockpit's own mounted-signal on <html>
+     (world-cockpit-mount.mjs dockSignal), and it is the SAME word the viewer's
+     Act As row and Actions rail stand down on. So the pill comes back by the
+     attribute going away at destroy — there is no second piece of state to get
+     out of step, and outside portal ground this rule matches nothing at all.
+
+     The rule lives HERE, in the pill's own stylesheet, rather than in the
+     cockpit's: one element, one writer. The cockpit says it is mounted; what
+     that means for this pill is this file's business. */
+  html[data-pmc-dock] .pm-tt { display: none; }
 </style>
