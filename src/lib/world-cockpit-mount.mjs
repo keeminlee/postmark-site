@@ -53,15 +53,26 @@ export const COCKPIT_CSS = `
   letter-spacing: .18em; margin-bottom: .55em; text-align: center;
 }
 
-/* ── the roster ── */
-.pmc-roster { position: absolute; left: 14px; top: 30%; width: 5.6em; padding: .6em .4em .5em; text-align: center; }
+/* ── the roster, DOCKED (2026-08-28, founder-caught) ──
+   The floating left plate sat ON TOP of the viewer's own Act As row — two
+   controls answering the same question, neither informing the other. The
+   founder's ruling: who-acts sits BESIDE what-they-do. So the roster is now
+   the leftmost cell of the bar's own row (.pmc-barrow), the viewer's old row
+   stands down while this dock is mounted (data-pmc-dock on <html> is the
+   signal), and a face click speaks pm:act-as so the viewer's walk desk and
+   enter buttons follow the same selection. One control, one grammar strip. */
+.pmc-roster {
+  position: relative; flex: 0 0 auto; align-self: center;
+  display: flex; align-items: center; gap: .35em;
+  padding: .3em .55em; pointer-events: auto;
+}
 /* THE PICTURE IS CLIPPED, NOT THE BUTTON. An overflow:hidden here rounded the
    token off nicely and also ate the name box, which hangs outside the circle by
    design: the box was in the DOM with opacity 1 and a 239px width, and no reader
    could see a pixel of it. The machine twin read the text and reported it present;
    the screenshot is what caught it. */
 .pmc-face {
-  width: 3em; height: 3em; margin: 0 auto .55em; border-radius: 50%; padding: 0;
+  width: 2.3em; height: 2.3em; margin: 0; border-radius: 50%; padding: 0; flex: 0 0 auto;
   background: #1b2230; border: 2px solid rgba(154,161,173,.35); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--pmc-dim); font: 1em/1 ui-monospace, Consolas, monospace; position: relative;
@@ -70,10 +81,14 @@ export const COCKPIT_CSS = `
 .pmc-face[aria-pressed="true"] { border-color: var(--pmc-gold); box-shadow: 0 0 12px rgba(217,168,96,.5); color: var(--pmc-gold); }
 .pmc-face[disabled] { opacity: .4; cursor: not-allowed; }
 .pmc-face:focus-visible { outline: 2px solid var(--pmc-gold); outline-offset: 2px; }
-.pmc-rule { border-top: 1px dotted rgba(154,161,173,.4); margin: .2em .3em .6em; }
-.pmc-law { color: var(--pmc-dim); font-size: .6rem; font-style: italic; line-height: 1.4; margin-top: .3em; }
+/* horizontal dock: the residents|human rule stands upright between them */
+.pmc-rule { border-left: 1px dotted rgba(154,161,173,.4); align-self: stretch; margin: .15em .2em; }
+/* the dock's caption sits above its shoulder, out of the row's height */
+.pmc-roster .pmc-cap { position: absolute; left: .7em; bottom: calc(100% + .15em); margin: 0; }
+/* the name box rises ABOVE the face — the bar owns the bottom edge, so a box
+   hung to the right would run under the verb slots or off a phone's screen */
 .pmc-nm {
-  position: absolute; left: calc(100% + .5em); top: 50%; transform: translateY(-50%);
+  position: absolute; left: 50%; top: auto; bottom: calc(100% + .6em); transform: translateX(-50%);
   background: var(--pmc-panel); border: 1px solid var(--pmc-line); border-radius: 5px;
   padding: .15em .55em; font: .68rem/1.4 Georgia, serif; color: var(--pmc-ink);
   white-space: nowrap; max-width: 22em; opacity: 0; transition: opacity .12s; pointer-events: none;
@@ -90,10 +105,19 @@ export const COCKPIT_CSS = `
    which is the taxonomy the whole bar exists to show, broken. So it does not
    wrap; where a ground grants more than fits, the row scrolls, and the fixed
    seats stay where the hand expects them. */
-.pmc-bar {
+/* THE ROW THAT OWNS THE BOTTOM EDGE is now .pmc-barrow: dock + bar side by
+   side, placed as one thing (placeBar moves the row, the same measured lift as
+   before). The bar itself is a static flex child so its scrollport cannot clip
+   the dock's name boxes — they are siblings, not passengers. */
+.pmc-barrow {
   position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+  display: flex; align-items: stretch; gap: .5em;
+  max-width: calc(100vw - 28px); pointer-events: none;
+}
+.pmc-bar {
+  position: static; flex: 1 1 auto; min-width: 0;
   display: flex; align-items: stretch; gap: .45em;
-  max-width: calc(100vw - 28px); flex-wrap: nowrap;
+  flex-wrap: nowrap;
   justify-content: flex-start; pointer-events: none;
   overflow-x: auto; overflow-y: visible; scrollbar-width: thin;
   padding: 0 .2em 2px;
@@ -339,10 +363,11 @@ export const COCKPIT_CSS = `
 .pmc-here .spine { color: var(--pmc-dim); font-size: .78rem; margin-top: .25em; line-height: 1.45; }
 
 @media (max-width: 720px) {
-  .pmc-roster { top: auto; bottom: 46%; left: 8px; width: 4.4em; }
-  .pmc-face { width: 2.4em; height: 2.4em; }
+  .pmc-roster { padding: .25em .4em; gap: .25em; }
+  .pmc-face { width: 2em; height: 2em; }
   .pmc-here { display: none; }
-  .pmc-bar { bottom: 10px; gap: .3em; }
+  .pmc-barrow { bottom: 10px; gap: .35em; }
+  .pmc-bar { gap: .3em; }
   .pmc-slot { min-width: 4.9em; padding: .85em .45em .45em; font-size: .86rem; }
   .pmc-card { width: 18em; }
 }
@@ -469,11 +494,14 @@ export function mountCockpit(o) {
         aria-pressed="${on}"${f.allowed ? "" : " disabled"}
         aria-label="${esc(f.label)}">${inner}<span class="pmc-nm${wrap}">${words}</span></button>`;
     };
-    return `<div class="pmc-plate pmc-roster">
+    // DOCKED, not floating (2026-08-28): the roster is the bar's leftmost cell —
+    // who-acts beside what-they-do. The law line rides as the dock's own title
+    // now that a horizontal strip has no room for a paragraph.
+    return `<div class="pmc-plate pmc-roster pmc-dock" role="group" aria-label="act as"
+      title="the hand journals on every act — recorded, never gated">
       <div class="pmc-cap">ACT AS</div>
       ${residents.map(face).join("")}
       ${humans.length ? `<div class="pmc-rule"></div>${humans.map(face).join("")}` : ""}
-      <p class="pmc-law">the hand journals on every act — recorded, never gated</p>
     </div>`;
   }
 
@@ -544,11 +572,13 @@ export function mountCockpit(o) {
 
   function drawBar() {
     const { fixed, tray, blocked } = barSlots(state.answer);
-    return `<div class="pmc-bar" role="toolbar" aria-label="what can be done from here">
+    // The dock rides INSIDE the row but OUTSIDE the bar's scrollport — siblings,
+    // so the scroll clips verbs and never the faces' name boxes.
+    return `<div class="pmc-barrow">${drawRoster()}<div class="pmc-bar" role="toolbar" aria-label="what can be done from here">
       ${fixed.map((s) => slotHtml(s)).join("")}
       ${tray.length ? `<div class="pmc-gap"><span>HERE</span></div>` : ""}
       ${tray.map((s) => slotHtml(s, "afford")).join("")}
-    </div>
+    </div></div>
     ${blocked ? `<p class="pmc-gate" role="status">${esc(blocked.reason)}</p>` : ""}
     <span class="pmc-more" data-more="left" aria-hidden="true" hidden>‹</span>
     <span class="pmc-more" data-more="right" aria-hidden="true" hidden>›</span>
@@ -575,7 +605,9 @@ export function mountCockpit(o) {
    * exactly where it sat before this existed.
    */
   function placeBar() {
-    const bar = root.querySelector(".pmc-bar");
+    // the whole row (dock + bar) moves as one; the bar alone is the fallback
+    // shape for a harness that mounted pieces
+    const bar = root.querySelector(".pmc-barrow") ?? root.querySelector(".pmc-bar");
     if (!bar) return;
     const h = doc.defaultView?.innerHeight ?? 0;
     let clear = 18;
@@ -906,7 +938,7 @@ export function mountCockpit(o) {
     const keepAction = active?.closest?.("[data-form]") ? active.getAttribute?.("data-field") : null;
     const values = readForm();
     root.setAttribute("data-space", spaceOf(state.answer));
-    root.innerHTML = drawHere() + drawWheel() + drawRoster() + drawBar();
+    root.innerHTML = drawHere() + drawWheel() + drawBar(); // the roster rides inside drawBar's row now
     // THE BAR MOVES FIRST. Everything below is positioned against the bar's real
     // box, and the bar's own placement lifts it clear of the viewer's bottom-edge
     // furniture — so measuring before that lift put the gate pill straight across
@@ -952,6 +984,12 @@ export function mountCockpit(o) {
       state.acting = faceBtn.getAttribute("data-actor");
       state.said = null;
       paint();
+      // ONE SELECTION, TWO SURFACES (2026-08-28): the viewer's walk desk and
+      // enter buttons act as ITS actAs, which used to be a second control the
+      // founder had to keep agreeing with this one. The dock speaks; the viewer
+      // listens (pm:act-as, resident handles only — the human hand is this
+      // cockpit's own grammar and the viewer keeps its last resident for walks).
+      speakActAs();
       return;
     }
     const closeBtn = ev.target.closest?.("[data-close]");
@@ -1073,7 +1111,30 @@ export function mountCockpit(o) {
   const onResize = () => { drawToken(); placeBar(); markOverflow(); };
   (doc.defaultView ?? globalThis).addEventListener?.("resize", onResize);
 
+  // ── the dock's handshake with the viewer ──────────────────────────────────
+  // Two signals, belt and suspenders for boot order: the attribute is readable
+  // by a viewer that booted after us; the event reaches one that booted before.
+  // The viewer's renderIdentity checks the attribute and stands its own Act As
+  // row down while this dock holds the question.
+  const speakActAs = () => {
+    const w = doc.defaultView ?? globalThis;
+    const actor = state.acting;
+    if (!actor || actor === HUMAN_ACTOR || typeof w.CustomEvent !== "function") return;
+    try { w.dispatchEvent(new w.CustomEvent("pm:act-as", { detail: { actor } })); } catch {}
+  };
+  const dockSignal = (present) => {
+    const w = doc.defaultView ?? globalThis;
+    try {
+      if (present) doc.documentElement.setAttribute("data-pmc-dock", "1");
+      else doc.documentElement.removeAttribute("data-pmc-dock");
+      if (typeof w.CustomEvent === "function")
+        w.dispatchEvent(new w.CustomEvent("pm:cockpit-dock", { detail: { present } }));
+    } catch {}
+  };
+  dockSignal(true);
+
   paint();
+  speakActAs();
 
   return {
     update(answer) {
@@ -1085,6 +1146,7 @@ export function mountCockpit(o) {
       doc.removeEventListener("keydown", onKey);
       (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
       camera?.disconnect();
+      dockSignal(false); // hand the Act As question back to the viewer's own row
       root.remove();
       throwLayer.remove();
       tokenLayer?.remove();
