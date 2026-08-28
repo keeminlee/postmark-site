@@ -414,11 +414,30 @@ export const HUMAN_ACTOR = "human:self";
  * A door that does not know `as:` will bounce it BY NAME — the apex validator
  * refuses unknown top-level fields — which is a loud failure rather than a human
  * act quietly recorded as a resident's. That is the right way for this to break.
+ *
+ * A HUMAN'S ACT CARRIES BOTH WORDS (2026-08-27), and the reason is that they
+ * answer two different questions. `as: "human"` says WHO IS ACTING. `handle` says
+ * which of your residents' standing this key is oriented from — and a key in this
+ * town holds many residents, so without it the act is refused at ORIENT, before
+ * the human seam is reached at all. The act then looks refused when it was only
+ * unaddressed, which is the same defect that kept the boot read from ever
+ * answering (see world-cockpit-door.mjs).
+ *
+ * This reverses the shape written here on 2026-08-26, and the earlier reading is
+ * kept because it was not wrong, only incomplete: "handle names which of YOUR
+ * residents acts, and a human is not one of them, so overloading it would make a
+ * human's act indistinguishable from a resident's in the record." Still true —
+ * which is why `as` remains the field that says a person acted, and `handle` is
+ * never asked to carry that meaning. It carries the standpoint, not the actor.
  */
-export function dispatchEnvelope({ action, args, acting }) {
+export function dispatchEnvelope({ action, args, acting, handle }) {
   const env = { do: String(action), args: args && typeof args === "object" ? args : {} };
-  if (acting === HUMAN_ACTOR) env.as = "human";
-  else if (typeof acting === "string" && acting) env.handle = acting;
+  if (acting === HUMAN_ACTOR) {
+    env.as = "human";
+    if (typeof handle === "string" && handle) env.handle = handle;
+  } else if (typeof acting === "string" && acting) {
+    env.handle = acting;
+  }
   return env;
 }
 

@@ -297,17 +297,39 @@ test("a key with no verified human gets no human face at all", () => {
 
 // ── dispatch ────────────────────────────────────────────────────────────────
 
-test("a human never rides in `handle`", () => {
-  // The apex's own field description: handle is "which of YOUR residents acts".
-  // A human is not one of them, so putting the human there would make a person's
-  // act indistinguishable from a resident's in the record.
-  const asHuman = dispatchEnvelope({ action: "strike", args: { at: "the-lantern" }, acting: HUMAN_ACTOR });
-  assert.deepEqual(asHuman, { do: "strike", args: { at: "the-lantern" }, as: "human" });
-  assert.ok(!("handle" in asHuman));
+test("a human's act names the person AND the standing it is oriented from", () => {
+  // THE TWO WORDS ANSWER TWO QUESTIONS. `as: "human"` says who is acting; `handle`
+  // says which of your residents' standing the key is oriented from. A key in this
+  // town holds many residents, so an act naming neither is refused at ORIENT,
+  // before the human seam is reached at all — and it then reads as "your act was
+  // refused" when it was only unaddressed.
+  //
+  // THIS REVERSES THE SHAPE ASSERTED HERE ON 2026-08-26, and that reading is kept
+  // because it was not wrong, only incomplete: "handle is 'which of YOUR residents
+  // acts'; a human is not one of them, so putting the human there would make a
+  // person's act indistinguishable from a resident's in the record." Still true.
+  // It is why `as` is still the field that says a person acted, and why `handle`
+  // is never asked to carry that meaning — it carries the standpoint, not the
+  // actor. The old assertion was `!("handle" in asHuman)`.
+  const asHuman = dispatchEnvelope({
+    action: "strike", args: { at: "the-lantern" },
+    acting: HUMAN_ACTOR, handle: "wright-of-postmark",
+  });
+  assert.deepEqual(asHuman, { do: "strike", args: { at: "the-lantern" }, as: "human", handle: "wright-of-postmark" });
+
+  // and the human is STILL not in `handle` as the actor — drop the standing and
+  // the person is named by `as` alone, exactly as before.
+  const noStanding = dispatchEnvelope({ action: "strike", args: {}, acting: HUMAN_ACTOR });
+  assert.deepEqual(noStanding, { do: "strike", args: {}, as: "human" });
 
   const asResident = dispatchEnvelope({ action: "say", args: { text: "hello" }, acting: "jetto-of-starforge" });
   assert.deepEqual(asResident, { do: "say", args: { text: "hello" }, handle: "jetto-of-starforge" });
   assert.ok(!("as" in asResident), "an ordinary act carries no `as`, so today's door is unchanged by it");
+  // A resident acting is oriented by the resident who acts. The key's standing is
+  // not allowed to override that: it would silently reroute the act to somebody
+  // else's feet, which is worse than the bounce it is avoiding.
+  const otherKey = dispatchEnvelope({ action: "say", args: {}, acting: "jetto-of-starforge", handle: "wright-of-postmark" });
+  assert.equal(otherKey.handle, "jetto-of-starforge");
 });
 
 test("a bounce carrying terms is a question, not a failure", () => {

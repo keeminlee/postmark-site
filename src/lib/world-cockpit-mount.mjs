@@ -15,6 +15,9 @@ import {
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, looseThings, rollsFrom, spaceOf,
 } from "./world-cockpit.mjs";
+// ONE resolution of "which resident is this key standing as", shared with the read
+// — so the bar cannot be drawn for one standpoint and act from another.
+import { orientingHandle } from "./world-cockpit-door.mjs";
 
 const NS = "http://www.w3.org/2000/svg";
 
@@ -981,7 +984,11 @@ export function mountCockpit(o) {
     const go = form.querySelector(".pmc-btn.go");
     if (go) { go.disabled = true; go.textContent = "…"; }
     try {
-      const res = await o.dispatch(dispatchEnvelope({ action, args, acting: state.acting }));
+      // The resident the door was READ as travels with every act, the human's
+      // included: `as` says who acts, `handle` says whose standing the key is
+      // oriented from, and on a multi-resident key an act naming neither is
+      // refused at orient before the human seam is reached.
+      const res = await o.dispatch(dispatchEnvelope({ action, args, acting: state.acting, handle: orientingHandle(o.me) }));
       // THE THROW IS SHOWN WHETHER THE ACT LANDED OR NOT. A blow that misses still
       // threw the die, and a bounce can carry the roll that caused it — hiding the
       // number on a refusal would make the one moment a player most wants to see
