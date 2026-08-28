@@ -632,6 +632,16 @@ export function mountCockpit(o) {
       bar.style.left = `${paint.left + paint.width / 2}px`;
       bar.style.maxWidth = `${Math.max(280, paint.width - 20)}px`;
     }
+    // THE HERE-PLATE RIDES THE SAME FENCE (founder-caught 2026-08-28, second
+    // element in the class): `.pmc-here`'s CSS left is 14px OF THE VIEWPORT,
+    // so inside a portal the where-you-stand card sat on the site rail
+    // (Postmark · CONVERSATIONS · sign out — the screenshot in the night's
+    // record). The painting is the card's world too; same rect, same pass.
+    const here = root.querySelector(".pmc-here");
+    if (here && paint && paint.width > 300) {
+      here.style.left = `${paint.left + 14}px`;
+      here.style.maxWidth = `${Math.max(200, Math.min(384, paint.width - 40))}px`;
+    }
   }
 
   /** Measured, never assumed: the arrows and the edge fade come and go with the
