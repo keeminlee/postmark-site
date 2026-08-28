@@ -132,6 +132,10 @@ function assertPackageCanServe(pkg, projectRoot) {
   const complaints = stagingComplaints({
     sources: recordReaders(pkg, projectRoot),
     exists: packageHas(pkg),
+    // the records THIS build writes itself, off the door — the pin is not asked
+    // to carry what it no longer supplies. Same set `stage()` writes, so a record
+    // that stops being written stops being exempt.
+    supplied: [...DOOR_RECORDS, PROVENANCE_PATH],
   });
   if (complaints.length) throw stagingFailure(complaints);
 }
@@ -163,13 +167,71 @@ function stagingWalk(pkg, projectRoot) {
   return files;
 }
 
-function stage(pkg, dest, projectRoot) {
+// ── THE TWO RECORDS THAT NOW COME OFF THE DOOR ──────────────────────────────
+//
+// Gold plan §2 rules the bake a KILL: "the site queries the door (MCP-first law
+// finally made structurally true)". `world-state.json` and `skeleton.json` were
+// this integration's most load-bearing copies — a fold wrote them into the world
+// repo, the pin froze a sha of that repo, and `cpSync` below carried the frozen
+// bytes into the build. Freshness was therefore a pipeline with four moving
+// parts and a sentinel watching it. They are now COMPOSED FROM THE DOOR
+// (tools/world2-door.mjs) and written, exactly like the faces and the replay
+// frames are written — the same public paths, the same bytes-shaped contract, so
+// the viewer is untouched and does not know the difference.
+//
+// `walk-ledger.md` is deliberately NOT in this set and still comes off the pin:
+// the door serves no LIVE-lane read at all, so there is nothing to point it at.
+// Leaving it visibly baked is the honest state of the repoint — see the report.
+const DOOR_RECORDS = new Set(["/WORLD/world-state.json", "/WORLD/skeleton.json"]);
+const PROVENANCE_PATH = "/WORLD/door-provenance.json";
+
+// One compose per process. In a build that is once; in `astro dev` it means the
+// first request for either record pays and every reload after it is free.
+let doorPromise = null;
+function doorRecords() {
+  if (doorPromise) return doorPromise;
+  doorPromise = (async () => {
+    const { doorWorldState, doorSkeleton, doorGaps, doorUrl } = await import("../../tools/world2-door.mjs");
+    const [world, terrain] = [await doorWorldState(), await doorSkeleton()];
+    const gaps = doorGaps();
+    console.log(`[world-engine-island] the world page reads ${doorUrl()} — ` +
+      `${world.provenance.counts.marks} marks, ${world.provenance.counts.parcels} parcels, law ${String(terrain.law_sha).slice(0, 8)}.`);
+    // Never silent. Every field the door could not fill is named at build time,
+    // where the person changing the door is looking.
+    for (const g of gaps) console.warn(`[world-engine-island] DOOR GAP · ${g.field} — ${g.why}`);
+    return {
+      "/WORLD/world-state.json": JSON.stringify(world.state),
+      "/WORLD/skeleton.json": JSON.stringify(terrain.skeleton),
+      provenance: { ...world.provenance, gaps },
+    };
+  })();
+  return doorPromise;
+}
+
+async function stage(pkg, dest, projectRoot) {
   const files = stagingWalk(pkg, projectRoot);
+  const door = await doorRecords();
   for (const file of files) {
+    if (DOOR_RECORDS.has(file.publicPath)) continue;   // written below, from the door
     const output = join(dest, ...file.publicPath.slice(1).split("/"));
     mkdirSync(dirname(output), { recursive: true });
     cpSync(file.source, output);
   }
+  // Written whether or not the pin carries them: that the package still HAS a
+  // baked world-state is now irrelevant to this build, which is the point.
+  for (const publicPath of DOOR_RECORDS) {
+    const output = join(dest, ...publicPath.slice(1).split("/"));
+    mkdirSync(dirname(output), { recursive: true });
+    writeFileSync(output, door[publicPath]);
+    if (!files.some((f) => f.publicPath === publicPath)) files.push({ source: null, publicPath });
+  }
+  // The record's own provenance, beside it — what door answered, when, at which
+  // law sha, and what it could not answer. A reader of the built site can check
+  // where the world came from without asking anyone.
+  const provOut = join(dest, ...PROVENANCE_PATH.slice(1).split("/"));
+  mkdirSync(dirname(provOut), { recursive: true });
+  writeFileSync(provOut, JSON.stringify(door.provenance, null, 1));
+  files.push({ source: null, publicPath: PROVENANCE_PATH });
   // the faces: derived, not copied, so it is written rather than staged. Absent
   // data means no file, and the viewer's own fallback (monograms) is already the
   // right answer — never a half-written map.
@@ -253,6 +315,16 @@ export default function worldEngineIsland() {
           const pkg = pkgRoot(projectRoot);
           if (!pkg) return next();
           const pathname = req.url.split("?")[0];
+          // the two records the door owns — composed once per dev server, then
+          // answered from that compose, so a reload never re-pays the budget
+          if (DOOR_RECORDS.has(pathname) || pathname === PROVENANCE_PATH) {
+            return doorRecords().then((door) => {
+              res.setHeader("content-type", MIME[".json"]);
+              res.end(pathname === PROVENANCE_PATH
+                ? JSON.stringify(door.provenance, null, 1)
+                : door[pathname]);
+            }, (e) => { res.statusCode = 503; res.end(String(e?.message ?? e)); });
+          }
           // the derived one has no source file to read — it is computed per
           // request in dev so an edit to residents.json shows up on reload
           if (pathname === META_PATH) {
@@ -276,7 +348,7 @@ export default function worldEngineIsland() {
         });
       },
       // build: copy into the emitted output so the same paths are served statically
-      "astro:build:done": ({ dir }) => {
+      "astro:build:done": async ({ dir }) => {
         const pkg = pkgRoot(projectRoot);
         // NOT A SKIP. A build with no world package emits a world page whose
         // every module and record 404s — the widest version of the same hole the
@@ -284,7 +356,7 @@ export default function worldEngineIsland() {
         if (!pkg) throw stagingFailure(["postmark-world is not installed — run `npm ci` (the world page would emit with no engine and no record at all)."]);
         assertPackageCanServe(pkg, projectRoot);
         const dest = fileURLToPath(dir);
-        const files = stage(pkg, dest, projectRoot);
+        const files = await stage(pkg, dest, projectRoot);
         if (files.length) {
           const hintCount = emitWorldPreloads(dest, files);
           console.log(`[world-engine-island] staged ${files.length} files and emitted ${hintCount} world preloads → dist/`);

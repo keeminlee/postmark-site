@@ -127,15 +127,28 @@ export function recordsToStage(sources) {
  * what to do — a build failure that only says "missing" costs the next person
  * the whole investigation again.
  */
-export function stagingComplaints({ sources, exists, viewerPath = "spectator/viewer.mjs" }) {
+// `supplied` is the second blesser (World 2.0). The gate's guarantee has always
+// been "every same-origin record demand is answered by something THIS BUILD
+// BLESSED", and until now the pinned package was the only thing that could bless
+// one. The door is now the other: `world-engine-island` composes
+// `WORLD/world-state.json` and `WORLD/skeleton.json` out of live queries and
+// WRITES them into the output, so demanding that the pin also carry them would
+// fail a build over a file the build does not use.
+//
+// This is an exemption for records the build DEMONSTRABLY WRITES, not a mute
+// button — the caller passes the same set it writes from, so a record that stops
+// being written stops being exempt in the same edit. Anything not on that list
+// still has to come off the pin or fail, exactly as before.
+export function stagingComplaints({ sources, exists, supplied = [], viewerPath = "spectator/viewer.mjs" }) {
   const complaints = [];
+  const suppliedHere = new Set([...supplied].map((p) => (p.startsWith("/") ? p.slice(1) : p)));
   if (!exists(viewerPath)) {
     complaints.push(
       `the pinned postmark-world package has no ${viewerPath} — the world page would build green and render nothing. `
       + `Bump the postmark-world pin in package.json to a commit that carries the viewer, then rebuild.`);
   }
   for (const { record, askedBy } of recordsToStage(sources)) {
-    if (exists(record)) continue;
+    if (suppliedHere.has(record) || exists(record)) continue;
     complaints.push(
       `the pinned postmark-world package has no ${record}, which ${askedBy.join(" and ")} reads from this origin as /${record}. `
       + `Serving that page would 404 and the viewer would fall back to a source this build did not bless. `

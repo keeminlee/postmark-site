@@ -18,6 +18,7 @@
 import rawHtml from 'postmark-world/spectator/index.html?raw';
 import WorldSignIn from '@/components/WorldSignIn.astro';
 import WorldTourHold from '@/components/WorldTourHold.astro';
+import WorldDocket from '@/components/WorldDocket.astro';
 
 // Early identity bridge: adopt the site's OAuth session into the viewer's Bearer
 // slot (localStorage['pm_key']) BEFORE the viewer boots, so a signed-in visitor's
@@ -71,6 +72,20 @@ const html = rawHtml.replace(/<head>/i,
 <Fragment set:html={html} />
 <WorldSignIn />
 <WorldTourHold armedOnly={true} />
+
+<!-- THE RECORD THIS PAGE DRAWS NOW COMES FROM THE DOOR, not from a bake.
+     `WORLD/world-state.json` and `WORLD/skeleton.json` are composed at build
+     time out of live queries against the World 2.0 store (tools/world2-door.mjs,
+     written into the output by world-engine-island) instead of being copied out
+     of the pinned postmark-world package. The viewer is untouched — it still
+     fetches the same two same-origin paths and still gets the keys
+     `assembleWorld()` reads — so this is a change of AUTHOR, not of contract.
+     `/WORLD/door-provenance.json` beside them says which door answered, when,
+     at which law sha, and what it could not answer.
+
+     The docket below is the other half: P-108's private draft-overlay lens
+     replaced by the candle's PUBLIC docket. See the component's own note. -->
+<WorldDocket />
 
 <!-- ARRIVING AT A PLACE (2026-08-14). The world had no way to be linked INTO:
      every other page could name a place in words but not show it, so the

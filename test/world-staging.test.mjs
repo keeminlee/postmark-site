@@ -209,3 +209,66 @@ test('a floor file missing from the pin fails the build like any other', () => {
   assert.equal(complaints.length, 1);
   assert.match(complaints[0], /PUBLISHED_FLOOR reads/);
 });
+
+// ---------------------------------------------------------------------------
+// THE SECOND BLESSER — World 2.0's door (2026-08-28, branch postgres-world/site-tryout)
+//
+// The gold plan, §2, verbatim: "The site queries the door (MCP-first law finally
+// made structurally true)." So `WORLD/world-state.json` and `WORLD/skeleton.json`
+// are no longer copied out of the pin — `world-engine-island` composes them from
+// live door queries and writes them into the output itself. The gate's guarantee
+// is unchanged in substance ("every same-origin record demand is answered by
+// something this build blessed"); what changed is that the pin is no longer the
+// only thing that can bless one.
+//
+// Falsified in both directions, for the reason the header already gives: an
+// exemption that swallowed every demand would not be a second supplier, it would
+// be a mute button, and the build would go back to shipping 404s quietly.
+// ---------------------------------------------------------------------------
+
+test('the site queries the door: a record THIS BUILD writes does not have to be on the pin', () => {
+  const complaints = stagingComplaints({
+    sources: viewerSource(),
+    exists: packageWithout("WORLD/world-state.json", "WORLD/skeleton.json"),
+    supplied: ["/WORLD/world-state.json", "/WORLD/skeleton.json"],
+  });
+  assert.deepEqual(complaints, []);
+});
+
+test('the site queries the door: and the SAME pin without that supply still fails the build', () => {
+  // The can-fail flip. Same package, same readers, supply removed — if this ever
+  // passes, the test above proves nothing.
+  const complaints = stagingComplaints({
+    sources: viewerSource(),
+    exists: packageWithout("WORLD/world-state.json", "WORLD/skeleton.json"),
+  });
+  assert.equal(complaints.length, 2);
+  assert.ok(complaints.some((c) => c.includes("WORLD/world-state.json")));
+  assert.ok(complaints.some((c) => c.includes("WORLD/skeleton.json")));
+});
+
+test('the site queries the door: the exemption is scoped to what is supplied, not to the whole WORLD directory', () => {
+  // walk-ledger.md is the record whose 404 this whole module exists to prevent,
+  // and the door serves no LIVE-lane read, so it is NOT supplied and must still
+  // come off the pin. A build that exempted it would re-open the exact hole.
+  const complaints = stagingComplaints({
+    sources: viewerSource(),
+    exists: packageWithout("WORLD/walk-ledger.md"),
+    supplied: ["/WORLD/world-state.json", "/WORLD/skeleton.json", "/WORLD/door-provenance.json"],
+  });
+  assert.equal(complaints.length, 1);
+  assert.match(complaints[0], /WORLD\/walk-ledger\.md/);
+});
+
+test('the site queries the door: a leading slash is not a different record', () => {
+  // The island holds these paths as public URLs ("/WORLD/…") and the gate holds
+  // them as package-relative records ("WORLD/…"). One of those spellings had to
+  // give, and a mismatch would fail open — the exemption silently missing, the
+  // build red for a file it writes.
+  const bare = stagingComplaints({
+    sources: viewerSource(),
+    exists: packageWithout("WORLD/skeleton.json"),
+    supplied: ["WORLD/skeleton.json"],
+  });
+  assert.deepEqual(bare, []);
+});
