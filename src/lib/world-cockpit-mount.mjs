@@ -664,7 +664,15 @@ export function mountCockpit(o) {
     if (el.classList.contains("pmc-card")) {
       const box = el.getBoundingClientRect();
       const want = a.left + a.width / 2 - box.width / 2;
-      el.style.left = `${Math.min(Math.max(12, want), Math.max(12, w - box.width - 12))}px`;
+      // FENCED TO THE PAINTING, like the bar (placeBar, f68de054f): the card's
+      // old floor was the VIEWPORT's left edge, so a seat near the painting's
+      // left side slid the card onto the site rail (founder-caught 2026-08-28,
+      // the roots card over CONVERSATIONS/sign-out). The painting's own rect is
+      // the card's world; the viewport clamp stays only as the outer bound.
+      const paint = o.svg?.getBoundingClientRect?.();
+      const lo = Math.max(12, (paint?.left ?? 0) + 8);
+      const hi = Math.max(lo, Math.min(w - box.width - 12, (paint ? paint.right : w) - box.width - 8));
+      el.style.left = `${Math.min(Math.max(lo, want), hi)}px`;
       el.style.transform = "none";
     }
   }
