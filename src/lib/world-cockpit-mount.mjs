@@ -620,6 +620,18 @@ export function mountCockpit(o) {
     }
     // never push the bar off the top of a short window
     bar.style.bottom = `${Math.min(clear, Math.max(18, h - 120))}px`;
+    // FENCED TO THE PAINTING (2026-08-28, seen the moment the dock landed): a
+    // viewport-centered row runs its left end under the nav and card columns —
+    // the dock's ACT AS faces sat on the nav's own text, and the verb slots
+    // have quietly overlapped the card column since the bar shipped. The map
+    // pane is the ground these verbs act ON, and the cockpit already holds its
+    // svg; the row centers over that pane and never leaves it. The 50%-of-
+    // viewport fallback is the harness's (no svg mounted).
+    const paint = o.svg?.getBoundingClientRect?.();
+    if (paint && paint.width > 300) {
+      bar.style.left = `${paint.left + paint.width / 2}px`;
+      bar.style.maxWidth = `${Math.max(280, paint.width - 20)}px`;
+    }
   }
 
   /** Measured, never assumed: the arrows and the edge fade come and go with the

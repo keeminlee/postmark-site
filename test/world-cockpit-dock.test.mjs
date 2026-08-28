@@ -54,3 +54,13 @@ test("the handshake is two-signal: attribute for late boots, event for early one
   assert.match(mount, /dockSignal\(false\); \/\/ hand the Act As question back/,
     "destroy hands the question back to the viewer's own row");
 });
+
+test("the row is fenced to the painting, not the viewport", () => {
+  // Seen live the moment the dock landed: a viewport-centered row ran its left
+  // end under the nav column — ACT AS faces on top of the nav's own text. The
+  // row centers over the map pane the cockpit already holds, and never leaves it.
+  assert.match(mount, /const paint = o\.svg\?\.getBoundingClientRect\?\.\(\);/,
+    "placeBar measures the painting");
+  assert.match(mount, /bar\.style\.left = `\$\{paint\.left \+ paint\.width \/ 2\}px`;/,
+    "and centers the row over it rather than over the viewport");
+});
