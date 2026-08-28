@@ -25,10 +25,6 @@
 //                     conventional local tunnel: ssh -f -L 14382:localhost:4382
 //                     meepo-ec2 sleep 3600)
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 const DEFAULT_DOOR = "http://localhost:14382";
 
 export const doorUrl = (env = process.env) => (env.WORLD2_DOOR_URL || DEFAULT_DOOR).replace(/\/+$/, "");
@@ -38,38 +34,18 @@ const gaps = [];
 const gap = (field, why) => { if (!gaps.some((g) => g.field === field)) gaps.push({ field, why }); };
 export const doorGaps = () => gaps.slice();
 
-// THE BUDGET IS THE FINDING. The door is keyless (its reads are public facts),
-// and the office's bouncer refills keyless GETs at 120 a minute with a burst of
-// 240 (`src/bouncer.mjs` BOUNCER_LIMITS.keyless). Composing the record needs one
-// read per standing mark — 831 of them — so a straight run at width 8 answers
-// 429 after the first burst and the build ships a world where most marks have no
-// body. That is not a tuning problem: the site's own page cannot be built from
-// the door's current read set, and the fix belongs behind the door (the report's
-// first finding).
-//
-// Until the door grows a bulk full-row read, the build PAYS the budget honestly:
-// paced under the refill rate, and 429s obeyed rather than raced. Measured at
-// 456s for a cold compose of 831 marks — the true cost of the missing read, left
-// visible rather than engineered away.
-const KEYLESS_PER_MINUTE = 110;   // under the door's 120, so the bucket never empties
-const PACE_MS = Math.ceil(60_000 / KEYLESS_PER_MINUTE);
-let nextSlot = 0;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function slot() {
-  const now = Date.now();
-  const at = Math.max(now, nextSlot);
-  nextSlot = at + PACE_MS;
-  if (at > now) await sleep(at - now);
-}
-
 // A build that cannot reach the door FAILS, and says how to reach it. There is
 // deliberately no fallback to the package's baked world-state: a silent fall
 // back to the bake IS the bake, and the branch's whole claim is that the site no
 // longer holds one. (Anti-rebake rule 6 — cutover means deletion.)
+//
+// The 429 branch stays. The door is keyless and the office's bouncer refills
+// keyless GETs at 120 a minute (`src/bouncer.mjs` BOUNCER_LIMITS.keyless); this
+// module no longer goes anywhere near that ceiling, but a shared budget is not
+// ours alone to spend and the bouncer says exactly how long to wait.
 async function ask(path, env = process.env) {
   const url = `${doorUrl(env)}${path}`;
   for (let attempt = 0; ; attempt++) {
-    await slot();
     let res;
     try {
       res = await fetch(url);
@@ -83,48 +59,22 @@ async function ask(path, env = process.env) {
     if (res.status === 429 && attempt < 6) {
       // The bouncer says exactly how long to wait; waiting is the whole protocol.
       const after = Number(res.headers.get("retry-after")) || 5;
-      nextSlot = Date.now() + after * 1000;
+      await new Promise((r) => setTimeout(r, after * 1000));
       continue;
     }
     if (!res.ok) throw new Error(`[world2-door] ${url} → HTTP ${res.status}`);
-    return { body: await res.json(), asOf: res.headers.get("x-postmark-world-store-as-of") };
+    return res.json();
   }
 }
-const askBody = async (path, env) => (await ask(path, env)).body;
 
-// ── the compose cache ───────────────────────────────────────────────────────
-//
-// NOT A BAKE, and the difference is the key. This memoizes the 831 detail reads
-// under a digest of THE LIST READ ITSELF — the one query that is cheap, is taken
-// fresh on every compose, and moves whenever any mark's slug, kind, owner,
-// geometry, status, locked window or parent moves. There is no cron, no pin, and
-// no sentinel, because there is nothing for it to be stale ABOUT: a store that
-// has changed shape produces a different key and the memo misses.
-//
-// The door's own `x-postmark-world-store-as-of` header was the obvious key and
-// is the WRONG one: the office sets it from the law projection's sha, so it does
-// not move when a clearing locks new marks — which is precisely the moment the
-// memo must miss. The list digest does move then.
-//
-// The hole it does NOT close, stated rather than hidden: a mark whose BODY is
-// edited with none of its list columns touched keeps the same key and is served
-// from the memo until something else in the register moves. That is the price of
-// a bulk read the door does not have, and it disappears with the read.
-//
-// Untracked (node_modules/.cache) — a clone with a cold cache builds the same
-// page, slower. `WORLD2_DOOR_NO_CACHE=1` skips it entirely.
-import { createHash } from "node:crypto";
-const CACHE_DIR = join(dirname(dirname(fileURLToPath(import.meta.url))), "node_modules", ".cache", "world2-door");
-const cacheKey = (listBody) => createHash("sha256").update(JSON.stringify(listBody)).digest("hex").slice(0, 32);
-const cachePath = (key) => join(CACHE_DIR, `marks-${key}.json`);
-function cacheRead(key) {
-  if (process.env.WORLD2_DOOR_NO_CACHE === "1") return null;
-  try { return JSON.parse(readFileSync(cachePath(key), "utf8")); } catch { return null; }
-}
-function cacheWrite(key, value) {
-  if (process.env.WORLD2_DOOR_NO_CACHE === "1") return;
-  try { mkdirSync(CACHE_DIR, { recursive: true }); writeFileSync(cachePath(key), JSON.stringify(value)); } catch { /* a cache that cannot write is still correct */ }
-}
+// THE COMPOSE CACHE IS GONE, and its going is the point. It existed for exactly
+// one reason — a build could not afford 846 single-mark reads twice — and every
+// line of its justification named the missing bulk read as the thing it was
+// waiting on. The read landed (`?full=true`, lab office world-2 @ 9faaa661), so
+// the shim died with it rather than outliving its reason as one more piece of
+// machinery nobody remembers the need for. (Anti-rebake rule 5: every shim ships
+// with its own death.) A digest-keyed memo of a query that is now a single query
+// would be pure cost: a second copy of the world, on disk, for nothing.
 
 // ── the law projection ──────────────────────────────────────────────────────
 // Law is repo-first and exported (gold §3 rule 2), so the door serves it as a
@@ -132,7 +82,7 @@ function cacheWrite(key, value) {
 // here rather than in `marks`: the terrain skeleton, the class marks, and the
 // household roster.
 async function law(kind) {
-  const body = await askBody(`/world2/law?kind=${encodeURIComponent(kind)}`);
+  const body = await ask(`/world2/law?kind=${encodeURIComponent(kind)}`);
   return { sha: body.law_sha, rows: body.rows ?? [] };
 }
 
@@ -150,19 +100,34 @@ export async function doorSkeleton() {
   return { skeleton, law_sha: sha };
 }
 
-// ── the marks ───────────────────────────────────────────────────────────────
+// ── the marks: ONE READ ─────────────────────────────────────────────────────
 //
-// The list read (`/world2/marks?all=true`) carries the eight columns the map
-// needs to PLACE a mark and none of the ones it needs to TELL one: no body, no
-// tier, no date, no `data`. Those live only on the single-mark read, so the
-// composition below asks the door once per standing mark — 831 times, against a
-// keyless budget of 120 a minute. This is the branch's headline finding and the
-// pacing above is what paying it costs.
+// `/world2/marks?all=true&full=true` returns the whole standing register as
+// whole rows — body and `data` (tier rides `data.tier`) and bbox alongside the
+// placement columns. Both of this branch's headline findings were about not
+// having it, and both are answered by the same query:
+//
+//   THE BUDGET. The list read used to carry no body, no tier and no `data`, so
+//   the record cost one read per standing mark — 846 of them against a keyless
+//   budget of 120 a minute, which is 456 seconds measured, paced. It is now one
+//   request.
+//
+//   THE TEAR. Those N+1 reads raced a moving store: the register was observed
+//   going 831 → 846 → 831 inside twenty seconds while a sibling lane wrote, and
+//   slugs the LIST returned answered "no mark" on the DETAIL read, then answered
+//   fine again minutes later. One build shipped 24 marks placed-but-untold
+//   because of it. A single query is ATOMIC, so the tear is not mitigated here —
+//   it is unrepresentable. The recovery pass that used to sit below is gone with
+//   the thing it recovered from.
+//
+// Counts still move between builds while the replay-parity lane writes to the
+// same store. That is the store being alive, not this module being wrong.
+const REGISTER = "/world2/marks?all=true&full=true";
 
-/** a door mark row (+ its detail) in the shape `assembleWorld()` and the viewer read */
-function toRecordMark(row, detail) {
-  const data = detail?.data ?? {};
-  const g = row.geometry ?? detail?.geometry ?? null;
+/** a door row in the shape `assembleWorld()` and the viewer read */
+function toRecordMark(row) {
+  const data = row.data ?? {};
+  const g = row.geometry ?? null;
   const mark = {
     id: row.slug,
     kind: row.kind,
@@ -173,7 +138,7 @@ function toRecordMark(row, detail) {
   if (g?.at) mark.at = g.at;
   if (g?.extent) mark.extent = g.extent;
   if (g?.points) mark.points = g.points;
-  if (detail?.body != null) mark.body = detail.body;
+  if (row.body != null) mark.body = row.body;
   // Everything the seed carried through as free-form record fields — tier, date,
   // pre, mechanic, class, dials, image, feature… — rides in `data`. Underscored
   // keys are the importer's own bookkeeping (`_stray`, `_fileAt`, `_origin`,
@@ -187,47 +152,22 @@ function toRecordMark(row, detail) {
  * `{ marks, parcels, households, dials, determined, … }`.
  */
 export async function doorWorldState() {
-  const register = await ask("/world2/marks?all=true");
-  const [classes, roster, windows] = await Promise.all([
+  const [register, classes, roster, windows] = await Promise.all([
+    ask(REGISTER),
     law("class"),
     law("roster"),
-    askBody("/world2/windows"),
+    ask("/world2/windows"),
   ]);
 
-  const rows = register.body.marks ?? [];
-  const key = cacheKey(register.body);
-  let details = cacheRead(key);
-  if (!details || details.length !== rows.length) {
-    console.log(`[world2-door] composing ${rows.length} marks one read at a time — the door has no bulk full-row read, ` +
-      `so this costs ~${Math.ceil(rows.length / KEYLESS_PER_MINUTE)} min against the keyless budget.`);
-    details = [];
-    for (const row of rows) {
-      details.push(await askBody(`/world2/mark?slug=${encodeURIComponent(row.slug)}`).catch(() => null));
-      if (details.length % 100 === 0) console.log(`[world2-door]   ${details.length}/${rows.length}`);
-    }
-    if (!details.some((d) => d === null)) cacheWrite(key, details);
-  }
-  // THE READ TEARS, and this is the second half of the missing-bulk-read finding.
-  // The compose is N+1 reads against a store that moves: the register was
-  // observed going 831 → 846 → 831 rows inside twenty seconds while a sibling
-  // lane wrote to it, and a slug the LIST returned answered "no mark" on the
-  // DETAIL read minutes later, then answered fine again afterwards. The bake it
-  // replaces could not do this — a git commit is a snapshot by construction —
-  // and the door offers no as-of or snapshot read to stand in for one.
-  //
-  // A second pass recovers the slugs that were merely mid-write; whatever is
-  // still missing is reported with its real count rather than as "at least one".
-  const missed = details.map((d, i) => (d === null ? i : -1)).filter((i) => i >= 0);
-  if (missed.length) {
-    console.log(`[world2-door] ${missed.length} detail reads tore against a moving store — second pass`);
-    for (const i of missed) details[i] = await askBody(`/world2/mark?slug=${encodeURIComponent(rows[i].slug)}`).catch(() => null);
-    const still = details.filter((d) => d === null).length;
-    if (still) gap("marks[].body", `${still} of ${rows.length} marks came back "no mark" on the detail read though the register listed them — ` +
-      `the compose is N+1 reads against a store with no snapshot read, so it tears. Those marks are placed but untold.`);
-    else cacheWrite(key, details);
-  }
+  const rows = register.marks ?? [];
+  // A row without a body means the STORE has none, not that a read was lost —
+  // there is no longer a second read to lose. Reported at its real count so a
+  // genuinely untold mark is still visible rather than assumed away.
+  const untold = rows.filter((r) => r.body == null).length;
+  if (untold) gap("marks[].body", `${untold} of ${rows.length} standing marks carry no body in the store itself ` +
+    `(the register's full-row read returned them with body null) — placed but untold, and not a read failure.`);
 
-  const marks = rows.map((row, i) => toRecordMark(row, details[i]));
+  const marks = rows.map(toRecordMark);
 
   // CLASS MARKS ARE LAW (the seed's own census says so: 129 of them were not
   // carried into `marks` because the law ingester owns them). The record the
@@ -286,5 +226,5 @@ export async function doorWorldState() {
 
 /** `/world2/docket` — the public docket, straight through. */
 export async function doorDocket() {
-  return askBody("/world2/docket");
+  return ask("/world2/docket");
 }
