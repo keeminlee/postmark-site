@@ -22,7 +22,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { apexUrl, bounceLine, bounceWords, orientingHandle, readDoor } from "../src/lib/world-cockpit-door.mjs";
-import { HUMAN_ACTOR, cockpitShows } from "../src/lib/world-cockpit.mjs";
+import { HUMAN_ACTOR, actorsFor, cockpitShows, portalOf, rosterOf } from "../src/lib/world-cockpit.mjs";
 import { mountCockpit } from "../src/lib/world-cockpit-mount.mjs";
 
 // ── the door, as it actually answered ───────────────────────────────────────
@@ -254,6 +254,71 @@ test("the handle goes in the query, escaped, and a null one is a decision made o
     "https://postmark.town/api/world/apex?handle=wright-of-postmark");
   assert.equal(apexUrl("https://postmark.town/api", null), "https://postmark.town/api/world/apex");
   assert.equal(apexUrl("/api", "a b"), "/api/world/apex?handle=a%20b");
+});
+
+// ── Gate B: the scope ruling of 2026-08-27 ──────────────────────────────────
+
+/** A parcel. No portal anywhere in the answer — the door sent a roster instead,
+ *  which under the superseded ruling was not enough to put a bar on the page. */
+const ON_A_PARCEL = {
+  standpoint: { x: -95120, y: -95120, from: "where your walk arrived", stance: "embodied" },
+  within: [
+    { id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" },
+    { id: "wright-of-postmark/the-pando-peak-parcel", by: "wright-of-postmark", kind: "parcel" },
+  ],
+  actions: [entry("say"), entry("leave-mark")],
+  actors: ACTORS,
+};
+
+test("a parcel with a roster and no portal mounts the bar", async () => {
+  // FOUNDER-RULED 2026-08-27: the bar mounts wherever the actors roster is
+  // present, parcels included. It SUPERSEDES the ruling of 2026-08-26 — "the
+  // cockpit ships inside portal ground; the world page outside portals keeps
+  // today's chrome untouched" — under which this exact answer put nothing on the
+  // page at all.
+  assert.equal(portalOf(ON_A_PARCEL), null, "no portal: the superseded gate would have refused this");
+  assert.ok(rosterOf(ON_A_PARCEL), "…and a roster, which the new one asks for");
+  assert.equal(cockpitShows(ON_A_PARCEL), true);
+
+  const doc = tinyDom();
+  const mounted = mountCockpit({
+    document: doc, host: doc.body, svg: null, answer: ON_A_PARCEL, me: MULTI_RESIDENT_ME, grid: null,
+    dispatch: async () => ({ ok: true, status: 200, body: {} }),
+    readTerms: async () => null, refresh: null,
+  });
+  assert.ok(mounted, "the bar is on the page on a parcel");
+  const html = paintedRoster(doc);
+  assert.ok(html.includes(`data-actor="${HUMAN_ACTOR}"`), "with the human's face in the roster");
+  mounted.destroy();
+});
+
+test("an empty roster is the door saying nobody can act here, and is not a bar", () => {
+  // The office's Human row is ALWAYS present where there is a roster at all, so an
+  // empty array is not "a roster with nothing in it yet" — it is the absence of
+  // one, and widening the gate to `Array.isArray` would have put an empty bar on
+  // ground the door said held nobody.
+  assert.equal(rosterOf({ actors: [] }), null);
+  assert.equal(cockpitShows({ actors: [] }), false);
+  assert.equal(cockpitShows({}), false, "and with neither, the island still appends nothing");
+});
+
+test("the bridge's parcel arm reads a parcel — and is not reachable from the bar", () => {
+  // TWO CLAIMS, and the second is the one worth writing down. `actorsFor`'s parcel
+  // arm computes correctly, so a door that has not grown `actors` still seats a
+  // human on their household's own ground:
+  const noRoster = { ...ON_A_PARCEL, actors: undefined };
+  const faces = actorsFor(noRoster, MULTI_RESIDENT_ME);
+  const human = faces.find((f) => f.kind === "human");
+  assert.equal(human.allowed, true);
+  assert.match(human.because, /the-pando-peak-parcel/, "and it names the ground that allowed it");
+
+  // …but nothing in a running page walks it. Reaching it needs the bar mounted
+  // with BOTH the roster and the portal absent, and the gate mounts on exactly
+  // those two being present. Asserted so the green above is not read as proof of
+  // a live path — this arm was dead code under the 08-26 ruling and it is dead
+  // code under the 08-27 one, for a different reason: the door answers `actors`
+  // now (office 7f0b56e).
+  assert.equal(cockpitShows(noRoster), false, "the gate cannot mount the answer the bridge needs");
 });
 
 test("a key with no residents resolves to no handle rather than to a guess", () => {

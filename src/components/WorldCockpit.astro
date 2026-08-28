@@ -1,13 +1,25 @@
 ---
 // WorldCockpit — the action bar, the ACT AS roster, and the human's own token,
-// over the world map, INSIDE PORTAL GROUND ONLY.
+// over the world map, WHEREVER THERE IS SOMEONE TO ACT AS.
 //
-// The founder's scope ruling (2026-08-26): the cockpit ships inside portal ground;
-// the world page outside portals keeps today's chrome untouched. That is kept
-// literally here rather than only visually — until the door answers
-// `standpoint.portal`, this island appends no element, adds no stylesheet rule,
-// and binds no key. What it adds to every other visitor's page is one script tag
-// and two fetches of doors that are already public.
+// THE FOUNDER'S SCOPE RULING (2026-08-27): the bar mounts wherever the actors
+// roster is present, parcels included, or wherever the door says we are inside a
+// portal.
+//
+// IT SUPERSEDES THE RULING OF 2026-08-26, kept here beside it because a reversal
+// that hides the thing it reversed leaves the next reader unable to tell it from a
+// regression. The superseded ruling: "the cockpit ships inside portal ground; the
+// world page outside portals keeps today's chrome untouched." Under it the bar
+// could not appear on a parcel however much that ground granted, and the site's
+// own parcel-embodied-human reading was unreachable code from the day it was
+// written.
+//
+// EITHER WAY IT IS KEPT LITERALLY rather than only visually: where the door sends
+// neither a roster nor a portal, this island appends no element, adds no
+// stylesheet rule, and binds no key. A signed-out visitor's page is unchanged down
+// to the network tab — nothing is fetched at all. A signed-in reader outside the
+// scope costs one script tag and two reads: their own `/me`, and the apex, which
+// this page's arrival chrome is already standing on.
 //
 // MCP-FIRST, which on this page means: the site consumes the office's apex door
 // and renders its answer. `GET /api/world/apex` is the READ half (keyless — "the

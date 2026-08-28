@@ -246,10 +246,38 @@ export function portalOf(answer) {
   };
 }
 
-/** The founder's scope ruling, in one predicate: the cockpit renders inside
- *  portal ground and nowhere else. Outside it the island mounts nothing at all. */
+/**
+ * The founder's scope ruling, in one predicate.
+ *
+ * RULED 2026-08-27: the bar mounts wherever the ACTORS ROSTER is present, parcels
+ * included, or wherever the door says we are inside a portal.
+ *
+ * IT SUPERSEDES THE RULING OF 2026-08-26, which is kept here beside it rather than
+ * replaced by it, because an instruction that reverses an earlier one has to show
+ * both states or the next reader cannot tell a deliberate reversal from somebody's
+ * regression. The superseded ruling read: the cockpit ships inside portal ground,
+ * and the world page outside portals keeps today's chrome untouched. It was
+ * written here as `portalOf(answer) !== null`, and while it stood the bar could
+ * not appear on a parcel however much ground granted there.
+ *
+ * THE ROSTER IS THE HONEST SIGNAL for the wider scope, and it is the door's, not
+ * ours. The office answers `actors` exactly where a key holds someone who could
+ * act, and its Human row is ALWAYS in it — allowed, or refused with the door's own
+ * reason (office human-actor.mjs `actorRoster`, 2026-08-27: "An absent option
+ * teaches nothing"). So a roster arriving IS the door saying there is something
+ * here for a bar to be about. An EMPTY array is the opposite and is not a bar.
+ *
+ * With neither, the island still appends no element, adds no rule, binds no key.
+ */
 export function cockpitShows(answer) {
-  return portalOf(answer) !== null;
+  return rosterOf(answer) !== null || portalOf(answer) !== null;
+}
+
+/** The door's roster, or null when it sent none — or sent an empty one, which is
+ *  the door saying nobody on this key can act here. */
+export function rosterOf(answer) {
+  const a = answer?.actors;
+  return Array.isArray(a) && a.length ? a : null;
 }
 
 // ── the ACT AS roster ───────────────────────────────────────────────────────
@@ -278,6 +306,16 @@ export function cockpitShows(answer) {
  * (b) from the portal field and (a) from a parcel in the spine whose `by` is one
  * of the signed-in human's own handles, and it says so in the reason rather than
  * claiming a general answer.
+ *
+ * THE DOOR NOW ANSWERS IT — office `human-actor.mjs` `actorRoster`, commit
+ * 7f0b56e, 2026-08-27, in the site's own field names because this file declared
+ * them first. So against today's office the bridge is not walked at all, and its
+ * parcel arm below is unreachable FROM THE COCKPIT even after the 08-27 scope
+ * ruling widened the gate: reaching that arm needs an answer with a roster absent,
+ * a portal absent and the bar mounted, and the widened gate mounts on exactly the
+ * first two being present. It is kept, and unit-tested, because it is what a door
+ * that has not grown `actors` still gets — but nothing in this repo proves it in a
+ * running page, and a reader should not take its green test for that.
  */
 export function actorsFor(answer, me, opts = {}) {
   if (Array.isArray(answer?.actors)) return answer.actors.map((a) => ({ ...a, from: "the door" }));
