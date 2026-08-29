@@ -20,6 +20,12 @@ const mount = readFileSync(new URL("../src/lib/world-cockpit-mount.mjs", import.
 /** The world page's own source. The time-travel pill is the SITE's element and
  *  lives there, so the rule that stands it down is asserted where it is written. */
 const worldPage = readFileSync(new URL("../town/pages/world.astro", import.meta.url), "utf8");
+/** The stylesheet the mount injects, read as itself — so a rule can be asserted
+ *  present or gone without a comment about it counting as either. */
+const COCKPIT_CSS_BLOCK = mount.slice(
+  mount.indexOf("export const COCKPIT_CSS"),
+  mount.indexOf("let cssInstalled"),
+);
 
 test("the roster rides inside the bar's own row, not as a floating plate", () => {
   // drawBar composes the dock as the row's first cell…
@@ -260,17 +266,79 @@ test("the cockpit takes only the clicks on figures it drew itself", () => {
     "and gated on the LIVING painting containing the click");
   assert.match(mount, /doc\.removeEventListener\("click", onMapClick, true\);/,
     "and given back at destroy");
-  // stopPropagation happens ONLY on one of our figures
-  assert.match(mount, /const thing = thingAt\(local\);\r?\n\s*if \(thing\) \{\r?\n\s*ev\.preventDefault\(\);\r?\n\s*ev\.stopPropagation\(\);/,
-    "the viewer's click is only ever swallowed for a figure this cockpit drew");
+  // stopPropagation happens ONLY on one of our figures — or while an act is
+  // armed, which is the reader having said the map is a targeting surface right
+  // now (2026-08-29). Both branches take the click before the viewer sees it;
+  // nothing else does.
+  assert.match(mount, /if \(thing\) \{\r?\n\s*ev\.preventDefault\(\);\r?\n\s*ev\.stopPropagation\(\);/,
+    "the viewer's click is swallowed for a figure this cockpit drew");
+  assert.match(mount, /if \(state\.aiming\) \{\r?\n\s*ev\.preventDefault\(\);\r?\n\s*ev\.stopPropagation\(\);/,
+    "and for any click while an act is armed, so a target is never also a walk");
+  // and bare ground with nothing armed still falls through to the walk path
+  assert.match(mount, /walkFromMap\(snapPoint\(m, walkStep\(state\.answer\)\) \?\? m\);/,
+    "an ordinary ground click is still handed to the viewer's own walk-arming path");
 });
 
-test("a context act carries its object into the field the menu named", () => {
-  assert.match(mount, /formValues = state\.context \? \{ \[field\]: state\.context\.thing\.id \} : null;/,
-    "the thing's id is seeded into the field contextActs picked out for it");
-  // and the menu offers only what the DOOR affords, never a verb of ours
-  assert.match(mount, /if \(!s\.afforded \|\| !s\.enabled \|\| !s\.card\) return false;/,
-    "an act the ground does not afford is not offered on a thing either");
+// ══ VERB-FIRST TARGETING (2026-08-29) — AND THE MENU IT REVERSES ══
+//
+// ⚑ THIS TEST SUPERSEDES "a context act carries its object into the field the
+// menu named", which pinned the object-first menu ruled in on 2026-08-28. The
+// superseded law: clicking a thing on the map opened a menu of every act the
+// ground affords, with the thing seeded into each one's field. The founder,
+// playing the dungeon on 08-29: that behaviour is nonsensical.
+//
+// The old test is named here rather than silently dropped, because a falsifier
+// that vanishes and a falsifier that was deliberately reversed look identical
+// in a diff, and the next reader has to be able to tell them apart.
+//
+// THE NEW LAW: the act is armed first and then aimed. Each assertion below
+// fails against the pre-ruling file — the strings did not exist — which is the
+// flip.
+test("pressing an aimable seat arms it instead of opening a panel", () => {
+  assert.match(mount, /const field = aimable\(s, state\.answer\) \? aimField\(s\.card\) : null;\r?\n\s*if \(field\) \{ arm\(action, field\.name\); return; \}/,
+    "openSeat arms when the card says the act has somewhere to aim");
+  // …and the decision is the CARD's, never a name: nothing in openSeat spells
+  // an act, and the arithmetic it calls is held to the same rule by its own
+  // falsifier (world-cockpit.test.mjs greps that source for verb names).
+  assert.match(mount, /function openSeat\(action, \{ focus = true \} = \{\}\) \{/,
+    "one route for a click, the tray and the number keys");
+  // an armed act finishes through the SAME dispatch a panel uses
+  assert.match(mount, /function sendAim\(value\) \{[\s\S]{0,240}?sendAct\(action, \{ \[field\]: value \}\);/,
+    "a target click goes out through sendAct, not a second dispatch path");
+});
+
+test("the object-first menu is gone, not merely unused", () => {
+  // CODE SHAPES, NOT BARE NAMES, and the distinction bit on the first run: the
+  // two function names still occur in the comment that records the reversal,
+  // which is the repo's own convention (an instruction that reverses an earlier
+  // one shows both states) and must not be what a falsifier trips on.
+  assert.doesNotMatch(mount, /function contextHtml\s*\(/, "no menu renderer");
+  assert.doesNotMatch(mount, /function contextActs\s*\(/, "no menu act-list builder");
+  assert.doesNotMatch(mount, /contextHtml\(\)/, "and nothing calls one");
+  assert.ok(!mount.includes("data-ctx-act"), "no menu buttons");
+  assert.ok(!mount.includes("state.context"), "and no state left for one to live in");
+  assert.ok(!COCKPIT_CSS_BLOCK.includes(".pmc-ctx"), "and the menu's own styling is gone with it");
+});
+
+test("the adversary opens nothing, and a loose thing is picked up", () => {
+  // the entity reading wins in a fight: no menu, and the click is still
+  // swallowed so it cannot fall through and arm a walk into the target
+  assert.match(mount, /if \(thing\.loose\) takeFromFloor\(thing\);/,
+    "a thing on the floor is taken by the click itself");
+  assert.doesNotMatch(mount, /state\.context = \{ thing/,
+    "and nothing opens a menu on a thing any more");
+  // the pick-up seat is the one the ruling named, and it is checked before use
+  assert.match(mount, /const s = \[\.\.\.shown, \.\.\.folded\]\.find\(\(x\) => x\.action === "take"\);\r?\n\s*return s\?\.afforded && s\.enabled && s\.card \? s : null;/,
+    "click-to-take is refused where the ground does not afford it");
+});
+
+test("escape gives back the map before it gives back anything else", () => {
+  assert.match(mount, /if \(ev\.key === "Escape" && state\.aiming\) \{ disarm\(\); return; \}/,
+    "an armed act is the innermost thing one press puts down");
+  // and a click on anything that is not a target disarms, which is the other
+  // half of the ruling's own escape hatch
+  assert.match(mount, /if \(target\) sendAim\(target\.value\); else disarm\(\);/,
+    "clicking elsewhere disarms rather than acting");
 });
 
 // ══ THE DOCK'S SELECTION ACTUALLY REACHES THE VIEWER (2026-08-28, corrected) ══

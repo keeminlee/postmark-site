@@ -87,6 +87,17 @@ export function cardOf(entry) {
     via: entry.via ?? null,
     grant: entry.grant ?? null,
     dials: dials && Object.keys(dials).length ? dials : null,
+    // WHICH CHANNEL OPENED THIS ACT — the door's own word for whether the
+    // GROUND granted it or it travelled here with the caller. The office sets
+    // it at the two places entries are built: `channel: "ambient"` on the ones
+    // gathered off the spine and reach, `channel: "ground"` on the ones a
+    // classed ground declares (world-apex.mjs, the ground builder). It is the
+    // honest signal `grant` is not — `grant` is computed as "embodied && class
+    // === resident", so a signed-out reader gets every ordinary verb stamped
+    // `here`, which this file's own note at the top has warned about since it
+    // was written. `channel` is a fact about where the entry came from and does
+    // not move with who is asking.
+    channel: entry.channel ?? null,
     fields: Object.entries(fields).map(([name, f]) => ({
       name,
       type: f?.type ?? null,
@@ -117,6 +128,86 @@ export function dialLine(card) {
   return Object.entries(card.dials)
     .map(([k, v]) => `${k} ${typeof v === "object" ? JSON.stringify(v) : v}`)
     .join(" · ");
+}
+
+/**
+ * THE SAME DIALS, SAID THE WAY A GAME SAYS THEM.
+ *
+ * FOUNDER'S RULING 2026-08-29: "the 'terms' in the hover and click for the
+ * actions is NOT helpful to a human … bare fields … re-write to be concise, and
+ * just give info like it would in a game, not a debug panel." What he was
+ * reading was `dialLine` above — `to_hit_die 20 · damage_die 6 · beats_ac 8`,
+ * clipped to six ems on the seat, which is a struct printed at a player.
+ *
+ * ⚑ THIS IS A PHRASEBOOK, NOT A VERB LIST, and the distinction is the one this
+ * file is held to. Nothing below names an act. These are the DIALS' own names —
+ * the physics the record states about whatever act carries them — and the same
+ * dial reads the same way whichever act declares it. A door that grows a sixth
+ * act gets every one of these sentences for free.
+ *
+ * THE DEFAULT IS WHAT KEEPS IT OPEN. A dial this map has never heard of falls
+ * through to `dialLine`'s reading — the door's own key beside the door's own
+ * value — so a new dial appears, plainly, rather than vanishing. That is the
+ * same shape as the bar's own default for a verb it has never seen, and it is
+ * why this can be a phrasebook without becoming a schema.
+ *
+ * A DIAL THAT IS NOT THERE IS NOT MENTIONED (the second half of the ruling: "if
+ * a dial is missing, say nothing rather than showing a bare field name"). So an
+ * act whose class states no dials returns the empty string, and the surface
+ * renders no line at all rather than an empty one with a caption over it.
+ */
+/**
+ * @param {object} card
+ * @param {{brief?: boolean}} [opts] `brief` returns only the FIRST phrase — the
+ *   headline, for a seat that has a seat's worth of room.
+ *
+ * ⚑ WHY BRIEF EXISTS AND ELLIPSIS DOES NOT. The seat's line was capped in CSS
+ * and clipped with an ellipsis, which read "d20 vs 8 to hit · d…" — measured at
+ * 1280, where the row steps aside for the walk desk and has 771px for six
+ * seats. Widening the cap until the sentence fit put 93px of the row off the
+ * edge, which is the scroll the fold exists to remove. A clipped sentence is
+ * worse than a short one: it costs the same room and tells the reader there is
+ * something they are not being shown. So the seat gets a whole short phrase and
+ * the card gets the whole line, and neither of them is cut.
+ */
+export function dialSpeak(card, { brief = false } = {}) {
+  const d = card?.dials;
+  if (!d) return "";
+  const said = [];
+  const seen = new Set();
+  const take = (...keys) => { for (const k of keys) seen.add(k); };
+  const die = (v) => { const n = Number(v); return Number.isFinite(n) && n > 1 ? `d${n}` : null; };
+
+  // The throw and the number it has to beat are ONE sentence, not two — "d20 vs
+  // 12 to hit" is what a player reads, and the two dials apart are two facts
+  // they have to join themselves.
+  const hit = die(d.to_hit_die);
+  const ac = Number.isFinite(Number(d.beats_ac)) ? Number(d.beats_ac) : null;
+  if (hit && ac != null) { said.push(`${hit} vs ${ac} to hit`); take("to_hit_die", "beats_ac"); }
+  else if (hit) { said.push(`${hit} to hit`); take("to_hit_die"); }
+  else if (ac != null) { said.push(`beats ${ac}`); take("beats_ac"); }
+
+  const dmg = die(d.damage_die);
+  if (dmg) { said.push(`${dmg} damage`); take("damage_die"); }
+  if (Number.isFinite(Number(d.restores_to))) { said.push(`lifts to ${Number(d.restores_to)}`); take("restores_to"); }
+  if (d.halves_next_hit === true) { said.push("halves the next hit"); take("halves_next_hit"); }
+  if (Number.isFinite(Number(d.reach_m))) { said.push(`reach ${Number(d.reach_m)} m`); take("reach_m"); }
+
+  for (const [k, v] of Object.entries(d)) {
+    if (seen.has(k)) continue;
+    // the shapes a name states about itself, read off the name rather than
+    // looked up: a die is a die, metres are metres, seconds are seconds
+    const n = Number(v);
+    if (/_die$/.test(k) && die(v)) said.push(`${die(v)} ${k.replace(/_die$/, "").replace(/_/g, " ")}`.trim());
+    else if (/_m$/.test(k) && Number.isFinite(n)) said.push(`${k.replace(/_m$/, "").replace(/_/g, " ")} ${n} m`);
+    else if (/_s$/.test(k) && Number.isFinite(n)) said.push(`${n}s ${k.replace(/_s$/, "").replace(/_/g, " ")}`);
+    else if (v === true) said.push(k.replace(/_/g, " "));
+    else if (v === false) continue; // a dial the record turned off says nothing
+    else said.push(`${k} ${typeof v === "object" ? JSON.stringify(v) : v}`);
+  }
+  // The first phrase is the headline because the order above is the order a
+  // player asks in: what do I throw and what must I beat, then what does it do.
+  return (brief ? said.slice(0, 1) : said).join(" · ");
 }
 
 /**
@@ -942,6 +1033,252 @@ export function prefillFor(card, answer) {
 const GROUND_SHAPED = /\b(?:step(?:ping)? (?:in|out)|out of|to enter|walk(?:ing)? to|you are within|stand inside)\b/i;
 /** …and the one such relation whose answer the standpoint already knows. */
 const LEAVING = /\bout of\b/i;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AIMING — the act is chosen first, and then what it is aimed at
+//
+// FOUNDER'S RULING 2026-08-29, playing the dungeon: you press the act you mean,
+// and then the thing it can be aimed at lights up and is clickable. He called
+// the order it replaces nonsensical — clicking the thing first, and being shown
+// a whole menu of the acts you could take towards it.
+//
+// ⚑ HIS SENTENCE IS PARAPHRASED HERE, WHICH IS DELIBERATE AND IS A COST. He
+// named two acts in it, and this file's own standing note says why they cannot
+// be written down: "this file must not contain the dungeon's verb names, even
+// in prose — a falsifier reads this source for them, because the whole design is
+// that the bar has no verb list." A verbatim quote would smuggle the list in
+// dressed as evidence. The two acts he named are the ones the arena grants that
+// take a target, and the code below reaches them without knowing either name.
+//
+// WHAT WAS WRONG WITH THE OLD ORDER, in his words and in the record's: the
+// thing standing in front of you in a fight is ONE NODE wearing two readings —
+// a mark of the world, and the adversary of the encounter. The object-first
+// menu offered every act the ground affords against it, pairing verbs with a
+// thing they mean nothing about, because a surface with no verb list cannot
+// know which pairings are sense. Verb-first never has to know: the act is
+// named by the reader, and the only question left is which of the things the
+// ANSWER placed is being pointed at.
+//
+// NOTHING HERE NAMES AN ACT, and it is the same discipline as everywhere else
+// in this file. An act is aimable because of the sentence the DOOR wrote under
+// its own field — see `aimField`.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * A field the door describes as IDENTIFYING something already in the world —
+ * a mark id, or a resident's handle — as opposed to a value the caller
+ * composes, or a place they are moving relative to.
+ *
+ * Read off the live door's own words, 2026-08-29. The arena's shared field says
+ * "who or what this act is aimed at — a handle for … a mark id for …"; the
+ * attaching acts say "the thing's mark id, <by>/<slug>". Both are pointing at
+ * something that exists. A slug field ("the mark's leaf name — kebab-case,
+ * unique among your own marks") is a name being MINTED and matches none of it,
+ * which is why the claiming act does not arm a target.
+ */
+const AIMED_AT = /\b(?:aimed at|who or what|mark id|a handle\b)/i;
+
+/**
+ * The one field this act is aimed THROUGH, or null.
+ *
+ * The same narrowness `prefillFor` is built on, and for the same reason: one
+ * open slot, or the act is a form and the reader answers it. Two open fields
+ * means the act is asking two questions and a click on the map can only answer
+ * one of them.
+ */
+export function aimField(card) {
+  const open = (card?.fields ?? []).filter((f) =>
+    !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
+  if (open.length !== 1) return null;
+  const f = open[0];
+  if (GROUND_SHAPED.test(f.description ?? "")) return null;
+  return AIMED_AT.test(f.description ?? "") ? f : null;
+}
+
+/** Can this seat be armed — the ground affords it, the clock allows it, the
+ *  door gave it somewhere to aim, and the answer names something to aim at. */
+export function aimable(slot, answer) {
+  if (!slot?.afforded || !slot.enabled || !slot.card) return false;
+  if (!aimField(slot.card)) return false;
+  return aimTargets(answer).length > 0;
+}
+
+/**
+ * What an armed act may be aimed at, and where each one stands.
+ *
+ * The candidates are `actCandidates`' — what stands against you, who is down
+ * beside you, what is lying on the floor, all three the door's own words. What
+ * is added here is the POSITION, because a target that highlights has to
+ * highlight somewhere.
+ *
+ * A TARGET THE ANSWER CANNOT PLACE IS STILL A TARGET. `nearby` is a budgeted
+ * field of view and `present` is banded, so a downed ally can be perfectly real
+ * and carry no coordinate this read. Dropping them would make the lifting act
+ * unreachable exactly when someone is down and out of frame — so an unplaced
+ * target keeps its row and is offered by name instead. `at` is null and the
+ * caller draws no ring; nothing here pretends to a coordinate it does not hold,
+ * which is the same rule `adversaryPlacement` already follows.
+ */
+export function aimTargets(answer) {
+  const nearby = Array.isArray(answer?.nearby) ? answer.nearby : [];
+  const present = Array.isArray(answer?.present) ? answer.present : [];
+  const placed = (id) => {
+    const m = nearby.find((n) => n?.id === id && n.at && Number.isFinite(n.at.x) && Number.isFinite(n.at.y));
+    if (m) return { x: m.at.x, y: m.at.y };
+    // `present` is the who-is-about block and its rows are the presence read's,
+    // not the fold's — it may carry a bare x/y or an `at`, and it may carry
+    // neither. Both spellings are read; neither is required.
+    const p = present.find((n) => (n?.handle ?? n?.id) === id);
+    const at = p?.at ?? p;
+    return at && Number.isFinite(at.x) && Number.isFinite(at.y) ? { x: at.x, y: at.y } : null;
+  };
+  return actCandidates(answer).map((c) => ({ ...c, at: placed(c.value) }));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THE FOLD — what stays on the row, and what goes behind the tray
+//
+// FOUNDER'S RULING 2026-08-29: "too many buttons". Measured on his own screen
+// the night before: seventeen afforded acts wanting about 1900px against a
+// 1377px scrollport. The row's standing answer was to scroll and say so, and
+// the ruling is that scrolling is not an answer — the acts of the room you are
+// standing in should be on the row, and the rest should be one press away.
+//
+// WHAT DECIDES A SEAT IS THE CHANNEL THE DOOR OPENED IT ON, not a list of
+// fight verbs. `channel: "ground"` is the door saying this act belongs to the
+// ground you are standing on; everything else travelled here with you and is
+// as available in the vault as it is in the town square. So the room's own
+// acts hold the row, and the ones you carry everywhere fold — which is the
+// same taxonomy the HERE divider has always drawn, now load-bearing.
+//
+// `keep`, `hide` and `gate` are the CALLER'S, and they are the deliberate
+// seam. They are the places a decision is keyed on a name, and this file does
+// not hold names — the surface that draws pictures for verbs already keeps a
+// table beside its pictures, and that is where a ruling about particular acts
+// belongs. Called with none of them this is a pure channel split.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * @param {{fixed:Array,tray:Array}} bar   what `barSlots` returned
+ * @param {object} o
+ * @param {string[]} o.keep   ambient acts that hold a seat anyway
+ * @param {string[]} o.hide   acts not rendered at all, here
+ * @param {Object<string,string>} o.gate   act → the phase that must be running
+ * @param {string|null} o.phase   the phase the door says is running
+ * @returns {{shown:Array, folded:Array}}
+ */
+export function barFold(bar, { keep = [], hide = [], gate = null, phase = null } = {}) {
+  const kept = new Set(keep);
+  const hidden = new Set(hide);
+  const shown = [], folded = [];
+  for (const slot of [...(bar?.fixed ?? []), ...(bar?.tray ?? [])]) {
+    if (hidden.has(slot.action)) continue;
+    // (the keys are reassigned below, once the row is known)
+    // A GATED ACT IS ABSENT, NOT GREYED, and that is a departure from this
+    // surface's own standing rule ("disabled, never hidden") made on the
+    // founder's word. The rule is about acts the ground affords and the clock
+    // withholds — a seat that will come back to you, and whose law you can read
+    // while you wait. An act whose whole precondition is a phase the room has
+    // not reached is not being withheld from you; it is not part of the room
+    // yet. The office is stopping offering it at the same time (lane bday-law),
+    // so this is the surface agreeing with the door rather than overruling it.
+    if (gate && Object.prototype.hasOwnProperty.call(gate, slot.action) && gate[slot.action] !== phase) continue;
+    const ground = slot.card?.channel === "ground" || slot.card?.via === "ground";
+    (ground || kept.has(slot.action) ? shown : folded).push(slot);
+  }
+  // ⚑ THE NUMBERS ARE THE ROW'S, AND THEY ARE ASSIGNED HERE.
+  //
+  // `barSlots` numbers every act the answer carried, in the door's order, which
+  // was right while every one of them held a seat. With a fold in front of it
+  // the printed numbers and the row stopped agreeing: seen in the shot, a row of
+  // six seats wearing 1, 2, 7, 8, 9 — the digits of the acts they would have
+  // been before four of them folded away. A reader counting along the row and a
+  // reader reading the corner of a seat would have pressed different acts.
+  //
+  // So the row renumbers itself 1..MAX_KEYED and the folded keep no key at all:
+  // the tray is reached by name, which is what a list is for, and a number that
+  // opens nothing visible is worse than no number.
+  let key = 0;
+  return {
+    shown: shown.map((s) => ({ ...s, key: ++key <= MAX_KEYED ? key : null })),
+    folded: folded.map((s) => ({ ...s, key: null })),
+  };
+}
+
+// ── the walk grid ───────────────────────────────────────────────────────────
+
+/** A metre, which is what the world has always stepped in. */
+export const DEFAULT_STEP_M = 1;
+
+/**
+ * The granularity this ground says a walk moves in.
+ *
+ * CONTRACT (lane bday-law, 2026-08-29): a ground may declare `walk.min_step` in
+ * metres, and a click-to-walk on that ground snaps to it. A room three metres
+ * across wants whole steps; the open world does not.
+ *
+ * READ FROM SEVERAL PLACES ON PURPOSE, and the reason is honest rather than
+ * defensive-by-habit: the field was being written in the office while this was
+ * being written in the site, so its exact home was not settled when this
+ * shipped. Every path below is the same field under the blocks the answer
+ * already has for ground facts. Absent everywhere is one metre, which is what
+ * the world did before this existed — so a door that never grows the dial
+ * leaves walking byte-identical.
+ */
+export function walkStep(answer) {
+  const paths = [
+    answer?.standpoint?.walk?.min_step,
+    answer?.standpoint?.portal?.walk?.min_step,
+    answer?.walk?.min_step,
+    answer?.encounter_detail?.walk?.min_step,
+  ];
+  for (const v of paths) {
+    const n = Number(v);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return DEFAULT_STEP_M;
+}
+
+/** A point in world metres, snapped to the ground's own stride. */
+export function snapPoint(m, step) {
+  if (!m || !Number.isFinite(m.x) || !Number.isFinite(m.y)) return null;
+  const s = Number.isFinite(step) && step > 0 ? step : DEFAULT_STEP_M;
+  // rounded through the step and back, so the answer is a multiple of it rather
+  // than a number that merely looks tidier
+  return { x: Math.round(m.x / s) * s, y: Math.round(m.y / s) * s };
+}
+
+// ── the consent sheet ───────────────────────────────────────────────────────
+
+/**
+ * The terms, split into what a player reads at the door and what a lawyer
+ * reads afterwards.
+ *
+ * FOUNDER'S RULING 2026-08-29: the crossing sheet "dumps every field, vague and
+ * verbose" — the door's terms carry `articles` and `quoted`, which come back as
+ * whole mark bodies, and the two or three facts a player actually needs before
+ * stepping through are buried under them.
+ *
+ * NOTHING IS DROPPED, and that is not negotiable on this surface: "you cannot
+ * be bound by law you were not shown at the door" is the sentence the shadow
+ * read exists for. Both halves are rendered; only one of them is open.
+ *
+ * SPLIT ON LENGTH, NOT ON A LIST OF KEY NAMES. A template naming the four keys
+ * the door sends today would go quietly blank the day a fifth arrives, which is
+ * the worst way for a legal disclosure to fail — the same argument `termsRows`
+ * makes for being generic. A term that fits on a line is one a reader takes in
+ * at the door; one that does not is a document.
+ */
+export const CONSENT_CLIP = 120;
+
+export function consentSplit(terms) {
+  const brief = [], fine = [];
+  for (const r of termsRows(terms)) {
+    const v = String(r.value ?? "");
+    (v.length <= CONSENT_CLIP && !/[\r\n]/.test(v) ? brief : fine).push(r);
+  }
+  return { brief, fine };
+}
 
 // ── the map transform ───────────────────────────────────────────────────────
 
