@@ -236,9 +236,32 @@
       // a resident this key holds, else the first handle exactly as before. A
       // stale stored name (a resident this key no longer holds) falls through
       // rather than bouncing the read.
+      // ⚑ AND IT READS BOTH KEYS THE VIEWER READS (2026-08-29). This consulted
+      // only `pm.world.act_as` and fell back to the first handle; the viewer
+      // resolves from `act_as` AND `pm.world.last_resident`, and treats the
+      // spectator sentinel explicitly. So on a reload where `act_as` was absent
+      // or held the sentinel, the viewer's camera and this apex read ROOTED AT
+      // DIFFERENT RESIDENTS until the reader clicked a face — the Act As row
+      // naming one resident while the page showed another's standpoint. Not a
+      // special case for the fight, as it looked: two answers to one question.
+      //
+      // THE LAW IS THE WORLD REPO'S, in spectator/act-as.mjs, which exists so
+      // both sides can import ONE resolver. This mirrors it rather than importing
+      // it for one reason only: the pinned postmark-world in node_modules does
+      // not carry that file yet, so importing it today breaks the build. The
+      // moment the pin (or the dev clone) moves past it, these six lines become
+      //     import { resolveActAsSelection } from "postmark-world/spectator/act-as.mjs";
+      // and the duplication goes. Until then the precedence below is copied
+      // deliberately and is named as a copy, which is the honest version of a
+      // thing that cannot yet be shared.
+      const SPECTATOR = "__spectator__";
       const handles = Array.isArray(me?.handles) ? me.handles : [];
-      const stored = (() => { try { return localStorage.getItem("pm.world.act_as"); } catch { return null; } })();
-      let acting = (stored && handles.includes(stored)) ? stored : orientingHandle(me);
+      const read = (k) => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
+      const stored = read("pm.world.act_as");
+      const lastResident = read("pm.world.last_resident");
+      let acting = handles.includes(stored) ? stored
+        : handles.includes(lastResident) ? lastResident
+        : (stored === SPECTATOR ? (handles[0] ?? null) : orientingHandle(me));
       if (!acting) console.warn("world cockpit: /api/me named no resident on this key, so the apex read cannot say whose standpoint to answer");
       // One composition, used by the boot read, the refresh after an act, the
       // re-read on return to the tab, and the re-read on a dock selection — so
@@ -279,6 +302,9 @@
         if (document.visibilityState !== "visible" || !handle) return;
         const fresh = await door().catch(() => null);
         if (fresh) handle.update(fresh);
+        // the mount tears itself down when the answer leaves portal ground; drop
+        // our reference with it so nothing later paints through a dead handle
+        if (!document.documentElement.hasAttribute("data-pmc-dock")) handle = null;
       });
 
       // Re-read when the dock picks a different resident (pm:act-as, the
@@ -295,6 +321,7 @@
         acting = who;
         const fresh = await door().catch(() => null);
         if (fresh && handle) handle.update(fresh);
+        if (!document.documentElement.hasAttribute("data-pmc-dock")) handle = null;
       });
     }
 

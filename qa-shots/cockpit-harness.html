@@ -372,9 +372,28 @@
         { id: "the-town/the-cellar-door", by: "the-town", tier: "market" },
         { id: "the-town/the-candle-vault", by: "the-town", tier: "market" },
       ],
+      // THE OTHER FIGHTERS, PLACED. A combatant the answer names no coordinate
+      // for gets no hp rail — the same rule the token, the ring and the floor
+      // things already follow — so a fixture that wants to SEE the rails has to
+      // place the people. `present` is where the live door carries them.
+      // THE BOSS IS AT THE VAULT TOP AND THE PARTY STANDS BELOW IT (the mark
+      // moved there 2026-08-29), so the fixture ranks them the way the room
+      // really seats them rather than stacking everyone on the cake — which is
+      // what the first version did, and it made three correct hp rails
+      // unreadable behind one another.
+      // ⚑ VERMILLION IS DELIBERATELY NOT HERE. She is on the wheel and she is
+      // down, and the answer places her nowhere — which is a real state (the
+      // field of view is budgeted) and the one that exercises two rules at once
+      // in a browser: an unplaced fighter gets NO hp rail rather than a rail at
+      // a guessed spot, and an unplaced target is offered as a NAMED CHIP on
+      // the aim strip rather than a ring on the painting. Placing her cost both.
+      present: [
+        { handle: "jetto-of-starforge", x: 1081, y: -789.5 },
+        { handle: "keeminlee", x: 1083, y: -789.2 },
+      ],
       nearby: [
         { id: "the-town/the-good-lighter", at: { x: 1095.5, y: -784 }, kind: "sited", tier: "market" },
-        { id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 }, kind: "sited", tier: "market" },
+        { id: "the-town/the-unlit-cake", at: { x: 1083, y: -792.4 }, kind: "sited", tier: "market" },
         { id: "vermillion/the-long-knife", at: { x: 1092, y: -786 }, kind: "sited", loose: true, dropped_by: "vermillion" },
       ],
       // ORDINARY[7] is the way out, and it is granted here deliberately: the
@@ -551,7 +570,17 @@
   // The harness never reaches the office. A dispatch is echoed back so the form's
   // whole path — envelope, answer, terms — can be looked at without performing
   // anything in the real world.
+  // A FORCED REFUSAL, for the half of a ruling that only exists when things go
+  // wrong. `?fail=say` makes the door bounce that act — without it there is no
+  // way to look at what a spoken line does when it does NOT land, and that half
+  // (the words come back, the defect is under them) is the whole reason
+  // close-on-enter is safe to ship.
+  const FAIL = new URLSearchParams(location.search).get("fail");
   async function dispatch(envelope) {
+    if (FAIL && envelope.do === FAIL) {
+      document.getElementById("note").innerHTML = `<b>forced bounce</b> ${envelope.do}`;
+      return { ok: false, status: 503, body: { defect: "the office is not answering", hint: "your words are kept — try again" } };
+    }
     document.getElementById("note").innerHTML =
       `<b>dispatch</b> POST /api/world/apex<br>${JSON.stringify(envelope, null, 1).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c])).replace(/\n/g, "<br>")}`;
     // A SPEAKING ACT LANDS IN THE RECORD THE MAP READS. Whatever prose field the

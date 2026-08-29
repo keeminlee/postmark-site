@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
-  aimKind, cardOf, consentSplit, dialSpeak, leavingName, looseThings, pointFields,
+  aimKind, cardOf, combatantBars, consentSplit, dialSpeak, leavingName, looseThings, pointFields,
   prefillFor, snapPoint, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
@@ -803,13 +803,15 @@ test("an armed act's card stands down, like an open panel's", () => {
 });
 
 test("the three name-keyed rulings live beside the icons, not in the arithmetic", () => {
-  // ⚑ SIX NOW. His original three, the crossing act on the conductor's ruling,
-  // and GIVE/TAKE on his own word while live-testing: "give and take need to be
-  // main bar action buttons due to the item you can pick up to help with the
-  // fight." The fold keys on the door's CHANNEL, which correctly calls those two
-  // ambient — they are afforded everywhere. What the channel cannot see is that
-  // in this room they are the fight's own mechanic, so the ruling names them.
-  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit", "give", "take"\];/,
+  // ⚑ FOUR — AND IT WAS SIX FOR ONE ROUND. His original three, the crossing act
+  // on the conductor's ruling, and then GIVE/TAKE added on his word ("give and
+  // take need to be main bar action buttons due to the item you can pick up to
+  // help with the fight") and removed again on his word a few hours later
+  // ("let's also just remove the give and take buttons as it's confusing; we can
+  // just rely on the agents to pick up the weapon/upgrade"). Both states are
+  // named here so a reader of the diff sees a reversal rather than drift — see
+  // the give/take test below for what removal did and did not touch.
+  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit"\];/,
     "the ambient seats that hold a row, by ruling rather than by channel");
   assert.match(MOUNT, /const DUNGEON_HIDE = \["leave-mark", "note-to-self"\];/, "the two seats hidden in the dungeon");
   assert.match(MOUNT, /const PHASE_GATE = \{ loot: "spent" \};/, "and the one act whose precondition is a phase");
@@ -860,4 +862,162 @@ test("a panel that delivers terms is a consent sheet, whichever act it belongs t
     "quoted from the record, never written here");
   assert.match(MOUNT, /read them whole — you cannot be bound by law you were not shown at the door/,
     "and the sentence that makes the fold non-negotiable is written on the disclosure itself");
+});
+
+// ══ THE FIGHT, SIZED FOR THE ROOM (founder-ruled 2026-08-29, at the board) ═══
+//
+//   "the cake adversary token on the map ~3x larger, INCLUDING its hp bar"
+//   "hp bars on ALL combatant tokens in an encounter, the cake's style, small,
+//    only while a wheel is live for that ground"
+
+test("every fighter with hit points gets a rail, placed where the answer places them", () => {
+  // this fixture's wheel holds the cake, the human, and one resident. Placing
+  // the first two and NOT the third is what makes the last assertion mean
+  // something.
+  const answer = {
+    ...VAULT,
+    present: [{ handle: "keeminlee", x: 1083, y: -789.2 }],
+  };
+  const bars = combatantBars(answer);
+  assert.ok(bars.some((b) => b.id === "keeminlee"), "the human is a fighter like any other");
+  // …and a RESIDENT is too, once the answer places them
+  const withResident = combatantBars({ ...VAULT,
+    present: [{ handle: "keeminlee", x: 1083, y: -789.2 }, { handle: "vermillion", x: 1085, y: -789.6 }] });
+  assert.ok(withResident.some((b) => b.id === "vermillion"), "a resident on the wheel gets one too");
+  // a name in `present` that is NOT on the wheel is not a fighter and gets nothing
+  const bystander = combatantBars({ ...VAULT, present: [{ handle: "wright", x: 1082, y: -790 }] });
+  assert.ok(!bystander.some((b) => b.id === "wright"), "somebody standing nearby is not in the fight");
+
+  // ⚑ THE ADVERSARY IS EXCLUDED. It carries its own bar at its own scale with
+  // its own name plate; a second rail over the same figure is one number twice.
+  assert.ok(!bars.some((b) => b.id === "the-town/the-unlit-cake"), "the boss keeps its own bar and gets no rail");
+
+  // ⚑ AND AN UNPLACED FIGHTER GETS NOTHING RATHER THAN A GUESS. `nearby` is a
+  // budgeted field of view and `present` is banded, so a real combatant can be
+  // unplaceable on a given read — the same rule the token, the ring and the
+  // floor things already follow.
+  assert.ok(!bars.some((b) => b.id === "vermillion"), "a fighter the answer does not place is not drawn somewhere plausible");
+});
+
+test("the rails appear only while a wheel is actually turning", () => {
+  const placed = { present: [{ handle: "keeminlee", x: 1083, y: -789 }] };
+  // no encounter at all
+  assert.deepEqual(combatantBars({ ...VAULT, ...placed, encounter: undefined }), []);
+  // an encounter the door says is NOT live — representable, but nothing owed
+  assert.deepEqual(
+    combatantBars({ ...VAULT, ...placed, encounter_detail: { ...VAULT.encounter_detail, live: false } }), [],
+    "bars over a quiet room would say a fight was on");
+  // and a fighter with no hit points on the wheel has nothing to draw
+  const noHp = { ...VAULT, ...placed, encounter: { ...VAULT.encounter,
+    order: VAULT.encounter.order.map((a) => (a.id === "keeminlee" ? { id: a.id, kind: a.kind, label: a.label } : a)) } };
+  assert.ok(!combatantBars(noHp).some((b) => b.id === "keeminlee"));
+});
+
+test("a downed fighter's rail is drawn empty and still drawn", () => {
+  const answer = { ...VAULT, present: [{ handle: "vermillion", x: 1085, y: -789.6 }] };
+  const v = combatantBars(answer).find((b) => b.id === "vermillion");
+  assert.ok(v, "being at zero is a state to watch — a rail that vanished would read as having left");
+  assert.equal(v.hp.now, 0);
+  assert.equal(v.down, true);
+});
+
+test("the adversary's size is one constant, and three readers share it", () => {
+  // ⚑ THE POINT OF NAMING IT. The drawing, the hit-test that decides whether a
+  // click landed on the figure, and the reticle that frames it while an act is
+  // armed all measured it separately — so tripling the picture alone would have
+  // left clicks landing on empty floor and a crosshair inside the thing it
+  // frames.
+  assert.match(MOUNT, /const ADVERSARY_R = 60;/, "tripled from 20 on the founder's word");
+  assert.match(MOUNT, /const r = ADVERSARY_R \* u;/, "the drawing reads it");
+  assert.match(MOUNT, /near\(placed\.at, ADVERSARY_R \* u \* 1\.34\)/, "the hit-test reads it");
+  assert.match(MOUNT, /t\.value === advId \? ADVERSARY_R \* 1\.25 : 26/, "and the reticle sizes itself to what it frames");
+  // the hp bar is a multiple of r, so "including its hp bar" needed no second edit
+  assert.match(MOUNT, /const bw = r \* 2\.6;/, "the bar grows with the figure because it always was a multiple of it");
+});
+
+test("a person's rail is not the boss's colour, and rides above every figure", () => {
+  // Found by looking at a magnified crop, twice: drawn in the adversary's ember
+  // over the adversary's ember ring, three rails were in the DOM and invisible;
+  // drawn under the token and the speech layer, they were behind the very
+  // figures they belong to.
+  assert.match(MOUNT, /const gold = "#f0d5a8";/, "the cake owns ember on this map; a fighter does not");
+  assert.match(MOUNT, /function rails\(\) \{/, "the rails are their own pass");
+  assert.match(MOUNT, /tokenLayer\.appendChild\(g\);\r?\n\s*rails\(\);\r?\n\s*speech\(\);/,
+    "appended after the figures");
+  assert.match(MOUNT, /if \(!place\) \{ rails\(\); speech\(\); return; \}/,
+    "and drawn even where the human's own token is not — they are everyone's, not the human's");
+  assert.match(MOUNT, /const rails = tokenLayer\.querySelector\("\.pmc-combatant-layer"\);\r?\n\s*if \(rails\) tokenLayer\.insertBefore\(g, rails\); else tokenLayer\.appendChild\(g\);/,
+    "speech goes under them — a line fades on the door's clock, hit points do not");
+});
+
+// ══ THE LAST THREE OF THE FIVE (founder, live at the board 2026-08-29) ═══════
+
+test("give and take are off the row, and the reversal is visible", () => {
+  // ⚑ THIS REVERSES HIS OWN EARLIER RULING. Earlier: "give and take need to be
+  // main bar action buttons due to the item you can pick up to help with the
+  // fight." Now: "let's also just remove the give and take buttons as it's
+  // confusing; we can just rely on the agents to pick up the weapon/upgrade."
+  // What changed is whose HANDS the mechanic belongs in, not the mechanic.
+  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit"\];/);
+  assert.doesNotMatch(MOUNT, /const BAR_KEEP = \[[^\]]*"give"/, "the seats are gone");
+
+  // ⚑ AND NOTHING IS ORPHANED. The keep list decides which AMBIENT acts hold a
+  // seat and nothing else — the door still affords them, the tray still reaches
+  // them, and an agent acting through its own door never consulted this file.
+  const fold = barFold(barSlots(VAULT, { acting: "keeminlee" }), {
+    keep: ["walk", "say", "enter", "exit"], hide: ["leave-mark", "note-to-self"],
+  });
+  assert.ok(!fold.shown.some((s) => s.action === "take"), "no seat on the row");
+  assert.ok(fold.folded.some((s) => s.action === "take"), "still reachable in the tray");
+  // the act itself is untouched — its card, its aim field, its whole grammar
+  assert.equal(aimField(cardFor(VAULT, "take"))?.name, "thing",
+    "removing a button removed a button, not an act");
+});
+
+test("a spoken line closes on Enter without waiting for the door", () => {
+  // FOUNDER: there is "a small lag between hitting Enter and the panel going
+  // away" that reads as "did that send?". The close IS the confirmation, and it
+  // is honest about what it confirms — that the line LEFT, not that the door
+  // took it, which is a fact from the future.
+  assert.match(MOUNT, /if \(form\.hasAttribute\("data-chat"\)\) \{/, "speaking takes its own exit");
+  assert.match(MOUNT, /state\.open = null; state\.act = null; state\.said = null; formValues = null;\r?\n\s*paint\(\);\r?\n\s*sendAct\(action, whole\)\.then\(/,
+    "the panel is closed and painted BEFORE the dispatch is awaited");
+  // ⚑ AND ONLY SPEAKING. Every other act still waits, because a swing's answer
+  // is the throw and a crossing's is the terms; a spoken line has no answer
+  // worth a pause.
+  assert.match(MOUNT, /await sendAct\(action, whole, form\);/, "the ordinary path is unchanged");
+});
+
+test("a spoken line that did not land comes back with its words", () => {
+  // The other half of the trade, and the reason close-on-enter is safe: nothing
+  // is silently eaten and no typed text is lost.
+  assert.match(MOUNT, /const said = whole\[form\.getAttribute\("data-chat"\)\] \?\? "";/,
+    "the text is held before the panel goes");
+  assert.match(MOUNT, /if \(state\.said && state\.said\.ok === false\) reopenChat\(action, said\);/,
+    "and a failure re-opens the line");
+  assert.match(MOUNT, /function reopenChat\(action, text\) \{/);
+  assert.match(MOUNT, /box\.value = text; box\.focus\(\);/, "with the words in it and the cursor waiting");
+  // the door's own defect rides under it — `state.said` is set by sendAct and
+  // chatHtml renders it with the failure class
+  assert.match(MOUNT, /<p class="pmc-said\$\{state\.said\.ok \? "" : " bad"\}">/, "in the door's own words");
+});
+
+test("the confirm card is compact and sits on the right", () => {
+  // FOUNDER: the old walk confirmation "was MUCH more concise; the current is
+  // still so verbose", and it must sit on the RIGHT SIDE. So it takes the walk
+  // desk's own register — the thing he was comparing it to.
+  assert.match(MOUNT, /\.pmc-form \{\r?\n\s*position: fixed; right: 14px; left: auto; transform: none;/,
+    "pinned to the right rather than centred over the painting");
+  assert.match(MOUNT, /width: min\(19rem, 42vw\);/, "and near the desk's own width");
+  assert.doesNotMatch(MOUNT, /\.pmc-form \{ position: fixed; left: 50%;/, "the centred 26em panel is gone");
+  // WHAT WAS CUT: the act's blurb (the hover card carries it whole) and the
+  // keys line, which a card with a confirm button under the cursor does not
+  // need. WHO/FROM/TO and the confirm are what remain.
+  assert.match(MOUNT, /\$\{sheet \? flavorHtml\(c\) : ""\}\r?\n\s*\$\{flowRowsHtml\(c\)\}/,
+    "flavour only where a crossing is asking for consent; otherwise straight to the rows");
+  assert.match(MOUNT, /\$\{sheet \? ready : ""\}/, "the keys line is a consent-sheet thing now");
+  // the vertical is still MEASURED against the bar, which dodges the viewer's
+  // own furniture — a fixed bottom would collide with whatever it dodged
+  assert.match(MOUNT, /if \(form\) placeAbove\(form, root\.querySelector\("\.pmc-bar"\)\);/,
+    "only the horizontal is pinned");
 });

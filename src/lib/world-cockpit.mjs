@@ -1396,6 +1396,53 @@ export function aimable(slot, answer) {
  * caller draws no ring; nothing here pretends to a coordinate it does not hold,
  * which is the same rule `adversaryPlacement` already follows.
  */
+/**
+ * EVERY COMBATANT WITH HIT POINTS, placed where the answer places them.
+ *
+ * FOUNDER-RULED 2026-08-29, live at the board: hp bars on ALL the tokens in an
+ * encounter — the residents and the human, in the adversary's own style, small,
+ * and only while a wheel is actually turning on this ground.
+ *
+ * THE ADVERSARY IS EXCLUDED because it already carries its own, drawn at its own
+ * scale with its own name plate; a second bar over the same figure would be the
+ * same number twice. Everyone else on the wheel is a person, and a person's bar
+ * is the small one.
+ *
+ * PLACED THE WAY EVERY OTHER FIGURE HERE IS PLACED — off `nearby`, then off
+ * `present`, and NOT AT ALL where the answer names no coordinate. `nearby` is a
+ * budgeted field of view and `present` is banded, so a real combatant can be
+ * unplaceable on a given read; drawing them at a guessed spot would be a claim
+ * about where somebody is standing, which is the one thing this file will not
+ * make up. An unplaced fighter simply has no bar until the door places them.
+ *
+ * EMPTY WHERE NO WHEEL IS TURNING. `encounter_detail.live === false` is the
+ * door saying a fight is representable here but not running, and bars over a
+ * quiet room would say a fight was on.
+ */
+export function combatantBars(answer) {
+  const enc = encounterOf(answer);
+  if (!enc) return [];
+  if (answer?.encounter_detail?.live === false) return [];
+  const advId = adversaryOf(answer)?.id ?? null;
+  const nearby = Array.isArray(answer?.nearby) ? answer.nearby : [];
+  const present = Array.isArray(answer?.present) ? answer.present : [];
+  const placed = (id) => {
+    const m = nearby.find((n) => n?.id === id && n.at && Number.isFinite(n.at.x) && Number.isFinite(n.at.y));
+    if (m) return { x: m.at.x, y: m.at.y };
+    const p = present.find((n) => (n?.handle ?? n?.id) === id);
+    const at = p?.at ?? p;
+    return at && Number.isFinite(at.x) && Number.isFinite(at.y) ? { x: at.x, y: at.y } : null;
+  };
+  const out = [];
+  for (const a of enc.order) {
+    if (!a.id || a.id === advId || !a.hp || !(a.hp.max > 0)) continue;
+    const at = placed(a.id);
+    if (!at) continue;
+    out.push({ id: a.id, label: a.label, at, hp: a.hp, down: a.down, you: a.you, kind: a.kind });
+  }
+  return out;
+}
+
 export function aimTargets(answer) {
   const nearby = Array.isArray(answer?.nearby) ? answer.nearby : [];
   const present = Array.isArray(answer?.present) ? answer.present : [];

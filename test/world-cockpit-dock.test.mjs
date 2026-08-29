@@ -350,8 +350,14 @@ test("the adversary opens nothing, and a loose thing is picked up", () => {
 });
 
 test("escape gives back the map before it gives back anything else", () => {
-  assert.match(mount, /if \(ev\.key === "Escape" && state\.aiming\) \{ disarm\(\); return; \}/,
+  assert.match(mount, /if \(ev\.key === "Escape" && state\.aiming\) \{ eatKey\(ev\); disarm\(\); return; \}/,
     "an armed act is the innermost thing one press puts down");
+  // ⚑ AND THE VIEWER DOES NOT ALSO GET IT. Both surfaces bind document keydown
+  // and the viewer's Escape clears ITS own selection, so one press was putting
+  // down the cockpit's panel and the map's selection together. A key we ACTED on
+  // stops here; a key we ignored is left entirely alone.
+  assert.match(mount, /const eatKey = \(ev\) => \{ ev\.preventDefault\(\); ev\.stopPropagation\(\); ev\.stopImmediatePropagation\?\.\(\); \};/,
+    "a consumed key is not propagated to the viewer's own handler");
   // and a click on anything that is not a target disarms, which is the other
   // half of the ruling's own escape hatch
   assert.match(mount, /if \(target\) takeAim\([^;]*\);\s*else disarm\(\);/,

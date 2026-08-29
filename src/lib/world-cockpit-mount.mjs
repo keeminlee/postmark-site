@@ -16,7 +16,7 @@ import {
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices, faceImageFor, briefWords,
-  aimField, aimKind, aimTargets, aimable, barFold, consentSplit, dialSpeak, leavingName,
+  aimField, aimKind, aimTargets, aimable, barFold, combatantBars, consentSplit, dialSpeak, leavingName,
   pointFields, snapPoint, walkStep, weaponFor,
 } from "./world-cockpit.mjs";
 // The rail's feed — its sentences, its merge rule and its bottom test. All of
@@ -261,7 +261,30 @@ export const COCKPIT_CSS = `
 /* The form lives in the overlay, not in the bar, for the scrollport reason above.
    Bottom is set by the script against the bar's measured top edge, so it sits over
    the row whatever height the row turns out to be. */
-.pmc-form { position: fixed; left: 50%; transform: translateX(-50%); width: 26em; max-width: calc(100vw - 24px); padding: .9em 1em 1em; text-align: left; z-index: 4; }
+/* ── THE CONFIRM CARD, ON THE RIGHT (founder, live: the old walk confirmation
+   "was MUCH more concise; the current is still so verbose", and it must sit on
+   the RIGHT SIDE of the screen) ──
+
+   So it takes the walk desk's own register, which is the thing he was comparing
+   it to: the desk's corner, near its width, its tight type. It was centred and
+   26em wide, which put a paragraph across the middle of the painting for an act
+   whose whole content is three rows and a button.
+
+   Vertically it is still MEASURED against the bar (placeAbove), because the bar
+   moves to dodge the viewer's own furniture and a fixed bottom would collide
+   with whatever it dodged. Only the horizontal is pinned. */
+.pmc-form {
+  position: fixed; right: 14px; left: auto; transform: none;
+  width: min(19rem, 42vw); max-width: calc(100vw - 24px);
+  padding: .7em .8em .8em; text-align: left; z-index: 4;
+  font-size: .94em;
+}
+.pmc-form h3 { font-size: .72rem; }
+.pmc-form .pmc-actions { margin-top: .7em; }
+.pmc-form .pmc-btn { font-size: .7rem; padding: .42em .9em; }
+/* the fine print is a footnote on a card this size, not a section */
+.pmc-form details.pmc-fine { margin-top: .55em; font-size: .92em; }
+.pmc-form details.pmc-fine summary { color: var(--pmc-gold-dim); font-size: .66rem; letter-spacing: .04em; }
 /* ── WHO / FROM / TO ──
    The founder's three rows, and the panel leads with them because they are the
    whole of what he asked to see before pressing confirm. Monospaced keys so the
@@ -1247,7 +1270,24 @@ export function mountCockpit(o) {
    * self-directed by the same reading, and neither should ever open a crosshair.
    */
   const SELF_DIRECTED = ["guard", "loot", "pass"];
-  const BAR_KEEP = ["walk", "say", "enter", "exit", "give", "take"];
+  // ⚑ GIVE AND TAKE ARE OFF THE ROW AGAIN (founder, live: "let's also just
+  // remove the give and take buttons as it's confusing; we can just rely on the
+  // agents to pick up the weapon/upgrade").
+  //
+  // THIS REVERSES HIS OWN EARLIER RULING and the reversal is kept visible rather
+  // than tidied away, because a keep-list that quietly loses two names reads as
+  // drift. Earlier tonight: "give and take need to be main bar action buttons
+  // due to the item you can pick up to help with the fight." What changed is not
+  // the mechanic but WHOSE HANDS it belongs in — the party's agents lift the
+  // weapon through their own doors, so a human at this bar never needed the
+  // verbs, and two seats that only ever confused him are gone.
+  //
+  // NOTHING IS ORPHANED BY IT. This list decides which AMBIENT acts hold a seat
+  // and nothing else: the door still affords give and take, the MCP still takes
+  // them, they are still reachable in the overflow tray, and an agent acting
+  // through its own door never consulted this file. Removing a seat removes a
+  // button, not an act.
+  const BAR_KEEP = ["walk", "say", "enter", "exit"];
   const DUNGEON_HIDE = ["leave-mark", "note-to-self"];
   const PHASE_GATE = { loot: "spent" };
   /**
@@ -1907,10 +1947,10 @@ export function mountCockpit(o) {
     // beside `shown`, because the inputs read it too.)
     return `<form class="pmc-plate pmc-form${trigger ? " pmc-trigger" : ""}${sheet}" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
-      ${sheet ? flavorHtml(c) : c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
+      ${sheet ? flavorHtml(c) : ""}
       ${flowRowsHtml(c)}
-      ${inputs || (trigger ? "" : `<p class="pmc-desc">This act takes no arguments.</p>`)}
-      ${ready}${datalist}
+      ${inputs}
+      ${sheet ? ready : ""}${datalist}
       ${terms}${said}
       <div class="pmc-actions">
         <button type="submit" class="pmc-btn go">confirm</button>
@@ -2400,13 +2440,34 @@ export function mountCockpit(o) {
    * are the numbers `publicState` sent, and a bar with either missing simply is
    * not drawn rather than guessing a full one.
    */
+  /**
+   * HOW BIG THE THING YOU ARE FIGHTING IS, in screen pixels.
+   *
+   * ⚑ TRIPLED ON THE FOUNDER'S WORD (2026-08-29, live in the vault): the cake
+   * "reads too small". It was 20, sized when the ring was one figure among
+   * several on a town map; in a three-metre room it is the room's whole subject
+   * and the only thing anyone is looking at.
+   *
+   * ONE CONSTANT, THREE READERS, and that is the point of naming it. The
+   * drawing, the hit-test that decides whether a click landed on it, and the
+   * reticle that lights it while an act is armed all measured it separately
+   * before — so tripling the picture alone would have left a click landing on
+   * empty floor a third of the way in, and a crosshair sitting inside the
+   * figure it was supposed to frame. Everything the group draws is a multiple
+   * of this, the hp bar included, so the bar grows with it exactly as the
+   * founder asked.
+   */
+  const ADVERSARY_R = 60;
+  /** …and a thing on the floor, which did not change. */
+  const LOOSE_R = 9;
+
   function drawAdversary() {
     if (!tokenLayer || !gridNow()) return "";
     const placed = adversaryPlacement(state.answer, gridNow());
     if (!placed) return "";
     const { at, adversary: a } = placed;
     const u = unitsPerPx();
-    const r = 20 * u;
+    const r = ADVERSARY_R * u;
     const hasBar = Number.isFinite(a.hp) && Number.isFinite(a.of) && a.of > 0;
     const frac = hasBar ? Math.max(0, Math.min(1, a.hp / a.of)) : 0;
     const bw = r * 2.6;
@@ -2547,7 +2608,12 @@ export function mountCockpit(o) {
       // that read as a reticle rather than as decoration, and a slow pulse so
       // it moves against a still painting. White-hot rather than gold, because
       // gold is what every other panel on this surface already is.
-      const r = 26 * u;
+      // THE RETICLE FRAMES WHAT IT IS AIMED AT, so it takes the figure's own
+      // size: the adversary is now three times what it was and a fixed ring
+      // would sit inside it rather than around it. A thing on the floor keeps
+      // the smaller frame it always had.
+      const advId = adversaryOf(state.answer)?.id ?? null;
+      const r = (t.value === advId ? ADVERSARY_R * 1.25 : 26) * u;
       return `<g class="pmc-aim-ring" transform="translate(${at.x} ${at.y})">
         <circle cx="0" cy="0" r="${r * 1.85}" fill="#fff6d8" fill-opacity="0.16"/>
         <circle cx="0" cy="0" r="${r * 1.32}" fill="none" stroke="#fff6d8"
@@ -2559,6 +2625,58 @@ export function mountCockpit(o) {
                  M ${r * 1.9} ${r * 1.9} h ${-r * 0.72} M ${r * 1.9} ${r * 1.9} v ${-r * 0.72}"
           stroke="#ffffff" stroke-width="${r * 0.16}" stroke-linecap="round" fill="none"/>
         <title>${esc(t.label)} — ${esc(state.aiming.action)}</title>
+      </g>`;
+    }).join("");
+  }
+
+  /**
+   * A HIT-POINT RAIL OVER EVERY FIGHTER (founder-ruled 2026-08-29, at the board).
+   *
+   * The adversary has carried one since the fight shipped, and he asked for the
+   * same thing over everyone else on the wheel — "the cake's style, small". So
+   * this is that bar at a person's scale: same ember, same rounded rail, same
+   * arithmetic (`now / max`, both the door's numbers), a fifth of the size.
+   *
+   * WHOSE FIGURE IT SITS OVER IS NOT MINE TO DRAW. The residents on this map are
+   * the VIEWER's walkers and the human is the cockpit's own token — two owners,
+   * one row of numbers — so this layer draws only the RAIL, at the coordinates
+   * the answer places each fighter at, and lets whatever figure is already there
+   * be the figure. That also means a fighter the answer cannot place gets no bar
+   * rather than a bar somewhere plausible.
+   *
+   * A DOWNED FIGHTER'S RAIL IS DRAWN EMPTY AND STILL DRAWN, the same ruling the
+   * wheel already keeps: being at zero is a state to watch, and a rail that
+   * vanished would read as the person having left.
+   */
+  function drawCombatants() {
+    if (!tokenLayer || !gridNow()) return "";
+    const u = unitsPerPx();
+    return combatantBars(state.answer).map((c) => {
+      const at = worldToPx(gridNow(), c.at);
+      if (!at) return "";
+      // SIZED BY LOOKING AT IT, twice. The first pass was thirteen screen pixels
+      // wide and two tall — "small", as asked, and invisible: at vault zoom the
+      // rails vanished under the speech plates and inside the adversary's glow,
+      // present in the DOM and unreadable on the screen. That is the same
+      // mistake the speech layer made when it shipped at nine pixels, recorded
+      // in its own note, and the same cure: look at the shot rather than at the
+      // number. Still small against the cake's own rail, which is what the
+      // ruling asked for — a person is not the boss.
+      const w = 44 * u, h = 5.5 * u, y = -30 * u;
+      const frac = Math.max(0, Math.min(1, c.hp.now / c.hp.max));
+      // ⚑ A PERSON'S RAIL IS NOT THE BOSS'S COLOUR, and the first pass learned
+      // that the hard way: drawn in the adversary's ember, over the adversary's
+      // ember ring, three rails were present in the DOM and invisible on the
+      // screen — the founder would have reported them missing. The cake owns
+      // ember on this map. A fighter gets the cockpit's own pale gold, with a
+      // dark ground and a light rim so it reads over the ring, over the floor
+      // and over the glow alike.
+      const gold = "#f0d5a8";
+      return `<g class="pmc-combatant-hp" transform="translate(${at.x} ${at.y})"${c.down ? ' opacity="0.55"' : ""}>
+        <rect x="${-w / 2}" y="${y}" width="${w}" height="${h}" rx="${h / 2}"
+          fill="#0d1015" fill-opacity="0.92" stroke="${gold}" stroke-opacity="0.75" stroke-width="${h * 0.16}"/>
+        ${frac > 0 ? `<rect x="${-w / 2}" y="${y}" width="${w * frac}" height="${h}" rx="${h / 2}" fill="${gold}"/>` : ""}
+        <title>${esc(c.label)} — ${c.hp.now} of ${c.hp.max}${c.down ? " — down" : ""}</title>
       </g>`;
     }).join("");
   }
@@ -2603,8 +2721,13 @@ export function mountCockpit(o) {
     // ruling is about entering a zone where it is human-allowed, not about
     // drawing a second figure on every square of the world.
     const seated = !!(human?.allowed && portalOf(state.answer) && state.acting === HUMAN_ACTOR);
+    // ⚑ THE RAILS ARE DRAWN BY A FUNCTION OF THEIR OWN, called on both exits.
+    // They belong to every fighter on the wheel — residents included, whose
+    // figures are the VIEWER's walkers — so hanging them off the human token's
+    // early return would have deleted everyone else's hit points on every
+    // standpoint where the human is not drawn, which is most of them.
     const place = tokenPlacement(state.answer, gridNow(), human, { seated });
-    if (!place) return;
+    if (!place) { rails(); speech(); return; }
     const { at, token, beside } = place;
     // THE TOKEN IS SIZED IN SCREEN PIXELS, NOT MAP UNITS — measured, after the
     // first shot drew it two hundred metres across. A fixed map size is invisible
@@ -2645,7 +2768,31 @@ export function mountCockpit(o) {
          d="M0,-10 L2.2,-2.6 L10,0 L2.2,2.6 L0,10 L-2.2,2.6 L-10,0 L-2.2,-2.6 Z"/>` +
       `<title>${esc(token.label)} — standing here</title>`;
     tokenLayer.appendChild(g);
+    rails();
     speech();
+  }
+
+  /**
+   * THE HIT-POINT RAILS, APPENDED LAST OF THE FIGURES.
+   *
+   * Ordering settled by looking at a magnified crop, which is the only way it
+   * could have been: drawn under the token, the human's own portrait sat on top
+   * of their own rail; drawn under the speech layer, all three were behind a
+   * bubble, because in a three-metre room everyone stands inside one plate's
+   * width of everyone else. Nothing this layer paints may cover a number a
+   * player is watching to decide their next act — speech fades on the door's
+   * clock, and hit points do not.
+   */
+  function rails() {
+    if (!tokenLayer) return;
+    tokenLayer.querySelector(".pmc-combatant-layer")?.remove();
+    const bars = drawCombatants();
+    if (!bars) return;
+    const bg = doc.createElementNS(NS, "g");
+    bg.setAttribute("class", "pmc-combatant-layer");
+    bg.setAttribute("pointer-events", "none");
+    bg.innerHTML = bars;
+    tokenLayer.appendChild(bg);
   }
 
   /** The voices ride ABOVE every figure, because a line nobody can read is not a
@@ -2660,7 +2807,17 @@ export function mountCockpit(o) {
     g.setAttribute("class", "pmc-voice-layer");
     g.setAttribute("pointer-events", "none");
     g.innerHTML = voices;
-    tokenLayer.appendChild(g);
+    // ⚑ AND IT GOES UNDER THE HIT-POINT RAILS, which is the one ordering in this
+    // layer decided by what the marks MEAN rather than by what they are. Found
+    // by measuring rather than by looking: all three rails were on screen at
+    // 28x4 pixels and all three were behind a speech plate, because everyone in
+    // a three-metre room stands inside one bubble's width of everyone else.
+    //
+    // Speech is transient and fades on the door's own clock; hit points are the
+    // state a player is watching to decide their next act. A line that covers a
+    // number for five minutes costs more than a number that clips a line.
+    const rails = tokenLayer.querySelector(".pmc-combatant-layer");
+    if (rails) tokenLayer.insertBefore(g, rails); else tokenLayer.appendChild(g);
   }
 
   // ── the rail's feed ───────────────────────────────────────────────────────
@@ -3260,9 +3417,47 @@ export function mountCockpit(o) {
     // edited the box in front of them meant the thing in the box.
     const aimed = state.act?.action === action ? state.act.args : null;
     const whole = { ...(aimed ?? {}), ...args };
+    // ── SPEAKING CLOSES ON ENTER (founder, live: there is "a small lag between
+    // hitting Enter and the panel going away" that reads as "did that send?") ──
+    //
+    // THE CLOSE IS THE CONFIRMATION, and it is cheap because it is honest about
+    // what it confirms: the line LEFT. It does not claim the door took it — that
+    // is a fact from the future, and waiting for it is exactly the pause he
+    // felt. Every other act still waits, because a swing's answer is the throw
+    // and a crossing's is the terms; a spoken line has no answer worth a pause.
+    //
+    // NOTHING IS SWALLOWED AND NOTHING IS LOST. The text is held here before the
+    // panel goes, and a failure re-opens the line with the words still in it and
+    // the door's own defect underneath — so a say that did not land is louder
+    // than one that did, which is the right way round.
+    if (form.hasAttribute("data-chat")) {
+      const said = whole[form.getAttribute("data-chat")] ?? "";
+      state.open = null; state.act = null; state.said = null; formValues = null;
+      paint();
+      sendAct(action, whole).then(() => {
+        if (state.said && state.said.ok === false) reopenChat(action, said);
+      });
+      return;
+    }
     const go = form.querySelector(".pmc-btn.go");
     if (go) { go.disabled = true; go.textContent = "…"; }
     await sendAct(action, whole, form);
+  }
+
+  /**
+   * A SPOKEN LINE THAT DID NOT LAND COMES BACK, with the words still in it.
+   *
+   * The close-on-enter ruling trades the round trip for immediacy, and this is
+   * the half that keeps the trade honest: the reader gets their sentence back
+   * rather than retyping it, and the door's own defect is under it. Called only
+   * on failure, so a line that landed leaves nothing behind.
+   */
+  function reopenChat(action, text) {
+    state.open = action;
+    formValues = null;
+    paint();
+    const box = root.querySelector(".pmc-chat [data-field]");
+    if (box) { box.value = text; box.focus(); box.setSelectionRange?.(text.length, text.length); }
   }
 
   /**
@@ -3348,19 +3543,31 @@ export function mountCockpit(o) {
     paint();
   }
 
+  /**
+   * A KEY THIS SURFACE CONSUMED DOES NOT REACH THE VIEWER'S.
+   *
+   * Both bind `keydown` on the document, and the viewer's Escape clears ITS own
+   * armed state — so one press was putting down the cockpit's panel and the
+   * viewer's selection together, and a reader who pressed Escape to cancel an
+   * aim also lost whatever the map had selected underneath. Stopping the
+   * propagation of a key we acted on is the whole fix; a key we ignore is left
+   * entirely alone, so the viewer keeps every Escape the cockpit had no use for.
+   */
+  const eatKey = (ev) => { ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation?.(); };
+
   function onKey(ev) {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
     const t = ev.target;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) {
-      if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); }
+      if (ev.key === "Escape" && state.open) { eatKey(ev); state.open = null; state.said = null; formValues = null; paint(); }
       return;
     }
     // ESCAPE PUTS DOWN WHATEVER IS UP, innermost first. An armed act is the
     // innermost of the three now: it is the state where the whole map has
     // become a control, so it should be the first thing one press gives back.
-    if (ev.key === "Escape" && state.aiming) { disarm(); return; }
-    if (ev.key === "Escape" && state.tray) { state.tray = false; paint(); return; }
-    if (ev.key === "Escape" && state.open) { state.open = null; state.act = null; state.said = null; formValues = null; paint(); return; }
+    if (ev.key === "Escape" && state.aiming) { eatKey(ev); disarm(); return; }
+    if (ev.key === "Escape" && state.tray) { eatKey(ev); state.tray = false; paint(); return; }
+    if (ev.key === "Escape" && state.open) { eatKey(ev); state.open = null; state.act = null; state.said = null; formValues = null; paint(); return; }
     if (!/^[1-9]$/.test(ev.key)) return;
     const n = Number(ev.key);
     // ⚑ THE NUMBERS FOLLOW THE ROW, not the door's whole list. `barSlots` keys
@@ -3573,14 +3780,14 @@ export function mountCockpit(o) {
     const u = unitsPerPx();
     const near = (at, r) => at && Math.hypot(local.x - at.x, local.y - at.y) <= r;
     const placed = adversaryPlacement(state.answer, gridNow());
-    if (placed && near(placed.at, 20 * u * 1.34)) {
+    if (placed && near(placed.at, ADVERSARY_R * u * 1.34)) {
       // `adversary: true` is what makes the entity reading win over the mark
       // reading on this ground — see onMapClick.
       return { id: placed.adversary.id, label: placed.adversary.label, adversary: true };
     }
     for (const t of looseThings(state.answer)) {
       const at = worldToPx(gridNow(), t.at);
-      if (near(at, 9 * u * 1.9)) return { id: t.id, label: t.label, loose: true };
+      if (near(at, LOOSE_R * u * 1.9)) return { id: t.id, label: t.label, loose: true };
     }
     return null;
   }
@@ -3993,7 +4200,10 @@ export function mountCockpit(o) {
   state.beatSeq = seedBeatSeq(state.encSnap);
   autoSelectOnTurn();
 
+  let dead = false;
   const teardown = () => {
+    if (dead) return;
+    dead = true;
     doc.removeEventListener("keydown", onKey);
     (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
     if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
@@ -4018,8 +4228,17 @@ export function mountCockpit(o) {
     tokenLayer?.remove();
   };
 
+  // ⚑ A TORN-DOWN COCKPIT STAYS TORN DOWN. `update` destroys itself when the
+  // answer says this standpoint is no longer inside portal ground — but the
+  // CALLER still holds the handle, and a later update on it ran `paint()` over
+  // a detached root and re-appended a token layer to the living svg: map
+  // figures with no bar under them, owned by nothing, cleaned up by nobody.
+  //
+  // Guarded here rather than only at the call site, because every caller has
+  // the same hazard and only one of them would have remembered.
   return {
     update(answer) {
+      if (dead) return;
       if (!cockpitShows(answer)) { state.answer = answer; teardown(); return; }
       // The feed is derived from the OLD snapshot against the new answer before
       // the answer is adopted, for the same reason the poll does it in that
