@@ -712,8 +712,14 @@ test("an armed act's card stands down, like an open panel's", () => {
 });
 
 test("the three name-keyed rulings live beside the icons, not in the arithmetic", () => {
-  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit"\];/,
-    "the ambient seats that hold a row — his three, plus the crossing act added on the conductor's ruling");
+  // ⚑ SIX NOW. His original three, the crossing act on the conductor's ruling,
+  // and GIVE/TAKE on his own word while live-testing: "give and take need to be
+  // main bar action buttons due to the item you can pick up to help with the
+  // fight." The fold keys on the door's CHANNEL, which correctly calls those two
+  // ambient — they are afforded everywhere. What the channel cannot see is that
+  // in this room they are the fight's own mechanic, so the ruling names them.
+  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit", "give", "take"\];/,
+    "the ambient seats that hold a row, by ruling rather than by channel");
   assert.match(MOUNT, /const DUNGEON_HIDE = \["leave-mark", "note-to-self"\];/, "the two seats hidden in the dungeon");
   assert.match(MOUNT, /const PHASE_GATE = \{ loot: "spent" \};/, "and the one act whose precondition is a phase");
   // hidden ONLY inside portal ground — the door's own word for being in the
