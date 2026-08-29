@@ -509,13 +509,32 @@ export function mountCockpit(o) {
   throwLayer.setAttribute("data-pmc-throws", "");
   o.host.appendChild(throwLayer);
 
+  // THE LAYER FOLLOWS THE LIVING SVG (found live, 2026-08-28 rehearsal night).
+  // The viewer REBUILDS its svg when the view changes — entering a portal, a
+  // re-render — so a layer appended once at mount dies quietly with the svg it
+  // was appended to, and every token, ring and dropped thing vanishes with it
+  // while the bar (body-hosted) stands as if nothing happened. That is exactly
+  // what the founder saw: a working bar over a map with nothing on it. The
+  // layer is therefore re-acquired at draw time whenever it is no longer
+  // CONNECTED, through `o.svgOf` (the caller's own current-svg lookup) with
+  // the mount-time `o.svg` as the fallback for harnesses that pass a fixture.
   let tokenLayer = null;
-  if (o.svg) {
+  function ensureTokenLayer() {
+    if (tokenLayer?.isConnected) return tokenLayer;
+    const svg = o.svgOf?.() ?? o.svg;
+    if (!svg || !svg.isConnected) return (tokenLayer = null);
     tokenLayer = doc.createElementNS(NS, "g");
     tokenLayer.setAttribute("id", "pmc-token-layer");
     tokenLayer.setAttribute("pointer-events", "none");
-    o.svg.appendChild(tokenLayer);
+    svg.appendChild(tokenLayer);
+    return tokenLayer;
   }
+  ensureTokenLayer();
+  // Every geometry read goes through the LIVING svg for the same reason: a
+  // detached svg still answers getBoundingClientRect (with zeros) and viewBox
+  // (with stale numbers), so a fence or a token sized off the mount-time
+  // reference would be measured against a ghost.
+  const liveSvg = () => (tokenLayer?.isConnected ? tokenLayer.ownerSVGElement : null) ?? o.svgOf?.() ?? o.svg;
 
   // ── the roster ────────────────────────────────────────────────────────────
   function faces() {
@@ -726,7 +745,7 @@ export function mountCockpit(o) {
     // pane is the ground these verbs act ON, and the cockpit already holds its
     // svg; the row centers over that pane and never leaves it. The 50%-of-
     // viewport fallback is the harness's (no svg mounted).
-    const paint = o.svg?.getBoundingClientRect?.();
+    const paint = liveSvg()?.getBoundingClientRect?.();
     if (paint && paint.width > 300) {
       bar.style.left = `${paint.left + paint.width / 2}px`;
       bar.style.maxWidth = `${Math.max(280, paint.width - 20)}px`;
@@ -776,7 +795,7 @@ export function mountCockpit(o) {
       // left side slid the card onto the site rail (founder-caught 2026-08-28,
       // the roots card over CONVERSATIONS/sign-out). The painting's own rect is
       // the card's world; the viewport clamp stays only as the outer bound.
-      const paint = o.svg?.getBoundingClientRect?.();
+      const paint = liveSvg()?.getBoundingClientRect?.();
       const lo = Math.max(12, (paint?.left ?? 0) + 8);
       const hi = Math.max(lo, Math.min(w - box.width - 12, (paint ? paint.right : w) - box.width - 8));
       el.style.left = `${Math.min(Math.max(lo, want), hi)}px`;
@@ -1100,7 +1119,7 @@ export function mountCockpit(o) {
    *  (the viewer's own words), so its width against the element's width is the
    *  whole of the zoom — no viewer internal is reached for. */
   function unitsPerPx() {
-    const svg = o.svg;
+    const svg = liveSvg();
     if (!svg) return 1;
     const vb = (svg.getAttribute("viewBox") ?? "").split(/[\s,]+/).map(Number);
     const w = svg.getBoundingClientRect?.().width || svg.clientWidth || 0;
@@ -1251,7 +1270,7 @@ export function mountCockpit(o) {
   }
 
   function drawToken() {
-    if (!tokenLayer) return;
+    if (!ensureTokenLayer()) return;
     tokenLayer.textContent = "";
     // WHAT STANDS AGAINST YOU DRAWS FIRST, under everything else on the floor.
     // It is the biggest thing in the room and the one people walk over to; a
@@ -1353,7 +1372,7 @@ export function mountCockpit(o) {
       const box = ctx.getBoundingClientRect();
       const w = doc.defaultView?.innerWidth ?? 0;
       const hgt = doc.defaultView?.innerHeight ?? 0;
-      const paint = o.svg?.getBoundingClientRect?.();
+      const paint = liveSvg()?.getBoundingClientRect?.();
       const lo = Math.max(12, (paint?.left ?? 0) + 8);
       const hi = Math.max(lo, Math.min(w - box.width - 12, (paint ? paint.right : w) - box.width - 8));
       ctx.style.left = `${Math.min(Math.max(lo, state.context.at.x + 12), hi)}px`;

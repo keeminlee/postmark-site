@@ -223,7 +223,7 @@
       let handle = null;
       const mount = () => {
         handle = mountCockpit({
-          document, host: document.body, svg: mapSvg(), answer, me, grid,
+          document, host: document.body, svg: mapSvg(), svgOf: mapSvg, answer, me, grid,
           dispatch, readTerms, refresh: door, readVoices,
         });
       };

@@ -110,8 +110,12 @@ test("the row is fenced to the painting, not the viewport", () => {
   // Seen live the moment the dock landed: a viewport-centered row ran its left
   // end under the nav column — ACT AS faces on top of the nav's own text. The
   // row centers over the map pane the cockpit already holds, and never leaves it.
-  assert.match(mount, /const paint = o\.svg\?\.getBoundingClientRect\?\.\(\);/,
-    "placeBar measures the painting");
+  // The measured reference moved from `o.svg` (mount-time) to `liveSvg()`
+  // (2026-08-28, same night): the viewer rebuilds its svg on a view change, and
+  // a detached svg answers getBoundingClientRect with zeros — so the fence was
+  // measuring a ghost the moment the view changed. Same fence, living ruler.
+  assert.match(mount, /const paint = liveSvg\(\)\?\.getBoundingClientRect\?\.\(\);/,
+    "placeBar measures the living painting");
   assert.match(mount, /bar\.style\.left = `\$\{paint\.left \+ paint\.width \/ 2\}px`;/,
     "and centers the row over it rather than over the viewport");
 });
