@@ -114,6 +114,30 @@
       return r.json();
     }
 
+    /**
+     * WHAT HAS JUST BEEN SAID, AND WHERE. The other half of the chat ruling
+     * (2026-08-28) — a line you type should appear beside whoever said it.
+     *
+     * A SECOND DOOR, because the apex answer carries no speech at all. Speech in
+     * this world is a sound, and its record lives at the conversations door,
+     * which is KEYLESS on purpose — "speech is public the way street conversation
+     * is" (office server.mjs). Each voice carries the coordinates the speaker
+     * stood at when they spoke it, which is what lets a line be drawn on the map
+     * rather than listed in a panel.
+     *
+     * The site's own conversations page has polled this same door since it
+     * shipped; this is the second reader of one source, not a new surface.
+     *
+     * Answers null on any failure, and the map simply draws no speech — the same
+     * degradation as every other read on this page.
+     */
+    async function readVoices() {
+      try {
+        const r = await fetch(OFFICE + "/world/conversations", { headers: { accept: "application/json" } });
+        return r.ok ? r.json() : null;
+      } catch { return null; }
+    }
+
     async function dispatch(envelope) {
       const k = bearer();
       if (!k) return { ok: false, status: 401, body: { defect: "performing needs a key", hint: "sign in to act — the read half of this door is keyless, an act is not" } };
@@ -186,7 +210,7 @@
       const mount = () => {
         handle = mountCockpit({
           document, host: document.body, svg: mapSvg(), answer, me, grid,
-          dispatch, readTerms, refresh: door,
+          dispatch, readTerms, refresh: door, readVoices,
         });
       };
       // Wait for a drawn overlay before mounting, for the reason the arrival

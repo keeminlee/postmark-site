@@ -712,6 +712,131 @@ export function looseThings(answer) {
     }));
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// WHAT THE FORM CAN FILL IN FOR YOU
+//
+// Founder-ruled 2026-08-28, out of the live rehearsal: "everything I can do via
+// the ui buttons, I have to type in like filling an mcp form." The ruling has two
+// halves — a chat-shaped act should feel like chat (below), and a field whose
+// value is implied by where you are standing should arrive already filled.
+//
+// NOTHING HERE KNOWS A VERB'S NAME, and that constraint is the file's oldest one:
+// the bar renders whatever the door listed, so a table keyed on the fight's act
+// names would be the site re-deciding what an act means. Everything below is
+// keyed on the SHAPE of the card the door sent and on values the ANSWER named.
+// (The falsifier that reads this source for those names caught the first draft of
+// this very comment, which is the check doing exactly its job.)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * What stands against this standpoint, if the door named one.
+ *
+ * CONTRACT: `answer.encounter_detail.adversary = { id, hp, of, body }` — the
+ * office's `publicState` block (arena.mjs). It carries NO position, deliberately
+ * or not; `adversaryPlacement` below joins it to `nearby` for that, which is the
+ * only route the answer offers.
+ */
+export function adversaryOf(answer) {
+  const a = answer?.encounter_detail?.adversary;
+  if (!a || typeof a !== "object") return null;
+  const id = typeof a.id === "string" && a.id ? a.id : null;
+  if (!id) return null;
+  return {
+    id,
+    hp: Number.isFinite(a.hp) ? a.hp : null,
+    of: Number.isFinite(a.of) ? a.of : null,
+    body: typeof a.body === "string" ? a.body : null,
+    // named the way every id in this world is read — the leaf, deslugged
+    label: id.split("/").pop().replace(/-/g, " "),
+  };
+}
+
+/**
+ * Every value the ANSWER names that an act could plausibly be aimed at, in the
+ * order a reader would reach for them.
+ *
+ * All three sources are the door's own words: what stands against you, who is
+ * down beside you, and what is lying on the floor. Nothing is invented and
+ * nothing is remembered between reads — walk away and the list empties itself.
+ */
+export function actCandidates(answer) {
+  const out = [];
+  const seen = new Set();
+  const add = (value, label, why) => {
+    if (!value || seen.has(value)) return;
+    seen.add(value);
+    out.push({ value, label: label || value, why });
+  };
+  const adv = adversaryOf(answer);
+  if (adv) add(adv.id, adv.label, "what stands against you here");
+  for (const a of encounterOf(answer)?.order ?? []) {
+    if (a.down && !a.you && a.id) add(a.id, a.label, "down — an ally can lift them");
+  }
+  for (const t of looseThings(answer)) add(t.id, t.label, "on the ground");
+  return out;
+}
+
+/**
+ * The one field of this act that holds PROSE, or null.
+ *
+ * Read off the door's own stated limit rather than off a field name: a field the
+ * door says may hold 150 characters or more is one a reader writes a sentence
+ * into (`wantsTextarea`, and MULTILINE_AT's reasoning above). That is what makes
+ * this verb-blind — the act that speaks is whichever act the door described as
+ * taking a sentence.
+ */
+export function chatField(card) {
+  return (card?.fields ?? []).find((f) => wantsTextarea(f)) ?? null;
+}
+
+/**
+ * Is this act CHAT-SHAPED — one line of prose and nothing else a reader must
+ * supply?
+ *
+ * The test is the card's, not a name: it holds a prose field, and every other
+ * field on it is optional. So the whole act is "type the sentence and send",
+ * which is what a chat line is. An act that also demands a recipient or a slug
+ * is a form, and stays one — the ruling was about the SAY act feeling like
+ * typing into a chat, not about abolishing forms.
+ */
+export function chatShaped(card) {
+  const prose = chatField(card);
+  if (!prose) return false;
+  return (card?.fields ?? []).every((f) => f === prose || !f.required);
+}
+
+/**
+ * What arrives already filled in, as `{ fieldName: value }`.
+ *
+ * DELIBERATELY NARROW, and the narrowness is the honesty. It fills a field only
+ * when there is exactly ONE slot to fill and exactly ONE value the answer names
+ * for it — because then there is no choice being made, and the site is not
+ * quietly deciding what an act is aimed at. Two candidates, or two open fields,
+ * and it fills nothing and offers the candidates as suggestions instead
+ * (`actCandidates`, rendered as a datalist), which puts the choice back where it
+ * belongs.
+ *
+ * A PROSE FIELD IS NEVER PREFILLED: what you say is yours to write, and a
+ * sentence the site put in your mouth is the one thing this surface must not do.
+ *
+ * NOTE ON THE ACTS THAT NEED NOTHING. Several of the fight's acts already take
+ * zero typing without any help from here, because the door made every one of
+ * their fields optional and finds its own target — so their form opens with
+ * nothing to fill and plain ENTER sends it. That is the door's doing, not this
+ * function's, and it is why this can afford to be so narrow.
+ */
+export function prefillFor(card, answer) {
+  const out = {};
+  if (!card) return out;
+  const candidates = actCandidates(answer);
+  if (candidates.length !== 1) return out;
+  const open = card.fields.filter((f) =>
+    !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
+  if (open.length !== 1) return out;
+  out[open[0].name] = candidates[0].value;
+  return out;
+}
+
 // ── the map transform ───────────────────────────────────────────────────────
 
 /**
@@ -740,6 +865,68 @@ export function worldToPx(grid, m) {
   return { x: grid.originPx.x + m.x / grid.mPerPx, y: grid.originPx.y + m.y / grid.mPerPx };
 }
 
+/** The same line, read backwards — atlas units to world metres. Needed the
+ *  moment a CLICK on the painting has to become somewhere to walk to: the
+ *  pointer arrives in the map's own units and the door only speaks metres.
+ *  Written as the algebraic inverse of the line above rather than as a second
+ *  formula, so the two cannot drift apart. */
+export function pxToWorld(grid, px) {
+  if (!grid || !px || !isFinite(px.x) || !isFinite(px.y)) return null;
+  return { x: (px.x - grid.originPx.x) * grid.mPerPx, y: (px.y - grid.originPx.y) * grid.mPerPx };
+}
+
+// ── what was said, and where ────────────────────────────────────────────────
+
+/**
+ * Recent speech, flattened out of the conversations door.
+ *
+ * WHERE THIS COMES FROM, and why it is a second door rather than the apex.
+ * The apex answer carries no speech at all — not in `happened` (movement,
+ * crossings, notices), not in `present` (positions), not in the encounter. That
+ * is not an oversight to work around: speech in this world is a SOUND, "radiated
+ * at the speaker's standpoint, heard by earshot, gone by its own law" (the say
+ * class's own blurb), and the record of it lives where sounds live.
+ *
+ * `GET /api/world/conversations` is that record, and it is keyless — "speech is
+ * public the way street conversation is" (office server.mjs). Each voice carries
+ * its OWN x/y: where the speaker stood when they said it, which is exactly what
+ * a line drawn on the map wants, and is not the same as where they are standing
+ * now. A line stays where it was spoken.
+ *
+ * The door states its own fade (`fade_minutes`), so the window is the world's
+ * and not a number picked here — the same reason nothing else in this file holds
+ * a constant the door already states.
+ */
+export function recentVoices(body, opts = {}) {
+  const threads = Array.isArray(body?.live) ? body.live : [];
+  const now = Number.isFinite(opts.now) ? opts.now : Date.now();
+  const fadeMin = Number.isFinite(body?.fade_minutes) ? body.fade_minutes : 5;
+  const window = fadeMin * 60_000;
+  const out = [];
+  for (const t of threads) {
+    for (const v of Array.isArray(t?.voices) ? t.voices : []) {
+      const at = Number.isFinite(v?.at_ms) ? v.at_ms : Date.parse(v?.at ?? "");
+      if (!Number.isFinite(at)) continue;
+      const age = now - at;
+      if (age < 0 || age > window) continue;
+      if (!Number.isFinite(v.x) || !Number.isFinite(v.y)) continue;
+      const said = typeof v.said === "string" ? v.said : "";
+      if (!said) continue;
+      out.push({
+        handle: typeof v.handle === "string" ? v.handle : "",
+        said,
+        at: { x: v.x, y: v.y },
+        ageMs: age,
+        // 1 at the moment it was said, 0 as it leaves — the door's own fade,
+        // so the line goes quiet exactly when the world says it has.
+        freshness: Math.max(0, Math.min(1, 1 - age / window)),
+      });
+    }
+  }
+  // newest last, so a later line paints over an earlier one at the same spot
+  return out.sort((a, b) => b.ageMs - a.ageMs);
+}
+
 // ── the human's own token ───────────────────────────────────────────────────
 
 /**
@@ -764,6 +951,39 @@ export function tokenFor(actor) {
   if (known) return { label: known.label, src: known.src, from: "the site's registry" };
   const label = String(actor.label ?? actor.id ?? "?");
   return { label, src: null, monogram: label.slice(0, 1).toUpperCase(), from: "monogram" };
+}
+
+/**
+ * Where the adversary stands, and whether it can be drawn at all.
+ *
+ * THE ANSWER CARRIES THE FIGHT AND THE MAP IN TWO SEPARATE PLACES, and joining
+ * them is the whole of this function. `encounter_detail.adversary` names it and
+ * states its hp — and carries no coordinates at all; `nearby[]` carries every
+ * mark's `at` — and says nothing about which of them is the adversary. Neither
+ * half is enough alone, and the office does not join them for us. The id is the
+ * join key.
+ *
+ * WHY THERE IS NO FALLBACK COORDINATE HERE. The mark's `at` is a fact of the
+ * fold, and the fold is what `nearby` is read from — so a constant written into
+ * this file would be the same number in a second place, and the day the cake is
+ * moved it would go on drawing an ember ring over empty floor while the real one
+ * stood elsewhere. A thing the answer cannot place is not drawn, which is the
+ * same rule the human's own token already follows.
+ *
+ * A caveat the drawing cannot fix: `nearby` is a FIELD OF VIEW, budgeted and
+ * ranked, so a reader standing far enough away gets no entry and therefore no
+ * ring. That is the door being honest about what can be seen from where you are,
+ * and inside the room it is standing in it is never the case.
+ */
+export function adversaryPlacement(answer, grid) {
+  const adv = adversaryOf(answer);
+  if (!adv) return null;
+  const nearby = Array.isArray(answer?.nearby) ? answer.nearby : [];
+  const seen = nearby.find((m) => m?.id === adv.id && m.at && Number.isFinite(m.at.x) && Number.isFinite(m.at.y));
+  if (!seen) return null;
+  const at = worldToPx(grid, { x: seen.at.x, y: seen.at.y });
+  if (!at) return null;
+  return { at, adversary: adv };
 }
 
 /**

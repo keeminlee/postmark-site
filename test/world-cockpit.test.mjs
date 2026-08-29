@@ -27,6 +27,8 @@ import {
   gridFrom, ownParcelIn, portalOf, readBounce, statedLimit, tokenFor, tokenPlacement,
   termsFromRead, termsRows, wantsTextarea, worldToPx,
   blockedReason, encounterOf, looseThings, rollsFrom, spaceOf, yourTurnRow,
+  actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
+  pxToWorld, recentVoices,
 } from "../src/lib/world-cockpit.mjs";
 import { COCKPIT_CSS } from "../src/lib/world-cockpit-mount.mjs";
 
@@ -722,3 +724,221 @@ test("cardOf refuses nothing quietly", () => {
   assert.equal(dialLine(null), "");
 });
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WHAT THE FORM FILLS IN FOR YOU, and what it refuses to (2026-08-28)
+//
+// THE LAW, the founder's words at the live rehearsal: "everything I can do via
+// the ui buttons, I have to type in like filling an mcp form."
+//
+// The two halves pinned here are the arithmetic ones: which acts are chat-shaped
+// (read off the card, never off a name) and what may be prefilled (only where
+// there is exactly one slot and exactly one value, so no choice is being made).
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** A card the way cardOf builds one, from an entry the door would send. */
+const cardFrom = (fields) => cardOf({ action: "an-act", fields });
+
+/** The prose limit the world's own smallest stated one sits at — a field the
+ *  door says may hold this much is one a reader writes a sentence into. */
+const PROSE = { type: "string", description: "what you say, at most 500 characters" };
+const SHORT = { type: "string", description: "a thing's mark id, <by>/<slug>" };
+
+test("chat-shape is read off the card's fields, never off the act's name", () => {
+  // one prose field, nothing else required → a chat line
+  assert.equal(chatShaped(cardFrom({ text: PROSE })), true);
+  assert.equal(chatField(cardFrom({ text: PROSE })).name, "text");
+  // a prose field beside an OPTIONAL one is still chat — the optional one is
+  // not something the reader must answer before speaking
+  assert.equal(chatShaped(cardFrom({
+    text: PROSE, since: { type: "number", description: "the latest stamp from your previous reply" },
+  })), true);
+  // a prose field beside a REQUIRED one is a form: an act that also demands a
+  // recipient is not "type the sentence and send"
+  assert.equal(chatShaped(cardFrom({
+    words: PROSE, to: { ...SHORT, required: true },
+  })), false);
+  // and an act with no prose at all is never a chat line
+  assert.equal(chatShaped(cardFrom({ thing: SHORT })), false);
+  assert.equal(chatField(cardFrom({ thing: SHORT })), null);
+  assert.equal(chatShaped(null), false);
+});
+
+test("the adversary is read from the door's own detail block, or not at all", () => {
+  assert.equal(adversaryOf({}), null);
+  assert.equal(adversaryOf({ encounter_detail: { adversary: null } }), null);
+  // an entry with no id names nothing, whatever else it carries
+  assert.equal(adversaryOf({ encounter_detail: { adversary: { hp: 60, of: 60 } } }), null);
+  const a = adversaryOf({ encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60, body: "Nine tiers." } } });
+  assert.equal(a.id, "the-town/the-unlit-cake");
+  assert.equal(a.hp, 41);
+  assert.equal(a.of, 60);
+  // named the way every id in this world is read — the leaf, deslugged
+  assert.equal(a.label, "the unlit cake");
+});
+
+test("the candidates are only what the answer itself named", () => {
+  assert.deepEqual(actCandidates({}), []);
+  const answer = {
+    encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60 } },
+    encounter: {
+      id: "g", round: 3, turn: "wright",
+      order: [
+        { id: "wright", kind: "resident", label: "wright", you: true },
+        { id: "vermillion", kind: "resident", label: "vermillion", down: true },
+      ],
+    },
+    nearby: [{ id: "vermillion/the-long-knife", at: { x: 1, y: 2 }, loose: true, label: "the long knife" }],
+  };
+  assert.deepEqual(actCandidates(answer).map((c) => c.value),
+    ["the-town/the-unlit-cake", "vermillion", "vermillion/the-long-knife"]);
+  // YOURSELF IS NOT A CANDIDATE for the down: you cannot be the ally who lifts you
+  const onlyYouDown = { ...answer, encounter: { ...answer.encounter, order: [{ id: "wright", label: "wright", down: true, you: true }] } };
+  assert.ok(!actCandidates(onlyYouDown).some((c) => c.value === "wright"));
+});
+
+test("a prefill happens only where there is no choice to make", () => {
+  const oneCandidate = { encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60 } } };
+
+  // one open slot, one named value: nothing is being chosen, so it is filled
+  assert.deepEqual(prefillFor(cardFrom({ object: SHORT }), oneCandidate),
+    { object: "the-town/the-unlit-cake" });
+
+  // TWO open slots and one value: the site would be choosing WHICH, so it fills
+  // neither and the datalist offers the value to both
+  assert.deepEqual(prefillFor(cardFrom({ object: SHORT, other: SHORT }), oneCandidate), {});
+
+  // TWO values and one slot: the site would be choosing WHAT — same refusal
+  const twoCandidates = {
+    ...oneCandidate,
+    nearby: [{ id: "vermillion/the-long-knife", at: { x: 1, y: 2 }, loose: true }],
+  };
+  assert.deepEqual(prefillFor(cardFrom({ object: SHORT }), twoCandidates), {});
+
+  // A PROSE FIELD IS NEVER PREFILLED. What you say is yours to write, and a
+  // sentence the site put in your mouth is the one thing this surface must not
+  // do — so a card whose only open field is prose is filled with nothing.
+  assert.deepEqual(prefillFor(cardFrom({ text: PROSE }), oneCandidate), {});
+
+  // nor are the fields the door already answered for itself
+  assert.deepEqual(prefillFor(cardFrom({ n: { type: "number", description: "how many" } }), oneCandidate), {});
+  assert.deepEqual(prefillFor(cardFrom({ k: { type: "string", enum: ["a", "b"], description: "which" } }), oneCandidate), {});
+  assert.deepEqual(prefillFor(null, oneCandidate), {});
+});
+
+test("the adversary is placed by joining the fight to the map, and not otherwise", () => {
+  // THE ANSWER CARRIES THE TWO HALVES SEPARATELY: encounter_detail names the
+  // adversary and states its hp and carries NO coordinates; nearby carries every
+  // mark's `at` and says nothing about which is the adversary. The id is the join.
+  const grid = gridFrom({
+    _grid: { scale: "5 m per atlas px (RULED 2026-07-17)", origin: "Ferry's crossing — center of the Town Centre, atlas (485,760)" },
+  });
+  const detail = { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60 } };
+
+  // named but not in view: NOT DRAWN, rather than drawn at a constant. A number
+  // written into the site would be the fold's `at` in a second place, still
+  // painting an ember ring over empty floor the day the cake is moved.
+  assert.equal(adversaryPlacement({ encounter_detail: detail, nearby: [] }, grid), null);
+  // in view but unnamed by the fight: also not drawn — it is just a mark then
+  assert.equal(adversaryPlacement({ nearby: [{ id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 } }] }, grid), null);
+
+  // THE JOIN IS THE WHOLE FUNCTION, so it is proved against a view that holds
+  // OTHER marks: a placement that took the first thing in `nearby` would paint
+  // the adversary's ember ring and its hp bar over a dropped lighter. Without
+  // this case the two above pass against no join at all — measured.
+  assert.equal(adversaryPlacement({
+    encounter_detail: detail,
+    nearby: [{ id: "the-town/the-good-lighter", at: { x: 1095.5, y: -784 } }],
+  }, grid), null, "a view with no cake in it draws no cake, however much else is in it");
+  const amongOthers = adversaryPlacement({
+    encounter_detail: detail,
+    nearby: [
+      { id: "the-town/the-good-lighter", at: { x: 1095.5, y: -784 } },
+      { id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 } },
+    ],
+  }, grid);
+  assert.deepEqual(amongOthers.at, worldToPx(grid, { x: 1097, y: -783.5 }),
+    "and it finds the cake by id rather than by position in the list");
+
+  const placed = adversaryPlacement({
+    encounter_detail: detail,
+    nearby: [{ id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 } }],
+  }, grid);
+  assert.deepEqual(placed.at, worldToPx(grid, { x: 1097, y: -783.5 }));
+  assert.equal(placed.adversary.hp, 41);
+  assert.equal(placed.adversary.of, 60);
+});
+
+// ── what was said, and where (2026-08-28, the chat ruling's other half) ──
+//
+// Speech is not in the apex answer at all — not in `happened`, not in `present`,
+// not in the encounter. That is not a gap to route around: speech in this world
+// is a SOUND ("radiated at the speaker's standpoint, heard by earshot, gone by
+// its own law", the say class's own blurb), and the record of it lives at the
+// conversations door, keyless, because "speech is public the way street
+// conversation is" (office server.mjs).
+
+/** The conversations door's shape, as the office emits it (voices.mjs threadOf). */
+const voicesBody = (now, voices, fade = 5) => ({
+  now, earshot_m: 60, fade_minutes: fade, close_minutes: 30, pinned: [], closed: [],
+  live: [{ id: "t1", live: true, place: "the candle vault", at: { x: 1083, y: -792 }, voices }],
+});
+
+test("a voice is placed where it was SPOKEN, and fades on the door's own clock", () => {
+  const now = 1_800_000_000_000;
+  const body = voicesBody(now, [
+    { handle: "wright", said: "the candles are lit", at_ms: now - 30_000, x: 1090, y: -785 },
+    { handle: "vermillion", said: "mind the ninth tier", at_ms: now - 240_000, x: 1094, y: -783 },
+  ]);
+  const got = recentVoices(body, { now });
+  assert.equal(got.length, 2);
+  // newest LAST, so a later line paints over an earlier one at the same spot
+  assert.deepEqual(got.map((v) => v.handle), ["vermillion", "wright"]);
+  // each carries the coordinates the speaker stood at — NOT the thread's
+  assert.deepEqual(got[1].at, { x: 1090, y: -785 });
+  // freshness runs 1 at the moment it was said to 0 as it leaves
+  assert.ok(got[1].freshness > got[0].freshness);
+  assert.ok(got[1].freshness > 0.85 && got[1].freshness < 1);
+});
+
+test("the fade window is the door's number, never one written here", () => {
+  const now = 1_800_000_000_000;
+  const fourMinutesOld = [{ handle: "wright", said: "still here", at_ms: now - 240_000, x: 1, y: 2 }];
+  // the door says five minutes: still audible
+  assert.equal(recentVoices(voicesBody(now, fourMinutesOld, 5), { now }).length, 1);
+  // the door says three: gone, with no edit to this file
+  assert.equal(recentVoices(voicesBody(now, fourMinutesOld, 3), { now }).length, 0);
+});
+
+test("a voice with nothing to draw is dropped rather than drawn wrong", () => {
+  const now = 1_800_000_000_000;
+  const fresh = (extra) => ({ handle: "wright", said: "hello", at_ms: now - 1000, x: 1, y: 2, ...extra });
+  assert.equal(recentVoices(voicesBody(now, [fresh()]), { now }).length, 1);
+  // no coordinates: nothing on the map can be said about it
+  assert.equal(recentVoices(voicesBody(now, [fresh({ x: undefined })]), { now }).length, 0);
+  assert.equal(recentVoices(voicesBody(now, [fresh({ y: null })]), { now }).length, 0);
+  // no words, no stamp: not a line
+  assert.equal(recentVoices(voicesBody(now, [fresh({ said: "" })]), { now }).length, 0);
+  assert.equal(recentVoices(voicesBody(now, [fresh({ at_ms: undefined, at: undefined })]), { now }).length, 0);
+  // and a body the door never sent draws nothing rather than throwing
+  assert.deepEqual(recentVoices(null), []);
+  assert.deepEqual(recentVoices({}), []);
+  // CLOSED threads are not live speech — only `live` is read
+  assert.deepEqual(recentVoices({ live: [], closed: [{ voices: [fresh()] }], fade_minutes: 5 }, { now }), []);
+});
+
+test("pxToWorld is the algebraic inverse of worldToPx, not a second formula", () => {
+  // A CLICK ARRIVES IN THE MAP'S UNITS and the door only speaks metres, so the
+  // walk seam needs the line read backwards. Round-tripped rather than asserted
+  // against copied numbers: the point is that the two cannot drift apart.
+  const grid = gridFrom({
+    _grid: { scale: "5 m per atlas px (RULED 2026-07-17)", origin: "Ferry's crossing — center of the Town Centre, atlas (485,760)" },
+  });
+  for (const m of [{ x: 0, y: 0 }, { x: 1097, y: -783.5 }, { x: -95120, y: -95120 }]) {
+    const back = pxToWorld(grid, worldToPx(grid, m));
+    assert.ok(Math.abs(back.x - m.x) < 1e-9 && Math.abs(back.y - m.y) < 1e-9,
+      `${JSON.stringify(m)} must survive the round trip`);
+  }
+  assert.equal(pxToWorld(null, { x: 1, y: 1 }), null);
+  assert.equal(pxToWorld(grid, { x: NaN, y: 1 }), null);
+});

@@ -14,6 +14,8 @@ import {
   portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
+  actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
+  pxToWorld, recentVoices,
 } from "./world-cockpit.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
 // — so the bar cannot be drawn for one standpoint and act from another.
@@ -217,6 +219,61 @@ export const COCKPIT_CSS = `
 .pmc-said .hint { display: block; color: var(--pmc-dim); font-size: .92em; margin-top: .3em; }
 .pmc-terms { margin: .6em 0 0; padding: .5em .7em; border-left: 2px solid var(--pmc-gold-dim); font-size: .72rem; line-height: 1.55; color: var(--pmc-dim); }
 
+/* ── the chat line ──
+   RULED 2026-08-28: "everything I can do via the ui buttons, I have to type in
+   like filling an mcp form." An act whose whole argument is one sentence should
+   read as typing a sentence, so a chat-shaped act (chatShaped, in the arithmetic
+   file — a prose field and nothing else required) opens THIS instead of a form.
+   One line, docked over the bar, ENTER sends and ESC closes.
+
+   It is not a second dispatch path: what leaves here goes out through the same
+   dispatchEnvelope the form uses, carrying the same act name and the same field
+   name off the same card. Only the chrome is different, which is the whole of
+   the ruling — the grammar was never the complaint. */
+.pmc-chat {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
+  display: flex; align-items: center; gap: .6em;
+  width: 34em; max-width: calc(100vw - 24px); padding: .5em .7em;
+}
+.pmc-chat .who {
+  flex: 0 0 auto; color: var(--pmc-gold);
+  font: .62rem/1 ui-monospace, Consolas, monospace; letter-spacing: .14em;
+}
+.pmc-chat input {
+  flex: 1 1 auto; min-width: 0; margin: 0; padding: .45em .7em;
+  font: .92rem/1.4 Georgia, serif; color: var(--pmc-ink);
+  background: rgba(0,0,0,.35); border: 1px solid rgba(154,161,173,.35); border-radius: 999px;
+}
+.pmc-chat input::placeholder { color: rgba(154,161,173,.55); font-style: italic; }
+.pmc-chat input:focus { outline: none; border-color: var(--pmc-gold); }
+/* the keys that work, said quietly and always — a line with no visible send
+   button has to tell a reader how to send it */
+.pmc-chat .keys { flex: 0 0 auto; color: var(--pmc-dim); font: .58rem/1.5 ui-monospace, Consolas, monospace; }
+.pmc-chat .pmc-said { margin: 0; }
+
+/* ── the thing you clicked ──
+   RULED 2026-08-28: clicking a thing on the map offers its context acts with
+   the object already in the slot. It opens AT the thing rather than at the bar,
+   because it is about that thing and the hand is already there. */
+.pmc-ctx {
+  position: fixed; z-index: 5; min-width: 11em; max-width: 20em;
+  padding: .5em .6em; pointer-events: auto;
+}
+.pmc-ctx .what {
+  display: block; color: var(--pmc-gold); font-size: .82rem;
+  padding: 0 .3em .35em; border-bottom: 1px solid var(--pmc-line); margin-bottom: .35em;
+}
+.pmc-ctx .what small { display: block; color: var(--pmc-dim); font: .6rem/1.5 ui-monospace, Consolas, monospace; }
+.pmc-ctx button {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  padding: .38em .5em; border: 1px solid transparent; border-radius: 5px;
+  background: transparent; color: var(--pmc-ink); font: .8rem/1.3 Georgia, serif;
+}
+.pmc-ctx button:hover, .pmc-ctx button:focus-visible {
+  border-color: var(--pmc-gold); background: rgba(217,168,96,.14); color: var(--pmc-gold); outline: none;
+}
+.pmc-ctx .none { color: var(--pmc-dim); font-size: .72rem; padding: .3em .5em; line-height: 1.5; }
+
 /* ══ THE TWO SPACES ══
    The founder ruled the dungeon as two rooms that should FEEL different: an
    antechamber — free-roam, social, where a weapon is picked up and spectators
@@ -357,8 +414,29 @@ export const COCKPIT_CSS = `
   .pmc-die.is-crit .face { animation: none; }
 }
 
-/* ── the standpoint plate ── */
-.pmc-here { position: absolute; left: 14px; top: 14px; max-width: 24em; padding: .55em .8em; }
+/* ── the standpoint plate, ON HOVER, OVER THE DOCK ──
+   RULED 2026-08-28, at the live rehearsal: "let's make the card appear ON HOVER
+   when you hover over the act as bottom bar."
+
+   IT SUPERSEDES an always-on card pinned at left 14px / top 14px, kept named here
+   because a reversal that hides what it reversed reads as somebody's regression.
+   That card was the second element caught sitting on the site's own left rail —
+   the first was the bar, fenced at placeBar; the fix for this one was the same
+   fence, and it held for parcels and failed in the open world, where the map svg
+   is full-bleed and its rect's left edge IS the viewport's. There was no third
+   fence worth writing. Anchored to the dock the question does not arise: the
+   plate hangs off a box that is already inside the painting, exactly as the
+   faces' own name boxes do, and no page furniture can be underneath it.
+
+   Its clearance is measured against those name boxes rather than guessed: a face
+   box sits at 100% + .6em and stands about two ems tall, so the plate starts
+   above the tallest of them and hovering a FACE shows both without a collision. */
+.pmc-here {
+  position: absolute; left: 0; bottom: calc(100% + 3.2em);
+  width: max-content; max-width: min(30em, 60vw); padding: .55em .8em;
+  opacity: 0; transition: opacity .12s; pointer-events: none;
+}
+.pmc-roster:hover .pmc-here, .pmc-roster:focus-within .pmc-here { opacity: 1; }
 .pmc-here .who { color: var(--pmc-gold); font-size: .95rem; }
 .pmc-here .spine { color: var(--pmc-dim); font-size: .78rem; margin-top: .25em; line-height: 1.45; }
 
@@ -412,6 +490,8 @@ export function mountCockpit(o) {
     acting: null,      // handle | HUMAN_ACTOR
     open: null,        // the action whose form is open
     said: null,        // the last thing the door said back
+    voices: [],        // recent speech, from the conversations door
+    context: null,     // { thing, acts, at } — a thing on the map, clicked
   };
 
   const root = doc.createElement("div");
@@ -497,9 +577,12 @@ export function mountCockpit(o) {
     // DOCKED, not floating (2026-08-28): the roster is the bar's leftmost cell —
     // who-acts beside what-they-do. The law line rides as the dock's own title
     // now that a horizontal strip has no room for a paragraph.
+    // The standpoint plate hangs off THIS box (2026-08-28 ruling) — a hover
+    // reveal on the dock, the same way the faces' own name boxes are.
     return `<div class="pmc-plate pmc-roster pmc-dock" role="group" aria-label="act as"
       title="the hand journals on every act — recorded, never gated">
       <div class="pmc-cap">ACT AS</div>
+      ${drawHere()}
       ${residents.map(face).join("")}
       ${humans.length ? `<div class="pmc-rule"></div>${humans.map(face).join("")}` : ""}
     </div>`;
@@ -583,7 +666,8 @@ export function mountCockpit(o) {
     <span class="pmc-more" data-more="left" aria-hidden="true" hidden>‹</span>
     <span class="pmc-more" data-more="right" aria-hidden="true" hidden>›</span>
     <div class="pmc-card" id="pmc-card" role="tooltip" hidden></div>
-    ${state.open ? formHtml(state.open) : ""}`;
+    ${contextHtml()}
+    ${state.open ? (opensAsChat(state.open) ? chatHtml(state.open) : formHtml(state.open)) : ""}`;
   }
 
   /**
@@ -611,7 +695,22 @@ export function mountCockpit(o) {
     if (!bar) return;
     const h = doc.defaultView?.innerHeight ?? 0;
     let clear = 18;
-    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies"]) {
+    // THE WAY OUT IS ON THIS LIST TOO (founder-caught 2026-08-28: "step outside"
+    // and the room's own name printed on top of each other at the dock's end of
+    // the row). `.wv-scene-exit` is the viewer's exit pill, pinned into the
+    // painting's bottom-left at bottom:58px — and it is NEWER than this fence,
+    // so it was simply never measured. The arithmetic that made it collide:
+    // `.wv-walkdesk` ships hidden and only appears while a walk is armed, so on
+    // an ordinary frame the tallest thing here is the coordinate chip (bottom 8,
+    // ~26 tall) and the row lands at about 46px — a band that runs straight
+    // through the pill's 58-to-86. The dock is the row's leftmost cell and the
+    // pill is at the painting's left edge, which is why it read as the DOCK's
+    // collision rather than the bar's.
+    //
+    // Measured, not moved: the pill is the viewer's element and restyling it
+    // from here would be the second writer this fence exists to avoid. The row
+    // lifts over it exactly as it lifts over the walk desk.
+    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit"]) {
       const el = doc.querySelector(sel);
       if (!el || !el.getClientRects().length) continue;
       const box = el.getBoundingClientRect();
@@ -632,16 +731,14 @@ export function mountCockpit(o) {
       bar.style.left = `${paint.left + paint.width / 2}px`;
       bar.style.maxWidth = `${Math.max(280, paint.width - 20)}px`;
     }
-    // THE HERE-PLATE RIDES THE SAME FENCE (founder-caught 2026-08-28, second
-    // element in the class): `.pmc-here`'s CSS left is 14px OF THE VIEWPORT,
-    // so inside a portal the where-you-stand card sat on the site rail
-    // (Postmark · CONVERSATIONS · sign out — the screenshot in the night's
-    // record). The painting is the card's world too; same rect, same pass.
-    const here = root.querySelector(".pmc-here");
-    if (here && paint && paint.width > 300) {
-      here.style.left = `${paint.left + 14}px`;
-      here.style.maxWidth = `${Math.max(200, Math.min(384, paint.width - 40))}px`;
-    }
+    // THE HERE-PLATE NEEDS NO FENCE ANY MORE, and its absence here is the point
+    // rather than an omission. It rode this same rect until 2026-08-28 — the
+    // second element caught sitting on the site's rail — and the fence held for
+    // parcels and failed in the open world, where the map svg is full-bleed so
+    // this rect's left edge IS the viewport's. The founder's ruling moved the
+    // plate onto the dock instead, where it hangs off a box already inside the
+    // painting and there is nothing left to clamp. A third fence would have been
+    // the third instance of one bug.
   }
 
   /** Measured, never assumed: the arrows and the edge fade come and go with the
@@ -741,9 +838,21 @@ export function mountCockpit(o) {
     const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
     if (!slot?.card) return "";
     const c = slot.card;
+    // WHAT THE ANSWER CAN FILL IN FOR YOU (2026-08-28 ruling). `prefillFor` is
+    // deliberately narrow — one open slot and one named value, or nothing — and
+    // the candidates it declined to choose between are offered as a datalist
+    // instead, so the reader gets one keystroke rather than a guess.
+    const filled = prefillFor(c, state.answer);
+    const candidates = actCandidates(state.answer);
+    const listId = candidates.length ? `pmc-cand-${esc(action)}` : null;
+    const datalist = listId
+      ? `<datalist id="${listId}">${candidates.map((k) =>
+          `<option value="${esc(k.value)}">${esc(k.label)}${k.why ? " — " + esc(k.why) : ""}</option>`).join("")}</datalist>`
+      : "";
     const inputs = c.fields.map((f) => {
       const id = `pmc-f-${esc(f.name)}`;
       const req = f.required ? ` <span class="req" title="required">*</span>` : "";
+      const pre = filled[f.name] != null ? ` value="${esc(filled[f.name])}"` : "";
       let control;
       if (f.enum && f.enum.length) {
         control = `<select id="${id}" data-field="${esc(f.name)}">${f.enum.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`).join("")}</select>`;
@@ -756,9 +865,13 @@ export function mountCockpit(o) {
         // honours them rather than guessing at a shape.
         const cap = statedLimit(f.description);
         const max = cap ? ` maxlength="${cap}"` : "";
+        // The candidate list rides on the free-text fields only — a field the
+        // door gave an enum for already has the door's own answer, and one
+        // holding prose is not a thing you aim at.
+        const list = listId && !wantsTextarea(f) ? ` list="${listId}"` : "";
         control = wantsTextarea(f)
           ? `<textarea id="${id}" data-field="${esc(f.name)}"${max}></textarea>`
-          : `<input id="${id}" data-field="${esc(f.name)}" type="text"${max}>`;
+          : `<input id="${id}" data-field="${esc(f.name)}" type="text"${max}${list}${pre}>`;
       }
       // The door's own description under the field, whole. It is where the door
       // tells a caller what the act will do with the value, and shortening it
@@ -779,10 +892,20 @@ export function mountCockpit(o) {
       ? `<div class="pmc-terms"><b>terms</b> — delivered before the act binds, because you cannot be bound by law you were not shown at the door${termsHtml(shown)}</div>`
       : "";
     const actorWords = state.acting === HUMAN_ACTOR ? "as yourself" : `as ${esc(state.acting ?? "—")}`;
+    // NOTHING LEFT TO TYPE is a state worth saying out loud. Where the door made
+    // every field optional and found its own target — which is most of the
+    // fight's acts — the form opens with nothing to fill and ENTER sends it, and
+    // a reader looking at an empty panel deserves to be told that is the whole
+    // of it rather than left hunting for the field they missed.
+    const nothingToType = c.fields.every((f) => !f.required && filled[f.name] == null);
+    const ready = c.fields.length && nothingToType
+      ? `<p class="pmc-desc">Every field here is the door's to fill — press ENTER to send it as it stands.</p>`
+      : "";
     return `<form class="pmc-plate pmc-form" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
       ${c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
       ${inputs || `<p class="pmc-desc">This act takes no arguments.</p>`}
+      ${ready}${datalist}
       ${terms}${said}
       <div class="pmc-actions">
         <button type="submit" class="pmc-btn go">do it</button>
@@ -791,11 +914,105 @@ export function mountCockpit(o) {
     </form>`;
   }
 
+  // ── the chat line ─────────────────────────────────────────────────────────
+  /**
+   * A chat-shaped act, as a chat line rather than a form.
+   *
+   * RULED 2026-08-28: "everything I can do via the ui buttons, I have to type in
+   * like filling an mcp form" — the speaking act should feel like speaking.
+   *
+   * NO NEW VERB AND NO NEW WIRE. Which act gets this chrome is decided by the
+   * SHAPE of the card the door sent (chatShaped: one prose field, nothing else
+   * required), the field it writes into is that card's own prose field by the
+   * door's own name for it, and what leaves goes out through the same
+   * dispatchEnvelope as the form's. A door that renames the field, or grows a
+   * second required one, gets the ordinary form back with no edit here.
+   */
+  function chatHtml(action) {
+    const all = barSlots(state.answer);
+    const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
+    const f = chatField(slot?.card);
+    if (!f) return "";
+    const cap = statedLimit(f.description);
+    const who = state.acting === HUMAN_ACTOR ? "yourself" : (state.acting ?? "—");
+    // THE PROMPT IS THE HEAD OF THE DOOR'S OWN SENTENCE, not the whole of it.
+    // A field description is written for a form's caption, where there is room
+    // for the limit and the caveats; in a one-line box it ran off the end and
+    // read as "what you say, at most 500 charac" — seen in the shot. The first
+    // clause is still the door's words, just the part that fits. The full
+    // sentence is not lost: the act's card still quotes it whole on hover.
+    const prompt = String(f.description ?? f.name).split(/\s*[,—–]\s*/)[0];
+    const said = state.said
+      ? `<p class="pmc-said${state.said.ok ? "" : " bad"}">${esc(state.said.text)}</p>`
+      : "";
+    return `<form class="pmc-plate pmc-chat" data-form="${esc(action)}" data-chat="${esc(f.name)}">
+      <span class="who">${esc(action.toUpperCase())} · ${esc(who)}</span>
+      <input type="text" data-field="${esc(f.name)}" autocomplete="off"
+        ${cap ? `maxlength="${cap}"` : ""}
+        aria-label="${esc(f.name)}" placeholder="${esc(prompt)}">
+      <span class="keys">↵ send · esc close</span>
+      ${said}
+    </form>`;
+  }
+
+  /**
+   * The little menu that opens on a thing.
+   *
+   * It offers the acts, never invents one: `contextActs` filtered the door's own
+   * afforded-and-enabled list down to the ones with somewhere an object could go,
+   * and the labels are the bar's own. Where the ground affords none, it SAYS so
+   * — a menu that opened empty would read as broken, and "nothing here can be
+   * done to this" is a real answer about where you are standing.
+   */
+  function contextHtml() {
+    const c = state.context;
+    if (!c) return "";
+    // A NEUTRAL PAIRING, NOT A SENTENCE. Written as "<act> <thing>" the menu
+    // read "lift the unlit cake" and "walk the unlit cake" — English claiming
+    // those acts mean something against that thing, which the site has no way to
+    // know and in those two cases they do not. The dot pairs them without
+    // asserting anything, which is the honest amount for a surface with no verb
+    // list to say.
+    //
+    // AND THEY ARE ALL STILL OFFERED. Narrowing the list would mean deciding
+    // which acts may be aimed at what — a permission calculus, which is the
+    // door's and never this file's. It is the same ruling the bar already obeys
+    // for a gated seat: disabled with the reason, never hidden. An act that does
+    // not apply comes back refused in the door's own words, which teaches the
+    // reader something; an act quietly missing teaches them nothing.
+    const rows = c.acts.length
+      ? c.acts.map((a) => `<button type="button" data-ctx-act="${esc(a.action)}" data-ctx-field="${esc(a.field)}">${esc(a.label.toLowerCase())} <span style="color:var(--pmc-dim)">· ${esc(c.thing.label)}</span></button>`).join("")
+      : `<p class="none">nothing this ground affords can be aimed at that right now.</p>`;
+    return `<div class="pmc-plate pmc-ctx" role="menu" aria-label="${esc(c.thing.label)}">
+      <span class="what">${esc(c.thing.label)}<small>${esc(c.thing.id)}</small></span>
+      ${rows}
+    </div>`;
+  }
+
+  /** Which chrome this act opens in. The card decides; nothing here is a name. */
+  function opensAsChat(action) {
+    const all = barSlots(state.answer);
+    const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
+    return chatShaped(slot?.card);
+  }
+
   // ── the initiative wheel ──────────────────────────────────────────────────
   function drawWheel() {
     const enc = encounterOf(state.answer);
     if (!enc) return "";
     const faces = actorsFor(state.answer, o.me, { acting: state.acting });
+    // THE ADVERSARY'S HP IS IN THE OTHER BLOCK, and the wheel has to make the
+    // same join the map does. The office builds each wheel row's `hp` out of
+    // `state.hands`, which holds the JOINERS — the hostile is not one of them —
+    // so the boss's row arrives with no hp at all while `encounter_detail`
+    // states it plainly. Left alone the wheel showed the cake with an empty rail
+    // beside a map ring reading 41 of 60: one number, two surfaces, disagreeing.
+    // Seen in the shot, which is the only place it could have been seen.
+    const adv = adversaryOf(state.answer);
+    const rows = enc.order.map((a) =>
+      (!a.hp && adv && a.id === adv.id && Number.isFinite(adv.hp) && Number.isFinite(adv.of) && adv.of > 0)
+        ? { ...a, hp: { now: adv.hp, max: adv.of } }
+        : a);
     const pictureFor = (a) => {
       if (a.kind === "creature") return null;
       const human = a.kind === "human" ? faces.find((f) => f.kind === "human") : null;
@@ -825,13 +1042,13 @@ export function mountCockpit(o) {
         ${hp}
       </li>`;
     };
-    const whose = enc.order.find((a) => a.current);
+    const whose = rows.find((a) => a.current);
     return `<div class="pmc-plate pmc-wheel">
       <div class="pmc-wheel-cap">
         <b>INITIATIVE</b>
         <span>${enc.round == null ? "" : `round ${esc(String(enc.round))} · `}${whose ? esc(whose.label) + " is acting" : "waiting"}</span>
       </div>
-      <ol class="pmc-wheel-row">${enc.order.map(seat).join("")}</ol>
+      <ol class="pmc-wheel-row">${rows.map(seat).join("")}</ol>
     </div>`;
   }
 
@@ -867,10 +1084,12 @@ export function mountCockpit(o) {
   }
 
   // ── the standpoint plate ──────────────────────────────────────────────────
+  /** Drawn INTO the dock (see drawRoster) and revealed on its hover. It keeps its
+   *  own plate chrome, because it is still a card — only its anchor moved. */
   function drawHere() {
     const p = portalOf(state.answer);
     const spine = (state.answer.within ?? []).map((w) => w?.id).filter(Boolean).reverse();
-    return `<div class="pmc-plate pmc-here">
+    return `<div class="pmc-plate pmc-here" role="tooltip">
       <div class="who">${esc(state.acting === HUMAN_ACTOR ? "yourself" : state.acting ?? "a spectator")} <span style="color:var(--pmc-dim)">· inside</span> ${esc(p?.id ?? "")}</div>
       <div class="spine">the read roots at <b>${esc(p?.value ?? "—")}</b>${spine.length ? `<br>within: ${esc(spine.join(" ‹ "))}` : ""}</div>
     </div>`;
@@ -915,10 +1134,137 @@ export function mountCockpit(o) {
     }).join("");
   }
 
+  /**
+   * WHAT STANDS AGAINST YOU, drawn where it stands.
+   *
+   * THE PROBLEM THIS SOLVES, and it is worth stating because the map looks
+   * broken rather than incomplete without it: the painting is derived from the
+   * settled fold, and the fold carries the dungeon's rooms but the FIGHT is not
+   * a fact of the fold at all — so a reader in the candle vault sees a floor
+   * with nothing on it while the bar beside them says they are three rounds into
+   * a fight with something. The cake is invisible. The answer already holds
+   * everything needed to draw it; it just holds it in two pieces
+   * (`adversaryPlacement` joins them, and its own note says why there is no
+   * fallback coordinate here).
+   *
+   * SIZED IN SCREEN PIXELS, like the token and the walkers and the loose things,
+   * and for the same measured reason: a figure that changed size relative to the
+   * people around it would be saying something about the figure. Bigger than a
+   * person because it is — the ring is the room's ninth tier of candles, not a
+   * head — but bigger by a constant, so the whole scene zooms together.
+   *
+   * The hp bar is the door's arithmetic shown, never the site's: `hp` and `of`
+   * are the numbers `publicState` sent, and a bar with either missing simply is
+   * not drawn rather than guessing a full one.
+   */
+  function drawAdversary() {
+    if (!tokenLayer || !o.grid) return "";
+    const placed = adversaryPlacement(state.answer, o.grid);
+    if (!placed) return "";
+    const { at, adversary: a } = placed;
+    const u = unitsPerPx();
+    const r = 20 * u;
+    const hasBar = Number.isFinite(a.hp) && Number.isFinite(a.of) && a.of > 0;
+    const frac = hasBar ? Math.max(0, Math.min(1, a.hp / a.of)) : 0;
+    const bw = r * 2.6;
+    const by = r * 1.5;
+    // THE EMBER PALETTE IS THE ARENA'S OWN (--pmc-accent, #e2603f) — but this is
+    // svg inside the viewer's painting, not inside the .pmc overlay, so the
+    // custom property does not reach it and the value is written out. Kept the
+    // same two hex values the stylesheet's arena block holds; if that block
+    // moves, this is the second place to move.
+    const ember = "#e2603f";
+    return `<g class="pmc-adversary" transform="translate(${at.x} ${at.y})">
+      <defs><radialGradient id="pmc-adv-glow">
+        <stop offset="45%" stop-color="${ember}" stop-opacity="0.34"/>
+        <stop offset="100%" stop-color="${ember}" stop-opacity="0"/>
+      </radialGradient></defs>
+      <circle cx="0" cy="0" r="${r * 2.4}" fill="url(#pmc-adv-glow)"/>
+      <circle cx="0" cy="0" r="${r * 1.34}" fill="none" stroke="${ember}" stroke-width="${r * 0.06}" stroke-opacity="0.5"/>
+      <circle cx="0" cy="0" r="${r}" fill="none" stroke="${ember}" stroke-width="${r * 0.16}"
+        stroke-dasharray="${r * 0.9} ${r * 0.42}"/>
+      <circle cx="0" cy="0" r="${r * 0.52}" fill="${ember}" fill-opacity="0.22"/>
+      ${hasBar ? `<g class="pmc-adv-hp">
+        <rect x="${-bw / 2}" y="${by}" width="${bw}" height="${r * 0.26}" rx="${r * 0.13}"
+          fill="#0d1015" fill-opacity="0.8" stroke="${ember}" stroke-width="${r * 0.03}" stroke-opacity="0.55"/>
+        <rect x="${-bw / 2}" y="${by}" width="${bw * frac}" height="${r * 0.26}" rx="${r * 0.13}" fill="${ember}"/>
+      </g>` : ""}
+      <title>${esc(a.label)}${hasBar ? ` — ${a.hp} of ${a.of}` : ""}${a.body ? ` — ${esc(a.body)}` : ""}</title>
+    </g>`;
+  }
+
+  /**
+   * WHAT WAS JUST SAID, drawn where it was said.
+   *
+   * The other half of the chat ruling: a line you type should appear somewhere,
+   * and the somewhere that means anything on this surface is beside whoever said
+   * it. Each voice carries its own coordinates — where the speaker STOOD when
+   * they spoke, which is not where they are standing now, and a line that
+   * followed its speaker around would be saying something untrue about a sound.
+   *
+   * It fades on the door's own clock (`recentVoices` reads `fade_minutes` off the
+   * answer), so a line goes quiet exactly when the world says the sound has. That
+   * is also why nothing here has to clean up: the list simply stops containing it.
+   *
+   * Screen-sized like everything else the cockpit puts on this map.
+   */
+  function drawVoices() {
+    if (!tokenLayer || !o.grid || !state.voices.length) return "";
+    const u = unitsPerPx();
+    return state.voices.map((v) => {
+      const at = worldToPx(o.grid, v.at);
+      if (!at) return "";
+      // A line has to be readable over a night map whatever it lands on, so it
+      // carries its own ground — the same reason the die's caption does.
+      //
+      // SIZED BY LOOKING AT IT. The first pass used 11, which put the said text
+      // at about nine screen pixels and the speaker's name at seven — present in
+      // the DOM, correct in every measurement, and not actually readable in the
+      // shot. This is the whole reason the shot runner exists beside the unit
+      // tests on this surface.
+      const size = 15 * u;
+      // FITTED TO THE PAINTING, not to a character count. SVG text does not
+      // wrap, so a long line is one long box — and at 390 a ninety-character cap
+      // drew a bubble wider than the phone it was on. The budget is a share of
+      // the visible map rather than a number of letters, so the same sentence
+      // fits differently on a phone and on a desktop, which is correct: it is
+      // the painting that ran out of room, not the sentence that got longer.
+      const view = Number((o.svg?.getAttribute("viewBox") ?? "").split(/[\s,]+/)[2]);
+      const room = isFinite(view) && view > 0 ? view * 0.62 : 96 * size * 0.52;
+      const fits = Math.max(12, Math.floor((room - size * 1.2) / (size * 0.52)));
+      const said = v.said.length > fits ? v.said.slice(0, fits - 1) + "…" : v.said;
+      const w = (said.length * size * 0.52) + size * 1.2;
+      const h = size * 2.6;
+      const lift = 16 * u;
+      return `<g class="pmc-voice" opacity="${(0.25 + 0.75 * v.freshness).toFixed(3)}"
+        transform="translate(${at.x} ${at.y - lift})">
+        <rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="${size * 0.9}"
+          fill="#0d1015" fill-opacity="0.86" stroke="#d9a860" stroke-opacity="0.5" stroke-width="${size * 0.07}"/>
+        <path d="M ${-size * 0.42} ${-h * 0.02} L 0 ${size * 0.66} L ${size * 0.42} ${-h * 0.02} Z"
+          fill="#0d1015" fill-opacity="0.86"/>
+        <text x="0" y="${-h * 0.52}" text-anchor="middle" font-size="${size * 0.62}"
+          fill="#9aa1ad" font-family="ui-monospace,Consolas,monospace">${esc(v.handle)}</text>
+        <text x="0" y="${-h * 0.14}" text-anchor="middle" font-size="${size * 0.86}"
+          fill="#e8e4da" font-family="Georgia, serif">${esc(said)}</text>
+      </g>`;
+    }).join("");
+  }
+
   function drawToken() {
     if (!tokenLayer) return;
     tokenLayer.textContent = "";
-    // whatever is on the floor draws first, so a face always paints over an object
+    // WHAT STANDS AGAINST YOU DRAWS FIRST, under everything else on the floor.
+    // It is the biggest thing in the room and the one people walk over to; a
+    // ring painted last would put its glow across the faces of everyone fighting
+    // it, which is the opposite of what the ring is for.
+    const adversary = drawAdversary();
+    if (adversary) {
+      const g = doc.createElementNS(NS, "g");
+      g.setAttribute("class", "pmc-adversary-layer");
+      g.innerHTML = adversary;
+      tokenLayer.appendChild(g);
+    }
+    // whatever is on the floor draws next, so a face always paints over an object
     const loose = drawLoose();
     if (loose) {
       const g = doc.createElementNS(NS, "g");
@@ -959,6 +1305,22 @@ export function mountCockpit(o) {
          d="M0,-10 L2.2,-2.6 L10,0 L2.2,2.6 L0,10 L-2.2,2.6 L-10,0 L-2.2,-2.6 Z"/>` +
       `<title>${esc(token.label)} — standing here</title>`;
     tokenLayer.appendChild(g);
+    speech();
+  }
+
+  /** The voices ride ABOVE every figure, because a line nobody can read is not a
+   *  line. Appended last, and separately, so a repaint of the token does not have
+   *  to rebuild them and vice versa. */
+  function speech() {
+    if (!tokenLayer) return;
+    tokenLayer.querySelector(".pmc-voice-layer")?.remove();
+    const voices = drawVoices();
+    if (!voices) return;
+    const g = doc.createElementNS(NS, "g");
+    g.setAttribute("class", "pmc-voice-layer");
+    g.setAttribute("pointer-events", "none");
+    g.innerHTML = voices;
+    tokenLayer.appendChild(g);
   }
 
   // ── painting ──────────────────────────────────────────────────────────────
@@ -968,7 +1330,9 @@ export function mountCockpit(o) {
     const keepAction = active?.closest?.("[data-form]") ? active.getAttribute?.("data-field") : null;
     const values = readForm();
     root.setAttribute("data-space", spaceOf(state.answer));
-    root.innerHTML = drawHere() + drawWheel() + drawBar(); // the roster rides inside drawBar's row now
+    // the roster rides inside drawBar's row, and the standpoint plate inside the
+    // roster — one row owns the bottom edge and everything hangs off it
+    root.innerHTML = drawWheel() + drawBar();
     // THE BAR MOVES FIRST. Everything below is positioned against the bar's real
     // box, and the bar's own placement lifts it clear of the viewer's bottom-edge
     // furniture — so measuring before that lift put the gate pill straight across
@@ -982,6 +1346,19 @@ export function mountCockpit(o) {
     // both are on screen.
     const gate = root.querySelector(".pmc-gate");
     if (gate) placeAbove(gate, form ?? root.querySelector(".pmc-bar"));
+    // The context menu opens AT the thing, clamped into the painting the same
+    // way the card is — it is about something on the map, so it belongs beside it.
+    const ctx = root.querySelector(".pmc-ctx");
+    if (ctx && state.context) {
+      const box = ctx.getBoundingClientRect();
+      const w = doc.defaultView?.innerWidth ?? 0;
+      const hgt = doc.defaultView?.innerHeight ?? 0;
+      const paint = o.svg?.getBoundingClientRect?.();
+      const lo = Math.max(12, (paint?.left ?? 0) + 8);
+      const hi = Math.max(lo, Math.min(w - box.width - 12, (paint ? paint.right : w) - box.width - 8));
+      ctx.style.left = `${Math.min(Math.max(lo, state.context.at.x + 12), hi)}px`;
+      ctx.style.top = `${Math.max(12, Math.min(state.context.at.y - 8, hgt - box.height - 12))}px`;
+    }
     root.querySelector(".pmc-bar")?.addEventListener("scroll", markOverflow, { passive: true });
     markOverflow();
     if (state.open && values) writeForm(values);
@@ -1009,6 +1386,10 @@ export function mountCockpit(o) {
 
   // ── the wiring ────────────────────────────────────────────────────────────
   function onClick(ev) {
+    // A MENU ABOUT A THING CLOSES THE MOMENT YOU LOOK ELSEWHERE. Handled first,
+    // and without returning, so the click it was dismissed by still does
+    // whatever it was going to do — a menu should never cost a reader a click.
+    if (state.context && !ev.target.closest?.(".pmc-ctx")) { state.context = null; paint(); }
     const faceBtn = ev.target.closest?.(".pmc-face");
     if (faceBtn && root.contains(faceBtn)) {
       state.acting = faceBtn.getAttribute("data-actor");
@@ -1020,6 +1401,22 @@ export function mountCockpit(o) {
       // listens (pm:act-as, resident handles only — the human hand is this
       // cockpit's own grammar and the viewer keeps its last resident for walks).
       speakActAs();
+      return;
+    }
+    // A CONTEXT ACT CARRIES ITS OBJECT IN. The thing's id is seeded into the
+    // field the menu already picked out for it, so the form opens with the
+    // question answered — which is the whole point of having clicked the thing
+    // rather than the seat.
+    const ctxBtn = ev.target.closest?.("[data-ctx-act]");
+    if (ctxBtn && root.contains(ctxBtn)) {
+      const action = ctxBtn.getAttribute("data-ctx-act");
+      const field = ctxBtn.getAttribute("data-ctx-field");
+      formValues = state.context ? { [field]: state.context.thing.id } : null;
+      state.open = action;
+      state.context = null;
+      state.said = null;
+      paint();
+      focusFirstOpen();
       return;
     }
     const closeBtn = ev.target.closest?.("[data-close]");
@@ -1035,8 +1432,37 @@ export function mountCockpit(o) {
       paint();
       root.querySelector(".pmc-slot.open")?.scrollIntoView?.({ inline: "nearest", block: "nearest" });
       markOverflow();
-      root.querySelector("[data-form] [data-field]")?.focus();
+      focusFirstOpen();
     }
+  }
+
+  /**
+   * WHERE THE CURSOR LANDS in a form that may already be filled in.
+   *
+   * The first empty field the reader MUST answer — and the word required is
+   * doing real work there, caught in QA. Keyed on merely empty, the cursor
+   * dropped into an optional field on a panel that had just said "press ENTER to
+   * send it as it stands": the sentence and the cursor disagreed, and the cursor
+   * is the one a hand believes. An optional field is one tab away, which is the
+   * right cost for a value the door will supply if you say nothing.
+   *
+   * A prefilled field is never landed in either: it is already answered, so the
+   * first keystroke would either land inside a value the reader wanted or have
+   * to be preceded by clearing it.
+   *
+   * With nothing left that must be answered, the cursor goes to the send button
+   * — so ENTER is the very next thing a hand can do, which is the whole of the
+   * ruling for the acts whose fields the door fills itself.
+   */
+  function focusFirstOpen() {
+    const form = root.querySelector("[data-form]");
+    if (!form) return;
+    const fields = [...form.querySelectorAll("[data-field]")];
+    const all = barSlots(state.answer);
+    const card = [...all.fixed, ...all.tray].find((s) => s.action === form.getAttribute("data-form"))?.card;
+    const required = new Set((card?.fields ?? []).filter((f) => f.required).map((f) => f.name));
+    const must = fields.find((el) => !el.value && required.has(el.getAttribute("data-field")));
+    (must ?? form.querySelector(".pmc-btn.go") ?? fields.find((el) => !el.value) ?? fields[0])?.focus();
   }
 
   async function onSubmit(ev) {
@@ -1068,9 +1494,22 @@ export function mountCockpit(o) {
       const rolls = rollsFrom(res.body);
       if (rolls.length) showThrow(rolls);
       if (res.ok) {
-        state.said = { ok: true, text: "done — the door took it." };
+        state.said = { ok: true, text: form.hasAttribute("data-chat") ? "sent." : "done — the door took it." };
         formValues = null;
+        // A CHAT LINE EMPTIES ITSELF AND STAYS OPEN. Cleared in the live DOM
+        // rather than by trusting formValues, because paint() re-reads the form
+        // before it repaints — so a line nulled only in that variable comes
+        // straight back out of the element it was just sent from, and the reader
+        // sends the same sentence twice.
+        if (form.hasAttribute("data-chat")) {
+          form.querySelectorAll("[data-field]").forEach((el) => { el.value = ""; });
+        }
         if (o.refresh) { const fresh = await o.refresh().catch(() => null); if (fresh) state.answer = fresh; }
+        // YOUR OWN LINE SHOULD NOT WAIT FOR THE TICK. The voices poll on a seven
+        // second clock, which is fine for hearing someone else and much too slow
+        // for seeing your own words land — the gesture would feel dropped. An act
+        // is the one moment we know the record just changed, so we ask.
+        pullVoices();
       } else {
         const b = readBounce(res.body, res.status);
         state.said = { ok: false, text: b.defect, hint: b.hint, terms: b.terms };
@@ -1088,6 +1527,9 @@ export function mountCockpit(o) {
       if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); }
       return;
     }
+    // ESCAPE PUTS DOWN WHATEVER IS UP, innermost first: the menu about a thing
+    // sits over the bar, so one press should close it and leave the bar standing.
+    if (ev.key === "Escape" && state.context) { state.context = null; paint(); return; }
     if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); return; }
     if (!/^[1-9]$/.test(ev.key)) return;
     const n = Number(ev.key);
@@ -1130,6 +1572,27 @@ export function mountCockpit(o) {
   root.addEventListener("submit", onSubmit);
   doc.addEventListener("keydown", onKey);
 
+  // ENTER SENDS THE CHAT LINE, said explicitly rather than left to the browser.
+  // A single-input form with no submit button does implicitly submit on ENTER in
+  // every engine that matters — but "in every engine that matters" is the kind of
+  // sentence this file has been wrong about before, and the send is the whole
+  // gesture of a chat line. requestSubmit fires the submit event the ordinary way,
+  // so onSubmit above is still the one path out.
+  root.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Enter" || ev.shiftKey) return;
+    const chat = ev.target?.closest?.("[data-chat]");
+    if (!chat || !root.contains(chat)) return;
+    ev.preventDefault();
+    (chat.requestSubmit ? chat.requestSubmit() : chat.dispatchEvent(new doc.defaultView.Event("submit", { bubbles: true, cancelable: true })));
+  });
+  // The receipt clears when the reader types the next thing. Removed from the
+  // DOM directly, never by repainting: a repaint here would rebuild the input
+  // the reader is mid-sentence in.
+  root.addEventListener("input", (ev) => {
+    if (!ev.target?.closest?.("[data-chat]")) return;
+    if (state.said) { state.said = null; root.querySelector(".pmc-chat .pmc-said")?.remove(); }
+  });
+
   // The camera moves without anything of ours firing — the viewer pans and zooms
   // by writing the viewBox, and a screen-sized token has to be re-drawn when it
   // does. Watching the attribute is the seam that needs no viewer internal.
@@ -1141,15 +1604,248 @@ export function mountCockpit(o) {
   const onResize = () => { drawToken(); placeBar(); markOverflow(); };
   (doc.defaultView ?? globalThis).addEventListener?.("resize", onResize);
 
+  // ── the map is a control (2026-08-28 ruling) ──────────────────────────────
+  //
+  // "Clicking a point on the map while acting as a walker should prefill/dispatch
+  // the walk to that point. Clicking a thing offers its context acts with the
+  // object prefilled."
+  //
+  // NOTHING HERE RE-IMPLEMENTS PATHING, and that constraint decided the whole
+  // shape. The viewer owns walking — the wall check, the zero-length refusal, the
+  // preview, the desk's confirm — and a second implementation over here would be
+  // a second set of walking rules to keep in step with the office's. So a click
+  // on bare ground is handed to the viewer's OWN walk-arming path and the desk
+  // opens exactly as it does for the viewer's own controls.
+  //
+  // THE SEAM, and its honest weakness. The viewer's delegated click handler reads
+  //     const stand = e.target.closest(".stand");
+  //     if (stand) { if (canAct()) chooseWalkPoint(+stand.dataset.x, +stand.dataset.y); ... }
+  // and NOTHING IN THE VIEWER CARRIES THAT CLASS — the hook is live and its
+  // element is gone, in this pin and on the branch the pin is heading to. So this
+  // mints one, clicks it, and removes it: the same mint-and-click move the page's
+  // own arrival island already makes against `.ctl[data-x]`, and the only route
+  // the viewer publishes (its window handle carries rerender/reload/stop and no
+  // walk of any kind).
+  //
+  // Because it leans on a hook with no elements behind it, it is VERIFIED rather
+  // than trusted: the walk desk becoming visible is the receipt that the click
+  // landed, and when it does not the reader is told the map's shortcut is not
+  // working here rather than left clicking a map that quietly does nothing. That
+  // check is the whole reason this is safe to ship over a vestigial class.
+  const walkFromMap = (m) => {
+    const wv = doc.querySelector(".wv");
+    if (!wv) return false;
+    // THE ACTOR IS SETTLED FIRST, AND THE ORDER IS THE WHOLE OF IT.
+    // `selectActor` runs clearSelectionAndDestination() and recenters the camera
+    // (viewer.mjs:8060, 8064), so settling the actor AFTER arming would throw the
+    // destination away and leave a walk desk that had just been opened pointing
+    // at nothing. It also has to happen at all: confirmSelectedWalk posts
+    // `state.handle`, and there is no per-call actor argument, so an unsettled
+    // viewer arms the walk for the wrong resident. speakActAs is a no-op when
+    // the two already agree, which is the common case.
+    speakActAs();
+    const before = deskOpen();
+    const b = doc.createElement("button");
+    b.className = "stand";
+    b.dataset.x = String(m.x);
+    b.dataset.y = String(m.y);
+    b.style.display = "none";
+    wv.appendChild(b);
+    b.click();
+    b.remove();
+    // the receipt, read on the next frame: the desk the viewer opens for its own
+    // walk-arming clicks
+    doc.defaultView?.setTimeout(() => {
+      if (deskOpen() || before) return;
+      state.said = {
+        ok: false,
+        text: "the map could not arm that walk",
+        hint: "the viewer did not open its walk desk — use the WALK seat on the bar instead",
+      };
+      paint();
+    }, 60);
+    return true;
+  };
+  const deskOpen = () => {
+    const desk = doc.querySelector(".wv .wv-walkdesk");
+    return Boolean(desk && !desk.hidden && desk.getClientRects().length);
+  };
+
+  /** Where a pointer landed, in the map's own units. `getScreenCTM` is the
+   *  browser's own answer for that and it already carries the viewer's pan and
+   *  zoom, so nothing here reads a camera the viewer owns. */
+  function pointAt(ev) {
+    const svg = o.svg;
+    if (!svg?.createSVGPoint || !svg.getScreenCTM) return null;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const p = svg.createSVGPoint();
+    p.x = ev.clientX; p.y = ev.clientY;
+    const local = p.matrixTransform(ctm.inverse());
+    return { x: local.x, y: local.y };
+  }
+
+  /**
+   * WHICH OF THE THINGS THIS COCKPIT DREW is under that point, if any.
+   *
+   * Only the cockpit's OWN figures are hit-tested — what stands against you and
+   * what is lying on the floor. The viewer's marks are the viewer's to answer
+   * for, and a second hit-test over them would be this overlay quietly taking
+   * clicks that belong to the surface underneath it.
+   */
+  function thingAt(local) {
+    if (!local || !o.grid) return null;
+    const u = unitsPerPx();
+    const near = (at, r) => at && Math.hypot(local.x - at.x, local.y - at.y) <= r;
+    const placed = adversaryPlacement(state.answer, o.grid);
+    if (placed && near(placed.at, 20 * u * 1.34)) {
+      return { id: placed.adversary.id, label: placed.adversary.label };
+    }
+    for (const t of looseThings(state.answer)) {
+      const at = worldToPx(o.grid, t.at);
+      if (near(at, 9 * u * 1.9)) return { id: t.id, label: t.label };
+    }
+    return null;
+  }
+
+  /**
+   * The acts that could be aimed at a thing, with it already in the slot.
+   *
+   * Verb-free, like everything else here: an act is offerable when the ground
+   * affords it, the clock allows it, and its card has a free-text field that is
+   * not prose — which is what "somewhere an object could go" means in the only
+   * vocabulary the door gave us. The thing's id goes in that field.
+   */
+  function contextActs(thing) {
+    const { fixed, tray } = barSlots(state.answer);
+    return [...fixed, ...tray].filter((s) => {
+      if (!s.afforded || !s.enabled || !s.card) return false;
+      return s.card.fields.some((f) => !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
+    }).map((s) => {
+      const field = s.card.fields.find((f) => !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
+      return { action: s.action, label: s.label, field: field.name, value: thing.id };
+    });
+  }
+
+  // The map's clicks, in the CAPTURE phase — so a click on one of our own
+  // figures can be taken before the viewer sees it, and every other click is
+  // left entirely alone. We stop propagation ONLY for a figure this cockpit
+  // drew; bare ground is a click the viewer does nothing with today, and a mark
+  // of the viewer's own is never intercepted at all.
+  const onMapClick = (ev) => {
+    if (!o.svg || state.open) return;
+    if (ev.target?.closest?.("[data-pmc]") || ev.target?.closest?.("[data-pmc-throws]")) return;
+    const local = pointAt(ev);
+    if (!local) return;
+    const thing = thingAt(local);
+    if (thing) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      state.context = { thing, acts: contextActs(thing), at: { x: ev.clientX, y: ev.clientY } };
+      state.said = null;
+      paint();
+      return;
+    }
+    // A MARK OF THE VIEWER'S IS THE VIEWER'S. Its overlay shapes carry data-id,
+    // and taking those clicks would mean this overlay silently replacing the
+    // viewer's own selection behaviour with a walk.
+    if (ev.target?.closest?.("#wv-overlay [data-id], .wv-card, .ctl, button, a")) return;
+    const m = pxToWorld(o.grid, local);
+    if (!m) return;
+    walkFromMap(m);
+  };
+  o.svg?.addEventListener?.("click", onMapClick, true);
+
+  // ── the voices, on their own clock ────────────────────────────────────────
+  //
+  // A SECOND DOOR, POLLED, and both halves of that are deliberate. Speech is not
+  // in the apex answer at all — it lives at the conversations door, keyless,
+  // because "speech is public the way street conversation is" — so it cannot ride
+  // the standpoint read. And it changes on its own: somebody else speaking is an
+  // event no act of the reader's would refresh, so the only honest shape is a
+  // poll. Seven seconds is the cadence the site's own conversations page already
+  // uses against this door; a second number here would be a second thing to tune.
+  //
+  // Absent `readVoices`, this whole half is simply off — the map draws no speech
+  // and nothing is fetched, which is what a harness and an unwired host get.
+  let voiceTimer = null;
+  async function pullVoices() {
+    if (!o.readVoices) return;
+    const body = await o.readVoices().catch(() => null);
+    if (!body) return;
+    const next = recentVoices(body, { now: Date.now() });
+    // Repaint only when something actually changed. The fade is continuous, so a
+    // naive redraw every tick would rebuild the whole layer to move an opacity a
+    // few thousandths — and it would do it under a reader's cursor.
+    const sig = (list) => list.map((v) => `${v.handle}|${v.said}|${v.ageMs > 0 ? Math.round(v.ageMs / 4000) : 0}`).join(" ");
+    if (sig(next) === sig(state.voices)) return;
+    state.voices = next;
+    speech();
+  }
+  if (o.readVoices) {
+    pullVoices();
+    voiceTimer = (doc.defaultView ?? globalThis).setInterval?.(pullVoices, 7000) ?? null;
+  }
+
   // ── the dock's handshake with the viewer ──────────────────────────────────
   // Two signals, belt and suspenders for boot order: the attribute is readable
   // by a viewer that booted after us; the event reaches one that booted before.
   // The viewer's renderIdentity checks the attribute and stands its own Act As
   // row down while this dock holds the question.
+  /** The key the viewer persists its own actor under (spectator/viewer.mjs:42,
+   *  `ACT_AS_KEY = "pm.world.act_as"`). It is the only readable signal for who
+   *  the viewer currently thinks is acting — `state.actAs` is a closure. */
+  const VIEWER_ACT_AS = "pm.world.act_as";
+  const viewerActor = () => {
+    try { return (doc.defaultView ?? globalThis).localStorage?.getItem(VIEWER_ACT_AS) ?? null; }
+    catch { return null; }
+  };
+
+  /**
+   * TELL THE VIEWER WHO IS ACTING — and the event alone does not do it.
+   *
+   * THE EVENT IS DEAD WIRE AT THIS PIN, measured rather than assumed: the string
+   * "pm:" does not occur anywhere in spectator/viewer.mjs at the pinned build
+   * (package.json holds ceeca087), and no listener for it exists anywhere in
+   * src/ either. The listeners DO exist on the world's proto/birthday branch
+   * (2cf10d0f, 3d1fbfe0) — this pin is simply behind them. So the event is kept,
+   * because it is the seam both sides agreed on and it starts working the moment
+   * the pin is bumped; it is just not load-bearing today.
+   *
+   * WHAT IS LOAD-BEARING is the viewer's own delegated control:
+   *     const actor = e.target.closest("[data-act-as]");
+   *     if (actor) { selectActor(actor.dataset.actAs); return; }   // viewer.mjs:7681
+   * minted and clicked, the same move the page's arrival island makes. This is
+   * not belt-and-braces decoration — without it the dock's selection never
+   * reaches the viewer, and `confirmSelectedWalk` posts `state.handle`, so a
+   * reader who picked a face here and then clicked the map would arm a walk for
+   * WHOEVER THE VIEWER STILL THOUGHT WAS ACTING. Silently, and for the wrong
+   * resident.
+   *
+   * GUARDED, because selectActor is not free to call twice. It runs
+   * `clearSelectionAndDestination()` and recenters the camera (viewer.mjs:8060,
+   * 8064) — so a redundant call throws away an armed walk and moves the map out
+   * from under the reader. It fires only when the viewer's actor actually
+   * differs from ours, read off the key the viewer persists it under.
+   */
   const speakActAs = () => {
     const w = doc.defaultView ?? globalThis;
     const actor = state.acting;
-    if (!actor || actor === HUMAN_ACTOR || typeof w.CustomEvent !== "function") return;
+    // The human hand stays this cockpit's own grammar — never spoken at the
+    // viewer, which keeps its last resident for walks.
+    if (!actor || actor === HUMAN_ACTOR) return;
+    if (viewerActor() !== actor) {
+      const wv = doc.querySelector(".wv");
+      if (wv) {
+        const b = doc.createElement("button");
+        b.setAttribute("data-act-as", actor);
+        b.style.display = "none";
+        wv.appendChild(b);
+        b.click();
+        b.remove();
+      }
+    }
+    if (typeof w.CustomEvent !== "function") return;
     try { w.dispatchEvent(new w.CustomEvent("pm:act-as", { detail: { actor } })); } catch {}
   };
   const dockSignal = (present) => {
@@ -1175,6 +1871,8 @@ export function mountCockpit(o) {
     destroy() {
       doc.removeEventListener("keydown", onKey);
       (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
+      if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
+      o.svg?.removeEventListener?.("click", onMapClick, true);
       camera?.disconnect();
       dockSignal(false); // hand the Act As question back to the viewer's own row
       root.remove();
