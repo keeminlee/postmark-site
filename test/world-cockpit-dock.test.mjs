@@ -116,8 +116,66 @@ test("the row is fenced to the painting, not the viewport", () => {
   // measuring a ghost the moment the view changed. Same fence, living ruler.
   assert.match(mount, /const paint = liveSvg\(\)\?\.getBoundingClientRect\?\.\(\);/,
     "placeBar measures the living painting");
-  assert.match(mount, /bar\.style\.left = `\$\{paint\.left \+ paint\.width \/ 2\}px`;/,
-    "and centers the row over it rather than over the viewport");
+  // The fence is now a SPAN rather than a centre-and-width pair, because the row
+  // also steps aside from bottom-corner furniture (below) and both ends have to
+  // be able to move independently. Its floor and ceiling are still the
+  // painting's edges and nothing else's.
+  assert.match(mount, /let lo = wide \? paint\.left \+ 10 : 14;/,
+    "the row's left edge comes off the painting, not the viewport");
+  assert.match(mount, /let hi = wide \? paint\.right - 10 : vw - 14;/,
+    "and so does its right edge");
+  assert.match(mount, /bar\.style\.left = `\$\{\(berthLo \+ berthHi\) \/ 2\}px`;/,
+    "and the row centers between them rather than over the viewport");
+});
+
+test("the row holds still under a pointer, so the dock cannot slide out from under a click", () => {
+  // ⚑ CAUGHT WHILE PILOTING IT, 2026-08-28, and it is the cost of having made
+  // the row re-measure promptly rather than once. The viewer's furniture is
+  // transient — the exit pill comes and goes with what it thinks you can step
+  // into — so the row stepped aside for it, stepped back when it left, and
+  // stepped aside again. A dock whose faces move a hundred pixels while a hand
+  // is reaching for one is a dock you misclick: aiming at rei and pressing the
+  // illuminator, twice.
+  //
+  // The harm was only ever the row moving under a pointer that was aiming at
+  // it, so that is the whole of the condition: while the row is hovered it does
+  // not move in either direction, and the instant the pointer leaves it
+  // measures itself honestly again.
+  //
+  // A first pass never gave the berth back at all. That stopped the dancing and
+  // left the row permanently squeezed by furniture long since gone — one armed
+  // walk and the bar sat at two thirds width for the rest of the standpoint,
+  // trading a misclick for a papercut and keeping the papercut.
+  assert.match(mount, /if \(here !== berthKey\) \{ berthKey = here; berthLo = null; berthHi = null; \}/,
+    "a new standpoint measures the room again from scratch");
+  assert.match(mount, /const held = berthLo != null && \(root\.querySelector\("\.pmc-barrow"\)\?\.matches\?\.\(":hover"\) \?\? false\);/,
+    "the row holds its berth only while a pointer is actually on it");
+  assert.match(mount, /if \(!held\) \{ berthLo = lo; berthHi = hi; \}/,
+    "and measures itself honestly again the moment the pointer leaves");
+});
+
+test("the row steps around bottom-corner furniture before it climbs over it", () => {
+  // ⚑ FOUNDER-CAUGHT 2026-08-28, mid-fight: "the action buttons somehow floated
+  // vertically upwards and now have a horizontal scroll."
+  //
+  // The fence answered every piece of the viewer's bottom furniture the same
+  // way — lift the whole row above the tallest of them. `.wv-walkdesk` is 194px
+  // tall and sits in the painting's bottom-RIGHT corner, so arming a walk threw
+  // the entire row 216px up a 893px window to clear something it overlapped
+  // along one sixth of its length. Measured on his screen at the moment he
+  // reported it: desk top 689, row bottom 215.938px, row spanning x 222–1910
+  // against a desk spanning 1606–1910.
+  //
+  // A corner is something you go around. So the lift is no longer computed from
+  // every piece on the edge — only from the ones that could not be stepped past.
+  assert.match(mount, /if \(box\.right <= lo \|\| box\.left >= hi\) continue;/,
+    "furniture the row does not reach is not furniture the row must answer for");
+  assert.match(mount, /if \(keepLeft >= keepRight && keepLeft >= full \* KEEP_FRACTION\) hi = endBefore;/,
+    "the row ends before a right-hand corner piece rather than rising over it");
+  assert.match(mount, /else if \(keepRight > keepLeft && keepRight >= full \* KEEP_FRACTION\) lo = beginAfter;/,
+    "and begins after a left-hand one");
+  assert.match(mount, /for \(const box of climb\) clear = Math\.max\(clear, h - box\.top \+ 12\);/,
+    "and the lift is measured off what is left — never off a piece already dodged");
 });
 
 // ── the time-travel pill stands down inside the cockpit (2026-08-28) ──
@@ -252,4 +310,88 @@ test("the actor is settled BEFORE the walk is armed, never after", () => {
   assert.ok(settle > -1, "walkFromMap settles the actor");
   assert.ok(arm > -1, "walkFromMap arms the destination");
   assert.ok(settle < arm, "and it settles BEFORE it arms — the other order wipes the destination");
+});
+
+// ── the seats get glyphs, and the way out folds in (2026-08-29 rulings) ──────
+test("every seat draws a glyph, and a verb the map has never heard of still draws one", () => {
+  // THE RULING: "some icons on the different actions to make them distinct."
+  //
+  // This is the nearest thing to a verb list on the surface, which is why the
+  // DEFAULT is the part worth pinning. The bar's standing law is that it offers
+  // whatever the door listed; a picture cannot be derived from a card, so it
+  // costs a lookup by name. What keeps that from becoming a list is that a name
+  // the map has never heard of draws the neutral mark and the seat works
+  // exactly as it always did — a door growing a verb tomorrow gets a plain
+  // glyph, never a missing seat and never a throw.
+  assert.match(mount, /const ICON_DEFAULT = /, "there is a mark for the verbs nobody anticipated");
+  assert.match(mount, /const d = ICONS\[String\(action \?\? ""\)\.toLowerCase\(\)\] \?\? ICON_DEFAULT;/,
+    "and the lookup falls back to it rather than drawing nothing");
+  assert.match(mount, /\$\{iconFor\(s\.action\)\}\s*\n\s*<span class="pmc-name">/,
+    "the glyph rides on the seat, above its name");
+  assert.match(mount, /stroke: currentColor;/,
+    "and takes the seat's own colour rather than introducing a second palette");
+});
+
+test("the way out is one control: the pill stands down and the seat says where it leads", () => {
+  // THE RULING: "if the exit button is IN the action bar, we don't need another
+  // redundant button." The pill carried one thing the seat did not — the NAME of
+  // what you step out into — so the seat takes it over rather than losing it.
+  assert.match(worldPage, /html\[data-pmc-dock\] \.wv-scene-exit \{ display: none; \}/,
+    "the viewer's standalone pill stands down while the dock is mounted");
+  assert.match(worldPage, /THE SECOND-WRITER TENSION, DISCLOSED/,
+    "and the fact that this is the site touching the viewer's furniture is written down, not hidden");
+  // WHICH seat, decided by the door's own sentence rather than by a verb name
+  assert.ok(mount.includes('const leaves = (s.card?.fields ?? []).some((f) =>'),
+    "which seat is the way out is asked of the seat's own card, not of a verb name");
+  assert.ok(mount.includes('out of') && mount.includes('.test(f.description ?? "")'),
+    "and the question it asks is the door's own sentence about stepping out of something");
+  assert.match(mount, /return `→ \$\{String\(parent\)\.split\("\/"\)\.pop\(\)\.replace\(\/-\/g, " "\)\}`;/,
+    "and it names the containment the door already published");
+});
+
+test("an act names the SELECTED resident's standing, not the key's first handle", () => {
+  // ⚑ THE ACT SIDE OF THE SEAT LAW, still on the old rule a day after the read
+  // side was fixed. The dispatch passed `orientingHandle(o.me)` — the first
+  // handle on the key, written for a key holding one resident. The founder's
+  // holds six and the office orders the Illuminator first, so every act went
+  // out naming her whoever the dock had selected. The comment beside that line
+  // stated the point ("so the bar cannot be drawn for one standpoint and act
+  // from another") while the line under it did exactly that.
+  //
+  // Caught the moment the human could fight at all: the door refused a human's
+  // strike in the candle vault with "not afforded where you stand", correctly —
+  // the act had oriented from a looking-room that grants no arena verbs.
+  assert.match(mount, /const res = await o\.dispatch\(dispatchEnvelope\(\{ action, args, acting: state\.acting, handle: seat\(\) \}\)\);/,
+    "the act carries the seat, not the first handle the key happens to list");
+  assert.doesNotMatch(mount, /handle: orientingHandle\(o\.me\)/,
+    "and the old first-handle rule is gone from the dispatch entirely");
+  // the human BORROWS a seat rather than having one, which is the whole seam
+  assert.match(mount, /if \(state\.acting !== HUMAN_ACTOR\) state\.seat = state\.acting;/,
+    "a resident selection is its own seat");
+  assert.match(mount, /if \(state\.acting && state\.acting !== HUMAN_ACTOR\) return state\.acting;\s*\n\s*return state\.seat \?\? orientingHandle\(o\.me\);/,
+    "and acting as yourself keeps the seat you were already standing in, first handle only as a last resort");
+  // one resolution, not two — the shadow read asks the same question
+  assert.match(mount, /const asking = seat\(\);/,
+    "the terms read asks whose standing the same way the act does");
+});
+
+test("the camera watch follows the living svg, like the layer and the framing before it", () => {
+  // ⚑ THE THIRD SIGHTING OF ONE SEAM IN ONE NIGHT — the token layer, then the
+  // framing, now the watch. The viewer REBUILDS its painting on a view change,
+  // and this observer was pointed at whichever element existed at mount. Once
+  // the viewer swapped it the watch was on a detached node and never fired
+  // again, so the token kept the size and offset it had at its last draw — both
+  // screen constants derived from the viewBox.
+  //
+  // Caught by reading the transform rather than the picture: the human's token
+  // sat at standpoint + 0.0288 units with the viewBox 240 units wide, which is
+  // exactly the offset that was right when the view was 1.6 units across. On
+  // screen, a portrait several times too large sitting on the ring it is meant
+  // to stand beside.
+  assert.match(mount, /const svg = liveSvg\(\);\s*\n\s*if \(!svg \|\| svg === watched\) return;/,
+    "the watch re-points when the painting under it is replaced, and no-ops when it is not");
+  assert.match(mount, /camera\?\.disconnect\(\);/,
+    "the old watch is dropped rather than left running on a detached node");
+  assert.doesNotMatch(mount, /camera\.observe\(o\.svg,/,
+    "and nothing observes the mount-time svg any more");
 });

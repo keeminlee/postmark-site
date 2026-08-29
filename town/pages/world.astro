@@ -508,4 +508,31 @@ const html = rawHtml.replace(/<head>/i,
      cockpit's: one element, one writer. The cockpit says it is mounted; what
      that means for this pill is this file's business. */
   html[data-pmc-dock] .pm-tt { display: none; }
+
+  /* ── the way-out pill stands down too (founder's ruling, 2026-08-29) ──
+     "if the exit button is IN the action bar, we don't need another redundant
+     button."
+
+     The bar has carried an EXIT seat since it shipped, and the viewer's
+     step-outside pill has sat in the painting's bottom-left corner beside it —
+     two controls for one act, which is the same shape as the Act As row the
+     dock already stood down. It also cost real room: the pill is furniture the
+     bar's placement had to measure and step around, so removing it gives the
+     row back the left third of the painting it had been ceding.
+
+     ⚠ THE SECOND-WRITER TENSION, DISCLOSED RATHER THAN HIDDEN. `.wv-scene-exit`
+     is the VIEWER's element and this is the site's stylesheet, so this rule is
+     a second writer touching somebody else's furniture — the exact thing the
+     bar's own fence exists to avoid ("the pill is the viewer's element and
+     restyling it from here would be the second writer this fence exists to
+     avoid"). It is done anyway, and narrowly: display only, scoped to the one
+     attribute, reversed the instant the cockpit unmounts. What it must NOT
+     become is a habit — the honest home for this is the viewer standing its own
+     pill down on data-pmc-dock, exactly as it already does for its Act As row
+     and its Actions rail, and that belongs in the world repo and a pin bump.
+
+     The seat inherits what the pill uniquely carried: the NAME of what you step
+     out into, derived from the door's own containment (leadsTo, in the mount).
+     Nothing is lost with the pill except the duplicate. */
+  html[data-pmc-dock] .wv-scene-exit { display: none; }
 </style>

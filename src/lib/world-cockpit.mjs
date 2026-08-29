@@ -161,7 +161,7 @@ export function wantsTextarea(field) {
  * every OTHER action the door sent, in the door's own order — which is where a
  * verb nobody has written a line of site code for arrives.
  */
-export function barSlots(answer) {
+export function barSlots(answer, { acting = null } = {}) {
   const actions = Array.isArray(answer?.actions) ? answer.actions : [];
   const byName = new Map();
   for (const e of actions) if (e && typeof e.action === "string") byName.set(e.action, e);
@@ -171,7 +171,7 @@ export function barSlots(answer) {
   // not take it THIS INSTANT. An act that is afforded here and blocked until your
   // turn still shows its card, its fields and its terms — the grammar stays
   // legible, which is the founder's ruling in one word: disabled, never hidden.
-  const blocked = blockedReason(answer);
+  const blocked = blockedReason(answer, { acting });
 
   let key = 0;
   const dress = (slot) => ({
@@ -578,7 +578,24 @@ export function encounterOf(answer) {
 }
 
 /** The caller's own row on the wheel, or null. */
-export function yourTurnRow(encounter) {
+export function yourTurnRow(encounter, acting = null) {
+  // ⚑ WHOSE ROW IS "YOU" DEPENDS ON WHO IS ACTING, and until this took an
+  // argument it was always the resident's. The door answers a RESIDENT's
+  // standpoint and marks that resident `you`, which is right for the read — but
+  // a reader acting as their household's human holds their OWN row on the
+  // wheel, under their own hand, and the resident's row is somebody else's.
+  //
+  // What that cost, seen live: the wheel came round to the human, the cap said
+  // so ("round 7 · human-of-starforge is acting"), and the bar greyed itself out
+  // with "it is human-of-starforge's turn" — refusing the reader on the grounds
+  // that it was their turn. The one row the door marks `you` was rei's, and rei
+  // was not up.
+  //
+  // The human's row is found by KIND rather than by name: the office derives the
+  // hand's label itself (humanHandFor) and the site has no business spelling it
+  // a second way. One human per household is the class's own shape, so the kind
+  // identifies the row without a name to keep in step.
+  if (acting === HUMAN_ACTOR) return encounter?.order.find((a) => a.kind === "human") ?? null;
   return encounter?.order.find((a) => a.you) ?? null;
 }
 
@@ -599,18 +616,56 @@ export function yourTurnRow(encounter) {
  * hidden, so the grammar stays legible. A bar that empties out when it is not
  * your turn teaches a reader that the acts went away.
  */
-export function blockedReason(answer) {
-  const said = answer?.standpoint?.acting_blocked;
+export function blockedReason(answer, { acting = null } = {}) {
+  // ⚑ THE DOOR'S BLOCK IS ABOUT THE RESIDENT IT ANSWERED FOR. The apex reads a
+  // named resident's standpoint and `acting_blocked` is a fact about THAT
+  // hand's standing — so when the reader is acting as their household's human
+  // it is a true sentence about somebody else, and taking it was how the bar
+  // came to refuse the human with their own name in the reason ("it is
+  // human-of-starforge's turn", while the human was the one holding the wheel).
+  //
+  // Acting as yourself, the derivation below is the one that knows whose row is
+  // yours. Nothing is being second-guessed: the door was asked a different
+  // question and gave a correct answer to it.
+  const said = acting === HUMAN_ACTOR ? null : answer?.standpoint?.acting_blocked;
   if (said && typeof said.reason === "string" && said.reason.trim()) {
     return { reason: said.reason, from: "the door" };
   }
   const enc = encounterOf(answer);
   if (!enc) return null;
-  const you = yourTurnRow(enc);
+  const you = yourTurnRow(enc, acting);
   if (you?.down) return { reason: "you are down — an ally can lift you", from: "derived" };
   if (enc.turn && you && !you.current) {
-    const whose = enc.order.find((a) => a.current);
-    return { reason: `it is ${whose?.label ?? enc.turn}'s turn`, from: "derived" };
+    // ⚑ A CREATURE'S TURN IS NOT A WAIT — IT IS WHAT YOUR ACT RESOLVES.
+    //
+    // The door's law, quoted: "Hostile turns are resolved by the act that ends
+    // a player's turn, in the same handling, until the wheel reaches a player
+    // again. There is no daemon and no ticker: the duet is the event loop."
+    // The door drives every due creature turn BEFORE it judges the caller, so a
+    // reader whose only obstacle is a creature is not blocked at all — their
+    // act is the mechanism.
+    //
+    // Greying the bar on that word is what made the room read as dead. The
+    // founder, mid-fight: "I also tried striking and it's just stuck now? like
+    // when does the cake take its turn?" It takes it when he acts, and the
+    // surface had disabled the acting.
+    //
+    // So the wait is measured past the creatures, to the row the door will
+    // really judge against. A HAND ahead of you still blocks — a person acts on
+    // their own clock and nothing here drives them — which is the distinction
+    // that keeps this from being "stop gating".
+    //
+    // The office says the same thing on the read half (`actingBlocked`); this
+    // is the derivation for a door that has not spoken, and the two agree on
+    // purpose.
+    const order = enc.order ?? [];
+    let i = order.findIndex((a) => a.current);
+    let guard = 0;
+    while (i >= 0 && order[i] && (order[i].kind === "creature" || order[i].down)
+           && guard++ < order.length * 2) i = (i + 1) % order.length;
+    const whose = i >= 0 ? order[i] : null;
+    if (!whose || whose.id === you.id) return null;
+    return { reason: `it is ${whose.label ?? whose.id}'s turn`, from: "derived" };
   }
   return null;
 }
@@ -828,14 +883,65 @@ export function chatShaped(card) {
 export function prefillFor(card, answer) {
   const out = {};
   if (!card) return out;
-  const candidates = actCandidates(answer);
-  if (candidates.length !== 1) return out;
   const open = card.fields.filter((f) =>
     !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
   if (open.length !== 1) return out;
-  out[open[0].name] = candidates[0].value;
+  const field = open[0];
+
+  // ⚑ A PLACE IS NOT A TARGET (founder-caught 2026-08-29, playing the dungeon).
+  //
+  // This offered the one candidate to whatever single open field an act had,
+  // and the candidate in a fight is the thing standing in front of you. So the
+  // acts that take a GROUND opened with the adversary's id in them: the plate
+  // for stepping out of the vault read "the unlit cake", which if sent would
+  // have asked to step out of a cake. It had to be retyped by hand twice in one
+  // session before the pattern was named.
+  //
+  // WHAT TELLS THEM APART IS THE DOOR'S OWN SENTENCE, not a list of verbs kept
+  // here — this file has none and gains none, which its own falsifier enforces
+  // by grepping this source for them. (That is also why the door's sentences
+  // are described below rather than quoted: two of them name acts in passing,
+  // and a verbatim quote would smuggle the list in as prose. It caught this
+  // comment on the first run, which is the falsifier working.)
+  //
+  // A target field says the value is who or what the act is AIMED AT. A place
+  // field says what you are stepping out of, or the mark to enter, or the
+  // ground to walk to — a relation between you and somewhere, never a thing to
+  // hit.
+  //
+  // A field about somewhere you stand relative to takes no target. Where the
+  // door says you are stepping OUT of it, the answer is knowable and worth
+  // filling — it is the ground you are in, which the standpoint already names.
+  // Anywhere else the honest prefill is none: the whole point of entering or
+  // walking is that the destination is the reader's choice, and this function's
+  // own rule is that a prefill happens only where there is no choice to make.
+  // ⚑ AND A PLACE FIELD IS LEFT EMPTY, INCLUDING THE ONE THAT LOOKED KNOWABLE.
+  //
+  // The first pass filled a stepping-out field with the standpoint's own
+  // ground, on the reasoning that the answer was knowable. Driven live, the
+  // door refused it: "rei is not within 'the-town/the-candle-vault' — there is
+  // nothing to step out of", from a standpoint whose own portal is that vault.
+  // The door's "within" for crossing back out is the ENTRY it holds, not the
+  // extent you are standing inside, and those are two different facts about the
+  // same person. The site does not hold the first one and should not be
+  // guessing at it.
+  //
+  // The door already published the right answer in the field's own words: OMIT
+  // it and the innermost one is used. So the honest prefill for every place
+  // field is none, and the act sends what the door asked for.
+  if (GROUND_SHAPED.test(field.description ?? "")) return out;
+
+  const candidates = actCandidates(answer);
+  if (candidates.length !== 1) return out;
+  out[field.name] = candidates[0].value;
   return out;
 }
+
+/** A field the door describes as naming somewhere you stand relative to, rather
+ *  than something you aim at. The door's words, read — never a verb list. */
+const GROUND_SHAPED = /\b(?:step(?:ping)? (?:in|out)|out of|to enter|walk(?:ing)? to|you are within|stand inside)\b/i;
+/** …and the one such relation whose answer the standpoint already knows. */
+const LEAVING = /\bout of\b/i;
 
 // ── the map transform ───────────────────────────────────────────────────────
 
@@ -993,12 +1099,27 @@ export function adversaryPlacement(answer, grid) {
  * the site THINKS a human is acting would be a claim about the record that the
  * record does not make — and on this map a face means "this person is here".
  */
-export function tokenPlacement(answer, grid, actor) {
+export function tokenPlacement(answer, grid, actor, { seated = false } = {}) {
   const stance = answer?.standpoint?.stance;
-  if (stance !== "embodied-human") return null;
+  // THE HUMAN STANDS BESIDE THE RESIDENT WHERE THE GROUND SEATS THEM (founder's
+  // ruling, 2026-08-29: "when you enter a zone where it's human-allowed the
+  // human's token gets placed in with a slight offset from the resident").
+  //
+  // Two different facts, and they are not the same drawing. `embodied-human` is
+  // the record saying this person has their own feet here, and the token stands
+  // ON the standpoint. SEATED is the portal's welcome — the ground grants the
+  // human its verbs, they fight from the housemate's place, and there is no
+  // separate position in the record for them to stand on. So the token stands
+  // BESIDE, and the offset is the honest part of the picture: it says they are
+  // here without claiming a coordinate the world does not hold.
+  //
+  // The `seated` half is decided by the caller, which is the only place that
+  // knows both whether this ground grants the human feet and whether the reader
+  // has taken that seat. Absent it, this is exactly the function it was.
+  if (stance !== "embodied-human" && !seated) return null;
   const token = tokenFor(actor);
   if (!token) return null;
   const at = worldToPx(grid, { x: Number(answer?.standpoint?.x), y: Number(answer?.standpoint?.y) });
   if (!at) return null;
-  return { at, token };
+  return { at, token, beside: stance !== "embodied-human" };
 }

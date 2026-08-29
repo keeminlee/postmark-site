@@ -525,20 +525,60 @@ test("the wheel carries hostiles, the downed, the late, and which is current", (
   assert.equal(encounterOf({ encounter: { order: [] } }), null, "an empty wheel is not an encounter");
 });
 
-test("not your turn: every slot disabled with the reason, and NONE hidden", () => {
-  // The founder's ruling, verbatim: "when it is not your turn, the slots render
-  // disabled with the reason … never hidden, so the grammar stays legible."
+test("a CREATURE holding the wheel does not disable anything — the act is what resolves it", () => {
+  // ⚑ THIS TEST ASSERTED THE OPPOSITE UNTIL 2026-08-28, and the reversal is
+  // written out rather than swapped in, because a test that quietly flips is
+  // indistinguishable from a regression.
+  //
+  // WHAT IT USED TO SAY: with the cellar thing on the wheel, every afforded
+  // slot disabled, each carrying "it is the cellar thing's turn". That read the
+  // founder's ruling — "when it is not your turn, the slots render disabled
+  // with the reason … never hidden" — as covering a creature's turn too.
+  //
+  // WHY THAT WAS WRONG, in the door's own law: "Hostile turns are resolved by
+  // the act that ends a player's turn, in the same handling, until the wheel
+  // reaches a player again. There is no daemon and no ticker: the duet is the
+  // event loop." The door drives every due creature turn BEFORE it judges the
+  // caller. So a reader whose only obstacle is a creature was being refused for
+  // the one act that would have moved the fight, and the room read as dead.
+  // The founder, mid-fight, in his own browser: "I also tried striking and it's
+  // just stuck now? like when does the cake take its turn?" It takes it when he
+  // acts — and this surface had disabled the acting.
+  //
+  // The ruling itself is untouched and is asserted below, where it applies.
   const { fixed, tray, blocked } = barSlots(IN_COMBAT);
-  assert.equal(blocked.reason, "it is the cellar thing's turn");
+  assert.equal(blocked, null, "a creature's turn is not a blocker — the reader's act drives it");
   assert.equal(fixed.length, FIXED_SLOTS.length, "the six seats are all still there");
   assert.deepEqual(tray.map((t) => t.action), ["strike", "loot"], "so is the whole afforded tray");
   const afforded = [...fixed, ...tray].filter((s) => s.afforded);
   assert.ok(afforded.length > 0);
-  assert.ok(afforded.every((s) => s.enabled === false), "afforded and blocked: disabled, not removed");
-  assert.ok(afforded.every((s) => s.blocked === "it is the cellar thing's turn"), "each says why");
-  // the cards survive the gate — the law is still readable while you wait
+  assert.ok(afforded.every((s) => s.enabled === true), "and every afforded slot can actually be pressed");
+  // the cards are unchanged by any of this — the law is readable either way
   assert.ok(afforded.every((s) => s.card !== null));
   assert.equal(tray[0].card.blurbFrom, "the-hall/strike");
+});
+
+test("not your turn: every slot disabled with the reason, and NONE hidden", () => {
+  // The founder's ruling, verbatim: "when it is not your turn, the slots render
+  // disabled with the reason … never hidden, so the grammar stays legible."
+  //
+  // A HAND ahead of you is what that ruling is about. A person acts on their
+  // own clock and nothing the reader does drives them, so the wait is real and
+  // the bar should say whose it is — which is also the leg that keeps the test
+  // above from being "stop gating".
+  const theirTurn = {
+    ...IN_COMBAT,
+    encounter: { ...IN_COMBAT.encounter, turn: "keeminlee" },
+  };
+  const { fixed, tray, blocked } = barSlots(theirTurn);
+  assert.equal(blocked.reason, "it is DARKO's turn");
+  assert.equal(fixed.length, FIXED_SLOTS.length, "the six seats are all still there");
+  const afforded = [...fixed, ...tray].filter((s) => s.afforded);
+  assert.ok(afforded.length > 0);
+  assert.ok(afforded.every((s) => s.enabled === false), "afforded and blocked: disabled, not removed");
+  assert.ok(afforded.every((s) => s.blocked === "it is DARKO's turn"), "each says why");
+  // the cards survive the gate — the law is still readable while you wait
+  assert.ok(afforded.every((s) => s.card !== null));
 });
 
 test("downed: your own bar says so, and the door's words win over ours", () => {
@@ -941,4 +981,110 @@ test("pxToWorld is the algebraic inverse of worldToPx, not a second formula", ()
   }
   assert.equal(pxToWorld(null, { x: 1, y: 1 }), null);
   assert.equal(pxToWorld(grid, { x: NaN, y: 1 }), null);
+});
+
+// ── a place is not a target (2026-08-29, founder-caught while playing) ───────
+test("a field about somewhere you stand is never filled with the thing you are fighting", () => {
+  // ⚑ THE BUG: the one candidate in a fight is the adversary, and it was handed
+  // to whatever single open field an act had. The acts that take a GROUND opened
+  // with the adversary's id in them — the plate for stepping out of the vault
+  // read "the unlit cake", which if sent would have asked to step out of a cake.
+  // It had to be retyped by hand twice in one session.
+  const inTheVault = {
+    encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 43, of: 60 } },
+    standpoint: { portal: { id: "the-town/the-candle-vault" } },
+    within: [
+      { id: "the-town/let-there-be-light" },
+      { id: "the-town/the-cellar-door" },
+      { id: "the-town/the-candle-vault" },
+    ],
+  };
+  // the door's own sentences, in the two shapes it writes them
+  const AIMED = { type: "string", description: "who or what this act is aimed at" };
+  const LEAVE = { type: "string", description: "which mark to step out of — omit for the innermost one you are within" };
+  const ENTER = { type: "string", description: "the mark to enter — <by>/<slug>, as ids appear in the telling" };
+  const GOTO = { type: "string", description: "walk to this mark's ground — <by>/<slug>, as ids appear in the telling" };
+
+  // a target field still takes the target — the shipped behaviour, unchanged
+  assert.deepEqual(prefillFor(cardFrom({ object: AIMED }), inTheVault),
+    { object: "the-town/the-unlit-cake" }, "an aimed-at field is still prefilled");
+
+  // WHERE YOU ARE STEPPING OUT OF is left to the door, and it is never the
+  // adversary. An earlier pass filled this with the standpoint's own ground,
+  // and the door refused it live: "rei is not within 'the-town/the-candle-vault'
+  // — there is nothing to step out of", from a standpoint whose portal IS that
+  // vault. The door's "within" for crossing out is the ENTRY it holds, not the
+  // extent you stand inside; the site holds neither and guesses at neither. The
+  // field's own words say to omit it.
+  assert.deepEqual(prefillFor(cardFrom({ mark: LEAVE }), inTheVault), {},
+    "the way out is the door's to resolve, and omitting it is what the door asked for");
+
+  // and the destinations are the reader's to choose, so they stay empty
+  assert.deepEqual(prefillFor(cardFrom({ mark: ENTER }), inTheVault), {},
+    "where to go is a choice, and this function only fills where there is none");
+  assert.deepEqual(prefillFor(cardFrom({ mark_id: GOTO }), inTheVault), {},
+    "same for walking somewhere");
+
+  // and with no portal to name it is still empty — never the adversary as a
+  // fallback, which is the bug this whole test exists for
+  assert.deepEqual(prefillFor(cardFrom({ mark: LEAVE }), { ...inTheVault, standpoint: {} }), {},
+    "no standpoint ground, no answer — never the adversary as a fallback");
+});
+
+test("the human's token stands BESIDE the resident where the ground seats them", () => {
+  // FOUNDER'S RULING 2026-08-29: "when you enter a zone where it's human-allowed
+  // the human's token gets placed in with a slight offset from the resident."
+  const grid = { originPx: { x: 485, y: 760 }, mPerPx: 5 };
+  const actor = { kind: "human", handle: "keeminlee", label: "DARKO", allowed: true };
+  const borrowed = { standpoint: { x: 1083, y: -792, stance: "embodied" } };
+
+  // not seated: unchanged — no token at all, exactly as before the ruling
+  assert.equal(tokenPlacement(borrowed, grid, actor), null,
+    "a human with no seat here is not drawn, which is the shipped rule");
+
+  // seated by the ground: drawn, and flagged as standing beside rather than on
+  const seated = tokenPlacement(borrowed, grid, actor, { seated: true });
+  assert.ok(seated, "the portal's welcome puts them on the map");
+  assert.equal(seated.beside, true,
+    "and BESIDE — they are fighting from the housemate's place, not a coordinate of their own");
+
+  // their own feet: drawn ON the standpoint, and the offset must not apply —
+  // nudging a position the record actually holds would be a small lie
+  const own = tokenPlacement({ standpoint: { x: 1083, y: -792, stance: "embodied-human" } }, grid, actor);
+  assert.ok(own, "an embodied human is drawn as they always were");
+  assert.equal(own.beside, false, "and stands on their own standpoint, un-nudged");
+  assert.deepEqual(own.at, seated.at, "the anchor is the same point either way — only the drawing differs");
+});
+
+test("acting as the human, YOUR row on the wheel is the human's — not the resident's", () => {
+  // ⚑ SEEN LIVE 2026-08-29: the wheel came round to the human, the cap said so
+  // ("round 7 · human-of-starforge is acting"), and the bar greyed itself out
+  // with "it is human-of-starforge's turn" — refusing the reader on the grounds
+  // that it was their own turn. The door answers a RESIDENT's standpoint and
+  // marks that resident `you`, which is right for the read; but a reader acting
+  // as their household's human holds their OWN row, and the resident's is
+  // somebody else's.
+  const onTheHuman = {
+    ...IN_COMBAT,
+    encounter: {
+      ...IN_COMBAT.encounter,
+      turn: "keeminlee",
+      order: IN_COMBAT.encounter.order.map((a) => ({ ...a })),
+    },
+  };
+  // as the RESIDENT: a hand ahead of you, so the gate holds and names them
+  assert.equal(blockedReason(onTheHuman, { acting: "jetto-of-starforge" })?.reason,
+    "it is DARKO's turn", "the resident waits for the human, by name");
+  // as the HUMAN: it is your own turn, so nothing blocks
+  assert.equal(blockedReason(onTheHuman, { acting: HUMAN_ACTOR }), null,
+    "the human is not made to wait for themselves");
+  assert.ok(barSlots(onTheHuman, { acting: HUMAN_ACTOR }).fixed
+    .filter((s) => s.afforded).every((s) => s.enabled === true),
+    "and every afforded seat can be pressed");
+
+  // the row is found by KIND, never by spelling the hand's name a second way —
+  // the office derives that label and the site has no business guessing it
+  assert.equal(yourTurnRow(encounterOf(onTheHuman), HUMAN_ACTOR)?.kind, "human");
+  assert.equal(yourTurnRow(encounterOf(onTheHuman))?.you, true,
+    "and with nobody named, it is still the door's own you-row");
 });
