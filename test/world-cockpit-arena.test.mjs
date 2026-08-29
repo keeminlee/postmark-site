@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
-  aimKind, cardOf, combatantBars, consentSplit, dialSpeak, leavingName, looseThings, pointFields,
+  aimKind, cardOf, combatantBars, consentSplit, dialSpeak, fighterState, leavingName, looseThings, pointFields,
   prefillFor, snapPoint, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
@@ -1195,4 +1195,173 @@ test("what lights under the cursor is what a press would land on", () => {
   // and the cockpit's own furniture is not the map — the bar hangs across the
   // bottom of the painting, and a pointer on a seat is not on what is behind it
   assert.match(MOUNT, /ev\.target\?\.closest\?\.\("\[data-pmc\]"\)\) \{ cool\(\); return; \}/);
+});
+
+// ══ (9) THE DOCK'S PLATE IS THE FIGHTER YOU ARE POINTING AT ═════════════════
+//
+// FOUNDER, 2026-08-29: the ACT AS bar's hover should show "the orange-rimmed
+// LARGER card, not the small nameplate" — and the larger card's content, which
+// he called "useless for the human to see", is replaced with "their inventory
+// (aka whether they are carrying the weapon, with an icon!) as well as their HP
+// bar with numbers and whatever other stats".
+//
+// The state itself is a JOIN and is falsifiable directly; the plate that renders
+// it lives inside the mount's closure and is pinned at the source, as every
+// other rendering ruling on this surface is.
+
+test("a fighter's state is the wheel and the holdings, joined on one person", () => {
+  const s = fighterState(VAULT, "vermillion");
+  assert.equal(s.onWheel, true);
+  assert.equal(s.label, "vermillion");
+  assert.deepEqual(s.hp, { now: 0, max: 20 }, "the hit points are the wheel's own numbers");
+  assert.equal(s.down, true, "and being down is the wheel's own word");
+  assert.equal(s.initiative, 11);
+  assert.equal(s.current, false, "it is not her turn");
+  assert.equal(s.turnOf, "DARKO", "so the plate can say whose it is, by LABEL rather than by id");
+  assert.equal(s.round, 3);
+});
+
+test("acting as your household's human, the plate reads the HUMAN's row", () => {
+  // ⚑ THE BUG CLASS THIS FUNCTION EXISTS FOR. The wheel is keyed by the
+  // fighter's own id and the holdings by the door's `who`; acting as the human,
+  // the id on the wheel is NOT the handle that was selected. Every surface that
+  // has forgotten it showed one person's numbers under another person's face —
+  // `yourTurnRow` and `weaponFor` both carry the scar, and this resolves it the
+  // same way they do rather than a third way.
+  const s = fighterState(VAULT, HUMAN_ACTOR);
+  assert.equal(s.id, "keeminlee", "the human's row is found by KIND, not by the handle");
+  assert.equal(s.label, "DARKO");
+  assert.deepEqual(s.hp, { now: 16, max: 20 });
+  assert.equal(s.current, true, "and the wheel says it is his turn");
+  // the can-fail control: the resident's row is genuinely different, so a
+  // reader of the wrong row would show 0/20 and "down"
+  assert.deepEqual(fighterState(VAULT, "vermillion").hp, { now: 0, max: 20 },
+    "…and the resident beside him reads differently, so this is not one row twice");
+});
+
+test("what is in the hand rides on the same state, resolved for the same person", () => {
+  const armed = {
+    ...VAULT,
+    encounter_detail: {
+      ...VAULT.encounter_detail,
+      hands: { keeminlee: { weapon: { thing: "the-town/the-good-lighter", bonus: 3, augments: "swing" } } },
+    },
+  };
+  const s = fighterState(armed, HUMAN_ACTOR);
+  assert.equal(s.weapon.label, "the good lighter", "named the way every id here is named — the leaf, deslugged");
+  assert.equal(s.weapon.bonus, 3);
+  assert.equal(s.weapon.for, "swing", "and the act it augments is the record's word, never derived");
+  assert.equal(fighterState(armed, "vermillion").weapon, null,
+    "a hand the door says nothing about is empty, and empty is an answer");
+});
+
+test("a resident who is not on the wheel is said to be off it, never filled in", () => {
+  // Standing in the room and not being in the fight is a real state. A plate
+  // that drew an empty bar for it would say they were at zero, which is the
+  // opposite of the truth.
+  const s = fighterState(VAULT, "wright");
+  assert.equal(s.onWheel, false);
+  assert.equal(s.hp, null);
+  assert.equal(s.initiative, null);
+  assert.equal(s.down, false);
+  // …and with no encounter at all, nothing is invented either
+  const quiet = { ...VAULT, encounter: undefined, encounter_detail: undefined };
+  assert.equal(fighterState(quiet, "vermillion").onWheel, false);
+  assert.equal(fighterState(quiet, HUMAN_ACTOR).id, null, "with no wheel there is no human row to find");
+});
+
+test("the plate carries state, and the small nameplate that doubled it is gone", () => {
+  // THE RULING: the hover shows the larger card, not the small nameplate.
+  assert.doesNotMatch(MOUNT, /<span class="pmc-nm/, "no face draws a name box any more");
+  assert.doesNotMatch(MOUNT, /^\.pmc-nm[ .:[]/m, "and the stylesheet no longer dresses one");
+  // WHAT REPLACED THE RECITATION. The plate printed the acting seat, the portal
+  // it rooted in and the whole `within` chain; it now prints one fighter.
+  assert.doesNotMatch(MOUNT, /the read roots at/, "the standpoint recitation is gone");
+  assert.match(MOUNT, /const s = fighterState\(state\.answer, who\);/, "the plate reads one fighter's state");
+  assert.match(MOUNT, /\$\{hpRowHtml\(s\)\}\r?\n\s*\$\{statRowHtml\(s, f\)\}\r?\n\s*\$\{kitHtml\(s\)\}/,
+    "hit points, then the other stats, then what is in the hand");
+});
+
+test("the hit points are a bar WITH the numbers on it", () => {
+  assert.match(MOUNT, /<span class="fill" style="width:\$\{\(frac \* 100\)\.toFixed\(1\)\}%"><\/span>\r?\n\s*<span class="num">\$\{s\.hp\.now\}\/\$\{s\.hp\.max\}<\/span>/,
+    "the fill is the fraction and the numbers ride over it");
+  assert.match(MOUNT, /\.pmc-hp \.num \{[\s\S]{0,220}?text-shadow:/,
+    "with a halo, because the numbers cross both of the rail's grounds");
+  // AND A FIGHTER OFF THE WHEEL GETS NO BAR — an empty rail would read as zero.
+  assert.match(MOUNT, /if \(!s\.onWheel\) return `<div class="spine">not in this fight<\/div>`;/);
+  assert.match(MOUNT, /if \(!s\.hp\) return `<div class="spine">on the wheel — the door states no hit points<\/div>`;/,
+    "and a row the door gave no numbers for says that instead of drawing an empty one");
+});
+
+test("the inventory row answers carrying and not-carrying, both with the icon", () => {
+  // "their inventory (aka whether they are carrying the weapon, with an icon!)"
+  assert.match(MOUNT, /const ICON_HAND =/, "one glyph, and it is not in the act table — a held thing is not an act");
+  assert.match(MOUNT, /if \(!w\) return `<div class="kit none">\$\{ICON_HAND\}<span>empty-handed<\/span><\/div>`;/,
+    "an empty hand is stated rather than left as a missing row");
+  assert.match(MOUNT, /return `<div class="kit">\$\{ICON_HAND\}<span>\$\{esc\(w\.label\)\}<\/span><b>\$\{clause\}<\/b><\/div>`;/,
+    "and a full one names the thing and what it adds");
+  // THE CLAUSE IS THE RECORD'S: where the grant names no act, no act is claimed.
+  assert.match(MOUNT, /const clause = w\.for \? `\+\$\{w\.bonus\} to \$\{esc\(w\.for\)\}` : `\+\$\{w\.bonus\}`;/);
+});
+
+test("the plate follows the pointer without rebuilding the dock under it", () => {
+  assert.match(MOUNT, /const who = state\.peek \?\? state\.acting;/,
+    "whichever face is being looked at, falling back to whoever is acting");
+  assert.match(MOUNT, /function peekAt\(target\) \{/);
+  assert.match(MOUNT, /if \(who === state\.peek\) return;/, "nothing happens while the answer is unchanged");
+  // ⚑ AND IT REPAINTS THE PLATE ALONE. paint() replaces the whole overlay, so a
+  // full repaint on a face hover would destroy the button under the pointer.
+  assert.match(MOUNT, /host\.innerHTML = fresh\.innerHTML; host\.className = fresh\.className;/,
+    "only the plate's insides are swapped");
+  assert.doesNotMatch(MOUNT, /function peekAt\(target\) \{[\s\S]{0,700}?paint\(\);/,
+    "and no full repaint hides inside it");
+  // it follows the KEYBOARD too, through the handler the hover card already uses
+  assert.match(MOUNT, /if \(slot && root\.contains\(slot\) && !slot\.disabled\) showCard\(slot\); else hideCard\(\);\r?\n\s*peekAt\(ev\.target\);/);
+});
+
+test("a refused face can still say why, which is what aria-disabled buys", () => {
+  // The small name box carried the refusal, and a truly `disabled` button fires
+  // no pointer events — so deleting the box while keeping `disabled` would have
+  // left a grey circle that cannot explain the law it is enforcing. Same trade
+  // the gated seats made.
+  assert.match(MOUNT, /aria-pressed="\$\{on\}" aria-disabled="\$\{!f\.allowed\}"/, "refused is aria-disabled");
+  assert.doesNotMatch(MOUNT, /\$\{f\.allowed \? "" : " disabled"\}/, "and not the real attribute any more");
+  assert.match(MOUNT, /if \(faceBtn\.getAttribute\("aria-disabled"\) === "true"\) return;/,
+    "so the press is refused here instead — and swallowed, not fallen through");
+  assert.match(MOUNT, /<div class="who">\$\{esc\(name\)\} <span class="tag cold">cannot act here<\/span><\/div>\r?\n\s*<div class="spine">\$\{esc\(f\.reason \?\? "not here"\)\}<\/div>/,
+    "and the plate carries the door's own reason");
+  assert.match(MOUNT, /\.pmc-face\[aria-disabled="true"\] \{ opacity: \.4; cursor: not-allowed; \}/,
+    "greyed by the same attribute that keeps it hoverable");
+});
+
+test("the held glyph sits BESIDE the thing it names, which its own margin prevented", () => {
+  // ⚑ FOUND IN THE SHOT, 2026-08-29, and findable no other way. `.pmc-ico` is
+  // drawn ABOVE a verb's name in the bar, so it carries `margin: 0 auto` to
+  // centre itself over the word. Reused in a flex ROW that auto margin eats every
+  // pixel of free space: the hand floated alone in the middle of the plate and
+  // "the good lighter" was shoved against the right edge — a row that measured
+  // perfectly in the DOM (one flex box, gap .4em, both children present) and read
+  // on screen as two unrelated fragments.
+  //
+  // THE ROW'S OWN RULE MUST UNDO IT, and it must undo the SIZE too: 1.15em of a
+  // .78rem row is an 11px picture, which is below the size at which a glyph says
+  // "held" rather than "some mark".
+  assert.match(MOUNT, /\.pmc-ico \{\r?\n\s*display: block; width: 1\.15em; height: 1\.15em; margin: 0 auto \.25em;/,
+    "the bar's glyph still centres itself over its word — the rule this one has to survive");
+  assert.match(MOUNT, /\.pmc-here \.kit \.pmc-ico \{\r?\n\s*margin: 0; flex: 0 0 auto; width: 1\.45em; height: 1\.45em;/,
+    "and the plate's row zeroes the margin and sizes the glyph up");
+});
+
+test("the journalling law is kept, and it is only said over your own seat", () => {
+  // It began as the dock's `title`, moved onto the plate when that tooltip became
+  // a third card on one hover, and the ruling that emptied the plate was aimed at
+  // the standpoint recitation, not at a disclosure. So it is not swept out with
+  // the recitation — but the plate is a way to look at OTHER people now, and a
+  // line about what YOUR hand records, printed under an ally's hit points, is a
+  // claim about them that is not true.
+  assert.match(MOUNT, /function journalLine\(who\) \{\r?\n\s*if \(who !== state\.acting\) return "";/,
+    "silent over anyone but the seat being acted as");
+  assert.match(MOUNT, /the hand journals on every act — recorded, never gated/,
+    "and the law itself is still on the surface, in its own words");
+  assert.match(MOUNT, /\$\{kitHtml\(s\)\}\r?\n\s*\$\{journalLine\(who\)\}/, "under the fighter's own rows");
 });

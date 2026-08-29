@@ -323,26 +323,35 @@ const run = async () => {
       }
       return { out, titles: [...document.querySelectorAll("[data-pmc] [title]")].map((e) => e.getAttribute("title")) };
     });
+    // ⚑ WHICH card survived was settled the other way, later the same day
+    // (founder, ask 8): "the hover should show the orange-rimmed LARGER card, not
+    // the small nameplate." So this checked the right thing — one card, no native
+    // tooltip — and named the wrong survivor. The small box is deleted; the card
+    // a face hover raises is the PLATE, carrying that fighter's own state.
     record("hovering the human face shows exactly one card",
-      cards.out.length === 1 && /pmc-nm/.test(cards.out[0]?.cls ?? ""),
+      cards.out.length === 1 && /pmc-here/.test(cards.out[0]?.cls ?? ""),
       cards.out.map((c) => c.cls).join(" + ") || "(none)");
     record("and no native tooltip rides under it",
       cards.titles.length === 0, JSON.stringify(cards.titles));
-    record("the card is the name and one short line — no grants recitation",
-      (cards.out[0]?.txt.length ?? 999) <= 110 && !/grants them/.test(cards.out[0]?.txt ?? ""),
+    // ⚑ AND "no grants recitation" IS NOW THE PLATE'S OWN RULE, which is the same
+    // claim one surface along: the plate used to recite the standpoint and now
+    // carries one fighter, so the short-card test belongs on it.
+    record("the card is one fighter, not a recitation",
+      (cards.out[0]?.txt.length ?? 999) <= 200 && !/grants them/.test(cards.out[0]?.txt ?? "")
+        && !/the read roots at/.test(cards.out[0]?.txt ?? ""),
       `${cards.out[0]?.txt.length} chars: ${JSON.stringify(cards.out[0]?.txt)}`);
-    // the long form is not lost — it moved to the panel
+    // the door's sentence is not lost — it is a clause in the plate's stat row
     await page.hover(".pmc-roster .pmc-cap");
     await page.waitForTimeout(400);
     const plate = await page.evaluate(() => {
       const el = document.querySelector(".pmc-here");
       return { op: getComputedStyle(el).opacity, txt: el.textContent.trim() };
     });
-    record("hovering the dock itself still opens the standpoint plate",
+    record("hovering the dock itself still opens the plate",
       plate.op === "1", `opacity ${plate.op}`);
-    record("and the plate carries the door's whole sentence, verbatim",
+    record("and the door's own sentence, and the journalling law, are still on it",
       /a portal's ground seats a human/.test(plate.txt) && /journals on every act/.test(plate.txt),
-      plate.txt.slice(0, 120));
+      plate.txt.slice(0, 160));
 
     record("every face is drawn at the same size",
       faces.length > 1 && new Set(faces.map((f) => Math.round(f.box.width))).size === 1,
