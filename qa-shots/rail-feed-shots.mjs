@@ -130,23 +130,38 @@ const run = async () => {
       `oldest row at y=${top.oldestTop}, section ${top.boxTop}..${top.boxBottom}`);
 
     // ── the other half of the chat contract: scrolled up, it HOLDS ──────────
+    //
+    // ⚑ THE ARRIVAL IS A REAL ONE. The first cut of this check appended an <li>
+    // to the feed by hand and set the pill's hidden attribute itself — which
+    // proved the CSS and nothing about the contract, and then failed for a
+    // reason that was entirely its own doing (nothing had marked anything
+    // pending, so the next tick correctly hid a pill nothing had earned). So
+    // somebody SAYS something instead, and it arrives down the page's own road:
+    // the conversations poll, the merge, the draw.
     await page.evaluate(() => { document.querySelector(".wv .wv-activity").scrollTop = 0; });
+    await page.waitForTimeout(150);
     await page.evaluate(() => {
-      // one more line, the way any arrival adds one
-      const list = document.querySelector(".pmc-feed");
-      const li = document.createElement("li");
-      li.className = "pmc-fline is-hit";
-      li.textContent = "a line that arrived while the reader was reading history.";
-      list.appendChild(li);
-      document.querySelector(".pmc-feed-new").hidden = false;
+      window.__spoken.push({ handle: "wright", said: "a line that arrived while you were reading history",
+        at_ms: Date.now(), x: 1090, y: -787 });
     });
-    await page.waitForTimeout(300);
+    // the voices poll runs on a seven second clock
+    await page.waitForFunction(
+      () => { const p = document.querySelector(".pmc-feed-new"); return p && !p.hidden; },
+      null, { timeout: 12_000 },
+    ).catch(() => {});
     await shot(page, "02-rail-scrolled-up");
     const held = await page.evaluate(() => {
       const box = document.querySelector(".wv .wv-activity");
       const pill = document.querySelector(".pmc-feed-new");
-      return { top: box.scrollTop, pillShown: pill && !pill.hidden && pill.getClientRects().length > 0 };
+      const lines = [...document.querySelectorAll(".pmc-fline")].map((e) => e.textContent);
+      return {
+        top: Math.round(box.scrollTop),
+        arrived: lines.some((t) => /reading history/.test(t)),
+        pillShown: Boolean(pill && !pill.hidden && pill.getClientRects().length > 0),
+      };
     });
+    record("a line said while the reader is scrolled up does arrive", held.arrived,
+      `the said line is in the feed: ${held.arrived}`);
     record("scrolled up, the feed holds where the reader left it", held.top === 0,
       `scrollTop ${held.top}`);
     record("and says there is something new below", held.pillShown === true,
@@ -185,6 +200,65 @@ const run = async () => {
       JSON.stringify(lines.filter((t) => /round/i.test(t))));
     record("and nothing is told twice",
       new Set(lines).size === lines.length, `${lines.length} lines, ${new Set(lines).size} distinct`);
+    await page.close();
+  }
+
+  // ── ①c THE LIVE BUG: a rail that arrives in waves ────────────────────────
+  //
+  // The founder on dev, after a hard reload: "lately isn't scrolled down
+  // correctly". A static fixture cannot produce it — the real viewer fills
+  // Lately from three async loads, each rewriting .wv-acts long after the
+  // cockpit drew and pinned. ?waves=1 reproduces that shape.
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1&fight=1&tail=1&waves=1");
+    // one wave lands at 1.2s, then 3.8s, then 6.4s; wait past the last with slack
+    await page.waitForTimeout(11_000);
+    await shot(page, "07-rail-waves");
+    const m = await page.evaluate(() => {
+      const box = document.querySelector(".wv .wv-activity");
+      const feed = document.querySelector(".pmc-feed");
+      const last = feed?.lastElementChild;
+      const br = box.getBoundingClientRect();
+      const lr = last?.getBoundingClientRect();
+      return {
+        rows: document.querySelectorAll(".wv-acts .wv-act-line").length,
+        scrollTop: Math.round(box.scrollTop),
+        scrollBottom: Math.round(box.scrollHeight - box.clientHeight),
+        lastVisible: lr ? lr.bottom <= br.bottom + 2 && lr.top >= br.top - 2 : false,
+        lastText: last?.textContent.trim() ?? null,
+      };
+    });
+    // ⚑ THE PAGE MUST STILL BE ANSWERING. The first cut of the watch pinned on
+    // its own pill toggle and spun the tab into an unbreakable loop — it did not
+    // fail a check, it hung the runner. Asked explicitly so that failure has a
+    // name next time.
+    const alive = await Promise.race([
+      page.evaluate(() => 1 + 1),
+      new Promise((r) => setTimeout(() => r("timed out"), 4000)),
+    ]);
+    record("the page is still responsive — the watch is not pinning on its own writes",
+      alive === 2, String(alive));
+    record("all three waves landed", m.rows === 5, `${m.rows} record rows`);
+    // ⚑ THE ACTUAL COMPLAINT. Every wave grows the content ABOVE the feed while
+    // the section keeps its scrollTop, walking the reader off the bottom.
+    record("the feed is still pinned to the bottom after the rail arrives in waves",
+      Math.abs(m.scrollTop - m.scrollBottom) <= 2,
+      `scrollTop ${m.scrollTop} of ${m.scrollBottom}`);
+    record("and the newest line is actually on screen",
+      m.lastVisible, `last line "${m.lastText}" visible: ${m.lastVisible}`);
+
+    // and the other half still holds: scrolled up, a late wave must NOT yank
+    // the reader back down
+    await page.evaluate(() => { document.querySelector(".wv .wv-activity").scrollTop = 0; });
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      const list = document.querySelector(".wv-acts");
+      list.innerHTML = '<li class="wv-act-line is-walk"><span class="who">a late wave</span> set out</li>' + list.innerHTML;
+    });
+    await page.waitForTimeout(400);
+    const held = await page.evaluate(() => Math.round(document.querySelector(".wv .wv-activity").scrollTop));
+    record("a wave landing while the reader is scrolled up does not yank them down",
+      held === 0, `scrollTop ${held}`);
     await page.close();
   }
 
@@ -229,6 +303,46 @@ const run = async () => {
       `vermillion pip: ${verm?.src} loaded=${verm?.loaded}`);
     record("and the creature is not given one — it is not a resident",
       cake != null && cake.src === null, `cake pip src: ${cake?.src}`);
+
+    // ── ONE HOVER, ONE CARD (founder, live 2026-08-29, screenshot-verified) ──
+    //
+    // Reproduced here before it was fixed: the standpoint plate at 642..741 and
+    // the human face's name box at 738..789, stacked, the box also covering the
+    // ACT AS caption — plus the dock's native `title` tooltip as a third, on the
+    // browser's own clock.
+    await page.hover('.pmc-face[data-actor="human:self"]');
+    await page.waitForTimeout(1200); // past the browser's own tooltip delay
+    await shot(page, "08-human-hover");
+    const cards = await page.evaluate(() => {
+      const out = [];
+      for (const el of document.querySelectorAll(".pmc-nm, .pmc-here")) {
+        const cs = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        if (cs.opacity !== "0" && cs.display !== "none" && r.width > 0)
+          out.push({ cls: el.className, txt: el.textContent.trim(), box: r.toJSON() });
+      }
+      return { out, titles: [...document.querySelectorAll("[data-pmc] [title]")].map((e) => e.getAttribute("title")) };
+    });
+    record("hovering the human face shows exactly one card",
+      cards.out.length === 1 && /pmc-nm/.test(cards.out[0]?.cls ?? ""),
+      cards.out.map((c) => c.cls).join(" + ") || "(none)");
+    record("and no native tooltip rides under it",
+      cards.titles.length === 0, JSON.stringify(cards.titles));
+    record("the card is the name and one short line — no grants recitation",
+      (cards.out[0]?.txt.length ?? 999) <= 110 && !/grants them/.test(cards.out[0]?.txt ?? ""),
+      `${cards.out[0]?.txt.length} chars: ${JSON.stringify(cards.out[0]?.txt)}`);
+    // the long form is not lost — it moved to the panel
+    await page.hover(".pmc-roster .pmc-cap");
+    await page.waitForTimeout(400);
+    const plate = await page.evaluate(() => {
+      const el = document.querySelector(".pmc-here");
+      return { op: getComputedStyle(el).opacity, txt: el.textContent.trim() };
+    });
+    record("hovering the dock itself still opens the standpoint plate",
+      plate.op === "1", `opacity ${plate.op}`);
+    record("and the plate carries the door's whole sentence, verbatim",
+      /a portal's ground seats a human/.test(plate.txt) && /journals on every act/.test(plate.txt),
+      plate.txt.slice(0, 120));
 
     record("every face is drawn at the same size",
       faces.length > 1 && new Set(faces.map((f) => Math.round(f.box.width))).size === 1,

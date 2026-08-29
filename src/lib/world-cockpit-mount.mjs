@@ -15,7 +15,7 @@ import {
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
-  pxToWorld, recentVoices, faceImageFor,
+  pxToWorld, recentVoices, faceImageFor, briefWords,
   aimField, aimKind, aimTargets, aimable, barFold, consentSplit, dialSpeak, leavingName,
   pointFields, snapPoint, walkStep, weaponFor,
 } from "./world-cockpit.mjs";
@@ -615,8 +615,29 @@ export const COCKPIT_CSS = `
   opacity: 0; transition: opacity .12s; pointer-events: none;
 }
 .pmc-roster:hover .pmc-here, .pmc-roster:focus-within .pmc-here { opacity: 1; }
+/* ⚑ ONE HOVER, ONE CARD (founder, live on dev 2026-08-29: two overlapping
+   cards on the human face, screenshot-verified, and reproduced in the harness —
+   the plate at 642..741 and the name box at 738..789, stacked, the box also
+   covering the ACT AS caption).
+
+   Both reveals were correct on their own: the plate answers "where am I
+   standing", hung off the dock's hover by the founder's own 2026-08-28 ruling,
+   and the box answers "who is this face". Hovering a FACE asks the second
+   question, so the first stands down for as long as the pointer is on a face —
+   the dock's own hover (its caption, its gaps) still opens the plate exactly as
+   it did. Nothing is deleted; one of them waits its turn.
+
+   :has() is the whole mechanism, and it degrades in the only direction that
+   matters: a browser without it shows both cards, which is today's behaviour. */
+.pmc-roster:has(.pmc-face:hover) .pmc-here,
+.pmc-roster:has(.pmc-face:focus-visible) .pmc-here { opacity: 0; }
 .pmc-here .who { color: var(--pmc-gold); font-size: .95rem; }
 .pmc-here .spine { color: var(--pmc-dim); font-size: .78rem; margin-top: .25em; line-height: 1.45; }
+/* the door's own sentence, whole — the long form the face's box no longer carries */
+.pmc-here .says {
+  color: var(--pmc-ink); font-size: .8rem; line-height: 1.5; margin-top: .45em;
+  padding-top: .4em; border-top: 1px dotted var(--pmc-gold-dim);
+}
 
 /* ── LATELY IS THE FEED (2026-08-29, the founder's ruling) ──
    "the action log can just replace the Lately section in the side rail instead
@@ -947,9 +968,16 @@ export function mountCockpit(o) {
       // read `f.because` until 08-27, which is a field the office's roster does
       // not emit, so the door's words vanished the day the door started sending
       // them. See humanWords for the drift and why it is read both ways.
+      // ⚑ ONE HOVER, ONE CONCISE CARD (founder, live on dev 2026-08-29). The
+      // human's box carried the door's whole sentence, which on a real
+      // standpoint is a recitation of every verb the ground grants — a
+      // paragraph hanging off a 2.3em circle, on top of the standpoint plate
+      // the same hover had already opened. The box keeps the name and ONE short
+      // line; the door's sentence is still shown whole, verbatim, on the plate
+      // (see drawHere), which is the panel the long form belongs on.
       const words = f.allowed
-        ? (f.kind === "human" ? `${esc(f.label)} · yourself — ${esc(humanWords(f))}` : esc(f.label))
-        : `${esc(f.label)} — ${esc(f.reason ?? "not here")}`;
+        ? (f.kind === "human" ? `${esc(f.label)} · yourself — ${esc(briefWords(humanWords(f)))}` : esc(f.label))
+        : `${esc(f.label)} — ${esc(briefWords(f.reason ?? "not here"))}`;
       // The box wraps when its words are a SENTENCE rather than a handle — keyed
       // on the length, not on whether the face was refused. Keyed on refusal, an
       // allowed human's "yourself — a portal's ground seats a human" ran straight
@@ -965,8 +993,11 @@ export function mountCockpit(o) {
     // now that a horizontal strip has no room for a paragraph.
     // The standpoint plate hangs off THIS box (2026-08-28 ruling) — a hover
     // reveal on the dock, the same way the faces' own name boxes are.
-    return `<div class="pmc-plate pmc-roster pmc-dock" role="group" aria-label="act as"
-      title="the hand journals on every act — recorded, never gated">
+    // NO `title` HERE ANY MORE. It was a THIRD card on the same hover: the
+    // browser's own tooltip, drawn on its own clock over whichever of ours the
+    // reader was already reading. The line it carried is law worth keeping, so
+    // it moved onto the standpoint plate rather than being deleted.
+    return `<div class="pmc-plate pmc-roster pmc-dock" role="group" aria-label="act as">
       <div class="pmc-cap">ACT AS</div>
       ${drawHere()}
       ${residents.map(face).join("")}
@@ -2178,9 +2209,18 @@ export function mountCockpit(o) {
   function drawHere() {
     const p = portalOf(state.answer);
     const spine = (state.answer.within ?? []).map((w) => w?.id).filter(Boolean).reverse();
+    // THE LONG FORM LIVES HERE NOW. The face's box was carrying the door's whole
+    // sentence and printing it over this plate; the plate is the panel, so the
+    // sentence is quoted here in full and the box keeps a short line. Only for
+    // the standpoint actually being acted as — a plate reciting every face's
+    // terms would be the same paragraph problem one surface along.
+    const me = faces().find((f) => (f.kind === "human" ? HUMAN_ACTOR : f.handle) === state.acting);
+    const says = me?.allowed && me.kind === "human" ? humanWords(me) : null;
     return `<div class="pmc-plate pmc-here" role="tooltip">
       <div class="who">${esc(state.acting === HUMAN_ACTOR ? "yourself" : state.acting ?? "a spectator")} <span style="color:var(--pmc-dim)">· inside</span> ${esc(p?.id ?? "")}</div>
       <div class="spine">the read roots at <b>${esc(p?.value ?? "—")}</b>${spine.length ? `<br>within: ${esc(spine.join(" ‹ "))}` : ""}</div>
+      ${says ? `<div class="says">${esc(says)}</div>` : ""}
+      <div class="spine">the hand journals on every act — recorded, never gated</div>
     </div>`;
   }
 
@@ -2629,6 +2669,7 @@ export function mountCockpit(o) {
   function ensureFeed() {
     const host = feedSection();
     if (!host) return null;
+    watchFeedHost(host);
     if (feedList?.isConnected && feedList.parentElement === host) return feedList;
     feedList = doc.createElement("ol");
     feedList.className = "pmc-feed";
@@ -2640,12 +2681,128 @@ export function mountCockpit(o) {
     feedNew.hidden = true;
     feedNew.textContent = "new ↓";
     feedNew.addEventListener("click", () => {
-      const box = feedSection();
-      if (box) box.scrollTop = box.scrollHeight;
-      feedNew.hidden = true;
+      followBottom = true;
+      feedPending = false;
+      pinFeed();
     });
     host.appendChild(feedNew);
     return feedList;
+  }
+
+  // ── the pin, and why it is a WATCH rather than a line of code ─────────────
+  //
+  // ⚑ THE FOUNDER, LIVE ON DEV 2026-08-29: "lately isn't scrolled down
+  // correctly". The harness had caught the flex-shrink case; this is a
+  // different failure and the harness could not have caught it, because the
+  // harness's Lately rows are STATIC and the real page's are not.
+  //
+  // THE REAL PAGE LOADS ITS RECORD IN WAVES. The viewer calls renderActivity
+  // from three separate async loads — loadWalkLedger().then(renderActivity),
+  // loadSettlements().then(... renderActivity), loadStakeEvents().then(
+  // renderActivity) — each of which rewrites .wv-acts's innerHTML and re-sets
+  // the section's hidden attribute, at whatever moment its fetch lands. Every
+  // one of those rewrites grows the content ABOVE our feed while the section
+  // keeps its scrollTop, which silently walks the reader off the bottom. A pin
+  // that runs once, at draw time, is pinning to a page that has not finished
+  // arriving — and the later a wave lands, the further from the bottom it
+  // leaves us. On a hard reload all three land after we mount, which is exactly
+  // the condition he was testing under.
+  //
+  // So the pin follows the CONTENT, not our own writes: a mutation observer for
+  // the viewer's rewrites, a resize observer for reflow that changes no nodes
+  // (fonts settling, a picture arriving, a row rewrapping), and the reader's own
+  // scroll as the one thing that can switch following off.
+  //
+  // `followBottom` is the reader's INTENT and is deliberately not re-derived
+  // from the geometry on every tick: once content has grown above us we are no
+  // longer at the bottom by measurement, and re-deriving would read that as "the
+  // reader scrolled up" and stop following for good. It changes only when a
+  // scroll event says the reader moved.
+  let followBottom = true;
+  let feedPending = false;
+  let feedWatched = null;
+  let feedSize = null;
+  let feedMutations = null;
+  let pinQueued = false;
+
+  /** Is this node one of ours? The pin must not react to its own writes. */
+  const ourNode = (n) => Boolean(n && (n === feedList || n === feedNew
+    || feedList?.contains?.(n) || feedNew?.contains?.(n)));
+
+  /** The pill, written only when it actually changes — belt to the observer's
+   *  braces, and cheaper than a mutation record nobody wants. */
+  const showPill = (on) => { if (feedNew && feedNew.hidden === on) feedNew.hidden = !on; };
+
+  const onFeedScroll = () => {
+    const box = feedSection();
+    if (!box) return;
+    followBottom = atBottom(box);
+    if (followBottom) { feedPending = false; showPill(false); }
+  };
+
+  function pinFeed() {
+    const box = feedSection();
+    if (!box) return;
+    if (!followBottom) {
+      showPill(feedPending);
+      return;
+    }
+    // ON THE NEXT FRAME, because a pin measured in the same tick as the write
+    // that caused it is measured against a layout the browser has not performed
+    // yet — scrollHeight still answers for the old content. Coalesced, because
+    // three waves landing together should cost one pin.
+    if (pinQueued) return;
+    pinQueued = true;
+    const raf = (doc.defaultView ?? globalThis).requestAnimationFrame;
+    const run = () => {
+      pinQueued = false;
+      const el = feedSection();
+      if (!el || !followBottom) return;
+      el.scrollTop = el.scrollHeight;
+      feedPending = false;
+      showPill(false);
+    };
+    if (typeof raf === "function") raf(run); else run();
+  }
+
+  /** Watch whichever section is live now — re-pointed when the viewer rebuilds
+   *  its rail, for the same reason the camera watch is. */
+  function watchFeedHost(host) {
+    if (feedWatched === host) return;
+    feedWatched?.removeEventListener?.("scroll", onFeedScroll);
+    feedSize?.disconnect();
+    feedMutations?.disconnect();
+    feedWatched = host;
+    host.addEventListener("scroll", onFeedScroll, { passive: true });
+    if (typeof ResizeObserver === "function") {
+      // The HOST's own box never changes — it is capped by max-height — so the
+      // thing to measure is its children, which is where the record grows.
+      feedSize = new ResizeObserver(pinFeed);
+      for (const child of host.children) feedSize.observe(child);
+    }
+    if (typeof MutationObserver === "function") {
+      feedMutations = new MutationObserver((records) => {
+        // ⚑ OUR OWN WRITES ARE NOT NEWS, and without this line the watch eats
+        // the page. Found by the shot runner hanging: pinFeed hides the
+        // new-below pill, the pill lives INSIDE the section, its hidden
+        // attribute is one this observer watches — so every pin caused a
+        // mutation that caused a pin. A tight infinite loop with no stack to
+        // show for it; the browser simply stopped answering.
+        //
+        // The feed's own list is excluded for the same reason and one more:
+        // drawFeed already calls pinFeed itself, so a second pin fired by
+        // watching our own innerHTML would be redundant even when it was safe.
+        if (!records.some((r) => !ourNode(r.target))) return;
+        // A rewrite can replace the children we were measuring, so the size
+        // watch is re-pointed before the pin rather than after it.
+        if (feedSize) { feedSize.disconnect(); for (const child of host.children) feedSize.observe(child); }
+        pinFeed();
+      });
+      feedMutations.observe(host, {
+        childList: true, subtree: true, characterData: true,
+        attributes: true, attributeFilter: ["hidden"],
+      });
+    }
   }
 
   function feedLineHtml(e) {
@@ -2670,14 +2827,11 @@ export function mountCockpit(o) {
   function drawFeed() {
     const list = ensureFeed();
     if (!list) return;
-    const box = list.parentElement;
-    const follow = atBottom(box);
     const html = state.feed.map(feedLineHtml).join("");
-    if (list.innerHTML !== html) {
-      list.innerHTML = html;
-      if (follow) { box.scrollTop = box.scrollHeight; if (feedNew) feedNew.hidden = true; }
-      else if (feedNew) feedNew.hidden = false;
-    }
+    if (list.innerHTML === html) return;
+    list.innerHTML = html;
+    if (!followBottom) feedPending = true;
+    pinFeed();
   }
 
   /** New entries in, feed redrawn. Everything that can add a line goes through
@@ -3788,6 +3942,10 @@ export function mountCockpit(o) {
     dockSignal(false); // hand the Act As question back to the viewer's own row
     aimingSignal(false); // and the map's cursor back to the viewer's
     feedSignal(false); // and Lately back to being Lately
+    feedWatched?.removeEventListener?.("scroll", onFeedScroll);
+    feedSize?.disconnect();
+    feedMutations?.disconnect();
+    feedWatched = null;
     feedList?.remove();
     feedNew?.remove();
     feedList = feedNew = null;
