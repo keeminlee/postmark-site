@@ -613,6 +613,37 @@ export function mountCockpit(o) {
    * whole first frame, which is what "a spectator · inside a-hall/the-lit-door"
    * in the first QA shot was.
    */
+  /**
+   * WHOSE STANDING THE KEY IS ORIENTED FROM — the seat, as opposed to who acts.
+   *
+   * ⚑ THE ACT SIDE OF THE SEAT LAW, and it was still using the old rule a day
+   * after the read side was fixed. This passed `orientingHandle(o.me)`: the
+   * FIRST handle on the key, which was written for a key holding one resident.
+   * The founder's holds six and the office happens to order the Illuminator
+   * first, so every act — the human's included — went out naming her, whoever
+   * the dock had selected. The comment beside it said the point out loud ("so
+   * the bar cannot be drawn for one standpoint and act from another") while the
+   * line under it did exactly that.
+   *
+   * Caught the moment the human could fight at all: the door refused a human's
+   * strike in the candle vault with "not afforded where you stand", and it was
+   * right — the act had oriented from the Illuminator's looking-room, which
+   * grants no arena verbs. The office fix was sound; the envelope was lying
+   * about where the swing came from.
+   *
+   * A RESIDENT SELECTION IS ITS OWN SEAT. The human's is the seat they are
+   * BORROWING, which is the whole of the human seam here — the human face
+   * deliberately speaks no selection (it is this cockpit's own grammar, not the
+   * viewer's), so acting as yourself keeps whichever resident's place you were
+   * already standing in. `state.seat` remembers that across the switch; the
+   * first handle survives only as the fallback for a mount that has never had a
+   * selection at all.
+   */
+  function seat() {
+    if (state.acting && state.acting !== HUMAN_ACTOR) return state.acting;
+    return state.seat ?? orientingHandle(o.me);
+  }
+
   function resolveActing() {
     if (state.acting) return;
     const list = faces();
@@ -620,6 +651,7 @@ export function mountCockpit(o) {
     if (human && state.answer?.standpoint?.stance === "embodied-human") { state.acting = HUMAN_ACTOR; return; }
     const first = list.find((f) => f.kind === "resident" && f.allowed) ?? null;
     state.acting = first ? first.handle : (human ? HUMAN_ACTOR : null);
+    if (state.acting && state.acting !== HUMAN_ACTOR) state.seat = state.acting;
   }
 
   function drawRoster() {
@@ -1089,9 +1121,14 @@ export function mountCockpit(o) {
     // bounces without it, and this key usually does. The terms are a property of
     // the CLASS rather than of the asker, so acting as the human simply asks in
     // the name of a resident on the same key; the answer is the same either way.
-    const asking = state.acting && state.acting !== HUMAN_ACTOR
-      ? state.acting
-      : (Array.isArray(o.me?.handles) ? o.me.handles[0] : null);
+    // ONE RESOLUTION OF "WHOSE STANDING", shared with the act (see `seat`). It
+    // had its own first-handle fallback, and the reasoning above is why that was
+    // survivable here where it was not survivable there — the terms belong to
+    // the class, so the asker's name does not change the answer. Routed through
+    // the same function anyway: two spellings of one question is how the read
+    // and the act came to disagree in the first place, and being harmless today
+    // is not the same as being right.
+    const asking = seat();
     o.readTerms(action, asking).then((body) => {
       termsCache.set(action, termsFromRead(body));
       // Re-render only if this act is still the one under the pointer — a card
@@ -1900,6 +1937,8 @@ export function mountCockpit(o) {
     const faceBtn = ev.target.closest?.(".pmc-face");
     if (faceBtn && root.contains(faceBtn)) {
       state.acting = faceBtn.getAttribute("data-actor");
+      // a resident selection IS the seat; the human keeps the one it borrowed
+      if (state.acting !== HUMAN_ACTOR) state.seat = state.acting;
       state.said = null;
       paint();
       // ONE SELECTION, TWO SURFACES (2026-08-28): the viewer's walk desk and
@@ -1993,7 +2032,7 @@ export function mountCockpit(o) {
       // included: `as` says who acts, `handle` says whose standing the key is
       // oriented from, and on a multi-resident key an act naming neither is
       // refused at orient before the human seam is reached.
-      const res = await o.dispatch(dispatchEnvelope({ action, args, acting: state.acting, handle: orientingHandle(o.me) }));
+      const res = await o.dispatch(dispatchEnvelope({ action, args, acting: state.acting, handle: seat() }));
       // THE THROW IS SHOWN WHETHER THE ACT LANDED OR NOT. A blow that misses still
       // threw the die, and a bounce can carry the roll that caused it — hiding the
       // number on a refusal would make the one moment a player most wants to see

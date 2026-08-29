@@ -348,3 +348,29 @@ test("the way out is one control: the pill stands down and the seat says where i
   assert.match(mount, /return `→ \$\{String\(parent\)\.split\("\/"\)\.pop\(\)\.replace\(\/-\/g, " "\)\}`;/,
     "and it names the containment the door already published");
 });
+
+test("an act names the SELECTED resident's standing, not the key's first handle", () => {
+  // ⚑ THE ACT SIDE OF THE SEAT LAW, still on the old rule a day after the read
+  // side was fixed. The dispatch passed `orientingHandle(o.me)` — the first
+  // handle on the key, written for a key holding one resident. The founder's
+  // holds six and the office orders the Illuminator first, so every act went
+  // out naming her whoever the dock had selected. The comment beside that line
+  // stated the point ("so the bar cannot be drawn for one standpoint and act
+  // from another") while the line under it did exactly that.
+  //
+  // Caught the moment the human could fight at all: the door refused a human's
+  // strike in the candle vault with "not afforded where you stand", correctly —
+  // the act had oriented from a looking-room that grants no arena verbs.
+  assert.match(mount, /const res = await o\.dispatch\(dispatchEnvelope\(\{ action, args, acting: state\.acting, handle: seat\(\) \}\)\);/,
+    "the act carries the seat, not the first handle the key happens to list");
+  assert.doesNotMatch(mount, /handle: orientingHandle\(o\.me\)/,
+    "and the old first-handle rule is gone from the dispatch entirely");
+  // the human BORROWS a seat rather than having one, which is the whole seam
+  assert.match(mount, /if \(state\.acting !== HUMAN_ACTOR\) state\.seat = state\.acting;/,
+    "a resident selection is its own seat");
+  assert.match(mount, /if \(state\.acting && state\.acting !== HUMAN_ACTOR\) return state\.acting;\s*\n\s*return state\.seat \?\? orientingHandle\(o\.me\);/,
+    "and acting as yourself keeps the seat you were already standing in, first handle only as a last resort");
+  // one resolution, not two — the shadow read asks the same question
+  assert.match(mount, /const asking = seat\(\);/,
+    "the terms read asks whose standing the same way the act does");
+});
