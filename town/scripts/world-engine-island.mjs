@@ -146,9 +146,13 @@ function stagingWalk(pkg, projectRoot) {
   // there: nothing to serve, and the browser's own 404 says so where a developer
   // is already looking.
   if (!existsSync(viewer)) return [];
-  const files = [
-    { source: viewer, publicPath: "/world-engine/spectator/viewer.mjs" },
-  ];
+  const files = [];
+  // Every non-test spectator module — the SAME drift the tools/ walk below fixed
+  // on 2026-07-28 bit spectator/ on 2026-08-29: act-as.mjs (the viewer's second
+  // spectator module ever) 404'd in the built site and the boot hung at module
+  // resolution with a green build behind it. One rule for both dirs now.
+  for (const f of readdirSync(join(pkg, "spectator")).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")))
+    files.push({ source: join(pkg, "spectator", f), publicPath: `/world-engine/spectator/${f}` });
   // Every non-test engine module — a NAMED list here was the drift: a new module
   // the viewer imports (mark-class.mjs, 2026-07-28) 404'd in prod while dev,
   // serving straight from node_modules, never noticed. The browser only imports
