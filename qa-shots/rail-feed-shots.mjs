@@ -350,6 +350,57 @@ const run = async () => {
     await page.close();
   }
 
+  // ── ②b A PINNED VIEWER BUBBLE, under the dock (2026-08-29, seam review) ──
+  //
+  // The review's hypothesis for the doubled hover: the second card is a pinned
+  // viewer bubble (.wv-bubble.is-pinned, pointer-events:auto) persisting under
+  // the cockpit's plates. Measured here rather than argued, because the cockpit
+  // genuinely has no awareness of pinned bubbles and the question is a fair one.
+  //
+  // THE ANSWER IS NO, ON THE STACKING: the bubble layer is z-index 7 inside the
+  // map; the cockpit's overlay is fixed at 7000. A bubble can only ever be
+  // UNDERNEATH, so it cannot be a card stacked on top of a hover card. And the
+  // dock's hover cannot reach it — the dock is a body-hosted fixed overlay, not
+  // a map mark, so the viewer's own bubble handlers never see it.
+  //
+  // WHAT IS REAL, AND IS A DIFFERENT BUG: the dock COVERS a low pinned bubble
+  // and, because the bubble takes pointer events, steals the clicks on the strip
+  // it covers. Left unfixed deliberately — it is not what the founder reported,
+  // and standing the viewer's bubbles down would suppress a panel the reader
+  // deliberately opened. Pinned here so it cannot be forgotten or rediscovered.
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1&bubble=1");
+    await page.waitForTimeout(3500);
+    const before = await page.evaluate(() => {
+      const b = document.querySelector(".wv-bubble.is-pinned").getBoundingClientRect();
+      return { t: Math.round(b.top), l: Math.round(b.left) };
+    });
+    await page.hover('.pmc-face[data-actor="human:self"]');
+    await page.waitForTimeout(900);
+    await shot(page, "09-pinned-bubble-under-dock");
+    const m = await page.evaluate(() => {
+      const rect = (s) => { const e = document.querySelector(s); return e ? e.getBoundingClientRect() : null; };
+      const bub = rect(".wv-bubble.is-pinned"), dock = rect(".pmc-roster");
+      const hit = (r1, r2) => r1 && r2 && r1.left < r2.right && r2.left < r1.right && r1.top < r2.bottom && r2.top < r1.bottom;
+      let onTop = null;
+      if (hit(bub, dock)) {
+        const x = Math.round((Math.max(bub.left, dock.left) + Math.min(bub.right, dock.right)) / 2);
+        const y = Math.round((Math.max(bub.top, dock.top) + Math.min(bub.bottom, dock.bottom)) / 2);
+        onTop = String(document.elementFromPoint(x, y)?.className ?? "");
+      }
+      const cards = [...document.querySelectorAll(".pmc-nm, .pmc-here")]
+        .filter((e) => getComputedStyle(e).opacity !== "0" && e.getBoundingClientRect().width > 0);
+      return { bub: { t: Math.round(bub.top), l: Math.round(bub.left) }, overlaps: hit(bub, dock), onTop, cards: cards.length };
+    });
+    record("hovering the dock does not raise or move a pinned viewer bubble",
+      m.bub.t === before.t && m.bub.l === before.l, `bubble at ${before.t},${before.l} → ${m.bub.t},${m.bub.l}`);
+    record("a pinned bubble can only ever be UNDER the cockpit, never a card over it",
+      m.overlaps && /pmc-/.test(m.onTop ?? ""), `where they overlap the top element is "${m.onTop}"`);
+    record("so a bubble under the dock adds no second card to the hover",
+      m.cards === 1, `${m.cards} card(s) visible while hovering the human face`);
+    await page.close();
+  }
+
   // ── ③ auto-select on the turn ────────────────────────────────────────────
   {
     // The vault fixture's wheel rests on the human, so the dock must NOT take a

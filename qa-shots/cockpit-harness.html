@@ -68,6 +68,21 @@
   .wv-act-line .when { display:block; margin-top:2px; font-family:var(--mono); font-size:.58rem;
     letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
   .wv-act-line.is-walk .what { color:var(--green); }
+  /* ── A PINNED VIEWER BUBBLE, behind ?bubble=1 (2026-08-29) ──
+     Copied from the pinned build (spectator/viewer.mjs § STYLE) so the z-order
+     under test is the viewer's real one, not one this harness invented. A
+     pinned bubble persists after a mark is clicked, takes pointer events, and
+     the cockpit has no awareness of it — so whether it can stack with the
+     dock's own cards is a question worth being able to ask here. */
+  .wv-bubbles { position:absolute; inset:0; z-index:7; pointer-events:none; overflow:hidden; }
+  .wv-bubble { position:absolute; top:0; left:0; width:max-content; max-width:min(31rem,72%);
+    --wv-mark-accent:var(--amber);
+    border:1px solid var(--line); border-left:3px solid var(--wv-mark-accent); border-radius:6px;
+    background:rgba(13,15,19,.97); box-shadow:0 10px 30px rgba(0,0,0,.55); }
+  .wv-bubble.is-pinned { z-index:3; pointer-events:auto; max-height:min(64%,32rem); overflow-y:auto; }
+  .wv-bubble .wv-card { padding:9px 11px; font-size:.78rem; line-height:1.5; color:var(--paper); }
+  .wv-bubble .cname { display:block; color:var(--amber); margin-bottom:3px; }
+
   /* THE VIEWER HIDES ITS WHOLE RAIL BELOW 720 (spectator/viewer.mjs: ".wv-nav,
      .wv-view { display:none; }"), so the harness must too — otherwise a phone
      shot shows a rail no phone reader has, and the honest fact about this lane
@@ -139,6 +154,20 @@
        here with the viewer's own geometry so the cockpit's placement is actually
        exercised; without them placeBar would fall back to the bottom and the shot
        would show a collision that never happens, or hide one that does. -->
+  <!-- A PINNED BUBBLE, planted low and centre — where the dock stands — so the
+       stacking question can be measured rather than argued. Hidden unless
+       ?bubble=1. Its host is the viewer's own .wv-bubbles layer at z-index 7;
+       the cockpit's overlay is fixed at 7000, and which of those wins is the
+       whole of what this fixture is for. -->
+  <div class="wv-bubbles" hidden>
+    <div class="wv-bubble is-pinned t-market" style="left:22%; bottom:14px; top:auto;">
+      <div class="wv-card">
+        <span class="cname">the good lighter</span>
+        a brass lighter with somebody else's initials worn off it.
+      </div>
+    </div>
+  </div>
+
   <div class="wv-spectator-coordinate">-95120, -95120 · crossing 151</div>
   <div class="wv-walkdesk">
     <p class="wv-youhere">the walk desk</p>
@@ -469,6 +498,7 @@
   //             road can be shot beside the derived one and the two compared
   const params = new URLSearchParams(location.search);
   if (params.get("rail")) document.body.classList.add("has-rail");
+  if (params.get("bubble")) document.querySelector(".wv-bubbles").hidden = false;
 
   /**
    * ?waves=1 — THE RAIL ARRIVES IN WAVES, as it does on the real page.
