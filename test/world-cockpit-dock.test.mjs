@@ -124,8 +124,29 @@ test("the row is fenced to the painting, not the viewport", () => {
     "the row's left edge comes off the painting, not the viewport");
   assert.match(mount, /let hi = wide \? paint\.right - 10 : vw - 14;/,
     "and so does its right edge");
-  assert.match(mount, /bar\.style\.left = `\$\{\(lo \+ hi\) \/ 2\}px`;/,
+  assert.match(mount, /bar\.style\.left = `\$\{\(berthLo \+ berthHi\) \/ 2\}px`;/,
     "and the row centers between them rather than over the viewport");
+});
+
+test("a berth once given is kept, so the dock does not slide out from under a click", () => {
+  // ⚑ CAUGHT WHILE PILOTING IT, 2026-08-28, and it is the cost of having made
+  // the row re-measure promptly rather than once. The viewer's furniture is
+  // transient — the exit pill comes and goes with what it thinks you can step
+  // into — so the row stepped aside for it, stepped back when it left, and
+  // stepped aside again. A dock whose faces move a hundred pixels while a hand
+  // is reaching for one is a dock you misclick: aiming at rei and pressing the
+  // illuminator, twice.
+  //
+  // While the reader stands in one place the row now only gives ground and
+  // never takes it back. Arriving somewhere else is a new room and a fresh
+  // measurement, keyed on the same scene frameScene arrives on — because the
+  // thing that legitimately changes the furniture around you is moving.
+  assert.match(mount, /if \(here !== berthKey\) \{ berthKey = here; berthLo = null; berthHi = null; \}/,
+    "a new standpoint measures the room again from scratch");
+  assert.match(mount, /berthLo = berthLo == null \? lo : Math\.max\(berthLo, lo\);/,
+    "and until then the left edge only ever moves inward");
+  assert.match(mount, /berthHi = berthHi == null \? hi : Math\.min\(berthHi, hi\);/,
+    "as does the right");
 });
 
 test("the row steps around bottom-corner furniture before it climbs over it", () => {

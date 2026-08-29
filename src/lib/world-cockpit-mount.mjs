@@ -780,6 +780,7 @@ export function mountCockpit(o) {
    * (the harness, a viewer that moved them) it falls back to the bottom, which is
    * exactly where it sat before this existed.
    */
+  let berthKey = null, berthLo = null, berthHi = null;
   function placeBar() {
     // the whole row (dock + bar) moves as one; the bar alone is the fallback
     // shape for a harness that mounted pieces
@@ -865,9 +866,26 @@ export function mountCockpit(o) {
     for (const box of climb) clear = Math.max(clear, h - box.top + 12);
     // never push the bar off the top of a short window
     bar.style.bottom = `${Math.min(clear, Math.max(18, h - 120))}px`;
+    // ⚑ A BERTH ONCE GIVEN IS KEPT, and this is the cost of having made the row
+    // re-measure promptly. The furniture is transient: the exit pill comes and
+    // goes with what the viewer thinks you can step into, so the row stepped
+    // aside for it, stepped back when it left, and stepped aside again — and a
+    // dock whose faces move a hundred pixels while you are reaching for one is
+    // a dock you misclick. Caught the way it would catch anyone: aiming at rei
+    // and hitting the illuminator, twice, because the row slid left between
+    // looking and pressing.
+    //
+    // So while you are standing in one place the row only ever gives ground,
+    // never takes it back. Arriving somewhere else is a new room and a fresh
+    // measurement — which is the same key frameScene arrives on, and for the
+    // same reason: the thing that legitimately changes the furniture is moving.
+    const here = sceneKey() ?? "";
+    if (here !== berthKey) { berthKey = here; berthLo = null; berthHi = null; }
+    berthLo = berthLo == null ? lo : Math.max(berthLo, lo);
+    berthHi = berthHi == null ? hi : Math.min(berthHi, hi);
     if (wide || vw) {
-      bar.style.left = `${(lo + hi) / 2}px`;
-      bar.style.maxWidth = `${Math.max(280, hi - lo)}px`;
+      bar.style.left = `${(berthLo + berthHi) / 2}px`;
+      bar.style.maxWidth = `${Math.max(280, berthHi - berthLo)}px`;
     }
     // THE HERE-PLATE NEEDS NO FENCE ANY MORE, and its absence here is the point
     // rather than an omission. It rode this same rect until 2026-08-28 — the
