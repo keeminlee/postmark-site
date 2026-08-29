@@ -811,7 +811,7 @@ export function weaponFor(answer, acting = null) {
   const hands = answer?.encounter_detail?.hands;
   if (!hands || typeof hands !== "object") return null;
   const who = acting === HUMAN_ACTOR
-    ? encounterOf(answer)?.order.find((a) => a.kind === "human")?.id ?? null
+    ? yourHumanRow(encounterOf(answer), answer)?.id ?? null
     : acting;
   const w = who ? hands[who]?.weapon : null;
   if (!w || typeof w !== "object") return null;
@@ -857,7 +857,7 @@ export function weaponFor(answer, acting = null) {
 export function fighterState(answer, acting = null) {
   const enc = encounterOf(answer);
   const id = acting === HUMAN_ACTOR
-    ? enc?.order.find((a) => a.kind === "human")?.id ?? null
+    ? yourHumanRow(enc, answer)?.id ?? null
     : (typeof acting === "string" && acting ? acting : null);
   const row = id && enc ? enc.order.find((a) => a.id === id) ?? null : null;
   return {
@@ -880,8 +880,41 @@ export function fighterState(answer, acting = null) {
   };
 }
 
+/**
+ * The reader's own HUMAN row on the wheel, or null — matched by HAND, never by
+ * kind alone.
+ *
+ * ⚑ KIND STOPPED IDENTIFYING THE ROW THE NIGHT THREE HUMANS FOUGHT AT ONCE
+ * (2026-08-29, DARKO's party, found live by the founder). "One human per
+ * household is the class's own shape, so the kind identifies the row" was true
+ * of a household and never of a WHEEL: households.mjs derives one hand per
+ * household, and a party seats many households in one fight. Every reader
+ * acting as themselves was bound to the FIRST row whose kind was "human" —
+ * whoever joined earliest — so the founder and every guest were all told they
+ * were `human-of-the-misfiled-annex`, the first human through the door.
+ *
+ * The match order, strongest first:
+ *   1. `answer.seat.human` — the door's own disclosure of THIS reader's hand
+ *      (seatBlock), matched by id. Absent from the wheel = honestly not on it.
+ *   2. the row the door marked `you` that is also a human — an exact match the
+ *      door already made.
+ *   3. a WHEEL WITH EXACTLY ONE human — the pre-party case, kept so a fixture
+ *      or a quiet room without a seat block still resolves.
+ * Several humans and no hand to tell them apart = null, never a guess: binding
+ * a reader to a stranger's row is this exact bug.
+ */
+export function yourHumanRow(encounter, answer = null) {
+  const order = encounter?.order ?? [];
+  const hand = typeof answer?.seat?.human === "string" && answer.seat.human ? answer.seat.human : null;
+  if (hand) return order.find((a) => a.id === hand) ?? null;
+  const marked = order.find((a) => a.kind === "human" && a.you);
+  if (marked) return marked;
+  const humans = order.filter((a) => a.kind === "human");
+  return humans.length === 1 ? humans[0] : null;
+}
+
 /** The caller's own row on the wheel, or null. */
-export function yourTurnRow(encounter, acting = null) {
+export function yourTurnRow(encounter, acting = null, answer = null) {
   // ⚑ WHOSE ROW IS "YOU" DEPENDS ON WHO IS ACTING, and until this took an
   // argument it was always the resident's. The door answers a RESIDENT's
   // standpoint and marks that resident `you`, which is right for the read — but
@@ -894,11 +927,9 @@ export function yourTurnRow(encounter, acting = null) {
   // that it was their turn. The one row the door marks `you` was rei's, and rei
   // was not up.
   //
-  // The human's row is found by KIND rather than by name: the office derives the
-  // hand's label itself (humanHandFor) and the site has no business spelling it
-  // a second way. One human per household is the class's own shape, so the kind
-  // identifies the row without a name to keep in step.
-  if (acting === HUMAN_ACTOR) return encounter?.order.find((a) => a.kind === "human") ?? null;
+  // The human's row is found by HAND via `yourHumanRow` — by-kind alone stopped
+  // identifying it the night three humans fought at once (see that helper).
+  if (acting === HUMAN_ACTOR) return yourHumanRow(encounter, answer);
   return encounter?.order.find((a) => a.you) ?? null;
 }
 
@@ -969,7 +1000,7 @@ export function blockedReason(answer, { acting = null } = {}) {
   }
   const enc = encounterOf(answer);
   if (!enc) return null;
-  const you = yourTurnRow(enc, acting);
+  const you = yourTurnRow(enc, acting, answer);
   // ⚑ THE DERIVED BRANCHES INVENT NO LIST, and they do not need to: they carry
   // the door's, through `narrowing` above. The distinction is worth keeping
   // straight — a derivation is entitled to say WHY it thinks you are held up

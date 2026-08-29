@@ -26,7 +26,7 @@ import {
   actorsFor, barSlots, cardOf, cockpitShows, dialLine, dispatchEnvelope,
   gridFrom, ownParcelIn, portalOf, readBounce, statedLimit, tokenFor, tokenPlacement,
   termsFromRead, termsRows, wantsTextarea, worldToPx,
-  blockedReason, encounterOf, looseThings, rollsFrom, spaceOf, yourTurnRow,
+  blockedReason, encounterOf, fighterState, looseThings, rollsFrom, spaceOf, yourTurnRow,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices,
 } from "../src/lib/world-cockpit.mjs";
@@ -1100,9 +1100,38 @@ test("acting as the human, YOUR row on the wheel is the human's — not the resi
     .filter((s) => s.afforded).every((s) => s.enabled === true),
     "and every afforded seat can be pressed");
 
-  // the row is found by KIND, never by spelling the hand's name a second way —
-  // the office derives that label and the site has no business guessing it
+  // a lone human still resolves by kind (the pre-party fallback)…
   assert.equal(yourTurnRow(encounterOf(onTheHuman), HUMAN_ACTOR)?.kind, "human");
   assert.equal(yourTurnRow(encounterOf(onTheHuman))?.you, true,
     "and with nobody named, it is still the door's own you-row");
+
+  // ⚑ …but THREE HUMANS ON ONE WHEEL must bind by HAND, never by first-of-kind.
+  // yourHumanRow's law, quoted: "binding a reader to a stranger's row is this
+  // exact bug" — the party night every guest was told they were
+  // human-of-the-misfiled-annex, the first human through the door.
+  const crowd = {
+    ...onTheHuman,
+    seat: { ground: "the-town/the-candle-vault", seat: "rei", human: "human-of-starforge" },
+    encounter: {
+      ...onTheHuman.encounter,
+      order: [
+        { id: "human-of-the-misfiled-annex", kind: "human", label: "the misfiled annex", initiative: 19 },
+        { id: "human-of-fox-hearth", kind: "human", label: "fox hearth", initiative: 12 },
+        { id: "human-of-starforge", kind: "human", label: "DARKO", initiative: 7 },
+        ...onTheHuman.encounter.order.map((a) => ({ ...a })).filter((a) => a.kind !== "human"),
+      ],
+    },
+  };
+  assert.equal(yourTurnRow(encounterOf(crowd), HUMAN_ACTOR, crowd)?.id, "human-of-starforge",
+    "the reader's row is the one the seat's hand names, not the first human who joined");
+  assert.equal(fighterState(crowd, HUMAN_ACTOR).id, "human-of-starforge",
+    "the fighter plate binds the same way");
+  // and a reader whose hand is NOT on the wheel is honestly off it — never a stranger
+  const offWheel = { ...crowd, seat: { ...crowd.seat, human: "human-of-elsewhere" } };
+  assert.equal(yourTurnRow(encounterOf(offWheel), HUMAN_ACTOR, offWheel), null,
+    "an absent hand answers null, not somebody else's row");
+  // several humans and NO seat disclosure = refuse to guess
+  const { seat: _dropped, ...noSeat } = crowd;
+  assert.equal(yourTurnRow(encounterOf(noSeat), HUMAN_ACTOR, noSeat), null,
+    "with no hand to tell three humans apart, no row is anyone's");
 });
