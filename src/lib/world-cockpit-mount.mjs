@@ -14,7 +14,7 @@ import {
   portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
-  actCandidates, adversaryPlacement, chatField, chatShaped, prefillFor,
+  actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices,
 } from "./world-cockpit.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
@@ -935,6 +935,13 @@ export function mountCockpit(o) {
     if (!f) return "";
     const cap = statedLimit(f.description);
     const who = state.acting === HUMAN_ACTOR ? "yourself" : (state.acting ?? "—");
+    // THE PROMPT IS THE HEAD OF THE DOOR'S OWN SENTENCE, not the whole of it.
+    // A field description is written for a form's caption, where there is room
+    // for the limit and the caveats; in a one-line box it ran off the end and
+    // read as "what you say, at most 500 charac" — seen in the shot. The first
+    // clause is still the door's words, just the part that fits. The full
+    // sentence is not lost: the act's card still quotes it whole on hover.
+    const prompt = String(f.description ?? f.name).split(/\s*[,—–]\s*/)[0];
     const said = state.said
       ? `<p class="pmc-said${state.said.ok ? "" : " bad"}">${esc(state.said.text)}</p>`
       : "";
@@ -942,7 +949,7 @@ export function mountCockpit(o) {
       <span class="who">${esc(action.toUpperCase())} · ${esc(who)}</span>
       <input type="text" data-field="${esc(f.name)}" autocomplete="off"
         ${cap ? `maxlength="${cap}"` : ""}
-        aria-label="${esc(f.name)}" placeholder="${esc(f.description ?? f.name)}">
+        aria-label="${esc(f.name)}" placeholder="${esc(prompt)}">
       <span class="keys">↵ send · esc close</span>
       ${said}
     </form>`;
@@ -960,8 +967,21 @@ export function mountCockpit(o) {
   function contextHtml() {
     const c = state.context;
     if (!c) return "";
+    // A NEUTRAL PAIRING, NOT A SENTENCE. Written as "<act> <thing>" the menu
+    // read "lift the unlit cake" and "walk the unlit cake" — English claiming
+    // those acts mean something against that thing, which the site has no way to
+    // know and in those two cases they do not. The dot pairs them without
+    // asserting anything, which is the honest amount for a surface with no verb
+    // list to say.
+    //
+    // AND THEY ARE ALL STILL OFFERED. Narrowing the list would mean deciding
+    // which acts may be aimed at what — a permission calculus, which is the
+    // door's and never this file's. It is the same ruling the bar already obeys
+    // for a gated seat: disabled with the reason, never hidden. An act that does
+    // not apply comes back refused in the door's own words, which teaches the
+    // reader something; an act quietly missing teaches them nothing.
     const rows = c.acts.length
-      ? c.acts.map((a) => `<button type="button" data-ctx-act="${esc(a.action)}" data-ctx-field="${esc(a.field)}">${esc(a.label.toLowerCase())} <span style="color:var(--pmc-dim)">${esc(c.thing.label)}</span></button>`).join("")
+      ? c.acts.map((a) => `<button type="button" data-ctx-act="${esc(a.action)}" data-ctx-field="${esc(a.field)}">${esc(a.label.toLowerCase())} <span style="color:var(--pmc-dim)">· ${esc(c.thing.label)}</span></button>`).join("")
       : `<p class="none">nothing this ground affords can be aimed at that right now.</p>`;
     return `<div class="pmc-plate pmc-ctx" role="menu" aria-label="${esc(c.thing.label)}">
       <span class="what">${esc(c.thing.label)}<small>${esc(c.thing.id)}</small></span>
@@ -981,6 +1001,18 @@ export function mountCockpit(o) {
     const enc = encounterOf(state.answer);
     if (!enc) return "";
     const faces = actorsFor(state.answer, o.me, { acting: state.acting });
+    // THE ADVERSARY'S HP IS IN THE OTHER BLOCK, and the wheel has to make the
+    // same join the map does. The office builds each wheel row's `hp` out of
+    // `state.hands`, which holds the JOINERS — the hostile is not one of them —
+    // so the boss's row arrives with no hp at all while `encounter_detail`
+    // states it plainly. Left alone the wheel showed the cake with an empty rail
+    // beside a map ring reading 41 of 60: one number, two surfaces, disagreeing.
+    // Seen in the shot, which is the only place it could have been seen.
+    const adv = adversaryOf(state.answer);
+    const rows = enc.order.map((a) =>
+      (!a.hp && adv && a.id === adv.id && Number.isFinite(adv.hp) && Number.isFinite(adv.of) && adv.of > 0)
+        ? { ...a, hp: { now: adv.hp, max: adv.of } }
+        : a);
     const pictureFor = (a) => {
       if (a.kind === "creature") return null;
       const human = a.kind === "human" ? faces.find((f) => f.kind === "human") : null;
@@ -1010,13 +1042,13 @@ export function mountCockpit(o) {
         ${hp}
       </li>`;
     };
-    const whose = enc.order.find((a) => a.current);
+    const whose = rows.find((a) => a.current);
     return `<div class="pmc-plate pmc-wheel">
       <div class="pmc-wheel-cap">
         <b>INITIATIVE</b>
         <span>${enc.round == null ? "" : `round ${esc(String(enc.round))} · `}${whose ? esc(whose.label) + " is acting" : "waiting"}</span>
       </div>
-      <ol class="pmc-wheel-row">${enc.order.map(seat).join("")}</ol>
+      <ol class="pmc-wheel-row">${rows.map(seat).join("")}</ol>
     </div>`;
   }
 
@@ -1184,8 +1216,23 @@ export function mountCockpit(o) {
       if (!at) return "";
       // A line has to be readable over a night map whatever it lands on, so it
       // carries its own ground — the same reason the die's caption does.
-      const size = 11 * u;
-      const said = v.said.length > 96 ? v.said.slice(0, 95) + "…" : v.said;
+      //
+      // SIZED BY LOOKING AT IT. The first pass used 11, which put the said text
+      // at about nine screen pixels and the speaker's name at seven — present in
+      // the DOM, correct in every measurement, and not actually readable in the
+      // shot. This is the whole reason the shot runner exists beside the unit
+      // tests on this surface.
+      const size = 15 * u;
+      // FITTED TO THE PAINTING, not to a character count. SVG text does not
+      // wrap, so a long line is one long box — and at 390 a ninety-character cap
+      // drew a bubble wider than the phone it was on. The budget is a share of
+      // the visible map rather than a number of letters, so the same sentence
+      // fits differently on a phone and on a desktop, which is correct: it is
+      // the painting that ran out of room, not the sentence that got longer.
+      const view = Number((o.svg?.getAttribute("viewBox") ?? "").split(/[\s,]+/)[2]);
+      const room = isFinite(view) && view > 0 ? view * 0.62 : 96 * size * 0.52;
+      const fits = Math.max(12, Math.floor((room - size * 1.2) / (size * 0.52)));
+      const said = v.said.length > fits ? v.said.slice(0, fits - 1) + "…" : v.said;
       const w = (said.length * size * 0.52) + size * 1.2;
       const h = size * 2.6;
       const lift = 16 * u;
@@ -1392,19 +1439,30 @@ export function mountCockpit(o) {
   /**
    * WHERE THE CURSOR LANDS in a form that may already be filled in.
    *
-   * The first EMPTY field, not the first field — because a prefilled one is
-   * already answered, and dropping the cursor into it means the reader's first
-   * keystroke either lands inside a value they wanted or has to be preceded by
-   * clearing it. With nothing left to fill, the cursor goes to the send button,
-   * so ENTER is the very next thing a hand can do: that is the whole of "plain
-   * ENTER submits" for the acts whose fields the door fills itself.
+   * The first empty field the reader MUST answer — and the word required is
+   * doing real work there, caught in QA. Keyed on merely empty, the cursor
+   * dropped into an optional field on a panel that had just said "press ENTER to
+   * send it as it stands": the sentence and the cursor disagreed, and the cursor
+   * is the one a hand believes. An optional field is one tab away, which is the
+   * right cost for a value the door will supply if you say nothing.
+   *
+   * A prefilled field is never landed in either: it is already answered, so the
+   * first keystroke would either land inside a value the reader wanted or have
+   * to be preceded by clearing it.
+   *
+   * With nothing left that must be answered, the cursor goes to the send button
+   * — so ENTER is the very next thing a hand can do, which is the whole of the
+   * ruling for the acts whose fields the door fills itself.
    */
   function focusFirstOpen() {
     const form = root.querySelector("[data-form]");
     if (!form) return;
     const fields = [...form.querySelectorAll("[data-field]")];
-    const empty = fields.find((el) => !el.value);
-    (empty ?? form.querySelector(".pmc-btn.go") ?? fields[0])?.focus();
+    const all = barSlots(state.answer);
+    const card = [...all.fixed, ...all.tray].find((s) => s.action === form.getAttribute("data-form"))?.card;
+    const required = new Set((card?.fields ?? []).filter((f) => f.required).map((f) => f.name));
+    const must = fields.find((el) => !el.value && required.has(el.getAttribute("data-field")));
+    (must ?? form.querySelector(".pmc-btn.go") ?? fields.find((el) => !el.value) ?? fields[0])?.focus();
   }
 
   async function onSubmit(ev) {

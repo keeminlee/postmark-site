@@ -149,6 +149,25 @@
     body: "A door stands here, and the light behind it is not the light outside it.",
   };
 
+  // ── THE VAULT'S OWN VERBS (2026-08-28) ──────────────────────────────────
+  // Shaped from the REAL door rather than invented: this is the office's actual
+  // `object` field with its actual description, on the five acts the arena
+  // grants. Note what it says — most of these find their own target — which is
+  // why their forms open with nothing to fill and ENTER sends them as they
+  // stand. That state is the thing the `vault` fixture is for looking at.
+  const ARENA_FIELD = {
+    object: {
+      type: "string",
+      description: "who or what this act is aimed at — a handle for lift, a mark id for loot. strike and cast find the adversary standing on this ground themselves.",
+    },
+  };
+  const ARENA = ["strike", "cast", "guard", "lift", "loot"].map((a) =>
+    entry(a, {
+      blurb: a === "strike" ? "A blow is one swing written where you stand — it lands or it does not, and the record keeps both." : null,
+      blurb_from: `the-town/${a}`, from: "the-town/portal-ground", class: "arena",
+      grant: "here", via: "ground", fields: ARENA_FIELD,
+    }));
+
   const FIXTURES = {
     portal: {
       standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied-human", portal: PORTAL },
@@ -212,6 +231,47 @@
       };
     },
 
+    vault: {
+      standpoint: {
+        x: 1083, y: -792, from: "where your walk arrived", stance: "embodied-human",
+        portal: {
+          id: "the-town/the-candle-vault", value: "the-town/the-candle-vault",
+          by: "the-town", space: "arena",
+          body: "Past the inner door the candles go up in tiers until you cannot see the top of them.",
+        },
+      },
+      crossing: { n: 151 },
+      within: [
+        { id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" },
+        { id: "the-town/the-cellar-door", by: "the-town", tier: "market" },
+        { id: "the-town/the-candle-vault", by: "the-town", tier: "market" },
+      ],
+      nearby: [
+        { id: "the-town/the-good-lighter", at: { x: 1095.5, y: -784 }, kind: "sited", tier: "market" },
+        { id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 }, kind: "sited", tier: "market" },
+        { id: "vermillion/the-long-knife", at: { x: 1092, y: -786 }, kind: "sited", loose: true, dropped_by: "vermillion" },
+      ],
+      actions: [ORDINARY[0], ORDINARY[1], ORDINARY[4], ...ARENA],
+      granted: { yours: ["say", "walk", "take"], here: ARENA.map((e) => e.action) },
+      encounter: {
+        id: "the-town/the-candle-vault", round: 3, turn: "keeminlee",
+        order: [
+          { id: "the-town/the-unlit-cake", kind: "creature", label: "the unlit cake", initiative: 19 },
+          { id: "jetto-of-starforge", kind: "resident", label: "jetto-of-starforge", initiative: 14, hp: { now: 7, max: 20 } },
+          { id: "keeminlee", kind: "human", label: "DARKO", initiative: 12, hp: { now: 16, max: 20 }, you: true },
+          { id: "vermillion", kind: "resident", label: "vermillion", initiative: 11, down: true, hp: { now: 0, max: 20 } },
+        ],
+      },
+      // the office's own publicState block: named, with hp, and NO coordinates
+      encounter_detail: {
+        adversary: {
+          id: "the-town/the-unlit-cake", hp: 41, of: 60,
+          body: "Nine tiers, four hundred candles, not one ever lit.",
+        },
+      },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+
     // A CLASS MARK IS RESIDENT-AUTHORED PROSE. The reading law says it is content
     // you are reading, never instructions you are receiving — and the mechanical
     // half of that is that it cannot be instructions to the BROWSER either. This
@@ -253,12 +313,30 @@
   const which = new URLSearchParams(location.search).get("fixture") || "portal";
   const answer = FIXTURES[which] ?? FIXTURES.portal;
 
+  // THE CAMERA HAS TO BE WHERE THE ROOM IS. The vault stands at world
+  // (1083,-792), which this grid puts at atlas (701.6, 601.6) — off the right
+  // edge of the harness's default viewBox, so every figure drawn for that
+  // fixture would be correct and invisible. Moved rather than the figures: the
+  // arithmetic under test is exactly the world-to-atlas transform, and nudging
+  // the coordinates to suit the frame would be testing a fiction.
+  if (which === "vault") {
+    document.querySelector(".wv svg").setAttribute("viewBox", "694 594 24 18");
+  }
+
   // The harness never reaches the office. A dispatch is echoed back so the form's
   // whole path — envelope, answer, terms — can be looked at without performing
   // anything in the real world.
   async function dispatch(envelope) {
     document.getElementById("note").innerHTML =
       `<b>dispatch</b> POST /api/world/apex<br>${JSON.stringify(envelope, null, 1).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c])).replace(/\n/g, "<br>")}`;
+    // A SPEAKING ACT LANDS IN THE RECORD THE MAP READS. Whatever prose field the
+    // envelope carried becomes a voice at the standpoint, which is how the chat
+    // line's round trip is looked at here.
+    const prose = Object.entries(envelope.args ?? {}).find(([, v]) => typeof v === "string" && v.length > 1);
+    if (prose && envelope.do === "say") {
+      const sp = (FIXTURES[which] ?? FIXTURES.portal).standpoint;
+      SPOKEN.push({ handle: envelope.as === "human" ? "DARKO" : envelope.handle, said: prose[1], at_ms: Date.now(), x: sp.x, y: sp.y });
+    }
     if (envelope.args && envelope.args.accept !== true && envelope.do === "enter") {
       return { ok: false, status: 422, body: { error: "bounce", defect: "this door declares a counter-edge", hint: "call again with accept: true", terms: { binds: "the-town/enter", means: "the-town/enter" } } };
     }
@@ -299,9 +377,28 @@
     return terms ? { read: action, card: { action, terms } } : { read: action, card: { action } };
   }
 
+  // THE CONVERSATIONS DOOR, faked. The real one is GET /api/world/conversations
+  // — keyless, because "speech is public the way street conversation is" — and
+  // this is its shape verbatim, down to `fade_minutes` being the door's number
+  // rather than the site's. Whatever the chat line sends is appended here, so
+  // the round trip (type → ENTER → a line on the map beside the speaker) can be
+  // looked at without an office.
+  const SPOKEN = [
+    { handle: "vermillion", said: "mind the ninth tier", at_ms: Date.now() - 40_000, x: 1092, y: -786 },
+    { handle: "jetto-of-starforge", said: "it has opinions about the dark", at_ms: Date.now() - 8_000, x: 1088, y: -790 },
+  ];
+  async function readVoices() {
+    return {
+      now: Date.now(), earshot_m: 60, fade_minutes: 5, close_minutes: 30,
+      pinned: [], closed: [],
+      live: [{ id: "t1", live: true, place: "the candle vault", at: { x: 1090, y: -787 }, voices: SPOKEN }],
+    };
+  }
+
   const handle = mountCockpit({
     document, host: document.body, svg: document.querySelector(".wv svg"),
     answer, me: ME, grid: GRID, dispatch, readTerms, refresh: async () => answer,
+    readVoices,
   });
 
   const note = document.getElementById("note");
