@@ -829,8 +829,21 @@ test("the hover is a glance and the fine print is somewhere a hand can reach", (
   // gesture: hover gets the glance, the panel gets the detail.
   assert.match(MOUNT, /\.pmc-card \{[\s\S]{0,400}?pointer-events: none;/,
     "the card still takes no pointer");
-  assert.match(MOUNT, /return `\$\{cold\}\$\{line\}\$\{blurb\}\$\{voice\}<p class="pmc-from">\$\{why \? "the seat lights when it can be taken" : "press for the fine print"\}<\/p>`;/,
-    "so the card is why it is cold, the throw, the sentence, the weapon's own words, and a pointer to the rest");
+  // ⚑ AND THE POINTER TO THE REST IS GONE (founder, 2026-08-29). This pinned
+  // `press for the fine print` as the card's last line; it was an instruction to
+  // do the thing the reader was already doing, under every seat on every hover.
+  // Deleting it costs nothing, because the terms never depended on the tooltip
+  // announcing them — they arrive at the press either way, and the
+  // consent-at-the-door law is the press's.
+  //
+  // PINNED ON THE TEMPLATE, not on prose about it: this line can only match the
+  // rendering itself, so a card that started saying it again would fail here.
+  assert.match(MOUNT, /return `\$\{cold\}\$\{line\}\$\{blurb\}\$\{voice\}\$\{why \? `<p class="pmc-from">the seat lights when it can be taken<\/p>` : ""\}`;/,
+    "so the card is why it is cold, the throw, the sentence, and the weapon's own words — and nothing else");
+  assert.doesNotMatch(MOUNT, /press for the fine print/,
+    "the sentence is not anywhere in this file, comment or code");
+  // …and the fine print itself did NOT move or shrink. The line went; the terms
+  // are exactly where they were, on the surface a hand has committed to.
   assert.match(MOUNT, /function fineHtml\(card\) \{/, "and the rest is rendered on the panel");
   assert.match(MOUNT, /\$\{trigger && !sheet \? "" : fineHtml\(c\)\}/,
     "which is where formHtml puts it — on every panel except the tight fight plate, and on that one too once it is delivering terms");
@@ -1162,19 +1175,41 @@ test("the creature's numbers live in its own rail, and only when asked for", () 
   assert.match(MOUNT, /\$\{hasBar \? `<g class="pmc-adv-hp">/, "the rail itself is drawn whenever the door gives numbers");
 });
 
-test("the name comes back on hover rather than standing on the map", () => {
-  assert.match(MOUNT, /if \(!nm \|\| !hot\) return "";/, "no name text on the resting figure");
-  assert.match(MOUNT, /fill="#f0c9b8" font-family="Georgia, serif">\$\{esc\(nm\)\}<\/text>/,
-    "and the plate that returns carries the name alone");
-  assert.doesNotMatch(MOUNT, /\$\{esc\(nm\)\}\$\{hasBar \? ` · \$\{a\.hp\}\/\$\{a\.of\}` : ""\}/,
-    "the numbers it used to carry are gone from it — they are in the rail now");
-  // ⚑ WHY IT IS HIDDEN RATHER THAN DELETED, and this is the one place the ask
-  // was not followed literally: the ask assumed `<title>` would still name the
-  // figure, and `<title>` cannot fire here — the whole layer takes no pointer
-  // events, so no browser tooltip has ever appeared over it. Deleting the plate
-  // outright would leave an orange ring a reader cannot identify at all.
+test("the creature's hover is the numbers and nothing else — no name plate at all", () => {
+  // ⚑ THIS SUPERSEDES "the name comes back on hover rather than standing on the
+  // map", which stood here and asserted the opposite. That test was right about
+  // its own reasoning and wrong about the world: it kept the plate hidden-but-
+  // returning because "deleting the plate outright would leave an orange ring a
+  // reader cannot identify at all". FOUNDER, 2026-08-29, with the fact that
+  // reasoning missed: "the unlit cake is BOTH A MARK AND AN ENTITY, which makes
+  // things very redundant." The ring is not anonymous — the MARK under it has
+  // its own hover card carrying the name, and the wheel's seat carries it too.
+  // A third plate on the same pointer was a second answer to a question already
+  // answered twice.
+  assert.doesNotMatch(MOUNT, /<g class="pmc-adv-name">/, "the plate is not drawn");
+  assert.doesNotMatch(MOUNT, /fill="#f0c9b8" font-family="Georgia, serif">\$\{esc\(nm\)\}<\/text>/,
+    "and no name text is emitted onto the token at any state");
+  // what hover DOES give is the one thing neither the mark card nor the wheel
+  // states in the moment: how much of the creature is left, in its own rail.
+  assert.match(MOUNT, /const numbers = hasBar && hot/, "the numbers are still the hover reveal");
+  assert.match(MOUNT, /fill="#fdf1ea">\$\{a\.hp\}\/\$\{a\.of\}<\/text>/, "and they are the door's own two numbers");
+});
+
+test("…and nothing is orphaned: the mark and the wheel still name the creature", () => {
+  // THE NO-ORPHAN CONTROL. The deletion above is only honest while these two
+  // hold; if either stopped naming the cake, the map really would carry an
+  // orange ring nobody can identify — the exact failure the hidden plate was
+  // compromising to avoid. So they are asserted here, beside the deletion.
+  //
+  // The wheel: every combatant row carries its label, the creature included.
+  assert.match(MOUNT, /<span class="nm">\$\{esc\(a\.label\)\}<\/span>/,
+    "the wheel's own seat prints every combatant's label, the creature included");
+  // The mark: the cake stands on the floor as a mark like any other, and the
+  // viewer's own hover card names it. This surface must not suppress it — the
+  // token layer takes no pointer events at all, so a pointer over the ring
+  // reaches the painting underneath and the mark answers.
   assert.match(MOUNT, /tokenLayer\.setAttribute\("pointer-events", "none"\);/,
-    "the layer takes no pointer events, which is why :hover and <title> are both unavailable");
+    "the token layer never swallows the pointer, so the mark beneath still answers it");
 });
 
 test("what lights under the cursor is what a press would land on", () => {
@@ -1344,4 +1379,38 @@ test("a refused face can still say why, which is what aria-disabled buys", () =>
     "and the plate carries the door's own reason");
   assert.match(MOUNT, /\.pmc-face\[aria-disabled="true"\] \{ opacity: \.4; cursor: not-allowed; \}/,
     "greyed by the same attribute that keeps it hoverable");
+});
+
+test("the journalling disclosure is on the plate, and only over your own seat", () => {
+  // ⚑ IT WAS ORPHANED BY A REWRITE, not by a ruling. The line began as the
+  // dock's native `title`, moved onto the plate when that tooltip became a third
+  // card on one hover, and went out with the standpoint recitation when the
+  // plate was emptied — leaving nothing on this surface saying what the hand
+  // records. A disclosure about what the surface RECORDS is not a sentence to
+  // lose by accident, so it is back.
+  assert.match(MOUNT, /the hand journals on every act — recorded, never gated/,
+    "the law is on the surface, in its own words");
+  assert.match(MOUNT, /\$\{kitHtml\(s\)\}\r?\n\s*\$\{journalLine\(who\)\}/, "under the fighter's own rows");
+  // AND NARROWED, which is the honest half of putting it back. The plate's rule
+  // is that it is about the fighter you are pointing at — the ground's sentence
+  // was taken off it for exactly that reason — and this line is about the
+  // SURFACE. Over an ally's hit points it would be a claim about that ally.
+  assert.match(MOUNT, /function journalLine\(who\) \{\r?\n\s*if \(who !== state\.acting\) return "";/,
+    "silent over anyone but the seat being acted as");
+  // the can-fail control: the plate really does draw for someone who is NOT the
+  // acting seat, so "only over your own seat" is a live branch and not a
+  // condition that never comes up.
+  assert.match(MOUNT, /const who = state\.peek \?\? state\.acting;/,
+    "the plate follows the pointer, so a non-acting `who` is the ordinary case");
+});
+
+test("the import list carries nothing it no longer calls", () => {
+  // `briefWords` shortened the door's sentence to fit the small name box. The
+  // box was deleted; the import outlived its only caller by a few hours. It is
+  // still EXPORTED and still tested where it lives — unused here is not dead
+  // there — but a mount that imports what it never calls is a reader's false
+  // lead about where a function is used.
+  assert.doesNotMatch(MOUNT, /^\s*pxToWorld, recentVoices, faceImageFor, briefWords,$/m,
+    "not on the import line");
+  assert.doesNotMatch(MOUNT, /briefWords\(/, "and not called anywhere in the file");
 });

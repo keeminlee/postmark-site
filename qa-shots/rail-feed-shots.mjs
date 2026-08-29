@@ -323,26 +323,47 @@ const run = async () => {
       }
       return { out, titles: [...document.querySelectorAll("[data-pmc] [title]")].map((e) => e.getAttribute("title")) };
     });
+    // ⚑ THIS RUNNER WAS ASSERTING THREE THINGS THAT ARE NO LONGER TRUE, and it
+    // is the reason to keep reading a shot runner after the ruling it was
+    // written under is superseded. All three were right on the day and became
+    // written-down false claims a few hours later:
+    //
+    //   · WHICH card survives one hover was settled the other way — "the hover
+    //     should show the orange-rimmed LARGER card, not the small nameplate."
+    //     The nameplate is deleted; the survivor is the PLATE.
+    //   · the plate no longer carries the door's sentence about why a human may
+    //     stand here. It was moved off deliberately: rendered, it read as a fact
+    //     about the GROUND wearing a fighter's plate, which is the recitation the
+    //     card was emptied of. It lives on the face's accessible name now.
+    //   · the journalling disclosure had been dropped from the plate entirely by
+    //     the same rewrite — not by any ruling. THIS LINE IS WHAT CAUGHT IT, and
+    //     it is put back (narrowed to your own seat), so the claim below is a
+    //     true one again rather than a deleted one.
     record("hovering the human face shows exactly one card",
-      cards.out.length === 1 && /pmc-nm/.test(cards.out[0]?.cls ?? ""),
+      cards.out.length === 1 && /pmc-here/.test(cards.out[0]?.cls ?? ""),
       cards.out.map((c) => c.cls).join(" + ") || "(none)");
     record("and no native tooltip rides under it",
       cards.titles.length === 0, JSON.stringify(cards.titles));
-    record("the card is the name and one short line — no grants recitation",
-      (cards.out[0]?.txt.length ?? 999) <= 110 && !/grants them/.test(cards.out[0]?.txt ?? ""),
+    record("the card is one fighter, not a recitation",
+      !/grants them/.test(cards.out[0]?.txt ?? "") && !/the read roots at/.test(cards.out[0]?.txt ?? ""),
       `${cards.out[0]?.txt.length} chars: ${JSON.stringify(cards.out[0]?.txt)}`);
-    // the long form is not lost — it moved to the panel
     await page.hover(".pmc-roster .pmc-cap");
     await page.waitForTimeout(400);
     const plate = await page.evaluate(() => {
       const el = document.querySelector(".pmc-here");
       return { op: getComputedStyle(el).opacity, txt: el.textContent.trim() };
     });
-    record("hovering the dock itself still opens the standpoint plate",
+    record("hovering the dock itself still opens the plate",
       plate.op === "1", `opacity ${plate.op}`);
-    record("and the plate carries the door's whole sentence, verbatim",
-      /a portal's ground seats a human/.test(plate.txt) && /journals on every act/.test(plate.txt),
-      plate.txt.slice(0, 120));
+    record("and the journalling disclosure is on it, over your own seat",
+      /journals on every act/.test(plate.txt), plate.txt.slice(0, 160));
+    // …and the door's sentence is not lost, only rehoused: it is the face's own
+    // accessible name, where a reader who wants it can get it and a player
+    // mid-fight does not have to read past it.
+    const spoken = await page.evaluate(() =>
+      document.querySelector('.pmc-face[data-actor="human:self"]')?.getAttribute("aria-label") ?? "");
+    record("the door's sentence rehoused on the face's accessible name",
+      /a portal's ground seats a human/.test(spoken), JSON.stringify(spoken.slice(0, 120)));
 
     record("every face is drawn at the same size",
       faces.length > 1 && new Set(faces.map((f) => Math.round(f.box.width))).size === 1,

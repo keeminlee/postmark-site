@@ -15,7 +15,13 @@ import {
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, fighterState, humanWords, looseThings, rollsFrom, spaceOf,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
-  pxToWorld, recentVoices, faceImageFor, briefWords,
+  // ⚑ `briefWords` WAS IMPORTED HERE AND IS NOT ANY MORE. It cut the door's
+  // sentence down to fit the small name box, and the box was deleted the same
+  // day — the import outlived its only caller. Nothing in this file has a width
+  // to fit a sentence into now. It stays exported from world-cockpit.mjs with
+  // its own tests: a pure function nobody calls today is cheaper to keep than to
+  // re-derive, and it is not dead there, only unused here.
+  pxToWorld, recentVoices, faceImageFor,
   aimField, aimKind, aimTargets, aimable, barFold, combatantBars, consentSplit, dialSpeak, leavingName,
   pointFields, snapPoint, walkStep, weaponFor,
 } from "./world-cockpit.mjs";
@@ -1137,7 +1143,20 @@ export function mountCockpit(o) {
     // is a surface a hand has already committed to and can actually open — see
     // fineHtml, called from formHtml. The terms still arrive before the act
     // binds, at the door where it binds.
-    return `${cold}${line}${blurb}${voice}<p class="pmc-from">${why ? "the seat lights when it can be taken" : "press for the fine print"}</p>`;
+    //
+    // ⚑ AND THE CARD'S LAST LINE, WHICH TOLD THE READER TO PRESS FOR THE TERMS,
+    // IS DELETED (founder, 2026-08-29). It was an instruction to do the thing a
+    // reader was already doing, printed under every seat on every hover — and
+    // the sentence is deliberately not quoted here, because the falsifier for
+    // this asserts it appears nowhere in the file and a comment naming it would
+    // be prose that reads as the rule. The terms do not
+    // need announcing, because they do not depend on being announced: they
+    // arrive at the press whether or not the hover mentioned them. The
+    // consent-at-the-door law belongs to the press, not to the tooltip.
+    // Deleted rather than reworded; there is nothing for a replacement sentence
+    // to be about. A REFUSED seat still explains itself, which is a different
+    // sentence answering a question the reader actually has.
+    return `${cold}${line}${blurb}${voice}${why ? `<p class="pmc-from">the seat lights when it can be taken</p>` : ""}`;
   }
 
   /**
@@ -2446,7 +2465,33 @@ export function mountCockpit(o) {
       ${hpRowHtml(s)}
       ${statRowHtml(s)}
       ${kitHtml(s)}
+      ${journalLine(who)}
     </div>`;
+  }
+
+  /**
+   * THE ONE LINE ON THIS PLATE THAT IS NOT ABOUT THE FIGHTER — the standing
+   * disclosure that the hand writes down what it does.
+   *
+   * ⚑ IT WAS ORPHANED AND IS BEING PUT BACK. It began as the dock's `title`,
+   * moved onto the plate when that native tooltip became a third card on one
+   * hover, and then went out with the standpoint recitation when the plate was
+   * emptied — not by a ruling, but by a rewrite. Nothing else on this surface
+   * says it now, and the rail's own shot runner is still asserting that the
+   * plate does, which is how the drop was found. A disclosure about what the
+   * surface RECORDS is not the kind of sentence to lose by accident.
+   *
+   * ONLY OVER YOUR OWN SEAT, and the narrowing is the honest half of putting it
+   * back. The plate's own rule now is that it is about the fighter you are
+   * pointing at — the ground's sentence was taken off it for exactly that reason
+   * — and this line is about the SURFACE, not about them. Over an ally's hit
+   * points it would read as a claim about that ally, which is both untrue and
+   * the noise this card was cleared of. Over the seat you are acting as, it is
+   * about your own hand, which is whose recording it discloses.
+   */
+  function journalLine(who) {
+    if (who !== state.acting) return "";
+    return `<div class="spine">the hand journals on every act — recorded, never gated</div>`;
   }
 
   /**
@@ -2761,33 +2806,26 @@ export function mountCockpit(o) {
         <rect x="${-bw / 2}" y="${by}" width="${bw * frac}" height="${bh}" rx="${bh / 2}" fill="${ember}"/>
         ${numbers}
       </g>` : ""}
-      ${(() => {
-        // THE RING GETS A NAME (founder, 2026-08-29: "it's not clear at ALL
-        // that the Unlit Cake mark has ANYTHING to do with the unlit cake
-        // enemy. the orange ring is so random"). An enemy is a someone: the
-        // plate carries the label the WHEEL carries, in the wheel's own ember,
-        // so the seat up top and the ring on the floor read as one creature.
-        // Sized like the speech plates — screen-constant, its own ground.
-        //
-        // ⚑ AND IT IS NOW THE HOVER PLATE rather than a standing label — the
-        // ruling above. The `· hp/of` it used to carry is gone from here too:
-        // the numbers moved into the rail, and printing them twice on the same
-        // gesture would be the doubling the ruling was against.
-        const nm = String(a.label ?? "");
-        if (!nm || !hot) return "";
-        const fs = r * 0.42;
-        const wErr = Math.max(nm.length, 6) * fs * 0.62 + fs * 1.2;
-        // clear of the rail at its READING thickness — the plate and the
-        // thickened rail only ever appear together, so it is measured against
-        // the thick one and never against the slim mark it grew from
-        const ny = by + bh + r * 0.2;
-        return `<g class="pmc-adv-name">
-          <rect x="${-wErr / 2}" y="${ny}" width="${wErr}" height="${fs * 1.5}" rx="${fs * 0.4}"
-            fill="#0d1015" fill-opacity="0.88" stroke="${ember}" stroke-opacity="0.55" stroke-width="${r * 0.03}"/>
-          <text x="0" y="${ny + fs * 1.08}" text-anchor="middle" font-size="${fs}"
-            fill="#f0c9b8" font-family="Georgia, serif">${esc(nm)}</text>
-        </g>`;
-      })()}
+      ${/* ⚑ THE NAME PLATE (.pmc-adv-name) STOOD HERE AND IS GONE (founder,
+           2026-08-29, superseding the same day's keep-it-hidden call).
+
+           IT WAS BUILT for a real complaint — "it's not clear at ALL that the
+           Unlit Cake mark has ANYTHING to do with the unlit cake enemy, the
+           orange ring is so random" — and then kept on hover rather than
+           deleted, on the reasoning that a ring with no words at all would be
+           unnameable. THE FOUNDER OVERRULES THAT REASONING with the fact it
+           missed: "the unlit cake is BOTH A MARK AND AN ENTITY, which makes
+           things very redundant." The cake is not a nameless ring. It is a MARK
+           standing on this floor, whose own hover card names it, and a fighter
+           on the wheel, whose seat names it. A third plate under the same
+           pointer was a second answer to a question already answered twice.
+
+           SO HOVER IS THE NUMBERS AND ONLY THE NUMBERS: the rail thickens and
+           its hp/of appears inside it, which is the one thing about this
+           creature neither of the other two surfaces states in the moment. The
+           reasoning is recorded rather than the code silently shrinking, so a
+           later reader does not re-derive the hidden-plate compromise from the
+           same premise the founder has already answered. */""}
       <title>${esc(a.label)}${hasBar ? ` — ${a.hp} of ${a.of}` : ""}${a.body ? ` — ${esc(a.body)}` : ""}</title>
     </g>`;
   }
