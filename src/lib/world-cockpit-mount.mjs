@@ -156,6 +156,18 @@ export const COCKPIT_CSS = `
 .pmc-slot[disabled] { opacity: .38; cursor: not-allowed; }
 .pmc-key { position: absolute; top: .3em; left: .45em; color: var(--pmc-dim); font: .68rem/1 ui-monospace, Consolas, monospace; }
 .pmc-name { color: var(--pmc-ink); font-size: .95em; letter-spacing: .04em; }
+/* THE GLYPH TAKES THE SEAT'S OWN COLOUR — one stroke weight, currentColor, no
+   second palette and nothing to fetch. It is drawn above the name rather than
+   beside it so the row's widths do not move: a seat gets taller, and the row
+   measures its own height when it places itself. */
+.pmc-ico {
+  display: block; width: 1.15em; height: 1.15em; margin: 0 auto .25em;
+  fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+  color: var(--pmc-dim); opacity: .9;
+}
+.pmc-slot.afford .pmc-ico, .pmc-slot.open .pmc-ico { color: var(--pmc-gold); opacity: 1; }
+.pmc-slot:hover:not([disabled]) .pmc-ico { color: var(--pmc-gold); opacity: 1; }
 /* Capped, because one verbose class can otherwise set the width of the whole row
    — a two-dial class (reach_m 3 · burns_crossings 2) made KINDLE twice its
    neighbours' width in the first shot. The full dials are on the card, which is
@@ -668,11 +680,25 @@ export function mountCockpit(o) {
     // ("A read never performs", the apex's own law). So the card asks for them
     // once per act, caches the answer, and shows them where the law says they
     // belong: at the door, ahead of the act.
+    // ⚑ THE CARD IS FOR HUMAN EYES (founder, 2026-08-29, explicitly: "the hover
+    // text is unreadably verbose … it should be for human eyes").
+    //
+    // The act forms were tersed the night before and this was deliberately left
+    // whole, on the reasoning that the full text had to stay reachable SOMEWHERE
+    // and the card was where it lived. That reasoning survived about a day: with
+    // the forms tight, the card became the worst surface on the page — hovering a
+    // slot mid-fight dropped a third of the screen of raw JSON over the map,
+    // `articles` and `quoted` unrolling entire mark bodies.
+    //
+    // Reachable was never the same as readable. The terms now render exactly as
+    // they do on a trigger plate — every key the door sent, named in the door's
+    // own words, each value clipped to its head, with the whole of it one
+    // disclosure away IN PLACE. Nothing is dropped and nothing moves further
+    // away; it stops being dumped.
     const known = termsCache.get(card.action);
     const terms = known === undefined
       ? `<p class="pmc-row"><b>terms</b> reading the act's shadow…</p>`
-      : known === null ? ""
-      : `<div class="pmc-terms"><b>terms</b> — what would bind this act${termsHtml(known)}</div>`;
+      : known === null ? "" : termsBriefHtml(known);
     return `${blurb}${from}${dials}${fields}${via}${terms}`;
   }
 
@@ -719,6 +745,88 @@ export function mountCockpit(o) {
     </div>`;
   }
 
+  /**
+   * A GLYPH PER SEAT (founder's ruling, 2026-08-29: "some icons on the
+   * different actions to make them distinct").
+   *
+   * ⚑ THIS IS THE NEAREST THING TO A VERB LIST ON THIS SURFACE, and it is worth
+   * saying out loud rather than letting the next reader discover it. The bar's
+   * standing law is that it has no list — what it offers is whatever the door
+   * listed, and world-cockpit.mjs is held to that by a falsifier that greps it
+   * for verb names. A picture cannot be derived from a card, so drawing one
+   * costs a lookup keyed by name, and the ruling asked for the pictures.
+   *
+   * What keeps it from BECOMING a verb list is the default. Nothing here
+   * decides whether a slot exists, what it is called, or whether it can be
+   * pressed — a name this map has never heard of draws the neutral mark and the
+   * seat works exactly as it always did. A door that grows a verb tomorrow gets
+   * a bar with one plain glyph on it, never a missing seat and never a throw.
+   *
+   * Drawn rather than lettered: inline, one stroke weight, currentColor, so
+   * they take the seat's own state (dim, gold when afforded, gold when open)
+   * with no second palette and no asset to fetch.
+   */
+  const ICONS = {
+    // going places
+    walk: "M4 19q5-13 16-13 M15 4h5v5",
+    enter: "M10 12h9 M15 8l4 4-4 4 M5 4v16",
+    exit: "M14 12H5 M9 8l-4 4 4 4 M19 4v16",
+    // the town's own hands
+    say: "M4 5h16v10H9l-5 4z",
+    mark: "M12 21s6-6.5 6-11a6 6 0 10-12 0c0 4.5 6 11 6 11z M12 9v2",
+    note: "M6 3h9l4 4v14H6z M9 12h7 M9 16h5",
+    give: "M4 12h12 M12 8l4 4-4 4 M4 6v12",
+    take: "M12 4v10 M8 10l4 4 4-4 M4 19h16",
+    drop: "M12 4v12 M8 12l4 4 4-4",
+    // the fight
+    strike: "M4 20L19 5 M14 4h6v6 M4 16l4 4",
+    guard: "M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6z",
+    cast: "M12 3v5 M12 16v5 M3 12h5 M16 12h5 M8 8l2 2 M16 16l-2-2",
+    lift: "M12 20V8 M8 12l4-4 4 4 M4 4h16",
+    loot: "M4 9h16v11H4z M4 9l2-4h12l2 4 M12 9v11",
+    // the ledger
+    stake: "M6 3v18 M6 4h12l-3 4 3 4H6",
+    unstake: "M6 3v18 M6 4h12l-3 4 3 4H6 M4 12l16-8",
+    withdraw: "M12 15V4 M8 8l4-4 4 4 M4 14v6h16v-6",
+  };
+  /** The neutral mark. A verb this map has never heard of is still a verb. */
+  const ICON_DEFAULT = "M12 6a6 6 0 100 12 6 6 0 100-12";
+  function iconFor(action) {
+    const d = ICONS[String(action ?? "").toLowerCase()] ?? ICON_DEFAULT;
+    return `<svg class="pmc-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
+  }
+
+  /**
+   * WHERE THE WAY OUT GOES, on the seat that is the way out.
+   *
+   * FOUNDER'S RULING 2026-08-29: "if the exit button is IN the action bar, we
+   * don't need another redundant button." The viewer's standalone step-outside
+   * pill stands down while this dock is mounted (the rule lives in the site's
+   * own stylesheet, keyed on data-pmc-dock, the same way the time-travel pill
+   * already does) — and the pill carried one thing the bar's seat did not: the
+   * NAME of what you step out into. So the seat takes it over rather than
+   * losing it.
+   *
+   * WHICH SEAT, decided by the door and not by a name kept here: the act whose
+   * own field description says you are stepping OUT of something. Same sentence
+   * `prefillFor` reads to know a place from a target, read once more.
+   *
+   * WHERE IT LEADS is the containment the door already published. `within` runs
+   * outermost-first, so whatever sits one step before the ground you are in is
+   * what you come out into. Absent — a standpoint with no portal, a chain of
+   * one — this answers null and the seat keeps its ordinary dial line.
+   */
+  function leadsTo(s) {
+    const leaves = (s.card?.fields ?? []).some((f) => /\bout of\b/i.test(f.description ?? ""));
+    if (!leaves) return null;
+    const here = portalOf(state.answer)?.id;
+    const within = Array.isArray(state.answer?.within) ? state.answer.within : [];
+    const i = within.findIndex((w) => w?.id === here);
+    const parent = i > 0 ? within[i - 1]?.id : null;
+    if (!parent) return null;
+    return `→ ${String(parent).split("/").pop().replace(/-/g, " ")}`;
+  }
+
   function slotHtml(s, extraClass) {
     // Three states, and they are three different sentences. Not afforded here is
     // the ground's answer; blocked is the clock's; enabled is neither. A slot that
@@ -740,8 +848,9 @@ export function mountCockpit(o) {
       ${stop} aria-label="${esc(label)}"
       ${s.afforded ? 'aria-describedby="pmc-card"' : ""}>
       ${s.key ? `<span class="pmc-key">${s.key}</span>` : ""}
+      ${iconFor(s.action)}
       <span class="pmc-name">${esc(s.label)}</span>
-      <span class="pmc-dial">${esc(s.afforded ? dialLine(s.card) : "not here")}</span>
+      <span class="pmc-dial">${esc(s.afforded ? (leadsTo(s) ?? dialLine(s.card)) : "not here")}</span>
     </button>`;
   }
 
@@ -1635,9 +1744,16 @@ export function mountCockpit(o) {
       tokenLayer.appendChild(g);
     }
     const human = faces().find((f) => f.kind === "human");
-    const place = tokenPlacement(state.answer, o.grid, human);
+    // SEATED = this ground gives the human feet and the reader has taken them.
+    // `allowed` is the door's own answer for `for: human` at this standpoint
+    // (the roster is built from it), and the portal is what makes the welcome a
+    // portal's rather than a parcel's. Both, or the token is not drawn — the
+    // ruling is about entering a zone where it is human-allowed, not about
+    // drawing a second figure on every square of the world.
+    const seated = !!(human?.allowed && portalOf(state.answer) && state.acting === HUMAN_ACTOR);
+    const place = tokenPlacement(state.answer, o.grid, human, { seated });
     if (!place) return;
-    const { at, token } = place;
+    const { at, token, beside } = place;
     // THE TOKEN IS SIZED IN SCREEN PIXELS, NOT MAP UNITS — measured, after the
     // first shot drew it two hundred metres across. A fixed map size is invisible
     // at journey width and swallows the town at close zoom, and the walkers this
@@ -1647,7 +1763,17 @@ export function mountCockpit(o) {
     const r = 26 * unitsPerPx();
     const g = doc.createElementNS(NS, "g");
     g.setAttribute("class", "pmc-token");
-    g.setAttribute("transform", `translate(${at.x} ${at.y})`);
+    // THE SLIGHT OFFSET, and it is measured in SCREEN pixels like the figure
+    // itself — a pair that read as standing together at vault zoom would drift
+    // to opposite ends of the county at town zoom if this were map units, and
+    // the whole content of the ruling is that they read as standing TOGETHER.
+    // Just over one radius, down and to the right: far enough that neither
+    // figure is hidden, near enough to read as one pair rather than two people
+    // in different places. Zero when the human has feet of their own — then the
+    // standpoint IS theirs and nudging it would be a small lie about where they
+    // are.
+    const off = beside ? r * 1.15 : 0;
+    g.setAttribute("transform", `translate(${at.x + off} ${at.y + off * 0.62})`);
     const clipId = "pmc-token-clip";
     // A steady gold ring and one soft radiance. Distinct from a resident's dot
     // without shouting: the map's motion language (green still / pink moving) is

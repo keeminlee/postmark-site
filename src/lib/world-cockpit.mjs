@@ -856,14 +856,57 @@ export function chatShaped(card) {
 export function prefillFor(card, answer) {
   const out = {};
   if (!card) return out;
-  const candidates = actCandidates(answer);
-  if (candidates.length !== 1) return out;
   const open = card.fields.filter((f) =>
     !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
   if (open.length !== 1) return out;
-  out[open[0].name] = candidates[0].value;
+  const field = open[0];
+
+  // ⚑ A PLACE IS NOT A TARGET (founder-caught 2026-08-29, playing the dungeon).
+  //
+  // This offered the one candidate to whatever single open field an act had,
+  // and the candidate in a fight is the thing standing in front of you. So the
+  // acts that take a GROUND opened with the adversary's id in them: the plate
+  // for stepping out of the vault read "the unlit cake", which if sent would
+  // have asked to step out of a cake. It had to be retyped by hand twice in one
+  // session before the pattern was named.
+  //
+  // WHAT TELLS THEM APART IS THE DOOR'S OWN SENTENCE, not a list of verbs kept
+  // here — this file has none and gains none, which its own falsifier enforces
+  // by grepping this source for them. (That is also why the door's sentences
+  // are described below rather than quoted: two of them name acts in passing,
+  // and a verbatim quote would smuggle the list in as prose. It caught this
+  // comment on the first run, which is the falsifier working.)
+  //
+  // A target field says the value is who or what the act is AIMED AT. A place
+  // field says what you are stepping out of, or the mark to enter, or the
+  // ground to walk to — a relation between you and somewhere, never a thing to
+  // hit.
+  //
+  // A field about somewhere you stand relative to takes no target. Where the
+  // door says you are stepping OUT of it, the answer is knowable and worth
+  // filling — it is the ground you are in, which the standpoint already names.
+  // Anywhere else the honest prefill is none: the whole point of entering or
+  // walking is that the destination is the reader's choice, and this function's
+  // own rule is that a prefill happens only where there is no choice to make.
+  if (GROUND_SHAPED.test(field.description ?? "")) {
+    if (LEAVING.test(field.description ?? "")) {
+      const here = portalOf(answer)?.id;
+      if (here) out[field.name] = here;
+    }
+    return out;
+  }
+
+  const candidates = actCandidates(answer);
+  if (candidates.length !== 1) return out;
+  out[field.name] = candidates[0].value;
   return out;
 }
+
+/** A field the door describes as naming somewhere you stand relative to, rather
+ *  than something you aim at. The door's words, read — never a verb list. */
+const GROUND_SHAPED = /\b(?:step(?:ping)? (?:in|out)|out of|to enter|walk(?:ing)? to|you are within|stand inside)\b/i;
+/** …and the one such relation whose answer the standpoint already knows. */
+const LEAVING = /\bout of\b/i;
 
 // ── the map transform ───────────────────────────────────────────────────────
 
@@ -1021,12 +1064,27 @@ export function adversaryPlacement(answer, grid) {
  * the site THINKS a human is acting would be a claim about the record that the
  * record does not make — and on this map a face means "this person is here".
  */
-export function tokenPlacement(answer, grid, actor) {
+export function tokenPlacement(answer, grid, actor, { seated = false } = {}) {
   const stance = answer?.standpoint?.stance;
-  if (stance !== "embodied-human") return null;
+  // THE HUMAN STANDS BESIDE THE RESIDENT WHERE THE GROUND SEATS THEM (founder's
+  // ruling, 2026-08-29: "when you enter a zone where it's human-allowed the
+  // human's token gets placed in with a slight offset from the resident").
+  //
+  // Two different facts, and they are not the same drawing. `embodied-human` is
+  // the record saying this person has their own feet here, and the token stands
+  // ON the standpoint. SEATED is the portal's welcome — the ground grants the
+  // human its verbs, they fight from the housemate's place, and there is no
+  // separate position in the record for them to stand on. So the token stands
+  // BESIDE, and the offset is the honest part of the picture: it says they are
+  // here without claiming a coordinate the world does not hold.
+  //
+  // The `seated` half is decided by the caller, which is the only place that
+  // knows both whether this ground grants the human feet and whether the reader
+  // has taken that seat. Absent it, this is exactly the function it was.
+  if (stance !== "embodied-human" && !seated) return null;
   const token = tokenFor(actor);
   if (!token) return null;
   const at = worldToPx(grid, { x: Number(answer?.standpoint?.x), y: Number(answer?.standpoint?.y) });
   if (!at) return null;
-  return { at, token };
+  return { at, token, beside: stance !== "embodied-human" };
 }

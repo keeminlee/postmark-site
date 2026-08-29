@@ -982,3 +982,69 @@ test("pxToWorld is the algebraic inverse of worldToPx, not a second formula", ()
   assert.equal(pxToWorld(null, { x: 1, y: 1 }), null);
   assert.equal(pxToWorld(grid, { x: NaN, y: 1 }), null);
 });
+
+// ── a place is not a target (2026-08-29, founder-caught while playing) ───────
+test("a field about somewhere you stand is never filled with the thing you are fighting", () => {
+  // ⚑ THE BUG: the one candidate in a fight is the adversary, and it was handed
+  // to whatever single open field an act had. The acts that take a GROUND opened
+  // with the adversary's id in them — the plate for stepping out of the vault
+  // read "the unlit cake", which if sent would have asked to step out of a cake.
+  // It had to be retyped by hand twice in one session.
+  const inTheVault = {
+    encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 43, of: 60 } },
+    standpoint: { portal: { id: "the-town/the-candle-vault" } },
+    within: [
+      { id: "the-town/let-there-be-light" },
+      { id: "the-town/the-cellar-door" },
+      { id: "the-town/the-candle-vault" },
+    ],
+  };
+  // the door's own sentences, in the two shapes it writes them
+  const AIMED = { type: "string", description: "who or what this act is aimed at" };
+  const LEAVE = { type: "string", description: "which mark to step out of — omit for the innermost one you are within" };
+  const ENTER = { type: "string", description: "the mark to enter — <by>/<slug>, as ids appear in the telling" };
+  const GOTO = { type: "string", description: "walk to this mark's ground — <by>/<slug>, as ids appear in the telling" };
+
+  // a target field still takes the target — the shipped behaviour, unchanged
+  assert.deepEqual(prefillFor(cardFrom({ object: AIMED }), inTheVault),
+    { object: "the-town/the-unlit-cake" }, "an aimed-at field is still prefilled");
+
+  // WHERE YOU ARE STEPPING OUT OF is knowable, and it is not the adversary
+  assert.deepEqual(prefillFor(cardFrom({ mark: LEAVE }), inTheVault),
+    { mark: "the-town/the-candle-vault" }, "the way out names the ground you are in");
+
+  // and the destinations are the reader's to choose, so they stay empty
+  assert.deepEqual(prefillFor(cardFrom({ mark: ENTER }), inTheVault), {},
+    "where to go is a choice, and this function only fills where there is none");
+  assert.deepEqual(prefillFor(cardFrom({ mark_id: GOTO }), inTheVault), {},
+    "same for walking somewhere");
+
+  // and with no portal to name, the way out fills nothing rather than guessing
+  assert.deepEqual(prefillFor(cardFrom({ mark: LEAVE }), { ...inTheVault, standpoint: {} }), {},
+    "no standpoint ground, no answer — never the adversary as a fallback");
+});
+
+test("the human's token stands BESIDE the resident where the ground seats them", () => {
+  // FOUNDER'S RULING 2026-08-29: "when you enter a zone where it's human-allowed
+  // the human's token gets placed in with a slight offset from the resident."
+  const grid = { originPx: { x: 485, y: 760 }, mPerPx: 5 };
+  const actor = { kind: "human", handle: "keeminlee", label: "DARKO", allowed: true };
+  const borrowed = { standpoint: { x: 1083, y: -792, stance: "embodied" } };
+
+  // not seated: unchanged — no token at all, exactly as before the ruling
+  assert.equal(tokenPlacement(borrowed, grid, actor), null,
+    "a human with no seat here is not drawn, which is the shipped rule");
+
+  // seated by the ground: drawn, and flagged as standing beside rather than on
+  const seated = tokenPlacement(borrowed, grid, actor, { seated: true });
+  assert.ok(seated, "the portal's welcome puts them on the map");
+  assert.equal(seated.beside, true,
+    "and BESIDE — they are fighting from the housemate's place, not a coordinate of their own");
+
+  // their own feet: drawn ON the standpoint, and the offset must not apply —
+  // nudging a position the record actually holds would be a small lie
+  const own = tokenPlacement({ standpoint: { x: 1083, y: -792, stance: "embodied-human" } }, grid, actor);
+  assert.ok(own, "an embodied human is drawn as they always were");
+  assert.equal(own.beside, false, "and stands on their own standpoint, un-nudged");
+  assert.deepEqual(own.at, seated.at, "the anchor is the same point either way — only the drawing differs");
+});

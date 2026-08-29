@@ -311,3 +311,40 @@ test("the actor is settled BEFORE the walk is armed, never after", () => {
   assert.ok(arm > -1, "walkFromMap arms the destination");
   assert.ok(settle < arm, "and it settles BEFORE it arms — the other order wipes the destination");
 });
+
+// ── the seats get glyphs, and the way out folds in (2026-08-29 rulings) ──────
+test("every seat draws a glyph, and a verb the map has never heard of still draws one", () => {
+  // THE RULING: "some icons on the different actions to make them distinct."
+  //
+  // This is the nearest thing to a verb list on the surface, which is why the
+  // DEFAULT is the part worth pinning. The bar's standing law is that it offers
+  // whatever the door listed; a picture cannot be derived from a card, so it
+  // costs a lookup by name. What keeps that from becoming a list is that a name
+  // the map has never heard of draws the neutral mark and the seat works
+  // exactly as it always did — a door growing a verb tomorrow gets a plain
+  // glyph, never a missing seat and never a throw.
+  assert.match(mount, /const ICON_DEFAULT = /, "there is a mark for the verbs nobody anticipated");
+  assert.match(mount, /const d = ICONS\[String\(action \?\? ""\)\.toLowerCase\(\)\] \?\? ICON_DEFAULT;/,
+    "and the lookup falls back to it rather than drawing nothing");
+  assert.match(mount, /\$\{iconFor\(s\.action\)\}\s*\n\s*<span class="pmc-name">/,
+    "the glyph rides on the seat, above its name");
+  assert.match(mount, /stroke: currentColor;/,
+    "and takes the seat's own colour rather than introducing a second palette");
+});
+
+test("the way out is one control: the pill stands down and the seat says where it leads", () => {
+  // THE RULING: "if the exit button is IN the action bar, we don't need another
+  // redundant button." The pill carried one thing the seat did not — the NAME of
+  // what you step out into — so the seat takes it over rather than losing it.
+  assert.match(worldPage, /html\[data-pmc-dock\] \.wv-scene-exit \{ display: none; \}/,
+    "the viewer's standalone pill stands down while the dock is mounted");
+  assert.match(worldPage, /THE SECOND-WRITER TENSION, DISCLOSED/,
+    "and the fact that this is the site touching the viewer's furniture is written down, not hidden");
+  // WHICH seat, decided by the door's own sentence rather than by a verb name
+  assert.ok(mount.includes('const leaves = (s.card?.fields ?? []).some((f) =>'),
+    "which seat is the way out is asked of the seat's own card, not of a verb name");
+  assert.ok(mount.includes('out of') && mount.includes('.test(f.description ?? "")'),
+    "and the question it asks is the door's own sentence about stepping out of something");
+  assert.match(mount, /return `→ \$\{String\(parent\)\.split\("\/"\)\.pop\(\)\.replace\(\/-\/g, " "\)\}`;/,
+    "and it names the containment the door already published");
+});
