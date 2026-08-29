@@ -248,9 +248,17 @@ test("the cockpit takes only the clicks on figures it drew itself", () => {
   // hit-tested them would be quietly replacing the surface underneath it.
   assert.match(mount, /if \(ev\.target\?\.closest\?\.\("#wv-overlay \[data-id\], \.wv-card, \.ctl, button, a"\)\) return;/,
     "a click on anything the viewer owns is left alone entirely");
-  assert.match(mount, /o\.svg\?\.addEventListener\?\.\("click", onMapClick, true\);/,
-    "listened for in capture, so our own figures can be taken first");
-  assert.match(mount, /o\.svg\?\.removeEventListener\?\.\("click", onMapClick, true\);/,
+  // The listener moved from the mount-time svg to the DOCUMENT (2026-08-29,
+  // the fifth living-svg sighting): bound to o.svg it died with the viewer's
+  // first rebuild, and the founder's clicks on the cake landed on a painting
+  // nobody was listening to. Capture is kept; the handler gates itself on
+  // liveSvg().contains(ev.target) so only the living painting's clicks are
+  // considered at all.
+  assert.match(mount, /doc\.addEventListener\("click", onMapClick, true\);/,
+    "listened for in capture on the document, which cannot be rebuilt away");
+  assert.match(mount, /const svg = liveSvg\(\);\r?\n\s*if \(!svg \|\| !svg\.contains\?\.\(ev\.target\) \|\| state\.open\) return;/,
+    "and gated on the LIVING painting containing the click");
+  assert.match(mount, /doc\.removeEventListener\("click", onMapClick, true\);/,
     "and given back at destroy");
   // stopPropagation happens ONLY on one of our figures
   assert.match(mount, /const thing = thingAt\(local\);\r?\n\s*if \(thing\) \{\r?\n\s*ev\.preventDefault\(\);\r?\n\s*ev\.stopPropagation\(\);/,

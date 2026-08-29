@@ -1527,107 +1527,56 @@ export function mountCockpit(o) {
    * which is not this lane's to spend.
    */
   let framedKey = null;
-  let framedSvg = null;
-  let framedBox = null;
-  let handOnCamera = false;
-  let reframePending = false;
   function sceneKey() {
     const d = state.answer?.encounter_detail;
     const p = state.answer?.standpoint;
     if (!d?.ground) return null;
     return `${d.ground}|${p?.x}|${p?.y}`;
   }
+  /**
+   * THE CAMERA IS ASKED FOR, NOT TAKEN (2026-08-29, the night the founder
+   * zoomed once and left the room). The raw viewBox write this replaces moved
+   * the attribute and left the viewer's own `view` object standing — so one
+   * wheel notch wrote the stale view straight back over the room ("the moment
+   * I try to zoom, it just kicks me out to the parent level view"), and every
+   * decoration sized off the stale zoomK sprawled across the map, one panel
+   * burying three verbs of the action bar. The viewer now listens for
+   * `pm:frame-on` (world repo 9265544f, "the camera is asked for, not taken")
+   * and frames through its OWN applyView — view and attribute never disagree,
+   * and the reader's zoom composes with the frame instead of ejecting it.
+   *
+   * The detail is world METRES on the door's own coordinates: this island
+   * knows nothing of the painting's units, which is the point of asking. Asked
+   * once per scene (ground + standpoint); the hand needs no bookkeeping here
+   * any more, because pan and zoom ride the same camera and simply move it.
+   */
   function frameScene() {
-    const svg = liveSvg();
-    if (!svg || !o.grid) return;
     const key = sceneKey();
-    if (!key) return;                        // not standing in a portal's ground
-    // ⚑ FRAMING IS NOT A ONE-SHOT, because the thing framed can be REPLACED
-    // under us. Seen live 2026-08-28, and it is the same seam the token layer
-    // was already caught on that night ("the layer follows the living svg"):
-    // selecting a resident makes the viewer rebuild its painting, so the svg
-    // this wrote a viewBox onto is thrown away a beat later and the new one
-    // arrives carrying the viewer's own view. Framed once and remembered as
-    // done, the camera then sat on the town while the fight it was supposed to
-    // be pointed at was a smudge at the bottom edge — which is exactly the
-    // report, still true after the fix that was supposed to answer it.
-    //
-    // So what is remembered is not "this arrival was framed" but WHAT WAS
-    // FRAMED AND WHERE: the scene, the svg element, and the box written onto
-    // it. Any of the three changing is a scene that is no longer framed.
-    //
-    // THE READER STILL WINS. handOnCamera is what separates "the viewer
-    // replaced my view" from "the reader pushed it" — the first is a race worth
-    // re-asserting through, the second is a decision, and re-asserting through
-    // THAT would be this island wrestling someone for their own map.
-    const held = svg === framedSvg && svg.getAttribute("viewBox") === framedBox;
-    if (key === framedKey && held) return;   // still framed, nothing to do
-    if (handOnCamera && framedKey) return;   // the reader has the camera; leave it
-    // Every point the cockpit itself will draw, in the door's own coordinates —
-    // so whatever ends up on this map is inside the rectangle by construction
-    // rather than by a margin that happened to be generous enough.
+    if (!key || key === framedKey) return;
     const pts = [];
-    const push = (p) => { if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) pts.push(p); };
+    const push = (pt) => { if (pt && Number.isFinite(pt.x) && Number.isFinite(pt.y)) pts.push(pt); };
     push({ x: Number(state.answer?.standpoint?.x), y: Number(state.answer?.standpoint?.y) });
-    // the adversary's own coordinate off the same row the ring is drawn from —
-    // `nearby`, which is where adversaryPlacement reads it
     const advId = adversaryOf(state.answer)?.id;
     const nearby = Array.isArray(state.answer?.nearby) ? state.answer.nearby : [];
     push(nearby.find((m) => m?.id === advId)?.at);
     for (const t of looseThings(state.answer)) push(t.at);
     if (!pts.length) return;
-    const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
-    const a = worldToPx(o.grid, { x: Math.min(...xs), y: Math.min(...ys) });
-    const b = worldToPx(o.grid, { x: Math.max(...xs), y: Math.max(...ys) });
-    if (!a || !b) return;
-    const box = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y),
-                  w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) };
-    // A ROOM WITH ONE THING IN IT IS A POINT, and a zero-width viewBox is a
-    // blank screen. The floor is the innermost ground's own stated extent — the
-    // door says how big the room is (`within`, extentM, outermost first) — so a
-    // lone standpoint still frames the room around it rather than a pixel.
+    const xs = pts.map((pt) => pt.x), ys = pts.map((pt) => pt.y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const spanX = Math.max(...xs) - Math.min(...xs);
+    const spanY = Math.max(...ys) - Math.min(...ys);
+    // The floor is the innermost ground's own stated extent — a lone standpoint
+    // still frames the room around it rather than a point. All metres, the
+    // door's units end to end: nothing here reads the camera it is replacing.
     const within = Array.isArray(state.answer?.within) ? state.answer.within : [];
     const roomM = Number(within[within.length - 1]?.extentM);
     const floorM = Number.isFinite(roomM) && roomM > 0 ? roomM : 8;
-    const originM = worldToPx(o.grid, { x: 0, y: 0 });
-    const unitM = worldToPx(o.grid, { x: 1, y: 0 });
-    const perM = originM && unitM ? Math.abs(unitM.x - originM.x) : 0;
-    if (!perM) return;
-    // Room for the fighters to stand apart in, and for the ring, which would
-    // otherwise touch both walls.
-    //
-    // ⚑ MEASURED IN THE ROOM, NEVER IN THE SCREEN. The first pass had a
-    // `12 * unitsPerPx()` term in here and it is circular on its face:
-    // unitsPerPx reads the viewBox we are in the middle of replacing, so the
-    // padding for the frame we are about to enter was sized by the zoom we are
-    // about to leave. Arriving from the town view that read 12 screen pixels as
-    // 47 METRES, and a three-metre room came up framed in a hundred-and-eighty
-    // metre window — the founder's report answered by a camera that pointed the
-    // right way and still showed him nothing. Everything here is now in the
-    // room's own units, which do not depend on where the camera happens to be.
-    const pad = Math.max(floorM * perM * 0.75, box.w * 0.25, box.h * 0.25, 2 * perM);
-    let w = Math.max(box.w + pad * 2, floorM * perM * 1.6);
-    const el = svg.getBoundingClientRect();
-    if (!el.width || !el.height) return;
-    let hgt = w * (el.height / el.width);
-    const need = box.h + pad * 2;
-    if (hgt < need) { hgt = need; w = hgt * (el.width / el.height); }
-    const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
-    framedBox = `${cx - w / 2} ${cy - hgt / 2} ${w} ${hgt}`;
-    svg.setAttribute("viewBox", framedBox);
+    const pad = Math.max(floorM * 0.75, spanX * 0.25, spanY * 0.25, 2);
+    const extent = Math.max(spanX + pad * 2, spanY + pad * 2, floorM * 1.6);
+    const w = doc.defaultView ?? globalThis;
+    try { w.dispatchEvent(new w.CustomEvent("pm:frame-on", { detail: { at: { x: cx, y: cy }, extent_m: extent } })); } catch {}
     framedKey = key;
-    framedSvg = svg;
-    // The viewer's rebuild lands a beat after the selection that caused it, so
-    // one look on the next frame catches the common race without polling for
-    // it. Everything after that is caught by the held check above on the next
-    // paint, and by then a reader who wants the map has usually taken it.
-    if (!reframePending) {
-      reframePending = true;
-      (doc.defaultView ?? globalThis).requestAnimationFrame?.(() => {
-        reframePending = false;
-        frameScene();
-      });
-    }
   }
 
   /**
@@ -1711,6 +1660,25 @@ export function mountCockpit(o) {
           fill="#0d1015" fill-opacity="0.8" stroke="${ember}" stroke-width="${r * 0.03}" stroke-opacity="0.55"/>
         <rect x="${-bw / 2}" y="${by}" width="${bw * frac}" height="${r * 0.26}" rx="${r * 0.13}" fill="${ember}"/>
       </g>` : ""}
+      ${(() => {
+        // THE RING GETS A NAME (founder, 2026-08-29: "it's not clear at ALL
+        // that the Unlit Cake mark has ANYTHING to do with the unlit cake
+        // enemy. the orange ring is so random"). An enemy is a someone: the
+        // plate carries the label the WHEEL carries, in the wheel's own ember,
+        // so the seat up top and the ring on the floor read as one creature.
+        // Sized like the speech plates — screen-constant, its own ground.
+        const nm = String(a.label ?? "");
+        if (!nm) return "";
+        const fs = r * 0.42;
+        const wErr = Math.max(nm.length, 6) * fs * 0.62 + fs * 1.2;
+        const ny = by + r * 0.45;
+        return `<g class="pmc-adv-name">
+          <rect x="${-wErr / 2}" y="${ny}" width="${wErr}" height="${fs * 1.5}" rx="${fs * 0.4}"
+            fill="#0d1015" fill-opacity="0.88" stroke="${ember}" stroke-opacity="0.55" stroke-width="${r * 0.03}"/>
+          <text x="0" y="${ny + fs * 1.08}" text-anchor="middle" font-size="${fs}"
+            fill="#f0c9b8" font-family="Georgia, serif">${esc(nm)}${hasBar ? ` · ${a.hp}/${a.of}` : ""}</text>
+        </g>`;
+      })()}
       <title>${esc(a.label)}${hasBar ? ` — ${a.hp} of ${a.of}` : ""}${a.body ? ` — ${esc(a.body)}` : ""}</title>
     </g>`;
   }
@@ -2176,13 +2144,10 @@ export function mountCockpit(o) {
     drawToken();
   }
   watchCamera();
-  // THE HAND WINS THE MAP. frameScene points the camera at the room on arrival;
-  // the moment the reader drags or wheels it, they own it until they arrive
-  // somewhere else, and the pointer is the only signal that says so. Watching
-  // the viewBox instead would not do: this island writes that attribute itself,
-  // so the observer above cannot tell the reader's pan from our own framing.
-  for (const ev of ["pointerdown", "wheel"])
-    o.svg?.addEventListener?.(ev, () => { handOnCamera = true; }, { passive: true, capture: true });
+  // (The hand-on-camera bookkeeping that lived here is gone with the raw
+  // viewBox writes: the reader's pan and zoom now go through the same camera
+  // the frame request does — the viewer's own — so there is nothing of ours
+  // left to protect from them.)
   const onResize = () => { drawToken(); placeBar(); markOverflow(); };
   (doc.defaultView ?? globalThis).addEventListener?.("resize", onResize);
 
@@ -2290,7 +2255,7 @@ export function mountCockpit(o) {
    *  browser's own answer for that and it already carries the viewer's pan and
    *  zoom, so nothing here reads a camera the viewer owns. */
   function pointAt(ev) {
-    const svg = o.svg;
+    const svg = liveSvg(); // the SIXTH site of the living-svg seam: a dead svg's CTM maps clicks into a ghost's coordinates
     if (!svg?.createSVGPoint || !svg.getScreenCTM) return null;
     const ctm = svg.getScreenCTM();
     if (!ctm) return null;
@@ -2348,7 +2313,13 @@ export function mountCockpit(o) {
   // drew; bare ground is a click the viewer does nothing with today, and a mark
   // of the viewer's own is never intercepted at all.
   const onMapClick = (ev) => {
-    if (!o.svg || state.open) return;
+    // THE LISTENER LIVES ON THE DOCUMENT, the figures live on whichever svg is
+    // alive — the FIFTH sighting of the living-svg seam tonight, and the literal
+    // reason the founder could not click the cake: the handler was bound to the
+    // mount-time svg, which the viewer had long since rebuilt, so every click
+    // landed on a painting nobody was listening to.
+    const svg = liveSvg();
+    if (!svg || !svg.contains?.(ev.target) || state.open) return;
     if (ev.target?.closest?.("[data-pmc]") || ev.target?.closest?.("[data-pmc-throws]")) return;
     const local = pointAt(ev);
     if (!local) return;
@@ -2369,7 +2340,7 @@ export function mountCockpit(o) {
     if (!m) return;
     walkFromMap(m);
   };
-  o.svg?.addEventListener?.("click", onMapClick, true);
+  doc.addEventListener("click", onMapClick, true);
 
   // ── the voices, on their own clock ────────────────────────────────────────
   //
@@ -2487,7 +2458,7 @@ export function mountCockpit(o) {
       doc.removeEventListener("keydown", onKey);
       (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
       if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
-      o.svg?.removeEventListener?.("click", onMapClick, true);
+      doc.removeEventListener("click", onMapClick, true);
       camera?.disconnect();
       furniture?.disconnect();
       dockSignal(false); // hand the Act As question back to the viewer's own row
