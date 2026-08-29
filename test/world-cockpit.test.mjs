@@ -1048,3 +1048,36 @@ test("the human's token stands BESIDE the resident where the ground seats them",
   assert.equal(own.beside, false, "and stands on their own standpoint, un-nudged");
   assert.deepEqual(own.at, seated.at, "the anchor is the same point either way — only the drawing differs");
 });
+
+test("acting as the human, YOUR row on the wheel is the human's — not the resident's", () => {
+  // ⚑ SEEN LIVE 2026-08-29: the wheel came round to the human, the cap said so
+  // ("round 7 · human-of-starforge is acting"), and the bar greyed itself out
+  // with "it is human-of-starforge's turn" — refusing the reader on the grounds
+  // that it was their own turn. The door answers a RESIDENT's standpoint and
+  // marks that resident `you`, which is right for the read; but a reader acting
+  // as their household's human holds their OWN row, and the resident's is
+  // somebody else's.
+  const onTheHuman = {
+    ...IN_COMBAT,
+    encounter: {
+      ...IN_COMBAT.encounter,
+      turn: "keeminlee",
+      order: IN_COMBAT.encounter.order.map((a) => ({ ...a })),
+    },
+  };
+  // as the RESIDENT: a hand ahead of you, so the gate holds and names them
+  assert.equal(blockedReason(onTheHuman, { acting: "jetto-of-starforge" })?.reason,
+    "it is DARKO's turn", "the resident waits for the human, by name");
+  // as the HUMAN: it is your own turn, so nothing blocks
+  assert.equal(blockedReason(onTheHuman, { acting: HUMAN_ACTOR }), null,
+    "the human is not made to wait for themselves");
+  assert.ok(barSlots(onTheHuman, { acting: HUMAN_ACTOR }).fixed
+    .filter((s) => s.afforded).every((s) => s.enabled === true),
+    "and every afforded seat can be pressed");
+
+  // the row is found by KIND, never by spelling the hand's name a second way —
+  // the office derives that label and the site has no business guessing it
+  assert.equal(yourTurnRow(encounterOf(onTheHuman), HUMAN_ACTOR)?.kind, "human");
+  assert.equal(yourTurnRow(encounterOf(onTheHuman))?.you, true,
+    "and with nobody named, it is still the door's own you-row");
+});

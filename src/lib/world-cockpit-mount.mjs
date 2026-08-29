@@ -901,7 +901,7 @@ export function mountCockpit(o) {
   }
 
   function drawBar() {
-    const { fixed, tray, blocked } = barSlots(state.answer);
+    const { fixed, tray, blocked } = barSlots(state.answer, { acting: state.acting });
     // The dock rides INSIDE the row but OUTSIDE the bar's scrollport — siblings,
     // so the scroll clips verbs and never the faces' name boxes.
     return `<div class="pmc-barrow">${drawRoster()}<div class="pmc-bar" role="toolbar" aria-label="what can be done from here">
@@ -1145,7 +1145,7 @@ export function mountCockpit(o) {
     // overlap — seen in QA. The form IS the card, opened: while one is up, the
     // tooltip stands down.
     if (state.open) return;
-    const all = barSlots(state.answer);
+    const all = barSlots(state.answer, { acting: state.acting });
     const s = [...all.fixed, ...all.tray].find((x) => x.action === slotEl.getAttribute("data-action"));
     if (!s?.card) return;
     askTerms(s.action);
@@ -1161,7 +1161,7 @@ export function mountCockpit(o) {
 
   // ── the act form ──────────────────────────────────────────────────────────
   function formHtml(action) {
-    const all = barSlots(state.answer);
+    const all = barSlots(state.answer, { acting: state.acting });
     const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
     if (!slot?.card) return "";
     const c = slot.card;
@@ -1293,7 +1293,7 @@ export function mountCockpit(o) {
    * second required one, gets the ordinary form back with no edit here.
    */
   function chatHtml(action) {
-    const all = barSlots(state.answer);
+    const all = barSlots(state.answer, { acting: state.acting });
     const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
     const f = chatField(slot?.card);
     if (!f) return "";
@@ -1355,7 +1355,7 @@ export function mountCockpit(o) {
 
   /** Which chrome this act opens in. The card decides; nothing here is a name. */
   function opensAsChat(action) {
-    const all = barSlots(state.answer);
+    const all = barSlots(state.answer, { acting: state.acting });
     const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
     return chatShaped(slot?.card);
   }
@@ -2004,7 +2004,7 @@ export function mountCockpit(o) {
     const form = root.querySelector("[data-form]");
     if (!form) return;
     const fields = [...form.querySelectorAll("[data-field]")];
-    const all = barSlots(state.answer);
+    const all = barSlots(state.answer, { acting: state.acting });
     const card = [...all.fixed, ...all.tray].find((s) => s.action === form.getAttribute("data-form"))?.card;
     const required = new Set((card?.fields ?? []).filter((f) => f.required).map((f) => f.name));
     const must = fields.find((el) => !el.value && required.has(el.getAttribute("data-field")));
@@ -2079,7 +2079,7 @@ export function mountCockpit(o) {
     if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); return; }
     if (!/^[1-9]$/.test(ev.key)) return;
     const n = Number(ev.key);
-    const { fixed, tray } = barSlots(state.answer);
+    const { fixed, tray } = barSlots(state.answer, { acting: state.acting });
     const slot = [...fixed, ...tray].find((s) => s.key === n);
     if (!slot || !slot.enabled) return;
     ev.preventDefault();
@@ -2303,7 +2303,7 @@ export function mountCockpit(o) {
    * vocabulary the door gave us. The thing's id goes in that field.
    */
   function contextActs(thing) {
-    const { fixed, tray } = barSlots(state.answer);
+    const { fixed, tray } = barSlots(state.answer, { acting: state.acting });
     return [...fixed, ...tray].filter((s) => {
       if (!s.afforded || !s.enabled || !s.card) return false;
       return s.card.fields.some((f) => !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));

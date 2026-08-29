@@ -161,7 +161,7 @@ export function wantsTextarea(field) {
  * every OTHER action the door sent, in the door's own order — which is where a
  * verb nobody has written a line of site code for arrives.
  */
-export function barSlots(answer) {
+export function barSlots(answer, { acting = null } = {}) {
   const actions = Array.isArray(answer?.actions) ? answer.actions : [];
   const byName = new Map();
   for (const e of actions) if (e && typeof e.action === "string") byName.set(e.action, e);
@@ -171,7 +171,7 @@ export function barSlots(answer) {
   // not take it THIS INSTANT. An act that is afforded here and blocked until your
   // turn still shows its card, its fields and its terms — the grammar stays
   // legible, which is the founder's ruling in one word: disabled, never hidden.
-  const blocked = blockedReason(answer);
+  const blocked = blockedReason(answer, { acting });
 
   let key = 0;
   const dress = (slot) => ({
@@ -578,7 +578,24 @@ export function encounterOf(answer) {
 }
 
 /** The caller's own row on the wheel, or null. */
-export function yourTurnRow(encounter) {
+export function yourTurnRow(encounter, acting = null) {
+  // ⚑ WHOSE ROW IS "YOU" DEPENDS ON WHO IS ACTING, and until this took an
+  // argument it was always the resident's. The door answers a RESIDENT's
+  // standpoint and marks that resident `you`, which is right for the read — but
+  // a reader acting as their household's human holds their OWN row on the
+  // wheel, under their own hand, and the resident's row is somebody else's.
+  //
+  // What that cost, seen live: the wheel came round to the human, the cap said
+  // so ("round 7 · human-of-starforge is acting"), and the bar greyed itself out
+  // with "it is human-of-starforge's turn" — refusing the reader on the grounds
+  // that it was their turn. The one row the door marks `you` was rei's, and rei
+  // was not up.
+  //
+  // The human's row is found by KIND rather than by name: the office derives the
+  // hand's label itself (humanHandFor) and the site has no business spelling it
+  // a second way. One human per household is the class's own shape, so the kind
+  // identifies the row without a name to keep in step.
+  if (acting === HUMAN_ACTOR) return encounter?.order.find((a) => a.kind === "human") ?? null;
   return encounter?.order.find((a) => a.you) ?? null;
 }
 
@@ -599,14 +616,14 @@ export function yourTurnRow(encounter) {
  * hidden, so the grammar stays legible. A bar that empties out when it is not
  * your turn teaches a reader that the acts went away.
  */
-export function blockedReason(answer) {
+export function blockedReason(answer, { acting = null } = {}) {
   const said = answer?.standpoint?.acting_blocked;
   if (said && typeof said.reason === "string" && said.reason.trim()) {
     return { reason: said.reason, from: "the door" };
   }
   const enc = encounterOf(answer);
   if (!enc) return null;
-  const you = yourTurnRow(enc);
+  const you = yourTurnRow(enc, acting);
   if (you?.down) return { reason: "you are down — an ally can lift you", from: "derived" };
   if (enc.turn && you && !you.current) {
     // ⚑ A CREATURE'S TURN IS NOT A WAIT — IT IS WHAT YOUR ACT RESOLVES.
