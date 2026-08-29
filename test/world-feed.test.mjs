@@ -24,6 +24,7 @@ import {
   actorName, atBottom, beatLine, beatsFromAct, beatsFromDelta, beatsFromTail,
   leafName, mergeFeed, tailWatermark, voiceEntries,
 } from "../src/lib/world-feed.mjs";
+import { recentVoices } from "../src/lib/world-cockpit.mjs";
 
 // ── the names ───────────────────────────────────────────────────────────────
 
@@ -362,6 +363,28 @@ test("a say carries the moment it was said, not the moment it was polled", () =>
   assert.equal(line.who, "rei");
   assert.equal(line.at, 6000, "said four seconds ago, so it sits four seconds back in the feed");
   assert.equal(line.text, "many happy returns");
+});
+
+test("a said line keeps ONE id across polls — the round trip must be exact", () => {
+  // ⚑ THE BUG THIS PINS, found live in the rendered feed: every said line
+  // appeared twice, then three times. `recentVoices` turns a timestamp into an
+  // AGE against the now it is handed; `voiceEntries` turns that age back into an
+  // instant against the now IT is handed, and that instant is the id. Two
+  // separate Date.now() calls are two different nows, so the round trip lands a
+  // millisecond or two past where it started — a fresh id, every poll, for a
+  // line already on screen. It hid while both calls fell in the same
+  // millisecond and surfaced the moment there was more work between them.
+  //
+  // Composed here the way the mount composes it, at two different poll times.
+  const body = { fade_minutes: 5, live: [{ voices: [{ handle: "rei", said: "mind the ninth tier", at_ms: 1_000_000, x: 1, y: 2 }] }] };
+  const idAt = (now) => voiceEntries(recentVoices(body, { now }), { now })[0].id;
+  assert.equal(idAt(1_000_500), idAt(1_004_800), "two polls, one line, one id");
+  assert.equal(voiceEntries(recentVoices(body, { now: 1_002_000 }), { now: 1_002_000 })[0].at, 1_000_000,
+    "and the instant it carries is the moment it was said, not the moment it was polled");
+  // the merge is what turns a drifting id into a duplicate line, so prove that too
+  const feed = mergeFeed(mergeFeed([], voiceEntries(recentVoices(body, { now: 1_000_500 }), { now: 1_000_500 })),
+    voiceEntries(recentVoices(body, { now: 1_007_500 }), { now: 1_007_500 }));
+  assert.equal(feed.length, 1, "the same line polled twice is one line");
 });
 
 // ── the chat contract ───────────────────────────────────────────────────────
