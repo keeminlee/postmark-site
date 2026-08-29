@@ -337,9 +337,12 @@ console.log("\n── (3b) THE WEAPON: the third of his sentence ──");
   note(/\+3 with the good lighter/.test(said.card), "the hover carries the third of the founder's sentence");
   note(!/\+3/.test(said.castSeat), "and the other damage act claims no help it was not given");
   note(!/the the/.test(said.card), "the id's own article is not doubled");
-  // ⚑ AND THIS IS THE DOOR'S OWN WORD ATTACHING IT, not a name of ours. The
-  // shipped shape carries `for` (office 7ba1148) and the site's stopgap is
-  // deleted, so a bonus appearing on this seat is the record saying so.
+  // ⚑ AND THIS IS THE RECORD'S OWN WORD ATTACHING IT, not a name of ours. The
+  // site's stopgap is deleted, so a bonus appearing on this seat is the record
+  // saying so — and the fixture spells it `augments`, the ruled name, which the
+  // office has not pushed yet. So this shot is also the proof that the page is
+  // ready for the rename BEFORE it lands, rather than after somebody notices
+  // the hover went blank.
   note(/a flame that has never once gone out on the way over/.test(said.card),
     "and the weapon's own words are on it — the half of the hover with a voice");
   await page.screenshot({ path: join(OUT, "weapon-hover-1440.png") });

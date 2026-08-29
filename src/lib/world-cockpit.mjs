@@ -722,28 +722,36 @@ export function encounterOf(answer) {
  * `{ thing, bonus, says }` off the held grant — so the field is that answer
  * carried out to a caller rather than a new idea.
  *
- * ⚑ `for` IS WHICH ACT THE BONUS AUGMENTS, and it shipped 2026-08-29 (office
- * lane bday-law, 7ba1148). A weapon helps ONE act: the office finds it by
- * looking for the held grant whose own entry names that act, so the record
- * knows which, and the site cannot re-derive it without keeping the verb list
- * this file is forbidden to keep. Two of the room's acts state damage;
- * attaching the bonus to both would be a claim about the other one the record
- * does not make. Absent — a grant that names no act — this answers null and
- * the clause is simply not said, which is the same rule every other unknown on
- * this surface follows.
+ * ⚑ `augments` IS WHICH ACT THE BONUS HELPS — the ruled name (Wright with lane
+ * bday-law, 2026-08-29). A weapon helps ONE act: the office finds it by looking
+ * for the held grant whose own entry names that act, so the record knows which,
+ * and the site cannot re-derive it without keeping the verb list this file is
+ * forbidden to keep. Two of the room's acts state damage; attaching the bonus
+ * to both would be a claim about the other one the record does not make.
+ * Absent — a grant that names no act — this answers null and the clause is
+ * simply not said, which is the same rule every other unknown here follows.
  *
- * ⚑ READ UNDER THREE SPELLINGS, and the reason is a scar on this very file.
- * `for` is a HOMONYM: in the town's grants vocabulary it means the ACTOR KIND
- * ("`for:` is the actor kind (absent means resident)" — LOGOS § The three
- * channels), and the office reads this value off an entry carrying that other
- * sense. The word is flagged for the lexicon, and its named successor is
- * `augments`. When a field is known to be one ruling away from a rename, this
- * file reads both names rather than waiting to be told — exactly what
- * `humanWords` above had to learn the hard way, where the door started sending
- * `says` for the site's `because` and the one row whose words were most worth
- * reading "went quiet by succeeding". Whichever spelling the door settles on,
- * the bonus keeps appearing, and nothing has to be coordinated across two
- * lanes on the day it moves.
+ * ⚑ AND `for` IS READ BESIDE IT, because it is the spelling the door is STILL
+ * SENDING as this is written. The field shipped as `for` (office 7ba1148) and
+ * was renamed by ruling the same night: `for` is a HOMONYM — in the town's
+ * grants vocabulary it means the ACTOR KIND ("`for:` is the actor kind (absent
+ * means resident)", LOGOS § The three channels) — and the office reads this
+ * very value off an entry carrying that other sense, so the record says
+ * `for: human` and the answer said `for:` an ACT NAME two paces apart. (The act
+ * is not written out here: this file may name no verb, even in prose, and its
+ * falsifier greps this source for exactly that. It caught this comment on the
+ * first run — the second time tonight the guard has earned its keep.)
+ *
+ * BOTH ARE READ SO THE RENAME NEEDS NO CHOREOGRAPHY. Reading only the new name
+ * before the office has pushed it would drop the bonus off the page in the
+ * window between the two commits — silently, and only for the one line of the
+ * hover that a player most wants. That is not hypothetical caution: it is this
+ * file's own scar. `humanWords` above reads two names because the site declared
+ * `because`, the office shipped `says`, and the human's row — the row whose
+ * words were most worth reading — went quiet BY SUCCEEDING, on the very day the
+ * door started answering. The order below is the ruling's: `augments` is the
+ * name, `for` is what is still on the wire, and the day it stops being on the
+ * wire this line loses one word and nothing else changes.
  *
  * WHOSE HAND. `hands` is keyed by the door's `who`. Acting as a resident that
  * is the handle; acting as the household's human it is the human's own row on
@@ -767,7 +775,8 @@ export function weaponFor(answer, acting = null) {
     bonus,
     // named the way every id in this world is read — the leaf, deslugged
     label: thing.split("/").pop().replace(/-/g, " "),
-    for: [w.for, w.augments, w.action].find((v) => typeof v === "string" && v) ?? null,
+    // the ruled name first, then the spelling still on the wire — see above
+    for: [w.augments, w.for, w.action].find((v) => typeof v === "string" && v) ?? null,
     says: typeof w.says === "string" && w.says ? w.says : null,
   };
 }
