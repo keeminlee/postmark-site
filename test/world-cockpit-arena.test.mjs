@@ -1494,14 +1494,18 @@ test("an exit tells the pane behind it, from the act's own answer", () => {
   assert.match(MOUNT, /function announceStoodOut\(left\) \{/);
   assert.match(MOUNT, /w\.dispatchEvent\(new w\.CustomEvent\("pm:stood-out", \{ detail: \{ left \} \}\)\);/,
     "the same guarded window-event shape as the dock and feed seams beside it");
-  assert.match(MOUNT, /if \(leftRoom\) announceStoodOut\(leftRoom\);/, "and only where a room was actually left");
+  assert.match(MOUNT, /if \(leftRoom && !stillInside\) announceStoodOut\(leftRoom\);/,
+    "and only where a room was actually left — see the refusal test below for why the second half is there");
   // ⚑ READ BEFORE THE ACT, which is the whole of "drive from the answer": after
   // it the standpoint is the new one and the room left is not in it any more.
   assert.match(MOUNT, /const leftRoom = action === "exit" \? leavingName\(state\.answer\)\?\.id \?\? null : null;/,
     "captured up front, by the same reader the panel printed to the reader");
-  // it is inside the ok branch — a refused exit left nobody anywhere
-  assert.match(MOUNT, /if \(res\.ok\) \{[\s\S]{0,3000}?if \(leftRoom\) announceStoodOut\(leftRoom\);/,
-    "a bounce moves no camera");
+  // ⚑ AND BEING INSIDE THE OK BRANCH WAS NEVER ENOUGH, which is what this
+  // assertion used to claim and what the founder disproved live: a refused act
+  // came back 200 and reached that branch. The real guard is the receipt, and it
+  // is asserted in "a refusal wearing a 200" below.
+  assert.match(MOUNT, /if \(res\.ok && !defect\) \{[\s\S]{0,3200}?if \(leftRoom && !stillInside\) announceStoodOut\(leftRoom\);/,
+    "inside the accepted branch, and past the receipt");
 });
 
 test("an act with nothing to fill in gets a bare card: who, one line, confirm", () => {
@@ -1564,4 +1568,36 @@ test("the bare-card rule is a SHAPE, not a list of verbs the founder complained 
   assert.match(MOUNT, /const ENTER_ACTS = new Set\(\["enter"\]\);/);
   assert.match(MOUNT, /const said = \(entering \? portalOf\(state\.answer\)\?\.body : null\) \|\| card\?\.blurb \|\| null;/,
     "gated on the ACT, not on whether the card happens to be bare");
+});
+
+test("a refusal wearing a 200 is a refusal, and it never moves the camera", () => {
+  // ⚑ FOUNDER, live, party night: he exited the vault, the camera stepped
+  // outside, and the RECORD still had him inside it — portal the-candle-vault,
+  // xy unchanged. Every later exit card then honestly offered the vault again,
+  // which reads as stuck. The office had refused the act (an arena gates movement
+  // to whoever the wheel is on) and answered 200 with a defect in the body.
+  //
+  // TWO FAULTS, ONE CAUSE. `res.ok` is the HTTP layer's word; the DOOR's word is
+  // in the body. This branch took the transport's yes for the door's, so it said
+  // "done — the door took it", swallowed the sentence naming whose turn it was,
+  // and fired the camera event.
+  assert.match(MOUNT, /const defect = typeof res\.body\?\.defect === "string" && res\.body\.defect \? res\.body\.defect : null;/,
+    "the body is read for a refusal");
+  assert.match(MOUNT, /if \(res\.ok && !defect\) \{/, "and a defect takes the refusal path, whatever the status was");
+  // …which already knew how to render the door's own words; all that was missing
+  // was arriving at it
+  assert.match(MOUNT, /const b = readBounce\(res\.body, res\.status\);\r?\n\s*state\.said = \{ ok: false, text: b\.defect, hint: b\.hint, terms: b\.terms \};/,
+    "the defect and its hint are shown, never swallowed");
+
+  // ⚑ AND THE CAMERA MOVES ONLY ON A RECEIPT. Not on the ok branch — a
+  // refused-with-200 reached that — but on a fact that could not exist unless
+  // the act landed: the refreshed standpoint's portal is no longer the room.
+  assert.match(MOUNT, /const stillInside = portalOf\(state\.answer\)\?\.id === leftRoom;\r?\n\s*if \(leftRoom && !stillInside\) announceStoodOut\(leftRoom\);/,
+    "the event fires on the answer's own evidence of having left");
+  assert.doesNotMatch(MOUNT, /^\s*if \(leftRoom\) announceStoodOut\(leftRoom\);$/m,
+    "the fire-on-asking version is gone, not merely guarded");
+  // WHERE THERE IS NO REFRESH THERE IS NO MOVE: state.answer is unchanged, so
+  // stillInside stays true and the pane waits for the ledger's own clock — the
+  // behaviour this replaced, and the safe direction to fail in.
+  assert.match(MOUNT, /Silence is the right failure here; a camera that guesses is not\./);
 });

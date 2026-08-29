@@ -632,6 +632,21 @@
       const sp = (FIXTURES[which] ?? FIXTURES.portal).standpoint;
       SPOKEN.push({ handle: envelope.as === "human" ? "DARKO" : envelope.handle, said: prose[1], at_ms: Date.now(), x: sp.x, y: sp.y });
     }
+    // ⚑ A REFUSAL WEARING A 200 — `?refuse=<act>`, and it is a DIFFERENT knob from
+    // `?fail=` beside it on purpose. `fail` answers 503, which every reader
+    // already treats as a bounce; this answers the shape that actually caught the
+    // founder out on 2026-08-29: HTTP says yes, the DOOR says no, in the body.
+    // An arena gates movement to whoever the wheel is on, and its refusal names
+    // the turn — which is exactly the sentence he needed to read and did not,
+    // because the panel said "done" and moved his camera out of a room he was
+    // still standing in.
+    // an exit the door TAKES moves the standpoint out — see `left` at refresh
+    if (envelope.do === "exit" && new URLSearchParams(location.search).get("refuse") !== "exit") left = true;
+    const REFUSE = new URLSearchParams(location.search).get("refuse");
+    if (REFUSE && envelope.do === REFUSE) {
+      document.getElementById("note").innerHTML = `<b>refused, with a 200</b> ${envelope.do}`;
+      return { ok: true, status: 200, body: { defect: "it is vermillion's turn", hint: "wait for the wheel to come round to you" } };
+    }
     if (envelope.args && envelope.args.accept !== true && envelope.do === "enter") {
       return { ok: false, status: 422, body: { error: "bounce", defect: "this door declares a counter-edge", hint: "call again with accept: true", terms: { binds: "the-town/enter", means: "the-town/enter" } } };
     }
@@ -851,7 +866,19 @@
       dropped: [{ thing: "the-town/the-good-lighter", by: "jetto-of-starforge", at_seq: 44 }], acts: 16, round: 4 },
   ];
   let step = -1;
+  // ⚑ AN ACCEPTED EXIT PUTS YOU OUTDOORS, and the refresh has to say so or the
+  // camera's receipt can never be satisfied. The office answers a NEW standpoint
+  // after an act; a harness that answers the same object forever cannot tell a
+  // landed exit from a refused one — which is exactly the distinction under test,
+  // and it is how I nearly shipped a camera fix that never fires. `left` is set
+  // by the dispatch above when it takes an exit.
+  let left = false;
   async function refresh() {
+    if (left) {
+      // outdoors: no portal, which is the fact the cockpit reads as "they left"
+      const { portal, ...standpoint } = answer.standpoint ?? {};
+      return { ...answer, standpoint, within: (answer.within ?? []).slice(0, 1) };
+    }
     if (!params.get("fight")) return answer;
     step = Math.min(step + 1, SCRIPT.length - 1);
     const s = SCRIPT[step];

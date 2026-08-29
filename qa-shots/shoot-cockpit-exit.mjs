@@ -172,6 +172,44 @@ for (const action of NO_INPUT) {
   await page.close();
 }
 
+// ══ A REFUSAL WEARING A 200 MOVES NOTHING ═══════════════════════════════════
+//
+// ⚑ THE FOUNDER'S LIVE REPRO, party night: he exited the vault, the camera
+// stepped outside, and the record still had him inside it. The office had
+// REFUSED the act — an arena gates movement to whoever the wheel is on — and
+// answered 200 with the reason in the body. `res.ok` is the transport's word;
+// the door's word is in the body, and this surface was reading the wrong one.
+console.log("\n── an exit the door refuses ──");
+for (const [qs, label, shouldMove] of [["&refuse=exit", "refused", false], ["", "accepted", true]]) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 3 });
+  await page.addInitScript(() => {
+    window.__stood = [];
+    window.addEventListener("pm:stood-out", (e) => window.__stood.push(e.detail?.left ?? null));
+  });
+  await page.goto(`${base}?fixture=vault${qs}`, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => window.__cockpitReady);
+  await page.click('.pmc-slot[data-action="exit"]');
+  await page.waitForTimeout(600);
+  await page.click(".pmc-btn.go");
+  await page.waitForTimeout(1000);
+  const r = await page.evaluate(() => {
+    const f = document.querySelector(".pmc-form");
+    const said = f?.querySelector(".pmc-said");
+    const box = f?.getBoundingClientRect();
+    return { stood: window.__stood, said: said?.textContent?.replace(/\s+/g, " ").trim() ?? null,
+             bad: Boolean(f?.querySelector(".pmc-said.bad")),
+             box: box && { x: box.x, y: box.y, width: box.width, height: box.height } };
+  });
+  note(r.stood.length === (shouldMove ? 1 : 0),
+    `${label}: the camera ${shouldMove ? "steps out once" : "does not move"} (${JSON.stringify(r.stood)})`);
+  if (!shouldMove) {
+    note(r.bad, `${label}: and the refusal is rendered rather than swallowed`);
+    note(/vermillion's turn/.test(r.said ?? ""), `${label}: in the door's own words (${JSON.stringify(r.said)})`);
+    if (r.box) await crop(page, r.box, "05-refused-exit-says-why.png");
+  }
+  await page.close();
+}
+
 await browser.close();
 console.log(`
 ${failures.length ? `FAILED (${failures.length})` : "all clear"}`);

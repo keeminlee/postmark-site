@@ -3922,7 +3922,19 @@ export function mountCockpit(o) {
       // that refused it, and the same reasoning that shows the die on a miss
       // shows the line beside it.
       ingest(beatsFromAct(res.body, { acting: seat(), adversary: adversaryOf(state.answer)?.id ?? null }));
-      if (res.ok) {
+      // ⚑ A 200 CARRYING A DEFECT IS A REFUSAL WEARING AN OK, and until now this
+      // surface could not tell the two apart. `res.ok` is the HTTP layer's word;
+      // the DOOR's word is in the body. The founder exited the vault, the office
+      // refused it — an arena gates movement to whoever the wheel is on, and the
+      // refusal names the turn — and this branch said "done — the door took it",
+      // swallowed the sentence he needed to read, AND moved his camera out of a
+      // room he was still standing in. Every later exit card then honestly
+      // offered the vault again, which reads as stuck.
+      //
+      // The refusal path below already knows how to render a defect; all that was
+      // missing was arriving at it.
+      const defect = typeof res.body?.defect === "string" && res.body.defect ? res.body.defect : null;
+      if (res.ok && !defect) {
         state.said = { ok: true, text: chat ? "sent." : "done — the door took it." };
         formValues = null;
         // AN AIMED ACT PUTS ITSELF DOWN once the door has taken it. A swing does
@@ -3959,12 +3971,19 @@ export function mountCockpit(o) {
         // moment we KNOW the record changed and we know which way, so the pane is
         // told now rather than left to find out.
         //
-        // ⚑ FROM THE ACT'S OWN ANSWER, which is the founder's own instruction —
-        // `left` is the room the panel just said it was stepping out of, and the
-        // refreshed standpoint above is what decides whether we are outdoors at
-        // all. A page whose viewer booted without this seam simply keeps the
-        // clock it always had.
-        if (leftRoom) announceStoodOut(leftRoom);
+        // ⚑ AND ONLY ON A RECEIPT, never on having asked. The first version fired
+        // on the ok branch, which a refused-with-200 reached — so the camera left
+        // a room the record still had him inside of. The strongest receipt
+        // available is the refreshed standpoint itself: if the door took the
+        // exit, its portal is no longer the room we left. That is a fact that
+        // could not exist unless the act landed.
+        //
+        // WHERE THERE IS NO REFRESH, THERE IS NO MOVE. A viewer that could not
+        // re-read stays where it is and waits for the ledger's own clock, which
+        // is the behaviour this replaced and a perfectly safe place to fall back
+        // to. Silence is the right failure here; a camera that guesses is not.
+        const stillInside = portalOf(state.answer)?.id === leftRoom;
+        if (leftRoom && !stillInside) announceStoodOut(leftRoom);
         pullVoices();
       } else {
         const b = readBounce(res.body, res.status);
