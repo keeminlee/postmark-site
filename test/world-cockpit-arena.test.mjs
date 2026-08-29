@@ -803,13 +803,15 @@ test("an armed act's card stands down, like an open panel's", () => {
 });
 
 test("the three name-keyed rulings live beside the icons, not in the arithmetic", () => {
-  // ⚑ SIX NOW. His original three, the crossing act on the conductor's ruling,
-  // and GIVE/TAKE on his own word while live-testing: "give and take need to be
-  // main bar action buttons due to the item you can pick up to help with the
-  // fight." The fold keys on the door's CHANNEL, which correctly calls those two
-  // ambient — they are afforded everywhere. What the channel cannot see is that
-  // in this room they are the fight's own mechanic, so the ruling names them.
-  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit", "give", "take"\];/,
+  // ⚑ FOUR — AND IT WAS SIX FOR ONE ROUND. His original three, the crossing act
+  // on the conductor's ruling, and then GIVE/TAKE added on his word ("give and
+  // take need to be main bar action buttons due to the item you can pick up to
+  // help with the fight") and removed again on his word a few hours later
+  // ("let's also just remove the give and take buttons as it's confusing; we can
+  // just rely on the agents to pick up the weapon/upgrade"). Both states are
+  // named here so a reader of the diff sees a reversal rather than drift — see
+  // the give/take test below for what removal did and did not touch.
+  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit"\];/,
     "the ambient seats that hold a row, by ruling rather than by channel");
   assert.match(MOUNT, /const DUNGEON_HIDE = \["leave-mark", "note-to-self"\];/, "the two seats hidden in the dungeon");
   assert.match(MOUNT, /const PHASE_GATE = \{ loot: "spent" \};/, "and the one act whose precondition is a phase");
@@ -946,4 +948,76 @@ test("a person's rail is not the boss's colour, and rides above every figure", (
     "and drawn even where the human's own token is not — they are everyone's, not the human's");
   assert.match(MOUNT, /const rails = tokenLayer\.querySelector\("\.pmc-combatant-layer"\);\r?\n\s*if \(rails\) tokenLayer\.insertBefore\(g, rails\); else tokenLayer\.appendChild\(g\);/,
     "speech goes under them — a line fades on the door's clock, hit points do not");
+});
+
+// ══ THE LAST THREE OF THE FIVE (founder, live at the board 2026-08-29) ═══════
+
+test("give and take are off the row, and the reversal is visible", () => {
+  // ⚑ THIS REVERSES HIS OWN EARLIER RULING. Earlier: "give and take need to be
+  // main bar action buttons due to the item you can pick up to help with the
+  // fight." Now: "let's also just remove the give and take buttons as it's
+  // confusing; we can just rely on the agents to pick up the weapon/upgrade."
+  // What changed is whose HANDS the mechanic belongs in, not the mechanic.
+  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit"\];/);
+  assert.doesNotMatch(MOUNT, /const BAR_KEEP = \[[^\]]*"give"/, "the seats are gone");
+
+  // ⚑ AND NOTHING IS ORPHANED. The keep list decides which AMBIENT acts hold a
+  // seat and nothing else — the door still affords them, the tray still reaches
+  // them, and an agent acting through its own door never consulted this file.
+  const fold = barFold(barSlots(VAULT, { acting: "keeminlee" }), {
+    keep: ["walk", "say", "enter", "exit"], hide: ["leave-mark", "note-to-self"],
+  });
+  assert.ok(!fold.shown.some((s) => s.action === "take"), "no seat on the row");
+  assert.ok(fold.folded.some((s) => s.action === "take"), "still reachable in the tray");
+  // the act itself is untouched — its card, its aim field, its whole grammar
+  assert.equal(aimField(cardFor(VAULT, "take"))?.name, "thing",
+    "removing a button removed a button, not an act");
+});
+
+test("a spoken line closes on Enter without waiting for the door", () => {
+  // FOUNDER: there is "a small lag between hitting Enter and the panel going
+  // away" that reads as "did that send?". The close IS the confirmation, and it
+  // is honest about what it confirms — that the line LEFT, not that the door
+  // took it, which is a fact from the future.
+  assert.match(MOUNT, /if \(form\.hasAttribute\("data-chat"\)\) \{/, "speaking takes its own exit");
+  assert.match(MOUNT, /state\.open = null; state\.act = null; state\.said = null; formValues = null;\r?\n\s*paint\(\);\r?\n\s*sendAct\(action, whole\)\.then\(/,
+    "the panel is closed and painted BEFORE the dispatch is awaited");
+  // ⚑ AND ONLY SPEAKING. Every other act still waits, because a swing's answer
+  // is the throw and a crossing's is the terms; a spoken line has no answer
+  // worth a pause.
+  assert.match(MOUNT, /await sendAct\(action, whole, form\);/, "the ordinary path is unchanged");
+});
+
+test("a spoken line that did not land comes back with its words", () => {
+  // The other half of the trade, and the reason close-on-enter is safe: nothing
+  // is silently eaten and no typed text is lost.
+  assert.match(MOUNT, /const said = whole\[form\.getAttribute\("data-chat"\)\] \?\? "";/,
+    "the text is held before the panel goes");
+  assert.match(MOUNT, /if \(state\.said && state\.said\.ok === false\) reopenChat\(action, said\);/,
+    "and a failure re-opens the line");
+  assert.match(MOUNT, /function reopenChat\(action, text\) \{/);
+  assert.match(MOUNT, /box\.value = text; box\.focus\(\);/, "with the words in it and the cursor waiting");
+  // the door's own defect rides under it — `state.said` is set by sendAct and
+  // chatHtml renders it with the failure class
+  assert.match(MOUNT, /<p class="pmc-said\$\{state\.said\.ok \? "" : " bad"\}">/, "in the door's own words");
+});
+
+test("the confirm card is compact and sits on the right", () => {
+  // FOUNDER: the old walk confirmation "was MUCH more concise; the current is
+  // still so verbose", and it must sit on the RIGHT SIDE. So it takes the walk
+  // desk's own register — the thing he was comparing it to.
+  assert.match(MOUNT, /\.pmc-form \{\r?\n\s*position: fixed; right: 14px; left: auto; transform: none;/,
+    "pinned to the right rather than centred over the painting");
+  assert.match(MOUNT, /width: min\(19rem, 42vw\);/, "and near the desk's own width");
+  assert.doesNotMatch(MOUNT, /\.pmc-form \{ position: fixed; left: 50%;/, "the centred 26em panel is gone");
+  // WHAT WAS CUT: the act's blurb (the hover card carries it whole) and the
+  // keys line, which a card with a confirm button under the cursor does not
+  // need. WHO/FROM/TO and the confirm are what remain.
+  assert.match(MOUNT, /\$\{sheet \? flavorHtml\(c\) : ""\}\r?\n\s*\$\{flowRowsHtml\(c\)\}/,
+    "flavour only where a crossing is asking for consent; otherwise straight to the rows");
+  assert.match(MOUNT, /\$\{sheet \? ready : ""\}/, "the keys line is a consent-sheet thing now");
+  // the vertical is still MEASURED against the bar, which dodges the viewer's
+  // own furniture — a fixed bottom would collide with whatever it dodged
+  assert.match(MOUNT, /if \(form\) placeAbove\(form, root\.querySelector\("\.pmc-bar"\)\);/,
+    "only the horizontal is pinned");
 });

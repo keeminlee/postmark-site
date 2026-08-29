@@ -251,7 +251,30 @@ export const COCKPIT_CSS = `
 /* The form lives in the overlay, not in the bar, for the scrollport reason above.
    Bottom is set by the script against the bar's measured top edge, so it sits over
    the row whatever height the row turns out to be. */
-.pmc-form { position: fixed; left: 50%; transform: translateX(-50%); width: 26em; max-width: calc(100vw - 24px); padding: .9em 1em 1em; text-align: left; z-index: 4; }
+/* ── THE CONFIRM CARD, ON THE RIGHT (founder, live: the old walk confirmation
+   "was MUCH more concise; the current is still so verbose", and it must sit on
+   the RIGHT SIDE of the screen) ──
+
+   So it takes the walk desk's own register, which is the thing he was comparing
+   it to: the desk's corner, near its width, its tight type. It was centred and
+   26em wide, which put a paragraph across the middle of the painting for an act
+   whose whole content is three rows and a button.
+
+   Vertically it is still MEASURED against the bar (placeAbove), because the bar
+   moves to dodge the viewer's own furniture and a fixed bottom would collide
+   with whatever it dodged. Only the horizontal is pinned. */
+.pmc-form {
+  position: fixed; right: 14px; left: auto; transform: none;
+  width: min(19rem, 42vw); max-width: calc(100vw - 24px);
+  padding: .7em .8em .8em; text-align: left; z-index: 4;
+  font-size: .94em;
+}
+.pmc-form h3 { font-size: .72rem; }
+.pmc-form .pmc-actions { margin-top: .7em; }
+.pmc-form .pmc-btn { font-size: .7rem; padding: .42em .9em; }
+/* the fine print is a footnote on a card this size, not a section */
+.pmc-form details.pmc-fine { margin-top: .55em; font-size: .92em; }
+.pmc-form details.pmc-fine summary { color: var(--pmc-gold-dim); font-size: .66rem; letter-spacing: .04em; }
 /* ── WHO / FROM / TO ──
    The founder's three rows, and the panel leads with them because they are the
    whole of what he asked to see before pressing confirm. Monospaced keys so the
@@ -1071,7 +1094,24 @@ export function mountCockpit(o) {
    * self-directed by the same reading, and neither should ever open a crosshair.
    */
   const SELF_DIRECTED = ["guard", "loot", "pass"];
-  const BAR_KEEP = ["walk", "say", "enter", "exit", "give", "take"];
+  // ⚑ GIVE AND TAKE ARE OFF THE ROW AGAIN (founder, live: "let's also just
+  // remove the give and take buttons as it's confusing; we can just rely on the
+  // agents to pick up the weapon/upgrade").
+  //
+  // THIS REVERSES HIS OWN EARLIER RULING and the reversal is kept visible rather
+  // than tidied away, because a keep-list that quietly loses two names reads as
+  // drift. Earlier tonight: "give and take need to be main bar action buttons
+  // due to the item you can pick up to help with the fight." What changed is not
+  // the mechanic but WHOSE HANDS it belongs in — the party's agents lift the
+  // weapon through their own doors, so a human at this bar never needed the
+  // verbs, and two seats that only ever confused him are gone.
+  //
+  // NOTHING IS ORPHANED BY IT. This list decides which AMBIENT acts hold a seat
+  // and nothing else: the door still affords give and take, the MCP still takes
+  // them, they are still reachable in the overflow tray, and an agent acting
+  // through its own door never consulted this file. Removing a seat removes a
+  // button, not an act.
+  const BAR_KEEP = ["walk", "say", "enter", "exit"];
   const DUNGEON_HIDE = ["leave-mark", "note-to-self"];
   const PHASE_GATE = { loot: "spent" };
   /**
@@ -1706,10 +1746,10 @@ export function mountCockpit(o) {
     // beside `shown`, because the inputs read it too.)
     return `<form class="pmc-plate pmc-form${trigger ? " pmc-trigger" : ""}${sheet}" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
-      ${sheet ? flavorHtml(c) : c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
+      ${sheet ? flavorHtml(c) : ""}
       ${flowRowsHtml(c)}
-      ${inputs || (trigger ? "" : `<p class="pmc-desc">This act takes no arguments.</p>`)}
-      ${ready}${datalist}
+      ${inputs}
+      ${sheet ? ready : ""}${datalist}
       ${terms}${said}
       <div class="pmc-actions">
         <button type="submit" class="pmc-btn go">confirm</button>
@@ -2793,9 +2833,47 @@ export function mountCockpit(o) {
     // edited the box in front of them meant the thing in the box.
     const aimed = state.act?.action === action ? state.act.args : null;
     const whole = { ...(aimed ?? {}), ...args };
+    // ── SPEAKING CLOSES ON ENTER (founder, live: there is "a small lag between
+    // hitting Enter and the panel going away" that reads as "did that send?") ──
+    //
+    // THE CLOSE IS THE CONFIRMATION, and it is cheap because it is honest about
+    // what it confirms: the line LEFT. It does not claim the door took it — that
+    // is a fact from the future, and waiting for it is exactly the pause he
+    // felt. Every other act still waits, because a swing's answer is the throw
+    // and a crossing's is the terms; a spoken line has no answer worth a pause.
+    //
+    // NOTHING IS SWALLOWED AND NOTHING IS LOST. The text is held here before the
+    // panel goes, and a failure re-opens the line with the words still in it and
+    // the door's own defect underneath — so a say that did not land is louder
+    // than one that did, which is the right way round.
+    if (form.hasAttribute("data-chat")) {
+      const said = whole[form.getAttribute("data-chat")] ?? "";
+      state.open = null; state.act = null; state.said = null; formValues = null;
+      paint();
+      sendAct(action, whole).then(() => {
+        if (state.said && state.said.ok === false) reopenChat(action, said);
+      });
+      return;
+    }
     const go = form.querySelector(".pmc-btn.go");
     if (go) { go.disabled = true; go.textContent = "…"; }
     await sendAct(action, whole, form);
+  }
+
+  /**
+   * A SPOKEN LINE THAT DID NOT LAND COMES BACK, with the words still in it.
+   *
+   * The close-on-enter ruling trades the round trip for immediacy, and this is
+   * the half that keeps the trade honest: the reader gets their sentence back
+   * rather than retyping it, and the door's own defect is under it. Called only
+   * on failure, so a line that landed leaves nothing behind.
+   */
+  function reopenChat(action, text) {
+    state.open = action;
+    formValues = null;
+    paint();
+    const box = root.querySelector(".pmc-chat [data-field]");
+    if (box) { box.value = text; box.focus(); box.setSelectionRange?.(text.length, text.length); }
   }
 
   /**

@@ -479,7 +479,17 @@
   // The harness never reaches the office. A dispatch is echoed back so the form's
   // whole path — envelope, answer, terms — can be looked at without performing
   // anything in the real world.
+  // A FORCED REFUSAL, for the half of a ruling that only exists when things go
+  // wrong. `?fail=say` makes the door bounce that act — without it there is no
+  // way to look at what a spoken line does when it does NOT land, and that half
+  // (the words come back, the defect is under them) is the whole reason
+  // close-on-enter is safe to ship.
+  const FAIL = new URLSearchParams(location.search).get("fail");
   async function dispatch(envelope) {
+    if (FAIL && envelope.do === FAIL) {
+      document.getElementById("note").innerHTML = `<b>forced bounce</b> ${envelope.do}`;
+      return { ok: false, status: 503, body: { defect: "the office is not answering", hint: "your words are kept — try again" } };
+    }
     document.getElementById("note").innerHTML =
       `<b>dispatch</b> POST /api/world/apex<br>${JSON.stringify(envelope, null, 1).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c])).replace(/\n/g, "<br>")}`;
     // A SPEAKING ACT LANDS IN THE RECORD THE MAP READS. Whatever prose field the
