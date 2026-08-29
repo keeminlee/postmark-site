@@ -217,15 +217,27 @@ console.log("\n── (5) THE CONSENT SHEET ──");
   // and the conductor's addendum seated it on the row, which is why the click
   // below goes to the seat. The tray still has to work, so it is still opened
   // and read; what it holds is now the acts that genuinely travel with you.
-  await page.click("[data-fold]");
-  await page.waitForSelector(".pmc-tray");
-  const trayRows = await page.evaluate(() =>
-    [...document.querySelectorAll(".pmc-tray button")].map((b) => b.getAttribute("data-action")));
-  console.log(`  tray holds: ${trayRows.join(" ")}`);
-  note(trayRows.length > 0, "the tray holds what folded, reachable by name");
-  note(!trayRows.includes("enter"), "and the crossing act is not among it any more");
-  await page.screenshot({ path: join(OUT, "tray-open-1440.png") });
-  await page.keyboard.press("Escape");
+  // ⚑ THE TRAY MAY BE EMPTY NOW, and that is the fold working rather than
+  // failing. With walk/say/enter/exit/give/take all kept by ruling and the two
+  // hidden seats hidden, a dungeon ground has nothing LEFT to fold — so the
+  // overflow seat is absent, which is the honest rendering of "nothing folded".
+  // The tray is still exercised wherever there is something in it.
+  const foldSeat = await page.$("[data-fold]");
+  if (foldSeat) {
+    await foldSeat.click();
+    await page.waitForSelector(".pmc-tray");
+    const trayRows = await page.evaluate(() =>
+      [...document.querySelectorAll(".pmc-tray button")].map((b) => b.getAttribute("data-action")));
+    console.log(`  tray holds: ${trayRows.join(" ")}`);
+    note(trayRows.length > 0, "where a tray exists it holds what folded, reachable by name");
+    await page.screenshot({ path: join(OUT, "tray-open-1440.png") });
+    await page.keyboard.press("Escape");
+  } else {
+    console.log("  tray: absent — nothing folded on this ground");
+    note(true, "no overflow seat where nothing folded");
+  }
+  note(await page.$('.pmc-slot[data-action="enter"]') !== null,
+    "and the crossing act is on the row, where the founder needs it");
   await page.click('.pmc-slot[data-action="enter"]');
   await page.waitForSelector("[data-form]");
   await page.waitForTimeout(400); // the shadow read's own delay

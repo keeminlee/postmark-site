@@ -201,6 +201,17 @@ export const COCKPIT_CSS = `
   color: var(--pmc-dim); font: .62rem/1.3 ui-monospace, Consolas, monospace; margin-top: .2em;
   max-width: 11em; white-space: nowrap;
 }
+/* A ROW TOO NARROW FOR ITS OWN SECOND LINE drops the line, never a seat — the
+   dial is the only thing on a seat that is repeated whole on the hover card, so
+   it is the one part whose absence costs a reader nothing. Set from a real
+   measurement in markOverflow, never from a viewport guess: the row's width
+   depends on the viewer furniture it is dodging, which a media query cannot see. */
+.pmc-bar.tight .pmc-dial { display: none; }
+/* and the row closes up a little with it — the seats are shorter without the
+   second line, so the gaps that suited a two-line seat are loose around a
+   one-line one. Measured: this is what carried the last two pixels at 1280. */
+.pmc-bar.tight { gap: .28em; }
+.pmc-bar.tight .pmc-slot { padding: .8em .26em .5em; }
 .pmc-slot.afford { border-style: dashed; }
 .pmc-slot.afford .pmc-name { color: var(--pmc-gold); }
 /* WHICH SEAT IS OPEN, said on the seat. Opened by mouse the seat is under the
@@ -991,6 +1002,19 @@ export function mountCockpit(o) {
    * the room where it is the only thing anyone wants. Shipped as built, then
    * reversed on the reading of the shot.
    *
+   * ⚑ GIVE AND TAKE JOINED THEM ON THE FOUNDER'S OWN WORD, live-testing the
+   * dungeon: "give and take need to be main bar action buttons due to the item
+   * you can pick up to help with the fight." That SUPERSEDES the earlier reading
+   * of his keep-list, and the earlier reading is kept here rather than replaced
+   * because it was not arbitrary — the original three were the acts you take
+   * BESIDES fighting, and give/take were folded as things you carry everywhere.
+   * What that reading missed is that in this room they are not ambient at all:
+   * the good lighter is the fight's own mechanic, so picking it up and handing
+   * it over are arena gestures wearing ambient verbs. A fold keyed on the
+   * door's channel could not see that, because the channel is right and the
+   * MEANING is what changed. Six seats now; the row still measures clear at
+   * 1280 (see the shot runner, which fails the run on overflow).
+   *
    * HIDE — "hide the mark and note UI buttons in the dungeon grounds", and UI
    * hiding is the whole of it: the acts are untouched, the door still affords
    * them, the MCP still takes them, and stepping back out of portal ground
@@ -1005,7 +1029,7 @@ export function mountCockpit(o) {
    * was already going to give. `PHASES` is the office's list (encounter.mjs):
    * afoot, spent, wiped.
    */
-  const BAR_KEEP = ["walk", "say", "enter", "exit"];
+  const BAR_KEEP = ["walk", "say", "enter", "exit", "give", "take"];
   const DUNGEON_HIDE = ["leave-mark", "note-to-self"];
   const PHASE_GATE = { loot: "spent" };
   /**
@@ -1353,6 +1377,25 @@ export function mountCockpit(o) {
   function markOverflow() {
     const bar = root.querySelector(".pmc-bar");
     if (!bar) return;
+    // ⚑ THE ROW SHEDS ITS SECOND LINE BEFORE IT SHEDS ITS SEATS.
+    //
+    // GIVE and TAKE joined the row on the founder's word (they are the fight's
+    // own mechanic here, whatever channel the door opened them on), and nine
+    // seats want about 870px against the 771 the row has at 1280 with the walk
+    // desk up. Measured, in the shot runner, which fails the run on overflow.
+    //
+    // What goes is the DIAL LINE, not a seat. It is the only thing on a seat
+    // that is said again elsewhere — the hover card carries the same sentence
+    // whole and unclipped — so it is the one part of the row whose absence
+    // costs a reader nothing they cannot get by pointing at the thing they were
+    // already pointing at. A dropped SEAT would be an act made unreachable, and
+    // a scrolling row is what the fold exists to prevent.
+    //
+    // MEASURED WITH THE LINE BACK ON, every time, so this cannot oscillate: the
+    // question asked is always "does the row fit at its full size", and the
+    // answer decides the class rather than being decided by it. One reflow.
+    bar.classList.remove("tight");
+    if (bar.scrollWidth > bar.clientWidth + 1) bar.classList.add("tight");
     const left = bar.scrollLeft > 2;
     const right = bar.scrollLeft + bar.clientWidth < bar.scrollWidth - 2;
     bar.classList.toggle("more-left", left);
