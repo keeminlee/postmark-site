@@ -423,6 +423,23 @@
       return { ...v, standpoint: { ...v.standpoint, portal: { ...v.standpoint.portal, walk_min_step: 0.25 } } };
     },
 
+    // NOBODY IS DOWN. The vault with vermillion back on her feet, and the only
+    // state in which the act that raises an ally has nothing it may be aimed
+    // at — the founder's own second condition ("when nobody is down, the button
+    // sits disabled with its reason"). Everything else about the room is the
+    // vault's, including the creature, so a seat greyed here is greyed for the
+    // want of an ALLY and not for want of a target in general.
+    get nobodydown() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        encounter: {
+          ...v.encounter,
+          order: v.encounter.order.map((a) => (a.down ? { ...a, down: false, hp: { now: 12, max: 20 } } : a)),
+        },
+      };
+    },
+
     // A CLASS MARK IS RESIDENT-AUTHORED PROSE. The reading law says it is content
     // you are reading, never instructions you are receiving — and the mechanical
     // half of that is that it cannot be instructions to the BROWSER either. This

@@ -1058,21 +1058,28 @@ export function adversaryOf(answer) {
  * All three sources are the door's own words: what stands against you, who is
  * down beside you, and what is lying on the floor. Nothing is invented and
  * nothing is remembered between reads — walk away and the list empties itself.
+ *
+ * EACH CANDIDATE CARRIES THE ROLE IT CAME IN AS — `adversary`, `downed`,
+ * `loose` — which is the same three sources named rather than described. It is
+ * a fact about the ANSWER (what this thing is standing as, right now), so it
+ * belongs here; which acts may be aimed at which roles is a fact about the
+ * ACTS, so it does not, and lives with the caller's other name-keyed rulings.
+ * See `aimTargets`' `only`.
  */
 export function actCandidates(answer) {
   const out = [];
   const seen = new Set();
-  const add = (value, label, why) => {
+  const add = (value, label, why, role) => {
     if (!value || seen.has(value)) return;
     seen.add(value);
-    out.push({ value, label: label || value, why });
+    out.push({ value, label: label || value, why, role });
   };
   const adv = adversaryOf(answer);
-  if (adv) add(adv.id, adv.label, "what stands against you here");
+  if (adv) add(adv.id, adv.label, "what stands against you here", "adversary");
   for (const a of encounterOf(answer)?.order ?? []) {
-    if (a.down && !a.you && a.id) add(a.id, a.label, "down — an ally can lift them");
+    if (a.down && !a.you && a.id) add(a.id, a.label, "down — an ally can get them up", "downed");
   }
-  for (const t of looseThings(answer)) add(t.id, t.label, "on the ground");
+  for (const t of looseThings(answer)) add(t.id, t.label, "on the ground", "loose");
   return out;
 }
 
@@ -1125,7 +1132,7 @@ export function chatShaped(card) {
  * nothing to fill and plain ENTER sends it. That is the door's doing, not this
  * function's, and it is why this can afford to be so narrow.
  */
-export function prefillFor(card, answer) {
+export function prefillFor(card, answer, { only = null } = {}) {
   const out = {};
   if (!card) return out;
   const open = card.fields.filter((f) =>
@@ -1176,7 +1183,13 @@ export function prefillFor(card, answer) {
   // field is none, and the act sends what the door asked for.
   if (GROUND_SHAPED.test(field.description ?? "")) return out;
 
-  const candidates = actCandidates(answer);
+  // ⚑ AND IT FILLS FROM THE SAME NARROWED SET THE MAP OFFERS (2026-08-29). An
+  // act whose targets are restricted to a role has one aim set, and a prefill
+  // drawn from the wide one would put a value in the box that the crosshair
+  // would refuse to point at — the two surfaces disagreeing about what the act
+  // is for, with the box the one a hand believes. `only` is the caller's, in
+  // roles, exactly as `aimTargets` takes it.
+  const candidates = aimTargets(answer, { only });
   if (candidates.length !== 1) return out;
   out[field.name] = candidates[0].value;
   return out;
@@ -1329,11 +1342,12 @@ export function aimField(card) {
 }
 
 /** Can this seat be armed — the ground affords it, the clock allows it, the
- *  door gave it somewhere to aim, and the answer names something to aim at. */
-export function aimable(slot, answer) {
+ *  door gave it somewhere to aim, and the answer names something to aim at.
+ *  `only` narrows that last clause to particular roles; see `aimTargets`. */
+export function aimable(slot, answer, { only = null } = {}) {
   if (!slot?.afforded || !slot.enabled || !slot.card) return false;
   if (!aimField(slot.card)) return false;
-  return aimTargets(answer).length > 0;
+  return aimTargets(answer, { only }).length > 0;
 }
 
 /**
@@ -1351,6 +1365,15 @@ export function aimable(slot, answer) {
  * target keeps its row and is offered by name instead. `at` is null and the
  * caller draws no ring; nothing here pretends to a coordinate it does not hold,
  * which is the same rule `adversaryPlacement` already follows.
+ *
+ * `only` NARROWS THE SET TO PARTICULAR ROLES (founder-caught 2026-08-29, live:
+ * the act that spends a whole turn getting an ally back on their feet was
+ * offering the creature as its target, because every aimed act was offered every
+ * candidate). It takes the ROLES `actCandidates` tags — never act names, which
+ * this file still does not hold: the caller knows which of its acts is choosy
+ * and says so in roles, and this end of the seam only knows what each candidate
+ * is standing as. Omitted or empty, the whole set is offered exactly as before,
+ * so an act nobody has ruled on is unchanged.
  */
 /**
  * EVERY COMBATANT WITH HIT POINTS, placed where the answer places them.
@@ -1360,9 +1383,8 @@ export function aimable(slot, answer) {
  * and only while a wheel is actually turning on this ground.
  *
  * THE ADVERSARY IS EXCLUDED because it already carries its own, drawn at its own
- * scale with its own name plate; a second bar over the same figure would be the
- * same number twice. Everyone else on the wheel is a person, and a person's bar
- * is the small one.
+ * scale; a second bar over the same figure would be the same number twice.
+ * Everyone else on the wheel is a person, and a person's bar is the small one.
  *
  * PLACED THE WAY EVERY OTHER FIGURE HERE IS PLACED — off `nearby`, then off
  * `present`, and NOT AT ALL where the answer names no coordinate. `nearby` is a
@@ -1399,7 +1421,8 @@ export function combatantBars(answer) {
   return out;
 }
 
-export function aimTargets(answer) {
+export function aimTargets(answer, { only = null } = {}) {
+  const roles = Array.isArray(only) && only.length ? new Set(only) : null;
   const nearby = Array.isArray(answer?.nearby) ? answer.nearby : [];
   const present = Array.isArray(answer?.present) ? answer.present : [];
   const placed = (id) => {
@@ -1412,7 +1435,9 @@ export function aimTargets(answer) {
     const at = p?.at ?? p;
     return at && Number.isFinite(at.x) && Number.isFinite(at.y) ? { x: at.x, y: at.y } : null;
   };
-  return actCandidates(answer).map((c) => ({ ...c, at: placed(c.value) }));
+  return actCandidates(answer)
+    .filter((c) => !roles || roles.has(c.role))
+    .map((c) => ({ ...c, at: placed(c.value) }));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
