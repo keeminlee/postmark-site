@@ -596,6 +596,29 @@ export function mountCockpit(o) {
   // (with stale numbers), so a fence or a token sized off the mount-time
   // reference would be measured against a ghost.
   const liveSvg = () => (tokenLayer?.isConnected ? tokenLayer.ownerSVGElement : null) ?? o.svgOf?.() ?? o.svg;
+  /**
+   * WHICH PROJECTION THIS PAINTING SPEAKS (2026-08-29, found live in the
+   * founder's vault). A room ground has its own origin and scale — different
+   * from the world painting's skeleton grid — and until tonight the cockpit
+   * drew every figure through the world grid onto whichever svg was alive: on
+   * the world painting that was right, inside a room it put the cake's ring at
+   * the bottom edge of a painting whose own wall was three metres away. The
+   * viewer now stamps its projection on the svg it paints
+   * (data-wv-origin-x/y, data-wv-m-per-px — world repo, the fourth handshake
+   * word, and this one is data). The stamped shape IS the grid shape
+   * ({originPx, mPerPx}), so worldToPx/pxToWorld take it unchanged; a painting
+   * with no stamp is the world painting and the skeleton grid stands exactly
+   * as before.
+   */
+  function gridNow() {
+    const svg = liveSvg();
+    const ds = svg?.dataset ?? {};
+    const ox = Number(ds.wvOriginX), oy = Number(ds.wvOriginY), m = Number(ds.wvMPerPx);
+    if (Number.isFinite(ox) && Number.isFinite(oy) && Number.isFinite(m) && m > 0) {
+      return { originPx: { x: ox, y: oy }, mPerPx: m };
+    }
+    return o.grid;
+  }
 
   // ── the roster ────────────────────────────────────────────────────────────
   function faces() {
@@ -1589,10 +1612,10 @@ export function mountCockpit(o) {
    * around it would be saying something about the thing.
    */
   function drawLoose() {
-    if (!tokenLayer || !o.grid) return "";
+    if (!tokenLayer || !gridNow()) return "";
     const u = unitsPerPx();
     return looseThings(state.answer).map((t) => {
-      const at = worldToPx(o.grid, t.at);
+      const at = worldToPx(gridNow(), t.at);
       if (!at) return "";
       const r = 9 * u;
       const who = t.dropped_by ? ` — dropped by ${t.dropped_by}` : "";
@@ -1629,8 +1652,8 @@ export function mountCockpit(o) {
    * not drawn rather than guessing a full one.
    */
   function drawAdversary() {
-    if (!tokenLayer || !o.grid) return "";
-    const placed = adversaryPlacement(state.answer, o.grid);
+    if (!tokenLayer || !gridNow()) return "";
+    const placed = adversaryPlacement(state.answer, gridNow());
     if (!placed) return "";
     const { at, adversary: a } = placed;
     const u = unitsPerPx();
@@ -1699,10 +1722,10 @@ export function mountCockpit(o) {
    * Screen-sized like everything else the cockpit puts on this map.
    */
   function drawVoices() {
-    if (!tokenLayer || !o.grid || !state.voices.length) return "";
+    if (!tokenLayer || !gridNow() || !state.voices.length) return "";
     const u = unitsPerPx();
     return state.voices.map((v) => {
-      const at = worldToPx(o.grid, v.at);
+      const at = worldToPx(gridNow(), v.at);
       if (!at) return "";
       // A line has to be readable over a night map whatever it lands on, so it
       // carries its own ground — the same reason the die's caption does.
@@ -1770,7 +1793,7 @@ export function mountCockpit(o) {
     // ruling is about entering a zone where it is human-allowed, not about
     // drawing a second figure on every square of the world.
     const seated = !!(human?.allowed && portalOf(state.answer) && state.acting === HUMAN_ACTOR);
-    const place = tokenPlacement(state.answer, o.grid, human, { seated });
+    const place = tokenPlacement(state.answer, gridNow(), human, { seated });
     if (!place) return;
     const { at, token, beside } = place;
     // THE TOKEN IS SIZED IN SCREEN PIXELS, NOT MAP UNITS — measured, after the
@@ -2274,15 +2297,15 @@ export function mountCockpit(o) {
    * clicks that belong to the surface underneath it.
    */
   function thingAt(local) {
-    if (!local || !o.grid) return null;
+    if (!local || !gridNow()) return null;
     const u = unitsPerPx();
     const near = (at, r) => at && Math.hypot(local.x - at.x, local.y - at.y) <= r;
-    const placed = adversaryPlacement(state.answer, o.grid);
+    const placed = adversaryPlacement(state.answer, gridNow());
     if (placed && near(placed.at, 20 * u * 1.34)) {
       return { id: placed.adversary.id, label: placed.adversary.label };
     }
     for (const t of looseThings(state.answer)) {
-      const at = worldToPx(o.grid, t.at);
+      const at = worldToPx(gridNow(), t.at);
       if (near(at, 9 * u * 1.9)) return { id: t.id, label: t.label };
     }
     return null;
@@ -2336,7 +2359,7 @@ export function mountCockpit(o) {
     // and taking those clicks would mean this overlay silently replacing the
     // viewer's own selection behaviour with a walk.
     if (ev.target?.closest?.("#wv-overlay [data-id], .wv-card, .ctl, button, a")) return;
-    const m = pxToWorld(o.grid, local);
+    const m = pxToWorld(gridNow(), local);
     if (!m) return;
     walkFromMap(m);
   };
