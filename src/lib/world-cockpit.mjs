@@ -609,8 +609,36 @@ export function blockedReason(answer) {
   const you = yourTurnRow(enc);
   if (you?.down) return { reason: "you are down — an ally can lift you", from: "derived" };
   if (enc.turn && you && !you.current) {
-    const whose = enc.order.find((a) => a.current);
-    return { reason: `it is ${whose?.label ?? enc.turn}'s turn`, from: "derived" };
+    // ⚑ A CREATURE'S TURN IS NOT A WAIT — IT IS WHAT YOUR ACT RESOLVES.
+    //
+    // The door's law, quoted: "Hostile turns are resolved by the act that ends
+    // a player's turn, in the same handling, until the wheel reaches a player
+    // again. There is no daemon and no ticker: the duet is the event loop."
+    // The door drives every due creature turn BEFORE it judges the caller, so a
+    // reader whose only obstacle is a creature is not blocked at all — their
+    // act is the mechanism.
+    //
+    // Greying the bar on that word is what made the room read as dead. The
+    // founder, mid-fight: "I also tried striking and it's just stuck now? like
+    // when does the cake take its turn?" It takes it when he acts, and the
+    // surface had disabled the acting.
+    //
+    // So the wait is measured past the creatures, to the row the door will
+    // really judge against. A HAND ahead of you still blocks — a person acts on
+    // their own clock and nothing here drives them — which is the distinction
+    // that keeps this from being "stop gating".
+    //
+    // The office says the same thing on the read half (`actingBlocked`); this
+    // is the derivation for a door that has not spoken, and the two agree on
+    // purpose.
+    const order = enc.order ?? [];
+    let i = order.findIndex((a) => a.current);
+    let guard = 0;
+    while (i >= 0 && order[i] && (order[i].kind === "creature" || order[i].down)
+           && guard++ < order.length * 2) i = (i + 1) % order.length;
+    const whose = i >= 0 ? order[i] : null;
+    if (!whose || whose.id === you.id) return null;
+    return { reason: `it is ${whose.label ?? whose.id}'s turn`, from: "derived" };
   }
   return null;
 }

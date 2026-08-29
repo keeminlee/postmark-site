@@ -525,20 +525,60 @@ test("the wheel carries hostiles, the downed, the late, and which is current", (
   assert.equal(encounterOf({ encounter: { order: [] } }), null, "an empty wheel is not an encounter");
 });
 
-test("not your turn: every slot disabled with the reason, and NONE hidden", () => {
-  // The founder's ruling, verbatim: "when it is not your turn, the slots render
-  // disabled with the reason … never hidden, so the grammar stays legible."
+test("a CREATURE holding the wheel does not disable anything — the act is what resolves it", () => {
+  // ⚑ THIS TEST ASSERTED THE OPPOSITE UNTIL 2026-08-28, and the reversal is
+  // written out rather than swapped in, because a test that quietly flips is
+  // indistinguishable from a regression.
+  //
+  // WHAT IT USED TO SAY: with the cellar thing on the wheel, every afforded
+  // slot disabled, each carrying "it is the cellar thing's turn". That read the
+  // founder's ruling — "when it is not your turn, the slots render disabled
+  // with the reason … never hidden" — as covering a creature's turn too.
+  //
+  // WHY THAT WAS WRONG, in the door's own law: "Hostile turns are resolved by
+  // the act that ends a player's turn, in the same handling, until the wheel
+  // reaches a player again. There is no daemon and no ticker: the duet is the
+  // event loop." The door drives every due creature turn BEFORE it judges the
+  // caller. So a reader whose only obstacle is a creature was being refused for
+  // the one act that would have moved the fight, and the room read as dead.
+  // The founder, mid-fight, in his own browser: "I also tried striking and it's
+  // just stuck now? like when does the cake take its turn?" It takes it when he
+  // acts — and this surface had disabled the acting.
+  //
+  // The ruling itself is untouched and is asserted below, where it applies.
   const { fixed, tray, blocked } = barSlots(IN_COMBAT);
-  assert.equal(blocked.reason, "it is the cellar thing's turn");
+  assert.equal(blocked, null, "a creature's turn is not a blocker — the reader's act drives it");
   assert.equal(fixed.length, FIXED_SLOTS.length, "the six seats are all still there");
   assert.deepEqual(tray.map((t) => t.action), ["strike", "loot"], "so is the whole afforded tray");
   const afforded = [...fixed, ...tray].filter((s) => s.afforded);
   assert.ok(afforded.length > 0);
-  assert.ok(afforded.every((s) => s.enabled === false), "afforded and blocked: disabled, not removed");
-  assert.ok(afforded.every((s) => s.blocked === "it is the cellar thing's turn"), "each says why");
-  // the cards survive the gate — the law is still readable while you wait
+  assert.ok(afforded.every((s) => s.enabled === true), "and every afforded slot can actually be pressed");
+  // the cards are unchanged by any of this — the law is readable either way
   assert.ok(afforded.every((s) => s.card !== null));
   assert.equal(tray[0].card.blurbFrom, "the-hall/strike");
+});
+
+test("not your turn: every slot disabled with the reason, and NONE hidden", () => {
+  // The founder's ruling, verbatim: "when it is not your turn, the slots render
+  // disabled with the reason … never hidden, so the grammar stays legible."
+  //
+  // A HAND ahead of you is what that ruling is about. A person acts on their
+  // own clock and nothing the reader does drives them, so the wait is real and
+  // the bar should say whose it is — which is also the leg that keeps the test
+  // above from being "stop gating".
+  const theirTurn = {
+    ...IN_COMBAT,
+    encounter: { ...IN_COMBAT.encounter, turn: "keeminlee" },
+  };
+  const { fixed, tray, blocked } = barSlots(theirTurn);
+  assert.equal(blocked.reason, "it is DARKO's turn");
+  assert.equal(fixed.length, FIXED_SLOTS.length, "the six seats are all still there");
+  const afforded = [...fixed, ...tray].filter((s) => s.afforded);
+  assert.ok(afforded.length > 0);
+  assert.ok(afforded.every((s) => s.enabled === false), "afforded and blocked: disabled, not removed");
+  assert.ok(afforded.every((s) => s.blocked === "it is DARKO's turn"), "each says why");
+  // the cards survive the gate — the law is still readable while you wait
+  assert.ok(afforded.every((s) => s.card !== null));
 });
 
 test("downed: your own bar says so, and the door's words win over ours", () => {
