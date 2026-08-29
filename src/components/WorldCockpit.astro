@@ -169,6 +169,15 @@
      * this page already treats that id as the honest readiness signal.
      */
     function mapSvg() {
+      // THE PAINTING THE READER IS LOOKING THROUGH, not the one this island
+      // met first (2026-08-29, the founder's vault). In a room view the world
+      // svg is detached and the ROOM ground is the living painting — it
+      // carries the projection stamp (data-wv-m-per-px, world repo e703b7c0),
+      // which makes the stamp double as the discovery signal: a stamped svg
+      // that is connected IS the current scene. No stamp anywhere means the
+      // world painting, found through its overlay exactly as before.
+      const scene = document.querySelector(".wv svg[data-wv-m-per-px]");
+      if (scene?.isConnected) return scene;
       const overlay = document.querySelector(".wv #wv-overlay");
       return overlay?.ownerSVGElement ?? null;
     }
