@@ -15,10 +15,14 @@ import {
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
-  pxToWorld, recentVoices,
+  pxToWorld, recentVoices, faceImageFor,
   aimField, aimTargets, aimable, barFold, consentSplit, dialSpeak, snapPoint, walkStep,
   weaponFor,
 } from "./world-cockpit.mjs";
+// The rail's feed — its sentences, its merge rule and its bottom test. All of
+// it pure, so the fight's whole grammar is falsifiable against fixtures without
+// a browser; this file only draws what it returns.
+import { atBottom, beatsFromAct, beatsFromDelta, beatsFromTail, mergeFeed, tailWatermark, voiceEntries } from "./world-feed.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
 // — so the bar cannot be drawn for one standpoint and act from another.
 import { orientingHandle } from "./world-cockpit-door.mjs";
@@ -82,6 +86,12 @@ export const COCKPIT_CSS = `
   color: var(--pmc-dim); font: 1em/1 ui-monospace, Consolas, monospace; position: relative;
 }
 .pmc-face img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+/* The letter is under every picture rather than instead of one, so a picture
+   that fails to load reveals the tile it was covering instead of leaving a hole
+   in the dock. Both are stacked in the face's own box; the picture wins while
+   it exists. */
+.pmc-face .pmc-mono { position: absolute; inset: 0; display: grid; place-items: center; }
+.pmc-face .pmc-mono + img { position: absolute; inset: 0; }
 .pmc-face[aria-pressed="true"] { border-color: var(--pmc-gold); box-shadow: 0 0 12px rgba(217,168,96,.5); color: var(--pmc-gold); }
 .pmc-face[disabled] { opacity: .4; cursor: not-allowed; }
 .pmc-face:focus-visible { outline: 2px solid var(--pmc-gold); outline-offset: 2px; }
@@ -467,6 +477,9 @@ export const COCKPIT_CSS = `
   color: var(--pmc-dim); font: .82rem/1 ui-monospace, Consolas, monospace;
 }
 .pmc-turn .pip img { width: 100%; height: 100%; object-fit: cover; }
+/* same stack as the dock's face: the letter underneath, the picture over it */
+.pmc-turn .pip .pmc-mono { position: absolute; inset: 0; display: grid; place-items: center; }
+.pmc-turn .pip { position: relative; }
 .pmc-turn .nm { display: block; color: var(--pmc-ink); font-size: .64rem; line-height: 1.25; overflow-wrap: anywhere; }
 .pmc-turn .init { display: block; color: var(--pmc-dim); font: .58rem/1.4 ui-monospace, Consolas, monospace; }
 .pmc-turn .hp { display: block; height: 3px; margin: .25em .2em 0; background: rgba(154,161,173,.22); border-radius: 2px; overflow: hidden; }
@@ -576,6 +589,118 @@ export const COCKPIT_CSS = `
 .pmc-here .who { color: var(--pmc-gold); font-size: .95rem; }
 .pmc-here .spine { color: var(--pmc-dim); font-size: .78rem; margin-top: .25em; line-height: 1.45; }
 
+/* ── LATELY IS THE FEED (2026-08-29, the founder's ruling) ──
+   "the action log can just replace the Lately section in the side rail instead
+   of needing a whole separate panel ... tweak the 'lately' section so it's a
+   newest-at-the-bottom chat-like feed, that you can scroll UP to see older
+   things (and we should use this same thing for the log in combat)"
+
+   ⚑ EVERY RULE BELOW IS CSS ON THE VIEWER'S OWN SECTION, and that is the whole
+   design. The rail belongs to the viewer: it renders the Lately rows, it hides
+   the section when the record is empty, and it rewrites that list on every
+   re-fold. So this reshapes the section rather than replacing it — the section
+   becomes the scrollport, the viewer's list is flipped to column-reverse so its
+   newest-first DOM reads oldest-at-top, and the cockpit's own list is one
+   element appended after it. Nothing of the viewer's is written: not its
+   innerHTML, not its hidden attribute, not its state. The whole reshape is
+   undone by removing one attribute from <html>, which is what destroy() does.
+
+   The attribute is data-pmc-feed, the same shape as data-pmc-dock beside it —
+   an attribute a viewer that booted after us can read, and an event
+   (pm:cockpit-feed) for one that booted before. Neither is load-bearing at this
+   pin; both are the seam, kept for the same reason the dock's is.
+
+   THE COLOURS ARE THE VIEWER'S OWN VARIABLES, read off .wv, because these rules
+   land inside its rail and a second palette there would be a patch of another
+   page. Everywhere else in this file the cockpit is deliberately its own dark
+   chrome over the painting; this is the one place it is a guest. */
+html[data-pmc-feed] .wv .wv-activity {
+  display: flex !important; flex-direction: column;
+  max-height: min(46vh, 460px); overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scroll-behavior: auto;
+}
+/* ⚑ NOTHING IN A SCROLLPORT MAY SHRINK, and this line is the whole of "you can
+   scroll UP to see older things". Found in the shot, 2026-08-29: the oldest two
+   Lately rows were painted ABOVE the section's own top edge and no amount of
+   scrolling could reach them.
+
+   The cause is the flip meeting the default. A flex item shrinks by default, so
+   the moment the section hit its max-height the viewer's list was squeezed below
+   its content size — and a column-reverse box that is too short overflows out of
+   its START edge, which is the TOP. Overflow above a scrollport's top is
+   unreachable by definition: the rows were not merely off-screen, they were
+   gone, and the section looked like a feed with a short memory rather than a
+   broken one.
+
+   Every child, not just the list: the heading, the absences the viewer names,
+   the cockpit's own list and the new-below pill are all in the same box and all
+   inherit the same default. */
+html[data-pmc-feed] .wv .wv-activity > * { flex: 0 0 auto; }
+/* The heading stays put while the record scrolls under it — a feed you scroll
+   up through must keep saying what it is. */
+/* ⚑ THE SECTION'S OWN TOP PADDING BELONGS TO THE HEADING NOW. Sticky pins at the
+   CONTENT box, so the viewer's 14px of padding above it stayed transparent and
+   the row scrolling underneath printed through that strip — a line of the record
+   sliced in half above the word LATELY, which the shot caught and no measurement
+   would have. Moving the padding into the heading makes the heading the top of
+   the scrollport, and there is nowhere left for anything to show through. */
+html[data-pmc-feed] .wv .wv-activity { padding-top: 0; }
+html[data-pmc-feed] .wv .wv-activity > h2 {
+  position: sticky; top: 0; z-index: 2;
+  margin: 0 0 8px; padding: 14px 0 6px; background: var(--panel);
+}
+/* THE FLIP ITSELF. recentActivity sorts newest-first and renderActivity writes
+   that order into the DOM; column-reverse draws it oldest-at-top without the
+   viewer's list being touched. One CSS line is the whole of "newest at the
+   bottom" for the half of the feed the viewer owns. */
+html[data-pmc-feed] .wv .wv-acts { flex-direction: column-reverse; }
+/* the cockpit's half: the fight and what is being said, under the record */
+.pmc-feed {
+  list-style: none; margin: 0; padding: 0; flex: 0 0 auto;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.pmc-feed:not(:empty) { margin-top: 10px; padding-top: 9px; border-top: 1px dotted var(--line, rgba(154,161,173,.35)); }
+.pmc-fline {
+  font: .78rem/1.45 Georgia, "Times New Roman", serif;
+  color: var(--paper, #e8e0cf); margin: 0;
+}
+.pmc-fline .who { font-family: var(--mono, ui-monospace, Consolas, monospace); font-size: .68rem;
+  letter-spacing: .06em; color: var(--dim, #9a9280); margin-right: .45em; }
+/* A SAY READS AS SPEECH AND A BEAT READS AS RECORD, because they are different
+   kinds of sentence and a feed that painted them alike would make the fight
+   look like chatter. */
+.pmc-fline.is-say { color: var(--paper, #e8e0cf); }
+.pmc-fline.is-say .said { font-style: italic; }
+.pmc-fline.is-hit { color: var(--amber, #e8c56a); }
+.pmc-fline.is-miss { color: var(--dim, #9a9280); }
+.pmc-fline.is-down { color: var(--you, #e0654a); }
+.pmc-fline.is-lift { color: var(--green, #84c98f); }
+.pmc-fline.is-join { color: var(--blue, #7ba7e0); }
+.pmc-fline.is-loot { color: var(--stamp-violet, #aa8fd8); }
+.pmc-fline.is-wipe { color: var(--you, #e0654a); font-weight: 600; }
+/* the round rule: a divider that happens to carry a number, not a line of prose */
+.pmc-fline.is-turn {
+  color: var(--dim, #9a9280); font-family: var(--mono, ui-monospace, Consolas, monospace);
+  font-size: .62rem; letter-spacing: .18em; text-transform: uppercase;
+  text-align: center; margin: 4px 0 1px;
+}
+/* WHAT WENT BY UNREAD, said rather than swallowed — the rail's own standing
+   rule for a record it could not read, applied to the turns between two polls
+   that this page has no door to see. */
+.pmc-fline.is-unseen {
+  color: var(--dim, #9a9280); font-size: .68rem; font-style: italic; opacity: .8;
+}
+/* The reader is not at the bottom, so the feed is holding still — and it has to
+   say so, or a held feed and a dead feed look exactly alike. Clicking it is the
+   way back down. */
+.pmc-feed-new {
+  position: sticky; bottom: 0; align-self: center; z-index: 3;
+  margin-top: 6px; padding: .2em .7em; border-radius: 999px; cursor: pointer;
+  background: var(--panel2, #20262f); border: 1px solid var(--amber-dark, #b8964a);
+  color: var(--amber, #e8c56a); font: .66rem/1.6 var(--mono, ui-monospace, Consolas, monospace);
+}
+.pmc-feed-new[hidden] { display: none; }
+
 @media (max-width: 720px) {
   .pmc-roster { padding: .25em .4em; gap: .25em; }
   .pmc-face { width: 2em; height: 2em; }
@@ -629,6 +754,11 @@ export function mountCockpit(o) {
     voices: [],        // recent speech, from the conversations door
     aiming: null,      // { action, field } — an act armed, waiting for a target
     tray: false,       // is the overflow tray open
+    feed: [],          // the rail's own half of Lately — beats and says, newest LAST
+    profiles: {},      // handle -> the profile bubble off /residents/{handle}, for the dock's faces
+    encSnap: null,     // the encounter block the last delta was derived against
+    beatSeq: null,     // highest beat seq drawn FROM A TAIL; null = no tail has ever been seen
+    lastTurn: undefined, // the wheel's turn as of the last read; undefined = never read one
   };
 
   const root = doc.createElement("div");
@@ -760,11 +890,26 @@ export function mountCockpit(o) {
     const face = (f) => {
       const id = f.kind === "human" ? HUMAN_ACTOR : f.handle;
       const on = state.acting === id;
-      // the roster's face and the map's token are the same picture, read once
-      const token = f.kind === "human" ? tokenFor(f) : null;
+      // EVERY FACE IS A PICTURE NOW (founder, 2026-08-29: "there needs to be
+      // profiles of tokens loaded into the act as bar"). The human's token and
+      // a resident's own avatar come through ONE call — faceImageFor — so the
+      // dock cannot resolve the two by different rules and end up with a photo
+      // beside a letter for no reason a reader could name. The initial-letter
+      // tile is still what a face with no picture gets, which is the state
+      // every resident face was in until tonight and is nobody's failure.
+      //
+      // ⚑ AND A BROKEN PICTURE FALLS BACK TO THE LETTER. The avatar url is
+      // derived from a basename the door reports and a repo path; a resident
+      // whose file has since been renamed would otherwise leave a torn-image
+      // glyph in the dock forever. So the letter is ALWAYS drawn, underneath,
+      // and the picture lies over it — an image that fails to load is removed
+      // (see the delegated error listener below) and the tile is simply
+      // revealed. No fetch, no state, and no second appearance to design.
+      const token = faceImageFor(f, state.profiles);
+      const mono = esc(token?.monogram ?? (f.label ?? "?").slice(0, 1).toUpperCase());
       const inner = token?.src
-        ? `<img src="${esc(token.src)}" alt="">`
-        : esc((f.label ?? "?").slice(0, 1).toUpperCase());
+        ? `<span class="pmc-mono">${mono}</span><img src="${esc(token.src)}" alt="" loading="lazy">`
+        : mono;
       // The name box carries the REASON when a face is refused — a greyed circle
       // that will not say why is the surface refusing to explain the law it is
       // enforcing, which is the opposite of what this page is for. And an ALLOWED
@@ -1761,15 +1906,31 @@ export function mountCockpit(o) {
       (!a.hp && adv && a.id === adv.id && Number.isFinite(adv.hp) && Number.isFinite(adv.of) && adv.of > 0)
         ? { ...a, hp: { now: adv.hp, max: adv.of } }
         : a);
+    // THE WHEEL WEARS THE SAME FACES THE DOCK DOES (2026-08-29). It read
+    // tokenFor, which answers for the human and nobody else, so the one surface
+    // a player watches for their turn showed one photograph and a row of
+    // letters. Now both surfaces resolve a picture through faceImageFor, off
+    // the same roster and the same profile bubbles — a resident cannot have a
+    // face in the dock and a letter on the wheel.
+    // ⚑ AND FOR EVERY HAND IN THE ROOM, not only the ones on this key. The
+    // roster holds the residents this reader can ACT AS; the wheel holds
+    // everyone in the fight. Resolving only through the roster gave the
+    // founder's own two residents portraits and left every other player in the
+    // room wearing a letter — the same inconsistency this change exists to end,
+    // reproduced one surface further along. A wheel row IS a resident row for
+    // this purpose: the id is the handle.
     const pictureFor = (a) => {
       if (a.kind === "creature") return null;
-      const human = a.kind === "human" ? faces.find((f) => f.kind === "human") : null;
-      return human ? tokenFor(human) : null;
+      const row = a.kind === "human"
+        ? faces.find((f) => f.kind === "human")
+        : (faces.find((f) => f.kind === "resident" && f.handle === a.id)
+          ?? (a.id ? { kind: "resident", handle: a.id, label: a.label } : null));
+      return row ? faceImageFor(row, state.profiles) : null;
     };
     const seat = (a) => {
       const token = pictureFor(a);
       const inner = token?.src
-        ? `<img src="${esc(token.src)}" alt="">`
+        ? `<span class="pmc-mono">${esc(token.monogram ?? (a.label || "?").slice(0, 1).toUpperCase())}</span><img src="${esc(token.src)}" alt="" loading="lazy">`
         : esc((a.label || "?").slice(0, 1).toUpperCase());
       const hp = a.hp
         // A bar that reads 0% is indistinguishable from a bar that failed to
@@ -2263,6 +2424,244 @@ export function mountCockpit(o) {
     tokenLayer.appendChild(g);
   }
 
+  // ── the rail's feed ───────────────────────────────────────────────────────
+  //
+  // THE FOUNDER'S RULING, 2026-08-29: "the action log can just replace the
+  // Lately section in the side rail instead of needing a whole separate panel
+  // ... tweak the 'lately' section so it's a newest-at-the-bottom chat-like
+  // feed, that you can scroll UP to see older things (and we should use this
+  // same thing for the log in combat)."
+  //
+  // ONE COMPONENT, AND IT IS THE VIEWER'S OWN SECTION. The rail belongs to the
+  // viewer: it writes the Lately rows and rewrites them on every re-fold. So
+  // this does not replace the section, it JOINS it — the section becomes the
+  // scrollport (CSS), the viewer's list is flipped to read oldest-at-top (CSS),
+  // and the cockpit appends ONE element of its own after it for the fight and
+  // the talk. Nothing of the viewer's is written: not its list, not its hidden
+  // attribute, not its state. Remove data-pmc-feed and the rail is exactly the
+  // rail it was, which is what destroy() does.
+  //
+  // ⚑ THE HOST IS RESOLVED AT USE TIME, never held from mount — the same law
+  // that governs the svg two hundred lines up. The viewer injects its markup
+  // once today, but "the element I found at mount is the element that is there
+  // now" is precisely the assumption that cost this file four bugs in one
+  // evening, and a feed appended to a detached rail would answer every
+  // measurement with zeros while looking perfectly correct in the source.
+  let feedList = null;
+  let feedNew = null;
+  /** The section the viewer draws Lately into, right now, or null off the rail
+   *  (a phone hides it below 720px, and a harness has no viewer at all). */
+  const feedSection = () => doc.querySelector(".wv .wv-activity");
+  function ensureFeed() {
+    const host = feedSection();
+    if (!host) return null;
+    if (feedList?.isConnected && feedList.parentElement === host) return feedList;
+    feedList = doc.createElement("ol");
+    feedList.className = "pmc-feed";
+    feedList.setAttribute("data-pmc-feed-list", "");
+    host.appendChild(feedList);
+    feedNew = doc.createElement("button");
+    feedNew.type = "button";
+    feedNew.className = "pmc-feed-new";
+    feedNew.hidden = true;
+    feedNew.textContent = "new ↓";
+    feedNew.addEventListener("click", () => {
+      const box = feedSection();
+      if (box) box.scrollTop = box.scrollHeight;
+      feedNew.hidden = true;
+    });
+    host.appendChild(feedNew);
+    return feedList;
+  }
+
+  function feedLineHtml(e) {
+    const tone = ` is-${e.tone ?? "plain"}`;
+    if (e.kind === "say") {
+      return `<li class="pmc-fline is-say${e.who ? "" : " is-anon"}">`
+        + (e.who ? `<span class="who">${esc(e.who)}</span>` : "")
+        + `<span class="said">${esc(e.text)}</span></li>`;
+    }
+    return `<li class="pmc-fline${tone}">${esc(e.text)}</li>`;
+  }
+
+  /**
+   * DRAW IT, KEEPING THE CHAT CONTRACT.
+   *
+   * At the bottom, the feed follows; scrolled up, it holds exactly where the
+   * reader left it and says there is something new below. That is the whole of
+   * what makes this a chat feed rather than a list that jumps — and it is
+   * measured BEFORE the rewrite, because after it the scrollHeight has already
+   * moved and every answer is about a box that no longer exists.
+   */
+  function drawFeed() {
+    const list = ensureFeed();
+    if (!list) return;
+    const box = list.parentElement;
+    const follow = atBottom(box);
+    const html = state.feed.map(feedLineHtml).join("");
+    if (list.innerHTML !== html) {
+      list.innerHTML = html;
+      if (follow) { box.scrollTop = box.scrollHeight; if (feedNew) feedNew.hidden = true; }
+      else if (feedNew) feedNew.hidden = false;
+    }
+  }
+
+  /** New entries in, feed redrawn. Everything that can add a line goes through
+   *  here, so the merge rule (newest last, deduped by id, capped) has exactly
+   *  one caller-visible shape. */
+  function ingest(entries) {
+    if (!entries?.length) return;
+    const before = state.feed;
+    state.feed = mergeFeed(state.feed, entries);
+    if (state.feed !== before) drawFeed();
+  }
+
+  /**
+   * EVERYBODY ELSE'S TURNS — by the tail where the door sends one, by the delta
+   * where it does not.
+   *
+   * ① THE TAIL. `encounter_detail.beats_tail` is the fold's own beats, so every
+   * hand in the room gets the same whole, attributed sentence your own acts
+   * already got. `state.beatSeq` is the watermark: the highest seq this page has
+   * turned into a line FROM A TAIL.
+   *
+   * ⚑ THE WATERMARK IS ADVANCED BY THE TAIL AND BY NOTHING ELSE, and that is a
+   * correctness rule rather than tidiness. Your own act answer arrives with your
+   * beat AND the hostile turns it drove — seqs above anything a tail has yet
+   * shown us. Letting those advance the watermark would step over somebody
+   * else's beat that was sitting lower in the window and had not been read yet:
+   * it would be skipped, permanently, and nothing would say so. So the act
+   * answer draws its lines and leaves the watermark alone; when those same beats
+   * come round in the next tail, `mergeFeed` drops them by their seq-derived id.
+   * Two roads, one line, no coordination needed.
+   *
+   * A FIRST SIGHT IS SEEDED, NEVER NARRATED — the same law the delta baseline
+   * keeps. A reader arriving mid-fight must not be handed thirty lines of
+   * somebody else's fight as things that just happened. An EMPTY first tail
+   * seeds to -1 rather than staying unseeded, so the opening beats of a fight
+   * that starts after we arrive are not the ones that get swallowed.
+   *
+   * ② THE DELTA, unchanged, where there is no tail. The snapshot is taken on
+   * every absorb, including the one right after your own act — so your beat,
+   * which already arrived whole through the act answer, is inside the baseline
+   * and is never told twice.
+   */
+  /**
+   * WHERE A WATERMARK STARTS, and the three answers are three different facts.
+   *
+   *   a window with beats  → its top; everything above it is new
+   *   a window with none   → -1; the door HAS a tail and it is empty, so the
+   *                          next beat written is genuinely the first
+   *   no window at all     → null; this door does not carry beats, and the
+   *                          first tail that ever arrives must be seeded rather
+   *                          than narrated
+   *
+   * Collapsing the middle two — treating an empty tail as no tail — is how the
+   * opening beats of a fight that starts after the reader arrives would be the
+   * ones swallowed by the seed.
+   */
+  const seedBeatSeq = (detail) =>
+    Array.isArray(detail?.beats_tail) ? (tailWatermark(detail) ?? -1) : null;
+
+  function absorbEncounter(answer) {
+    const next = answer?.encounter_detail ?? null;
+    const prev = state.encSnap;
+    state.encSnap = next;
+
+    const adversary = adversaryOf(answer)?.id ?? null;
+    const tail = beatsFromTail(next, { since: state.beatSeq, adversary });
+    if (tail) {
+      if (state.beatSeq == null) { state.beatSeq = seedBeatSeq(next); return; }
+      if (tail.watermark != null) state.beatSeq = Math.max(state.beatSeq, tail.watermark);
+      ingest(tail.entries);
+      return;
+    }
+
+    if (!prev || !next) return;
+    const { entries, unseen } = beatsFromDelta(prev, next);
+    if (unseen > 0) {
+      entries.push({
+        id: `u:${next.acts}`,
+        seq: null,
+        at: Date.now(),
+        kind: "beat",
+        tone: "unseen",
+        who: null,
+        text: unseen === 1
+          ? "one turn went by that this page has no door to read."
+          : `${unseen} turns went by that this page has no door to read.`,
+      });
+    }
+    ingest(entries);
+  }
+
+  /**
+   * AUTO-SELECT ON THE TURN (founder, 2026-08-29: "the act as bar should
+   * auto-select the token whose turn it is (if possible) when it becomes their
+   * turn").
+   *
+   * ⚑ ON THE CHANGE, AND ONLY ON THE CHANGE — which is also the whole of "never
+   * fight a manual selection mid-turn". A reader who picks a different face
+   * after an auto-select keeps it, because the turn has not changed since, and
+   * nothing re-fires until it does. There is no separate manual flag to keep in
+   * step; the guard IS the protection, and a flag beside it would be a second
+   * answer to one question.
+   *
+   * IT SPEAKS pm:act-as, exactly as a face click does — through speakActAs, the
+   * same path, so the viewer's walk desk and enter buttons follow the same
+   * selection. Nothing here writes the viewer's own choice.
+   *
+   * The first read counts as a change: a reader who opens the page on their own
+   * turn has made no selection for this to override, and "it is your turn" is
+   * the one thing the dock should be saying at that moment.
+   */
+  function autoSelectOnTurn() {
+    const enc = encounterOf(state.answer);
+    const turn = enc?.turn ?? null;
+    if (turn === state.lastTurn) return;
+    state.lastTurn = turn;
+    if (!turn) return;
+    const handles = Array.isArray(o.me?.handles) ? o.me.handles : [];
+    if (!handles.includes(turn) || state.acting === turn) return;
+    state.acting = turn;
+    state.seat = turn;
+    state.said = null;
+    speakActAs();
+  }
+
+  // ── the dock's pictures ───────────────────────────────────────────────────
+  //
+  // ONE READ PER HANDLE FOR THE LIFE OF THE MOUNT, cached the way the terms are.
+  // A key holds a handful of residents, the profile bubble is small, and a face
+  // that has already answered is never asked again — including one that
+  // answered with no avatar, which is why the cache holds null rather than
+  // treating a resident with no picture as unread and re-asking every paint.
+  const profilesAsked = new Set();
+  function pullProfiles() {
+    if (!o.readResident) return;
+    // THE DOCK'S FACES AND THE WHEEL'S — the residents this key can act as, and
+    // everyone else in the fight. Bounded by the party in the room, asked once
+    // each, and a stranger's card is the same public read as your own.
+    const wanted = [
+      ...faces().filter((f) => f.kind === "resident").map((f) => ({ kind: "resident", handle: f.handle })),
+      ...(encounterOf(state.answer)?.order ?? [])
+        .filter((a) => a.kind === "resident" && a.id)
+        .map((a) => ({ kind: "resident", handle: a.id })),
+    ];
+    for (const f of wanted) {
+      if (f.kind !== "resident" || !f.handle || profilesAsked.has(f.handle)) continue;
+      profilesAsked.add(f.handle);
+      Promise.resolve(o.readResident(f.handle)).then((card) => {
+        const profile = card?.profile ?? null;
+        state.profiles[f.handle] = profile;
+        // Repaint only when a picture actually arrived. A resident with no
+        // profile changes nothing on screen, and a repaint for nothing would
+        // rebuild the bar under the reader's cursor once per face at boot.
+        if (profile && (profile.avatar || profile.avatar_url)) paint();
+      }).catch(() => { state.profiles[f.handle] = null; });
+    }
+  }
+
   // ── painting ──────────────────────────────────────────────────────────────
   function paint() {
     resolveActing();
@@ -2315,6 +2714,12 @@ export function mountCockpit(o) {
     frameScene();
     watchCamera();
     drawToken();
+    // THE FEED IS NOT INSIDE root, so a repaint never touches it — this call is
+    // here for the other direction: the viewer rebuilding its rail would take
+    // our list with it, and without a redraw on the ordinary paint the feed
+    // would stay empty until the next line happened to arrive. ensureFeed
+    // re-homes it; drawFeed writes nothing when the html has not changed.
+    drawFeed();
   }
 
   let formValues = null;
@@ -2502,6 +2907,18 @@ export function mountCockpit(o) {
       const rolls = rollsFrom(res.body);
       if (rolls.length) showThrow(rolls);
       const chat = Boolean(form?.hasAttribute?.("data-chat"));
+      // YOUR OWN BEAT GOES INTO THE FEED IMMEDIATELY, and it is the one beat
+      // that arrives whole: the act answer carries your row, the hostile turns
+      // your act drove (`then`), and the join or the open if this act was one.
+      // Waiting for the poll to derive them from a state delta would cost the
+      // reader the two seconds in which their own swing is the only thing they
+      // are looking at — and would derive a worse sentence than the one the
+      // door already handed us.
+      //
+      // ON A BOUNCE TOO, deliberately: a refused act can still carry the roll
+      // that refused it, and the same reasoning that shows the die on a miss
+      // shows the line beside it.
+      ingest(beatsFromAct(res.body, { acting: seat(), adversary: adversaryOf(state.answer)?.id ?? null }));
       if (res.ok) {
         state.said = { ok: true, text: chat ? "sent." : "done — the door took it." };
         formValues = null;
@@ -2518,7 +2935,19 @@ export function mountCockpit(o) {
         if (chat) {
           form.querySelectorAll("[data-field]").forEach((el) => { el.value = ""; });
         }
-        if (o.refresh) { const fresh = await o.refresh().catch(() => null); if (fresh) state.answer = fresh; }
+        if (o.refresh) {
+          const fresh = await o.refresh().catch(() => null);
+          if (fresh) {
+            state.answer = fresh;
+            // THE SNAPSHOT MOVES WITH THE ANSWER, and this is the line that
+            // stops your own swing being told twice. Your beat is already in
+            // the feed from the act answer above; re-snapping here puts its
+            // effects into the baseline the next poll compares against, so the
+            // delta derives nothing for it.
+            state.encSnap = fresh.encounter_detail ?? state.encSnap;
+            autoSelectOnTurn();
+          }
+        }
         // YOUR OWN LINE SHOULD NOT WAIT FOR THE TICK. The voices poll on a seven
         // second clock, which is fine for hearing someone else and much too slow
         // for seeing your own words land — the gesture would feel dropped. An act
@@ -2952,6 +3381,17 @@ export function mountCockpit(o) {
     // naive redraw every tick would rebuild the whole layer to move an opacity a
     // few thousandths — and it would do it under a reader's cursor.
     const sig = (list) => list.map((v) => `${v.handle}|${v.said}|${v.ageMs > 0 ? Math.round(v.ageMs / 4000) : 0}`).join(" ");
+    // THE FEED IS FED BEFORE THE EARLY RETURN, and the order is the fix rather
+    // than a tidiness. The guard below exists so the MAP's bubbles are not
+    // rebuilt for a fade that moved an opacity a few thousandths — but the feed
+    // dedupes by id and drops what it has already drawn, so the same guard
+    // applied to it could only ever throw lines away. It does not need
+    // protecting; the bubbles do.
+    //
+    // WHICH IS ALSO WHY A LINE OUTLIVES ITS BUBBLE. The bubble is a sound and
+    // fades on the door's own clock; the feed is the record of one, and a chat
+    // you can scroll up through does not un-say things.
+    ingest(voiceEntries(next));
     if (sig(next) === sig(state.voices)) return;
     state.voices = next;
     speech();
@@ -2960,6 +3400,61 @@ export function mountCockpit(o) {
     pullVoices();
     voiceTimer = (doc.defaultView ?? globalThis).setInterval?.(pullVoices, 7000) ?? null;
   }
+
+  // ── the fight, on its own clock ───────────────────────────────────────────
+  //
+  // A SECOND POLL, AND IT IS A SECOND ONE ON PURPOSE. The voices poll reads the
+  // conversations door every seven seconds, which is the right cadence for
+  // speech and much too slow for a turn: a player watching for their own go
+  // would learn it was theirs up to seven seconds late, and the wheel is the
+  // one thing on this page a hand is waiting on. So the encounter is re-read
+  // every two and a half seconds — the founder's own window, "every 2–3 s while
+  // an encounter ground is the standpoint".
+  //
+  // IT RUNS ONLY INSIDE PORTAL GROUND. Outside it the timer does nothing at
+  // all; on a town map the feed is the rail's record and the talk, and neither
+  // of those wants a two-second poll.
+  //
+  // PORTAL GROUND RATHER THAN "AN ENCOUNTER IS LIVE", deliberately — the
+  // antechamber is portal ground with no fight in it, and it is where the
+  // lighter is picked up, where the party gathers, and where the first crossing
+  // into the vault has to become visible. Gating on a live encounter would mean
+  // the one room whose whole job is waiting for people to arrive was the one
+  // room that could not see them arrive.
+  //
+  // ⚑ AND IT REPAINTS ONLY WHEN SOMETHING VISIBLE MOVED. A repaint replaces the
+  // bar's whole innerHTML, so a naive tick would rebuild the row under the
+  // reader's cursor twenty-four times a minute and take the hover card with it.
+  // The signature is the parts a paint can show: the wheel, the fight's own
+  // block, the standpoint, and which acts the ground is granting.
+  let encTimer = null;
+  const answerSig = (a) => {
+    try {
+      return JSON.stringify([
+        a?.encounter, a?.encounter_detail, a?.standpoint,
+        (a?.actions ?? []).map((e) => [e?.action, e?.granted, e?.enabled]),
+        a?.actors,
+      ]);
+    } catch { return String(Date.now()); } // an answer that will not serialise is treated as new
+  };
+  async function pullEncounter() {
+    if (!o.refresh || !portalOf(state.answer)) return;
+    const fresh = await o.refresh().catch(() => null);
+    if (!fresh) return;
+    // WALKING OUT TAKES THE COCKPIT DOWN, on this road as on the caller's. The
+    // reader can leave the portal by any door — the viewer's own exit, a walk,
+    // somebody else's act — and this poll is now the fastest thing to notice.
+    if (!cockpitShows(fresh)) { state.answer = fresh; teardown(); return; }
+    const moved = answerSig(fresh) !== answerSig(state.answer);
+    // The feed is derived FIRST and from the old snapshot, then the answer is
+    // adopted — the delta is the whole reason this poll exists, and adopting
+    // the answer before deriving would compare a state against itself.
+    absorbEncounter(fresh);
+    state.answer = fresh;
+    autoSelectOnTurn();
+    if (moved) paint();
+  }
+  if (o.refresh) encTimer = (doc.defaultView ?? globalThis).setInterval?.(pullEncounter, 2500) ?? null;
 
   // ── the dock's handshake with the viewer ──────────────────────────────────
   // Two signals, belt and suspenders for boot order: the attribute is readable
@@ -3031,30 +3526,89 @@ export function mountCockpit(o) {
         w.dispatchEvent(new w.CustomEvent("pm:cockpit-dock", { detail: { present } }));
     } catch {}
   };
+  /**
+   * THE FEED'S OWN HANDSHAKE, and it is the dock's shape exactly: an attribute
+   * a viewer that booted after us can read, and an event for one that booted
+   * before. The attribute is what the CSS reshape hangs on, so it is
+   * load-bearing HERE even though pm:cockpit-feed is dead wire at this pin —
+   * the same standing the dock's event has, and kept for the same reason.
+   *
+   * Standing it down is one attribute removal: the section stops being a
+   * scrollport, the viewer's list un-flips, and the rail is the rail it was.
+   */
+  const feedSignal = (present) => {
+    const w = doc.defaultView ?? globalThis;
+    try {
+      if (present) doc.documentElement.setAttribute("data-pmc-feed", "1");
+      else doc.documentElement.removeAttribute("data-pmc-feed");
+      if (typeof w.CustomEvent === "function")
+        w.dispatchEvent(new w.CustomEvent("pm:cockpit-feed", { detail: { present } }));
+    } catch {}
+  };
   dockSignal(true);
+  feedSignal(true);
+
+  // A PICTURE THAT WILL NOT LOAD UNCOVERS ITS LETTER. Delegated and in the
+  // CAPTURE phase because `error` does not bubble — the one listener survives
+  // every repaint, where an inline handler would have to be re-minted into
+  // every face on every paint and would need a CSP exception besides.
+  const onImgError = (ev) => {
+    const img = ev.target;
+    if (img?.tagName === "IMG" && img.closest?.(".pmc-face, .pmc-turn")) img.remove();
+  };
+  root.addEventListener("error", onImgError, true);
 
   paint();
   speakActAs();
+  // The feed's first draw and the dock's first pictures. Both after paint():
+  // ensureFeed needs the rail as it is now, and pullProfiles reads the faces
+  // the first paint resolved.
+  drawFeed();
+  pullProfiles();
+  // Seed BOTH baselines without narrating either. The state at mount is not an
+  // event — a reader arriving mid-fight should not be handed the whole fight as
+  // things that just happened — so the snapshot and the watermark are taken and
+  // nothing is said. A mount with no tail leaves the watermark null, which is
+  // what sends the first tail that does arrive down the seed-and-say-nothing
+  // path rather than dumping its whole window.
+  state.encSnap = o.answer?.encounter_detail ?? null;
+  state.beatSeq = seedBeatSeq(state.encSnap);
+  autoSelectOnTurn();
+
+  const teardown = () => {
+    doc.removeEventListener("keydown", onKey);
+    (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
+    if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
+    if (encTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(encTimer);
+    doc.removeEventListener("click", onMapClick, true);
+    root.removeEventListener("error", onImgError, true);
+    camera?.disconnect();
+    furniture?.disconnect();
+    dockSignal(false); // hand the Act As question back to the viewer's own row
+    aimingSignal(false); // and the map's cursor back to the viewer's
+    feedSignal(false); // and Lately back to being Lately
+    feedList?.remove();
+    feedNew?.remove();
+    feedList = feedNew = null;
+    root.remove();
+    throwLayer.remove();
+    tokenLayer?.remove();
+  };
 
   return {
     update(answer) {
+      if (!cockpitShows(answer)) { state.answer = answer; teardown(); return; }
+      // The feed is derived from the OLD snapshot against the new answer before
+      // the answer is adopted, for the same reason the poll does it in that
+      // order: a delta taken after the swap compares a state against itself.
+      absorbEncounter(answer);
       state.answer = answer;
-      if (!cockpitShows(answer)) { this.destroy(); return; }
+      autoSelectOnTurn();
       paint();
+      drawFeed();
+      pullProfiles();
     },
-    destroy() {
-      doc.removeEventListener("keydown", onKey);
-      (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
-      if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
-      doc.removeEventListener("click", onMapClick, true);
-      camera?.disconnect();
-      furniture?.disconnect();
-      dockSignal(false); // hand the Act As question back to the viewer's own row
-      aimingSignal(false); // and the map's cursor back to the viewer's
-      root.remove();
-      throwLayer.remove();
-      tokenLayer?.remove();
-    },
+    destroy: teardown,
   };
 }
 

@@ -138,6 +138,32 @@
       } catch { return null; }
     }
 
+    /**
+     * A RESIDENT'S OWN CARD, for the face in the dock.
+     *
+     * The founder, 2026-08-29: "there needs to be profiles of tokens loaded
+     * into the act as bar." Every handle on the key should show its picture,
+     * and this is where the picture's name comes from: `GET /residents/{handle}`
+     * answers `profile`, whose `avatar` is the basename of the file the
+     * resident uploaded (office src/edit.mjs writes it into PROFILE.md's
+     * frontmatter). `residentAvatar` turns that into a URL; nothing here is a
+     * new door.
+     *
+     * KEYLESS ON PURPOSE. A resident's card is public — it is the same read the
+     * town's own directory is built from — so the dock's pictures do not depend
+     * on who is signed in, and a face is never blank because a key went stale.
+     *
+     * Answers null on anything that is not a 200, which the dock draws as the
+     * initial-letter tile every face already had.
+     */
+    async function readResident(handle) {
+      if (!/^[a-z0-9-]+$/.test(String(handle ?? ""))) return null;
+      try {
+        const r = await fetch(OFFICE + "/residents/" + handle, { headers: { accept: "application/json" } });
+        return r.ok ? r.json() : null;
+      } catch { return null; }
+    }
+
     async function dispatch(envelope) {
       const k = bearer();
       if (!k) return { ok: false, status: 401, body: { defect: "performing needs a key", hint: "sign in to act — the read half of this door is keyless, an act is not" } };
@@ -233,7 +259,7 @@
       const mount = () => {
         handle = mountCockpit({
           document, host: document.body, svg: mapSvg(), svgOf: mapSvg, answer, me, grid,
-          dispatch, readTerms, refresh: door, readVoices,
+          dispatch, readTerms, refresh: door, readVoices, readResident,
         });
       };
       // Wait for a drawn overlay before mounting, for the reason the arrival

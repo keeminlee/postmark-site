@@ -33,6 +33,50 @@
   .wv-walkdesk p { margin: 0 0 .3em; }
   .wv-youhere { color: #8f9aa9; }
   @media (max-width: 720px) { .wv-walkdesk { width: auto; left: 10px; right: 10px; } }
+
+  /* ── THE RAIL, behind ?rail=1 (2026-08-29) ──
+     The feed lives in the viewer's own Lately section, which this harness had no
+     stand-in for — so the whole of the founder's first ruling was unlookable
+     here. These rules and the markup below are COPIED FROM THE PINNED VIEWER
+     (postmark-world e703b7c0, spectator/viewer.mjs § STYLE and § MARKUP) so what
+     the shot shows is the cockpit's reshape of the viewer's rail rather than a
+     reshape of a rail the harness invented.
+
+     OFF BY DEFAULT, deliberately. Every fixture already shot from this page was
+     shot against a full-bleed map, and the bar's placement is measured against
+     that geometry; turning the rail on for everyone would move every existing
+     shot's baseline for a reason unrelated to what those shots are about. */
+  body.has-rail .wv { display: grid; grid-template-columns: 272px 1fr; }
+  body:not(.has-rail) .wv-nav { display: none; }
+  /* Scoped to the opt-in, so a fixture shot taken without the rail is byte-for-
+     byte the shot it was before this block existed. */
+  body.has-rail .wv { --night:#14171d; --panel:#1c2129; --panel2:#20262f; --line:#2e3542;
+    --paper:#e8e0cf; --dim:#9a9280; --amber:#e8c56a; --amber-dark:#b8964a; --err:#d98a7a;
+    --you:#e0654a; --mono:ui-monospace,"SF Mono",Consolas,Menlo,monospace;
+    --stamp-violet:#aa8fd8; --blue:#7ba7e0; --green:#84c98f;
+    color:var(--paper); font:16px/1.55 Georgia,"Times New Roman",serif; }
+  .wv-nav { padding:13px 12px; border-right:1px solid var(--line); background:var(--panel);
+    overflow:hidden; display:flex; flex-direction:column; }
+  .wv-nav h1 { margin:0 0 14px; font-size:.88rem; letter-spacing:.03em; color:var(--amber); font-weight:600; }
+  .wv-nav h2 { font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin:18px 0 8px; }
+  .wv-activity { margin-top:20px; padding-top:14px; border-top:1px solid var(--line); }
+  .wv-activity h2 { margin-top:0; }
+  .wv-acts { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .wv-act-line { font-size:.76rem; line-height:1.42; color:var(--dim); }
+  .wv-act-line .who { color:var(--paper); }
+  .wv-act-line .what { color:var(--amber); }
+  .wv-act-line .when { display:block; margin-top:2px; font-family:var(--mono); font-size:.58rem;
+    letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
+  .wv-act-line.is-walk .what { color:var(--green); }
+  /* THE VIEWER HIDES ITS WHOLE RAIL BELOW 720 (spectator/viewer.mjs: ".wv-nav,
+     .wv-view { display:none; }"), so the harness must too — otherwise a phone
+     shot shows a rail no phone reader has, and the honest fact about this lane
+     on a phone (there is no Lately section, so there is no feed) would be
+     hidden by the fixture. */
+  @media (max-width: 720px) {
+    body.has-rail .wv { display: block; }
+    .wv-nav { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -56,6 +100,25 @@
   ?fixture=town     ordinary town ground — the cockpit must not appear at all
 -->
 <div class="wv">
+  <!-- THE VIEWER'S RAIL, its markup verbatim (spectator/viewer.mjs § MARKUP at
+       the pinned build) down to the `hidden` on the section — which is the state
+       the cockpit's CSS has to defeat, because renderActivity hides Lately when
+       the record is empty and inside a fight the fight IS the record. The three
+       act lines are what renderActivity writes: newest FIRST in the DOM, which
+       is the order the reshape flips. -->
+  <nav class="wv-nav">
+    <h1>The World</h1>
+    <section class="wv-activity" hidden>
+      <h2>Lately</h2>
+      <ul class="wv-absences wv-err" hidden></ul>
+      <ol class="wv-acts">
+        <li class="wv-act-line is-walk"><span class="who">wright</span> set out for <span class="what">the cellar door</span><span class="when">today</span></li>
+        <li class="wv-act-line is-walk"><span class="who">vermillion</span> set out for <span class="what">the lanternstep parlor</span><span class="when">today</span></li>
+        <li class="wv-act-line is-mark"><span class="who">jetto-of-starforge</span> wrote <span class="what">a slice to take home</span><span class="when">yesterday</span></li>
+      </ol>
+    </section>
+  </nav>
+
   <!-- A stand-in for the painting. The viewBox is in ATLAS units, which is what
        the real map's is, so the token's placement arithmetic is exercised for
        real rather than against a convenient square. -->
@@ -526,10 +589,92 @@
     };
   }
 
+  // ── the rail, and what the feed is fed (2026-08-29) ────────────────────────
+  //
+  // ?rail=1     stand the viewer's Lately section up, so the feed has its home
+  // ?fight=1    walk the encounter forward on every refresh, so the DELTA
+  //             derivation — everybody else's turns, which is the half the read
+  //             door cannot hand over whole — actually produces lines here
+  // ?tail=1     serve `encounter_detail.beats_tail` beside it (bday-law's field,
+  //             site-defined contract until it lands), so the WHOLE-attributed
+  //             road can be shot beside the derived one and the two compared
+  const params = new URLSearchParams(location.search);
+  if (params.get("rail")) document.body.classList.add("has-rail");
+
+  /**
+   * A RESIDENT'S CARD, faked — the real one is GET /api/residents/{handle},
+   * keyless, answering `profile.avatar` as a BASENAME.
+   *
+   * THE ANSWERS ARE THE REAL ONES. `wright` and `vermillion` have uploaded an
+   * avatar and `jetto-of-starforge` has not (checked against the extractor's own
+   * media map, 2026-08-29), so the shot shows portraits and the letter tile
+   * beside each other — and the portraits are fetched from the URL the
+   * derivation actually builds, against the real public town repo. A harness
+   * that invented a local image would have proved the img tag and nothing about
+   * the URL.
+   *
+   * `vermillion` is deliberately NOT one of this key's handles: she is on the
+   * wheel and not in the dock, which is how the shot shows that a hand in the
+   * room gets a face whether or not the reader can act as her.
+   */
+  const HAS_AVATAR = new Set(["wright", "vermillion", "rei"]);
+  async function readResident(h) {
+    await new Promise((r) => setTimeout(r, 120));
+    return { handle: h, profile: HAS_AVATAR.has(h) ? { avatar: "avatar.jpg" } : null };
+  }
+
+  /**
+   * THE FIGHT, MOVING. The apex read carries no beats, so another player's turn
+   * reaches the page only as a change in `encounter_detail` — which means a
+   * harness whose refresh answers the same object forever can never exercise
+   * the derivation at all. This walks the block the way a room full of people
+   * would: the cake takes damage, a hand takes damage, somebody goes down and
+   * their weapon falls, then a lift.
+   */
+  // ?tail=1 ALSO serves `encounter_detail.beats_tail` — the fold's own beats,
+  // office spelling — so the whole-attributed-line road can be looked at beside
+  // the derived one. The tail is CUMULATIVE, as a last-N window is, which is
+  // what exercises the reader's watermark rather than just its formatter.
+  const BEATS = [
+    [{ seq: 40, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 16, damage: 5, round: 3 }],
+    [{ seq: 41, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 14, damage: 5, round: 3 }],
+    [{ seq: 42, actor: "jetto-of-starforge", act: "strike", to_hit: 18, damage: 11, weapon_bonus: 3, with: "the-town/the-good-lighter", boss_left: 38, round: 3 },
+     { seq: 43, actor: "vermillion", act: "cast", to_hit: 4, missed: true, round: 3 },
+     { seq: 44, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 19, damage: 2, downed: true, dropped: "the-town/the-good-lighter", round: 3 }],
+    [{ seq: 45, actor: "vermillion", act: "lift", lifted: "jetto-of-starforge", to: 8, round: 4 }],
+  ];
+  const SCRIPT = [
+    { adversary: 49, hands: { "jetto-of-starforge": 7, vermillion: 4 }, downed: [], dropped: [], acts: 12 },
+    { adversary: 49, hands: { "jetto-of-starforge": 2, vermillion: 4 }, downed: [], dropped: [], acts: 13 },
+    { adversary: 38, hands: { "jetto-of-starforge": 0, vermillion: 4 }, downed: ["jetto-of-starforge"],
+      dropped: [{ thing: "the-town/the-good-lighter", by: "jetto-of-starforge", at_seq: 44 }], acts: 15 },
+    { adversary: 38, hands: { "jetto-of-starforge": 8, vermillion: 4 }, downed: [],
+      dropped: [{ thing: "the-town/the-good-lighter", by: "jetto-of-starforge", at_seq: 44 }], acts: 16, round: 4 },
+  ];
+  let step = -1;
+  async function refresh() {
+    if (!params.get("fight")) return answer;
+    step = Math.min(step + 1, SCRIPT.length - 1);
+    const s = SCRIPT[step];
+    return {
+      ...answer,
+      encounter: { ...answer.encounter, ...(s.round ? { round: s.round } : {}) },
+      encounter_detail: {
+        ...(answer.encounter_detail ?? {}),
+        phase: "afoot", live: true,
+        adversary: { ...(answer.encounter_detail?.adversary ?? {}), id: "the-town/the-unlit-cake", hp: s.adversary, of: 60 },
+        wheel: { round: s.round ?? 3, turn: "keeminlee", order: (answer.encounter?.order ?? []).map((a) => ({ who: a.id, kind: a.kind })) },
+        hands: Object.fromEntries(Object.entries(s.hands).map(([h, hp]) => [h, { hp, of: 20, downed: s.downed.includes(h), guarding: false, gone: false }])),
+        downed: s.downed, dropped: s.dropped, looted: [], attempts: 0, acts: s.acts,
+        ...(params.get("tail") ? { beats_tail: BEATS.slice(0, step + 1).flat() } : {}),
+      },
+    };
+  }
+
   const handle = mountCockpit({
     document, host: document.body, svg: document.querySelector(".wv svg"),
-    answer, me: ME, grid: GRID, dispatch, readTerms, refresh: async () => answer,
-    readVoices,
+    answer, me: ME, grid: GRID, dispatch, readTerms, refresh,
+    readVoices, readResident,
   });
 
   const note = document.getElementById("note");
@@ -540,6 +685,12 @@
   }
   // The window the shot-runner waits on, rather than a timer.
   window.__cockpitReady = { mounted: Boolean(handle), fixture: which };
+  // The mount's own handle and the fixture it was given, so a shot runner can
+  // hand the cockpit a NEXT answer — a turn coming round, a hand going down —
+  // the way the page's own door read does. Without it the only way to exercise
+  // an update from outside would be to reload, which is not the same event.
+  window.__cockpitHandle = handle;
+  window.__cockpitAnswer = answer;
 </script>
 </body>
 </html>

@@ -35,6 +35,12 @@
 // is still shown on the card as provenance, because it is honest about how the act
 // reached you; it is just not what decides a seat.
 
+// The one spelling of a mark's leaf name on this surface — see world-feed.mjs.
+// It is imported rather than restated because the wheel, the map's ring and the
+// rail's feed all name the same cake, and a second deslug here is how they
+// would come to disagree.
+import { leafName } from "./world-feed.mjs";
+
 // ── the fixed slots ─────────────────────────────────────────────────────────
 //
 // Seed call ③, and the mockup takes the recommendation: "fixed familiar slots +
@@ -1031,8 +1037,11 @@ export function adversaryOf(answer) {
     hp: Number.isFinite(a.hp) ? a.hp : null,
     of: Number.isFinite(a.of) ? a.of : null,
     body: typeof a.body === "string" ? a.body : null,
-    // named the way every id in this world is read — the leaf, deslugged
-    label: id.split("/").pop().replace(/-/g, " "),
+    // named the way every id in this world is read — the leaf, deslugged. ONE
+    // writer of that rule now (world-feed.mjs `leafName`), because the feed
+    // names the same cake in the same breath as this ring and the two spelling
+    // it differently would be one mark with two names on one screen.
+    label: leafName(id),
   };
 }
 
@@ -1544,6 +1553,78 @@ export function tokenFor(actor) {
   if (known) return { label: known.label, src: known.src, from: "the site's registry" };
   const label = String(actor.label ?? actor.id ?? "?");
   return { label, src: null, monogram: label.slice(0, 1).toUpperCase(), from: "monogram" };
+}
+
+/**
+ * WHERE A RESIDENT'S OWN PICTURE LIVES — the site's standing fallback, not a
+ * new door.
+ *
+ * The founder, 2026-08-29: "there needs to be profiles of tokens loaded into
+ * the act as bar." Every face in the dock should be a picture; only the human's
+ * was.
+ *
+ * WHAT THE DOORS ALREADY ANSWER, and it is two halves that have to be joined
+ * here because nothing joins them upstream:
+ *   · `GET /residents/{handle}` answers `profile.avatar` — a BASENAME
+ *     ("avatar.jpg"), never a URL. That is the office's own shape: the avatar
+ *     door writes `WHITE_PAGES/<handle>/avatar.<ext>` into the town repo and
+ *     records the basename in PROFILE.md's frontmatter (office src/edit.mjs).
+ *   · The site's processed copy of that file lives at a `/media/...` URL held
+ *     in a BUILD-TIME map (tools/extract-town.mjs → src/data/postmark/media.json).
+ *
+ * ⚑ AND THE BUILD MAP IS NOT REACHABLE FROM HERE. The world page is a runtime
+ * island over a viewer shell; it has no media.json, and re-deriving the
+ * extractor's asset-naming rule in this file would be the same rule in a second
+ * place — the exact duplication that drifts the day the extractor's naming
+ * changes and leaves the dock serving 404s that nothing fails on.
+ *
+ * So this uses the repo's OWN standing fallback for an unclaimed image, quoted
+ * from src/lib/pm.mjs where it has shipped since the markdown renderer was
+ * written: raw.githubusercontent against the public town repo. It is one URL
+ * shape, it is always correct for a public repo, and it needs no build artifact
+ * to stay true.
+ *
+ * `avatar_url` is read FIRST and is the contract-forward path: the day the
+ * roster row carries a URL (the same way `token_url` already may), this stops
+ * deriving anything at all — which is the shape every other integration on this
+ * surface has taken.
+ */
+export const TOWN_RAW = "https://raw.githubusercontent.com/postmark-town/postmark/main";
+
+export function residentAvatar(handle, profile) {
+  const given = [profile?.avatar_url, profile?.token_url].find((s) => typeof s === "string" && s);
+  if (given) return { src: given, from: "the door" };
+  const name = typeof profile?.avatar === "string" ? profile.avatar.trim() : "";
+  // A BASENAME, and checked as one. The value lands in a URL, and a handle or a
+  // filename carrying a slash or a dot-dot would be this page reaching outside
+  // the resident's own directory on the strength of a field it does not own.
+  if (!name || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || name.includes("..")) return null;
+  if (!/^[a-z0-9-]+$/.test(String(handle ?? ""))) return null;
+  return { src: `${TOWN_RAW}/WHITE_PAGES/${handle}/${name}`, from: "the town repo" };
+}
+
+/**
+ * ONE CALL FOR EVERY FACE IN THE DOCK, so the roster cannot draw a human one
+ * way and a resident another.
+ *
+ * `profiles` is handle → the profile bubble off `GET /residents/{handle}`, as
+ * far as it has arrived; a face whose read has not answered yet, or whose
+ * resident has written no profile, falls through to the initial-letter tile
+ * that every face already had. Nothing here waits on a fetch and nothing here
+ * fails on one — an absent picture is an ordinary state, and it is the state
+ * every face was in until tonight.
+ */
+export function faceImageFor(actor, profiles = null) {
+  if (!actor) return null;
+  if (actor.kind === "human") return tokenFor(actor);
+  const label = String(actor.label ?? actor.handle ?? "?");
+  const monogram = label.slice(0, 1).toUpperCase();
+  const fromRow = typeof actor.token_url === "string" && actor.token_url ? actor.token_url : null;
+  const found = fromRow
+    ? { src: fromRow, from: "the roster row" }
+    : residentAvatar(actor.handle, profiles?.[actor.handle] ?? null);
+  if (!found) return { label, src: null, monogram, from: "monogram" };
+  return { label, src: found.src, monogram, from: found.from };
 }
 
 /**
