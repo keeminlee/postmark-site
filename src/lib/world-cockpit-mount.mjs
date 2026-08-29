@@ -1009,28 +1009,22 @@ export function mountCockpit(o) {
   const DUNGEON_HIDE = ["leave-mark", "note-to-self"];
   const PHASE_GATE = { loot: "spent" };
   /**
-   * WHICH ACT A WEAPON HELPS, until the door says so itself.
+   * ⚑ `WEAPON_HELPS` STOOD HERE AND IS GONE (2026-08-29). It was one line —
+   * the name of the act a weapon's bonus augments — and for a few hours it was
+   * load-bearing: the first shape of `hands[<handle>].weapon` carried
+   * `{ thing, bonus, says? }` and no word for WHICH act, so the site had to
+   * assert one, and the act the bonus appeared on was this file's claim rather
+   * than the record's.
    *
-   * ⚑ A STOPGAP, AND IT IS LOAD-BEARING TODAY — asked for, and not sent.
-   * `hands[<handle>].weapon` shipped on 2026-08-29 (office lane bday-law,
-   * 78d8f479) carrying `{ thing, bonus, says? }` and no word for WHICH ACT the
-   * bonus applies to, so this line is what answers that question in the live
-   * page rather than a belt-and-braces fallback.
-   *
-   * The office already knows: it finds a weapon by looking for the held grant
-   * whose own entry names the act it augments, and throws that name away on the
-   * way out. `weapon.for` is one field from a value already in hand, it is
-   * asked for again, and `weaponFor` reads it first — so the day it lands this
-   * line can be deleted with no other edit. Until then a reader should know
-   * that the act this bonus is attached to is the site's assertion and not the
-   * record's.
-   *
-   * WHY NOT DERIVE IT. Two of the room's acts state damage, and only one of
-   * them is helped by what you are holding. Attaching the bonus to both would
-   * be the surface making a claim about the second that the record does not
-   * make — worse than a named stopgap, because it would be wrong quietly.
+   * The office now sends `for` (lane bday-law, 7ba1148), read off the held
+   * grant's own entry rather than hardcoded — so a thing that grants a
+   * different act moves the bonus with no edit here. It is deleted rather than
+   * kept as a fallback ON PURPOSE: a weapon whose grant names no act should
+   * show no clause at all, because "the record did not say" and "the site
+   * guessed" must not look the same on this surface. `weaponFor` answers null
+   * for that case and nothing is said, which is the rule every other unknown
+   * here already follows.
    */
-  const WEAPON_HELPS = "strike";
   function iconFor(action) {
     const d = ICONS[String(action ?? "").toLowerCase()] ?? ICON_DEFAULT;
     return `<svg class="pmc-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
@@ -1107,9 +1101,9 @@ export function mountCockpit(o) {
    *  used by every surface that says what an act costs — the seat, the card and
    *  the panel — so the three cannot come to disagree about a number. */
   function heldWeapon() {
-    const w = weaponFor(state.answer, state.acting);
-    // the door's own word for which act it helps, or the stopgap above
-    return w ? { ...w, for: w.for ?? WEAPON_HELPS } : null;
+    // The door's own word for which act it helps, and nothing of ours — see the
+    // note above for what stood here and why it is not kept as a fallback.
+    return weaponFor(state.answer, state.acting);
   }
 
   /** The bar, folded. One reading, used by drawBar and by the keyboard — a

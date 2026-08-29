@@ -353,18 +353,17 @@
           hands: {
             keeminlee: {
               hp: 16, of: 20, downed: false, guarding: false, gone: false,
-              // ⚑ NO `for`, BECAUSE THE OFFICE SENDS NONE. The shipped shape is
-              // { thing, bonus, says? } (office lane bday-law, 78d8f479) and it
-              // carries no word for WHICH ACT the bonus applies to. The harness
-              // mirrors the real door rather than the door we asked for, so what
-              // a shot of this page proves is that the mount's stopgap is
-              // carrying that question in the live page — which is the thing a
-              // reader most needs to know is true. The door-says-so path is
-              // covered in the unit tests, where a contract can be asserted
-              // without pretending it has shipped.
+              // THE SHIPPED SHAPE, whole: { thing, bonus, for, says? } (office
+              // lane bday-law, 7ba1148). `for` is WHICH ACT the bonus augments,
+              // read off the held grant's own entry rather than hardcoded — so
+              // a thing that grants a different act moves the bonus without an
+              // edit on either side. It arrived a few hours after the rest,
+              // and the site carried a named stopgap in the meantime; this
+              // fixture carried none, so the shot then proved the stopgap was
+              // working and now proves the door is.
               //
               // `says` IS the record's, and it is the lighter's own words.
-              weapon: { thing: "the-town/the-good-lighter", bonus: 3, says: "a flame that has never once gone out on the way over" },
+              weapon: { thing: "the-town/the-good-lighter", bonus: 3, for: "strike", says: "a flame that has never once gone out on the way over" },
             },
           },
         },

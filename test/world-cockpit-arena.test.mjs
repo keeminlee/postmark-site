@@ -382,20 +382,36 @@ test("the weapon's own words are rendered, and they are the record's", () => {
     "a weapon's words appear on the act it helps and nowhere else");
 });
 
-test("which act a weapon helps is the door's word first, the mount's stopgap second", () => {
-  // The office KNOWS: it finds a weapon by looking for the held grant whose own
-  // entry names the act it augments. Until that reaches the answer the mount
-  // supplies a name, and it is marked as a stopgap so it can be deleted rather
-  // than inherited.
+test("which act a weapon helps is the door's word, and the site's stopgap is gone", () => {
+  // ⚑ THE STOPGAP IS DELETED, NOT DEMOTED TO A FALLBACK, and that is the
+  // assertion worth having. `weapon.for` shipped (office 7ba1148), read off the
+  // held grant's own entry rather than hardcoded. A weapon whose grant names NO
+  // act must now show no clause at all: "the record did not say" and "the site
+  // guessed" must not look the same on this surface.
   const noFor = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3 });
   assert.equal(weaponFor(noFor, "keeminlee").for, null,
     "the arithmetic does not guess which act — it reports that the door did not say");
   assert.equal(dialSpeak(cardFor(noFor, "swing"), { weapon: weaponFor(noFor, "keeminlee") }),
     "d20 vs 12 to hit · d8 damage", "and with no act named, no act claims it");
-  // the caller fills it, and the caller is the file that already holds names
-  assert.match(MOUNT, /const WEAPON_HELPS = "strike";/, "the stopgap lives beside the other name-keyed rulings");
-  assert.match(MOUNT, /return w \? \{ \.\.\.w, for: w\.for \?\? WEAPON_HELPS \} : null;/,
-    "and the door's own word wins over it whenever it arrives");
+  assert.doesNotMatch(MOUNT, /WEAPON_HELPS = "/, "no name of ours answers that question any more");
+  assert.match(MOUNT, /return weaponFor\(state\.answer, state\.acting\);/,
+    "the mount passes the door's answer through untouched");
+
+  // ⚑ AND IT IS READ UNDER ITS SUCCESSOR'S NAME TOO. `for` is a homonym — in
+  // the grants vocabulary it means the ACTOR KIND — so it is flagged for the
+  // lexicon with `augments` named as the successor. This file has been bitten
+  // by exactly this before (the door started sending `says` where the site
+  // wrote `because`, and the row whose words mattered most went quiet by
+  // succeeding), so both spellings are read and a rename costs nobody a
+  // coordinated edit.
+  const renamed = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, augments: "swing" });
+  assert.equal(weaponFor(renamed, "keeminlee").for, "swing", "the successor spelling is read");
+  assert.equal(dialSpeak(cardFor(renamed, "swing"), { weapon: weaponFor(renamed, "keeminlee") }),
+    "d20 vs 12 to hit · d8 damage · +3 with the good lighter",
+    "and the bonus keeps appearing on the day the word moves");
+  // the shipped spelling still wins where both somehow arrive
+  const both = HOLDING({ thing: "x/y", bonus: 1, for: "swing", augments: "hurl" });
+  assert.equal(weaponFor(both, "keeminlee").for, "swing");
   // ONE READING, so the seat, the card and the panel cannot disagree on a
   // number. Asserted as "no call site omits it" rather than as a COUNT of call
   // sites: a count is a test that fails the day somebody legitimately adds a

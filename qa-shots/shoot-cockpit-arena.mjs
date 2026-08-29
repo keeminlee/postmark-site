@@ -337,10 +337,9 @@ console.log("\n── (3b) THE WEAPON: the third of his sentence ──");
   note(/\+3 with the good lighter/.test(said.card), "the hover carries the third of the founder's sentence");
   note(!/\+3/.test(said.castSeat), "and the other damage act claims no help it was not given");
   note(!/the the/.test(said.card), "the id's own article is not doubled");
-  // ⚑ AND THIS IS THE STOPGAP WORKING, not the door. The shipped shape carries
-  // no word for WHICH act the bonus applies to (office 78d8f479 sends
-  // {thing, bonus, says?}), so the fixture carries none either and what this
-  // shot proves is that the mount's own name is what attached it.
+  // ⚑ AND THIS IS THE DOOR'S OWN WORD ATTACHING IT, not a name of ours. The
+  // shipped shape carries `for` (office 7ba1148) and the site's stopgap is
+  // deleted, so a bonus appearing on this seat is the record saying so.
   note(/a flame that has never once gone out on the way over/.test(said.card),
     "and the weapon's own words are on it — the half of the hover with a voice");
   await page.screenshot({ path: join(OUT, "weapon-hover-1440.png") });

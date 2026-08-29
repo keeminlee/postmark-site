@@ -716,15 +716,28 @@ export function encounterOf(answer) {
  * `{ thing, bonus, says }` off the held grant — so the field is that answer
  * carried out to a caller rather than a new idea.
  *
- * ⚑ `for` IS THE HALF THIS FILE NEEDS AND DOES NOT YET HAVE. A weapon augments
- * ONE act: the office finds it by looking for the held grant whose own entry
- * names that act, so the record knows which, and the site cannot re-derive it
- * without keeping the verb list this file is forbidden to keep. Two of the
- * room's acts state damage; attaching the bonus to both would be a claim about
- * the other one that the record does not make. So `for` is read when the door
- * sends it, and the CALLER supplies a fallback otherwise — which is why this
- * returns the door's word or null rather than guessing. Asked for; see the
- * mount's own note beside the stopgap.
+ * ⚑ `for` IS WHICH ACT THE BONUS AUGMENTS, and it shipped 2026-08-29 (office
+ * lane bday-law, 7ba1148). A weapon helps ONE act: the office finds it by
+ * looking for the held grant whose own entry names that act, so the record
+ * knows which, and the site cannot re-derive it without keeping the verb list
+ * this file is forbidden to keep. Two of the room's acts state damage;
+ * attaching the bonus to both would be a claim about the other one the record
+ * does not make. Absent — a grant that names no act — this answers null and
+ * the clause is simply not said, which is the same rule every other unknown on
+ * this surface follows.
+ *
+ * ⚑ READ UNDER THREE SPELLINGS, and the reason is a scar on this very file.
+ * `for` is a HOMONYM: in the town's grants vocabulary it means the ACTOR KIND
+ * ("`for:` is the actor kind (absent means resident)" — LOGOS § The three
+ * channels), and the office reads this value off an entry carrying that other
+ * sense. The word is flagged for the lexicon, and its named successor is
+ * `augments`. When a field is known to be one ruling away from a rename, this
+ * file reads both names rather than waiting to be told — exactly what
+ * `humanWords` above had to learn the hard way, where the door started sending
+ * `says` for the site's `because` and the one row whose words were most worth
+ * reading "went quiet by succeeding". Whichever spelling the door settles on,
+ * the bonus keeps appearing, and nothing has to be coordinated across two
+ * lanes on the day it moves.
  *
  * WHOSE HAND. `hands` is keyed by the door's `who`. Acting as a resident that
  * is the handle; acting as the household's human it is the human's own row on
@@ -748,7 +761,7 @@ export function weaponFor(answer, acting = null) {
     bonus,
     // named the way every id in this world is read — the leaf, deslugged
     label: thing.split("/").pop().replace(/-/g, " "),
-    for: typeof w.for === "string" && w.for ? w.for : (typeof w.action === "string" && w.action ? w.action : null),
+    for: [w.for, w.augments, w.action].find((v) => typeof v === "string" && v) ?? null,
     says: typeof w.says === "string" && w.says ? w.says : null,
   };
 }
