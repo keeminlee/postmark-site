@@ -127,15 +127,33 @@ console.log("\n── (1) TARGETING: press the act, the thing lights up ──")
   });
   await page.mouse.click(where.x, where.y);
   await page.waitForTimeout(400);
-  const after = await page.evaluate(() => ({
+  // ⚑ THE TARGET CLICK NO LONGER DISPATCHES (governing ruling, 2026-08-29):
+  // "in both cases, the next step IS the right side panel popup … and the
+  // CONFIRM button to actually do the action." So the click OPENS the panel
+  // with the target in its TO row, and the door hears nothing until confirm.
+  const staged = await page.evaluate(() => ({
     sent: document.getElementById("note")?.textContent ?? "",
     stillArmed: Boolean(document.querySelector(".pmc-aim")),
+    panel: Boolean(document.querySelector("[data-form]")),
+    rows: [...document.querySelectorAll(".pmc-flow-row")].map((r) => r.textContent.replace(/\s+/g, " ").trim()),
+  }));
+  console.log(`  panel rows: ${staged.rows.join(" | ")}`);
+  note(staged.panel, "the target click opens the confirm panel");
+  note(!staged.stillArmed, "and the crosshair is put down once the target is taken");
+  note(!/"do":/.test(staged.sent), "the door has heard nothing yet");
+  note(staged.rows.some((r) => /^to/i.test(r) && /unlit cake/.test(r)),
+    "the TO row names what was clicked");
+  await page.screenshot({ path: join(OUT, "aim-panel-1440.png") });
+  // …and CONFIRM is what sends it
+  await page.click(".pmc-btn.go");
+  await page.waitForTimeout(400);
+  const after = await page.evaluate(() => ({
+    sent: document.getElementById("note")?.textContent ?? "",
     threw: document.querySelectorAll(".pmc-die").length,
   }));
   console.log(`  dispatched: ${after.sent.replace(/\s+/g, " ").slice(0, 160)}`);
-  note(/"do": "strike"/.test(after.sent) || /strike/.test(after.sent), "the act went out named");
+  note(/"do": "strike"/.test(after.sent), "confirm is what sends the act, named");
   note(/the-unlit-cake/.test(after.sent), "carrying the thing that was clicked as its object");
-  note(!after.stillArmed, "and the act put itself down once the door took it");
   note(after.threw > 0, "the throw is shown");
   await page.screenshot({ path: join(OUT, "aim-sent-1440.png") });
   await page.close();

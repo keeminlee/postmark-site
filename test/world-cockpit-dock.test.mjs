@@ -226,27 +226,33 @@ test("the time-travel pill stands down on the cockpit's own dock signal", () => 
 // is what the second test here exists to keep true. If the world lane ever tidies
 // that handler away, the reader is told the shortcut is not working rather than
 // left clicking a map that quietly does nothing.
-test("a bare-ground click is handed to the viewer's own walk-arming path", () => {
-  assert.match(mount, /b\.className = "stand";/,
-    "the cockpit mints the element the viewer's handler is looking for");
-  assert.match(mount, /b\.dataset\.x = String\(m\.x\);\r?\n\s*b\.dataset\.y = String\(m\.y\);/,
-    "carrying the coordinates that handler reads");
-  assert.match(mount, /b\.click\(\);\r?\n\s*b\.remove\(\);/,
-    "clicked and removed — nothing of ours is left in the viewer's DOM");
-  // and NO second pathing anywhere: the walk is never dispatched straight at the
-  // door from a map click, which would skip the viewer's wall check, its
-  // zero-length refusal, its preview and the walker's own confirm.
-  assert.doesNotMatch(mount, /dispatchEnvelope\(\{ action: "walk"/,
-    "a map click must not post a walk behind the viewer's back");
-});
-
-test("the vestigial hook is verified, not trusted", () => {
-  assert.match(mount, /const deskOpen = \(\) => \{/,
-    "there is a receipt for the click having landed");
-  assert.match(mount, /if \(deskOpen\(\) \|\| before\) return;/,
-    "read after the click, against the state before it");
-  assert.match(mount, /text: "the map could not arm that walk"/,
-    "and a click that armed nothing says so rather than going quiet");
+// ══ WALKING JOINED THE ONE FLOW (founder-ruled 2026-08-29) ══════════════════
+//
+// ⚑ TWO TESTS STOOD HERE AND ARE GONE WITH THE CODE THEY PINNED — named rather
+// than deleted quietly, because a falsifier that vanishes and one that was
+// deliberately reversed look identical in a diff.
+//
+// THEY WERE: "a bare-ground click is handed to the viewer's own walk-arming
+// path", which pinned the mint-and-click of a `.stand` element into a hook the
+// viewer publishes but has no elements behind; and "the vestigial hook is
+// verified, not trusted", which pinned the receipt that checked the desk had
+// actually opened. Both were right for the ruling they served — the viewer owned
+// walking, so the cockpit borrowed it rather than re-implementing pathing.
+//
+// THE GOVERNING RULING makes walking an ordinary act of the one flow ("in both
+// cases, the next step IS the right side panel popup that has the WHO, the FROM,
+// and the TO … and the CONFIRM button") and stands the viewer's desk down. A
+// hand-off into a hidden panel would arm a walk nobody could confirm.
+test("walking is an act of the one flow, not a hand-off to a second desk", () => {
+  assert.doesNotMatch(mount, /b\.className = "stand";/, "nothing is minted into the viewer any more");
+  assert.doesNotMatch(mount, /const walkFromMap =/, "and the hand-off itself is gone");
+  assert.doesNotMatch(mount, /const deskOpen = \(\) =>/, "along with the receipt that watched for its desk");
+  // walking is recognised by the door's own words — two fields described as grid
+  // metres — and armed like any other targeted act
+  assert.match(mount, /if \(kind === "point"\) \{ arm\(action, "point", pointFields\(s\.card\)\); return; \}/,
+    "a point-aimed act arms the map instead");
+  assert.match(mount, /const m = snapPoint\(pxToWorld\(gridNow\(\), local\), walkStep\(state\.answer\)\);/,
+    "and the ground's stride is applied where the target is taken");
 });
 
 test("the cockpit takes only the clicks on figures it drew itself", () => {
@@ -274,9 +280,10 @@ test("the cockpit takes only the clicks on figures it drew itself", () => {
     "the viewer's click is swallowed for a figure this cockpit drew");
   assert.match(mount, /if \(state\.aiming\) \{\r?\n\s*ev\.preventDefault\(\);\r?\n\s*ev\.stopPropagation\(\);/,
     "and for any click while an act is armed, so a target is never also a walk");
-  // and bare ground with nothing armed still falls through to the walk path
-  assert.match(mount, /walkFromMap\(snapPoint\(m, walkStep\(state\.answer\)\) \?\? m\);/,
-    "an ordinary ground click is still handed to the viewer's own walk-arming path");
+  // and bare ground with NOTHING armed is left entirely alone now — under the
+  // one flow a walk begins at its button, so a stray click is not a half-begun
+  // act and this overlay takes nothing it was not asked for
+  assert.doesNotMatch(mount, /walkFromMap\(/, "a bare-ground click arms nothing on its own");
 });
 
 // ══ VERB-FIRST TARGETING (2026-08-29) — AND THE MENU IT REVERSES ══
@@ -295,16 +302,26 @@ test("the cockpit takes only the clicks on figures it drew itself", () => {
 // fails against the pre-ruling file — the strings did not exist — which is the
 // flip.
 test("pressing an aimable seat arms it instead of opening a panel", () => {
-  assert.match(mount, /const field = aimable\(s, state\.answer\) \? aimField\(s\.card\) : null;\r?\n\s*if \(field\) \{ arm\(action, field\.name\); return; \}/,
-    "openSeat arms when the card says the act has somewhere to aim");
+  assert.match(mount, /if \(kind === "thing" && aimable\(s, state\.answer\)\) \{ arm\(action, "thing", aimField\(s\.card\)\); return; \}/,
+    "openSeat arms when the card says the act is aimed at a thing and the answer names one");
+  // ⚑ AND AN ACT AIMED AT NOTHING FALLS STRAIGHT THROUGH TO THE PANEL, which is
+  // the founder's own complaint answered: "guard asks you to pick a target on
+  // the map... should just be a confirm button." The shape is the card's —
+  // aimed at a thing, at a point, or at nothing — never a name.
+  assert.match(mount, /const kind = SELF_DIRECTED\.includes\(action\) \? "none" : aimKind\(s\.card\);/,
+    "the shape is read off the card, except where the office shares one field across acts that differ");
   // …and the decision is the CARD's, never a name: nothing in openSeat spells
   // an act, and the arithmetic it calls is held to the same rule by its own
   // falsifier (world-cockpit.test.mjs greps that source for verb names).
   assert.match(mount, /function openSeat\(action, \{ focus = true \} = \{\}\) \{/,
     "one route for a click, the tray and the number keys");
   // an armed act finishes through the SAME dispatch a panel uses
-  assert.match(mount, /function sendAim\(value\) \{[\s\S]{0,240}?sendAct\(action, \{ \[field\]: value \}\);/,
-    "a target click goes out through sendAct, not a second dispatch path");
+  // ⚑ A TARGET CLICK NO LONGER DISPATCHES. The governing ruling puts the panel
+  // between the target and the door: "the next step IS the right side panel
+  // popup … and the CONFIRM button to actually do the action."
+  assert.match(mount, /function takeAim\(args, label\) \{/, "a target is taken, not sent");
+  assert.match(mount, /state\.act = \{ action, args, label \};/, "and held until the reader confirms");
+  assert.doesNotMatch(mount, /function sendAim\(/, "the dispatch-on-click path is gone");
 });
 
 test("the object-first menu is gone, not merely unused", () => {
@@ -337,7 +354,7 @@ test("escape gives back the map before it gives back anything else", () => {
     "an armed act is the innermost thing one press puts down");
   // and a click on anything that is not a target disarms, which is the other
   // half of the ruling's own escape hatch
-  assert.match(mount, /if \(target\) sendAim\(target\.value\); else disarm\(\);/,
+  assert.match(mount, /if \(target\) takeAim\([^;]*\);\s*else disarm\(\);/,
     "clicking elsewhere disarms rather than acting");
 });
 
@@ -376,17 +393,13 @@ test("it does not call selectActor when the viewer already agrees", () => {
     "and the mint happens only on a real difference");
 });
 
-test("the actor is settled BEFORE the walk is armed, never after", () => {
-  // Ordering is load-bearing: selectActor clears the destination, so settling
-  // the actor after arming would throw away the walk that was just armed.
-  const walkFn = /const walkFromMap = \(m\) => \{[\s\S]*?\n  \};/.exec(mount)?.[0] ?? "";
-  assert.ok(walkFn, "walkFromMap must be findable");
-  const settle = walkFn.indexOf("speakActAs();");
-  const arm = walkFn.indexOf('b.className = "stand";');
-  assert.ok(settle > -1, "walkFromMap settles the actor");
-  assert.ok(arm > -1, "walkFromMap arms the destination");
-  assert.ok(settle < arm, "and it settles BEFORE it arms — the other order wipes the destination");
-});
+// ⚑ "the actor is settled BEFORE the walk is armed, never after" STOOD HERE.
+// It pinned an ordering inside `walkFromMap` — settle the actor, then arm,
+// because selectActor clears the destination and the other order wiped the walk
+// that had just been armed. The function is gone with the hand-off, and so is
+// the ordering hazard: the cockpit no longer arms anything inside the viewer.
+// The dock still speaks its selection at the viewer on a face press, which is
+// what the two tests below this pin.
 
 // ── the seats get glyphs, and the way out folds in (2026-08-29 rulings) ──────
 test("every seat draws a glyph, and a verb the map has never heard of still draws one", () => {

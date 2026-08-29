@@ -37,7 +37,8 @@ import { fileURLToPath } from "node:url";
 
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
-  cardOf, consentSplit, dialSpeak, looseThings, snapPoint, walkStep, weaponFor,
+  aimKind, cardOf, consentSplit, dialSpeak, leavingName, looseThings, pointFields,
+  prefillFor, snapPoint, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
 const MOUNT = readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit-mount.mjs", import.meta.url)), "utf8");
@@ -305,6 +306,96 @@ test("a bar with no ground acts and no keep list folds everything, which is the 
   assert.equal(fold.shown.length, 0, "nothing is on the row when nothing is the ground's and nothing was kept");
   assert.equal(fold.folded.length, barSlots(town).fixed.length + barSlots(town).tray.length,
     "and every seat is accounted for — the fold drops nothing it was not told to hide");
+});
+
+// ══ THE ONE ACT FLOW (founder's governing ruling, 2026-08-29) ═══════════════
+//
+//   "Every button that NEEDS a target selection lets you click button → click
+//    target. Every button that DOESN'T (guard, exit) just needs you click
+//    button. In both cases, the next step IS the right side panel popup that
+//    has the WHO, the FROM, and the TO (FROM only if appropriate, so for walk),
+//    and the CONFIRM button to actually do the action."
+
+test("how an act is aimed is read off the card, in three shapes", () => {
+  // A THING: the door's field says the value is who or what it is aimed at.
+  assert.equal(aimKind(cardFor(VAULT, "swing")), "thing");
+  // A POINT: two numbers the door describes as grid metres. That is walking,
+  // recognised without this file holding the word.
+  const walk = cardOf(entry("walk", { fields: {
+    mark_id: { type: "string", description: "walk to this mark's ground" },
+    to_x: { type: "number", description: "grid meters east of Ferry's crossing" },
+    to_y: { type: "number", description: "grid meters south of Ferry's crossing" },
+  } }));
+  assert.equal(aimKind(walk), "point");
+  assert.deepEqual(pointFields(walk), { x: "to_x", y: "to_y" });
+  // NOTHING: a crossing out aims at no one, so it goes straight to the panel.
+  assert.equal(aimKind(cardFor(VAULT, "exit")), "none");
+  // and one number is not a point — an act that takes a single quantity is a
+  // form, not a place on the ground
+  assert.equal(pointFields(cardOf(entry("stake", { fields: {
+    stamps: { type: "number", description: "how many stamps, east of nothing" },
+  } }))), null);
+});
+
+test("the room a crossing leaves is SHOWN and never sent", () => {
+  // ⚑ THE RECEIPT THIS PROTECTS. The founder: exit "still requires you to select
+  // a slug that you're exiting... which is very strange considering you have ONE
+  // option." The obvious fix — fill the field in — was tried live on 2026-08-29
+  // and the door REFUSED it: "rei is not within 'the-town/the-candle-vault' —
+  // there is nothing to step out of", from a standpoint whose own portal IS that
+  // vault. The door's `within` for crossing back out is the entry it holds, not
+  // the extent you are standing inside.
+  //
+  // So the panel NAMES the room and the act omits the field, which is what the
+  // door's own words ask for: omit it and the innermost one is used.
+  const leaving = leavingName(VAULT);
+  assert.equal(leaving.id, "the-town/the-candle-vault");
+  assert.equal(leaving.label, "the candle vault", "deslugged the one way every id here is read");
+  assert.equal(leavingName({ within: [] }), null, "and a standpoint within nothing names nothing");
+  // the panel prints it; `prefillFor` still refuses to fill a place field
+  assert.deepEqual(prefillFor(cardFor(VAULT, "exit"), VAULT), {},
+    "the field itself stays empty — that is the receipt, not an oversight");
+  assert.match(MOUNT, /rows\.push\(\["from", `<b>\$\{esc\(leaving\.label\)\}<\/b>`\]\);/,
+    "the room is a label on the panel");
+});
+
+test("a target is taken into the panel, not sent at the door", () => {
+  assert.match(MOUNT, /function takeAim\(args, label\) \{/);
+  assert.match(MOUNT, /state\.act = \{ action, args, label \};/, "held for the confirm");
+  assert.match(MOUNT, /state\.open = action;/, "and the panel is what opens");
+  assert.doesNotMatch(MOUNT, /function sendAim\(/, "the dispatch-on-click path is gone");
+  // and the confirm carries what the target contributed, with typed fields
+  // winning where a reader edited the box in front of them
+  assert.match(MOUNT, /const whole = \{ \.\.\.\(aimed \?\? \{\}\), \.\.\.args \};/,
+    "the target's fields ride along with whatever was typed");
+});
+
+test("a self-directed act never opens a crosshair, and the site says so out loud", () => {
+  // ⚑ THE CARD CANNOT TELL US. The office hands all five arena verbs the SAME
+  // field object, so guarding and striking are identical on the wire — the
+  // field's description even names which acts find their own target, in prose,
+  // inside a field shared by the ones that do not. So this is a NAME, in the
+  // drawer where the other name-keyed rulings live, and it carries the same
+  // debt: a field of its own on the office side deletes this list.
+  assert.match(MOUNT, /const SELF_DIRECTED = \["guard", "loot", "pass"\];/);
+  assert.match(MOUNT, /const kind = SELF_DIRECTED\.includes\(action\) \? "none" : aimKind\(s\.card\);/,
+    "the name overrides the card's shape, and only in that direction");
+  // the card really does look aimable, which is why the override is needed —
+  // if this ever fails, the office has given it its own field and the list goes
+  assert.equal(aimKind(cardFor(VAULT, "brace")), "thing",
+    "the shared arena field still reads as thing-aimed, which is the whole reason for the list");
+});
+
+test("the panel does not ask again for what the flow already answered", () => {
+  // Seen in the shot the moment the flow worked: a clean WHO/FROM/TO and then
+  // three empty boxes asking the question the reader had just answered on the
+  // map — the form language the founder has objected to twice.
+  assert.match(MOUNT, /const answered = state\.act\?\.action === action \? Object\.keys\(state\.act\.args \?\? \{\}\) : \[\];/);
+  assert.match(MOUNT, /const asked = flowShaped\r?\n\s*\? c\.fields\.filter\(\(f\) => f\.required && !answered\.includes\(f\.name\) && filled\[f\.name\] == null\)\r?\n\s*: c\.fields;/,
+    "a flow-shaped act asks only for what the door requires and the flow did not fill");
+  // AN ORDINARY FORM ACT IS UNTOUCHED — outside the fight there are acts whose
+  // whole substance is typed, and for those the form IS the act.
+  assert.match(MOUNT, /: c\.fields;/, "a non-flow act still gets every field");
 });
 
 // ══ (2b) WHAT THE WHEEL ACTUALLY GATES (addendum, 2026-08-29) ═══════════════
