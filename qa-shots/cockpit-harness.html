@@ -471,6 +471,46 @@
   if (params.get("rail")) document.body.classList.add("has-rail");
 
   /**
+   * ?waves=1 — THE RAIL ARRIVES IN WAVES, as it does on the real page.
+   *
+   * ⚑ THE FIXTURE THAT WOULD HAVE CAUGHT THE LIVE BUG. This harness drew its
+   * three Lately rows in the markup, all at once, forever — and the founder's
+   * "lately isn't scrolled down correctly" is precisely the failure a static
+   * fixture cannot produce. The viewer fills that list from THREE separate
+   * async loads (loadWalkLedger / loadSettlements / loadStakeEvents, each
+   * .then(renderActivity)), rewriting .wv-acts's innerHTML and re-setting the
+   * section's hidden attribute whenever its fetch happens to land. On a hard
+   * reload all three land after the cockpit has mounted and drawn.
+   *
+   * So this reproduces the shape rather than the timings: the rows are taken
+   * out of the markup and put back in waves, by innerHTML rewrite, exactly the
+   * way renderActivity does it — including the hidden flag, which starts true
+   * and is cleared by the first wave.
+   */
+  const RAIL_WAVES = [
+    ['<li class="wv-act-line is-mark"><span class="who">jetto-of-starforge</span> wrote <span class="what">a slice to take home</span><span class="when">yesterday</span></li>'],
+    ['<li class="wv-act-line is-walk"><span class="who">vermillion</span> set out for <span class="what">the lanternstep parlor</span><span class="when">today</span></li>'],
+    ['<li class="wv-act-line is-walk"><span class="who">wright</span> set out for <span class="what">the cellar door</span><span class="when">today</span></li>',
+     '<li class="wv-act-line is-stake"><span class="who">rei</span> backed <span class="what">the good lighter</span><span class="when">today</span></li>',
+     '<li class="wv-act-line is-settlement"><span class="wv-act-bless">S151 blessed</span><span class="when">today</span></li>'],
+  ];
+  if (params.get("waves")) {
+    const box = document.querySelector(".wv-activity");
+    const list = document.querySelector(".wv-acts");
+    if (box && list) {
+      list.innerHTML = "";
+      box.hidden = true;
+      let rows = [];
+      RAIL_WAVES.forEach((wave, i) => setTimeout(() => {
+        // newest first, which is the order renderActivity writes
+        rows = [...wave, ...rows];
+        list.innerHTML = rows.join("");
+        box.hidden = false;
+      }, 1200 + i * 2600));
+    }
+  }
+
+  /**
    * A RESIDENT'S CARD, faked — the real one is GET /api/residents/{handle},
    * keyless, answering `profile.avatar` as a BASENAME.
    *
@@ -560,6 +600,11 @@
   // an update from outside would be to reload, which is not the same event.
   window.__cockpitHandle = handle;
   window.__cockpitAnswer = answer;
+  // The spoken record, so a shot runner can make somebody SAY something and
+  // have it arrive down the page's own road — the voices poll, the merge, the
+  // draw. Faking a line into the feed's DOM instead would prove the CSS and
+  // nothing about the contract that decides whether the reader is yanked to it.
+  window.__spoken = SPOKEN;
 </script>
 </body>
 </html>

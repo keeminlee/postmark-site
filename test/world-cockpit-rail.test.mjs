@@ -77,14 +77,66 @@ test("the feed's host is resolved at USE time, never held from mount", () => {
     "and the list is re-homed whenever it is no longer inside the living section");
 });
 
-test("the scroll contract is measured BEFORE the rewrite", () => {
-  // ⚑ AFTER the rewrite the scrollHeight has already moved, so every answer is
-  // about a box that no longer exists — a feed that measured afterwards would
-  // decide it was at the bottom exactly when it was not.
-  assert.match(mount, /const follow = atBottom\(box\);\s*\n\s*const html = state\.feed\.map/,
-    "atBottom is asked, then the html is built");
-  assert.match(mount, /if \(follow\) \{ box\.scrollTop = box\.scrollHeight; if \(feedNew\) feedNew\.hidden = true; \}\s*\n\s*else if \(feedNew\) feedNew\.hidden = false;/,
-    "at the bottom it follows; scrolled up it holds and says there is something new");
+// ── the pin follows the CONTENT, not our own writes (2026-08-29, live) ──
+//
+// THE FOUNDER, on dev after a hard reload: "lately isn't scrolled down
+// correctly". A pin that ran once at draw time was pinning to a page that had
+// not finished arriving: the viewer fills Lately from three separate async
+// loads (loadWalkLedger / loadSettlements / loadStakeEvents, each .then(
+// renderActivity)), and every one of those rewrites grows the content ABOVE the
+// feed while the section keeps its scrollTop. The harness could not have caught
+// it — its rows were static — which is why it now loads them in waves too.
+test("the pin is a watch: the viewer's own late rewrites re-pin the feed", () => {
+  assert.match(mount, /feedMutations = new MutationObserver\(\(records\) => \{/,
+    "a mutation observer, because the viewer rewrites .wv-acts long after we drew");
+  assert.match(mount, /childList: true, subtree: true, characterData: true,\s*\n\s*attributes: true, attributeFilter: \["hidden"\],/,
+    "watching the rewrites AND the hidden attribute renderActivity re-sets");
+  assert.match(mount, /feedSize = new ResizeObserver\(pinFeed\);/,
+    "and a resize observer for reflow that changes no nodes at all");
+  assert.match(mount, /if \(feedSize\) \{ feedSize\.disconnect\(\); for \(const child of host\.children\) feedSize\.observe\(child\); \}\s*\n\s*pinFeed\(\);/,
+    "a rewrite replaces the children being measured, so the size watch is re-pointed before the pin");
+});
+
+test("following is the reader's intent, never re-derived from the geometry", () => {
+  // ⚑ THE TRAP THIS AVOIDS. Once content has grown above us we are no longer at
+  // the bottom BY MEASUREMENT — so a pin that re-asked atBottom before every
+  // pin would read the growth as "the reader scrolled up" and stop following
+  // for good. The flag moves only when a scroll event says the reader moved.
+  assert.match(mount, /const onFeedScroll = \(\) => \{[\s\S]*?followBottom = atBottom\(box\);/,
+    "the scroll event is the only thing that sets it");
+  const pin = mount.slice(mount.indexOf("function pinFeed"), mount.indexOf("function watchFeedHost"));
+  assert.doesNotMatch(pin, /followBottom = /, "the pin reads the intent and never rewrites it");
+  assert.match(pin, /if \(!followBottom\) \{/, "scrolled up, it holds and shows the pill instead");
+});
+
+test("the pin lands on the next frame, not in the tick that wrote", () => {
+  // scrollHeight still answers for the old content in the tick of the write.
+  assert.match(mount, /if \(typeof raf === "function"\) raf\(run\); else run\(\);/);
+  assert.match(mount, /if \(pinQueued\) return;\s*\n\s*pinQueued = true;/,
+    "and three waves landing together cost one pin");
+});
+
+test("the watch does not react to its own writes", () => {
+  // ⚑ THE BUG THIS EXISTS FOR, found by the shot runner HANGING rather than
+  // failing: pinFeed hides the new-below pill; the pill lives inside the
+  // watched section; its `hidden` is an attribute this observer filters on. So
+  // every pin caused a mutation that caused a pin — a tight infinite loop with
+  // no stack to show for it, and a browser that simply stopped answering.
+  assert.match(mount, /if \(!records\.some\(\(r\) => !ourNode\(r\.target\)\)\) return;/,
+    "a batch of nothing but our own nodes is not news");
+  assert.match(mount, /const ourNode = \(n\) => Boolean\(n && \(n === feedList \|\| n === feedNew/,
+    "and ours is both the feed's list and its pill");
+  // belt to that brace: the pill is written only when it actually changes, so
+  // even a watch that did react would settle after one round
+  assert.match(mount, /const showPill = \(on\) => \{ if \(feedNew && feedNew\.hidden === on\) feedNew\.hidden = !on; \};/);
+  const pin = mount.slice(mount.indexOf("function pinFeed"), mount.indexOf("function watchFeedHost"));
+  assert.doesNotMatch(pin, /feedNew\.hidden =/, "the pin toggles the pill only through showPill");
+});
+
+test("the host watch is re-pointed when the viewer rebuilds its rail", () => {
+  assert.match(mount, /function watchFeedHost\(host\) \{\s*\n\s*if \(feedWatched === host\) return;/,
+    "same living-reference law the camera watch keeps");
+  assert.match(mount, /watchFeedHost\(host\);/, "and ensureFeed points it at whichever section is live now");
 });
 
 test("your own beat goes in from the act answer, and the poll never tells it twice", () => {
