@@ -18,7 +18,8 @@
 import rawHtml from 'postmark-world/spectator/index.html?raw';
 import WorldSignIn from '@/components/WorldSignIn.astro';
 import WorldTourHold from '@/components/WorldTourHold.astro';
-import WorldDocket from '@/components/WorldDocket.astro';
+import WorldCandle from '@/components/WorldCandle.astro';
+import WorldDrafts from '@/components/WorldDrafts.astro';
 
 // Early identity bridge: adopt the site's OAuth session into the viewer's Bearer
 // slot (localStorage['pm_key']) BEFORE the viewer boots, so a signed-in visitor's
@@ -83,9 +84,41 @@ const html = rawHtml.replace(/<head>/i,
      `/WORLD/door-provenance.json` beside them says which door answered, when,
      at which law sha, and what it could not answer.
 
-     The docket below is the other half: P-108's private draft-overlay lens
-     replaced by the candle's PUBLIC docket. See the component's own note. -->
-<WorldDocket />
+     `WORLD/walk-ledger.md` came off the pin until 2026-08-28 and now comes off
+     `/world2/walks` with the other two — the last baked record this page read.
+     -->
+
+<!-- ONE OFFICE BASE FOR THE INLINE SCRIPTS BELOW.
+
+     `officeBase()` in src/lib/auth.mjs is this site's rule for which office a
+     browser-side call goes to: same-origin `/api` unless a per-browser override
+     is set. The components under this page cannot import it — they are inline
+     scripts on purpose, because they must beat the viewer's deferred module to
+     `window.fetch` — so the rule is resolved ONCE here, by the same key and the
+     same default, and read from there. One respelling, not one per component. -->
+<script is:inline>
+  window.__pmOfficeBase = (function () {
+    try { return String(localStorage.getItem("pm.office.base") || "/api").replace(/\/+$/, ""); }
+    catch (e) { return "/api"; }
+  })();
+</script>
+
+<!-- YOUR DRAFTS (P-108, and the stake that submits them). A signed-in
+     household's own unpublished marks, read from `/world2/my-drafts` instead of
+     off a `draft/<household>` branch, laid into the map in the same grey the
+     viewer has always drawn them in — and a stake control, because in World 2.0
+     staking a draft IS submitting it. Nothing is fetched signed out.
+
+     FIRST of the two fetch wrappers on this page, so the time-travel lens below
+     wraps it: an armed `?crossing=` page answers /world/my-marks anonymous and
+     no private draft can leak into a frozen frame. -->
+<WorldDrafts />
+
+<!-- THE CANDLE, in the rail beside `crossing … · live`. The pending count and
+     the next close, quietly, where the page already carries live state — the
+     public docket does not get a strip of its own in live (Keemin, 2026-08-28).
+     Explanation is the release notes' job. -->
+<WorldCandle />
 
 <!-- ARRIVING AT A PLACE (2026-08-14). The world had no way to be linked INTO:
      every other page could name a place in words but not show it, so the

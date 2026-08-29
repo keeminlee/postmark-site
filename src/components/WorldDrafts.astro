@@ -1,0 +1,362 @@
+---
+// YOUR DRAFTS — the private half of P-108, and the site's stake surface.
+//
+// ── WHAT THIS REPLACES ─────────────────────────────────────────────────────
+//
+// Today a signed-in household sees its own unpublished marks laid into the map
+// in draft grey. The office reads them out of that household's
+// `draft/<household>` git branch (`src/world-branches.mjs` `draftDeltaForKey`)
+// and ships them as `portfolio.drafts` on `/world/my-marks`; the viewer merges
+// them with `composeDraftOverlay()`. World 2.0 has no draft branches: a draft is
+// a row in `claims` with `status = 'draft'`, and the door that serves them is
+// `/world2/my-drafts` — the ONE key-scoped read in that tier, scoped by a row
+// policy rather than by a WHERE clause.
+//
+// The try-out branch answered P-108 by making the pending picture PUBLIC and
+// dropping the private lens entirely. Keemin ruled the public strip out of live
+// on 2026-08-28 and ruled the private overlay back in: a signed-in household
+// sees ITS OWN drafts on the world page, and nobody else's, ever.
+//
+// So this is a REPOINT, not a new feature: the same grey marks in the same
+// places, read from the door instead of from a branch. The viewer is untouched
+// — it still asks `/world/my-marks` and still gets `drafts` in the shape
+// `composeDraftOverlay` reads. What changed is who answers.
+//
+// ── AND THE STAKE, BECAUSE THE STAKE IS THE SUBMISSION ─────────────────────
+//
+// Keemin, 2026-08-28: "submit is implicit in staking nonzero amount of marks on
+// a draft mark." There is no submit button in World 2.0 and there is not going
+// to be one — `promoteDraftOnStake` is live in the office, and a stake on your
+// own draft moves it from `draft` to `pending` on the open candle in the same
+// motion that puts stamps behind it. The site had no stake surface at all, so
+// the act had nowhere to be performed from a browser; this is that surface, and
+// it sits with the drafts because that is the thing it acts on.
+//
+// The site does none of the work and none of the judging. It sends the stake and
+// renders the door's own answer — its `effect` when the mark goes forward, its
+// `defect` and `hint` verbatim when it refuses. The zero-on-the-commons refusal
+// is a sentence the office wrote and the reader is owed it in the office's own
+// words, not in a paraphrase of them that can drift out of step with the law.
+---
+
+{/* Seated in the rail under the viewer's own Actions section. Boots hidden and
+    stays hidden for a spectator: a signed-out reader has no drafts, so there is
+    nothing to label, and an empty "Your drafts" heading over nothing is the
+    furniture this page keeps deleting. */}
+<section class="pm-drafts" hidden>
+  <h2>Your drafts</h2>
+  <p class="pm-drafts-note"></p>
+  <ol class="pm-drafts-list"></ol>
+</section>
+
+<script is:inline>
+  (function () {
+    var panel = document.querySelector(".pm-drafts");
+    if (!panel) return;
+    var OFFICE = window.__pmOfficeBase || "/api";
+
+    // The viewer's own identity slot — the site's OAuth session is mirrored into
+    // it by the bridge in world.astro's <head>, ahead of everything here.
+    function key() { try { return localStorage.getItem("pm_key") || null; } catch (e) { return null; } }
+    function authed(extra) {
+      var k = key(), h = { accept: "application/json" };
+      if (extra) for (var n in extra) h[n] = extra[n];
+      if (k) h.Authorization = "Bearer " + k;
+      return h;
+    }
+
+    // ── the read ────────────────────────────────────────────────────────────
+    // NEVER FETCHED SIGNED OUT. A keyless call to this door is answered with a
+    // 401 that is correct and useless — there is no question to ask about the
+    // drafts of nobody, and asking it anyway would put a red line in every
+    // spectator's console for a feature they cannot have.
+    // A PAST CROSSING HAS NO COMPOSE SPACE. `?crossing=<n>` installs the
+    // time-travel lens further down this page, which answers identity reads
+    // anonymous so every act control feature-detects off — but this panel reads
+    // `/world2/my-drafts` DIRECTLY, so the lens cannot reach it, and the first QA
+    // pass caught exactly that: an armed page drew a frozen 2026-08-21 world
+    // under a live list of today's drafts, each with a working stake button.
+    // Armed is armed for this surface too, and it is checked at the same place
+    // the lens checks it: the URL, at parse time, before anything is asked.
+    var armed = (function () {
+      var n = new URLSearchParams(location.search).get("crossing");
+      return n != null && isFinite(Number(n));
+    })();
+
+    var loaded = null;
+    function load() {
+      if (armed || !key()) return Promise.resolve(null);
+      return fetch(OFFICE + "/world2/my-drafts", { headers: authed(), credentials: "same-origin" })
+        .then(function (r) {
+          // 404 — no World 2.0 store at this office. 401/403 — signed in, but
+          // not as a resident household. Both mean "there is no private compose
+          // space here", which is a thing to be silent about rather than to
+          // report; a real failure (500, a network fault) throws to the catch.
+          if (r.status === 404 || r.status === 401 || r.status === 403) return null;
+          if (!r.ok) throw new Error(String(r.status));
+          return r.json();
+        })
+        .catch(function () { return { unread: true, drafts: [] }; });
+    }
+    loaded = load();
+
+    // ── the shape the viewer already reads ──────────────────────────────────
+    //
+    // `composeDraftOverlay` wants a mark-shaped declaration: an `id` in the
+    // canon `<by>/<slug>` form, and whatever of `at` / `extent` / `points` /
+    // `body` the author actually placed. The claims row carries exactly that,
+    // one name apart in each case — and the id needs no assembly, because
+    // `claims.slug` IS the full `<by>/<slug>` id (the office's own
+    // `promoteDraftOnStake` looks a draft up by `slug = '<by>/<slug>'`).
+    //
+    // TIER IS DELIBERATELY NOT CARRIED. The overlay strips it off an added draft
+    // anyway ("standing is derived by the walk, never asserted"), and the door
+    // does not offer one — so there is nothing here to drop.
+    function asMark(d) {
+      var g = d.geometry || {};
+      var m = { id: d.slug, by: d.claimant, kind: d.class || "sited", status: "added" };
+      if (d.body != null) m.body = d.body;
+      if (g.at) m.at = g.at;
+      if (g.extent) m.extent = g.extent;
+      if (g.points) m.points = g.points;
+      return m;
+    }
+
+    // ── the shim: same question, different answer ───────────────────────────
+    //
+    // The viewer asks `/world/my-marks` for three shelves — drafts, published,
+    // backed. Only the DRAFTS shelf moved to the new store; published marks and
+    // escrow positions are still the 1.0 answer and are passed through
+    // untouched. So this replaces one field rather than the whole response,
+    // which is also what keeps the failure honest: if the drafts door is silent,
+    // the reader still gets their portfolio, minus a shelf, instead of nothing.
+    //
+    // Installed as a fetch wrapper at parse time, ahead of the viewer's deferred
+    // module — the same seam and the same reason as the time-travel lens below
+    // it on this page. It is installed BEFORE that lens, so the lens wraps this
+    // one: on an armed `?crossing=` page the lens answers `/world/my-marks` 401
+    // and this never runs, which is exactly right. A past crossing has no
+    // drafts; nobody's private compose space belongs in a frozen frame.
+    var real = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      var url = typeof input === "string" ? input : (input && input.url) || "";
+      var p; try { p = new URL(url, location.href).pathname; } catch (e) { p = String(url || ""); }
+      var method = String((init && init.method) || (input && input.method) || "GET").toUpperCase();
+      if (method !== "GET" || !/\/world\/my-marks$/.test(p)) return real(input, init);
+      return real(input, init).then(function (res) {
+        if (!res.ok) return res;
+        return Promise.all([res.json(), loaded]).then(function (both) {
+          var portfolio = both[0], mine = both[1];
+          if (!mine || mine.unread) return new Response(JSON.stringify(portfolio), {
+            status: 200, headers: { "content-type": "application/json" } });
+          portfolio.drafts = (mine.drafts || []).map(asMark);
+          // The counts and the withheld list describe the shelf that was just
+          // replaced, so leaving them would have the rail counting one set of
+          // drafts and drawing another.
+          if (portfolio.counts) portfolio.counts.drafts = portfolio.drafts.length;
+          if (portfolio.withheld) delete portfolio.withheld.drafts;
+          return new Response(JSON.stringify(portfolio), {
+            status: 200, headers: { "content-type": "application/json" } });
+        }).catch(function () { return res; });
+      });
+    };
+
+    // ── the panel ───────────────────────────────────────────────────────────
+    var noteEl = panel.querySelector(".pm-drafts-note");
+    var listEl = panel.querySelector(".pm-drafts-list");
+    var held = [];
+
+    function seat() {
+      var nav = document.querySelector(".wv .wv-nav");
+      if (!nav) return false;
+      var actions = nav.querySelector(".wv-actions");
+      var activity = nav.querySelector(".wv-activity");
+      // under Actions, above Lately — with what you can DO, not with what you
+      // read, because every row here carries an act.
+      if (activity && activity.parentNode === nav) nav.insertBefore(panel, activity);
+      else if (actions && actions.parentNode === nav) nav.insertBefore(panel, actions.nextSibling);
+      else nav.appendChild(panel);
+      return true;
+    }
+
+    function where(m) {
+      var g = m.geometry || {};
+      return g.at ? g.at.x + ", " + g.at.y : "unplaced";
+    }
+
+    function render() {
+      listEl.innerHTML = "";
+      for (var i = 0; i < held.length; i++) {
+        var d = held[i];
+        var li = document.createElement("li");
+        li.className = "pm-draft";
+        li.dataset.mark = d.slug;
+        // WHICH RESIDENT STAKES. A household key that acts for more than one
+        // resident is refused by the door until it is told — "this key acts for
+        // 3 residents — pass handle: one of rei, wright, darko" — and the answer
+        // is not the viewer's Act As selection but the draft's OWN claimant:
+        // `promoteDraftOnStake` finds the row by `claimant = $1 AND slug = $2`,
+        // so any other handle promotes nothing at all. Carried off the row that
+        // is being acted on rather than off a preference somewhere else.
+        li.dataset.handle = d.claimant || "";
+        li.innerHTML =
+          '<p class="pm-draft-head"><span class="pm-draft-name">' + esc(d.slug) + "</span>"
+          + '<span class="pm-draft-where">' + esc(where(d)) + "</span></p>"
+          + '<div class="pm-draft-act">'
+          +   '<label>✦<input type="number" class="pm-draft-stamps" min="0" step="1" value="'
+          +     (Number(d.stake) > 0 ? Number(d.stake) : 0) + '" aria-label="stamps to stake"></label>'
+          +   '<button type="button" class="ctl pm-draft-put">put it forward</button>'
+          + "</div>"
+          + '<p class="pm-draft-said" hidden></p>';
+        listEl.appendChild(li);
+      }
+      // THE ONE SENTENCE OF LAW, because a control whose whole meaning is that
+      // it is irreversible must say so before it is pressed. Everything else
+      // about the candle belongs in the release notes.
+      noteEl.textContent = held.length
+        ? "Private until you stake. The stake is the submission — it puts the mark on the public docket, and it crosses once."
+        : "Nothing composed. A mark you leave without staking waits here.";
+      panel.hidden = false;
+    }
+
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+      });
+    }
+
+    // ── the act ─────────────────────────────────────────────────────────────
+    //
+    // The site sends the stake and says what the door said. It does not decide
+    // whether a zero is lawful (that depends on whose ground the mark stands on,
+    // which is the row policy's business), it does not pre-check the balance,
+    // and it does not soften a refusal. `defect` and `hint` are the office's own
+    // sentences and they arrive intact, because a paraphrase of a law is a
+    // second copy of it that starts drifting the day the law moves.
+    listEl.addEventListener("click", function (e) {
+      var btn = e.target.closest(".pm-draft-put");
+      if (!btn) return;
+      var li = btn.closest(".pm-draft");
+      var mark = li.dataset.mark;
+      var stamps = Number(li.querySelector(".pm-draft-stamps").value);
+      var said = li.querySelector(".pm-draft-said");
+      btn.disabled = true;
+      said.hidden = false;
+      said.className = "pm-draft-said";
+      said.textContent = "…";
+      fetch(OFFICE + "/world/stake", {
+        method: "POST",
+        headers: authed({ "content-type": "application/json" }),
+        credentials: "same-origin",
+        body: JSON.stringify({ mark: mark, stamps: stamps, handle: li.dataset.handle || undefined }),
+      }).then(function (r) {
+        return r.json().then(function (body) { return { ok: r.ok, body: body }; });
+      }).then(function (answer) {
+        var b = answer.body || {};
+        if (!answer.ok || b.error === "bounce") {
+          said.className = "pm-draft-said is-refused";
+          // The door's two sentences stay two sentences. Joining them with a dash
+          // ran them together — its own hints carry em-dashes — and the defect is
+          // what happened while the hint is what to do about it, which a reader
+          // sorts at a glance only if they are laid out as two things.
+          said.innerHTML = "<b>" + esc(b.defect || "the stake was refused") + "</b>"
+            + (b.hint ? '<span class="pm-draft-hint">' + esc(b.hint) + "</span>" : "");
+          btn.disabled = false;
+          return;
+        }
+        said.className = "pm-draft-said is-forward";
+        // `effect` is the door's own account of what just happened and it is the
+        // whole answer when a draft goes forward. A stake that promoted nothing
+        // (an already-public mark) has no `effect`, and saying so plainly is
+        // better than dressing a no-op as an event.
+        said.textContent = b.effect
+          || (b.put_forward ? "put forward." : "staked. This mark was already public — nothing was put forward.");
+        if (!b.put_forward) { btn.disabled = false; return; }
+        // It is not a draft any more, so it leaves this panel and the map's grey
+        // with it. Re-read rather than spliced: the door is the record, and a
+        // list this page maintained by hand would be a second one.
+        loaded = load();
+        loaded.then(function (mine) {
+          held = (mine && mine.drafts) || [];
+          var row = listEl.querySelector('[data-mark="' + CSS.escape(mark) + '"]');
+          var keep = row && row.querySelector(".pm-draft-said").cloneNode(true);
+          render();
+          if (keep) { noteEl.insertAdjacentElement("afterend", keep); }
+        });
+      }).catch(function (err) {
+        said.className = "pm-draft-said is-refused";
+        said.textContent = "the stake did not reach the door — " + String(err && err.message ? err.message : err);
+        btn.disabled = false;
+      });
+    });
+
+    var tries = 0;
+    (function boot() {
+      if (armed || !key()) return;              // spectator, or a past crossing: nothing to show, nothing asked
+      if (!seat()) { if (tries++ < 200) setTimeout(boot, 100); return; }
+      loaded.then(function (mine) {
+        if (!mine) return;                      // no compose space here
+        if (mine.unread) {
+          noteEl.textContent = "your drafts could not be read from the door — this is not an empty compose space, it is an unread one.";
+          noteEl.className = "pm-drafts-note is-refused";
+          panel.hidden = false;
+          return;
+        }
+        held = mine.drafts || [];
+        render();
+      });
+    })();
+  })();
+</script>
+
+<style is:global>
+  /* The rail's own furniture: `.wv-nav h2` is already the section heading here,
+     and `button.ctl` is already the rail's button. This adds only what the rail
+     has no opinion about — the row, the number box, and the door's answer. */
+  .wv .wv-nav .pm-drafts { margin-top: 4px; }
+  .wv .wv-nav .pm-drafts-note { margin: 0 0 8px; font-size: .68rem; line-height: 1.5; color: var(--dim); }
+  .wv .wv-nav .pm-drafts-note.is-refused { color: var(--err); }
+  .wv .wv-nav .pm-drafts-list { list-style: none; margin: 0; padding: 0; }
+  /* Grey, and the same grey — `--draft` is the colour the viewer already speaks
+     for what the town has not published, so a draft reads the same in this panel
+     as it does on the map. */
+  .wv .wv-nav .pm-draft {
+    margin: 0 0 8px; padding: 6px 8px; border: 1px dashed var(--draft-dark); border-radius: 4px;
+  }
+  .wv .wv-nav .pm-draft-head { margin: 0; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+  .wv .wv-nav .pm-draft-name { font-size: .74rem; color: var(--draft); overflow-wrap: anywhere; }
+  .wv .wv-nav .pm-draft-where { font-size: .62rem; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .wv .wv-nav .pm-draft-act { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+  .wv .wv-nav .pm-draft-act label { display: flex; align-items: center; gap: 3px; font-size: .68rem; color: var(--amber); }
+  .wv .wv-nav .pm-draft-stamps {
+    width: 3.6rem; background: var(--night); color: var(--paper); font: inherit; font-size: .7rem;
+    border: 1px solid var(--line); border-radius: 3px; padding: 2px 4px;
+  }
+  .wv .wv-nav .pm-draft-put { flex: 1; font-size: .68rem; }
+  .wv .wv-nav .pm-draft-said { margin: 6px 0 0; font-size: .66rem; line-height: 1.45; color: var(--dim); }
+  .wv .wv-nav .pm-draft-said.is-forward { color: var(--amber); }
+  .wv .wv-nav .pm-draft-said.is-refused { color: var(--err); }
+  .wv .wv-nav .pm-draft-said b { font-weight: 600; }
+  .wv .wv-nav .pm-draft-hint { display: block; margin-top: 3px; color: var(--dim); }
+
+  /* THE MAP HALF. The viewer already says draft in COLOUR — `.ov-pip.is-draft`
+     fills the map pip with `--draft` grey instead of amber — and colour alone is
+     a thin distinction: it is the one difference a reader can fail to see. So the
+     draft pip also changes SHAPE, from a solid dot to a dashed ring, which reads
+     as "an outline of something not there yet" without a legend.
+
+     THE PIP AND NOT THE FOOTPRINT, and that is measured rather than assumed. The
+     obvious rule to write is `.wv-fp.is-draft { stroke-dasharray }` — the viewer
+     has a footprint layer and it already dashes `.wv-fp.mech`. On this page that
+     layer renders nothing at all: `#wv-fp-layer` was empty in every QA state
+     probed (2026-08-28 — 0 footprints against 37 pips, in the telling and in
+     painting-only alike), so the rule would have been furniture dressing markup
+     that is not there. The pip is where the map actually speaks.
+
+     `vector-effect` keeps the ring one weight at every zoom, the way the viewer's
+     own footprint strokes do. */
+  .wv .ov-pip.is-draft {
+    fill: none; stroke: var(--draft); stroke-width: 3; stroke-dasharray: 5 4;
+    vector-effect: non-scaling-stroke; opacity: .9;
+  }
+</style>

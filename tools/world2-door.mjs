@@ -284,7 +284,11 @@ export async function doorWalkLedger() {
   return { text: walkLedgerFrom(walks), count: walks.length, eras: body.eras ?? null };
 }
 
-/** `/world2/docket` — the public docket, straight through. */
-export async function doorDocket() {
-  return ask("/world2/docket");
-}
+// THE DOCKET IS NOT READ AT BUILD TIME any more, and there is no `doorDocket()`
+// here because nothing calls one. The try-out rendered `/world2/docket` into a
+// strip on the page; Keemin ruled that out of live on 2026-08-28 and what
+// replaced it — one line in the rail — reads the door FROM THE BROWSER, because
+// a pending count baked into a build is wrong the moment a claim lands and a
+// countdown baked into a build is wrong by however long the tab has been open.
+// See src/components/WorldCandle.astro. The helper went with its only caller
+// rather than sitting here as a door nobody opens.

@@ -1,0 +1,170 @@
+---
+// THE CANDLE, ON THE RAIL — what the public docket becomes on the live page.
+//
+// The try-out branch rendered `/world2/docket` as a full-width strip above the
+// viewer: every pending claim, spelled out, with a paragraph explaining what a
+// docket is. Keemin ruled that out of live on 2026-08-28, verbatim:
+//
+//     "the public docket ... does not belong in live. rather, we should quietly
+//      enrich our existing UI (which already have crossing and 'live'
+//      information in the siderail), and leave explanation to release notes and
+//      PSAs."
+//
+// So the strip is gone (the component with it — a surface nobody renders is the
+// machinery this branch keeps arguing against) and what survives is one line in
+// the rail, beside the two readouts that are already there: `.crossnow`, which
+// says which crossing you are looking at and whether it is live, and
+// `.settlenow`, which counts down to the next settlement. This is the third
+// member of that family and it is written to look like one — it sits INSIDE
+// `.wv-nav`, so the viewer's own palette (`--dim`, `--amber`) is in scope and
+// inherited rather than re-spelled.
+//
+// It carries facts and no prose. What a docket IS belongs in the release notes;
+// what is ON it right now is a number a reader acts on.
+//
+// EVERYTHING HERE IS CLIENT-SIDE, and that is the whole design rather than a
+// convenience. A build-time "closes in 9 hours" is wrong by however long the tab
+// has been open, and a build-time pending count is wrong the moment a claim
+// lands — which is exactly when a reader would want it. Both come off the door
+// in the browser, on the viewer's own ambient cadence.
+//
+// The reads are keyless: the docket being public is half the candle's point.
+---
+
+{/* Seated after `.settlenow` in the rail's head. Hidden until the door answers:
+    a chip reading "— pending" before it knows anything is furniture pretending
+    to be information, which is the reason the viewer's own settlement chip
+    boots hidden too. */}
+<div class="pm-candle" hidden></div>
+
+<script is:inline>
+  (function () {
+    var el = document.querySelector(".pm-candle");
+    if (!el) return;
+    var OFFICE = window.__pmOfficeBase || "/api";
+
+    // ── the seat ────────────────────────────────────────────────────────────
+    // Moved into the rail rather than built there, for the reason the whole
+    // page works this way: the rail is the viewer's markup, this is the site's
+    // node, and the viewer re-renders its readouts (`renderStandpointReadouts`)
+    // without ever touching a child it does not know about. If the seat is
+    // never found the chip simply stays where Astro put it — visible, readable,
+    // out of place — rather than vanishing, because a number that disappears
+    // when a selector moves is worse than one in the wrong spot.
+    var tries = 0;
+    (function seat() {
+      var top = document.querySelector(".wv .wv-nav .wv-nav-top");
+      if (!top) { if (tries++ < 200) setTimeout(seat, 100); return; }
+      var after = top.querySelector(".settlenow") || top.querySelector(".crossnow");
+      if (after && after.parentNode === top) top.insertBefore(el, after.nextSibling);
+      else top.appendChild(el);
+    })();
+
+    // ── what the door says ──────────────────────────────────────────────────
+    // `/world2/docket` carries the open window AND the pending count, so it is
+    // the one read the common case needs. `/world2/windows` is asked only when
+    // the docket names no window — the candle being DARK is a real state (the
+    // stake door refuses with "no open window — the candle is dark") and the
+    // ledger is the only place that can tell it apart from a read that failed.
+    var state = { window: null, pending: null, dark: false, unread: false };
+
+    function ask(path) {
+      return fetch(OFFICE + path, { credentials: "same-origin" }).then(function (r) {
+        // A 404 is not a failure here — it is an office with no World 2.0 store
+        // engaged, which has no candle to report. The chip stays hidden and says
+        // nothing, because there is nothing to say.
+        if (r.status === 404) return { gone: true };
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+
+    function read() {
+      return ask("/world2/docket").then(function (d) {
+        if (d.gone) return null;
+        state.unread = false;
+        state.pending = typeof d.pending === "number" ? d.pending : (d.claims || []).length;
+        state.window = d.window || null;
+        if (state.window) { state.dark = false; return true; }
+        // no window on the docket — ask the ledger whether the candle is dark or
+        // whether this is a shape we do not understand
+        return ask("/world2/windows").then(function (w) {
+          if (w.gone) return null;
+          var open = (w.windows || []).filter(function (x) { return x.status === "open"; })[0];
+          state.window = open || null;
+          state.dark = !open;
+          return true;
+        });
+      }).catch(function () {
+        // Reachable and wrong is not the same as absent, and only one of them is
+        // the reader's problem. Said in one word rather than hidden.
+        state.unread = true;
+        return true;
+      });
+    }
+
+    function left(ms) {
+      var h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60;
+      return h >= 24 ? Math.floor(h / 24) + "d " + (h % 24) + "h" : h > 0 ? h + "h " + m + "m" : m + "m";
+    }
+
+    // TWO LINES, DELIBERATELY. Written as one sentence this reads
+    // "candle · nothing pending · closes in 3h 41m", which is 40-odd characters
+    // in a rail 190px wide — it wrapped, and a wrapped line with a hanging tail
+    // looks like a mistake rather than a readout (seen at 1440x900, 2026-08-28).
+    // The split is along the meaning: what is ON the candle, then when it locks.
+    // The window's id is not in the words — a reader does not act on it and the
+    // crossing number is already two lines up — but it rides `data-window` so a
+    // machine-read twin can still name which candle was on screen.
+    function paint() {
+      if (state.unread) { el.innerHTML = 'candle<span class="pm-candle-err">unread — not empty</span>'; el.hidden = false; return; }
+      if (state.dark) { el.innerHTML = "candle <b>dark</b><span>nothing can be put forward</span>"; el.hidden = false; return; }
+      var w = state.window;
+      if (!w) return;                                   // nothing known; stay as we were
+      var n = state.pending;
+      var count = n === 0 ? "nothing pending" : "<b>" + n + "</b> pending";
+      // AN OPEN WINDOW WHOSE CLOSE HAS PASSED is a real state this page met on
+      // its first build — the door answered a window still open with a
+      // `closes_at` hours behind. It means the clearing has not run, not that
+      // the candle is still burning, and counting down to a time in the past is
+      // the kind of quiet lie this lane keeps deleting.
+      var ms = Date.parse(w.closes_at) - Date.now();
+      var when = !isFinite(ms) ? ""
+        : ms <= 0 ? '<span class="pm-candle-late">past its close, not yet cleared</span>'
+        : "<span>closes in <b>" + left(ms) + "</b></span>";
+      el.setAttribute("data-window", String(w.id));
+      el.innerHTML = "candle · " + count + when;
+      el.hidden = false;
+    }
+
+    // The countdown is arithmetic, so it re-paints on the viewer's own ambient
+    // cadence (30 s); the docket is a network read, so it is re-asked a minute
+    // at a time. The office's keyless budget is 120 a minute and shared — one
+    // request a minute is a rounding error against it, and the number a reader
+    // decides whether to contest something on should not be an hour old.
+    read().then(function (live) { if (live) { paint(); setInterval(paint, 30000); setInterval(function () { read().then(paint); }, 60000); } });
+  })();
+</script>
+
+<style is:global>
+  /* One family with `.crossnow` and `.settlenow` — the viewer sets those at
+     .72–.78rem in `--dim` with tabular numerals and the amber reserved for the
+     number itself, and this matches rather than restates: the custom properties
+     resolve off `.wv`, which is this node's ancestor once it is seated. The
+     margin is the only thing that is ours, because the two readouts above it sit
+     in a flex column with its own gap and a third member should not change the
+     rhythm. */
+  .wv .wv-nav .pm-candle {
+    font-size: .72rem; color: var(--dim); font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+  .wv .wv-nav .pm-candle b { color: var(--amber); font-weight: 600; }
+  /* the second line — when it locks — sits under the first rather than wrapping
+     into it; same size, so the two read as one readout in two parts */
+  .wv .wv-nav .pm-candle span { display: block; }
+  .wv .wv-nav .pm-candle .pm-candle-late,
+  .wv .wv-nav .pm-candle .pm-candle-err { color: var(--err); }
+  /* Un-seated (the rail's structure moved, or the viewer never mounted) it is
+     still readable where Astro left it, on the page's own background. */
+  .pm-candle { font: .72rem/1.5 ui-monospace, "SF Mono", Consolas, Menlo, monospace; color: #9a9280; }
+</style>
