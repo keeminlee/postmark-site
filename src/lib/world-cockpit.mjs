@@ -401,9 +401,23 @@ export function portalOf(answer) {
  * here for a bar to be about. An EMPTY array is the opposite and is not a bar.
  *
  * With neither, the island still appends no element, adds no rule, binds no key.
+ *
+ * ⚑ SUPERSEDED AGAIN (founder, 2026-08-30, the post-party debrief): THE COCKPIT
+ * MOUNTS ONLY WHERE A FIGHT IS LIVE. The roster-wide scope above let the dock
+ * take over every signed-in view the day the office began answering `actors`
+ * everywhere — two act systems on one page, and the viewer's own rail (Act As
+ * row, action palette, crossing chips with their own confirm handshake) standing
+ * down globally for a bar built for a dungeon. The founder's interim ruling:
+ * the original side rail is the everyday UI; the cockpit is COMBAT CHROME, and
+ * the door's own encounter block — which the office emits only while a fight
+ * is live, verified the night the cake fell — is the one signal for it. The
+ * viewer's stand-down (`enterAffordance`'s cockpit gate, viewer.mjs) keys on
+ * the mount, so gating the mount restores the rail by design. This holds until
+ * the world-2.0 site rebuild (runbook step 5.5), where the cockpit's successor
+ * is built once against the apex-on-PG contract.
  */
 export function cockpitShows(answer) {
-  return rosterOf(answer) !== null || portalOf(answer) !== null;
+  return encounterOf(answer) !== null;
 }
 
 /** The door's roster, or null when it sent none — or sent an empty one, which is

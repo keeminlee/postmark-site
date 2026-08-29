@@ -219,7 +219,13 @@ test("the portal contract, when the door speaks it", () => {
   assert.equal(p.id, "the-town/the-lanternstep-door");
   assert.equal(p.value, "the-town/the-lanternstep-hall");
   assert.equal(p.by, "the-town");
-  assert.equal(cockpitShows(INSIDE_PORTAL), true);
+  // ⚑ SUPERSEDED (founder, 2026-08-30, post-party): a portal alone no longer
+  // mounts the cockpit — it is combat chrome, mounted only where a fight is
+  // live. The portal CONTRACT above is unchanged; only the mount gate moved.
+  assert.equal(cockpitShows(INSIDE_PORTAL), false,
+    "a quiet portal keeps the viewer's rail — the dock is combat chrome now");
+  assert.equal(cockpitShows({ ...INSIDE_PORTAL, encounter: { order: [{ id: "x", kind: "creature" }] } }), true,
+    "…and the same portal mid-fight mounts it");
   // a portal object with no id is not a portal
   assert.equal(portalOf({ standpoint: { portal: { value: "x" } } }), null);
 });

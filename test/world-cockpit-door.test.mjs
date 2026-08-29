@@ -203,11 +203,21 @@ test("the boot read names a resident, and a multi-resident key mounts the bar", 
   assert.ok(answer, "the door answers a read that names a resident");
   assert.match(asked[0], /\?handle=wright-of-postmark$/, "…because the read named one, in the query");
 
-  assert.equal(cockpitShows(answer), true, "portal ground with a roster: the bar shows");
+  // ⚑ SUPERSEDED IN PLACE (founder, 2026-08-30, the post-party debrief): this
+  // asserted "portal ground with a roster: the bar shows". The cockpit is
+  // COMBAT CHROME now — it mounts only where the door's encounter block says a
+  // fight is live, and everywhere else the viewer's own rail serves. The old
+  // assertion's ground (a portal, a roster, no fight) is exactly where the
+  // takeover lived, so it now asserts the stand-down.
+  assert.equal(cockpitShows(answer), false,
+    "portal ground with a roster but NO live fight: the cockpit stands down and the viewer's rail serves");
+
+  const fighting = { ...answer, encounter: { id: "x/arena", round: 1, turn: null, order: [{ id: "the-cake", kind: "creature", label: "the cake" }] } };
+  assert.equal(cockpitShows(fighting), true, "…and a live encounter is the one signal that mounts it");
 
   const doc = tinyDom();
   const mounted = mountCockpit({
-    document: doc, host: doc.body, svg: null, answer, me: MULTI_RESIDENT_ME, grid: null,
+    document: doc, host: doc.body, svg: null, answer: fighting, me: MULTI_RESIDENT_ME, grid: null,
     dispatch: async () => ({ ok: true, status: 200, body: {} }),
     readTerms: async () => null,
     refresh: null,
@@ -279,13 +289,22 @@ test("a parcel with a roster and no portal mounts the bar", async () => {
   // cockpit ships inside portal ground; the world page outside portals keeps
   // today's chrome untouched" — under which this exact answer put nothing on the
   // page at all.
-  assert.equal(portalOf(ON_A_PARCEL), null, "no portal: the superseded gate would have refused this");
-  assert.ok(rosterOf(ON_A_PARCEL), "…and a roster, which the new one asks for");
-  assert.equal(cockpitShows(ON_A_PARCEL), true);
+  // ⚑ SUPERSEDED A SECOND TIME (founder, 2026-08-30, post-party): the cockpit
+  // is combat chrome — it mounts only where a fight is live, whatever ground or
+  // roster stands. The ruling chain, all three states: 08-26 portal-only →
+  // 08-27 roster-wide (the takeover) → 08-30 encounter-only (the stand-down).
+  assert.equal(portalOf(ON_A_PARCEL), null, "no portal, as before");
+  assert.ok(rosterOf(ON_A_PARCEL), "…and a roster, which the superseded gate asked for");
+  assert.equal(cockpitShows(ON_A_PARCEL), false,
+    "a parcel with a roster and NO fight: the viewer's rail serves, not the dock");
+  assert.equal(cockpitShows({ ...ON_A_PARCEL, encounter: { order: [{ id: "x", kind: "creature" }] } }), true,
+    "…and the same parcel mid-fight mounts it");
 
   const doc = tinyDom();
   const mounted = mountCockpit({
-    document: doc, host: doc.body, svg: null, answer: ON_A_PARCEL, me: MULTI_RESIDENT_ME, grid: null,
+    document: doc, host: doc.body, svg: null,
+    answer: { ...ON_A_PARCEL, encounter: { order: [{ id: "x", kind: "creature" }] } },
+    me: MULTI_RESIDENT_ME, grid: null,
     dispatch: async () => ({ ok: true, status: 200, body: {} }),
     readTerms: async () => null, refresh: null,
   });
@@ -334,7 +353,11 @@ test("the door's sentence for the human is the one on the face", () => {
   // face fell through to the site's own stand-in.
   const doc = tinyDom();
   const mounted = mountCockpit({
-    document: doc, host: doc.body, svg: null, answer: IN_PORTAL, me: MULTI_RESIDENT_ME, grid: null,
+    // encounter added 2026-08-30: the cockpit mounts only mid-fight now; this
+    // test's subject is the FACE SENTENCE, which is unchanged.
+    document: doc, host: doc.body, svg: null,
+    answer: { ...IN_PORTAL, encounter: { order: [{ id: "x", kind: "creature" }] } },
+    me: MULTI_RESIDENT_ME, grid: null,
     dispatch: async () => ({ ok: true, status: 200, body: {} }),
     readTerms: async () => null, refresh: null,
   });
