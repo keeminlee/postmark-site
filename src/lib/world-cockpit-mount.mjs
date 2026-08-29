@@ -145,9 +145,23 @@ export const COCKPIT_CSS = `
   text-shadow: 0 0 8px rgba(0,0,0,.9);
 }
 .pmc-more[hidden] { display: none; }
+/* TIGHTER NOW THAT THE GLYPHS CARRY SOME OF THE MEANING (2026-08-29). The
+   founder: the layout "causes a scroller". Removing the viewer's way-out pill
+   gave the row back the painting's left third — measured, 1086px wide to
+   1688 — and this gives back the rest that is available to give: a narrower
+   floor, tighter flanks, and a shorter cap on the dial line, which is what made
+   the five dialled seats a third wider than their neighbours.
+
+   ⚑ IT DOES NOT MAKE THE SCROLL GO AWAY, and no amount of this would. Measured
+   on the founder's own screen: seventeen afforded acts want about 1900px and
+   the scrollport is 1377 with the dock beside it. Fitting them all means slots
+   near 62px, which will not hold the word WITHDRAW at a size anyone reads. So
+   the row still scrolls where a ground grants this much, and still says so —
+   which is the bar's own standing answer to more verbs than fit. What changed
+   is how far: about 520px of overflow, down from where it was. */
 .pmc-slot {
   background: var(--pmc-panel); border: 1px solid var(--pmc-line); border-radius: 8px;
-  min-width: 6.2em; padding: .95em .7em .5em; text-align: center; position: relative;
+  min-width: 5.4em; padding: .8em .48em .45em; text-align: center; position: relative;
   cursor: pointer; pointer-events: auto; color: inherit; font: inherit;
   display: flex; flex-direction: column; justify-content: flex-end;
 }
@@ -176,7 +190,7 @@ export const COCKPIT_CSS = `
    on the CSS that followed. */
 .pmc-dial {
   color: var(--pmc-dim); font: .68rem/1.3 ui-monospace, Consolas, monospace; margin-top: .2em;
-  max-width: 9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 6.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .pmc-slot.afford { border-style: dashed; }
 .pmc-slot.afford .pmc-name { color: var(--pmc-gold); }
