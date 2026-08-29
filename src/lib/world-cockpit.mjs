@@ -350,8 +350,8 @@ export function barSlots(answer, { acting = null } = {}) {
  * The world's own portal is a `predicated` mark carrying `slot: portal` and a
  * `value` naming what the read roots at — postmark-world LOGOS/classes.md:
  * "portal, a child of postmark-edge, is the door between the dimensions …
- * crossing a portal changes what you read, never where you stand". The apex
- * answer does not surface predicated properties of the spine today, so the site
+ * passing through a portal changes what you read, never where you stand". The
+ * apex answer does not surface predicated properties of the spine today, so the site
  * cannot see a portal it is standing in. The minimal field that closes it:
  *
  *     standpoint.portal = { id, value, by?, body? }   // absent when not inside one
@@ -615,7 +615,7 @@ export function readBounce(body, status) {
     terms,
     // A door that declares a counter-edge answers the FIRST call with its terms
     // and performs nothing — "Call once without it to READ the terms; call again
-    // with it to cross" (the `enter` card's own `accept` field). So terms coming
+    // with it to enter" (the `enter` card's own `accept` field). So terms coming
     // back is a question, not a failure.
     needsAccept: Boolean(terms) || /\baccept\b/.test(String(hint ?? "")),
   };
@@ -978,7 +978,7 @@ function dieFaces(die) {
  *
  * The founder ruled the dungeon as two: an antechamber — free-roam, social,
  * where a weapon is picked up and spectators stand — and a boss room behind an
- * inner door where crossing joins the fight. They read differently and they
+ * inner door where entering joins the fight. They read differently and they
  * should FEEL different, so the site needs the word.
  *
  * Absent falls back to the ANTECHAMBER, deliberately: it is the calm one, and a
@@ -1175,7 +1175,7 @@ export function prefillFor(card, answer) {
   // ground, on the reasoning that the answer was knowable. Driven live, the
   // door refused it: "rei is not within 'the-town/the-candle-vault' — there is
   // nothing to step out of", from a standpoint whose own portal is that vault.
-  // The door's "within" for crossing back out is the ENTRY it holds, not the
+  // The door's "within" for stepping back out is the ENTRY it holds, not the
   // extent you are standing inside, and those are two different facts about the
   // same person. The site does not hold the first one and should not be
   // guessing at it.
@@ -1428,7 +1428,7 @@ export function snapPoint(m, step) {
  * The terms, split into what a player reads at the door and what a lawyer
  * reads afterwards.
  *
- * FOUNDER'S RULING 2026-08-29: the crossing sheet "dumps every field, vague and
+ * FOUNDER'S RULING 2026-08-29: the entry sheet "dumps every field, vague and
  * verbose" — the door's terms carry `articles` and `quoted`, which come back as
  * whole mark bodies, and the two or three facts a player actually needs before
  * stepping through are buried under them.
@@ -1499,7 +1499,7 @@ export function pxToWorld(grid, px) {
  *
  * WHERE THIS COMES FROM, and why it is a second door rather than the apex.
  * The apex answer carries no speech at all — not in `happened` (movement,
- * crossings, notices), not in `present` (positions), not in the encounter. That
+ * enterexit acts, notices), not in `present` (positions), not in the encounter. That
  * is not an oversight to work around: speech in this world is a SOUND, "radiated
  * at the speaker's standpoint, heard by earshot, gone by its own law" (the say
  * class's own blurb), and the record of it lives where sounds live.

@@ -95,7 +95,7 @@ test("the guard, the lift, the join and the wipe each read as themselves", () =>
   assert.match(lift.text, /^wright lifts rei — back up at 8\.$/);
   const join = beatLine({ actor: "rei", act: "join", initiative: 17, joins_round: 3 });
   assert.equal(join.tone, "join");
-  assert.match(join.text, /rei crosses in — initiative 17, at round 3\./);
+  assert.match(join.text, /rei enters — initiative 17, at round 3\./);
   // round 1 is not a late arrival, so it is not announced as one
   assert.doesNotMatch(beatLine({ actor: "rei", act: "join", initiative: 9, joins_round: 1 }).text, /at round/);
   const wipe = beatLine({ act: "wipe", actor: "the-town/the-unlit-cake", attempt: 2, everyone: ["rei"] });
@@ -140,7 +140,7 @@ test("an act answer carries your beat and the turns it drove, in log order", () 
   assert.deepEqual(out.map((e) => e.id), ["b:31", "b:32"]);
 });
 
-test("crossing in is joining, and the open is the room's own event", () => {
+test("entering is joining, and the open is the room's own event", () => {
   const out = beatsFromAct({
     opened: { seq: 4 },
     joined: { seq: 5, initiative: 14, round: 1 },
@@ -148,7 +148,7 @@ test("crossing in is joining, and the open is the room's own event", () => {
   }, { now: 1000, acting: "rei" });
   assert.equal(out.length, 3);
   assert.match(out[0].text, /the wheel turns/, "the open says the fight has begun");
-  assert.match(out[1].text, /^rei crosses in — initiative 14\./,
+  assert.match(out[1].text, /^rei enters — initiative 14\./,
     "the joined block names the acting resident, which the office does not put in it");
 });
 
@@ -315,14 +315,14 @@ test("the cake's bar, the drop, the down and the lift all derive", () => {
   assert.ok(up.includes("rei is lifted — back up at 8."), up.join(" | "));
 });
 
-test("a new row on the wheel is somebody crossing in, and a round is a rule", () => {
+test("a new row on the wheel is somebody entering, and a round is a rule", () => {
   const out = beatsFromDelta(encounter(), encounter({
     wheel: { round: 3, turn: "wright", order: [{ who: "rei" }, { who: "wright", initiative: 14 }] },
     acts: 11,
   }), { now: 1000 }).entries;
   assert.equal(out[0].tone, "turn", "the round marker leads, because everything under it is in it");
   assert.equal(out[0].text, "— round 3 —");
-  assert.match(out[1].text, /^wright crosses in — initiative 14\./);
+  assert.match(out[1].text, /^wright enters — initiative 14\./);
 });
 
 test("the two endings", () => {

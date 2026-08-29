@@ -13,7 +13,7 @@
 //   (4) game-speak — "the 'terms' in the hover and click for the actions is NOT
 //       helpful to a human … bare fields … re-write to be concise, and just give
 //       info like it would in a game, not a debug panel."
-//   (5) the sheet  — the crossing sheet dumps every field, vague and verbose.
+//   (5) the sheet  — the entry sheet dumps every field, vague and verbose.
 //
 // Plus (6), the walk grid, which is lane bday-law's dial read from this side.
 //
@@ -547,7 +547,7 @@ test("a dial this phrasebook has never heard of still appears", () => {
 test("the sheet shows what fits on a line and folds the documents, dropping nothing", () => {
   const terms = {
     binds: "the-town/portal-ground",
-    means: "the-town/enter — crossing a portal changes what you read, never where you stand",
+    means: "the-town/enter — passing through a portal changes what you read, never where you stand",
     hp: "20 at the door",
     downed: "downed is not dead — an ally can lift you",
     articles: "A".repeat(400),

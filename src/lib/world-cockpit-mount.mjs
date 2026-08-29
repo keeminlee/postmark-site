@@ -281,7 +281,7 @@ export const COCKPIT_CSS = `
 .pmc-terms { margin: .6em 0 0; padding: .5em .7em; border-left: 2px solid var(--pmc-gold-dim); font-size: .72rem; line-height: 1.55; color: var(--pmc-dim); }
 
 /* ── THE CONSENT SHEET ──
-   RULED 2026-08-29: the crossing sheet "dumps every field, vague and verbose".
+   RULED 2026-08-29: the entry sheet "dumps every field, vague and verbose".
    What a player needs before stepping through is the room's own sentence and
    two or three terms; what a lawyer needs is every word, and it is one press
    away rather than in front of the button. Nothing is dropped — see
@@ -434,7 +434,7 @@ export const COCKPIT_CSS = `
 /* ══ THE TWO SPACES ══
    The founder ruled the dungeon as two rooms that should FEEL different: an
    antechamber — free-roam, social, where a weapon is picked up and spectators
-   stand — and a boss room where crossing the inner door joins the fight. The
+   stand — and a boss room where entering the inner door joins the fight. The
    difference is carried by the palette and the ground wash, not by new furniture,
    so every panel below is the same panel in both and only its temperature moves.
    These are the two tokens that do it; everything else reads them.
@@ -1140,7 +1140,7 @@ export function mountCockpit(o) {
    * ⚑ ENTER WAS ADDED AFTER THE FIRST BUILD (conductor's ruling, 2026-08-29,
    * flagged for the founder's veto). His list named three and this is four, and
    * the reasoning for the fourth is that the list was DECLUTTERING rather than
-   * hiding: the crossing act is the party's first gesture, it and the way out
+   * hiding: the entry act is the party's first gesture, it and the way out
    * are one pair in the record (same class, same blurb — "An entry is one
    * passage written … exit writes the next"), and folding one of a pair while
    * seating the other put the way IN behind a tray in the antechamber, which is
@@ -1608,7 +1608,7 @@ export function mountCockpit(o) {
       // The shadow read was asked for from `showCard` alone, so an act reached
       // WITHOUT hovering its seat — through the overflow tray, or by its number
       // key — opened its panel with no terms in the cache and none on the way.
-      // Caught by the shot runner going through the tray for the crossing act,
+      // Caught by the shot runner going through the tray for the entry act,
       // which is the one act on this surface whose panel is mostly terms: it
       // came back a bare form. A consent sheet that is only a consent sheet when
       // you happened to hover first is not a consent sheet.
@@ -1729,7 +1729,7 @@ export function mountCockpit(o) {
       // A consent sheet is the opposite surface: the field descriptions are
       // where the door says what agreeing to this does, and hiding them behind
       // a hover on a panel whose entire job is being read would be trading away
-      // the thing the sheet exists for. Seen in the shot — the crossing's own
+      // the thing the sheet exists for. Seen in the shot — the entry act's own
       // `accept` field, whose description says when the word is demanded, was
       // reachable only by hovering it.
       const captioned = !trigger || Boolean(sheet);
@@ -1748,10 +1748,10 @@ export function mountCockpit(o) {
     //
     // ⚑ TERMS MAKE A SHEET, TRIGGER OR NOT, and the first pass had this wrong in
     // the one place it mattered. A trigger is the tight fight plate — every
-    // field optional, nothing prose, ENTER sends — and the CROSSING act fits
+    // field optional, nothing prose, ENTER sends — and the ENTER act fits
     // that shape exactly (its two fields are both optional), so keying the sheet
     // on "not a trigger" excluded the very panel the ruling was about. Caught by
-    // the shot runner, which went looking for a flavor line on the crossing and
+    // the shot runner, which went looking for a flavor line on the enter act and
     // found none.
     //
     // Tightness is the right priority for an act that throws a die between two
@@ -1800,7 +1800,7 @@ export function mountCockpit(o) {
   /**
    * THE ROOM'S OWN SENTENCE, first and large.
    *
-   * RULED 2026-08-29: the crossing sheet "dumps every field, vague and verbose"
+   * RULED 2026-08-29: the entry sheet "dumps every field, vague and verbose"
    * — render the door's flavor line prominently, then only the few terms a
    * player needs.
    *
@@ -3460,7 +3460,7 @@ export function mountCockpit(o) {
   //
   // PORTAL GROUND RATHER THAN "AN ENCOUNTER IS LIVE", deliberately — the
   // antechamber is portal ground with no fight in it, and it is where the
-  // lighter is picked up, where the party gathers, and where the first crossing
+  // lighter is picked up, where the party gathers, and where the first entry
   // into the vault has to become visible. Gating on a live encounter would mean
   // the one room whose whole job is waiting for people to arrive was the one
   // room that could not see them arrive.

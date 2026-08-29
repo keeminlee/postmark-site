@@ -213,7 +213,7 @@ test("the portal contract, when the door speaks it", () => {
   // SITE-DEFINED CONTRACT, 2026-08-26 (awaiting the core lane):
   //   standpoint.portal = { id, value, by?, body? }, absent when not inside one.
   // Grounded in postmark-world LOGOS/classes.md: "portal, a child of postmark-edge,
-  // is the door between the dimensions … crossing a portal changes what you read,
+  // is the door between the dimensions … passing through a portal changes what you read,
   // never where you stand".
   const p = portalOf(INSIDE_PORTAL);
   assert.equal(p.id, "the-town/the-lanternstep-door");
