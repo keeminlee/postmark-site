@@ -731,27 +731,33 @@ export function encounterOf(answer) {
  * Absent — a grant that names no act — this answers null and the clause is
  * simply not said, which is the same rule every other unknown here follows.
  *
- * ⚑ AND `for` IS READ BESIDE IT, because it is the spelling the door is STILL
- * SENDING as this is written. The field shipped as `for` (office 7ba1148) and
- * was renamed by ruling the same night: `for` is a HOMONYM — in the town's
- * grants vocabulary it means the ACTOR KIND ("`for:` is the actor kind (absent
- * means resident)", LOGOS § The three channels) — and the office reads this
- * very value off an entry carrying that other sense, so the record says
- * `for: human` and the answer said `for:` an ACT NAME two paces apart. (The act
- * is not written out here: this file may name no verb, even in prose, and its
- * falsifier greps this source for exactly that. It caught this comment on the
- * first run — the second time tonight the guard has earned its keep.)
+ * ⚑ IT WAS BRIEFLY CALLED `for`, AND THAT READING IS NOW GONE. The field
+ * shipped as `for` (office 7ba1148) and was renamed by ruling the same night,
+ * because `for` is a HOMONYM: in the town's grants vocabulary it means the
+ * ACTOR KIND ("`for:` is the actor kind (absent means resident)", LOGOS § The
+ * three channels), and the office reads this very value off an entry carrying
+ * that other sense — so the record's entry said `for: human` two lines from
+ * where the answer would have said `for:` an ACT NAME. (The act is not written
+ * out here: this file may name no verb, even in prose, and its falsifier greps
+ * this source for exactly that. It caught an earlier draft of this very
+ * paragraph, which is the guard doing its job.)
  *
- * BOTH ARE READ SO THE RENAME NEEDS NO CHOREOGRAPHY. Reading only the new name
- * before the office has pushed it would drop the bonus off the page in the
- * window between the two commits — silently, and only for the one line of the
- * hover that a player most wants. That is not hypothetical caution: it is this
- * file's own scar. `humanWords` above reads two names because the site declared
- * `because`, the office shipped `says`, and the human's row — the row whose
- * words were most worth reading — went quiet BY SUCCEEDING, on the very day the
- * door started answering. The order below is the ruling's: `augments` is the
- * name, `for` is what is still on the wire, and the day it stops being on the
- * wire this line loses one word and nothing else changes.
+ * BOTH SPELLINGS WERE READ FOR ONE COMMIT, deliberately, and then one was
+ * removed — the sequence is the point rather than the residue. Reading only the
+ * new name before the office had pushed it would have dropped the bonus off the
+ * page in the window between the two commits, silently, and only from the one
+ * line of the hover a player most wants. That is not hypothetical: it is this
+ * file's own scar, and `humanWords` above still reads two names because of it —
+ * the site declared `because`, the office shipped `says`, and the human's row,
+ * the row whose words were most worth reading, went quiet BY SUCCEEDING on the
+ * very day the door started answering.
+ *
+ * The office's rename is live (cf50015 emits `augments` and no `for` at all,
+ * checked rather than assumed), so the second reading has been deleted under
+ * the ruling that authorised it in advance. A compatibility branch kept past
+ * the thing it was compatible with is how a codebase forgets which spelling is
+ * real; the falsifier below now pins that `for` is NOT read, so the rename
+ * cannot quietly grow its old name back.
  *
  * WHOSE HAND. `hands` is keyed by the door's `who`. Acting as a resident that
  * is the handle; acting as the household's human it is the human's own row on
@@ -775,8 +781,8 @@ export function weaponFor(answer, acting = null) {
     bonus,
     // named the way every id in this world is read — the leaf, deslugged
     label: thing.split("/").pop().replace(/-/g, " "),
-    // the ruled name first, then the spelling still on the wire — see above
-    for: [w.augments, w.for, w.action].find((v) => typeof v === "string" && v) ?? null,
+    // the ruled name, and only it — see the rename note above
+    for: typeof w.augments === "string" && w.augments ? w.augments : null,
     says: typeof w.says === "string" && w.says ? w.says : null,
   };
 }

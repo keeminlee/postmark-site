@@ -334,7 +334,7 @@ test("the weapon completes the founder's own sentence, on the act it helps", () 
   // HIS EXAMPLE, verbatim in shape: "Strike — d20 vs 12 to hit · d8 damage ·
   // +3 with the good-lighter". The first two thirds are the class's dials; the
   // third is what THIS hand happens to be carrying today.
-  const answer = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, for: "swing" });
+  const answer = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, augments: "swing" });
   assert.equal(dialSpeak(cardFor(answer, "swing"), { weapon: weaponFor(answer, "keeminlee") }),
     "d20 vs 12 to hit · d8 damage · +3 with the good lighter",
     "deslugged by the same one-writer every id in this world is read by");
@@ -356,11 +356,11 @@ test("no weapon, no clause — and a hand that is not yours is not read", () => 
     "d20 vs 12 to hit · d8 damage", "so the sentence is the two thirds the class states");
 
   // a bonus of zero is not a fact worth a word
-  assert.equal(weaponFor(HOLDING({ thing: "the-town/a-stick", bonus: 0, for: "swing" }), "keeminlee"), null);
+  assert.equal(weaponFor(HOLDING({ thing: "the-town/a-stick", bonus: 0, augments: "swing" }), "keeminlee"), null);
   // somebody else's hand is somebody else's
   assert.equal(weaponFor(HOLDING({ thing: "x/y", bonus: 2 }, "vermillion"), "keeminlee"), null);
   // acting as the household's human reads the HUMAN's row, found by kind
-  const asHuman = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, for: "swing" }, "keeminlee");
+  const asHuman = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, augments: "swing" }, "keeminlee");
   assert.equal(weaponFor(asHuman, HUMAN_ACTOR)?.bonus, 3,
     "the human's hand is the one on the wheel under their own kind");
 });
@@ -371,12 +371,12 @@ test("the weapon's own words are rendered, and they are the record's", () => {
   // this is the thing in your hand speaking about itself. The lighter's, from
   // the record: "a flame that has never once gone out on the way over".
   const w = weaponFor(HOLDING({
-    thing: "the-town/the-good-lighter", bonus: 3, for: "swing",
+    thing: "the-town/the-good-lighter", bonus: 3, augments: "swing",
     says: "a flame that has never once gone out on the way over",
   }), "keeminlee");
   assert.equal(w.says, "a flame that has never once gone out on the way over", "quoted, never paraphrased");
   // absent where the record kept none — this surface writes no flavour of its own
-  assert.equal(weaponFor(HOLDING({ thing: "x/y", bonus: 1, for: "swing" }), "keeminlee").says, null);
+  assert.equal(weaponFor(HOLDING({ thing: "x/y", bonus: 1, augments: "swing" }), "keeminlee").says, null);
   // it rides the card, under the blurb, and only for the act it belongs to
   assert.match(MOUNT, /const voice = w\?\.says && w\.for === card\.action/,
     "a weapon's words appear on the act it helps and nowhere else");
@@ -405,26 +405,24 @@ test("which act a weapon helps is the door's word, and the site's stopgap is gon
   assert.equal(dialSpeak(cardFor(ruled, "swing"), { weapon: weaponFor(ruled, "keeminlee") }),
     "d20 vs 12 to hit · d8 damage · +3 with the good lighter");
 
-  // ⚑ AND THE OLD SPELLING IS STILL READ, because it is still what the door
-  // SENDS. The office shipped `for` and has not pushed the rename; reading only
-  // the new name would drop the bonus off the page in the window between the
-  // two commits — silently, on the one line of the hover a player most wants.
-  // This file has been bitten by exactly that: the site declared `because`, the
-  // office shipped `says`, and the human's row went quiet BY SUCCEEDING on the
-  // day the door started answering. Both are read; the rename needs no
-  // choreography, and this assertion is what may be deleted when it lands.
-  const onTheWire = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, for: "swing" });
-  assert.equal(weaponFor(onTheWire, "keeminlee").for, "swing", "the superseded spelling still renders");
-  assert.equal(dialSpeak(cardFor(onTheWire, "swing"), { weapon: weaponFor(onTheWire, "keeminlee") }),
-    "d20 vs 12 to hit · d8 damage · +3 with the good lighter",
-    "so nothing goes quiet between the ruling and the office's push");
-  // and the RULED name wins where both somehow arrive
+  // ⚑ AND THE SUPERSEDED SPELLING IS NO LONGER READ. `for` was the name for one
+  // office commit; the site read both for one commit of its own so the rename
+  // needed no choreography, and then dropped the second reading once the office
+  // pushed (cf50015 emits `augments` and no `for` at all, checked rather than
+  // assumed). This is the assertion that keeps the old name from growing back:
+  // a compatibility branch kept past the thing it was compatible with is how a
+  // codebase forgets which spelling is real.
+  const oldName = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, for: "swing" });
+  assert.equal(weaponFor(oldName, "keeminlee").for, null, "the homonym is not a spelling this site knows");
+  assert.equal(dialSpeak(cardFor(oldName, "swing"), { weapon: weaponFor(oldName, "keeminlee") }),
+    "d20 vs 12 to hit · d8 damage", "so it attaches no bonus to any act");
+  // even beside the ruled name, the old one contributes nothing
   const both = HOLDING({ thing: "x/y", bonus: 1, for: "hurl", augments: "swing" });
-  assert.equal(weaponFor(both, "keeminlee").for, "swing", "the ruled name outranks the superseded one");
+  assert.equal(weaponFor(both, "keeminlee").for, "swing", "the ruled name is the only one read");
   assert.match(
     readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit.mjs", import.meta.url)), "utf8"),
-    /\[w\.augments, w\.for, w\.action\]/,
-    "and the precedence is written in that order, not the other way round");
+    /for: typeof w\.augments === "string" && w\.augments \? w\.augments : null,/,
+    "and the reader takes one name, not a precedence chain");
   // ONE READING, so the seat, the card and the panel cannot disagree on a
   // number. Asserted as "no call site omits it" rather than as a COUNT of call
   // sites: a count is a test that fails the day somebody legitimately adds a
