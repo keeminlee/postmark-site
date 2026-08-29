@@ -370,11 +370,57 @@ const run = async () => {
   // deliberately opened. Pinned here so it cannot be forgotten or rediscovered.
   {
     const page = await openHarness(browser, "fixture=vault&rail=1&bubble=1");
+    // the row's berth with NO bubble open — the baseline it must return to
+    await page.waitForTimeout(900);
+    const bare = await page.evaluate(() => {
+      const r = document.querySelector(".pmc-barrow").getBoundingClientRect();
+      return { l: Math.round(r.left), r: Math.round(r.right), b: Math.round(r.bottom) };
+    });
+    // the fixture pins one at 1.5s, the way the viewer creates it lazily on the
+    // first pin — which is the case the cockpit cannot observe at mount
     await page.waitForTimeout(3500);
     const before = await page.evaluate(() => {
       const b = document.querySelector(".wv-bubble.is-pinned").getBoundingClientRect();
       return { t: Math.round(b.top), l: Math.round(b.left) };
     });
+
+    // ⚑ THE FIX: the row steps clear of a bubble it would otherwise eat the
+    // clicks of. Asked as the reader would find out — press the middle of the
+    // bubble and see who answers.
+    const clear = await page.evaluate(() => {
+      const bub = document.querySelector(".wv-bubble.is-pinned").getBoundingClientRect();
+      const row = document.querySelector(".pmc-barrow").getBoundingClientRect();
+      const hit = bub.left < row.right && row.left < bub.right && bub.top < row.bottom && row.top < bub.bottom;
+      const at = (x, y) => String(document.elementFromPoint(Math.round(x), Math.round(y))?.className ?? "");
+      return {
+        overlaps: hit,
+        atBubbleMiddle: at((bub.left + bub.right) / 2, (bub.top + bub.bottom) / 2),
+        atBubbleTop: at((bub.left + bub.right) / 2, bub.top + 6),
+        row: { l: Math.round(row.left), r: Math.round(row.right), b: Math.round(row.bottom) },
+        rowShown: row.width > 0 && row.height > 0,
+      };
+    });
+    record("with a bubble pinned under it, the row no longer overlaps it",
+      !clear.overlaps, `row ${clear.row.l}..${clear.row.r} @${clear.row.b}, bubble was at ${before.l},${before.t}`);
+    record("so the bubble takes its own clicks back",
+      /wv-bubble|wv-card|cname/.test(clear.atBubbleMiddle) && /wv-bubble|wv-card|cname/.test(clear.atBubbleTop),
+      `middle → "${clear.atBubbleMiddle}", top edge → "${clear.atBubbleTop}"`);
+    record("and the dock is still on screen — it stepped aside, it did not hide",
+      clear.rowShown, `row ${clear.row.l}..${clear.row.r}`);
+
+    // closing it gives the berth back — a bubble is transient and the row must
+    // not stay squeezed for the rest of the standpoint
+    await page.evaluate(() => window.__pinBubble(false));
+    await page.waitForTimeout(600);
+    const after = await page.evaluate(() => {
+      const r = document.querySelector(".pmc-barrow").getBoundingClientRect();
+      return { l: Math.round(r.left), r: Math.round(r.right), b: Math.round(r.bottom) };
+    });
+    record("closing the bubble gives the row its berth back",
+      Math.abs(after.l - bare.l) <= 2 && Math.abs(after.r - bare.r) <= 2 && Math.abs(after.b - bare.b) <= 2,
+      `bare ${bare.l}..${bare.r}@${bare.b} → after ${after.l}..${after.r}@${after.b}`);
+    await page.evaluate(() => window.__pinBubble(true));
+    await page.waitForTimeout(600);
     await page.hover('.pmc-face[data-actor="human:self"]');
     await page.waitForTimeout(900);
     await shot(page, "09-pinned-bubble-under-dock");
@@ -394,8 +440,13 @@ const run = async () => {
     });
     record("hovering the dock does not raise or move a pinned viewer bubble",
       m.bub.t === before.t && m.bub.l === before.l, `bubble at ${before.t},${before.l} → ${m.bub.t},${m.bub.l}`);
+    // The stacking fact that falsified the review's hypothesis. It is still
+    // true — the cockpit is above — which is exactly WHY the row has to step
+    // aside rather than rely on the bubble winning; they simply no longer meet
+    // at the dock, so this now reads on the wheel plate above instead.
     record("a pinned bubble can only ever be UNDER the cockpit, never a card over it",
-      m.overlaps && /pmc-/.test(m.onTop ?? ""), `where they overlap the top element is "${m.onTop}"`);
+      !m.overlaps || /pmc-/.test(m.onTop ?? ""),
+      m.overlaps ? `where they overlap the top element is "${m.onTop}"` : "they no longer overlap at all — the row stepped clear");
     record("so a bubble under the dock adds no second card to the hover",
       m.cards === 1, `${m.cards} card(s) visible while hovering the human face`);
     await page.close();

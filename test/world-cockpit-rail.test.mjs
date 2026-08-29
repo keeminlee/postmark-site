@@ -193,11 +193,37 @@ test("the encounter is polled on its own clock, only inside portal ground", () =
     "the delta is derived against the OLD snapshot before the new answer is adopted");
 });
 
+test("one clock reading per voices poll, or every said line is told twice", () => {
+  // ⚑ THE BUG THIS PINS, found in the rendered feed rather than in any unit:
+  // `recentVoices` turns a timestamp into an AGE against the now it is handed,
+  // `voiceEntries` turns that age back into an instant against the now IT is
+  // handed, and that instant is the line's id. Two separate Date.now() calls are
+  // two different nows, so the round trip lands a millisecond or two past where
+  // it started — a fresh id every poll for a line already on screen. It hid
+  // while both calls fell inside the same millisecond and surfaced the moment
+  // there was more work between them.
+  //
+  // The pure half is falsified in world-feed.test.mjs; this is the half that
+  // lives in the closure, and it is the half that was actually wrong.
+  const poll = mount.slice(mount.indexOf("async function pullVoices"), mount.indexOf("// ── the fight, on its own clock"));
+  assert.match(poll, /const now = Date\.now\(\);\s*\n\s*const next = recentVoices\(body, \{ now \}\);/,
+    "the clock is read once, into a name");
+  assert.match(poll, /ingest\(voiceEntries\(next, \{ now \}\)\);/,
+    "and the SAME reading is handed to the entries, so the round trip is exact");
+  // One READING, counted as assignments — the prose above it names Date.now()
+  // to explain the bug, and a blunt count over the slice would be counting the
+  // comment that documents the fix.
+  assert.equal((poll.match(/=\s*Date\.now\(\)/g) ?? []).length, 1,
+    "the clock is read exactly once in the poll");
+  assert.doesNotMatch(poll, /recentVoices\(body, \{ now: Date\.now\(\) \}\)/,
+    "and never read inline at a call site, which is how the two drifted apart");
+});
+
 test("a say reaches the feed even on the tick the map's bubbles are left alone", () => {
   // The voices poll returns early when nothing moved far enough to be worth
   // rebuilding the bubble layer for. The feed dedupes by id, so that guard
   // applied to it could only ever throw lines away.
-  assert.match(mount, /ingest\(voiceEntries\(next\)\);\s*\n\s*if \(sig\(next\) === sig\(state\.voices\)\) return;/,
+  assert.match(mount, /ingest\(voiceEntries\(next, \{ now \}\)\);\s*\n\s*if \(sig\(next\) === sig\(state\.voices\)\) return;/,
     "the feed is fed before the bubbles' early return");
 });
 
@@ -231,6 +257,36 @@ test("the profile read is the island's errand, asked once per handle", () => {
     "and it is GET /residents/{handle} — a door that already exists, read keylessly because a resident's card is public");
   assert.match(island, /dispatch, readTerms, refresh: door, readVoices, readResident,/,
     "handed to the mount beside the other reads");
+});
+
+// ── the pinned bubble keeps its own clicks (2026-08-29) ──
+//
+// A pinned bubble is `pointer-events:auto` at z-index 7 inside the map; the
+// cockpit's overlay is fixed at 7000. So the dock did not merely sit over one,
+// it ATE ITS CLICKS — the reader pressed the close button on a panel they had
+// deliberately opened and nothing happened. Measured before the fix: bubble
+// 826..886, dock 788..834, elementFromPoint in the overlap answering
+// `pmc-plate pmc-roster pmc-dock`.
+test("the row fences against a pinned bubble, the way it fences against the rest", () => {
+  assert.match(mount, /"\.wv \.wv-scene-exit", "\.wv \.wv-bubble\.is-pinned"\]\) \{\s*\n\s*const el = doc\.querySelector\(sel\);\s*\n\s*if \(!el \|\| !el\.getClientRects\(\)\.length\) continue;/,
+    "placeBar's own list, so the bubble gets step-aside-before-climbing for free");
+  // and NOT a cure of its own: no standing the viewer's bubbles down, no
+  // z-index game that would bury the dock under a 32rem sheet instead
+  assert.doesNotMatch(mount, /data-pmc-bubble|wv-bubble[^.]*\.hidden\s*=|is-pinned["'`]\s*\)\s*\??\.\s*remove/,
+    "nothing here writes or suppresses the viewer's bubbles");
+});
+
+test("the bubble is watched through its HOST, because it does not exist at mount", () => {
+  // ⚑ EVERY OTHER PIECE OF BOTTOM FURNITURE IS IN THE VIEWER'S MARKUP; this one
+  // is not. `bubbleEl` creates it lazily on the first pin, so a querySelector at
+  // mount finds nothing and would silently observe nothing — the row would fence
+  // against a bubble only on paints that happened to run for some other reason.
+  assert.match(mount, /const bubbleHost = \(\) => doc\.querySelector\("\.wv \.wv-bubbles"\);/);
+  assert.match(mount, /bubbles = new MutationObserver\(replace\);/,
+    "the host is watched for the element arriving");
+  assert.match(mount, /childList: true, subtree: true,\s*\n\s*attributes: true, attributeFilter: \["hidden", "style", "class"\],/,
+    "…for its hidden flag turning, and for the transform that moves it");
+  assert.match(mount, /bubbles\?\.disconnect\(\);/, "and it is let go on teardown");
 });
 
 // ── ③ AUTO-SELECT ON THE TURN ───────────────────────────────────────────────

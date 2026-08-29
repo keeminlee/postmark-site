@@ -1202,7 +1202,32 @@ export function mountCockpit(o) {
     const KEEP_FRACTION = 0.55;
     const rowH = bar.getBoundingClientRect().height || 72;
     const climb = [];
-    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit"]) {
+    // ⚑ THE PINNED BUBBLE JOINS THE FENCE — the one piece here the reader
+    // OPENED (2026-08-29, found by the seam review's own hypothesis in the
+    // course of falsifying it). A pinned bubble is `pointer-events:auto` at
+    // z-index 7 inside the map; this overlay is fixed at 7000. So the dock does
+    // not merely sit over it, it EATS ITS CLICKS: the reader sees their bubble,
+    // presses its close button or a relation in the covered strip, and nothing
+    // happens. Measured before the fix — bubble 826..886, dock 788..834, and
+    // elementFromPoint in the overlap answering `pmc-plate pmc-roster pmc-dock`.
+    //
+    // It joins this fence rather than getting a cure of its own, and both halves
+    // of that are deliberate. Standing the viewer's bubbles down would suppress
+    // a panel somebody deliberately opened; a z-index game would bury the dock
+    // under a 32rem sheet and hide the bar instead. Stepping aside is what this
+    // fence already does for every other piece of the viewer's bottom edge, and
+    // it writes nothing of the viewer's.
+    //
+    // The step-aside-before-climbing rule earns its keep here: a bubble is up to
+    // 32rem tall, so answering it by lifting would fling the row halfway up the
+    // map. Beside it, the row keeps the bottom edge. One that genuinely spans
+    // the middle is climbed — the same judgement made for everything else — and
+    // the existing cap keeps the row on screen either way.
+    //
+    // ONE selector, not a list: the viewer reuses a single element for the
+    // pinned bubble (`bubbleEls.pinned`, guarded by `pinnedBuiltId`), so there
+    // is never a second one to fence.
+    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit", ".wv .wv-bubble.is-pinned"]) {
       const el = doc.querySelector(sel);
       if (!el || !el.getClientRects().length) continue;
       const box = el.getBoundingClientRect();
@@ -2790,6 +2815,29 @@ export function mountCockpit(o) {
     }
   }
 
+  // ⚑ THE PINNED BUBBLE IS NOT ON THAT LIST, AND CANNOT BE. Every other piece of
+  // the viewer's bottom furniture is in its markup from the start, so observing
+  // it at mount works. The bubble is not: `bubbleEl` CREATES it lazily, the first
+  // time anything is pinned, and appends it to `.wv-bubbles`. A `querySelector`
+  // at mount finds nothing and would silently observe nothing — the row would
+  // fence against the bubble only on the paints that happened to run for some
+  // other reason, which is the same class of quiet miss the living-references
+  // law is about.
+  //
+  // So the HOST is watched instead, for the element arriving, for its hidden
+  // flag turning, and for the transform that moves it. `replace()` is already
+  // frame-throttled, so a bubble being dragged around costs one placement per
+  // frame at worst.
+  let bubbles = null;
+  const bubbleHost = () => doc.querySelector(".wv .wv-bubbles");
+  if (typeof MutationObserver === "function" && bubbleHost()) {
+    bubbles = new MutationObserver(replace);
+    bubbles.observe(bubbleHost(), {
+      childList: true, subtree: true,
+      attributes: true, attributeFilter: ["hidden", "style", "class"],
+    });
+  }
+
   // ── the map is a control (2026-08-28 ruling) ──────────────────────────────
   //
   // "Clicking a point on the map while acting as a walker should prefill/dispatch
@@ -2965,7 +3013,22 @@ export function mountCockpit(o) {
     if (!o.readVoices) return;
     const body = await o.readVoices().catch(() => null);
     if (!body) return;
-    const next = recentVoices(body, { now: Date.now() });
+    // ⚑ ONE CLOCK READING FOR THE WHOLE POLL, and it is a correctness rule.
+    //
+    // `recentVoices` turns each voice's timestamp into an AGE against the now it
+    // is given; `voiceEntries` turns that age back into an instant against the
+    // now IT is given, and that instant is the line's id. Two separate
+    // `Date.now()` calls are two different nows, so the round trip does not land
+    // on the timestamp it started from — it lands a millisecond or two later,
+    // every poll, and every poll therefore mints a NEW id for a line already on
+    // screen. Every said line appeared again on the next tick.
+    //
+    // It hid for a while because the two calls usually fell inside the same
+    // millisecond; it surfaced the moment there was more work between them.
+    // Shared, the round trip is exact — now − (now − at) === at — so a line's id
+    // is its own timestamp, whatever poll observes it.
+    const now = Date.now();
+    const next = recentVoices(body, { now });
     // Repaint only when something actually changed. The fade is continuous, so a
     // naive redraw every tick would rebuild the whole layer to move an opacity a
     // few thousandths — and it would do it under a reader's cursor.
@@ -2980,7 +3043,7 @@ export function mountCockpit(o) {
     // WHICH IS ALSO WHY A LINE OUTLIVES ITS BUBBLE. The bubble is a sound and
     // fades on the door's own clock; the feed is the record of one, and a chat
     // you can scroll up through does not un-say things.
-    ingest(voiceEntries(next));
+    ingest(voiceEntries(next, { now }));
     if (sig(next) === sig(state.voices)) return;
     state.voices = next;
     speech();
@@ -3173,6 +3236,7 @@ export function mountCockpit(o) {
     root.removeEventListener("error", onImgError, true);
     camera?.disconnect();
     furniture?.disconnect();
+    bubbles?.disconnect();
     dockSignal(false); // hand the Act As question back to the viewer's own row
     feedSignal(false); // and Lately back to being Lately
     feedWatched?.removeEventListener?.("scroll", onFeedScroll);

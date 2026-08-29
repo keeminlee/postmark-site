@@ -159,14 +159,13 @@
        ?bubble=1. Its host is the viewer's own .wv-bubbles layer at z-index 7;
        the cockpit's overlay is fixed at 7000, and which of those wins is the
        whole of what this fixture is for. -->
-  <div class="wv-bubbles" hidden>
-    <div class="wv-bubble is-pinned t-market" style="left:22%; bottom:14px; top:auto;">
-      <div class="wv-card">
-        <span class="cname">the good lighter</span>
-        a brass lighter with somebody else's initials worn off it.
-      </div>
-    </div>
-  </div>
+  <!-- The HOST is in the markup, as it is in the viewer's. The bubble itself is
+       NOT: the viewer creates it lazily the first time anything is pinned
+       (bubbleEl), which is why the cockpit cannot observe it at mount and
+       watches this host instead. The fixture creates it late for the same
+       reason — a bubble present from the first frame would test a page the
+       reader never sees. -->
+  <div class="wv-bubbles"></div>
 
   <div class="wv-spectator-coordinate">-95120, -95120 · crossing 151</div>
   <div class="wv-walkdesk">
@@ -498,7 +497,31 @@
   //             road can be shot beside the derived one and the two compared
   const params = new URLSearchParams(location.search);
   if (params.get("rail")) document.body.classList.add("has-rail");
-  if (params.get("bubble")) document.querySelector(".wv-bubbles").hidden = false;
+  /**
+   * PIN A BUBBLE, the way the viewer does: create the element on demand and
+   * append it to the host. Exposed as well as auto-fired, so a shot runner can
+   * open and close one and watch the row answer.
+   *
+   * Planted bottom-left of the painting — where the dock stands — because that
+   * is the collision worth measuring. `left`/`bottom` stand in for the viewer's
+   * transform placement; what is under test is the rectangle, not how it got
+   * there.
+   */
+  window.__pinBubble = (on = true) => {
+    const host = document.querySelector(".wv-bubbles");
+    let el = host.querySelector(".wv-bubble.is-pinned");
+    if (!on) { el?.remove(); return null; }
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "wv-bubble is-pinned t-market";
+      el.style.cssText = "left:22%; bottom:14px; top:auto;";
+      el.innerHTML = '<div class="wv-card"><span class="cname">the good lighter</span>'
+        + " a brass lighter with somebody else's initials worn off it.</div>";
+      host.appendChild(el);
+    }
+    return el;
+  };
+  if (params.get("bubble")) setTimeout(() => window.__pinBubble(true), 1500);
 
   /**
    * ?waves=1 — THE RAIL ARRIVES IN WAVES, as it does on the real page.
