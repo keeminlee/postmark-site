@@ -247,17 +247,24 @@ test('the site queries the door: and the SAME pin without that supply still fail
   assert.ok(complaints.some((c) => c.includes("WORLD/skeleton.json")));
 });
 
-test('the site queries the door: the exemption is scoped to what is supplied, not to the whole WORLD directory', () => {
-  // walk-ledger.md is the record whose 404 this whole module exists to prevent,
-  // and the door serves no LIVE-lane read, so it is NOT supplied and must still
-  // come off the pin. A build that exempted it would re-open the exact hole.
+test('the site queries the door: the exemption is scoped to what is supplied, not to the whole record surface', () => {
+  // `seeding/manifest.json` has no door read of any kind, so it is NOT supplied
+  // and must still come off the pin. A build that exempted it would re-open the
+  // exact hole this module exists to close.
+  //
+  // This case USED to be walk-ledger.md, on the stated ground that "the door
+  // serves no LIVE-lane read". `/world2/walks` landed on 2026-08-28 and the
+  // island now composes the ledger from it, so walk-ledger.md IS supplied and
+  // the old example proved the opposite of what its comment claimed. A test
+  // whose reason has quietly gone false still passes, which is why the reason
+  // is written down beside it.
   const complaints = stagingComplaints({
     sources: viewerSource(),
-    exists: packageWithout("WORLD/walk-ledger.md"),
-    supplied: ["/WORLD/world-state.json", "/WORLD/skeleton.json", "/WORLD/door-provenance.json"],
+    exists: packageWithout("seeding/manifest.json"),
+    supplied: ["/WORLD/world-state.json", "/WORLD/skeleton.json", "/WORLD/walk-ledger.md", "/WORLD/door-provenance.json"],
   });
   assert.equal(complaints.length, 1);
-  assert.match(complaints[0], /WORLD\/walk-ledger\.md/);
+  assert.match(complaints[0], /seeding\/manifest\.json/);
 });
 
 test('the site queries the door: a leading slash is not a different record', () => {

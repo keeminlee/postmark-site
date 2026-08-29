@@ -224,6 +224,66 @@ export async function doorWorldState() {
   };
 }
 
+// ── the walk ledger ─────────────────────────────────────────────────────────
+//
+// THE LAST BAKED RECORD ON THIS PAGE, and until 2026-08-28 it had to be. The
+// try-out branch left `WORLD/walk-ledger.md` coming off the pinned package and
+// said so in as many words — "the door serves no LIVE-lane read at all, so there
+// is nothing to point it at" — which was true when it was written and is not
+// true now. `/world2/walks` is that read: its own answer calls itself "the walk
+// ledger's grammar, served from acts", and it returns every departure the record
+// holds, in the record's own append order, each row carrying the LINE it would
+// be written as.
+//
+// So the composition here is not a re-derivation. The door hands back the line;
+// this assembles the file around it. Nothing is reformatted, no arithmetic is
+// redone, and a departure the door spells one way cannot be spelled another way
+// here — which matters more than it sounds, because a walk line IS the record
+// (`position = f(line, clock)`), and a second author of that grammar would be a
+// second answer to where somebody is.
+//
+// THE FILE'S HEAD IS PROSE AND THE PARSER IGNORES IT: `parseWalkLedger` reads
+// only lines matching the departure grammar and tolerates everything else. The
+// head is for the human who opens the URL, so it says what this file now is
+// rather than repeating what it used to be.
+const LEDGER_HEAD = `# Walk ledger
+
+Append-only. One line per DEPARTURE; position is a pure function of the line and
+the clock, so nothing en-route is ever written here and no arrival is recorded.
+Superseding a walk is a new departure from the derived position — latest wins.
+Stopping is a zero-distance departure.
+
+Grammar: \`- <iso> · <handle> · from <x>,<y> · toward <x>,<y> · at <fractional-crossing>[ · within <w>,<h>][ · to <mark-id>]\`
+
+The optional \`within <w>,<h>\` freezes the target's arrival rect; the trailing
+\`to <mark-id>\` records what was ASKED FOR. Derivation never re-resolves the id —
+the centre and extent are already on the line — so a mark that later moves,
+resizes, or retires cannot rewrite where someone walked.
+`;
+
+/**
+ * The served `WORLD/walk-ledger.md`, composed from the door's rows.
+ *
+ * Pure, and separated from the fetch on purpose: this is the half a falsifier
+ * can hold — that the file is the door's own lines, in the door's own order,
+ * and that a row the door could not spell is DROPPED rather than half-written.
+ * A line the door did not give us is not one we may invent: the whole point of
+ * reading a record from its author is that we are not a second author of it.
+ */
+export function walkLedgerFrom(walks = []) {
+  const lines = (walks ?? []).map((w) => w?.line).filter((l) => typeof l === "string" && l.startsWith("- "));
+  return `${LEDGER_HEAD}${lines.join("\n")}\n`;
+}
+
+export async function doorWalkLedger() {
+  const body = await ask("/world2/walks");
+  const walks = body.walks ?? [];
+  const unspelled = walks.length - (walks.filter((w) => typeof w?.line === "string" && w.line.startsWith("- ")).length);
+  if (unspelled) gap("walk-ledger[].line", `${unspelled} of ${walks.length} departures came back with no ledger line and are not in the served file ` +
+    `— the door holds the act but cannot spell it in the record's grammar.`);
+  return { text: walkLedgerFrom(walks), count: walks.length, eras: body.eras ?? null };
+}
+
 /** `/world2/docket` — the public docket, straight through. */
 export async function doorDocket() {
   return ask("/world2/docket");

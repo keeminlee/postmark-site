@@ -179,11 +179,23 @@ function stagingWalk(pkg, projectRoot) {
 // frames are written — the same public paths, the same bytes-shaped contract, so
 // the viewer is untouched and does not know the difference.
 //
-// `walk-ledger.md` is deliberately NOT in this set and still comes off the pin:
-// the door serves no LIVE-lane read at all, so there is nothing to point it at.
-// Leaving it visibly baked is the honest state of the repoint — see the report.
-const DOOR_RECORDS = new Set(["/WORLD/world-state.json", "/WORLD/skeleton.json"]);
+// `walk-ledger.md` JOINED THEM ON 2026-08-28 and it was the last one. It was
+// held back on the try-out for a stated reason — "the door serves no LIVE-lane
+// read at all, so there is nothing to point it at" — and that reason expired
+// when `/world2/walks` landed. It is the record whose 404 the staging gate below
+// exists to prevent, so moving its author is the one repoint on this page that
+// had to be argued rather than assumed: the door hands back each departure's own
+// LINE, so the served file is the door's spelling, not ours (tools/world2-door.mjs).
+const DOOR_RECORDS = new Set(["/WORLD/world-state.json", "/WORLD/skeleton.json", "/WORLD/walk-ledger.md"]);
 const PROVENANCE_PATH = "/WORLD/door-provenance.json";
+
+// A record is not always JSON any more. Named here rather than assumed from the
+// path, because a markdown file served as `application/json` is the sort of
+// thing that works in a fetch and breaks the moment a human opens the URL.
+const RECORD_MIME = {
+  "/WORLD/walk-ledger.md": "text/markdown; charset=utf-8",
+};
+const recordMime = (publicPath) => RECORD_MIME[publicPath] ?? MIME[".json"];
 
 // One compose per process. In a build that is once; in `astro dev` it means the
 // first request for either record pays and every reload after it is free.
@@ -191,18 +203,25 @@ let doorPromise = null;
 function doorRecords() {
   if (doorPromise) return doorPromise;
   doorPromise = (async () => {
-    const { doorWorldState, doorSkeleton, doorGaps, doorUrl } = await import("../../tools/world2-door.mjs");
-    const [world, terrain] = [await doorWorldState(), await doorSkeleton()];
+    const { doorWorldState, doorSkeleton, doorWalkLedger, doorGaps, doorUrl } = await import("../../tools/world2-door.mjs");
+    const [world, terrain, ledger] = [await doorWorldState(), await doorSkeleton(), await doorWalkLedger()];
     const gaps = doorGaps();
     console.log(`[world-engine-island] the world page reads ${doorUrl()} — ` +
-      `${world.provenance.counts.marks} marks, ${world.provenance.counts.parcels} parcels, law ${String(terrain.law_sha).slice(0, 8)}.`);
+      `${world.provenance.counts.marks} marks, ${world.provenance.counts.parcels} parcels, ` +
+      `${ledger.count} departures, law ${String(terrain.law_sha).slice(0, 8)}.`);
     // Never silent. Every field the door could not fill is named at build time,
     // where the person changing the door is looking.
     for (const g of gaps) console.warn(`[world-engine-island] DOOR GAP · ${g.field} — ${g.why}`);
     return {
       "/WORLD/world-state.json": JSON.stringify(world.state),
       "/WORLD/skeleton.json": JSON.stringify(terrain.skeleton),
-      provenance: { ...world.provenance, gaps },
+      "/WORLD/walk-ledger.md": ledger.text,
+      provenance: {
+        ...world.provenance,
+        counts: { ...world.provenance.counts, walks: ledger.count },
+        walk_eras: ledger.eras,
+        gaps,
+      },
     };
   })();
   return doorPromise;
@@ -319,7 +338,7 @@ export default function worldEngineIsland() {
           // answered from that compose, so a reload never re-pays the budget
           if (DOOR_RECORDS.has(pathname) || pathname === PROVENANCE_PATH) {
             return doorRecords().then((door) => {
-              res.setHeader("content-type", MIME[".json"]);
+              res.setHeader("content-type", recordMime(pathname));
               res.end(pathname === PROVENANCE_PATH
                 ? JSON.stringify(door.provenance, null, 1)
                 : door[pathname]);
