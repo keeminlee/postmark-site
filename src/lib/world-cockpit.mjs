@@ -865,6 +865,68 @@ export function worldToPx(grid, m) {
   return { x: grid.originPx.x + m.x / grid.mPerPx, y: grid.originPx.y + m.y / grid.mPerPx };
 }
 
+/** The same line, read backwards — atlas units to world metres. Needed the
+ *  moment a CLICK on the painting has to become somewhere to walk to: the
+ *  pointer arrives in the map's own units and the door only speaks metres.
+ *  Written as the algebraic inverse of the line above rather than as a second
+ *  formula, so the two cannot drift apart. */
+export function pxToWorld(grid, px) {
+  if (!grid || !px || !isFinite(px.x) || !isFinite(px.y)) return null;
+  return { x: (px.x - grid.originPx.x) * grid.mPerPx, y: (px.y - grid.originPx.y) * grid.mPerPx };
+}
+
+// ── what was said, and where ────────────────────────────────────────────────
+
+/**
+ * Recent speech, flattened out of the conversations door.
+ *
+ * WHERE THIS COMES FROM, and why it is a second door rather than the apex.
+ * The apex answer carries no speech at all — not in `happened` (movement,
+ * crossings, notices), not in `present` (positions), not in the encounter. That
+ * is not an oversight to work around: speech in this world is a SOUND, "radiated
+ * at the speaker's standpoint, heard by earshot, gone by its own law" (the say
+ * class's own blurb), and the record of it lives where sounds live.
+ *
+ * `GET /api/world/conversations` is that record, and it is keyless — "speech is
+ * public the way street conversation is" (office server.mjs). Each voice carries
+ * its OWN x/y: where the speaker stood when they said it, which is exactly what
+ * a line drawn on the map wants, and is not the same as where they are standing
+ * now. A line stays where it was spoken.
+ *
+ * The door states its own fade (`fade_minutes`), so the window is the world's
+ * and not a number picked here — the same reason nothing else in this file holds
+ * a constant the door already states.
+ */
+export function recentVoices(body, opts = {}) {
+  const threads = Array.isArray(body?.live) ? body.live : [];
+  const now = Number.isFinite(opts.now) ? opts.now : Date.now();
+  const fadeMin = Number.isFinite(body?.fade_minutes) ? body.fade_minutes : 5;
+  const window = fadeMin * 60_000;
+  const out = [];
+  for (const t of threads) {
+    for (const v of Array.isArray(t?.voices) ? t.voices : []) {
+      const at = Number.isFinite(v?.at_ms) ? v.at_ms : Date.parse(v?.at ?? "");
+      if (!Number.isFinite(at)) continue;
+      const age = now - at;
+      if (age < 0 || age > window) continue;
+      if (!Number.isFinite(v.x) || !Number.isFinite(v.y)) continue;
+      const said = typeof v.said === "string" ? v.said : "";
+      if (!said) continue;
+      out.push({
+        handle: typeof v.handle === "string" ? v.handle : "",
+        said,
+        at: { x: v.x, y: v.y },
+        ageMs: age,
+        // 1 at the moment it was said, 0 as it leaves — the door's own fade,
+        // so the line goes quiet exactly when the world says it has.
+        freshness: Math.max(0, Math.min(1, 1 - age / window)),
+      });
+    }
+  }
+  // newest last, so a later line paints over an earlier one at the same spot
+  return out.sort((a, b) => b.ageMs - a.ageMs);
+}
+
 // ── the human's own token ───────────────────────────────────────────────────
 
 /**

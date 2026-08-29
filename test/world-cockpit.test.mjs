@@ -28,6 +28,7 @@ import {
   termsFromRead, termsRows, wantsTextarea, worldToPx,
   blockedReason, encounterOf, looseThings, rollsFrom, spaceOf, yourTurnRow,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
+  pxToWorld, recentVoices,
 } from "../src/lib/world-cockpit.mjs";
 import { COCKPIT_CSS } from "../src/lib/world-cockpit-mount.mjs";
 
@@ -866,4 +867,78 @@ test("the adversary is placed by joining the fight to the map, and not otherwise
   assert.deepEqual(placed.at, worldToPx(grid, { x: 1097, y: -783.5 }));
   assert.equal(placed.adversary.hp, 41);
   assert.equal(placed.adversary.of, 60);
+});
+
+// ── what was said, and where (2026-08-28, the chat ruling's other half) ──
+//
+// Speech is not in the apex answer at all — not in `happened`, not in `present`,
+// not in the encounter. That is not a gap to route around: speech in this world
+// is a SOUND ("radiated at the speaker's standpoint, heard by earshot, gone by
+// its own law", the say class's own blurb), and the record of it lives at the
+// conversations door, keyless, because "speech is public the way street
+// conversation is" (office server.mjs).
+
+/** The conversations door's shape, as the office emits it (voices.mjs threadOf). */
+const voicesBody = (now, voices, fade = 5) => ({
+  now, earshot_m: 60, fade_minutes: fade, close_minutes: 30, pinned: [], closed: [],
+  live: [{ id: "t1", live: true, place: "the candle vault", at: { x: 1083, y: -792 }, voices }],
+});
+
+test("a voice is placed where it was SPOKEN, and fades on the door's own clock", () => {
+  const now = 1_800_000_000_000;
+  const body = voicesBody(now, [
+    { handle: "wright", said: "the candles are lit", at_ms: now - 30_000, x: 1090, y: -785 },
+    { handle: "vermillion", said: "mind the ninth tier", at_ms: now - 240_000, x: 1094, y: -783 },
+  ]);
+  const got = recentVoices(body, { now });
+  assert.equal(got.length, 2);
+  // newest LAST, so a later line paints over an earlier one at the same spot
+  assert.deepEqual(got.map((v) => v.handle), ["vermillion", "wright"]);
+  // each carries the coordinates the speaker stood at — NOT the thread's
+  assert.deepEqual(got[1].at, { x: 1090, y: -785 });
+  // freshness runs 1 at the moment it was said to 0 as it leaves
+  assert.ok(got[1].freshness > got[0].freshness);
+  assert.ok(got[1].freshness > 0.85 && got[1].freshness < 1);
+});
+
+test("the fade window is the door's number, never one written here", () => {
+  const now = 1_800_000_000_000;
+  const fourMinutesOld = [{ handle: "wright", said: "still here", at_ms: now - 240_000, x: 1, y: 2 }];
+  // the door says five minutes: still audible
+  assert.equal(recentVoices(voicesBody(now, fourMinutesOld, 5), { now }).length, 1);
+  // the door says three: gone, with no edit to this file
+  assert.equal(recentVoices(voicesBody(now, fourMinutesOld, 3), { now }).length, 0);
+});
+
+test("a voice with nothing to draw is dropped rather than drawn wrong", () => {
+  const now = 1_800_000_000_000;
+  const fresh = (extra) => ({ handle: "wright", said: "hello", at_ms: now - 1000, x: 1, y: 2, ...extra });
+  assert.equal(recentVoices(voicesBody(now, [fresh()]), { now }).length, 1);
+  // no coordinates: nothing on the map can be said about it
+  assert.equal(recentVoices(voicesBody(now, [fresh({ x: undefined })]), { now }).length, 0);
+  assert.equal(recentVoices(voicesBody(now, [fresh({ y: null })]), { now }).length, 0);
+  // no words, no stamp: not a line
+  assert.equal(recentVoices(voicesBody(now, [fresh({ said: "" })]), { now }).length, 0);
+  assert.equal(recentVoices(voicesBody(now, [fresh({ at_ms: undefined, at: undefined })]), { now }).length, 0);
+  // and a body the door never sent draws nothing rather than throwing
+  assert.deepEqual(recentVoices(null), []);
+  assert.deepEqual(recentVoices({}), []);
+  // CLOSED threads are not live speech — only `live` is read
+  assert.deepEqual(recentVoices({ live: [], closed: [{ voices: [fresh()] }], fade_minutes: 5 }, { now }), []);
+});
+
+test("pxToWorld is the algebraic inverse of worldToPx, not a second formula", () => {
+  // A CLICK ARRIVES IN THE MAP'S UNITS and the door only speaks metres, so the
+  // walk seam needs the line read backwards. Round-tripped rather than asserted
+  // against copied numbers: the point is that the two cannot drift apart.
+  const grid = gridFrom({
+    _grid: { scale: "5 m per atlas px (RULED 2026-07-17)", origin: "Ferry's crossing — center of the Town Centre, atlas (485,760)" },
+  });
+  for (const m of [{ x: 0, y: 0 }, { x: 1097, y: -783.5 }, { x: -95120, y: -95120 }]) {
+    const back = pxToWorld(grid, worldToPx(grid, m));
+    assert.ok(Math.abs(back.x - m.x) < 1e-9 && Math.abs(back.y - m.y) < 1e-9,
+      `${JSON.stringify(m)} must survive the round trip`);
+  }
+  assert.equal(pxToWorld(null, { x: 1, y: 1 }), null);
+  assert.equal(pxToWorld(grid, { x: NaN, y: 1 }), null);
 });

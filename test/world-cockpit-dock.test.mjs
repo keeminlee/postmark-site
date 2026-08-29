@@ -138,3 +138,67 @@ test("the time-travel pill stands down on the cockpit's own dock signal", () => 
   assert.match(mount, /removeAttribute\("data-pmc-dock"\)/,
     "and destroy clears the signal, which is what restores the pill");
 });
+
+// ══ THE MAP IS A CONTROL (2026-08-28 ruling) ══
+//
+// "Clicking a point on the map while acting as a walker should prefill/dispatch
+// the walk to that point. Clicking a thing offers its context acts with the
+// object prefilled."
+//
+// THE SEAM AND ITS WEAKNESS, pinned together on purpose. The viewer's delegated
+// click handler reads `e.target.closest(".stand")` and hands the coordinates to
+// its own chooseWalkPoint — and NOTHING IN THE VIEWER CARRIES THAT CLASS, in the
+// pinned build or on the branch the pin is heading to. The hook is live and its
+// elements are gone. It is the only walk route the viewer publishes (its window
+// handle carries rerender/reload/stop and no walk of any kind), so the cockpit
+// mints one and clicks it — the same move the page's arrival island already
+// makes against `.ctl[data-x]`.
+//
+// Leaning on a vestigial hook is only safe because the result is CHECKED, which
+// is what the second test here exists to keep true. If the world lane ever tidies
+// that handler away, the reader is told the shortcut is not working rather than
+// left clicking a map that quietly does nothing.
+test("a bare-ground click is handed to the viewer's own walk-arming path", () => {
+  assert.match(mount, /b\.className = "stand";/,
+    "the cockpit mints the element the viewer's handler is looking for");
+  assert.match(mount, /b\.dataset\.x = String\(m\.x\);\r?\n\s*b\.dataset\.y = String\(m\.y\);/,
+    "carrying the coordinates that handler reads");
+  assert.match(mount, /b\.click\(\);\r?\n\s*b\.remove\(\);/,
+    "clicked and removed — nothing of ours is left in the viewer's DOM");
+  // and NO second pathing anywhere: the walk is never dispatched straight at the
+  // door from a map click, which would skip the viewer's wall check, its
+  // zero-length refusal, its preview and the walker's own confirm.
+  assert.doesNotMatch(mount, /dispatchEnvelope\(\{ action: "walk"/,
+    "a map click must not post a walk behind the viewer's back");
+});
+
+test("the vestigial hook is verified, not trusted", () => {
+  assert.match(mount, /const deskOpen = \(\) => \{/,
+    "there is a receipt for the click having landed");
+  assert.match(mount, /if \(deskOpen\(\) \|\| before\) return;/,
+    "read after the click, against the state before it");
+  assert.match(mount, /text: "the map could not arm that walk"/,
+    "and a click that armed nothing says so rather than going quiet");
+});
+
+test("the cockpit takes only the clicks on figures it drew itself", () => {
+  // The viewer's marks are the viewer's to answer for. An overlay that
+  // hit-tested them would be quietly replacing the surface underneath it.
+  assert.match(mount, /if \(ev\.target\?\.closest\?\.\("#wv-overlay \[data-id\], \.wv-card, \.ctl, button, a"\)\) return;/,
+    "a click on anything the viewer owns is left alone entirely");
+  assert.match(mount, /o\.svg\?\.addEventListener\?\.\("click", onMapClick, true\);/,
+    "listened for in capture, so our own figures can be taken first");
+  assert.match(mount, /o\.svg\?\.removeEventListener\?\.\("click", onMapClick, true\);/,
+    "and given back at destroy");
+  // stopPropagation happens ONLY on one of our figures
+  assert.match(mount, /const thing = thingAt\(local\);\r?\n\s*if \(thing\) \{\r?\n\s*ev\.preventDefault\(\);\r?\n\s*ev\.stopPropagation\(\);/,
+    "the viewer's click is only ever swallowed for a figure this cockpit drew");
+});
+
+test("a context act carries its object into the field the menu named", () => {
+  assert.match(mount, /formValues = state\.context \? \{ \[field\]: state\.context\.thing\.id \} : null;/,
+    "the thing's id is seeded into the field contextActs picked out for it");
+  // and the menu offers only what the DOOR affords, never a verb of ours
+  assert.match(mount, /if \(!s\.afforded \|\| !s\.enabled \|\| !s\.card\) return false;/,
+    "an act the ground does not afford is not offered on a thing either");
+});
