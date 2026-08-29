@@ -1,0 +1,297 @@
+// shoot-cockpit-arena.mjs — the shots and the MEASUREMENTS for the 2026-08-29
+// interaction rulings.
+//
+//   node qa-shots/cockpit-harness.mjs 4318 &
+//   node qa-shots/shoot-cockpit-arena.mjs [port] [outdir]
+//
+// WHY THIS EXISTS BESIDE THE UNIT TESTS. Two of tonight's rulings are claims
+// about PIXELS and cannot be settled by a green assertion: "too many buttons"
+// is answered by a row that fits, and "the cake should be highlighted" is
+// answered by a ring a reader can see. The suite can prove the fold partitions
+// correctly and prove nothing about whether the result fits on his screen.
+//
+// So the scroll check is a MEASUREMENT, not a look: scrollWidth against
+// clientWidth on the bar's own scrollport, at three widths, printed as numbers
+// and failed on rather than eyeballed in a shot. The founder's own screen is
+// 1920x893 (measured 2026-08-28, in the mount's placeBar note); 1440 and 1280
+// are the ordinary laptops either side of it.
+
+// Playwright is resolved out of G:/Wright-HQ, which is this repo's standing
+// convention for the shot runners (see qa-shots/shoot.mjs) — the site does not
+// carry a browser as a dependency and should not start.
+import { createRequire } from "node:module";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+
+const require = createRequire("G:/Wright-HQ/package.json");
+const { chromium } = require("playwright");
+
+const PORT = Number(process.argv[2] ?? 4318);
+const OUT = process.argv[3] ?? "qa-shots/arena";
+const base = `http://127.0.0.1:${PORT}/qa-shots/cockpit-harness.html`;
+
+mkdirSync(OUT, { recursive: true });
+
+/** The founder's own screen, and the two ordinary laptops either side of it. */
+const WIDTHS = [
+  { name: "1920", width: 1920, height: 893 },
+  { name: "1440", width: 1440, height: 900 },
+  { name: "1280", width: 1280, height: 800 },
+];
+
+const failures = [];
+const note = (ok, line) => { console.log(`${ok ? "  ok  " : "  FAIL"} ${line}`); if (!ok) failures.push(line); };
+
+const browser = await chromium.launch();
+
+async function open(fixture, size) {
+  const page = await browser.newPage({ viewport: { width: size.width, height: size.height } });
+  page.on("pageerror", (e) => { failures.push(`${fixture}@${size.name}: page error — ${e.message}`); });
+  await page.goto(`${base}?fixture=${fixture}`, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => window.__cockpitReady);
+  return page;
+}
+
+/** The bar's own scrollport, measured. A row that fits has scrollWidth equal to
+ *  clientWidth; anything more is content off the edge. */
+const measureBar = (page) => page.evaluate(() => {
+  const bar = document.querySelector(".pmc-bar");
+  if (!bar) return null;
+  const seats = [...bar.querySelectorAll(".pmc-slot")].map((s) => s.getAttribute("data-action") ?? (s.hasAttribute("data-fold") ? "···" : "?"));
+  const body = document.documentElement;
+  return {
+    scrollWidth: bar.scrollWidth, clientWidth: bar.clientWidth,
+    overflow: bar.scrollWidth - bar.clientWidth,
+    seats,
+    pageScrolls: body.scrollWidth > body.clientWidth,
+  };
+});
+
+console.log("\n── (3) THE FOLD: zero horizontal scroll at ordinary laptop widths ──");
+for (const size of WIDTHS) {
+  const page = await open("vault", size);
+  const m = await measureBar(page);
+  console.log(`  ${size.name}  seats=[${m.seats.join(" ")}]  scrollWidth=${m.scrollWidth} clientWidth=${m.clientWidth} overflow=${m.overflow}`);
+  note(m.overflow <= 1, `${size.name}: the verb row does not scroll (overflow ${m.overflow}px)`);
+  note(!m.pageScrolls, `${size.name}: the page itself does not scroll sideways`);
+  // THE TRIM, seen: neither hidden seat is on the row or in the tray.
+  note(!m.seats.includes("leave-mark") && !m.seats.includes("note-to-self"),
+    `${size.name}: the claiming and note seats are hidden in the dungeon`);
+  // THE GATE, seen: the spoils seat is absent while the fight is afoot.
+  note(!m.seats.includes("loot"), `${size.name}: the phase-gated seat is absent while the fight is afoot`);
+  await page.screenshot({ path: join(OUT, `fold-vault-${size.name}.png`) });
+  await page.close();
+}
+
+console.log("\n── (2) THE GATE: the same room, spent ──");
+{
+  const page = await open("spent", WIDTHS[1]);
+  const m = await measureBar(page);
+  console.log(`  spent seats=[${m.seats.join(" ")}]  overflow=${m.overflow}`);
+  note(m.seats.includes("loot"), "the phase-gated seat arrives with the phase that is its whole precondition");
+  note(m.overflow <= 1, `and the row still does not scroll (overflow ${m.overflow}px)`);
+  await page.screenshot({ path: join(OUT, "gate-spent-1440.png") });
+  await page.close();
+}
+
+console.log("\n── (1) TARGETING: press the act, the thing lights up ──");
+{
+  const page = await open("vault", WIDTHS[1]);
+  // press an aimable seat
+  await page.click('.pmc-slot[data-action="strike"]');
+  await page.waitForSelector(".pmc-aim");
+  const armed = await page.evaluate(() => ({
+    seatArmed: Boolean(document.querySelector('.pmc-slot[data-action="strike"].armed')),
+    strip: document.querySelector(".pmc-aim")?.textContent.replace(/\s+/g, " ").trim(),
+    rings: document.querySelectorAll(".pmc-aim-ring").length,
+    ringTitles: [...document.querySelectorAll(".pmc-aim-ring title")].map((t) => t.textContent),
+    chips: [...document.querySelectorAll(".pmc-aim [data-aim-at]")].map((b) => b.textContent.trim()),
+    noPanel: !document.querySelector("[data-form]"),
+    crosshair: document.documentElement.classList.contains("pmc-aiming"),
+  }));
+  console.log(`  strip: ${armed.strip}`);
+  console.log(`  rings on the painting: ${armed.rings} — ${armed.ringTitles.join(" | ")}`);
+  console.log(`  chips for unplaced targets: ${armed.chips.join(" | ") || "(none)"}`);
+  note(armed.seatArmed, "the seat says it is armed");
+  note(armed.noPanel, "and no panel opened — the question is on the map");
+  note(armed.rings >= 2, "the adversary and the thing on the floor are both lit");
+  note(armed.chips.length >= 1, "and the downed ally the answer could not place is offered by name");
+  note(armed.crosshair, "the painting takes a crosshair");
+  await page.screenshot({ path: join(OUT, "aim-armed-1440.png") });
+
+  // clicking the adversary finishes the act
+  const where = await page.evaluate(() => {
+    const t = [...document.querySelectorAll(".pmc-aim-ring")].find((g) => /cake/.test(g.querySelector("title")?.textContent ?? ""));
+    const b = t.getBoundingClientRect();
+    return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+  });
+  await page.mouse.click(where.x, where.y);
+  await page.waitForTimeout(400);
+  const after = await page.evaluate(() => ({
+    sent: document.getElementById("note")?.textContent ?? "",
+    stillArmed: Boolean(document.querySelector(".pmc-aim")),
+    threw: document.querySelectorAll(".pmc-die").length,
+  }));
+  console.log(`  dispatched: ${after.sent.replace(/\s+/g, " ").slice(0, 160)}`);
+  note(/"do": "strike"/.test(after.sent) || /strike/.test(after.sent), "the act went out named");
+  note(/the-unlit-cake/.test(after.sent), "carrying the thing that was clicked as its object");
+  note(!after.stillArmed, "and the act put itself down once the door took it");
+  note(after.threw > 0, "the throw is shown");
+  await page.screenshot({ path: join(OUT, "aim-sent-1440.png") });
+  await page.close();
+}
+
+console.log("\n── (1b) the adversary opens nothing when nothing is armed ──");
+{
+  const page = await open("vault", WIDTHS[1]);
+  const at = await page.evaluate(() => {
+    const g = document.querySelector(".pmc-adversary");
+    const b = g.getBoundingClientRect();
+    return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+  });
+  await page.mouse.click(at.x, at.y);
+  await page.waitForTimeout(250);
+  const opened = await page.evaluate(() => ({
+    menu: Boolean(document.querySelector(".pmc-ctx")),
+    panel: Boolean(document.querySelector("[data-form]")),
+    walked: /"do": "walk"/.test(document.getElementById("note")?.textContent ?? ""),
+  }));
+  note(!opened.menu, "no menu — the entity reading wins in a fight");
+  note(!opened.panel, "and no panel either");
+  note(!opened.walked, "and the click did not fall through and arm a walk into the thing");
+  await page.screenshot({ path: join(OUT, "adversary-click-1440.png") });
+  await page.close();
+}
+
+console.log("\n── (1c) a loose thing is picked up by clicking it ──");
+{
+  const page = await open("vault", WIDTHS[1]);
+  const at = await page.evaluate(() => {
+    const g = document.querySelector(".pmc-loose");
+    const b = g.getBoundingClientRect();
+    return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+  });
+  await page.mouse.click(at.x, at.y);
+  await page.waitForTimeout(350);
+  const sent = await page.evaluate(() => document.getElementById("note")?.textContent ?? "");
+  console.log(`  dispatched: ${sent.replace(/\s+/g, " ").slice(0, 160)}`);
+  note(/"do": "take"/.test(sent), "one click, one take — no menu and no panel in between");
+  note(/the-long-knife/.test(sent), "carrying the thing that was on the floor");
+  await page.screenshot({ path: join(OUT, "floor-take-1440.png") });
+  await page.close();
+}
+
+console.log("\n── (4) THE HOVER: game-speak, not a debug panel ──");
+{
+  const page = await open("vault", WIDTHS[1]);
+  await page.hover('.pmc-slot[data-action="strike"]');
+  await page.waitForTimeout(150);
+  const card = await page.evaluate(() => {
+    const c = document.querySelector("#pmc-card");
+    return { hidden: c.hidden, text: c.textContent.replace(/\s+/g, " ").trim(), chars: c.textContent.trim().length };
+  });
+  console.log(`  card (${card.chars} chars): ${card.text}`);
+  note(!card.hidden, "the card shows");
+  note(/d20 vs 8 to hit/.test(card.text), "and leads with the throw and the number to beat, in one sentence");
+  note(!/to_hit_die|damage_die|beats_ac/.test(card.text), "with no struct keys anywhere on it");
+  note(card.chars < 420, `and it is short enough to read at a glance (${card.chars} chars)`);
+  // the seat's own line, too
+  const dial = await page.textContent('.pmc-slot[data-action="strike"] .pmc-dial');
+  console.log(`  seat line: ${dial}`);
+  note(!/_die|_ac/.test(dial ?? ""), "the seat's line is game-speak too");
+  await page.screenshot({ path: join(OUT, "hover-card-1440.png") });
+
+  // an act with no dials says nothing rather than showing an empty caption
+  await page.hover('.pmc-slot[data-action="say"]');
+  await page.waitForTimeout(150);
+  const bare = await page.evaluate(() => document.querySelector("#pmc-card").textContent);
+  note(!/undefined|null|dials/.test(bare), "an act with no dials shows no dial line at all");
+  await page.close();
+}
+
+console.log("\n── (5) THE CONSENT SHEET ──");
+{
+  const page = await open("portal", WIDTHS[1]);
+  // ⚑ THE CROSSING ACT IS IN THE TRAY, and reaching it through the tray is the
+  // point rather than an inconvenience. The 2026-08-29 keep list is the room's
+  // own acts plus walk, say and exit — the founder's three — so the act that
+  // takes you INTO somewhere is one of the ones that folded. Going through the
+  // overflow seat here checks the tray end to end at the same time.
+  await page.click("[data-fold]");
+  await page.waitForSelector(".pmc-tray");
+  const trayRows = await page.evaluate(() =>
+    [...document.querySelectorAll(".pmc-tray button")].map((b) => b.getAttribute("data-action")));
+  console.log(`  tray holds: ${trayRows.join(" ")}`);
+  note(trayRows.includes("enter"), "the tray holds what folded, reachable by name");
+  await page.screenshot({ path: join(OUT, "tray-open-1440.png") });
+  await page.click('.pmc-tray button[data-action="enter"]');
+  await page.waitForSelector("[data-form]");
+  await page.waitForTimeout(400); // the shadow read's own delay
+  const sheet = await page.evaluate(() => {
+    const f = document.querySelector("[data-form]");
+    return {
+      isSheet: f.classList.contains("pmc-sheet"),
+      flavor: f.querySelector(".flavor")?.textContent?.trim() ?? null,
+      brief: [...f.querySelectorAll(".pmc-terms .pmc-term")].map((s) => s.textContent.replace(/\s+/g, " ").trim()),
+      folded: Boolean(f.querySelector(".pmc-terms details")),
+      fine: Boolean(f.querySelector("details.pmc-fine")),
+      chars: f.textContent.trim().replace(/\s+/g, " ").length,
+    };
+  });
+  console.log(`  flavor: ${sheet.flavor}`);
+  console.log(`  terms on the face: ${sheet.brief.join(" | ")}`);
+  console.log(`  whole panel: ${sheet.chars} chars`);
+  note(sheet.isSheet, "a panel delivering terms is dressed as a consent sheet");
+  note(Boolean(sheet.flavor), "the door's own flavor line leads, prominently");
+  note(sheet.brief.length > 0, "and the terms that fit on a line are on the face of it");
+  note(sheet.fine, "the grammar is one press away rather than in front of the button");
+  await page.screenshot({ path: join(OUT, "consent-sheet-1440.png") });
+  await page.close();
+}
+
+console.log("\n── (6) THE WALK GRID ──");
+{
+  const page = await open("stride", WIDTHS[1]);
+  // a click on bare ground, deliberately off a whole metre
+  const spot = await page.evaluate(() => {
+    const svg = document.querySelector(".wv svg");
+    const b = svg.getBoundingClientRect();
+    return { x: b.x + b.width * 0.34, y: b.y + b.height * 0.42 };
+  });
+  await page.mouse.click(spot.x, spot.y);
+  await page.waitForTimeout(250);
+  const armed = await page.evaluate(() => {
+    const b = document.querySelector(".wv .stand");
+    return { minted: Boolean(b), left: document.querySelectorAll(".wv .stand").length };
+  });
+  // the mint-and-click leaves nothing behind, so what is checked is the snap
+  // itself, read straight out of the module
+  const snapped = await page.evaluate(async () => {
+    const { snapPoint, walkStep } = await import("/src/lib/world-cockpit.mjs");
+    const answer = { standpoint: { walk: { min_step: 1 } } };
+    return { step: walkStep(answer), at: snapPoint({ x: 1083.417, y: -791.62 }, walkStep(answer)) };
+  });
+  console.log(`  declared stride ${snapped.step} m → (1083.417, -791.62) becomes (${snapped.at.x}, ${snapped.at.y})`);
+  note(snapped.step === 1, "the ground's declared stride is read");
+  note(snapped.at.x === 1083 && snapped.at.y === -792, "and a click lands on it rather than between");
+  note(armed.left === 0, "and the minted element is removed — nothing of ours is left in the viewer's DOM");
+  await page.close();
+}
+
+console.log("\n── the town, outside portal ground: nothing changed ──");
+{
+  const page = await open("town", WIDTHS[1]);
+  const there = await page.evaluate(() => ({
+    mounted: window.__cockpitReady.mounted,
+    anyPmc: document.querySelectorAll("[data-pmc]").length,
+    style: Boolean(document.getElementById("pmc-style")),
+  }));
+  note(!there.mounted && there.anyPmc === 0, "the cockpit still does not appear on ordinary town ground");
+  await page.close();
+}
+
+await browser.close();
+
+console.log(`\n${failures.length ? `${failures.length} FAILED:` : "all checks passed"}`);
+for (const f of failures) console.log(`  - ${f}`);
+process.exit(failures.length ? 1 : 0);
