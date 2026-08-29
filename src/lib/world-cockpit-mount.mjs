@@ -1635,6 +1635,15 @@ export function mountCockpit(o) {
   const walkFromMap = (m) => {
     const wv = doc.querySelector(".wv");
     if (!wv) return false;
+    // THE ACTOR IS SETTLED FIRST, AND THE ORDER IS THE WHOLE OF IT.
+    // `selectActor` runs clearSelectionAndDestination() and recenters the camera
+    // (viewer.mjs:8060, 8064), so settling the actor AFTER arming would throw the
+    // destination away and leave a walk desk that had just been opened pointing
+    // at nothing. It also has to happen at all: confirmSelectedWalk posts
+    // `state.handle`, and there is no per-call actor argument, so an unsettled
+    // viewer arms the walk for the wrong resident. speakActAs is a no-op when
+    // the two already agree, which is the common case.
+    speakActAs();
     const before = deskOpen();
     const b = doc.createElement("button");
     b.className = "stand";
@@ -1783,10 +1792,60 @@ export function mountCockpit(o) {
   // by a viewer that booted after us; the event reaches one that booted before.
   // The viewer's renderIdentity checks the attribute and stands its own Act As
   // row down while this dock holds the question.
+  /** The key the viewer persists its own actor under (spectator/viewer.mjs:42,
+   *  `ACT_AS_KEY = "pm.world.act_as"`). It is the only readable signal for who
+   *  the viewer currently thinks is acting — `state.actAs` is a closure. */
+  const VIEWER_ACT_AS = "pm.world.act_as";
+  const viewerActor = () => {
+    try { return (doc.defaultView ?? globalThis).localStorage?.getItem(VIEWER_ACT_AS) ?? null; }
+    catch { return null; }
+  };
+
+  /**
+   * TELL THE VIEWER WHO IS ACTING — and the event alone does not do it.
+   *
+   * THE EVENT IS DEAD WIRE AT THIS PIN, measured rather than assumed: the string
+   * "pm:" does not occur anywhere in spectator/viewer.mjs at the pinned build
+   * (package.json holds ceeca087), and no listener for it exists anywhere in
+   * src/ either. The listeners DO exist on the world's proto/birthday branch
+   * (2cf10d0f, 3d1fbfe0) — this pin is simply behind them. So the event is kept,
+   * because it is the seam both sides agreed on and it starts working the moment
+   * the pin is bumped; it is just not load-bearing today.
+   *
+   * WHAT IS LOAD-BEARING is the viewer's own delegated control:
+   *     const actor = e.target.closest("[data-act-as]");
+   *     if (actor) { selectActor(actor.dataset.actAs); return; }   // viewer.mjs:7681
+   * minted and clicked, the same move the page's arrival island makes. This is
+   * not belt-and-braces decoration — without it the dock's selection never
+   * reaches the viewer, and `confirmSelectedWalk` posts `state.handle`, so a
+   * reader who picked a face here and then clicked the map would arm a walk for
+   * WHOEVER THE VIEWER STILL THOUGHT WAS ACTING. Silently, and for the wrong
+   * resident.
+   *
+   * GUARDED, because selectActor is not free to call twice. It runs
+   * `clearSelectionAndDestination()` and recenters the camera (viewer.mjs:8060,
+   * 8064) — so a redundant call throws away an armed walk and moves the map out
+   * from under the reader. It fires only when the viewer's actor actually
+   * differs from ours, read off the key the viewer persists it under.
+   */
   const speakActAs = () => {
     const w = doc.defaultView ?? globalThis;
     const actor = state.acting;
-    if (!actor || actor === HUMAN_ACTOR || typeof w.CustomEvent !== "function") return;
+    // The human hand stays this cockpit's own grammar — never spoken at the
+    // viewer, which keeps its last resident for walks.
+    if (!actor || actor === HUMAN_ACTOR) return;
+    if (viewerActor() !== actor) {
+      const wv = doc.querySelector(".wv");
+      if (wv) {
+        const b = doc.createElement("button");
+        b.setAttribute("data-act-as", actor);
+        b.style.display = "none";
+        wv.appendChild(b);
+        b.click();
+        b.remove();
+      }
+    }
+    if (typeof w.CustomEvent !== "function") return;
     try { w.dispatchEvent(new w.CustomEvent("pm:act-as", { detail: { actor } })); } catch {}
   };
   const dockSignal = (present) => {

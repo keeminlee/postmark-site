@@ -202,3 +202,50 @@ test("a context act carries its object into the field the menu named", () => {
   assert.match(mount, /if \(!s\.afforded \|\| !s\.enabled \|\| !s\.card\) return false;/,
     "an act the ground does not afford is not offered on a thing either");
 });
+
+// ══ THE DOCK'S SELECTION ACTUALLY REACHES THE VIEWER (2026-08-28, corrected) ══
+//
+// THE EVENT WAS DEAD WIRE, measured rather than assumed: the string "pm:" does
+// not occur anywhere in spectator/viewer.mjs at the pinned build (package.json
+// holds ceeca087), and no listener for it exists under src/ either. The
+// listeners DO exist on the world's proto/birthday branch (2cf10d0f, 3d1fbfe0)
+// — this pin is simply behind them.
+//
+// WHAT THAT COST, and it is not cosmetic: confirmSelectedWalk posts
+// `state.handle` and takes no per-call actor argument, so with the dock's
+// selection never reaching the viewer, a reader who picked a face here and then
+// clicked the map armed a walk for whoever the viewer still thought was acting.
+// Silently, and for the wrong resident.
+//
+// The working route is the viewer's own delegated control, minted and clicked:
+//     const actor = e.target.closest("[data-act-as]");
+//     if (actor) { selectActor(actor.dataset.actAs); return; }   // viewer.mjs:7681
+test("the dock drives the viewer's own act-as control, not only the event", () => {
+  assert.match(mount, /b\.setAttribute\("data-act-as", actor\);/,
+    "speakActAs mints the element the viewer's delegate is looking for");
+  assert.match(mount, /new w\.CustomEvent\("pm:act-as", \{ detail: \{ actor \} \}\)/,
+    "and still speaks the event, which starts working when the pin is bumped");
+});
+
+test("it does not call selectActor when the viewer already agrees", () => {
+  // selectActor runs clearSelectionAndDestination() and recenters the camera
+  // (viewer.mjs:8060, 8064), so a redundant call throws away an armed walk and
+  // moves the map out from under the reader. The guard reads the key the viewer
+  // persists its actor under.
+  assert.match(mount, /const VIEWER_ACT_AS = "pm\.world\.act_as";/,
+    "the viewer's own persisted key is the signal");
+  assert.match(mount, /if \(viewerActor\(\) !== actor\) \{/,
+    "and the mint happens only on a real difference");
+});
+
+test("the actor is settled BEFORE the walk is armed, never after", () => {
+  // Ordering is load-bearing: selectActor clears the destination, so settling
+  // the actor after arming would throw away the walk that was just armed.
+  const walkFn = /const walkFromMap = \(m\) => \{[\s\S]*?\n  \};/.exec(mount)?.[0] ?? "";
+  assert.ok(walkFn, "walkFromMap must be findable");
+  const settle = walkFn.indexOf("speakActAs();");
+  const arm = walkFn.indexOf('b.className = "stand";');
+  assert.ok(settle > -1, "walkFromMap settles the actor");
+  assert.ok(arm > -1, "walkFromMap arms the destination");
+  assert.ok(settle < arm, "and it settles BEFORE it arms — the other order wipes the destination");
+});
