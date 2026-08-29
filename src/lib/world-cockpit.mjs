@@ -915,13 +915,21 @@ export function prefillFor(card, answer) {
   // Anywhere else the honest prefill is none: the whole point of entering or
   // walking is that the destination is the reader's choice, and this function's
   // own rule is that a prefill happens only where there is no choice to make.
-  if (GROUND_SHAPED.test(field.description ?? "")) {
-    if (LEAVING.test(field.description ?? "")) {
-      const here = portalOf(answer)?.id;
-      if (here) out[field.name] = here;
-    }
-    return out;
-  }
+  // ⚑ AND A PLACE FIELD IS LEFT EMPTY, INCLUDING THE ONE THAT LOOKED KNOWABLE.
+  //
+  // The first pass filled a stepping-out field with the standpoint's own
+  // ground, on the reasoning that the answer was knowable. Driven live, the
+  // door refused it: "rei is not within 'the-town/the-candle-vault' — there is
+  // nothing to step out of", from a standpoint whose own portal is that vault.
+  // The door's "within" for crossing back out is the ENTRY it holds, not the
+  // extent you are standing inside, and those are two different facts about the
+  // same person. The site does not hold the first one and should not be
+  // guessing at it.
+  //
+  // The door already published the right answer in the field's own words: OMIT
+  // it and the innermost one is used. So the honest prefill for every place
+  // field is none, and the act sends what the door asked for.
+  if (GROUND_SHAPED.test(field.description ?? "")) return out;
 
   const candidates = actCandidates(answer);
   if (candidates.length !== 1) return out;

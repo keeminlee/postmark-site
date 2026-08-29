@@ -1009,9 +1009,15 @@ test("a field about somewhere you stand is never filled with the thing you are f
   assert.deepEqual(prefillFor(cardFrom({ object: AIMED }), inTheVault),
     { object: "the-town/the-unlit-cake" }, "an aimed-at field is still prefilled");
 
-  // WHERE YOU ARE STEPPING OUT OF is knowable, and it is not the adversary
-  assert.deepEqual(prefillFor(cardFrom({ mark: LEAVE }), inTheVault),
-    { mark: "the-town/the-candle-vault" }, "the way out names the ground you are in");
+  // WHERE YOU ARE STEPPING OUT OF is left to the door, and it is never the
+  // adversary. An earlier pass filled this with the standpoint's own ground,
+  // and the door refused it live: "rei is not within 'the-town/the-candle-vault'
+  // — there is nothing to step out of", from a standpoint whose portal IS that
+  // vault. The door's "within" for crossing out is the ENTRY it holds, not the
+  // extent you stand inside; the site holds neither and guesses at neither. The
+  // field's own words say to omit it.
+  assert.deepEqual(prefillFor(cardFrom({ mark: LEAVE }), inTheVault), {},
+    "the way out is the door's to resolve, and omitting it is what the door asked for");
 
   // and the destinations are the reader's to choose, so they stay empty
   assert.deepEqual(prefillFor(cardFrom({ mark: ENTER }), inTheVault), {},
@@ -1019,7 +1025,8 @@ test("a field about somewhere you stand is never filled with the thing you are f
   assert.deepEqual(prefillFor(cardFrom({ mark_id: GOTO }), inTheVault), {},
     "same for walking somewhere");
 
-  // and with no portal to name, the way out fills nothing rather than guessing
+  // and with no portal to name it is still empty — never the adversary as a
+  // fallback, which is the bug this whole test exists for
   assert.deepEqual(prefillFor(cardFrom({ mark: LEAVE }), { ...inTheVault, standpoint: {} }), {},
     "no standpoint ground, no answer — never the adversary as a fallback");
 });
