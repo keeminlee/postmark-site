@@ -836,12 +836,15 @@ export function mountCockpit(o) {
     // stub — is climbed over, and the lift is then measured off that piece
     // alone rather than off the tallest thing anywhere along the edge.
     //
-    // KEEP_FRACTION is a judgement and is written as one: below about seven
-    // tenths of the painting the row has given up more in verbs-per-screen than
-    // the lift costs in reading room, so at that point climbing is the better
-    // trade. Chosen against this screen, where dodging the desk alone keeps 80%
-    // and dodging the exit pill as well would drop it to 66%.
-    const KEEP_FRACTION = 0.7;
+    // KEEP_FRACTION is a judgement and is written as one. Measured on the
+    // founder's 1920x893 screen against a 1708px painting: dodging the exit
+    // pill alone keeps 86%, and dodging the walk desk as well keeps 67% — which
+    // is 1129px, still wider than the 1241px of content the bar had at its
+    // fullest and far better than the 216px climb the alternative costs. So the
+    // floor sits below that pair rather than between them. What it still
+    // refuses is furniture across the MIDDLE, where both sides come back small
+    // and going around genuinely leaves a stub; there, climbing is right.
+    const KEEP_FRACTION = 0.55;
     const rowH = bar.getBoundingClientRect().height || 72;
     const climb = [];
     for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit"]) {
@@ -1335,7 +1338,10 @@ export function mountCockpit(o) {
    * which is not this lane's to spend.
    */
   let framedKey = null;
+  let framedSvg = null;
+  let framedBox = null;
   let handOnCamera = false;
+  let reframePending = false;
   function sceneKey() {
     const d = state.answer?.encounter_detail;
     const p = state.answer?.standpoint;
@@ -1347,7 +1353,26 @@ export function mountCockpit(o) {
     if (!svg || !o.grid) return;
     const key = sceneKey();
     if (!key) return;                        // not standing in a portal's ground
-    if (key === framedKey) return;           // already framed this arrival
+    // ⚑ FRAMING IS NOT A ONE-SHOT, because the thing framed can be REPLACED
+    // under us. Seen live 2026-08-28, and it is the same seam the token layer
+    // was already caught on that night ("the layer follows the living svg"):
+    // selecting a resident makes the viewer rebuild its painting, so the svg
+    // this wrote a viewBox onto is thrown away a beat later and the new one
+    // arrives carrying the viewer's own view. Framed once and remembered as
+    // done, the camera then sat on the town while the fight it was supposed to
+    // be pointed at was a smudge at the bottom edge — which is exactly the
+    // report, still true after the fix that was supposed to answer it.
+    //
+    // So what is remembered is not "this arrival was framed" but WHAT WAS
+    // FRAMED AND WHERE: the scene, the svg element, and the box written onto
+    // it. Any of the three changing is a scene that is no longer framed.
+    //
+    // THE READER STILL WINS. handOnCamera is what separates "the viewer
+    // replaced my view" from "the reader pushed it" — the first is a race worth
+    // re-asserting through, the second is a decision, and re-asserting through
+    // THAT would be this island wrestling someone for their own map.
+    const held = svg === framedSvg && svg.getAttribute("viewBox") === framedBox;
+    if (key === framedKey && held) return;   // still framed, nothing to do
     if (handOnCamera && framedKey) return;   // the reader has the camera; leave it
     // Every point the cockpit itself will draw, in the door's own coordinates —
     // so whatever ends up on this map is inside the rectangle by construction
@@ -1389,8 +1414,21 @@ export function mountCockpit(o) {
     const need = box.h + pad * 2;
     if (hgt < need) { hgt = need; w = hgt * (el.width / el.height); }
     const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
-    svg.setAttribute("viewBox", `${cx - w / 2} ${cy - hgt / 2} ${w} ${hgt}`);
+    framedBox = `${cx - w / 2} ${cy - hgt / 2} ${w} ${hgt}`;
+    svg.setAttribute("viewBox", framedBox);
     framedKey = key;
+    framedSvg = svg;
+    // The viewer's rebuild lands a beat after the selection that caused it, so
+    // one look on the next frame catches the common race without polling for
+    // it. Everything after that is caught by the held check above on the next
+    // paint, and by then a reader who wants the map has usually taken it.
+    if (!reframePending) {
+      reframePending = true;
+      (doc.defaultView ?? globalThis).requestAnimationFrame?.(() => {
+        reframePending = false;
+        frameScene();
+      });
+    }
   }
 
   /**
@@ -1901,6 +1939,39 @@ export function mountCockpit(o) {
   const onResize = () => { drawToken(); placeBar(); markOverflow(); };
   (doc.defaultView ?? globalThis).addEventListener?.("resize", onResize);
 
+  // ⚑ THE FURNITURE COMES AND GOES WITHOUT US, and until this existed the row
+  // only re-measured when the cockpit repainted or the window resized. Both of
+  // the pieces placeBar fences against are TRANSIENT — `.wv-walkdesk` appears
+  // when a walk is armed, `.wv-scene-exit` when the viewer has somewhere to step
+  // out to — so the row was placed against whichever of them happened to be up
+  // at the last paint and then simply sat there while they changed underneath
+  // it. Seen live 2026-08-28: selecting a resident raised the exit pill, and the
+  // dock stayed exactly where it was, on top of it.
+  //
+  // A ResizeObserver is the tool that fits: an element going from hidden to
+  // shown is a size change from zero, which is precisely the event that matters
+  // here, and it says nothing at all during the map's ordinary redraws. The
+  // frame throttle is because several pieces can appear in the same beat and
+  // the row only needs placing once for all of them.
+  let placePending = false;
+  const replace = () => {
+    if (placePending) return;
+    placePending = true;
+    (doc.defaultView ?? globalThis).requestAnimationFrame?.(() => {
+      placePending = false;
+      placeBar();
+      markOverflow();
+    });
+  };
+  let furniture = null;
+  if (typeof ResizeObserver === "function") {
+    furniture = new ResizeObserver(replace);
+    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit"]) {
+      const el = doc.querySelector(sel);
+      if (el) furniture.observe(el);
+    }
+  }
+
   // ── the map is a control (2026-08-28 ruling) ──────────────────────────────
   //
   // "Clicking a point on the map while acting as a walker should prefill/dispatch
@@ -2171,6 +2242,7 @@ export function mountCockpit(o) {
       if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
       o.svg?.removeEventListener?.("click", onMapClick, true);
       camera?.disconnect();
+      furniture?.disconnect();
       dockSignal(false); // hand the Act As question back to the viewer's own row
       root.remove();
       throwLayer.remove();
