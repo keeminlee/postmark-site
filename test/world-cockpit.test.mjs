@@ -27,6 +27,7 @@ import {
   gridFrom, ownParcelIn, portalOf, readBounce, statedLimit, tokenFor, tokenPlacement,
   termsFromRead, termsRows, wantsTextarea, worldToPx,
   blockedReason, encounterOf, looseThings, rollsFrom, spaceOf, yourTurnRow,
+  actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
 } from "../src/lib/world-cockpit.mjs";
 import { COCKPIT_CSS } from "../src/lib/world-cockpit-mount.mjs";
 
@@ -722,3 +723,147 @@ test("cardOf refuses nothing quietly", () => {
   assert.equal(dialLine(null), "");
 });
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WHAT THE FORM FILLS IN FOR YOU, and what it refuses to (2026-08-28)
+//
+// THE LAW, the founder's words at the live rehearsal: "everything I can do via
+// the ui buttons, I have to type in like filling an mcp form."
+//
+// The two halves pinned here are the arithmetic ones: which acts are chat-shaped
+// (read off the card, never off a name) and what may be prefilled (only where
+// there is exactly one slot and exactly one value, so no choice is being made).
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** A card the way cardOf builds one, from an entry the door would send. */
+const cardFrom = (fields) => cardOf({ action: "an-act", fields });
+
+/** The prose limit the world's own smallest stated one sits at — a field the
+ *  door says may hold this much is one a reader writes a sentence into. */
+const PROSE = { type: "string", description: "what you say, at most 500 characters" };
+const SHORT = { type: "string", description: "a thing's mark id, <by>/<slug>" };
+
+test("chat-shape is read off the card's fields, never off the act's name", () => {
+  // one prose field, nothing else required → a chat line
+  assert.equal(chatShaped(cardFrom({ text: PROSE })), true);
+  assert.equal(chatField(cardFrom({ text: PROSE })).name, "text");
+  // a prose field beside an OPTIONAL one is still chat — the optional one is
+  // not something the reader must answer before speaking
+  assert.equal(chatShaped(cardFrom({
+    text: PROSE, since: { type: "number", description: "the latest stamp from your previous reply" },
+  })), true);
+  // a prose field beside a REQUIRED one is a form: an act that also demands a
+  // recipient is not "type the sentence and send"
+  assert.equal(chatShaped(cardFrom({
+    words: PROSE, to: { ...SHORT, required: true },
+  })), false);
+  // and an act with no prose at all is never a chat line
+  assert.equal(chatShaped(cardFrom({ thing: SHORT })), false);
+  assert.equal(chatField(cardFrom({ thing: SHORT })), null);
+  assert.equal(chatShaped(null), false);
+});
+
+test("the adversary is read from the door's own detail block, or not at all", () => {
+  assert.equal(adversaryOf({}), null);
+  assert.equal(adversaryOf({ encounter_detail: { adversary: null } }), null);
+  // an entry with no id names nothing, whatever else it carries
+  assert.equal(adversaryOf({ encounter_detail: { adversary: { hp: 60, of: 60 } } }), null);
+  const a = adversaryOf({ encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60, body: "Nine tiers." } } });
+  assert.equal(a.id, "the-town/the-unlit-cake");
+  assert.equal(a.hp, 41);
+  assert.equal(a.of, 60);
+  // named the way every id in this world is read — the leaf, deslugged
+  assert.equal(a.label, "the unlit cake");
+});
+
+test("the candidates are only what the answer itself named", () => {
+  assert.deepEqual(actCandidates({}), []);
+  const answer = {
+    encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60 } },
+    encounter: {
+      id: "g", round: 3, turn: "wright",
+      order: [
+        { id: "wright", kind: "resident", label: "wright", you: true },
+        { id: "vermillion", kind: "resident", label: "vermillion", down: true },
+      ],
+    },
+    nearby: [{ id: "vermillion/the-long-knife", at: { x: 1, y: 2 }, loose: true, label: "the long knife" }],
+  };
+  assert.deepEqual(actCandidates(answer).map((c) => c.value),
+    ["the-town/the-unlit-cake", "vermillion", "vermillion/the-long-knife"]);
+  // YOURSELF IS NOT A CANDIDATE for the down: you cannot be the ally who lifts you
+  const onlyYouDown = { ...answer, encounter: { ...answer.encounter, order: [{ id: "wright", label: "wright", down: true, you: true }] } };
+  assert.ok(!actCandidates(onlyYouDown).some((c) => c.value === "wright"));
+});
+
+test("a prefill happens only where there is no choice to make", () => {
+  const oneCandidate = { encounter_detail: { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60 } } };
+
+  // one open slot, one named value: nothing is being chosen, so it is filled
+  assert.deepEqual(prefillFor(cardFrom({ object: SHORT }), oneCandidate),
+    { object: "the-town/the-unlit-cake" });
+
+  // TWO open slots and one value: the site would be choosing WHICH, so it fills
+  // neither and the datalist offers the value to both
+  assert.deepEqual(prefillFor(cardFrom({ object: SHORT, other: SHORT }), oneCandidate), {});
+
+  // TWO values and one slot: the site would be choosing WHAT — same refusal
+  const twoCandidates = {
+    ...oneCandidate,
+    nearby: [{ id: "vermillion/the-long-knife", at: { x: 1, y: 2 }, loose: true }],
+  };
+  assert.deepEqual(prefillFor(cardFrom({ object: SHORT }), twoCandidates), {});
+
+  // A PROSE FIELD IS NEVER PREFILLED. What you say is yours to write, and a
+  // sentence the site put in your mouth is the one thing this surface must not
+  // do — so a card whose only open field is prose is filled with nothing.
+  assert.deepEqual(prefillFor(cardFrom({ text: PROSE }), oneCandidate), {});
+
+  // nor are the fields the door already answered for itself
+  assert.deepEqual(prefillFor(cardFrom({ n: { type: "number", description: "how many" } }), oneCandidate), {});
+  assert.deepEqual(prefillFor(cardFrom({ k: { type: "string", enum: ["a", "b"], description: "which" } }), oneCandidate), {});
+  assert.deepEqual(prefillFor(null, oneCandidate), {});
+});
+
+test("the adversary is placed by joining the fight to the map, and not otherwise", () => {
+  // THE ANSWER CARRIES THE TWO HALVES SEPARATELY: encounter_detail names the
+  // adversary and states its hp and carries NO coordinates; nearby carries every
+  // mark's `at` and says nothing about which is the adversary. The id is the join.
+  const grid = gridFrom({
+    _grid: { scale: "5 m per atlas px (RULED 2026-07-17)", origin: "Ferry's crossing — center of the Town Centre, atlas (485,760)" },
+  });
+  const detail = { adversary: { id: "the-town/the-unlit-cake", hp: 41, of: 60 } };
+
+  // named but not in view: NOT DRAWN, rather than drawn at a constant. A number
+  // written into the site would be the fold's `at` in a second place, still
+  // painting an ember ring over empty floor the day the cake is moved.
+  assert.equal(adversaryPlacement({ encounter_detail: detail, nearby: [] }, grid), null);
+  // in view but unnamed by the fight: also not drawn — it is just a mark then
+  assert.equal(adversaryPlacement({ nearby: [{ id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 } }] }, grid), null);
+
+  // THE JOIN IS THE WHOLE FUNCTION, so it is proved against a view that holds
+  // OTHER marks: a placement that took the first thing in `nearby` would paint
+  // the adversary's ember ring and its hp bar over a dropped lighter. Without
+  // this case the two above pass against no join at all — measured.
+  assert.equal(adversaryPlacement({
+    encounter_detail: detail,
+    nearby: [{ id: "the-town/the-good-lighter", at: { x: 1095.5, y: -784 } }],
+  }, grid), null, "a view with no cake in it draws no cake, however much else is in it");
+  const amongOthers = adversaryPlacement({
+    encounter_detail: detail,
+    nearby: [
+      { id: "the-town/the-good-lighter", at: { x: 1095.5, y: -784 } },
+      { id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 } },
+    ],
+  }, grid);
+  assert.deepEqual(amongOthers.at, worldToPx(grid, { x: 1097, y: -783.5 }),
+    "and it finds the cake by id rather than by position in the list");
+
+  const placed = adversaryPlacement({
+    encounter_detail: detail,
+    nearby: [{ id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 } }],
+  }, grid);
+  assert.deepEqual(placed.at, worldToPx(grid, { x: 1097, y: -783.5 }));
+  assert.equal(placed.adversary.hp, 41);
+  assert.equal(placed.adversary.of, 60);
+});

@@ -14,6 +14,7 @@ import {
   portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
+  actCandidates, adversaryPlacement, chatField, chatShaped, prefillFor,
 } from "./world-cockpit.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
 // — so the bar cannot be drawn for one standpoint and act from another.
@@ -216,6 +217,38 @@ export const COCKPIT_CSS = `
 .pmc-said.bad { color: var(--pmc-live); }
 .pmc-said .hint { display: block; color: var(--pmc-dim); font-size: .92em; margin-top: .3em; }
 .pmc-terms { margin: .6em 0 0; padding: .5em .7em; border-left: 2px solid var(--pmc-gold-dim); font-size: .72rem; line-height: 1.55; color: var(--pmc-dim); }
+
+/* ── the chat line ──
+   RULED 2026-08-28: "everything I can do via the ui buttons, I have to type in
+   like filling an mcp form." An act whose whole argument is one sentence should
+   read as typing a sentence, so a chat-shaped act (chatShaped, in the arithmetic
+   file — a prose field and nothing else required) opens THIS instead of a form.
+   One line, docked over the bar, ENTER sends and ESC closes.
+
+   It is not a second dispatch path: what leaves here goes out through the same
+   dispatchEnvelope the form uses, carrying the same act name and the same field
+   name off the same card. Only the chrome is different, which is the whole of
+   the ruling — the grammar was never the complaint. */
+.pmc-chat {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
+  display: flex; align-items: center; gap: .6em;
+  width: 34em; max-width: calc(100vw - 24px); padding: .5em .7em;
+}
+.pmc-chat .who {
+  flex: 0 0 auto; color: var(--pmc-gold);
+  font: .62rem/1 ui-monospace, Consolas, monospace; letter-spacing: .14em;
+}
+.pmc-chat input {
+  flex: 1 1 auto; min-width: 0; margin: 0; padding: .45em .7em;
+  font: .92rem/1.4 Georgia, serif; color: var(--pmc-ink);
+  background: rgba(0,0,0,.35); border: 1px solid rgba(154,161,173,.35); border-radius: 999px;
+}
+.pmc-chat input::placeholder { color: rgba(154,161,173,.55); font-style: italic; }
+.pmc-chat input:focus { outline: none; border-color: var(--pmc-gold); }
+/* the keys that work, said quietly and always — a line with no visible send
+   button has to tell a reader how to send it */
+.pmc-chat .keys { flex: 0 0 auto; color: var(--pmc-dim); font: .58rem/1.5 ui-monospace, Consolas, monospace; }
+.pmc-chat .pmc-said { margin: 0; }
 
 /* ══ THE TWO SPACES ══
    The founder ruled the dungeon as two rooms that should FEEL different: an
@@ -607,7 +640,7 @@ export function mountCockpit(o) {
     <span class="pmc-more" data-more="left" aria-hidden="true" hidden>‹</span>
     <span class="pmc-more" data-more="right" aria-hidden="true" hidden>›</span>
     <div class="pmc-card" id="pmc-card" role="tooltip" hidden></div>
-    ${state.open ? formHtml(state.open) : ""}`;
+    ${state.open ? (opensAsChat(state.open) ? chatHtml(state.open) : formHtml(state.open)) : ""}`;
   }
 
   /**
@@ -778,9 +811,21 @@ export function mountCockpit(o) {
     const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
     if (!slot?.card) return "";
     const c = slot.card;
+    // WHAT THE ANSWER CAN FILL IN FOR YOU (2026-08-28 ruling). `prefillFor` is
+    // deliberately narrow — one open slot and one named value, or nothing — and
+    // the candidates it declined to choose between are offered as a datalist
+    // instead, so the reader gets one keystroke rather than a guess.
+    const filled = prefillFor(c, state.answer);
+    const candidates = actCandidates(state.answer);
+    const listId = candidates.length ? `pmc-cand-${esc(action)}` : null;
+    const datalist = listId
+      ? `<datalist id="${listId}">${candidates.map((k) =>
+          `<option value="${esc(k.value)}">${esc(k.label)}${k.why ? " — " + esc(k.why) : ""}</option>`).join("")}</datalist>`
+      : "";
     const inputs = c.fields.map((f) => {
       const id = `pmc-f-${esc(f.name)}`;
       const req = f.required ? ` <span class="req" title="required">*</span>` : "";
+      const pre = filled[f.name] != null ? ` value="${esc(filled[f.name])}"` : "";
       let control;
       if (f.enum && f.enum.length) {
         control = `<select id="${id}" data-field="${esc(f.name)}">${f.enum.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`).join("")}</select>`;
@@ -793,9 +838,13 @@ export function mountCockpit(o) {
         // honours them rather than guessing at a shape.
         const cap = statedLimit(f.description);
         const max = cap ? ` maxlength="${cap}"` : "";
+        // The candidate list rides on the free-text fields only — a field the
+        // door gave an enum for already has the door's own answer, and one
+        // holding prose is not a thing you aim at.
+        const list = listId && !wantsTextarea(f) ? ` list="${listId}"` : "";
         control = wantsTextarea(f)
           ? `<textarea id="${id}" data-field="${esc(f.name)}"${max}></textarea>`
-          : `<input id="${id}" data-field="${esc(f.name)}" type="text"${max}>`;
+          : `<input id="${id}" data-field="${esc(f.name)}" type="text"${max}${list}${pre}>`;
       }
       // The door's own description under the field, whole. It is where the door
       // tells a caller what the act will do with the value, and shortening it
@@ -816,16 +865,67 @@ export function mountCockpit(o) {
       ? `<div class="pmc-terms"><b>terms</b> — delivered before the act binds, because you cannot be bound by law you were not shown at the door${termsHtml(shown)}</div>`
       : "";
     const actorWords = state.acting === HUMAN_ACTOR ? "as yourself" : `as ${esc(state.acting ?? "—")}`;
+    // NOTHING LEFT TO TYPE is a state worth saying out loud. Where the door made
+    // every field optional and found its own target — which is most of the
+    // fight's acts — the form opens with nothing to fill and ENTER sends it, and
+    // a reader looking at an empty panel deserves to be told that is the whole
+    // of it rather than left hunting for the field they missed.
+    const nothingToType = c.fields.every((f) => !f.required && filled[f.name] == null);
+    const ready = c.fields.length && nothingToType
+      ? `<p class="pmc-desc">Every field here is the door's to fill — press ENTER to send it as it stands.</p>`
+      : "";
     return `<form class="pmc-plate pmc-form" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
       ${c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
       ${inputs || `<p class="pmc-desc">This act takes no arguments.</p>`}
+      ${ready}${datalist}
       ${terms}${said}
       <div class="pmc-actions">
         <button type="submit" class="pmc-btn go">do it</button>
         <button type="button" class="pmc-btn" data-close>close</button>
       </div>
     </form>`;
+  }
+
+  // ── the chat line ─────────────────────────────────────────────────────────
+  /**
+   * A chat-shaped act, as a chat line rather than a form.
+   *
+   * RULED 2026-08-28: "everything I can do via the ui buttons, I have to type in
+   * like filling an mcp form" — the speaking act should feel like speaking.
+   *
+   * NO NEW VERB AND NO NEW WIRE. Which act gets this chrome is decided by the
+   * SHAPE of the card the door sent (chatShaped: one prose field, nothing else
+   * required), the field it writes into is that card's own prose field by the
+   * door's own name for it, and what leaves goes out through the same
+   * dispatchEnvelope as the form's. A door that renames the field, or grows a
+   * second required one, gets the ordinary form back with no edit here.
+   */
+  function chatHtml(action) {
+    const all = barSlots(state.answer);
+    const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
+    const f = chatField(slot?.card);
+    if (!f) return "";
+    const cap = statedLimit(f.description);
+    const who = state.acting === HUMAN_ACTOR ? "yourself" : (state.acting ?? "—");
+    const said = state.said
+      ? `<p class="pmc-said${state.said.ok ? "" : " bad"}">${esc(state.said.text)}</p>`
+      : "";
+    return `<form class="pmc-plate pmc-chat" data-form="${esc(action)}" data-chat="${esc(f.name)}">
+      <span class="who">${esc(action.toUpperCase())} · ${esc(who)}</span>
+      <input type="text" data-field="${esc(f.name)}" autocomplete="off"
+        ${cap ? `maxlength="${cap}"` : ""}
+        aria-label="${esc(f.name)}" placeholder="${esc(f.description ?? f.name)}">
+      <span class="keys">↵ send · esc close</span>
+      ${said}
+    </form>`;
+  }
+
+  /** Which chrome this act opens in. The card decides; nothing here is a name. */
+  function opensAsChat(action) {
+    const all = barSlots(state.answer);
+    const slot = [...all.fixed, ...all.tray].find((s) => s.action === action);
+    return chatShaped(slot?.card);
   }
 
   // ── the initiative wheel ──────────────────────────────────────────────────
@@ -954,10 +1054,80 @@ export function mountCockpit(o) {
     }).join("");
   }
 
+  /**
+   * WHAT STANDS AGAINST YOU, drawn where it stands.
+   *
+   * THE PROBLEM THIS SOLVES, and it is worth stating because the map looks
+   * broken rather than incomplete without it: the painting is derived from the
+   * settled fold, and the fold carries the dungeon's rooms but the FIGHT is not
+   * a fact of the fold at all — so a reader in the candle vault sees a floor
+   * with nothing on it while the bar beside them says they are three rounds into
+   * a fight with something. The cake is invisible. The answer already holds
+   * everything needed to draw it; it just holds it in two pieces
+   * (`adversaryPlacement` joins them, and its own note says why there is no
+   * fallback coordinate here).
+   *
+   * SIZED IN SCREEN PIXELS, like the token and the walkers and the loose things,
+   * and for the same measured reason: a figure that changed size relative to the
+   * people around it would be saying something about the figure. Bigger than a
+   * person because it is — the ring is the room's ninth tier of candles, not a
+   * head — but bigger by a constant, so the whole scene zooms together.
+   *
+   * The hp bar is the door's arithmetic shown, never the site's: `hp` and `of`
+   * are the numbers `publicState` sent, and a bar with either missing simply is
+   * not drawn rather than guessing a full one.
+   */
+  function drawAdversary() {
+    if (!tokenLayer || !o.grid) return "";
+    const placed = adversaryPlacement(state.answer, o.grid);
+    if (!placed) return "";
+    const { at, adversary: a } = placed;
+    const u = unitsPerPx();
+    const r = 20 * u;
+    const hasBar = Number.isFinite(a.hp) && Number.isFinite(a.of) && a.of > 0;
+    const frac = hasBar ? Math.max(0, Math.min(1, a.hp / a.of)) : 0;
+    const bw = r * 2.6;
+    const by = r * 1.5;
+    // THE EMBER PALETTE IS THE ARENA'S OWN (--pmc-accent, #e2603f) — but this is
+    // svg inside the viewer's painting, not inside the .pmc overlay, so the
+    // custom property does not reach it and the value is written out. Kept the
+    // same two hex values the stylesheet's arena block holds; if that block
+    // moves, this is the second place to move.
+    const ember = "#e2603f";
+    return `<g class="pmc-adversary" transform="translate(${at.x} ${at.y})">
+      <defs><radialGradient id="pmc-adv-glow">
+        <stop offset="45%" stop-color="${ember}" stop-opacity="0.34"/>
+        <stop offset="100%" stop-color="${ember}" stop-opacity="0"/>
+      </radialGradient></defs>
+      <circle cx="0" cy="0" r="${r * 2.4}" fill="url(#pmc-adv-glow)"/>
+      <circle cx="0" cy="0" r="${r * 1.34}" fill="none" stroke="${ember}" stroke-width="${r * 0.06}" stroke-opacity="0.5"/>
+      <circle cx="0" cy="0" r="${r}" fill="none" stroke="${ember}" stroke-width="${r * 0.16}"
+        stroke-dasharray="${r * 0.9} ${r * 0.42}"/>
+      <circle cx="0" cy="0" r="${r * 0.52}" fill="${ember}" fill-opacity="0.22"/>
+      ${hasBar ? `<g class="pmc-adv-hp">
+        <rect x="${-bw / 2}" y="${by}" width="${bw}" height="${r * 0.26}" rx="${r * 0.13}"
+          fill="#0d1015" fill-opacity="0.8" stroke="${ember}" stroke-width="${r * 0.03}" stroke-opacity="0.55"/>
+        <rect x="${-bw / 2}" y="${by}" width="${bw * frac}" height="${r * 0.26}" rx="${r * 0.13}" fill="${ember}"/>
+      </g>` : ""}
+      <title>${esc(a.label)}${hasBar ? ` — ${a.hp} of ${a.of}` : ""}${a.body ? ` — ${esc(a.body)}` : ""}</title>
+    </g>`;
+  }
+
   function drawToken() {
     if (!tokenLayer) return;
     tokenLayer.textContent = "";
-    // whatever is on the floor draws first, so a face always paints over an object
+    // WHAT STANDS AGAINST YOU DRAWS FIRST, under everything else on the floor.
+    // It is the biggest thing in the room and the one people walk over to; a
+    // ring painted last would put its glow across the faces of everyone fighting
+    // it, which is the opposite of what the ring is for.
+    const adversary = drawAdversary();
+    if (adversary) {
+      const g = doc.createElementNS(NS, "g");
+      g.setAttribute("class", "pmc-adversary-layer");
+      g.innerHTML = adversary;
+      tokenLayer.appendChild(g);
+    }
+    // whatever is on the floor draws next, so a face always paints over an object
     const loose = drawLoose();
     if (loose) {
       const g = doc.createElementNS(NS, "g");
@@ -1076,8 +1246,26 @@ export function mountCockpit(o) {
       paint();
       root.querySelector(".pmc-slot.open")?.scrollIntoView?.({ inline: "nearest", block: "nearest" });
       markOverflow();
-      root.querySelector("[data-form] [data-field]")?.focus();
+      focusFirstOpen();
     }
+  }
+
+  /**
+   * WHERE THE CURSOR LANDS in a form that may already be filled in.
+   *
+   * The first EMPTY field, not the first field — because a prefilled one is
+   * already answered, and dropping the cursor into it means the reader's first
+   * keystroke either lands inside a value they wanted or has to be preceded by
+   * clearing it. With nothing left to fill, the cursor goes to the send button,
+   * so ENTER is the very next thing a hand can do: that is the whole of "plain
+   * ENTER submits" for the acts whose fields the door fills itself.
+   */
+  function focusFirstOpen() {
+    const form = root.querySelector("[data-form]");
+    if (!form) return;
+    const fields = [...form.querySelectorAll("[data-field]")];
+    const empty = fields.find((el) => !el.value);
+    (empty ?? form.querySelector(".pmc-btn.go") ?? fields[0])?.focus();
   }
 
   async function onSubmit(ev) {
@@ -1109,8 +1297,16 @@ export function mountCockpit(o) {
       const rolls = rollsFrom(res.body);
       if (rolls.length) showThrow(rolls);
       if (res.ok) {
-        state.said = { ok: true, text: "done — the door took it." };
+        state.said = { ok: true, text: form.hasAttribute("data-chat") ? "sent." : "done — the door took it." };
         formValues = null;
+        // A CHAT LINE EMPTIES ITSELF AND STAYS OPEN. Cleared in the live DOM
+        // rather than by trusting formValues, because paint() re-reads the form
+        // before it repaints — so a line nulled only in that variable comes
+        // straight back out of the element it was just sent from, and the reader
+        // sends the same sentence twice.
+        if (form.hasAttribute("data-chat")) {
+          form.querySelectorAll("[data-field]").forEach((el) => { el.value = ""; });
+        }
         if (o.refresh) { const fresh = await o.refresh().catch(() => null); if (fresh) state.answer = fresh; }
       } else {
         const b = readBounce(res.body, res.status);
@@ -1170,6 +1366,27 @@ export function mountCockpit(o) {
   root.addEventListener("click", onClick);
   root.addEventListener("submit", onSubmit);
   doc.addEventListener("keydown", onKey);
+
+  // ENTER SENDS THE CHAT LINE, said explicitly rather than left to the browser.
+  // A single-input form with no submit button does implicitly submit on ENTER in
+  // every engine that matters — but "in every engine that matters" is the kind of
+  // sentence this file has been wrong about before, and the send is the whole
+  // gesture of a chat line. requestSubmit fires the submit event the ordinary way,
+  // so onSubmit above is still the one path out.
+  root.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Enter" || ev.shiftKey) return;
+    const chat = ev.target?.closest?.("[data-chat]");
+    if (!chat || !root.contains(chat)) return;
+    ev.preventDefault();
+    (chat.requestSubmit ? chat.requestSubmit() : chat.dispatchEvent(new doc.defaultView.Event("submit", { bubbles: true, cancelable: true })));
+  });
+  // The receipt clears when the reader types the next thing. Removed from the
+  // DOM directly, never by repainting: a repaint here would rebuild the input
+  // the reader is mid-sentence in.
+  root.addEventListener("input", (ev) => {
+    if (!ev.target?.closest?.("[data-chat]")) return;
+    if (state.said) { state.said = null; root.querySelector(".pmc-chat .pmc-said")?.remove(); }
+  });
 
   // The camera moves without anything of ours firing — the viewer pans and zooms
   // by writing the viewBox, and a screen-sized token has to be re-drawn when it
