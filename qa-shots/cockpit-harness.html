@@ -689,6 +689,15 @@
       means: "the-town/lift — an ally on their feet is worth a turn",
       budget: { cap_chars: 4000, per_mark_chars: 700 },
     },
+    // GUARD IS THE THIRD NAMED INSTANCE (founder, 2026-08-29) and the one that
+    // settles the diagnosis: three unrelated acts, one composer, the same two
+    // faults. It is staged with the same shape as the other two so the class
+    // assertion has a third act to be true of rather than two.
+    guard: {
+      binds: "the-town/resident",
+      means: "the-town/guard — a turn spent not swinging is a turn spent standing",
+      budget: { cap_chars: 4000, per_mark_chars: 700 },
+    },
   };
   async function readTerms(action) {
     await new Promise((r) => setTimeout(r, 250));
