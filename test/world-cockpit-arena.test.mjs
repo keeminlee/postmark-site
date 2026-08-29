@@ -36,8 +36,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import {
-  aimField, aimTargets, aimable, barFold, barSlots, cardOf, consentSplit,
-  dialSpeak, snapPoint, walkStep, DEFAULT_STEP_M,
+  HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
+  cardOf, consentSplit, dialSpeak, snapPoint, walkStep, weaponFor, DEFAULT_STEP_M,
 } from "../src/lib/world-cockpit.mjs";
 
 const MOUNT = readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit-mount.mjs", import.meta.url)), "utf8");
@@ -83,6 +83,11 @@ const VAULT = {
     entry("leave-mark", { fields: { slug: SLUG, body: { type: "string", description: "one present-tense observation; maximum 150 characters" } } }),
     entry("note-to-self", { fields: { body: { type: "string", description: "the complete replacement note, maximum 2000 characters", required: true } } }),
     ground("swing", { fields: { object: AIMED }, dials: { to_hit_die: 20, damage_die: 8, beats_ac: 12 } }),
+    // A SECOND ACT THAT DEALS DAMAGE, and it is in the fixture for one reason:
+    // only one of the room's damaging acts is helped by what you are holding, so
+    // a weapon clause attached to both would be a claim about this one that the
+    // record does not make. Without a second, that could not be falsified.
+    ground("hurl", { fields: { object: AIMED }, dials: { to_hit_die: 20, damage_die: 10, beats_ac: 11 } }),
     ground("brace", { fields: { object: AIMED }, dials: { halves_next_hit: true } }),
     ground("raise", { fields: { object: AIMED }, dials: { restores_to: 8 } }),
     ground("gather", { fields: { object: AIMED } }),
@@ -205,8 +210,8 @@ test("the room's acts hold the row and what you carry everywhere folds", () => {
     gate: { gather: "spent" }, phase: "afoot",
   });
   assert.deepEqual(fold.shown.map((s) => s.action),
-    ["walk", "say", "exit", "swing", "brace", "raise"],
-    "the ambient three the ruling names, then everything the ground itself granted");
+    ["walk", "say", "exit", "swing", "hurl", "brace", "raise"],
+    "the ambient ones the caller kept, then everything the ground itself granted");
   assert.deepEqual(fold.folded.map((s) => s.action), ["give", "take"],
     "and what travels with you is one press away");
 
@@ -230,6 +235,162 @@ test("a bar with no ground acts and no keep list folds everything, which is the 
   assert.equal(fold.shown.length, 0, "nothing is on the row when nothing is the ground's and nothing was kept");
   assert.equal(fold.folded.length, barSlots(town).fixed.length + barSlots(town).tray.length,
     "and every seat is accounted for — the fold drops nothing it was not told to hide");
+});
+
+// ══ (2b) WHAT THE WHEEL ACTUALLY GATES (addendum, 2026-08-29) ═══════════════
+//
+// THE FINDING IS THE OFFICE'S, and it is worth stating because it reverses who
+// was at fault. The `do:` gate NEVER held walk or say: the office refuses
+// anything that is not one of the ground's arena verbs before the wheel is
+// consulted at all, so a walk mid-fight has always gone through. What froze the
+// founder during the party was THIS SURFACE — it saw `acting_blocked`, read it
+// as "you may not act", and cooled every seat including the ones the door would
+// have honoured. `gates` is the door naming the acts it means.
+
+/** The door's own narrowing, in the office's shape (world-apex.mjs actingBlocked,
+ *  branch bday-law 883e77d): a reason, the acts it is about, and a hint. */
+const GATED = (gates) => ({
+  ...VAULT,
+  standpoint: {
+    ...VAULT.standpoint,
+    acting_blocked: {
+      reason: "it is the unlit cake's turn",
+      ...(gates ? { gates } : {}),
+      hint: "the wheel gates this ground's ARENA verbs while an encounter is live — yours comes round.",
+    },
+  },
+});
+
+test("a narrowed refusal cools exactly the acts the door named", () => {
+  const answer = GATED(["swing", "brace", "raise", "gather"]);
+  const bar = barSlots(answer, { acting: "keeminlee" });
+  const seat = (a) => [...bar.fixed, ...bar.tray].find((s) => s.action === a);
+
+  // the ones the door named are cold, and each says the door's own reason
+  for (const a of ["swing", "brace", "raise", "gather"]) {
+    assert.equal(seat(a).enabled, false, `${a} waits for the wheel`);
+    assert.equal(seat(a).blocked, "it is the unlit cake's turn", `${a} says why, in the door's words`);
+  }
+  // ⚑ AND EVERYTHING ELSE STAYS LIVE. This is the whole addendum: the founder
+  // could not walk out of a room whose door would have let him walk the entire
+  // time, because the page had greyed the seat.
+  for (const a of ["walk", "say", "exit", "take"]) {
+    assert.equal(seat(a).enabled, true, `${a} is not the wheel's business`);
+    assert.equal(seat(a).blocked, null, `${a} is not told it is refused`);
+  }
+});
+
+test("a refusal with no list narrows nothing, exactly as before the field existed", () => {
+  // THE FLIP, and it is the one that matters: the change must be invisible
+  // against a door that has not grown the field, and must never quietly un-gate
+  // a fight. Same reason, no `gates`.
+  const bar = barSlots(GATED(null), { acting: "keeminlee" });
+  const afforded = [...bar.fixed, ...bar.tray].filter((s) => s.afforded);
+  assert.ok(afforded.length > 0);
+  assert.ok(afforded.every((s) => s.enabled === false), "every afforded seat cools");
+  assert.equal(blockedReason(GATED(null)).gates, null, "because the door narrowed nothing");
+  // an empty list is not a narrowing either — it is a door saying nothing
+  assert.equal(blockedReason(GATED([])).gates, null);
+  assert.ok(barSlots(GATED([]), { acting: "keeminlee" }).fixed
+    .filter((s) => s.afforded).every((s) => s.enabled === false));
+});
+
+test("the derived block narrows nothing, and says so by omission", () => {
+  // Which acts a wheel gates is the ground's own law, and this file has no verb
+  // list to name them with. So a derivation says only what it can honestly say.
+  const derived = blockedReason({
+    ...VAULT,
+    encounter: { ...VAULT.encounter, turn: "the-town/the-unlit-cake" },
+  }, { acting: "keeminlee" });
+  if (derived) {
+    assert.equal(derived.from, "derived");
+    assert.equal(derived.gates, null, "a derivation does not invent a list it cannot read");
+  }
+});
+
+test("the gate line names what is waiting, in the seats' own words", () => {
+  assert.match(MOUNT, /function gateWords\(blocked, shown, folded\) \{/,
+    "the line above the bar is built rather than printed raw");
+  assert.match(MOUNT, /if \(!blocked\?\.gates\?\.length\) return blocked\.reason;/,
+    "and where the door narrowed nothing it is exactly the sentence it always was");
+  assert.match(MOUNT, /\$\{blocked\.reason\} — \$\{cold\.join\(", "\)\} wait for it/,
+    "where it did, the cold seats are named — so the line cannot read as a flat refusal over a live row");
+});
+
+// ══ (3b) WHAT YOU ARE HOLDING (addendum, 2026-08-29) ════════════════════════
+
+/** The office's own weapon shape, carried out to a caller. `weaponInHand`
+ *  already answers {thing, bonus, says}; `hands[who].weapon` is that answer
+ *  reaching the door (office lane bday-law, in flight at the time of writing). */
+const HOLDING = (weapon, who = "keeminlee") => ({
+  ...VAULT,
+  encounter_detail: {
+    ...VAULT.encounter_detail,
+    hands: { [who]: { hp: 16, of: 20, downed: false, guarding: false, gone: false, ...(weapon ? { weapon } : {}) } },
+  },
+});
+
+test("the weapon completes the founder's own sentence, on the act it helps", () => {
+  // HIS EXAMPLE, verbatim in shape: "Strike — d20 vs 12 to hit · d8 damage ·
+  // +3 with the good-lighter". The first two thirds are the class's dials; the
+  // third is what THIS hand happens to be carrying today.
+  const answer = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, for: "swing" });
+  assert.equal(dialSpeak(cardFor(answer, "swing"), { weapon: weaponFor(answer, "keeminlee") }),
+    "d20 vs 12 to hit · d8 damage · +3 with the good lighter",
+    "deslugged by the same one-writer every id in this world is read by");
+
+  // ⚑ AND ONLY ON THE ACT IT HELPS. Two of the room's acts state damage and only
+  // one is helped by what you are holding; attaching it to both would be a claim
+  // about the second that the record does not make.
+  assert.equal(dialSpeak(cardFor(answer, "hurl"), { weapon: weaponFor(answer, "keeminlee") }),
+    "d20 vs 11 to hit · d10 damage", "the other damage act claims no help it was not given");
+  assert.equal(dialSpeak(cardFor(answer, "brace"), { weapon: weaponFor(answer, "keeminlee") }),
+    "halves the next hit");
+});
+
+test("no weapon, no clause — and a hand that is not yours is not read", () => {
+  // absent field → today's sentence, unchanged
+  assert.equal(weaponFor(VAULT, "keeminlee"), null, "a door that sends no hands says nothing");
+  assert.equal(weaponFor(HOLDING(null), "keeminlee"), null, "nor one whose hand carries no weapon");
+  assert.equal(dialSpeak(cardFor(VAULT, "swing"), { weapon: weaponFor(VAULT, "keeminlee") }),
+    "d20 vs 12 to hit · d8 damage", "so the sentence is the two thirds the class states");
+
+  // a bonus of zero is not a fact worth a word
+  assert.equal(weaponFor(HOLDING({ thing: "the-town/a-stick", bonus: 0, for: "swing" }), "keeminlee"), null);
+  // somebody else's hand is somebody else's
+  assert.equal(weaponFor(HOLDING({ thing: "x/y", bonus: 2 }, "vermillion"), "keeminlee"), null);
+  // acting as the household's human reads the HUMAN's row, found by kind
+  const asHuman = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, for: "swing" }, "keeminlee");
+  assert.equal(weaponFor(asHuman, HUMAN_ACTOR)?.bonus, 3,
+    "the human's hand is the one on the wheel under their own kind");
+});
+
+test("which act a weapon helps is the door's word first, the mount's stopgap second", () => {
+  // The office KNOWS: it finds a weapon by looking for the held grant whose own
+  // entry names the act it augments. Until that reaches the answer the mount
+  // supplies a name, and it is marked as a stopgap so it can be deleted rather
+  // than inherited.
+  const noFor = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3 });
+  assert.equal(weaponFor(noFor, "keeminlee").for, null,
+    "the arithmetic does not guess which act — it reports that the door did not say");
+  assert.equal(dialSpeak(cardFor(noFor, "swing"), { weapon: weaponFor(noFor, "keeminlee") }),
+    "d20 vs 12 to hit · d8 damage", "and with no act named, no act claims it");
+  // the caller fills it, and the caller is the file that already holds names
+  assert.match(MOUNT, /const WEAPON_HELPS = "strike";/, "the stopgap lives beside the other name-keyed rulings");
+  assert.match(MOUNT, /return w \? \{ \.\.\.w, for: w\.for \?\? WEAPON_HELPS \} : null;/,
+    "and the door's own word wins over it whenever it arrives");
+  // ONE READING, so the seat, the card and the panel cannot disagree on a
+  // number. Asserted as "no call site omits it" rather than as a COUNT of call
+  // sites: a count is a test that fails the day somebody legitimately adds a
+  // fourth surface, which trains the next reader to edit the number instead of
+  // thinking about it. What actually matters is that none of them is reading a
+  // different hand — or no hand at all.
+  assert.match(MOUNT, /function heldWeapon\(\) \{/);
+  const speaks = MOUNT.match(/dialSpeak\([^)]*\)/g) ?? [];
+  assert.ok(speaks.length >= 3, "the seat, the card and the panel all say what an act costs");
+  for (const call of speaks) {
+    assert.match(call, /weapon: heldWeapon\(\)/, `every surface reads the same hand — ${call}`);
+  }
 });
 
 // ══ (4) GAME-SPEAK ══════════════════════════════════════════════════════════
@@ -352,7 +513,7 @@ test("the row's numbers are the row's, renumbered by the fold", () => {
     keep: ["walk", "say", "exit"], hide: ["leave-mark", "note-to-self"],
     gate: { gather: "spent" }, phase: "afoot",
   });
-  assert.deepEqual(fold.shown.map((s) => s.key), [1, 2, 3, 4, 5, 6],
+  assert.deepEqual(fold.shown.map((s) => s.key), [1, 2, 3, 4, 5, 6, 7],
     "the nth seat on the row wears n");
   assert.deepEqual(fold.folded.map((s) => s.key), [null, null],
     "and what folded wears no number — the tray is reached by name");
@@ -375,7 +536,7 @@ test("a seat gets the headline and the card gets the whole line", () => {
   assert.equal(dialSpeak(cardFor(VAULT, "brace"), { brief: true }), "halves the next hit");
   assert.equal(dialSpeak(cardFor(VAULT, "gather"), { brief: true }), "", "and on one with nothing to say, nothing");
   // the seat asks for the brief one; the ellipsis it used to need is gone
-  assert.match(MOUNT, /leadsTo\(s\) \?\? dialSpeak\(s\.card, \{ brief: true \}\)/, "the seat asks for the headline");
+  assert.match(MOUNT, /leadsTo\(s\) \?\? dialSpeak\(s\.card, \{ brief: true, weapon: heldWeapon\(\) \}\)/, "the seat asks for the headline");
   assert.doesNotMatch(MOUNT, /\.pmc-dial \{[^}]*text-overflow: ellipsis/, "so the seat's line no longer needs clipping");
 });
 
@@ -388,7 +549,8 @@ test("an armed act's card stands down, like an open panel's", () => {
 });
 
 test("the three name-keyed rulings live beside the icons, not in the arithmetic", () => {
-  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "exit"\];/, "the ambient seats the ruling keeps on the row");
+  assert.match(MOUNT, /const BAR_KEEP = \["walk", "say", "enter", "exit"\];/,
+    "the ambient seats that hold a row — his three, plus the crossing act added on the conductor's ruling");
   assert.match(MOUNT, /const DUNGEON_HIDE = \["leave-mark", "note-to-self"\];/, "the two seats hidden in the dungeon");
   assert.match(MOUNT, /const PHASE_GATE = \{ loot: "spent" \};/, "and the one act whose precondition is a phase");
   // hidden ONLY inside portal ground — the door's own word for being in the
@@ -412,7 +574,7 @@ test("the hover is a glance and the fine print is somewhere a hand can reach", (
     "which is where formHtml puts it — on every panel except the tight fight plate, and on that one too once it is delivering terms");
   // the seat's own line is game-speak now too, in its headline form — see
   // "a seat gets the headline and the card gets the whole line" below
-  assert.match(MOUNT, /leadsTo\(s\) \?\? dialSpeak\(s\.card, \{ brief: true \}\)/,
+  assert.match(MOUNT, /leadsTo\(s\) \?\? dialSpeak\(s\.card, \{ brief: true, weapon: heldWeapon\(\) \}\)/,
     "and the seat says it the same way, in the room a seat has");
 });
 

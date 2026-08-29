@@ -286,8 +286,12 @@
         { id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 }, kind: "sited", tier: "market" },
         { id: "vermillion/the-long-knife", at: { x: 1092, y: -786 }, kind: "sited", loose: true, dropped_by: "vermillion" },
       ],
-      actions: [ORDINARY[0], ORDINARY[1], ORDINARY[4], ...ARENA],
-      granted: { yours: ["say", "walk", "take"], here: ARENA.map((e) => e.action) },
+      // ORDINARY[7] is the way out, and it is granted here deliberately: the
+      // exit law holds mid-fight (the office's own words — "the exit law holds
+      // mid-fight, and the arena simply stops"), and being able to see that the
+      // wheel does NOT cool it is half the point of the gates fixture below.
+      actions: [ORDINARY[0], ORDINARY[1], ORDINARY[4], ORDINARY[7], ...ARENA],
+      granted: { yours: ["say", "walk", "take", "exit"], here: ARENA.map((e) => e.action) },
       encounter: {
         id: "the-town/the-candle-vault", round: 3, turn: "keeminlee",
         order: [
@@ -308,6 +312,52 @@
         },
       },
       law: { as_of_world: "fixture", source: "the harness" },
+    },
+
+    // ── THE WHEEL RESTING ON THE CREATURE, WITH THE DOOR'S OWN NARROWING ──
+    // `standpoint.acting_blocked.gates` is the office's live field (world-apex
+    // .mjs actingBlocked, branch bday-law 883e77d) — the acts the refusal is
+    // actually about. This fixture is the state the founder was frozen in: the
+    // wheel is not his, and until the field existed the page cooled every seat,
+    // so he could not walk out of a room whose door would have let him.
+    get gated() {
+      const v = FIXTURES.vault;
+      const gates = ["strike", "cast", "guard", "lift", "loot"];
+      return {
+        ...v,
+        standpoint: {
+          ...v.standpoint,
+          acting_blocked: {
+            reason: "it is the unlit cake's turn",
+            whose_turn: "the-town/the-unlit-cake",
+            gates,
+            hint: `the wheel gates this ground's ARENA verbs (${gates.join(", ")}) while an encounter is live — yours comes round. Everything else you can do here is unaffected: walk, speak, stake, hand things over, all ungated mid-fight.`,
+          },
+        },
+        encounter: { ...v.encounter, turn: "the-town/the-unlit-cake" },
+      };
+    },
+
+    // ── WHAT THIS HAND IS HOLDING ──
+    // `encounter_detail.hands[<who>].weapon` — the office's own `weaponInHand`
+    // answer ({thing, bonus, says}) carried out to a caller, plus `for`, the
+    // act the held grant names. In flight in lane bday-law at the time this was
+    // written; the fixture is built to the contract so the surface can be
+    // looked at before the field lands.
+    get armed() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        encounter_detail: {
+          ...v.encounter_detail,
+          hands: {
+            keeminlee: {
+              hp: 16, of: 20, downed: false, guarding: false, gone: false,
+              weapon: { thing: "the-town/the-good-lighter", bonus: 3, for: "strike", says: "it was always going to be the lighter" },
+            },
+          },
+        },
+      };
     },
 
     // THE ROOM AFTER THE FIGHT. Same ground, phase "spent" — which is the one
@@ -382,7 +432,7 @@
   // the coordinates to suit the frame would be testing a fiction.
   // The vault, and the two fixtures that are the vault in another state, all
   // stand at the same world coordinates and need the same frame.
-  if (["vault", "spent", "stride"].includes(which)) {
+  if (["vault", "spent", "stride", "gated", "armed"].includes(which)) {
     document.querySelector(".wv svg").setAttribute("viewBox", "694 594 24 18");
   }
 

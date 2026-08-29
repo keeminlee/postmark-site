@@ -212,19 +212,21 @@ console.log("\n── (4) THE HOVER: game-speak, not a debug panel ──");
 console.log("\n── (5) THE CONSENT SHEET ──");
 {
   const page = await open("portal", WIDTHS[1]);
-  // ⚑ THE CROSSING ACT IS IN THE TRAY, and reaching it through the tray is the
-  // point rather than an inconvenience. The 2026-08-29 keep list is the room's
-  // own acts plus walk, say and exit — the founder's three — so the act that
-  // takes you INTO somewhere is one of the ones that folded. Going through the
-  // overflow seat here checks the tray end to end at the same time.
+  // ⚑ THE TRAY IS CHECKED HERE EVEN THOUGH THE CROSSING ACT NO LONGER LIVES IN
+  // IT. It did when this was written — the keep list was the founder's three —
+  // and the conductor's addendum seated it on the row, which is why the click
+  // below goes to the seat. The tray still has to work, so it is still opened
+  // and read; what it holds is now the acts that genuinely travel with you.
   await page.click("[data-fold]");
   await page.waitForSelector(".pmc-tray");
   const trayRows = await page.evaluate(() =>
     [...document.querySelectorAll(".pmc-tray button")].map((b) => b.getAttribute("data-action")));
   console.log(`  tray holds: ${trayRows.join(" ")}`);
-  note(trayRows.includes("enter"), "the tray holds what folded, reachable by name");
+  note(trayRows.length > 0, "the tray holds what folded, reachable by name");
+  note(!trayRows.includes("enter"), "and the crossing act is not among it any more");
   await page.screenshot({ path: join(OUT, "tray-open-1440.png") });
-  await page.click('.pmc-tray button[data-action="enter"]');
+  await page.keyboard.press("Escape");
+  await page.click('.pmc-slot[data-action="enter"]');
   await page.waitForSelector("[data-form]");
   await page.waitForTimeout(400); // the shadow read's own delay
   const sheet = await page.evaluate(() => {
@@ -275,6 +277,80 @@ console.log("\n── (6) THE WALK GRID ──");
   note(snapped.step === 1, "the ground's declared stride is read");
   note(snapped.at.x === 1083 && snapped.at.y === -792, "and a click lands on it rather than between");
   note(armed.left === 0, "and the minted element is removed — nothing of ours is left in the viewer's DOM");
+  await page.close();
+}
+
+console.log("\n── (2b) THE NARROWED REFUSAL: grey what the door named, and nothing else ──");
+{
+  const page = await open("gated", WIDTHS[1]);
+  const seats = await page.evaluate(() =>
+    [...document.querySelectorAll(".pmc-slot[data-action]")].map((s) => ({
+      action: s.getAttribute("data-action"),
+      cold: s.classList.contains("gated") || s.getAttribute("aria-disabled") === "true",
+      label: s.getAttribute("aria-label"),
+    })));
+  const gate = await page.textContent(".pmc-gate").catch(() => null);
+  for (const s of seats) console.log(`  ${s.cold ? "COLD" : "live"}  ${s.action}`);
+  console.log(`  gate line: ${gate}`);
+  // THE ACTS THE DOOR NAMED ARE COLD…
+  for (const a of ["strike", "cast", "guard", "lift"]) {
+    note(seats.find((s) => s.action === a)?.cold === true, `${a} waits for the wheel`);
+  }
+  // …AND THE ONES IT DID NOT ARE LIVE. This is the whole addendum: the founder
+  // could not walk out of a room whose door would have let him walk.
+  for (const a of ["walk", "say", "exit"]) {
+    note(seats.find((s) => s.action === a)?.cold === false, `${a} is not the wheel's business and stays live`);
+  }
+  note(/wait for it/.test(gate ?? ""), "and the line above the bar names what is waiting rather than reading as a flat refusal");
+  await page.screenshot({ path: join(OUT, "gated-narrow-1440.png") });
+
+  // a narrowed refusal must still refuse: clicking a cold seat does nothing
+  await page.click('.pmc-slot[data-action="strike"]', { force: true });
+  await page.waitForTimeout(200);
+  const after = await page.evaluate(() => ({
+    armed: Boolean(document.querySelector(".pmc-aim")),
+    panel: Boolean(document.querySelector("[data-form]")),
+  }));
+  note(!after.armed && !after.panel, "and a cold seat still cannot be pressed");
+  // …while a live one can
+  await page.click('.pmc-slot[data-action="say"]');
+  await page.waitForTimeout(200);
+  const spoke = await page.evaluate(() => Boolean(document.querySelector("[data-form], .pmc-chat")));
+  note(spoke, "while a seat the door left alone opens as it always did");
+  await page.close();
+}
+
+console.log("\n── (3b) THE WEAPON: the third of his sentence ──");
+{
+  const page = await open("armed", WIDTHS[1]);
+  await page.hover('.pmc-slot[data-action="strike"]');
+  await page.waitForTimeout(150);
+  const said = await page.evaluate(() => ({
+    card: document.querySelector("#pmc-card").textContent.replace(/\s+/g, " ").trim(),
+    strikeSeat: document.querySelector('.pmc-slot[data-action="strike"] .pmc-dial')?.textContent ?? "",
+    castSeat: document.querySelector('.pmc-slot[data-action="cast"] .pmc-dial')?.textContent ?? "",
+  }));
+  console.log(`  card: ${said.card}`);
+  console.log(`  strike seat: ${said.strikeSeat}`);
+  console.log(`  cast seat:   ${said.castSeat}`);
+  note(/\+3 with the good lighter/.test(said.card), "the hover carries the third of the founder's sentence");
+  note(!/\+3/.test(said.castSeat), "and the other damage act claims no help it was not given");
+  note(!/the the/.test(said.card), "the id's own article is not doubled");
+  await page.screenshot({ path: join(OUT, "weapon-hover-1440.png") });
+  await page.close();
+}
+
+console.log("\n── (1c) ENTER holds a seat now (conductor's ruling) ──");
+{
+  const page = await open("portal", WIDTHS[1]);
+  const onRow = await page.evaluate(() =>
+    [...document.querySelectorAll(".pmc-bar .pmc-slot[data-action]")].map((s) => s.getAttribute("data-action")));
+  console.log(`  row: ${onRow.join(" ")}`);
+  note(onRow.includes("enter"), "the way in is on the bar rather than behind the tray");
+  note(onRow.includes("exit"), "beside the way out, which is its pair in the record");
+  const m = await measureBar(page);
+  note(m.overflow <= 1, `and the row still does not scroll (overflow ${m.overflow}px)`);
+  await page.screenshot({ path: join(OUT, "enter-seated-1440.png") });
   await page.close();
 }
 

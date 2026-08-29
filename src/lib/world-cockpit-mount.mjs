@@ -17,6 +17,7 @@ import {
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices,
   aimField, aimTargets, aimable, barFold, consentSplit, dialSpeak, snapPoint, walkStep,
+  weaponFor,
 } from "./world-cockpit.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
 // — so the bar cannot be drawn for one standpoint and act from another.
@@ -119,7 +120,7 @@ export const COCKPIT_CSS = `
 }
 .pmc-bar {
   position: static; flex: 1 1 auto; min-width: 0;
-  display: flex; align-items: stretch; gap: .45em;
+  display: flex; align-items: stretch; gap: .35em;
   flex-wrap: nowrap;
   justify-content: flex-start; pointer-events: none;
   overflow-x: auto; overflow-y: visible; scrollbar-width: thin;
@@ -162,7 +163,7 @@ export const COCKPIT_CSS = `
    is how far: about 520px of overflow, down from where it was. */
 .pmc-slot {
   background: var(--pmc-panel); border: 1px solid var(--pmc-line); border-radius: 8px;
-  min-width: 5.4em; padding: .8em .48em .45em; text-align: center; position: relative;
+  min-width: 5.2em; padding: .8em .3em .45em; text-align: center; position: relative;
   cursor: pointer; pointer-events: auto; color: inherit; font: inherit;
   display: flex; flex-direction: column; justify-content: flex-end;
 }
@@ -197,7 +198,7 @@ export const COCKPIT_CSS = `
    "d20 vs 8 t…". Measured, not guessed: see qa-shots/shoot-cockpit-arena.mjs,
    which fails the run if any ordinary laptop width scrolls. */
 .pmc-dial {
-  color: var(--pmc-dim); font: .68rem/1.3 ui-monospace, Consolas, monospace; margin-top: .2em;
+  color: var(--pmc-dim); font: .62rem/1.3 ui-monospace, Consolas, monospace; margin-top: .2em;
   max-width: 11em; white-space: nowrap;
 }
 .pmc-slot.afford { border-style: dashed; }
@@ -815,7 +816,7 @@ export function mountCockpit(o) {
     // collapsing on it. What changed is the ORDER, which is the whole of the
     // ruling: a player mid-fight reads the throw and the number to beat, and a
     // caller learning the grammar opens the fine print.
-    const speak = dialSpeak(card);
+    const speak = dialSpeak(card, { weapon: heldWeapon() });
     const line = speak
       ? `<p class="pmc-row pmc-speak"><b>${esc(card.action.toUpperCase())}</b> ${esc(speak)}</p>`
       // AND NOT AN EMPTY CAPTION. "if a dial is missing, say nothing rather
@@ -960,10 +961,19 @@ export function mountCockpit(o) {
    * KEEP — founder, 2026-08-29: the room's acts plus "WALK/SAY/EXIT". The first
    * of those needs no naming: `barFold` keeps every act the door opened on the
    * ground's own channel, which IS the room's acts, whatever they are called
-   * tomorrow. These three are the ambient ones he wants on the row anyway —
-   * going somewhere, speaking, and leaving are what you do in a room besides
-   * fight, and a reader hunting for the way out behind a tray is the one case
-   * where a fold costs more than it saves.
+   * tomorrow. These are the ambient ones that hold a seat anyway — going
+   * somewhere, speaking, and the way through a door are what you do in a room
+   * besides fight.
+   *
+   * ⚑ ENTER WAS ADDED AFTER THE FIRST BUILD (conductor's ruling, 2026-08-29,
+   * flagged for the founder's veto). His list named three and this is four, and
+   * the reasoning for the fourth is that the list was DECLUTTERING rather than
+   * hiding: the crossing act is the party's first gesture, it and the way out
+   * are one pair in the record (same class, same blurb — "An entry is one
+   * passage written … exit writes the next"), and folding one of a pair while
+   * seating the other put the way IN behind a tray in the antechamber, which is
+   * the room where it is the only thing anyone wants. Shipped as built, then
+   * reversed on the reading of the shot.
    *
    * HIDE — "hide the mark and note UI buttons in the dungeon grounds", and UI
    * hiding is the whole of it: the acts are untouched, the door still affords
@@ -979,9 +989,26 @@ export function mountCockpit(o) {
    * was already going to give. `PHASES` is the office's list (encounter.mjs):
    * afoot, spent, wiped.
    */
-  const BAR_KEEP = ["walk", "say", "exit"];
+  const BAR_KEEP = ["walk", "say", "enter", "exit"];
   const DUNGEON_HIDE = ["leave-mark", "note-to-self"];
   const PHASE_GATE = { loot: "spent" };
+  /**
+   * WHICH ACT A WEAPON HELPS, until the door says so itself.
+   *
+   * ⚑ A STOPGAP, AND IT IS MARKED AS ONE SO IT CAN BE DELETED RATHER THAN
+   * INHERITED. `weaponFor` reads `weapon.for` first and this is only reached
+   * when the door sent none. The office already KNOWS the answer — it finds a
+   * weapon by looking for the held grant whose own entry names the act it
+   * augments — so the honest fix is one word in the field, which lane bday-law
+   * has been asked for. When it lands, `weapon.for` wins on its own and this
+   * line goes.
+   *
+   * WHY NOT DERIVE IT. Two of the room's acts state damage, and only one of
+   * them is helped by what you are holding. Attaching the bonus to both would
+   * be the surface making a claim about the second that the record does not
+   * make — worse than a named stopgap, because it would be wrong quietly.
+   */
+  const WEAPON_HELPS = "strike";
   function iconFor(action) {
     const d = ICONS[String(action ?? "").toLowerCase()] ?? ICON_DEFAULT;
     return `<svg class="pmc-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
@@ -1045,7 +1072,7 @@ export function mountCockpit(o) {
       ${s.key ? `<span class="pmc-key">${s.key}</span>` : ""}
       ${iconFor(s.action)}
       <span class="pmc-name">${esc(s.label)}</span>
-      <span class="pmc-dial">${esc(s.afforded ? (leadsTo(s) ?? dialSpeak(s.card, { brief: true })) : "not here")}</span>
+      <span class="pmc-dial">${esc(s.afforded ? (leadsTo(s) ?? dialSpeak(s.card, { brief: true, weapon: heldWeapon() })) : "not here")}</span>
     </button>`;
   }
 
@@ -1053,6 +1080,15 @@ export function mountCockpit(o) {
    *  opposed to what you carry everywhere. The same reading `barFold` makes,
    *  needed here for the divider and the seat's dressing. */
   const isGround = (s) => s.card?.channel === "ground" || s.card?.via === "ground";
+
+  /** What the hand holding this bar is carrying, if the door says. One reading,
+   *  used by every surface that says what an act costs — the seat, the card and
+   *  the panel — so the three cannot come to disagree about a number. */
+  function heldWeapon() {
+    const w = weaponFor(state.answer, state.acting);
+    // the door's own word for which act it helps, or the stopgap above
+    return w ? { ...w, for: w.for ?? WEAPON_HELPS } : null;
+  }
 
   /** The bar, folded. One reading, used by drawBar and by the keyboard — a
    *  second one is how a number key came to open a seat that was not on the row. */
@@ -1086,12 +1122,34 @@ export function mountCockpit(o) {
       ${seats}
       ${folded.length ? foldButtonHtml(folded) : ""}
     </div></div>
-    ${blocked ? `<p class="pmc-gate" role="status">${esc(blocked.reason)}</p>` : ""}
+    ${blocked ? `<p class="pmc-gate" role="status">${esc(gateWords(blocked, shown, folded))}</p>` : ""}
     <span class="pmc-more" data-more="left" aria-hidden="true" hidden>‹</span>
     <span class="pmc-more" data-more="right" aria-hidden="true" hidden>›</span>
     <div class="pmc-card" id="pmc-card" role="tooltip" hidden></div>
     ${state.tray ? trayHtml(folded) : ""}
     ${state.aiming ? aimHtml() : state.open ? (opensAsChat(state.open) ? chatHtml(state.open) : formHtml(state.open)) : ""}`;
+  }
+
+  /**
+   * THE ONE LINE ABOVE THE BAR, and what changed about it (2026-08-29).
+   *
+   * It printed the door's reason alone, which was the whole truth while a block
+   * meant every act. It no longer does: the door now narrows a refusal to the
+   * acts it is about, so the reason on its own read as a flat "you may not act"
+   * over a row where most of the seats were live — the same misreading, one
+   * layer up, that greyed the bar in the first place.
+   *
+   * So where the door narrowed, the line NAMES WHAT IS WAITING, in the seats'
+   * own words. Nothing here is written by the site: the reason is the door's
+   * sentence and the names are the labels the bar already draws for those acts.
+   * Where the door narrowed nothing, the line is exactly what it always was.
+   */
+  function gateWords(blocked, shown, folded) {
+    if (!blocked?.gates?.length) return blocked.reason;
+    const cold = [...shown, ...folded]
+      .filter((s) => s.afforded && blocked.gates.includes(s.action))
+      .map((s) => s.label.toLowerCase());
+    return cold.length ? `${blocked.reason} — ${cold.join(", ")} wait for it` : blocked.reason;
   }
 
   /** The overflow seat. A seat like any other so the row's measuring, its
@@ -1116,7 +1174,7 @@ export function mountCockpit(o) {
    */
   function trayHtml(folded) {
     const rows = folded.map((s) => {
-      const why = s.afforded ? (s.blocked ?? dialSpeak(s.card) ?? "") : "not afforded where you stand";
+      const why = s.afforded ? (s.blocked ?? dialSpeak(s.card, { weapon: heldWeapon() }) ?? "") : "not afforded where you stand";
       return `<button type="button" data-action="${esc(s.action)}"
         ${s.afforded && s.enabled ? "" : "disabled"}
         aria-label="${esc(s.label + (why ? " — " + why : ""))}">
@@ -1569,7 +1627,7 @@ export function mountCockpit(o) {
     if (!brief.length && !fine.length) return "";
     const rows = brief.map((r) =>
       `<span class="pmc-term"><b>${esc(r.key)}</b> ${esc(r.value)}</span>`).join("");
-    const speak = dialSpeak(card);
+    const speak = dialSpeak(card, { weapon: heldWeapon() });
     return `<div class="pmc-terms">
       <b class="lede">what you are agreeing to</b>
       ${speak ? `<span class="pmc-term"><b>this act</b> ${esc(speak)}</span>` : ""}

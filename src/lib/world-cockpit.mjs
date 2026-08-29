@@ -158,8 +158,13 @@ export function dialLine(card) {
  */
 /**
  * @param {object} card
- * @param {{brief?: boolean}} [opts] `brief` returns only the FIRST phrase — the
- *   headline, for a seat that has a seat's worth of room.
+ * @param {{brief?: boolean, weapon?: object|null}} [opts] `brief` returns only
+ *   the FIRST phrase — the headline, for a seat that has a seat's worth of
+ *   room. `weapon` is `weaponFor`'s answer, and it completes the founder's own
+ *   example sentence: "d20 vs 12 to hit · d8 damage · +3 with the good lighter".
+ *   It is appended only to the act the weapon says it augments, so an act that
+ *   throws the same damage die and gets no help from what you are holding does
+ *   not claim any.
  *
  * ⚑ WHY BRIEF EXISTS AND ELLIPSIS DOES NOT. The seat's line was capped in CSS
  * and clipped with an ellipsis, which read "d20 vs 8 to hit · d…" — measured at
@@ -170,9 +175,19 @@ export function dialLine(card) {
  * something they are not being shown. So the seat gets a whole short phrase and
  * the card gets the whole line, and neither of them is cut.
  */
-export function dialSpeak(card, { brief = false } = {}) {
+export function dialSpeak(card, { brief = false, weapon = null } = {}) {
   const d = card?.dials;
-  if (!d) return "";
+  // A HAND'S WEAPON IS A FACT ABOUT THIS ACT even where the class states no
+  // dials of its own, so it is read before the early return rather than after
+  // it. What stays true is the ruling: an act with nothing to say says nothing.
+  // NO ARTICLE IS ADDED, because the id already carries whatever one it has.
+  // A leaf deslugs to "the good lighter" on its own, and prepending one read
+  // "+3 with the the good lighter" — caught by the falsifier. The name is the
+  // record's, exactly as the adversary's and the loose things' names are.
+  const held = weapon && weapon.for && weapon.for === card?.action && Number.isFinite(weapon.bonus)
+    ? `${weapon.bonus > 0 ? "+" : "−"}${Math.abs(weapon.bonus)} with ${weapon.label ?? weapon.thing}`
+    : null;
+  if (!d) return held ?? "";
   const said = [];
   const seen = new Set();
   const take = (...keys) => { for (const k of keys) seen.add(k); };
@@ -205,6 +220,10 @@ export function dialSpeak(card, { brief = false } = {}) {
     else if (v === false) continue; // a dial the record turned off says nothing
     else said.push(`${k} ${typeof v === "object" ? JSON.stringify(v) : v}`);
   }
+  // WHAT YOU ARE HOLDING COMES LAST, which is where the founder's own sentence
+  // puts it and is also where it belongs: the class's dials are what the act
+  // always costs, and the weapon is what THIS hand happens to add today.
+  if (held) said.push(held);
   // The first phrase is the headline because the order above is the order a
   // player asks in: what do I throw and what must I beat, then what does it do.
   return (brief ? said.slice(0, 1) : said).join(" · ");
@@ -264,11 +283,28 @@ export function barSlots(answer, { acting = null } = {}) {
   // legible, which is the founder's ruling in one word: disabled, never hidden.
   const blocked = blockedReason(answer, { acting });
 
+  // ⚑ A BLOCK IS ABOUT PARTICULAR ACTS, WHERE THE DOOR SAYS WHICH (2026-08-29).
+  //
+  // This used to spread one refusal across every afforded seat, because until
+  // tonight that is what the law said and the door had no way to say otherwise.
+  // The cost was measured on the founder, mid-party: the wheel rested on the
+  // creature, the door answered `acting_blocked`, and the whole bar went cold —
+  // so he could not walk out of a room whose door would have let him walk the
+  // entire time. `gates` names the acts the refusal is actually about; anything
+  // not on that list keeps its seat live.
+  //
+  // NO LIST MEANS NO NARROWING, not "narrow to nothing". A door that has not
+  // grown the field, and this file's own derivation, both hand back `gates:
+  // null` and every afforded seat greys exactly as it did before — so the change
+  // is invisible against an unmodified door and cannot quietly un-gate a fight.
+  const gatedHere = (action) =>
+    Boolean(blocked) && (!blocked.gates || blocked.gates.includes(action));
+
   let key = 0;
   const dress = (slot) => ({
     ...slot,
-    blocked: slot.afforded && blocked ? blocked.reason : null,
-    enabled: slot.afforded && !blocked,
+    blocked: slot.afforded && gatedHere(slot.action) ? blocked.reason : null,
+    enabled: slot.afforded && !gatedHere(slot.action),
   });
 
   const fixed = FIXED_SLOTS.map((slot) => {
@@ -668,6 +704,55 @@ export function encounterOf(answer) {
   };
 }
 
+/**
+ * WHAT THIS HAND IS HOLDING, and what it adds.
+ *
+ * CONTRACT (office lane bday-law, in flight 2026-08-29):
+ *
+ *     encounter_detail.hands[<who>].weapon = { thing, bonus, for? }
+ *
+ * `thing` is the mark id, `bonus` the number it adds. The office already builds
+ * exactly this shape internally — `weaponInHand` answers
+ * `{ thing, bonus, says }` off the held grant — so the field is that answer
+ * carried out to a caller rather than a new idea.
+ *
+ * ⚑ `for` IS THE HALF THIS FILE NEEDS AND DOES NOT YET HAVE. A weapon augments
+ * ONE act: the office finds it by looking for the held grant whose own entry
+ * names that act, so the record knows which, and the site cannot re-derive it
+ * without keeping the verb list this file is forbidden to keep. Two of the
+ * room's acts state damage; attaching the bonus to both would be a claim about
+ * the other one that the record does not make. So `for` is read when the door
+ * sends it, and the CALLER supplies a fallback otherwise — which is why this
+ * returns the door's word or null rather than guessing. Asked for; see the
+ * mount's own note beside the stopgap.
+ *
+ * WHOSE HAND. `hands` is keyed by the door's `who`. Acting as a resident that
+ * is the handle; acting as the household's human it is the human's own row on
+ * the wheel, found by KIND for the same reason `yourTurnRow` finds it that way —
+ * the office derives the hand's label itself and a second spelling here would
+ * be a second thing to keep in step.
+ */
+export function weaponFor(answer, acting = null) {
+  const hands = answer?.encounter_detail?.hands;
+  if (!hands || typeof hands !== "object") return null;
+  const who = acting === HUMAN_ACTOR
+    ? encounterOf(answer)?.order.find((a) => a.kind === "human")?.id ?? null
+    : acting;
+  const w = who ? hands[who]?.weapon : null;
+  if (!w || typeof w !== "object") return null;
+  const thing = typeof w.thing === "string" && w.thing ? w.thing : null;
+  const bonus = Number(w.bonus);
+  if (!thing || !Number.isFinite(bonus) || bonus === 0) return null;
+  return {
+    thing,
+    bonus,
+    // named the way every id in this world is read — the leaf, deslugged
+    label: thing.split("/").pop().replace(/-/g, " "),
+    for: typeof w.for === "string" && w.for ? w.for : (typeof w.action === "string" && w.action ? w.action : null),
+    says: typeof w.says === "string" && w.says ? w.says : null,
+  };
+}
+
 /** The caller's own row on the wheel, or null. */
 export function yourTurnRow(encounter, acting = null) {
   // ⚑ WHOSE ROW IS "YOU" DEPENDS ON WHO IS ACTING, and until this took an
@@ -718,14 +803,55 @@ export function blockedReason(answer, { acting = null } = {}) {
   // Acting as yourself, the derivation below is the one that knows whose row is
   // yours. Nothing is being second-guessed: the door was asked a different
   // question and gave a correct answer to it.
-  const said = acting === HUMAN_ACTOR ? null : answer?.standpoint?.acting_blocked;
+  const doorSaid = answer?.standpoint?.acting_blocked;
+  // ⚑ A BLOCK HAS TWO PARTS AND THEY HAVE DIFFERENT SCOPES — found live
+  // 2026-08-29, acting as the household's human in the vault.
+  //
+  // `reason` and `whose_turn` are about THE RESIDENT THE DOOR ANSWERED FOR, which
+  // is why the human seam discards them below and derives its own. `gates` is
+  // not: it is the ground's own law about WHICH ACTS a wheel holds ("the wheel
+  // gates this ground's ARENA verbs, and nothing else"), and that sentence is
+  // just as true whoever is standing there. Throwing it away with the reason put
+  // the human straight back into the bug the field was added to fix — the whole
+  // bar cold, walking refused, in the one seat the founder actually plays from.
+  //
+  // So the narrowing is lifted out first and survives every branch below,
+  // including the derived ones. A derivation still invents no list of its own;
+  // it simply keeps the one the door published.
+  const doorGates = Array.isArray(doorSaid?.gates)
+    ? doorSaid.gates.filter((g) => typeof g === "string" && g)
+    : null;
+  const narrowing = doorGates?.length ? doorGates : null;
+  const said = acting === HUMAN_ACTOR ? null : doorSaid;
   if (said && typeof said.reason === "string" && said.reason.trim()) {
-    return { reason: said.reason, from: "the door" };
+    // ⚑ WHAT IS BLOCKED, BY NAME (office lane bday-law, 2026-08-29).
+    //
+    // THE DOOR NEVER GATED WALKING OR SPEAKING. Its act path refuses anything
+    // that is not one of this ground's own fight verbs long before the wheel is
+    // consulted, so a walk mid-fight has always gone through. What actually
+    // froze the founder in the middle of the party was THIS SURFACE: it saw
+    // `acting_blocked`, read it as "you may not act", and greyed the whole bar
+    // — including the seats the door would have honoured. He could not move,
+    // and the reason he could not move was a page, not a law.
+    //
+    // `gates` is the door saying which acts it means, in a field rather than in
+    // prose so a page can act on it. Grey exactly those; leave every other seat
+    // live. A door that sends the key but no list has narrowed nothing, which is
+    // what `null` means below and is exactly today's behaviour.
+    return { reason: said.reason, from: "the door", gates: narrowing };
   }
   const enc = encounterOf(answer);
   if (!enc) return null;
   const you = yourTurnRow(enc, acting);
-  if (you?.down) return { reason: "you are down — an ally can lift you", from: "derived" };
+  // ⚑ THE DERIVED BRANCHES INVENT NO LIST, and they do not need to: they carry
+  // the door's, through `narrowing` above. The distinction is worth keeping
+  // straight — a derivation is entitled to say WHY it thinks you are held up
+  // (it can read the wheel) and is not entitled to decide WHICH ACTS a ground
+  // gates, because that is the ground's own law and this file has no verb list
+  // to name them with. Where the door published one, the derived reason wears
+  // it. Where it did not, `narrowing` is null and every afforded seat cools,
+  // which is exactly what this surface did before the field existed.
+  if (you?.down) return { reason: "you are down — an ally can lift you", from: "derived", gates: narrowing };
   if (enc.turn && you && !you.current) {
     // ⚑ A CREATURE'S TURN IS NOT A WAIT — IT IS WHAT YOUR ACT RESOLVES.
     //
@@ -756,7 +882,7 @@ export function blockedReason(answer, { acting = null } = {}) {
            && guard++ < order.length * 2) i = (i + 1) % order.length;
     const whose = i >= 0 ? order[i] : null;
     if (!whose || whose.id === you.id) return null;
-    return { reason: `it is ${whose.label ?? whose.id}'s turn`, from: "derived" };
+    return { reason: `it is ${whose.label ?? whose.id}'s turn`, from: "derived", gates: narrowing };
   }
   return null;
 }

@@ -594,8 +594,15 @@ test("downed: your own bar says so, and the door's words win over ours", () => {
 
   // CONTRACT: one field for every cause, because the causes are the world's to
   // enumerate. A door that speaks its own sentence is quoted, not second-guessed.
+  //
+  // `gates: null` joined this shape on 2026-08-29 — the door may now narrow a
+  // refusal to the acts it is about, and null is it declining to. A door that
+  // sends no list blocks everything, exactly as it did before the field existed,
+  // which is what the line under this one still checks.
   const spoken = { ...downed, standpoint: { ...downed.standpoint, acting_blocked: { reason: "the room holds its breath" } } };
-  assert.deepEqual(blockedReason(spoken), { reason: "the room holds its breath", from: "the door" });
+  assert.deepEqual(blockedReason(spoken), { reason: "the room holds its breath", from: "the door", gates: null });
+  assert.ok(barSlots(spoken).fixed.filter((s) => s.afforded).every((s) => s.enabled === false),
+    "an unnarrowed refusal still cools every afforded seat");
 
   // your turn, standing: nothing blocks
   const yours = { ...IN_COMBAT, encounter: { ...IN_COMBAT.encounter, turn: "jetto-of-starforge" } };
