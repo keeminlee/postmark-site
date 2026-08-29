@@ -16,8 +16,8 @@ import {
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices, faceImageFor,
-  aimField, aimTargets, aimable, barFold, consentSplit, dialSpeak, snapPoint, walkStep,
-  weaponFor,
+  aimField, aimKind, aimTargets, aimable, barFold, consentSplit, dialSpeak, leavingName,
+  pointFields, snapPoint, walkStep, weaponFor,
 } from "./world-cockpit.mjs";
 // The rail's feed — its sentences, its merge rule and its bottom test. All of
 // it pure, so the fight's whole grammar is falsifiable against fixtures without
@@ -262,6 +262,18 @@ export const COCKPIT_CSS = `
    Bottom is set by the script against the bar's measured top edge, so it sits over
    the row whatever height the row turns out to be. */
 .pmc-form { position: fixed; left: 50%; transform: translateX(-50%); width: 26em; max-width: calc(100vw - 24px); padding: .9em 1em 1em; text-align: left; z-index: 4; }
+/* ── WHO / FROM / TO ──
+   The founder's three rows, and the panel leads with them because they are the
+   whole of what he asked to see before pressing confirm. Monospaced keys so the
+   three line up as a column a reader can scan rather than three sentences. */
+.pmc-flow { margin: .5em 0 .2em; border-left: 2px solid var(--pmc-gold-dim); padding-left: .7em; }
+.pmc-flow-row { display: flex; gap: .7em; align-items: baseline; margin: .12em 0; }
+.pmc-flow-row .k {
+  flex: 0 0 3.2em; color: var(--pmc-dim);
+  font: .6rem/1.6 ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase;
+}
+.pmc-flow-row .v { color: var(--pmc-ink); font-size: .84rem; }
+.pmc-flow-row .v b { color: var(--pmc-gold); font-weight: 400; }
 .pmc-form h3 { margin: 0 0 .2em; font: .8rem/1.3 ui-monospace, Consolas, monospace; letter-spacing: .12em; color: var(--pmc-gold); font-weight: normal; }
 .pmc-form label { display: block; margin: .6em 0 0; font-size: .72rem; color: var(--pmc-dim); }
 .pmc-form label .req { color: var(--pmc-gold); }
@@ -397,6 +409,12 @@ export const COCKPIT_CSS = `
 .pmc-slot.armed .pmc-name, .pmc-slot.armed .pmc-ico { color: var(--pmc-accent); opacity: 1; }
 /* the map itself says it is waiting for a target */
 .pmc-aiming .wv svg { cursor: crosshair; }
+/* AND THE RETICLE BREATHES, so it is found by motion on a still painting rather
+   than by contrast alone — the founder could not see the first one. Reduced
+   motion keeps every stroke and drops only the movement. */
+.pmc-aim-ring { animation: pmc-reticle 1.15s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pmc-reticle { 50% { opacity: .58; } }
+@media (prefers-reduced-motion: reduce) { .pmc-aim-ring { animation: none; } }
 
 /* ── THE OVERFLOW TRAY ──
    RULED 2026-08-29: "too many buttons". The acts of the room hold the row; what
@@ -763,7 +781,8 @@ export function mountCockpit(o) {
     open: null,        // the action whose form is open
     said: null,        // the last thing the door said back
     voices: [],        // recent speech, from the conversations door
-    aiming: null,      // { action, field } — an act armed, waiting for a target
+    aiming: null,      // { action, kind, field } — armed, waiting for a target
+    act: null,         // { action, args, label } — a target taken, waiting for confirm
     tray: false,       // is the overflow tray open
     feed: [],          // the rail's own half of Lately — beats and says, newest LAST
     profiles: {},      // handle -> the profile bubble off /residents/{handle}, for the dock's faces
@@ -1174,6 +1193,29 @@ export function mountCockpit(o) {
    * was already going to give. `PHASES` is the office's list (encounter.mjs):
    * afoot, spent, wiped.
    */
+  /**
+   * ACTS THAT ARE AIMED AT NOBODY, by name, because the door cannot say it.
+   *
+   * FOUNDER, live-testing 2026-08-29: "guard asks you to pick a target on the
+   * map... should just be a confirm button."
+   *
+   * ⚑ AND THE CARD CANNOT TELL ME, which is the whole reason this list exists
+   * rather than a derivation. The office hands ALL FIVE arena verbs the SAME
+   * field object — one `object` with one description — so guarding and striking
+   * are identical on the wire. The description even says so out loud: it names
+   * which acts find their own target, in prose, inside a field shared by the
+   * ones that do not. There is nothing in the shape to read.
+   *
+   * So this is a ruling in the same drawer as the other name-keyed ones, and it
+   * carries the same debt: the honest fix is the office giving a self-directed
+   * act a field of its own (or none at all), and then this list is deleted and
+   * `aimKind` answers "none" on the card's own evidence. Asked for. Until then a
+   * reader should know that "guard takes no target" is the SITE saying so.
+   *
+   * `loot` and `pass` ride along on the founder's own parenthesis — they are
+   * self-directed by the same reading, and neither should ever open a crosshair.
+   */
+  const SELF_DIRECTED = ["guard", "loot", "pass"];
   const BAR_KEEP = ["walk", "say", "enter", "exit", "give", "take"];
   const DUNGEON_HIDE = ["leave-mark", "note-to-self"];
   const PHASE_GATE = { loot: "spent" };
@@ -1694,7 +1736,31 @@ export function mountCockpit(o) {
     const shown = state.said?.terms ?? termsCache.get(action) ?? null;
     const sheet = shown ? " pmc-sheet" : "";
 
-    const inputs = c.fields.map((f) => {
+    // ⚑ THE PANEL DOES NOT ASK AGAIN FOR WHAT THE FLOW ALREADY ANSWERED.
+    //
+    // Seen in the shot the moment the flow worked: the walk panel showed a
+    // clean WHO / FROM / TO and then, underneath it, three empty boxes named
+    // `mark_id`, `to_x` and `to_y` — the very question the reader had just
+    // answered by clicking the map, asked a second time in the form language
+    // the founder has objected to twice ("I have to type it in like filling an
+    // mcp form"; "FILLED with irrelevant information I don't care about").
+    //
+    // So on a FLOW-SHAPED act — one aimed at a thing, at a point, or at nobody
+    // — the panel renders only the fields the door REQUIRES and the flow has
+    // not already filled. Everything else was either answered on the map or is
+    // the door's own to default, and the TO row above says what it is.
+    //
+    // AN ORDINARY FORM ACT IS UNTOUCHED. Outside the fight there are acts whose
+    // whole substance is typed (a mark's slug and body), and they still get
+    // every field, because for those the form IS the act rather than a second
+    // asking of a settled question.
+    const answered = state.act?.action === action ? Object.keys(state.act.args ?? {}) : [];
+    const flowShaped = SELF_DIRECTED.includes(action) || aimKind(c) !== "none" || answered.length > 0;
+    const asked = flowShaped
+      ? c.fields.filter((f) => f.required && !answered.includes(f.name) && filled[f.name] == null)
+      : c.fields;
+
+    const inputs = asked.map((f) => {
       const id = `pmc-f-${esc(f.name)}`;
       const req = f.required ? ` <span class="req" title="required">*</span>` : "";
       const pre = filled[f.name] != null ? ` value="${esc(filled[f.name])}"` : "";
@@ -1786,12 +1852,13 @@ export function mountCockpit(o) {
     return `<form class="pmc-plate pmc-form${trigger ? " pmc-trigger" : ""}${sheet}" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
       ${sheet ? flavorHtml(c) : c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
+      ${flowRowsHtml(c)}
       ${inputs || (trigger ? "" : `<p class="pmc-desc">This act takes no arguments.</p>`)}
       ${ready}${datalist}
       ${terms}${said}
       <div class="pmc-actions">
-        <button type="submit" class="pmc-btn go">do it</button>
-        <button type="button" class="pmc-btn" data-close>close</button>
+        <button type="submit" class="pmc-btn go">confirm</button>
+        <button type="button" class="pmc-btn" data-close>cancel</button>
       </div>
       ${trigger && !sheet ? "" : fineHtml(c)}
     </form>`;
@@ -1814,6 +1881,58 @@ export function mountCockpit(o) {
   function flavorHtml(card) {
     const said = portalOf(state.answer)?.body || card?.blurb || null;
     return said ? `<p class="flavor">${esc(said)}</p>` : "";
+  }
+
+  /**
+   * WHO · FROM · TO — the three rows the founder named, and only the ones that
+   * mean anything for this act.
+   *
+   *   "the right side panel popup that has the WHO, the FROM, and the TO (FROM
+   *    only if appropriate, so for walk), and the CONFIRM button"
+   *
+   * WHO is the dock's own selection, so the panel and the faces cannot disagree
+   * about whose act this is. FROM appears only where there is a somewhere you
+   * are leaving: a point-aimed act (you are walking FROM here) and a crossing
+   * out (you are leaving THIS room). TO is whatever the target contributed —
+   * a thing's name, a pair of coordinates — or, for a crossing out, the room
+   * itself, which is the one act where FROM and TO are the same fact read from
+   * two sides and only one of them is worth printing.
+   *
+   * ⚑ THE CROSSING'S ROOM IS SHOWN AND NEVER SENT. The founder's complaint was
+   * that it "requires you to select a slug… considering you have ONE option",
+   * and the obvious fix — fill the field in — was tried live and REFUSED by the
+   * door: its `within` for crossing back out is the entry it holds, not the
+   * extent you are standing inside. The door's own field says to omit it and it
+   * will use the innermost. So this row is a LABEL: it tells the reader what
+   * they are about to step out of, and the act goes out with the field absent,
+   * which is what the door asked for and what actually works.
+   */
+  function flowRowsHtml(card) {
+    const rows = [];
+    const who = state.acting === HUMAN_ACTOR ? "yourself" : (state.acting ?? "—");
+    rows.push(["who", esc(who)]);
+
+    const point = pointFields(card);
+    const leaving = (card?.fields ?? []).some((f) => /\bout of\b/i.test(f.description ?? ""))
+      ? leavingName(state.answer) : null;
+
+    if (point) {
+      const sp = state.answer?.standpoint;
+      if (Number.isFinite(Number(sp?.x)) && Number.isFinite(Number(sp?.y))) {
+        rows.push(["from", esc(`${Number(sp.x).toLocaleString()}, ${Number(sp.y).toLocaleString()}`)]);
+      }
+    } else if (leaving) {
+      rows.push(["from", `<b>${esc(leaving.label)}</b>`]);
+    }
+
+    // the target, where one has been taken; a crossing names the room it is
+    // leaving, which IS its destination read from the other side
+    const to = state.act?.action === card?.action ? state.act.label : (leaving ? "back out" : null);
+    if (to) rows.push(["to", `<b>${esc(to)}</b>`]);
+
+    return `<div class="pmc-flow">${rows
+      .map(([k, v]) => `<div class="pmc-flow-row"><span class="k">${k}</span><span class="v">${v}</span></div>`)
+      .join("")}</div>`;
   }
 
   /**
@@ -2355,13 +2474,25 @@ export function mountCockpit(o) {
       if (!t.at) return "";
       const at = worldToPx(gridNow(), t.at);
       if (!at) return "";
-      const r = 22 * u;
+      // ⚑ LOUD, BECAUSE HIS EYES ARE THE SPEC. The first version was a thin
+      // dashed ring in the panel's own parchment gold over a night map, and the
+      // founder's verdict was "too subtle and hard to see" — which is the only
+      // measurement that counts for a highlight. What it gets now: a filled
+      // halo, a heavy solid ring, a second ring outside it, corner brackets
+      // that read as a reticle rather than as decoration, and a slow pulse so
+      // it moves against a still painting. White-hot rather than gold, because
+      // gold is what every other panel on this surface already is.
+      const r = 26 * u;
       return `<g class="pmc-aim-ring" transform="translate(${at.x} ${at.y})">
-        <circle cx="0" cy="0" r="${r * 1.5}" fill="#f0d5a8" fill-opacity="0.10"/>
-        <circle cx="0" cy="0" r="${r}" fill="none" stroke="#f0d5a8" stroke-width="${r * 0.09}"
-          stroke-dasharray="${r * 0.34} ${r * 0.3}"/>
-        <path d="M ${-r * 1.5} 0 h ${r * 0.5} M ${r} 0 h ${r * 0.5} M 0 ${-r * 1.5} v ${r * 0.5} M 0 ${r} v ${r * 0.5}"
-          stroke="#f0d5a8" stroke-width="${r * 0.09}" stroke-linecap="round"/>
+        <circle cx="0" cy="0" r="${r * 1.85}" fill="#fff6d8" fill-opacity="0.16"/>
+        <circle cx="0" cy="0" r="${r * 1.32}" fill="none" stroke="#fff6d8"
+          stroke-width="${r * 0.07}" stroke-opacity="0.75"/>
+        <circle cx="0" cy="0" r="${r}" fill="none" stroke="#ffffff" stroke-width="${r * 0.2}"/>
+        <path d="M ${-r * 1.9} ${-r * 1.9} h ${r * 0.72} M ${-r * 1.9} ${-r * 1.9} v ${r * 0.72}
+                 M ${r * 1.9} ${-r * 1.9} h ${-r * 0.72} M ${r * 1.9} ${-r * 1.9} v ${r * 0.72}
+                 M ${-r * 1.9} ${r * 1.9} h ${r * 0.72} M ${-r * 1.9} ${r * 1.9} v ${-r * 0.72}
+                 M ${r * 1.9} ${r * 1.9} h ${-r * 0.72} M ${r * 1.9} ${r * 1.9} v ${-r * 0.72}"
+          stroke="#ffffff" stroke-width="${r * 0.16}" stroke-linecap="round" fill="none"/>
         <title>${esc(t.label)} — ${esc(state.aiming.action)}</title>
       </g>`;
     }).join("");
@@ -2805,9 +2936,13 @@ export function mountCockpit(o) {
       return;
     }
     // A TARGET THE MAP COULD NOT PLACE, pressed on the strip instead. Same
-    // dispatch as pressing it on the painting — see sendAim.
+    // route as pressing it on the painting — see takeAim.
     const aimBtn = ev.target.closest?.("[data-aim-at]");
-    if (aimBtn && root.contains(aimBtn)) { sendAim(aimBtn.getAttribute("data-aim-at")); return; }
+    if (aimBtn && root.contains(aimBtn)) {
+      takeAim({ [state.aiming.field.name]: aimBtn.getAttribute("data-aim-at") },
+        aimBtn.textContent.trim());
+      return;
+    }
     // THE OVERFLOW SEAT. It is a seat, so it is caught before the seat handler
     // below — which would otherwise read its absent data-action as an act.
     const foldBtn = ev.target.closest?.("[data-fold]");
@@ -2823,7 +2958,7 @@ export function mountCockpit(o) {
       return;
     }
     const closeBtn = ev.target.closest?.("[data-close]");
-    if (closeBtn && root.contains(closeBtn)) { state.open = null; state.said = null; formValues = null; paint(); return; }
+    if (closeBtn && root.contains(closeBtn)) { state.open = null; state.act = null; state.said = null; formValues = null; paint(); return; }
     const slot = ev.target.closest?.(".pmc-slot");
     // A gated seat is aria-disabled so it can still be hovered for its card, so
     // the CLICK is what has to refuse — the browser will not refuse it for us.
@@ -2854,9 +2989,29 @@ export function mountCockpit(o) {
     const { shown, folded } = foldedBar();
     const s = [...shown, ...folded].find((x) => x.action === action);
     if (!s || !s.afforded || !s.enabled) return;
-    const field = aimable(s, state.answer) ? aimField(s.card) : null;
-    if (field) { arm(action, field.name); return; }
+    // ── ONE FLOW, THREE SHAPES (founder-ruled 2026-08-29) ──
+    //
+    // "Every button that NEEDS a target selection lets you click button → click
+    // target. Every button that DOESN'T (guard, exit) just needs you click
+    // button. In both cases, the next step IS the right side panel."
+    //
+    // The shape is the CARD's, never a name: aimed at a thing, aimed at a point
+    // on the ground, or aimed at nothing (`aimKind`). The third case is the
+    // founder's own complaint — "guard asks you to pick a target on the map…
+    // should just be a confirm button" — and it is answered by falling straight
+    // through to the panel.
+    //
+    // A THING-AIMED ACT WITH NOTHING TO AIM AT also falls through, because a
+    // targeting mode over an empty room is the same dead end wearing a
+    // crosshair.
+    // A SELF-DIRECTED ACT NEVER OPENS A CROSSHAIR, whatever its card looks
+    // like — see SELF_DIRECTED for why that has to be a name here and not a
+    // reading of the field.
+    const kind = SELF_DIRECTED.includes(action) ? "none" : aimKind(s.card);
+    if (kind === "point") { arm(action, "point", pointFields(s.card)); return; }
+    if (kind === "thing" && aimable(s, state.answer)) { arm(action, "thing", aimField(s.card)); return; }
     disarm(false);
+    state.act = null;
     state.open = state.open === action ? null : action;
     state.said = null;
     formValues = null;
@@ -2919,9 +3074,16 @@ export function mountCockpit(o) {
       if (raw === "true" || raw === "false") { args[name] = raw === "true"; return; }
       args[name] = raw;
     });
+    // ⚑ WHAT THE TARGET CONTRIBUTED RIDES ALONG. The panel is the one place any
+    // act is confirmed now, and an aimed act's target was chosen on the map
+    // rather than typed — so its fields live on `state.act` until this moment.
+    // The typed fields win where both somehow name the same key: a reader who
+    // edited the box in front of them meant the thing in the box.
+    const aimed = state.act?.action === action ? state.act.args : null;
+    const whole = { ...(aimed ?? {}), ...args };
     const go = form.querySelector(".pmc-btn.go");
     if (go) { go.disabled = true; go.textContent = "…"; }
-    await sendAct(action, args, form);
+    await sendAct(action, whole, form);
   }
 
   /**
@@ -2970,6 +3132,7 @@ export function mountCockpit(o) {
         // happened, so the next click on the map is a fresh gesture rather than
         // a second swing nobody asked for.
         state.aiming = null;
+        state.act = null;
         // A CHAT LINE EMPTIES ITSELF AND STAYS OPEN. Cleared in the live DOM
         // rather than by trusting formValues, because paint() re-reads the form
         // before it repaints — so a line nulled only in that variable comes
@@ -3018,7 +3181,7 @@ export function mountCockpit(o) {
     // become a control, so it should be the first thing one press gives back.
     if (ev.key === "Escape" && state.aiming) { disarm(); return; }
     if (ev.key === "Escape" && state.tray) { state.tray = false; paint(); return; }
-    if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); return; }
+    if (ev.key === "Escape" && state.open) { state.open = null; state.act = null; state.said = null; formValues = null; paint(); return; }
     if (!/^[1-9]$/.test(ev.key)) return;
     const n = Number(ev.key);
     // ⚑ THE NUMBERS FOLLOW THE ROW, not the door's whole list. `barSlots` keys
@@ -3154,72 +3317,32 @@ export function mountCockpit(o) {
     }
   }
 
-  // ── the map is a control (2026-08-28 ruling) ──────────────────────────────
+  // ⚑ THE MAP-CLICK WALK HAND-OFF STOOD HERE AND IS GONE (2026-08-29).
   //
-  // "Clicking a point on the map while acting as a walker should prefill/dispatch
-  // the walk to that point. Clicking a thing offers its context acts with the
-  // object prefilled."
+  // WHAT IT WAS. The 08-28 ruling was "clicking a point on the map while acting
+  // as a walker should prefill/dispatch the walk to that point", and because the
+  // viewer owned walking — the wall check, the zero-length refusal, the preview,
+  // the desk's confirm — this handed bare-ground clicks to the viewer's own
+  // walk-arming path rather than re-implementing any of it. It did so through a
+  // hook with no elements behind it (`.stand`), minting one and clicking it, and
+  // it VERIFIED the result by watching for the desk to appear rather than
+  // trusting a vestigial class.
   //
-  // NOTHING HERE RE-IMPLEMENTS PATHING, and that constraint decided the whole
-  // shape. The viewer owns walking — the wall check, the zero-length refusal, the
-  // preview, the desk's confirm — and a second implementation over here would be
-  // a second set of walking rules to keep in step with the office's. So a click
-  // on bare ground is handed to the viewer's OWN walk-arming path and the desk
-  // opens exactly as it does for the viewer's own controls.
+  // WHY IT IS GONE. The founder's governing ruling makes walking an ordinary act
+  // of the one flow — button, then target, then the panel with WHO/FROM/TO and a
+  // confirm — and stands the viewer's desk down so there is one way to walk
+  // instead of two. A hand-off into a panel that is now hidden would arm a walk
+  // a reader could never confirm, which is worse than the two-flow overlap it
+  // was written to bridge.
   //
-  // THE SEAM, and its honest weakness. The viewer's delegated click handler reads
-  //     const stand = e.target.closest(".stand");
-  //     if (stand) { if (canAct()) chooseWalkPoint(+stand.dataset.x, +stand.dataset.y); ... }
-  // and NOTHING IN THE VIEWER CARRIES THAT CLASS — the hook is live and its
-  // element is gone, in this pin and on the branch the pin is heading to. So this
-  // mints one, clicks it, and removes it: the same mint-and-click move the page's
-  // own arrival island already makes against `.ctl[data-x]`, and the only route
-  // the viewer publishes (its window handle carries rerender/reload/stop and no
-  // walk of any kind).
-  //
-  // Because it leans on a hook with no elements behind it, it is VERIFIED rather
-  // than trusted: the walk desk becoming visible is the receipt that the click
-  // landed, and when it does not the reader is told the map's shortcut is not
-  // working here rather than left clicking a map that quietly does nothing. That
-  // check is the whole reason this is safe to ship over a vestigial class.
-  const walkFromMap = (m) => {
-    const wv = doc.querySelector(".wv");
-    if (!wv) return false;
-    // THE ACTOR IS SETTLED FIRST, AND THE ORDER IS THE WHOLE OF IT.
-    // `selectActor` runs clearSelectionAndDestination() and recenters the camera
-    // (viewer.mjs:8060, 8064), so settling the actor AFTER arming would throw the
-    // destination away and leave a walk desk that had just been opened pointing
-    // at nothing. It also has to happen at all: confirmSelectedWalk posts
-    // `state.handle`, and there is no per-call actor argument, so an unsettled
-    // viewer arms the walk for the wrong resident. speakActAs is a no-op when
-    // the two already agree, which is the common case.
-    speakActAs();
-    const before = deskOpen();
-    const b = doc.createElement("button");
-    b.className = "stand";
-    b.dataset.x = String(m.x);
-    b.dataset.y = String(m.y);
-    b.style.display = "none";
-    wv.appendChild(b);
-    b.click();
-    b.remove();
-    // the receipt, read on the next frame: the desk the viewer opens for its own
-    // walk-arming clicks
-    doc.defaultView?.setTimeout(() => {
-      if (deskOpen() || before) return;
-      state.said = {
-        ok: false,
-        text: "the map could not arm that walk",
-        hint: "the viewer did not open its walk desk — use the WALK seat on the bar instead",
-      };
-      paint();
-    }, 60);
-    return true;
-  };
-  const deskOpen = () => {
-    const desk = doc.querySelector(".wv .wv-walkdesk");
-    return Boolean(desk && !desk.hidden && desk.getClientRects().length);
-  };
+  // ⚑ AND ONE THING GOES WITH IT, NAMED RATHER THAN LOST: the viewer's INTERIOR
+  // WALL CHECK. `chooseWalkPoint` refused a destination through a wall at click
+  // time, in the reader's own words, and this flow does not. The door remains
+  // the authority on where a walk may land and will refuse what it refuses, so
+  // nothing illegal becomes possible — but the refusal now arrives after the
+  // confirm rather than before the arming, and a client-side check that told a
+  // reader sooner has been traded for one flow. Worth a follow-up if the founder
+  // walks into a wall and dislikes where he is told.
 
   /** Where a pointer landed, in the map's own units. `getScreenCTM` is the
    *  browser's own answer for that and it already carries the viewer's pan and
@@ -3285,8 +3408,9 @@ export function mountCockpit(o) {
 
   /** Arm an act. The seat lights, the map takes the next click, and no panel
    *  opens — the question is being asked on the painting. */
-  function arm(action, field) {
-    state.aiming = { action, field };
+  function arm(action, kind, field) {
+    state.aiming = { action, kind, field };
+    state.act = null;
     state.open = null;
     state.said = null;
     formValues = null;
@@ -3315,12 +3439,32 @@ export function mountCockpit(o) {
   function aimingSignal(on) {
     try { doc.documentElement.classList[on ? "add" : "remove"]("pmc-aiming"); } catch {}
   }
-  /** Finish an armed act on one target. Straight out through `sendAct`, so an
-   *  act aimed on the map and one sent from a panel are the same dispatch. */
-  function sendAim(value) {
-    const { action, field } = state.aiming ?? {};
-    if (!action || !field) return;
-    sendAct(action, { [field]: value });
+  /**
+   * A TARGET, TAKEN — AND THEN THE PANEL, NOT THE DOOR.
+   *
+   * ⚑ THIS USED TO DISPATCH, and the founder's governing ruling is what changed
+   * it: "in both cases, the next step IS the right side panel popup that has
+   * the WHO, the FROM, and the TO … and the CONFIRM button to actually do the
+   * action." An aimed act that fired the instant you clicked was one gesture
+   * shorter and gave a reader nowhere to notice they had aimed at the wrong
+   * thing. The panel is now the one place every act is confirmed, whether it
+   * was aimed at a thing, at a point, or at nothing at all.
+   *
+   * `args` is what the target contributed, in the door's own field names — one
+   * id for a thing, two coordinates for a point — and it is held on `state.act`
+   * until the reader presses confirm.
+   */
+  function takeAim(args, label) {
+    const { action } = state.aiming ?? {};
+    if (!action) return;
+    state.act = { action, args, label };
+    state.aiming = null;
+    state.said = null;
+    formValues = null;
+    aimingSignal(false);
+    state.open = action;
+    askTerms(action);
+    paint();
   }
 
   /**
@@ -3367,8 +3511,25 @@ export function mountCockpit(o) {
     if (state.aiming) {
       ev.preventDefault();
       ev.stopPropagation();
+      // ── AIMED AT A POINT ── walking, and anything else the door describes as
+      // taking grid metres. The ground itself is the target, so ANY click on
+      // the painting is a valid one — snapped to the ground's own stride, which
+      // is where that dial belongs now that walking is an act of this flow
+      // rather than a hand-off to a second desk.
+      if (state.aiming.kind === "point") {
+        const m = snapPoint(pxToWorld(gridNow(), local), walkStep(state.answer));
+        if (!m) { disarm(); return; }
+        const f = state.aiming.field;
+        takeAim({ [f.x]: m.x, [f.y]: m.y },
+          `${m.x.toLocaleString()}, ${m.y.toLocaleString()}`);
+        return;
+      }
+      // ── AIMED AT A THING ── only the things the answer placed are targets;
+      // a click on anything else disarms, which is the ruling's own escape
+      // hatch ("Escape or clicking elsewhere disarms").
       const target = thing ? aimTargets(state.answer).find((t) => t.value === thing.id) : null;
-      if (target) sendAim(target.value); else disarm();
+      if (target) takeAim({ [state.aiming.field.name]: target.value }, target.label);
+      else disarm();
       return;
     }
 
@@ -3389,16 +3550,13 @@ export function mountCockpit(o) {
     // and taking those clicks would mean this overlay silently replacing the
     // viewer's own selection behaviour with a walk.
     if (ev.target?.closest?.("#wv-overlay [data-id], .wv-card, .ctl, button, a")) return;
-    const m = pxToWorld(gridNow(), local);
-    if (!m) return;
-    // ── THE GROUND'S OWN STRIDE (lane bday-law's dial, 2026-08-29) ──
-    // A room a few metres across wants a lattice; the open world has never had
-    // one and does not get one here. `walkStep` answers null for every ground
-    // that has not declared a stride — which is all of them today — and
-    // `snapPoint` hands the point straight back, so an unmodified door leaves
-    // this gesture byte-identical. (The first version of this said the same
-    // sentence over a one-metre floor that made it untrue everywhere.)
-    walkFromMap(snapPoint(m, walkStep(state.answer)) ?? m);
+    // ── AND BARE GROUND WITH NOTHING ARMED DOES NOTHING ──
+    // Under the one flow a walk begins at its BUTTON: press it, and the map
+    // becomes a targeting surface for a point (the aiming branch above, where
+    // the ground's stride is applied). A click with nothing armed is not a
+    // half-begun act any more, so it is left entirely alone — the viewer keeps
+    // whatever it does with it, and this overlay takes nothing it was not asked
+    // for.
   };
   doc.addEventListener("click", onMapClick, true);
 

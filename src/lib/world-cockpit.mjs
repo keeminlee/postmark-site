@@ -1198,6 +1198,85 @@ const GROUND_SHAPED = /\b(?:step(?:ping)? (?:in|out)|out of|to enter|walk(?:ing)
 const LEAVING = /\bout of\b/i;
 
 // ═══════════════════════════════════════════════════════════════════════════
+// ONE ACT FLOW (founder-ruled 2026-08-29, live-testing)
+//
+//   "Every button that NEEDS a target selection lets you click button → click
+//    target. Every button that DOESN'T (guard, exit) just needs you click
+//    button. In both cases, the next step IS the right side panel popup that
+//    has the WHO, the FROM, and the TO (FROM only if appropriate, so for walk),
+//    and the CONFIRM button to actually do the action."
+//
+// It GOVERNS, and it supersedes three shapes this file had grown separately: an
+// aimed act that dispatched the instant you clicked its target, an untargeted
+// act that opened a form of typed fields, and walking, which was not an act on
+// this surface at all — it was handed to the viewer's own desk. One flow, one
+// panel, one confirm.
+//
+// WHAT DECIDES WHICH VERBS TAKE A TARGET IS STILL THE DOOR'S OWN SENTENCE, and
+// no list of names is learned here. Three shapes, read off the card:
+//   • aimed at a THING — `aimField`, above: a field the door describes as
+//     naming who or what the act is aimed at.
+//   • aimed at a POINT — `pointFields`, below: two numbers the door describes
+//     as grid metres. That is walking, without this file knowing the word.
+//   • aimed at NOTHING — neither. Guard and the crossing acts land here, and
+//     they go straight to the panel, which is exactly the founder's complaint:
+//     "guard asks you to pick a target on the map... should just be a confirm."
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** A field the door describes as a world coordinate. Its own words, read: the
+ *  apex says "grid meters east of Ferry's crossing" and "…south…". */
+const EASTING = /\beast\b/i;
+const NORTHING = /\bsouth\b|\bnorth\b/i;
+
+/**
+ * The two fields that make an act aimed at a POINT ON THE GROUND, or null.
+ *
+ * Both must be numbers and both must be described as grid metres, which is how
+ * this file recognises walking without holding the word. An act with one such
+ * field, or three, is not a point and gets the ordinary panel.
+ */
+export function pointFields(card) {
+  const nums = (card?.fields ?? []).filter((f) => f.type === "number");
+  const x = nums.find((f) => EASTING.test(f.description ?? ""));
+  const y = nums.find((f) => NORTHING.test(f.description ?? ""));
+  return x && y && x !== y ? { x: x.name, y: y.name } : null;
+}
+
+/** How this act is aimed: at a thing, at a point, or at nothing. One reading,
+ *  so the bar, the panel and the map cannot come to disagree about it. */
+export function aimKind(card) {
+  if (pointFields(card)) return "point";
+  if (aimField(card)) return "thing";
+  return "none";
+}
+
+/**
+ * The ground this standpoint is innermost within — for the panel to SHOW, and
+ * for nothing else.
+ *
+ * ⚑ IT IS NEVER SENT, and that is a receipt rather than a preference. The
+ * founder's ruling is that a crossing-out act with one lawful answer should not
+ * ask for it. The obvious reading — fill the field in — was tried live on
+ * 2026-08-29 and the door REFUSED it: "rei is not within
+ * 'the-town/the-candle-vault' — there is nothing to step out of", from a
+ * standpoint whose own portal is that vault. The door's `within` for crossing
+ * back out is the ENTRY it holds, not the extent you are standing inside, and
+ * the site holds only the second.
+ *
+ * The door already published the right answer in the field's own words: OMIT it
+ * and the innermost one is used. So the panel names the room in its TO row so a
+ * reader can see what they are about to leave, and the act is dispatched with
+ * the field absent, which is what the door asked for and what actually works.
+ */
+export function leavingName(answer) {
+  const within = Array.isArray(answer?.within) ? answer.within : [];
+  const id = within[within.length - 1]?.id;
+  return typeof id === "string" && id
+    ? { id, label: id.split("/").pop().replace(/-/g, " ") }
+    : null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // AIMING — the act is chosen first, and then what it is aimed at
 //
 // FOUNDER'S RULING 2026-08-29, playing the dungeon: you press the act you mean,

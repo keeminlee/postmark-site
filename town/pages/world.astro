@@ -535,4 +535,35 @@ const html = rawHtml.replace(/<head>/i,
      out into, derived from the door's own containment (leadsTo, in the mount).
      Nothing is lost with the pill except the duplicate. */
   html[data-pmc-dock] .wv-scene-exit { display: none; }
+
+  /* ── the walk desk stands down too (founder's governing ruling, 2026-08-29) ──
+     "Every button that NEEDS a target selection lets you click button → click
+     target … In both cases, the next step IS the right side panel popup that
+     has the WHO, the FROM, and the TO … and the CONFIRM button."
+
+     Walking became an ordinary act of that one flow, which leaves the viewer's
+     own desk as a SECOND way to walk — two panels, two confirms, two notions of
+     where you are going. This is the third stand-down and the same word as the
+     other two: the cockpit says it is mounted, and what that means for this
+     panel is this file's business. Outside portal ground the rule matches
+     nothing, and it reverses the instant the cockpit unmounts.
+
+     The honest home is still the viewer standing itself down, as the pill's own
+     note above says; this file is where it can land tonight. */
+  html[data-pmc-dock] .wv-walkdesk { display: none; }
+
+  /* ── WHILE AN ACT IS ARMED, THE MAP IS A TARGETING SURFACE ──
+     Founder: "clicking the target also opens the 'unlit cake' MARK, which is
+     confusing." The cockpit already swallows that click in capture, but the
+     viewer's overlay marks are their own event targets and the two handlers
+     were racing — whichever listener was registered first won, and the viewer
+     boots before the cockpit mounts.
+
+     Taking the marks OUT OF THE POINTER PATH for the duration settles it
+     without a race: while `pmc-aiming` is on (the cockpit's own class, set at
+     arm and removed at disarm and at destroy), the viewer's overlay cannot
+     receive a click at all, so the only handler that sees one is the cockpit's.
+     Hit-testing is unaffected — the cockpit finds its targets by coordinate,
+     not by element — and bare ground still reaches the painting. */
+  html.pmc-aiming #wv-overlay { pointer-events: none; }
 </style>
