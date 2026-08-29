@@ -384,10 +384,10 @@ test("the weapon's own words are rendered, and they are the record's", () => {
 
 test("which act a weapon helps is the door's word, and the site's stopgap is gone", () => {
   // ⚑ THE STOPGAP IS DELETED, NOT DEMOTED TO A FALLBACK, and that is the
-  // assertion worth having. `weapon.for` shipped (office 7ba1148), read off the
-  // held grant's own entry rather than hardcoded. A weapon whose grant names NO
-  // act must now show no clause at all: "the record did not say" and "the site
-  // guessed" must not look the same on this surface.
+  // assertion worth having. The act-word is the record's, read off the held
+  // grant's own entry rather than hardcoded. A weapon whose grant names NO act
+  // must show no clause at all: "the record did not say" and "the site guessed"
+  // must not look the same on this surface.
   const noFor = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3 });
   assert.equal(weaponFor(noFor, "keeminlee").for, null,
     "the arithmetic does not guess which act — it reports that the door did not say");
@@ -397,21 +397,34 @@ test("which act a weapon helps is the door's word, and the site's stopgap is gon
   assert.match(MOUNT, /return weaponFor\(state\.answer, state\.acting\);/,
     "the mount passes the door's answer through untouched");
 
-  // ⚑ AND IT IS READ UNDER ITS SUCCESSOR'S NAME TOO. `for` is a homonym — in
-  // the grants vocabulary it means the ACTOR KIND — so it is flagged for the
-  // lexicon with `augments` named as the successor. This file has been bitten
-  // by exactly this before (the door started sending `says` where the site
-  // wrote `because`, and the row whose words mattered most went quiet by
-  // succeeding), so both spellings are read and a rename costs nobody a
-  // coordinated edit.
-  const renamed = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, augments: "swing" });
-  assert.equal(weaponFor(renamed, "keeminlee").for, "swing", "the successor spelling is read");
-  assert.equal(dialSpeak(cardFor(renamed, "swing"), { weapon: weaponFor(renamed, "keeminlee") }),
+  // ── THE RULED NAME IS `augments` (Wright with bday-law, 2026-08-29) ──
+  // `for` was a homonym: in the grants vocabulary it means the ACTOR KIND, and
+  // the office reads this very value off an entry carrying that other sense.
+  const ruled = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, augments: "swing" });
+  assert.equal(weaponFor(ruled, "keeminlee").for, "swing", "the ruled name is what the site reads");
+  assert.equal(dialSpeak(cardFor(ruled, "swing"), { weapon: weaponFor(ruled, "keeminlee") }),
+    "d20 vs 12 to hit · d8 damage · +3 with the good lighter");
+
+  // ⚑ AND THE OLD SPELLING IS STILL READ, because it is still what the door
+  // SENDS. The office shipped `for` and has not pushed the rename; reading only
+  // the new name would drop the bonus off the page in the window between the
+  // two commits — silently, on the one line of the hover a player most wants.
+  // This file has been bitten by exactly that: the site declared `because`, the
+  // office shipped `says`, and the human's row went quiet BY SUCCEEDING on the
+  // day the door started answering. Both are read; the rename needs no
+  // choreography, and this assertion is what may be deleted when it lands.
+  const onTheWire = HOLDING({ thing: "the-town/the-good-lighter", bonus: 3, for: "swing" });
+  assert.equal(weaponFor(onTheWire, "keeminlee").for, "swing", "the superseded spelling still renders");
+  assert.equal(dialSpeak(cardFor(onTheWire, "swing"), { weapon: weaponFor(onTheWire, "keeminlee") }),
     "d20 vs 12 to hit · d8 damage · +3 with the good lighter",
-    "and the bonus keeps appearing on the day the word moves");
-  // the shipped spelling still wins where both somehow arrive
-  const both = HOLDING({ thing: "x/y", bonus: 1, for: "swing", augments: "hurl" });
-  assert.equal(weaponFor(both, "keeminlee").for, "swing");
+    "so nothing goes quiet between the ruling and the office's push");
+  // and the RULED name wins where both somehow arrive
+  const both = HOLDING({ thing: "x/y", bonus: 1, for: "hurl", augments: "swing" });
+  assert.equal(weaponFor(both, "keeminlee").for, "swing", "the ruled name outranks the superseded one");
+  assert.match(
+    readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit.mjs", import.meta.url)), "utf8"),
+    /\[w\.augments, w\.for, w\.action\]/,
+    "and the precedence is written in that order, not the other way round");
   // ONE READING, so the seat, the card and the panel cannot disagree on a
   // number. Asserted as "no call site omits it" rather than as a COUNT of call
   // sites: a count is a test that fails the day somebody legitimately adds a
