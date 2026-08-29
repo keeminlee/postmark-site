@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
-  aimKind, cardOf, combatantBars, consentSplit, dialSpeak, fighterState, leavingName, looseThings, pointFields,
+  aimKind, cardOf, combatantBars, consentSplit, dialSpeak, encounterOf, fighterState, leavingName, looseThings, pointFields,
   prefillFor, snapPoint, termsRows, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
@@ -1600,4 +1600,46 @@ test("a refusal wearing a 200 is a refusal, and it never moves the camera", () =
   // stillInside stays true and the pane waits for the ledger's own clock — the
   // behaviour this replaced, and the safe direction to fail in.
   assert.match(MOUNT, /Silence is the right failure here; a camera that guesses is not\./);
+});
+
+test("the combat rail follows the WHEEL, not the mount", () => {
+  // ⚑ FOUNDER, on prod, live: "the combat rail is only supposed to be there WHEN
+  // you're in the combat." The reshape was fired once at mount — and the cockpit
+  // mounts on any portal ground at all, so a resident standing in the POST OFFICE
+  // turned the viewer's Lately section into a combat feed: flipped, capped to a
+  // scrollport, holding fourteen town says and not one beat. The chip said the
+  // world root and the rail said a fight was happening.
+  assert.doesNotMatch(MOUNT, /dockSignal\(true\);\r?\n\s*feedSignal\(true\);/,
+    "the unconditional reshape at mount is gone");
+  assert.match(MOUNT, /const inCombat = \(\) => Boolean\(encounterOf\(state\.answer\)\);/,
+    "a fight is a live wheel — the same reader every other combat surface asks");
+  assert.match(MOUNT, /function syncFeedPresence\(\) \{[\s\S]{0,400}?feedSignal\(live\);/,
+    "and the reshape is hung on it");
+  // ASKED AGAIN ON EVERY PAINT, because a wheel can arrive or end between two of
+  // them — the founder's own case is the ending one, where the rail must go back
+  // to being a rail.
+  assert.match(MOUNT, /resolveActing\(\);\r?\n\s*\/\/ the wheel can arrive or end between two paints[\s\S]{0,140}?syncFeedPresence\(\);/,
+    "re-asked on every repaint, not decided once");
+  // THE COCKPIT'S OWN LIST GOES WITH IT. An empty <ol> left in the viewer's
+  // section is a fight's furniture standing in a rail that is not a feed.
+  assert.match(MOUNT, /if \(!live\) \{\r?\n\s*feedList\?\.remove\(\); feedList = null;\r?\n\s*feedNew\?\.remove\(\); feedNew = null;/,
+    "the list is taken down with the reshape");
+  // ⚑ AND THE GUARD THAT MAKES IT HOLD RATHER THAN MERELY START OUT TRUE: a beat
+  // arriving from an act answer calls ensureFeed directly, so without this one
+  // line ingested outside a fight would build the list straight back.
+  assert.match(MOUNT, /function ensureFeed\(\) \{[\s\S]{0,420}?if \(!inCombat\(\)\) return null;/,
+    "no wheel, no feed, at the one door that builds it");
+});
+
+test("…and the reshape really does arrive with a wheel — the can-fail control", () => {
+  // Without this the test above passes just as well on a cockpit that NEVER
+  // reshapes anything, which would be a different bug wearing the same green.
+  const withWheel = encounterOf(VAULT);
+  assert.ok(withWheel && withWheel.order.length > 0, "the vault fixture carries a live wheel");
+  const quiet = { ...VAULT, encounter: undefined };
+  assert.equal(encounterOf(quiet), null, "and a standpoint with no encounter carries none");
+  // an encounter whose order is empty is not a fight either — the reader already
+  // says so, and the rail inherits that for free
+  assert.equal(encounterOf({ ...VAULT, encounter: { ...VAULT.encounter, order: [] } }), null,
+    "nor is a wheel with nobody on it");
 });

@@ -210,6 +210,50 @@ for (const [qs, label, shouldMove] of [["&refuse=exit", "refused", false], ["", 
   await page.close();
 }
 
+// == THE COMBAT RAIL IS ONLY THERE IN THE COMBAT =============================
+//
+// FOUNDER, on prod, live: he was standing in the town with the chip on the world
+// root, and the viewer's Lately section had been reshaped into a combat feed —
+// flipped, capped to a scrollport, fourteen town says in it and not one beat.
+// The reshape was riding the MOUNT, and the cockpit mounts on any portal ground.
+console.log("\n── the rail follows the wheel ──");
+{
+  const look = (page) => page.evaluate(() => ({
+    wheel: Boolean(document.querySelector(".pmc-turn")),
+    reshaped: document.documentElement.hasAttribute("data-pmc-feed"),
+    docked: document.documentElement.hasAttribute("data-pmc-dock"),
+    list: Boolean(document.querySelector(".pmc-feed")),
+  }));
+
+  // a portal ground with NO fight — the post office, in the harness's shape
+  const quiet = await open("portal");
+  const q = await look(quiet);
+  note(q.wheel === false, "no wheel on a quiet portal ground");
+  note(q.reshaped === false, `and the viewer's rail is untouched (data-pmc-feed=${q.reshaped})`);
+  note(q.list === false, "with none of the cockpit's own feed furniture in it");
+  note(q.docked === true, "the dock still mounts — the act bar following the actor is design");
+  await quiet.close();
+
+  // THE CAN-FAIL CONTROL: with a wheel it really does reshape, so the absence
+  // above is a rule and not a cockpit that never reshapes anything.
+  const fight = await open("vault");
+  const f0 = await look(fight);
+  note(f0.wheel === true && f0.reshaped === true, `a live wheel reshapes the rail (${JSON.stringify(f0)})`);
+  note(f0.list === true, "and the fight's own list joins it");
+
+  // AND THE ENDING, which is the half a mount-time decision can never get right:
+  // walking out of the arena leaves the wheel behind, and the rail goes back to
+  // being the viewer's own.
+  await fight.click('.pmc-slot[data-action="exit"]');
+  await fight.waitForTimeout(500);
+  await fight.click(".pmc-btn.go");
+  await fight.waitForTimeout(1200);
+  const f1 = await look(fight);
+  note(f1.wheel === false && f1.reshaped === false && f1.list === false,
+    `the fight ends and the rail is a rail again (${JSON.stringify(f1)})`);
+  await fight.close();
+}
+
 await browser.close();
 console.log(`
 ${failures.length ? `FAILED (${failures.length})` : "all clear"}`);

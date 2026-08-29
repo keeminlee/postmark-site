@@ -3250,6 +3250,12 @@ export function mountCockpit(o) {
    *  (a phone hides it below 720px, and a harness has no viewer at all). */
   const feedSection = () => doc.querySelector(".wv .wv-activity");
   function ensureFeed() {
+    // ⚑ NO WHEEL, NO FEED, and this guard is the one that makes the rule hold
+    // rather than merely start out true. The reshape is stood down on every
+    // paint, but a beat arriving from an act answer calls straight through to
+    // here — so without this, one line ingested outside a fight would build the
+    // list back into the viewer's rail and leave it there.
+    if (!inCombat()) return null;
     const host = feedSection();
     if (!host) return null;
     watchFeedHost(host);
@@ -3576,6 +3582,9 @@ export function mountCockpit(o) {
   // ── painting ──────────────────────────────────────────────────────────────
   function paint() {
     resolveActing();
+    // the wheel can arrive or end between two paints, and the rail follows it —
+    // asked here rather than at mount, which is where it went wrong
+    syncFeedPresence();
     const active = doc.activeElement;
     const keepAction = active?.closest?.("[data-form]") ? active.getAttribute?.("data-field") : null;
     const values = readForm();
@@ -4695,7 +4704,40 @@ export function mountCockpit(o) {
     } catch {}
   };
   dockSignal(true);
-  feedSignal(true);
+
+  /**
+   * THE COMBAT RAIL IS ONLY THERE WHEN YOU ARE IN THE COMBAT — the founder's own
+   * words, on prod, live.
+   *
+   * ⚑ THE RESHAPE WAS RIDING THE MOUNT. `feedSignal(true)` fired here, once, on
+   * mounting — and the cockpit mounts on any portal ground at all, so a resident
+   * standing in the POST OFFICE turned the viewer's Lately section into a
+   * combat feed: flipped to newest-at-the-bottom, capped to a scrollport, with
+   * fourteen town says in it and not one beat. The chip said the world root and
+   * the rail said a fight was happening.
+   *
+   * A FIGHT IS A LIVE WHEEL, not a mounted cockpit. `encounterOf` already answers
+   * exactly that question — null with no encounter, and null with an encounter
+   * carrying nobody — so the reshape is hung on it and re-asked on every paint.
+   * With no wheel the Lately section is wholly the viewer's own, which is the
+   * state a reader outside a fight has always been entitled to.
+   */
+  let feedPresent = false;
+  const inCombat = () => Boolean(encounterOf(state.answer));
+  function syncFeedPresence() {
+    const live = inCombat();
+    if (live === feedPresent) return;
+    feedPresent = live;
+    feedSignal(live);
+    // and the cockpit's OWN list goes with the reshape. Leaving an empty <ol> in
+    // the viewer's section would be a fight's furniture standing in a rail that
+    // is no longer a feed — invisible today and a bug the day it is not.
+    if (!live) {
+      feedList?.remove(); feedList = null;
+      feedNew?.remove(); feedNew = null;
+    }
+  }
+  syncFeedPresence();
 
   // A PICTURE THAT WILL NOT LOAD UNCOVERS ITS LETTER. Delegated and in the
   // CAPTURE phase because `error` does not bubble — the one listener survives

@@ -875,9 +875,13 @@
   let left = false;
   async function refresh() {
     if (left) {
-      // outdoors: no portal, which is the fact the cockpit reads as "they left"
+      // outdoors: no portal, which is the fact the cockpit reads as "they left" —
+      // and NO ENCOUNTER either, because walking out of the arena leaves the
+      // wheel behind you. That second half is what lets the ending of a fight be
+      // looked at: the combat rail must go back to being the viewer's own Lately.
       const { portal, ...standpoint } = answer.standpoint ?? {};
-      return { ...answer, standpoint, within: (answer.within ?? []).slice(0, 1) };
+      return { ...answer, standpoint, within: (answer.within ?? []).slice(0, 1),
+               encounter: undefined, encounter_detail: undefined };
     }
     if (!params.get("fight")) return answer;
     step = Math.min(step + 1, SCRIPT.length - 1);
