@@ -191,12 +191,26 @@
       // portal": the cockpit built that day never mounted, silently. So the
       // resident is resolved BEFORE the door is asked.
       const me = await readMe().catch(() => null);
-      const acting = orientingHandle(me);
+      // THE READ ROOTS AT THE SELECTED RESIDENT, NOT AT handles[0] (found live,
+      // 2026-08-28 rehearsal night). orientingHandle's first-handle rule was
+      // written for a key holding one resident; the founder's dev key holds SIX,
+      // in six different places, and the office happened to order the
+      // Illuminator first — so the founder stood in her looking-room all night
+      // while rei fought in the candle vault, and no click could move him. The
+      // seat follows the SELECTION: the viewer's own stored choice when it names
+      // a resident this key holds, else the first handle exactly as before. A
+      // stale stored name (a resident this key no longer holds) falls through
+      // rather than bouncing the read.
+      const handles = Array.isArray(me?.handles) ? me.handles : [];
+      const stored = (() => { try { return localStorage.getItem("pm.world.act_as"); } catch { return null; } })();
+      let acting = (stored && handles.includes(stored)) ? stored : orientingHandle(me);
       if (!acting) console.warn("world cockpit: /api/me named no resident on this key, so the apex read cannot say whose standpoint to answer");
-      // One composition, used by the boot read, the refresh after an act, and the
-      // re-read on return to the tab — so the handle cannot be threaded into one
-      // of the three and forgotten in the others, which is exactly how 08-26 got
-      // three calls to one door that disagreed about naming a resident.
+      // One composition, used by the boot read, the refresh after an act, the
+      // re-read on return to the tab, and the re-read on a dock selection — so
+      // the handle cannot be threaded into one of the four and forgotten in the
+      // others, which is exactly how 08-26 got three calls to one door that
+      // disagreed about naming a resident. `acting` is a let for the same
+      // reason: one variable, every caller reads it at call time.
       const door = () => readDoor({ fetch, office: OFFICE, handle: acting, headers: authed() });
 
       const answer = await door().catch((err) => {
@@ -230,6 +244,22 @@
         if (document.visibilityState !== "visible" || !handle) return;
         const fresh = await door().catch(() => null);
         if (fresh) handle.update(fresh);
+      });
+
+      // Re-read when the dock picks a different resident (pm:act-as, the
+      // mount's own event, detail: { actor }). This is the other half of the
+      // seat-follows-the-selection fix above: without it the dock changed who
+      // ACTS while the answer stayed rooted where the old resident stood, and
+      // the map, the wheel and the bar all described somebody else's room. The
+      // human face deliberately speaks no pm:act-as (resident handles only), so
+      // acting-as-yourself keeps borrowing the selected resident's place — the
+      // seat law, kept.
+      window.addEventListener("pm:act-as", async (e) => {
+        const who = e?.detail?.actor;
+        if (!who || who === acting || !handles.includes(who)) return;
+        acting = who;
+        const fresh = await door().catch(() => null);
+        if (fresh && handle) handle.update(fresh);
       });
     }
 
