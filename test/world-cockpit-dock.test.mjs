@@ -128,7 +128,7 @@ test("the row is fenced to the painting, not the viewport", () => {
     "and the row centers between them rather than over the viewport");
 });
 
-test("a berth once given is kept, so the dock does not slide out from under a click", () => {
+test("the row holds still under a pointer, so the dock cannot slide out from under a click", () => {
   // ⚑ CAUGHT WHILE PILOTING IT, 2026-08-28, and it is the cost of having made
   // the row re-measure promptly rather than once. The viewer's furniture is
   // transient — the exit pill comes and goes with what it thinks you can step
@@ -137,16 +137,21 @@ test("a berth once given is kept, so the dock does not slide out from under a cl
   // is reaching for one is a dock you misclick: aiming at rei and pressing the
   // illuminator, twice.
   //
-  // While the reader stands in one place the row now only gives ground and
-  // never takes it back. Arriving somewhere else is a new room and a fresh
-  // measurement, keyed on the same scene frameScene arrives on — because the
-  // thing that legitimately changes the furniture around you is moving.
+  // The harm was only ever the row moving under a pointer that was aiming at
+  // it, so that is the whole of the condition: while the row is hovered it does
+  // not move in either direction, and the instant the pointer leaves it
+  // measures itself honestly again.
+  //
+  // A first pass never gave the berth back at all. That stopped the dancing and
+  // left the row permanently squeezed by furniture long since gone — one armed
+  // walk and the bar sat at two thirds width for the rest of the standpoint,
+  // trading a misclick for a papercut and keeping the papercut.
   assert.match(mount, /if \(here !== berthKey\) \{ berthKey = here; berthLo = null; berthHi = null; \}/,
     "a new standpoint measures the room again from scratch");
-  assert.match(mount, /berthLo = berthLo == null \? lo : Math\.max\(berthLo, lo\);/,
-    "and until then the left edge only ever moves inward");
-  assert.match(mount, /berthHi = berthHi == null \? hi : Math\.min\(berthHi, hi\);/,
-    "as does the right");
+  assert.match(mount, /const held = berthLo != null && \(root\.querySelector\("\.pmc-barrow"\)\?\.matches\?\.\(":hover"\) \?\? false\);/,
+    "the row holds its berth only while a pointer is actually on it");
+  assert.match(mount, /if \(!held\) \{ berthLo = lo; berthHi = hi; \}/,
+    "and measures itself honestly again the moment the pointer leaves");
 });
 
 test("the row steps around bottom-corner furniture before it climbs over it", () => {

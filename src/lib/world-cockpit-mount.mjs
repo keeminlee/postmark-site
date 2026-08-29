@@ -881,8 +881,19 @@ export function mountCockpit(o) {
     // same reason: the thing that legitimately changes the furniture is moving.
     const here = sceneKey() ?? "";
     if (here !== berthKey) { berthKey = here; berthLo = null; berthHi = null; }
-    berthLo = berthLo == null ? lo : Math.max(berthLo, lo);
-    berthHi = berthHi == null ? hi : Math.min(berthHi, hi);
+    // THE HAND IS WHAT IT HOLDS STILL FOR, and only that. A first pass here
+    // never gave the berth back at all, which stopped the dancing and left the
+    // row permanently squeezed by furniture that had long since gone — one
+    // armed walk and the bar stayed at two thirds width for the rest of the
+    // standpoint. That trades a misclick for a papercut and keeps the papercut.
+    //
+    // The harm was only ever moving under a pointer that was aiming at it, so
+    // that is the whole of the condition: while the row is hovered it does not
+    // move, in either direction, and the instant the pointer leaves it measures
+    // itself honestly again. A moment of overlap nobody is reaching into costs
+    // less than a face that slides out from under a click.
+    const held = berthLo != null && (root.querySelector(".pmc-barrow")?.matches?.(":hover") ?? false);
+    if (!held) { berthLo = lo; berthHi = hi; }
     if (wide || vw) {
       bar.style.left = `${(berthLo + berthHi) / 2}px`;
       bar.style.maxWidth = `${Math.max(280, berthHi - berthLo)}px`;
