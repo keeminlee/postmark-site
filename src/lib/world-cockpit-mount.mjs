@@ -219,6 +219,41 @@ export const COCKPIT_CSS = `
 .pmc-said .hint { display: block; color: var(--pmc-dim); font-size: .92em; margin-top: .3em; }
 .pmc-terms { margin: .6em 0 0; padding: .5em .7em; border-left: 2px solid var(--pmc-gold-dim); font-size: .72rem; line-height: 1.55; color: var(--pmc-dim); }
 
+/* ── the trigger plate ──
+   RULED 2026-08-28, mid-fight: the arena's acts "must feel like a game — one
+   tight line, prefilled, ENTER sends." Which acts get this is decided in
+   formHtml by the CARD's shape, never by a verb's name.
+
+   Everything here is a MOVE, not a removal: the fields stay, the terms stay,
+   the blurb stays, and each one is still on the face of the plate. What changes
+   is that they lie along the line instead of stacking down the page — a fight
+   plate is read at a glance between two swings, and a column of captions is a
+   column you scroll past to reach the button. */
+.pmc-trigger { max-width: 27em; }
+.pmc-trigger h3 { margin-bottom: .35em; }
+.pmc-trigger .pmc-blurb { margin: 0 0 .5em; font-size: .74rem; }
+/* label and control on ONE line, so a prefilled target reads as a filled-in
+   sentence rather than as a form with one question in it */
+.pmc-trigger label {
+  display: flex; align-items: baseline; gap: .5em; margin: .3em 0 0;
+}
+.pmc-trigger label input, .pmc-trigger label select { margin-top: 0; flex: 1 1 auto; min-width: 0; }
+.pmc-trigger .keys { display: block; margin: .55em 0 0; color: var(--pmc-dim); font: .58rem/1.5 ui-monospace, Consolas, monospace; }
+/* ENTER is the send, so the buttons stand down to a quiet fallback rather than
+   claiming the eye the keys line just asked for. They are kept because a plate
+   with no clickable send is a plate a mouse cannot finish. */
+.pmc-trigger .pmc-actions { margin-top: .6em; }
+.pmc-trigger .pmc-btn { font-size: .66rem; padding: .38em .8em; }
+.pmc-trigger .pmc-btn.go { background: none; color: var(--pmc-gold); border-color: var(--pmc-gold-dim); }
+/* the terms, named in full and clipped in value — see termsBriefHtml */
+.pmc-terms.brief { margin-top: .55em; padding: .4em .6em; font-size: .66rem; line-height: 1.5; }
+.pmc-terms.brief .lede { color: var(--pmc-gold-dim); }
+.pmc-terms.brief .pmc-term { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pmc-terms.brief .pmc-term b { color: var(--pmc-dim); font-weight: 400; }
+.pmc-terms.brief details { margin-top: .35em; }
+.pmc-terms.brief summary { cursor: pointer; color: var(--pmc-gold-dim); }
+.pmc-terms.brief details .pmc-row { white-space: normal; overflow-wrap: anywhere; }
+
 /* ── the chat line ──
    RULED 2026-08-28: "everything I can do via the ui buttons, I have to type in
    like filling an mcp form." An act whose whole argument is one sentence should
@@ -646,6 +681,44 @@ export function mountCockpit(o) {
     return termsRows(terms).map((r) => `<p class="pmc-row"><b>${esc(r.key)}</b> ${esc(r.value)}</p>`).join("");
   }
 
+  /**
+   * THE TERMS, STILL DELIVERED, IN THE ROOM A FIGHT LEAVES FOR THEM.
+   *
+   * The founder, mid-fight, 2026-08-28: "the FULL MCP TEXT when I click actions
+   * is NOT helping." The act form printed every term key with its value whole,
+   * and on this door that is genuinely a page of JSON — `articles` and `quoted`
+   * come back as arrays of full mark bodies, which buried the one line he was
+   * trying to press ENTER on under about forty lines of prose he had already
+   * read on the card.
+   *
+   * WHAT MAY NOT BE TRADED AWAY is the terms being READABLE BEFORE THE ACT
+   * BINDS — "you cannot be bound by law you were not shown at the door" is this
+   * surface's own sentence and the reason the shadow read exists at all. So
+   * nothing is hidden and nothing is dropped: every key the door sent is named
+   * on the face of the plate, in the door's own words, and each one's VALUE is
+   * clipped to the head of itself with the whole of it one disclosure away in
+   * the same plate — plus, as before, whole on the act's hover card.
+   *
+   * The distinction being drawn is between shown and dumped. A term you can see
+   * the name of and open in place has been delivered; forty lines you scroll
+   * past to find the button have not, and the founder reading past them is the
+   * evidence.
+   */
+  function termsBriefHtml(terms) {
+    const rows = termsRows(terms);
+    if (!rows.length) return "";
+    const CLIP = 68;
+    const head = rows.map((r) => {
+      const v = String(r.value ?? "");
+      return `<span class="pmc-term"><b>${esc(r.key)}</b> ${esc(v.length > CLIP ? v.slice(0, CLIP - 1) + "…" : v)}</span>`;
+    }).join("");
+    const long = rows.some((r) => String(r.value ?? "").length > CLIP);
+    return `<div class="pmc-terms brief">
+      <b class="lede">terms</b> — what would bind this act${head}
+      ${long ? `<details><summary>read them whole</summary>${termsHtml(terms)}</details>` : ""}
+    </div>`;
+  }
+
   function slotHtml(s, extraClass) {
     // Three states, and they are three different sentences. Not afforded here is
     // the ground's answer; blocked is the clock's; enabled is neither. A slot that
@@ -729,15 +802,6 @@ export function mountCockpit(o) {
     // Measured, not moved: the pill is the viewer's element and restyling it
     // from here would be the second writer this fence exists to avoid. The row
     // lifts over it exactly as it lifts over the walk desk.
-    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit"]) {
-      const el = doc.querySelector(sel);
-      if (!el || !el.getClientRects().length) continue;
-      const box = el.getBoundingClientRect();
-      if (!box.height) continue;
-      clear = Math.max(clear, h - box.top + 12);
-    }
-    // never push the bar off the top of a short window
-    bar.style.bottom = `${Math.min(clear, Math.max(18, h - 120))}px`;
     // FENCED TO THE PAINTING (2026-08-28, seen the moment the dock landed): a
     // viewport-centered row runs its left end under the nav and card columns —
     // the dock's ACT AS faces sat on the nav's own text, and the verb slots
@@ -746,9 +810,61 @@ export function mountCockpit(o) {
     // svg; the row centers over that pane and never leaves it. The 50%-of-
     // viewport fallback is the harness's (no svg mounted).
     const paint = liveSvg()?.getBoundingClientRect?.();
-    if (paint && paint.width > 300) {
-      bar.style.left = `${paint.left + paint.width / 2}px`;
-      bar.style.maxWidth = `${Math.max(280, paint.width - 20)}px`;
+    const wide = paint && paint.width > 300;
+    const vw = doc.defaultView?.innerWidth ?? 0;
+    const full = wide ? paint.width - 20 : Math.max(280, vw - 28);
+    let lo = wide ? paint.left + 10 : 14;
+    let hi = wide ? paint.right - 10 : vw - 14;
+
+    // ⚑ STAND BESIDE IT BEFORE CLIMBING OVER IT (founder-caught 2026-08-28:
+    // "the action buttons somehow floated vertically upwards").
+    //
+    // The fence below used to answer every piece of bottom furniture the same
+    // way — lift the WHOLE row above the tallest of them. `.wv-walkdesk` is
+    // 194px tall and lives in the painting's bottom-RIGHT corner, so arming a
+    // walk launched the entire row 216px up the map, clear of nothing it was
+    // actually colliding with along nine tenths of its length. Measured on the
+    // founder's screen at the moment he reported it: walkdesk top 689 of an
+    // 893px window, row bottom 215.938px, row spanning x 222–1910 against a
+    // desk spanning 1606–1910.
+    //
+    // A corner is something you go AROUND. So each piece is asked, in the order
+    // a reader would: can the row simply end before this thing (or begin after
+    // it) and still be worth calling a row? If yes it steps aside and stays on
+    // the bottom edge where the hand expects it. Only what cannot be stepped
+    // around — something spanning the middle, or a dodge that would leave a
+    // stub — is climbed over, and the lift is then measured off that piece
+    // alone rather than off the tallest thing anywhere along the edge.
+    //
+    // KEEP_FRACTION is a judgement and is written as one: below about seven
+    // tenths of the painting the row has given up more in verbs-per-screen than
+    // the lift costs in reading room, so at that point climbing is the better
+    // trade. Chosen against this screen, where dodging the desk alone keeps 80%
+    // and dodging the exit pill as well would drop it to 66%.
+    const KEEP_FRACTION = 0.7;
+    const rowH = bar.getBoundingClientRect().height || 72;
+    const climb = [];
+    for (const sel of [".wv .wv-walkdesk", ".wv .wv-spectator-coordinate", ".wv .wv-paint-tallies", ".wv .wv-scene-exit"]) {
+      const el = doc.querySelector(sel);
+      if (!el || !el.getClientRects().length) continue;
+      const box = el.getBoundingClientRect();
+      if (!box.height) continue;
+      // does it reach the band a bottom-sitting row would occupy at all?
+      if (box.bottom < h - 18 - rowH) continue;
+      if (box.right <= lo || box.left >= hi) continue;        // already beside it
+      const endBefore = box.left - 12, beginAfter = box.right + 12;
+      const keepLeft = endBefore - lo, keepRight = hi - beginAfter;
+      // step toward whichever side keeps more row, and only if that is enough
+      if (keepLeft >= keepRight && keepLeft >= full * KEEP_FRACTION) hi = endBefore;
+      else if (keepRight > keepLeft && keepRight >= full * KEEP_FRACTION) lo = beginAfter;
+      else climb.push(box);
+    }
+    for (const box of climb) clear = Math.max(clear, h - box.top + 12);
+    // never push the bar off the top of a short window
+    bar.style.bottom = `${Math.min(clear, Math.max(18, h - 120))}px`;
+    if (wide || vw) {
+      bar.style.left = `${(lo + hi) / 2}px`;
+      bar.style.maxWidth = `${Math.max(280, hi - lo)}px`;
     }
     // THE HERE-PLATE NEEDS NO FENCE ANY MORE, and its absence here is the point
     // rather than an omission. It rode this same rect until 2026-08-28 — the
@@ -868,6 +984,31 @@ export function mountCockpit(o) {
       ? `<datalist id="${listId}">${candidates.map((k) =>
           `<option value="${esc(k.value)}">${esc(k.label)}${k.why ? " — " + esc(k.why) : ""}</option>`).join("")}</datalist>`
       : "";
+    // ── IS THIS A FORM, OR IS IT A TRIGGER? ──────────────────────────────────
+    //
+    // RULED 2026-08-28, mid-fight: the arena's acts "must feel like a game —
+    // one tight line, prefilled, ENTER sends."
+    //
+    // NO VERB LIST AND NO NEW WIRE, exactly as the chat line's own note argues:
+    // which acts get this chrome is decided by the SHAPE of the card the door
+    // sent, never by their names. An act is a TRIGGER when the door has already
+    // answered everything it needs — nothing required is still empty — and
+    // nothing it holds is prose. That is a description of the fight's verbs
+    // (STRIKE finds its own target, GUARD takes no argument at all) without
+    // naming one of them, so a door that grows a sixth arena verb gets this for
+    // free, and one that adds a required field to STRIKE gets the full form
+    // back with no edit here.
+    //
+    // The controls are still the same controls and still editable — a trigger
+    // is the form with its explanations moved, not a different act. What comes
+    // off the face of the plate is the per-field prose: `f.description` is
+    // written for a caption with room, and five of them stacked over one
+    // prefilled box is the wall the founder hit. It stays reachable on the
+    // control itself and whole on the hover card, which is where the card's own
+    // note already says detail belongs.
+    const readyToSend = c.fields.every((f) => !f.required || filled[f.name] != null);
+    const trigger = readyToSend && !c.fields.some((f) => wantsTextarea(f));
+
     const inputs = c.fields.map((f) => {
       const id = `pmc-f-${esc(f.name)}`;
       const req = f.required ? ` <span class="req" title="required">*</span>` : "";
@@ -894,10 +1035,12 @@ export function mountCockpit(o) {
       }
       // The door's own description under the field, whole. It is where the door
       // tells a caller what the act will do with the value, and shortening it
-      // here would be the site editing law to fit a box.
-      const desc = f.description ? `<p class="pmc-desc">${esc(f.description)}</p>` : "";
+      // here would be the site editing law to fit a box. On a TRIGGER it moves
+      // onto the control instead of standing under it — same words, same door,
+      // one hover or one focus away rather than five paragraphs deep.
+      const desc = f.description && !trigger ? `<p class="pmc-desc">${esc(f.description)}</p>` : "";
       const more = f.enumCount && !f.enum ? `<p class="pmc-desc">${f.enumCount} values — read the card at the door</p>` : "";
-      return `<label for="${id}">${esc(f.name)}${req}${control}</label>${desc}${more}`;
+      return `<label for="${id}"${trigger && f.description ? ` title="${esc(f.description)}"` : ""}>${esc(f.name)}${req}${control}</label>${desc}${more}`;
     }).join("");
 
     const said = state.said
@@ -907,23 +1050,33 @@ export function mountCockpit(o) {
     // card already asked for them, and replaced by whatever the door hands back
     // at the act itself, which is the authoritative delivery.
     const shown = state.said?.terms ?? termsCache.get(action) ?? null;
-    const terms = shown
-      ? `<div class="pmc-terms"><b>terms</b> — delivered before the act binds, because you cannot be bound by law you were not shown at the door${termsHtml(shown)}</div>`
-      : "";
+    const terms = !shown ? ""
+      : trigger
+        ? termsBriefHtml(shown)
+        : `<div class="pmc-terms"><b>terms</b> — delivered before the act binds, because you cannot be bound by law you were not shown at the door${termsHtml(shown)}</div>`;
     const actorWords = state.acting === HUMAN_ACTOR ? "as yourself" : `as ${esc(state.acting ?? "—")}`;
     // NOTHING LEFT TO TYPE is a state worth saying out loud. Where the door made
     // every field optional and found its own target — which is most of the
     // fight's acts — the form opens with nothing to fill and ENTER sends it, and
     // a reader looking at an empty panel deserves to be told that is the whole
     // of it rather than left hunting for the field they missed.
+    //
+    // ON A TRIGGER IT IS THE WHOLE INSTRUCTION, so it says the keys rather than
+    // a sentence, in the same words and the same corner the chat line already
+    // uses. One surface, one way of saying "press this".
     const nothingToType = c.fields.every((f) => !f.required && filled[f.name] == null);
-    const ready = c.fields.length && nothingToType
-      ? `<p class="pmc-desc">Every field here is the door's to fill — press ENTER to send it as it stands.</p>`
-      : "";
-    return `<form class="pmc-plate pmc-form" data-form="${esc(action)}">
+    const ready = trigger
+      ? `<span class="keys">↵ send · esc close</span>`
+      : c.fields.length && nothingToType
+        ? `<p class="pmc-desc">Every field here is the door's to fill — press ENTER to send it as it stands.</p>`
+        : "";
+    // A trigger keeps the blurb — one line, and it is the only sentence saying
+    // what the act DOES — and drops the buttons for the keys, because a plate
+    // you send with ENTER does not need a mouse target restating it.
+    return `<form class="pmc-plate pmc-form${trigger ? " pmc-trigger" : ""}" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
       ${c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
-      ${inputs || `<p class="pmc-desc">This act takes no arguments.</p>`}
+      ${inputs || (trigger ? "" : `<p class="pmc-desc">This act takes no arguments.</p>`)}
       ${ready}${datalist}
       ${terms}${said}
       <div class="pmc-actions">
@@ -1062,10 +1215,28 @@ export function mountCockpit(o) {
       </li>`;
     };
     const whose = rows.find((a) => a.current);
-    return `<div class="pmc-plate pmc-wheel">
+    // ⚑ A WHEEL THAT IS NOT TURNING MUST SAY SO (founder, 2026-08-28: "I also
+    // tried striking and it's just stuck now? like when does the cake take its
+    // turn?"). He was in an encounter the door was answering `live: false` for:
+    // the cake had never taken its slot, so the wheel held one row, the turn
+    // gate was never engaged, and his strikes landed on a fight that had not
+    // opened. The office no longer produces that state — the open is asked on
+    // every door touch — but the state is REPRESENTABLE, and while it was on
+    // screen this plate showed a tidy round counter and told him nothing.
+    //
+    // So the cap reads the door's own `live` rather than inferring liveness
+    // from the presence of an encounter. A player who is stuck should be able
+    // to see that they are stuck, and see it here, on the thing they are
+    // watching for their turn.
+    const d = state.answer?.encounter_detail;
+    const dead = d && d.live === false;
+    const cap = dead
+      ? `no fight is open here — nothing has taken the other slot, so no turn is owed`
+      : `${enc.round == null ? "" : `round ${esc(String(enc.round))} · `}${whose ? esc(whose.label) + " is acting" : "waiting"}`;
+    return `<div class="pmc-plate pmc-wheel${dead ? " is-quiet" : ""}">
       <div class="pmc-wheel-cap">
         <b>INITIATIVE</b>
-        <span>${enc.round == null ? "" : `round ${esc(String(enc.round))} · `}${whose ? esc(whose.label) + " is acting" : "waiting"}</span>
+        <span>${cap}</span>
       </div>
       <ol class="pmc-wheel-row">${rows.map(seat).join("")}</ol>
     </div>`;
@@ -1125,6 +1296,101 @@ export function mountCockpit(o) {
     const w = svg.getBoundingClientRect?.().width || svg.clientWidth || 0;
     if (vb.length !== 4 || !isFinite(vb[2]) || vb[2] <= 0 || !w) return 1;
     return vb[2] / w;
+  }
+
+  // ── the camera, on the room you are standing in ────────────────────────────
+  /**
+   * PUT THE ROOM IN FRAME.
+   *
+   * The founder, 2026-08-28: "the cake ring doesn't even appear on the screen,
+   * it's clipped off the bottom of the candle vault." Standing inside a three
+   * by two metre room, the painting was still framed on the town — so the fight
+   * was a handful of pixels at the bottom edge of a map of the county, and the
+   * one thing he was fighting was off the end of it.
+   *
+   * ⚑ WHOSE COORDINATES THESE ARE, because on this ground it is the whole
+   * question. The scene is framed on the DOOR's numbers — the standpoint, the
+   * adversary's `at`, whatever is loose on the floor — and NOT on the painting's.
+   * Those two disagree right now and the disagreement is not a bug in either:
+   * the painting is built from the pinned world package, and the dungeon's props
+   * were re-sited in a stage clone the site's build has never seen. Read live
+   * 2026-08-28: the door puts the cake at (1083, -791.7), inside the vault; the
+   * staged record still has it at (1097, -783.5), which is outside. The cockpit
+   * already draws the ring, the token and the loose things from the door, so
+   * framing on the door is what makes the camera agree with the things it is
+   * pointed at. The room drawn underneath is the painting's business.
+   *
+   * ⚑ AND IT IS A RAW viewBox WRITE, disclosed rather than tidied away. The
+   * viewer HAS a camera — `mapCtx.frameOn`, `mapCtx.setView`, `mapCtx.lockOn`,
+   * every one of them better than this — but `mapCtx` is a module-local in the
+   * viewer's closure and is published on nothing: not the window, not the root
+   * element, not an event. There is no seam to call. So this writes the
+   * attribute the viewer's own `applyView` writes, which is the same mechanism
+   * one layer lower, and it accepts the cost that comes with it: a later pan,
+   * zoom, follow or refit runs through `applyView` and simply wins. That is why
+   * this fires on ARRIVAL rather than continuously — a camera that reasserted
+   * itself every frame would fight the reader's hand for the map, and the hand
+   * must win. THE CLEAN FIX IS ONE LINE IN THE VIEWER (publish mapCtx, or listen
+   * for an event and call frameOn); it belongs in the world repo and a pin bump,
+   * which is not this lane's to spend.
+   */
+  let framedKey = null;
+  let handOnCamera = false;
+  function sceneKey() {
+    const d = state.answer?.encounter_detail;
+    const p = state.answer?.standpoint;
+    if (!d?.ground) return null;
+    return `${d.ground}|${p?.x}|${p?.y}`;
+  }
+  function frameScene() {
+    const svg = liveSvg();
+    if (!svg || !o.grid) return;
+    const key = sceneKey();
+    if (!key) return;                        // not standing in a portal's ground
+    if (key === framedKey) return;           // already framed this arrival
+    if (handOnCamera && framedKey) return;   // the reader has the camera; leave it
+    // Every point the cockpit itself will draw, in the door's own coordinates —
+    // so whatever ends up on this map is inside the rectangle by construction
+    // rather than by a margin that happened to be generous enough.
+    const pts = [];
+    const push = (p) => { if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) pts.push(p); };
+    push({ x: Number(state.answer?.standpoint?.x), y: Number(state.answer?.standpoint?.y) });
+    // the adversary's own coordinate off the same row the ring is drawn from —
+    // `nearby`, which is where adversaryPlacement reads it
+    const advId = adversaryOf(state.answer)?.id;
+    const nearby = Array.isArray(state.answer?.nearby) ? state.answer.nearby : [];
+    push(nearby.find((m) => m?.id === advId)?.at);
+    for (const t of looseThings(state.answer)) push(t.at);
+    if (!pts.length) return;
+    const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+    const a = worldToPx(o.grid, { x: Math.min(...xs), y: Math.min(...ys) });
+    const b = worldToPx(o.grid, { x: Math.max(...xs), y: Math.max(...ys) });
+    if (!a || !b) return;
+    const box = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y),
+                  w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) };
+    // A ROOM WITH ONE THING IN IT IS A POINT, and a zero-width viewBox is a
+    // blank screen. The floor is the innermost ground's own stated extent — the
+    // door says how big the room is (`within`, extentM, outermost first) — so a
+    // lone standpoint still frames the room around it rather than a pixel.
+    const within = Array.isArray(state.answer?.within) ? state.answer.within : [];
+    const roomM = Number(within[within.length - 1]?.extentM);
+    const floorM = Number.isFinite(roomM) && roomM > 0 ? roomM : 8;
+    const originM = worldToPx(o.grid, { x: 0, y: 0 });
+    const unitM = worldToPx(o.grid, { x: 1, y: 0 });
+    const perM = originM && unitM ? Math.abs(unitM.x - originM.x) : 0;
+    if (!perM) return;
+    // room for the fighters to stand apart in, and for the ring, which is drawn
+    // at 20 screen px and would otherwise touch both walls
+    const pad = Math.max(floorM * perM * 0.75, box.w * 0.25, box.h * 0.25, 12 * unitsPerPx());
+    let w = Math.max(box.w + pad * 2, floorM * perM * 1.6);
+    const el = svg.getBoundingClientRect();
+    if (!el.width || !el.height) return;
+    let hgt = w * (el.height / el.width);
+    const need = box.h + pad * 2;
+    if (hgt < need) { hgt = need; w = hgt * (el.width / el.height); }
+    const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+    svg.setAttribute("viewBox", `${cx - w / 2} ${cy - hgt / 2} ${w} ${hgt}`);
+    framedKey = key;
   }
 
   /**
@@ -1382,6 +1648,11 @@ export function mountCockpit(o) {
     markOverflow();
     if (state.open && values) writeForm(values);
     if (keepAction) root.querySelector(`[data-field="${CSS.escape ? CSS.escape(keepAction) : keepAction}"]`)?.focus();
+    // THE CAMERA BEFORE THE TOKEN, because the token is sized against the
+    // viewBox (unitsPerPx) and drawing it first would size it for the frame we
+    // are about to leave. frameScene answers once per arrival, so this costs
+    // nothing on the paints where the reader has not moved.
+    frameScene();
     drawToken();
   }
 
@@ -1620,6 +1891,13 @@ export function mountCockpit(o) {
     camera = new MutationObserver(() => drawToken());
     camera.observe(o.svg, { attributes: true, attributeFilter: ["viewBox"] });
   }
+  // THE HAND WINS THE MAP. frameScene points the camera at the room on arrival;
+  // the moment the reader drags or wheels it, they own it until they arrive
+  // somewhere else, and the pointer is the only signal that says so. Watching
+  // the viewBox instead would not do: this island writes that attribute itself,
+  // so the observer above cannot tell the reader's pan from our own framing.
+  for (const ev of ["pointerdown", "wheel"])
+    o.svg?.addEventListener?.(ev, () => { handOnCamera = true; }, { passive: true, capture: true });
   const onResize = () => { drawToken(); placeBar(); markOverflow(); };
   (doc.defaultView ?? globalThis).addEventListener?.("resize", onResize);
 

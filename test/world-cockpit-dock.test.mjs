@@ -116,8 +116,40 @@ test("the row is fenced to the painting, not the viewport", () => {
   // measuring a ghost the moment the view changed. Same fence, living ruler.
   assert.match(mount, /const paint = liveSvg\(\)\?\.getBoundingClientRect\?\.\(\);/,
     "placeBar measures the living painting");
-  assert.match(mount, /bar\.style\.left = `\$\{paint\.left \+ paint\.width \/ 2\}px`;/,
-    "and centers the row over it rather than over the viewport");
+  // The fence is now a SPAN rather than a centre-and-width pair, because the row
+  // also steps aside from bottom-corner furniture (below) and both ends have to
+  // be able to move independently. Its floor and ceiling are still the
+  // painting's edges and nothing else's.
+  assert.match(mount, /let lo = wide \? paint\.left \+ 10 : 14;/,
+    "the row's left edge comes off the painting, not the viewport");
+  assert.match(mount, /let hi = wide \? paint\.right - 10 : vw - 14;/,
+    "and so does its right edge");
+  assert.match(mount, /bar\.style\.left = `\$\{\(lo \+ hi\) \/ 2\}px`;/,
+    "and the row centers between them rather than over the viewport");
+});
+
+test("the row steps around bottom-corner furniture before it climbs over it", () => {
+  // ⚑ FOUNDER-CAUGHT 2026-08-28, mid-fight: "the action buttons somehow floated
+  // vertically upwards and now have a horizontal scroll."
+  //
+  // The fence answered every piece of the viewer's bottom furniture the same
+  // way — lift the whole row above the tallest of them. `.wv-walkdesk` is 194px
+  // tall and sits in the painting's bottom-RIGHT corner, so arming a walk threw
+  // the entire row 216px up a 893px window to clear something it overlapped
+  // along one sixth of its length. Measured on his screen at the moment he
+  // reported it: desk top 689, row bottom 215.938px, row spanning x 222–1910
+  // against a desk spanning 1606–1910.
+  //
+  // A corner is something you go around. So the lift is no longer computed from
+  // every piece on the edge — only from the ones that could not be stepped past.
+  assert.match(mount, /if \(box\.right <= lo \|\| box\.left >= hi\) continue;/,
+    "furniture the row does not reach is not furniture the row must answer for");
+  assert.match(mount, /if \(keepLeft >= keepRight && keepLeft >= full \* KEEP_FRACTION\) hi = endBefore;/,
+    "the row ends before a right-hand corner piece rather than rising over it");
+  assert.match(mount, /else if \(keepRight > keepLeft && keepRight >= full \* KEEP_FRACTION\) lo = beginAfter;/,
+    "and begins after a left-hand one");
+  assert.match(mount, /for \(const box of climb\) clear = Math\.max\(clear, h - box\.top \+ 12\);/,
+    "and the lift is measured off what is left — never off a piece already dodged");
 });
 
 // ── the time-travel pill stands down inside the cockpit (2026-08-28) ──
