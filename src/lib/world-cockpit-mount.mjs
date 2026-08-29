@@ -1404,9 +1404,19 @@ export function mountCockpit(o) {
     const unitM = worldToPx(o.grid, { x: 1, y: 0 });
     const perM = originM && unitM ? Math.abs(unitM.x - originM.x) : 0;
     if (!perM) return;
-    // room for the fighters to stand apart in, and for the ring, which is drawn
-    // at 20 screen px and would otherwise touch both walls
-    const pad = Math.max(floorM * perM * 0.75, box.w * 0.25, box.h * 0.25, 12 * unitsPerPx());
+    // Room for the fighters to stand apart in, and for the ring, which would
+    // otherwise touch both walls.
+    //
+    // ⚑ MEASURED IN THE ROOM, NEVER IN THE SCREEN. The first pass had a
+    // `12 * unitsPerPx()` term in here and it is circular on its face:
+    // unitsPerPx reads the viewBox we are in the middle of replacing, so the
+    // padding for the frame we are about to enter was sized by the zoom we are
+    // about to leave. Arriving from the town view that read 12 screen pixels as
+    // 47 METRES, and a three-metre room came up framed in a hundred-and-eighty
+    // metre window — the founder's report answered by a camera that pointed the
+    // right way and still showed him nothing. Everything here is now in the
+    // room's own units, which do not depend on where the camera happens to be.
+    const pad = Math.max(floorM * perM * 0.75, box.w * 0.25, box.h * 0.25, 2 * perM);
     let w = Math.max(box.w + pad * 2, floorM * perM * 1.6);
     const el = svg.getBoundingClientRect();
     if (!el.width || !el.height) return;
