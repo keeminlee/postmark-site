@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
-  cardOf, consentSplit, dialSpeak, snapPoint, walkStep, weaponFor,
+  cardOf, consentSplit, dialSpeak, looseThings, snapPoint, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
 const MOUNT = readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit-mount.mjs", import.meta.url)), "utf8");
@@ -130,6 +130,76 @@ test("an act is aimable because of the sentence the door wrote under its field",
   assert.equal(aimField(cardFor(VAULT, "leave-mark")), null, "a slug is a name you are inventing, not a thing you are aiming at");
   // and an act whose only field is prose is a sentence, not a shot
   assert.equal(aimField(cardFor(VAULT, "say")), null, "speech aims at nothing");
+});
+
+// ══ THE INJECTED FLOOR ENTRY (office bday-law2 1227b429, 2026-08-29) ═════════
+//
+// THE BUG UNDER THIS, and it is the reason the shape exists. `nearby` is a
+// salience ranking under a context budget, and salience ranks by how much of a
+// thing there is to see — so a 0.2 m lighter loses to every house, ground and
+// cake in the district. Measured by the office: a spectator standing EXACTLY ON
+// the good lighter got thirteen nearby entries and the lighter was not one of
+// them. The `loose:` marking shipped the night before was correct and reached
+// NOTHING, because there was no row in the list to mark.
+//
+// So floor things are now INJECTED into `nearby` rather than only marked, and
+// an injected entry is a THINNER SHAPE than a ranked one: no `label`, and no
+// `bearing` (a convention that belongs to the engine's field of view — the
+// office declined to invent a parallel one, and this side must not derive one
+// either). `via: "floor"` is what tells the two apart.
+//
+// ⚑ THIS FIXTURE IS THE THIN SHAPE ON PURPOSE. Every other fixture in this file
+// builds a comfortable row with a label on it, which is exactly the habit that
+// let the original bug live: a falsifier must not supply the input whose
+// absence is the defect. What is pinned here is that the cockpit reads only
+// fields an injected entry actually carries.
+const INJECTED = {
+  id: "the-town/the-good-lighter", by: "the-town",
+  at: { x: 1095.5, y: -784 }, extent: { w: 0.2, h: 0.2 },
+  kind: "sited", tier: "market",
+  body: "A lighter that has never once gone out on the way over.",
+  loose: true, distance_m: 1.4, via: "floor",
+};
+
+test("a floor entry the door injected carries no label and no bearing, and still draws", () => {
+  const dropped = {
+    ...INJECTED, id: "vermillion/the-long-knife", by: "vermillion",
+    at: { x: 1092, y: -786 }, dropped_by: "vermillion", dropped_at_seq: 41,
+  };
+  const answer = { ...VAULT, nearby: [INJECTED, dropped] };
+
+  const things = looseThings(answer);
+  assert.deepEqual(things.map((t) => t.id),
+    ["the-town/the-good-lighter", "vermillion/the-long-knife"], "both are on the floor");
+  // THE NAME IS DESLUGGED FROM THE ID, because an injected entry has no `label`
+  // — the same one-writer every id in this world is read by.
+  assert.deepEqual(things.map((t) => t.label), ["the good lighter", "the long knife"]);
+  assert.equal(things[0].dropped_by, null, "a thing that was simply lying there fell from nobody");
+  assert.equal(things[1].dropped_by, "vermillion", "and one that fell in the fight says whose it was");
+  // placed off `at`, which is the field the office named as the placement one
+  assert.deepEqual(things[0].at, { x: 1095.5, y: -784 });
+
+  // ⚑ NOTHING HERE READS `bearing`, which is the risk the office flagged: a
+  // reader that sorted or grouped on it would drop every injected entry
+  // silently. Asserted over the SOURCE rather than over behaviour, because a
+  // behavioural test cannot see a field nobody happens to have used yet.
+  const src = readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit.mjs", import.meta.url)), "utf8")
+    + readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit-mount.mjs", import.meta.url)), "utf8");
+  assert.doesNotMatch(src, /\.bearing\b/, "the cockpit reads no bearing off a nearby entry");
+  assert.doesNotMatch(src, /nearby[^;\n]*\.sort\(/, "and never orders the list it was handed");
+});
+
+test("an injected floor thing is aimable, and the shroud's absence is simply absence", () => {
+  const answer = { ...VAULT, nearby: [INJECTED] };
+  assert.ok(aimTargets(answer).some((t) => t.value === INJECTED.id && t.at),
+    "a thing the door put on the floor can be aimed at where it lies");
+  // AND THE HELD-BACK CASE IS NOT A FLAG TO READ. The office filters shrouded
+  // loot before injecting, so a prize that is not yet the party's is simply not
+  // in the list — there is nothing here to hide, which is why this side needs no
+  // code for it and gets none.
+  const afoot = { ...VAULT, nearby: [] };
+  assert.deepEqual(looseThings(afoot), [], "nothing on the floor is nothing drawn");
+  assert.ok(!aimTargets(afoot).some((t) => t.value === INJECTED.id));
 });
 
 test("the targets are the answer's own, and an unplaced one is still a target", () => {
