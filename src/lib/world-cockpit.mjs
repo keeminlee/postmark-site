@@ -617,7 +617,17 @@ export function yourTurnRow(encounter, acting = null) {
  * your turn teaches a reader that the acts went away.
  */
 export function blockedReason(answer, { acting = null } = {}) {
-  const said = answer?.standpoint?.acting_blocked;
+  // ⚑ THE DOOR'S BLOCK IS ABOUT THE RESIDENT IT ANSWERED FOR. The apex reads a
+  // named resident's standpoint and `acting_blocked` is a fact about THAT
+  // hand's standing — so when the reader is acting as their household's human
+  // it is a true sentence about somebody else, and taking it was how the bar
+  // came to refuse the human with their own name in the reason ("it is
+  // human-of-starforge's turn", while the human was the one holding the wheel).
+  //
+  // Acting as yourself, the derivation below is the one that knows whose row is
+  // yours. Nothing is being second-guessed: the door was asked a different
+  // question and gave a correct answer to it.
+  const said = acting === HUMAN_ACTOR ? null : answer?.standpoint?.acting_blocked;
   if (said && typeof said.reason === "string" && said.reason.trim()) {
     return { reason: said.reason, from: "the door" };
   }
