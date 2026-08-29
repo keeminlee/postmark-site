@@ -353,7 +353,18 @@
           hands: {
             keeminlee: {
               hp: 16, of: 20, downed: false, guarding: false, gone: false,
-              weapon: { thing: "the-town/the-good-lighter", bonus: 3, for: "strike", says: "it was always going to be the lighter" },
+              // ⚑ NO `for`, BECAUSE THE OFFICE SENDS NONE. The shipped shape is
+              // { thing, bonus, says? } (office lane bday-law, 78d8f479) and it
+              // carries no word for WHICH ACT the bonus applies to. The harness
+              // mirrors the real door rather than the door we asked for, so what
+              // a shot of this page proves is that the mount's stopgap is
+              // carrying that question in the live page — which is the thing a
+              // reader most needs to know is true. The door-says-so path is
+              // covered in the unit tests, where a contract can be asserted
+              // without pretending it has shipped.
+              //
+              // `says` IS the record's, and it is the lighter's own words.
+              weapon: { thing: "the-town/the-good-lighter", bonus: 3, says: "a flame that has never once gone out on the way over" },
             },
           },
         },
@@ -375,12 +386,20 @@
       };
     },
 
-    // A GROUND THAT DECLARES ITS OWN STRIDE (lane bday-law's dial). The vault is
-    // three metres across, so a click-to-walk snapping to whole metres is the
-    // difference between standing somewhere and standing at 1083.417.
+    // A GROUND THAT DECLARES ITS OWN STRIDE. `walk_min_step` is FLAT on the
+    // portal block, beside id/value/by/space/keeps_wheel/body — read off the
+    // office 2026-08-29 (arena.mjs, the portal block builder), after this
+    // harness spent a commit guessing at a nested `walk.min_step` that never
+    // existed. The vault's real value is 0.25: a lattice fine enough to stand
+    // beside a cake in a three-metre room, and one that still contains every
+    // whole metre, so nothing coarser is lost by it.
+    //
+    // ⚑ THERE IS NO SUCH KEY ON ANY OTHER GROUND, which is the point of having
+    // a separate fixture for it. Absent means the door snaps nothing and the
+    // page must not either.
     get stride() {
       const v = FIXTURES.vault;
-      return { ...v, standpoint: { ...v.standpoint, walk: { min_step: 1 } } };
+      return { ...v, standpoint: { ...v.standpoint, portal: { ...v.standpoint.portal, walk_min_step: 0.25 } } };
     },
 
     // A CLASS MARK IS RESIDENT-AUTHORED PROSE. The reading law says it is content

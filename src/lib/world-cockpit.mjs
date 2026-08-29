@@ -1333,42 +1333,53 @@ export function barFold(bar, { keep = [], hide = [], gate = null, phase = null }
 
 // ── the walk grid ───────────────────────────────────────────────────────────
 
-/** A metre, which is what the world has always stepped in. */
-export const DEFAULT_STEP_M = 1;
-
 /**
- * The granularity this ground says a walk moves in.
+ * The stride this ground declares, in metres — or null, which is most grounds.
  *
- * CONTRACT (lane bday-law, 2026-08-29): a ground may declare `walk.min_step` in
- * metres, and a click-to-walk on that ground snaps to it. A room three metres
- * across wants whole steps; the open world does not.
+ * THE FIELD, exactly: `standpoint.portal.walk_min_step`. FLAT, one key, in the
+ * same portal block that carries id, value, by, space, keeps_wheel and body.
+ * ABSENT — not null and not zero — where the ground has said nothing, for the
+ * same reason `body` and `acting_blocked` are absent rather than empty: a key
+ * that is always there teaches a reader to test its VALUE, and a stride of
+ * null reads as "this ground has a stride and it is nothing".
  *
- * READ FROM SEVERAL PLACES ON PURPOSE, and the reason is honest rather than
- * defensive-by-habit: the field was being written in the office while this was
- * being written in the site, so its exact home was not settled when this
- * shipped. Every path below is the same field under the blocks the answer
- * already has for ground facts. Absent everywhere is one metre, which is what
- * the world did before this existed — so a door that never grows the dial
- * leaves walking byte-identical.
+ * ⚑ NULL IS THE ANSWER FOR AN UNDECLARED GROUND, AND A FLOOR OF 1 WAS A BUG.
+ *
+ * The first version of this read four guessed paths — none of them the real one
+ * — and answered ONE METRE when they all missed, which was every ground in the
+ * town. Its own comment claimed that left walking "byte-identical", and that
+ * sentence was false in the line underneath it: the site was quietly snapping
+ * every click-to-walk in the world onto whole metres, which is not something
+ * the town does. The office refused the same temptation on its own side and
+ * wrote down why — "a floor of 1 here would make every ground in the town start
+ * snapping walks to whole metres … 'the default is 1' would have been a
+ * town-wide re-cut of the walk wearing a per-ground dial's clothes." It is the
+ * same mistake on the other side of the wire, and the correction is theirs.
+ *
+ * AND THE OFFICE DOES NO ROUNDING FOR A GROUND THAT DECLARED NOTHING, so a
+ * caller must not send a coordinate believing it will be tidied. Where a ground
+ * DOES declare one the office snaps the destination itself, on the same
+ * lattice — round(v/step)*step anchored at the world origin — so a page that
+ * snaps before sending and a page that does not both land on the same square.
+ * Snapping here is for the reader's benefit, not the record's.
  */
 export function walkStep(answer) {
-  const paths = [
-    answer?.standpoint?.walk?.min_step,
-    answer?.standpoint?.portal?.walk?.min_step,
-    answer?.walk?.min_step,
-    answer?.encounter_detail?.walk?.min_step,
-  ];
-  for (const v of paths) {
-    const n = Number(v);
-    if (Number.isFinite(n) && n > 0) return n;
-  }
-  return DEFAULT_STEP_M;
+  const v = answer?.standpoint?.portal?.walk_min_step;
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-/** A point in world metres, snapped to the ground's own stride. */
+/**
+ * A point in world metres on the ground's own lattice.
+ *
+ * A step of null — the ordinary case — hands the point back UNCHANGED. This is
+ * the half that makes the dial a per-ground dial rather than a new law about
+ * walking everywhere; see the note above for what it cost to learn.
+ */
 export function snapPoint(m, step) {
   if (!m || !Number.isFinite(m.x) || !Number.isFinite(m.y)) return null;
-  const s = Number.isFinite(step) && step > 0 ? step : DEFAULT_STEP_M;
+  const s = Number(step);
+  if (!Number.isFinite(s) || s <= 0) return { x: m.x, y: m.y };
   // rounded through the step and back, so the answer is a multiple of it rather
   // than a number that merely looks tidier
   return { x: Math.round(m.x / s) * s, y: Math.round(m.y / s) * s };

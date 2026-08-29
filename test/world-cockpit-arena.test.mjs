@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
-  cardOf, consentSplit, dialSpeak, snapPoint, walkStep, weaponFor, DEFAULT_STEP_M,
+  cardOf, consentSplit, dialSpeak, snapPoint, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
 const MOUNT = readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit-mount.mjs", import.meta.url)), "utf8");
@@ -365,6 +365,23 @@ test("no weapon, no clause — and a hand that is not yours is not read", () => 
     "the human's hand is the one on the wheel under their own kind");
 });
 
+test("the weapon's own words are rendered, and they are the record's", () => {
+  // `says` is the half of the hover with a voice in it: the dials are
+  // arithmetic and the blurb is a class speaking about acts in general, while
+  // this is the thing in your hand speaking about itself. The lighter's, from
+  // the record: "a flame that has never once gone out on the way over".
+  const w = weaponFor(HOLDING({
+    thing: "the-town/the-good-lighter", bonus: 3, for: "swing",
+    says: "a flame that has never once gone out on the way over",
+  }), "keeminlee");
+  assert.equal(w.says, "a flame that has never once gone out on the way over", "quoted, never paraphrased");
+  // absent where the record kept none — this surface writes no flavour of its own
+  assert.equal(weaponFor(HOLDING({ thing: "x/y", bonus: 1, for: "swing" }), "keeminlee").says, null);
+  // it rides the card, under the blurb, and only for the act it belongs to
+  assert.match(MOUNT, /const voice = w\?\.says && w\.for === card\.action/,
+    "a weapon's words appear on the act it helps and nowhere else");
+});
+
 test("which act a weapon helps is the door's word first, the mount's stopgap second", () => {
   // The office KNOWS: it finds a weapon by looking for the held grant whose own
   // entry names the act it augments. Until that reaches the answer the mount
@@ -459,26 +476,75 @@ test("the sheet shows what fits on a line and folds the documents, dropping noth
 
 // ══ (6) THE WALK GRID ═══════════════════════════════════════════════════════
 
-test("a walk snaps to the ground's own stride, and to one metre where none is declared", () => {
-  assert.equal(walkStep(VAULT), DEFAULT_STEP_M, "a ground that declares nothing walks in metres, as it always has");
-  assert.deepEqual(snapPoint({ x: 1083.4, y: -791.7 }, walkStep(VAULT)), { x: 1083, y: -792 });
+/** The dial where the office actually puts it: FLAT on the portal block, beside
+ *  id/value/by/space/keeps_wheel/body. Read off arena.mjs 2026-08-29. */
+const withStride = (answer, v) => ({
+  ...answer,
+  standpoint: { ...answer.standpoint, portal: { ...answer.standpoint.portal, walk_min_step: v } },
+});
 
-  // the dial, wherever lane bday-law lands it
-  for (const put of [
-    (v) => ({ ...VAULT, standpoint: { ...VAULT.standpoint, walk: { min_step: v } } }),
-    (v) => ({ ...VAULT, standpoint: { ...VAULT.standpoint, portal: { ...VAULT.standpoint.portal, walk: { min_step: v } } } }),
-    (v) => ({ ...VAULT, walk: { min_step: v } }),
-    (v) => ({ ...VAULT, encounter_detail: { ...VAULT.encounter_detail, walk: { min_step: v } } }),
-  ]) {
-    assert.equal(walkStep(put(0.5)), 0.5, "the declared stride is read");
-  }
+test("a ground that declares no stride is not snapped — a floor of one metre was a bug", () => {
+  // ⚑ THE DEFECT THIS PINS, and it was mine. The first version read four
+  // GUESSED paths (none of them the real one) and answered ONE METRE when they
+  // all missed — which was every ground in the town. Its own comment claimed
+  // that left walking "byte-identical" while the line under it quietly snapped
+  // every click-to-walk in the world onto whole metres.
+  //
+  // The office refused the same temptation and wrote down why: "a floor of 1
+  // here would make every ground in the town start snapping walks to whole
+  // metres — which is not what the town does today, so 'the default is 1' would
+  // have been a town-wide re-cut of the walk wearing a per-ground dial's
+  // clothes." Same mistake, other side of the wire.
+  assert.equal(walkStep(VAULT), null, "a ground that has said nothing says nothing");
+  assert.equal(walkStep({}), null);
+  assert.equal(walkStep(null), null);
 
+  // and an unsnapped point survives whole, to the digit
+  const clicked = { x: 1083.417, y: -791.62 };
+  assert.deepEqual(snapPoint(clicked, walkStep(VAULT)), clicked,
+    "so the click the reader made is the point that is sent");
+});
+
+test("a ground that declares one snaps to it, on the office's own lattice", () => {
+  // THE VAULT'S REAL VALUE is 0.25 — fine enough to stand beside a cake in a
+  // three-metre room, and a lattice that still contains every whole metre.
+  assert.equal(walkStep(withStride(VAULT, 0.25)), 0.25, "the declared stride is read, flat, off the portal block");
+  assert.deepEqual(snapPoint({ x: 1083.417, y: -791.62 }, 0.25), { x: 1083.5, y: -791.5 });
+  // round(v/step)*step anchored at the world origin — the same arithmetic the
+  // office's own snapTo does, so a page that snaps before sending and one that
+  // does not land on the same square.
   assert.deepEqual(snapPoint({ x: 1083.4, y: -791.6 }, 0.5), { x: 1083.5, y: -791.5 });
   assert.deepEqual(snapPoint({ x: 1083.4, y: -791.6 }, 5), { x: 1085, y: -790 });
-  // a nonsense stride is not allowed to divide by zero or reverse the world
-  for (const bad of [0, -1, NaN, null, undefined, "2"]) {
-    assert.deepEqual(snapPoint({ x: 1083.4, y: -791.6 }, bad), { x: 1083, y: -792 },
-      "an unusable stride falls back to the metre rather than to a wrong answer");
+  assert.deepEqual(snapPoint({ x: -0.4, y: -0.6 }, 1), { x: -0, y: -1 }, "and it works either side of the origin");
+
+  // ⚑ THE OLD GUESSED PATHS ARE DEAD and must stay dead — a reader who finds
+  // one of them in a fixture should get null, not a stride.
+  for (const wrong of [
+    { ...VAULT, standpoint: { ...VAULT.standpoint, walk: { min_step: 0.5 } } },
+    { ...VAULT, standpoint: { ...VAULT.standpoint, portal: { ...VAULT.standpoint.portal, walk: { min_step: 0.5 } } } },
+    { ...VAULT, walk: { min_step: 0.5 } },
+    { ...VAULT, encounter_detail: { ...VAULT.encounter_detail, walk: { min_step: 0.5 } } },
+  ]) {
+    assert.equal(walkStep(wrong), null, "a nested walk.min_step is not the field and is not read");
+  }
+});
+
+test("an unusable stride leaves the point alone rather than inventing one", () => {
+  const p = { x: 1083.4, y: -791.6 };
+  for (const bad of [0, -1, NaN, null, undefined, {}]) {
+    assert.deepEqual(snapPoint(p, bad), p, `a stride of ${JSON.stringify(bad)} snaps nothing`);
+  }
+  // A NUMBER-SHAPED STRING IS READ AS THE NUMBER IT SPELLS, deliberately and
+  // both sides alike. The office sends a number, so this is not a case anyone
+  // is relying on — but the two functions must not disagree about it, because a
+  // page that snapped to a stride the reader could not see would be worse than
+  // one that snapped to none.
+  assert.deepEqual(snapPoint(p, "0.5"), { x: 1083.5, y: -791.5 });
+  assert.equal(walkStep(withStride(VAULT, "0.5")), 0.5);
+  // absent-means-absent all the way down: a portal that spells it as null or
+  // zero has still said nothing usable
+  for (const v of [null, 0, -1, undefined, "", "later", {}]) {
+    assert.equal(walkStep(withStride(VAULT, v)), null, `walk_min_step ${JSON.stringify(v)} is not a stride`);
   }
   assert.equal(snapPoint(null, 1), null, "and a point that is not a point is not snapped into one");
 });
@@ -567,8 +633,8 @@ test("the hover is a glance and the fine print is somewhere a hand can reach", (
   // gesture: hover gets the glance, the panel gets the detail.
   assert.match(MOUNT, /\.pmc-card \{[\s\S]{0,400}?pointer-events: none;/,
     "the card still takes no pointer");
-  assert.match(MOUNT, /return `\$\{line\}\$\{blurb\}<p class="pmc-from">press for the fine print<\/p>`;/,
-    "so the card is the throw, the sentence, and a pointer to the rest");
+  assert.match(MOUNT, /return `\$\{line\}\$\{blurb\}\$\{voice\}<p class="pmc-from">press for the fine print<\/p>`;/,
+    "so the card is the throw, the sentence, the weapon's own words, and a pointer to the rest");
   assert.match(MOUNT, /function fineHtml\(card\) \{/, "and the rest is rendered on the panel");
   assert.match(MOUNT, /\$\{trigger && !sheet \? "" : fineHtml\(c\)\}/,
     "which is where formHtml puts it — on every panel except the tight fight plate, and on that one too once it is delivering terms");

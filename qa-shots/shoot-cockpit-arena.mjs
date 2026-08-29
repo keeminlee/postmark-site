@@ -268,14 +268,15 @@ console.log("\n── (6) THE WALK GRID ──");
   });
   // the mint-and-click leaves nothing behind, so what is checked is the snap
   // itself, read straight out of the module
+  // the REAL field, flat on the portal block, with the vault's real 0.25
   const snapped = await page.evaluate(async () => {
     const { snapPoint, walkStep } = await import("/src/lib/world-cockpit.mjs");
-    const answer = { standpoint: { walk: { min_step: 1 } } };
+    const answer = { standpoint: { portal: { id: "the-town/the-candle-vault", walk_min_step: 0.25 } } };
     return { step: walkStep(answer), at: snapPoint({ x: 1083.417, y: -791.62 }, walkStep(answer)) };
   });
   console.log(`  declared stride ${snapped.step} m → (1083.417, -791.62) becomes (${snapped.at.x}, ${snapped.at.y})`);
-  note(snapped.step === 1, "the ground's declared stride is read");
-  note(snapped.at.x === 1083 && snapped.at.y === -792, "and a click lands on it rather than between");
+  note(snapped.step === 0.25, "the ground's declared stride is read, flat off the portal block");
+  note(snapped.at.x === 1083.5 && snapped.at.y === -791.5, "and a click lands on the lattice rather than between");
   note(armed.left === 0, "and the minted element is removed — nothing of ours is left in the viewer's DOM");
   await page.close();
 }
@@ -336,7 +337,30 @@ console.log("\n── (3b) THE WEAPON: the third of his sentence ──");
   note(/\+3 with the good lighter/.test(said.card), "the hover carries the third of the founder's sentence");
   note(!/\+3/.test(said.castSeat), "and the other damage act claims no help it was not given");
   note(!/the the/.test(said.card), "the id's own article is not doubled");
+  // ⚑ AND THIS IS THE STOPGAP WORKING, not the door. The shipped shape carries
+  // no word for WHICH act the bonus applies to (office 78d8f479 sends
+  // {thing, bonus, says?}), so the fixture carries none either and what this
+  // shot proves is that the mount's own name is what attached it.
+  note(/a flame that has never once gone out on the way over/.test(said.card),
+    "and the weapon's own words are on it — the half of the hover with a voice");
   await page.screenshot({ path: join(OUT, "weapon-hover-1440.png") });
+  await page.close();
+}
+
+console.log("\n── (6b) THE STRIDE: no lattice where no ground declared one ──");
+{
+  // THE DEFECT THIS GUARDS, and it was the site's: a one-metre floor snapped
+  // every click-to-walk in the world onto whole metres, which is not what the
+  // town does. The office refused the same floor on its own side.
+  const page = await open("vault", WIDTHS[1]);
+  const plain = await page.evaluate(async () => {
+    const { snapPoint, walkStep } = await import("/src/lib/world-cockpit.mjs");
+    const a = { standpoint: { portal: { id: "x/y" } } };
+    return { step: walkStep(a), at: snapPoint({ x: 1083.417, y: -791.62 }, walkStep(a)) };
+  });
+  console.log(`  undeclared: step=${plain.step} → (${plain.at.x}, ${plain.at.y})`);
+  note(plain.step === null, "a ground that has said nothing says nothing");
+  note(plain.at.x === 1083.417 && plain.at.y === -791.62, "and the click the reader made is the point that is sent");
   await page.close();
 }
 

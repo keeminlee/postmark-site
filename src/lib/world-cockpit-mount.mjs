@@ -227,6 +227,11 @@ export const COCKPIT_CSS = `
 .pmc-card[hidden] { display: none; }
 .pmc-blurb { font-style: italic; color: var(--pmc-ink); font-size: .88rem; line-height: 1.45; margin: 0; }
 .pmc-blurb.none { font-style: normal; color: var(--pmc-dim); }
+/* the thing in your hand, speaking about itself — quieter than the class's own
+   blurb because it is a smaller voice, and it names itself so the quote is not
+   mistaken for the act's */
+.pmc-blurb.pmc-voice-line { margin-top: .45em; font-size: .8rem; color: var(--pmc-gold); }
+.pmc-blurb.pmc-voice-line span { font-style: normal; color: var(--pmc-dim); font-size: .92em; }
 .pmc-from { color: var(--pmc-dim); font-size: .7rem; margin: .35em 0 .5em; line-height: 1.45; }
 .pmc-row { font: .74rem/1.65 ui-monospace, Consolas, monospace; color: var(--pmc-dim); margin: 0; }
 .pmc-row b { color: var(--pmc-gold); font-weight: normal; }
@@ -826,6 +831,17 @@ export function mountCockpit(o) {
     const blurb = card.blurb
       ? `<p class="pmc-blurb">“${esc(card.blurb)}”</p>`
       : `<p class="pmc-blurb none">the class mark that defines this act carries no blurb</p>`;
+    // THE WEAPON'S OWN WORDS, where the record carries them. `says` comes off
+    // the held grant — the lighter's is "a flame that has never once gone out
+    // on the way over" — and it is the one line on this card with a voice in
+    // it: the dials are arithmetic and the blurb is the class speaking about
+    // acts in general, while this is the thing in your hand speaking about
+    // itself. Quoted, like every other piece of the record's prose here, and
+    // omitted entirely where the record kept none.
+    const w = heldWeapon();
+    const voice = w?.says && w.for === card.action
+      ? `<p class="pmc-blurb pmc-voice-line">“${esc(w.says)}”<span> — ${esc(w.label)}</span></p>`
+      : "";
     // WHERE THE TERMS WENT, and why the hover no longer waits on a read. The
     // bare standpoint answer carries no terms; the act's SHADOW does —
     // `read: <action>` returns the act's full card with the terms that would
@@ -850,7 +866,7 @@ export function mountCockpit(o) {
     // is a surface a hand has already committed to and can actually open — see
     // fineHtml, called from formHtml. The terms still arrive before the act
     // binds, at the door where it binds.
-    return `${line}${blurb}<p class="pmc-from">press for the fine print</p>`;
+    return `${line}${blurb}${voice}<p class="pmc-from">press for the fine print</p>`;
   }
 
   /**
@@ -995,13 +1011,19 @@ export function mountCockpit(o) {
   /**
    * WHICH ACT A WEAPON HELPS, until the door says so itself.
    *
-   * ⚑ A STOPGAP, AND IT IS MARKED AS ONE SO IT CAN BE DELETED RATHER THAN
-   * INHERITED. `weaponFor` reads `weapon.for` first and this is only reached
-   * when the door sent none. The office already KNOWS the answer — it finds a
-   * weapon by looking for the held grant whose own entry names the act it
-   * augments — so the honest fix is one word in the field, which lane bday-law
-   * has been asked for. When it lands, `weapon.for` wins on its own and this
-   * line goes.
+   * ⚑ A STOPGAP, AND IT IS LOAD-BEARING TODAY — asked for, and not sent.
+   * `hands[<handle>].weapon` shipped on 2026-08-29 (office lane bday-law,
+   * 78d8f479) carrying `{ thing, bonus, says? }` and no word for WHICH ACT the
+   * bonus applies to, so this line is what answers that question in the live
+   * page rather than a belt-and-braces fallback.
+   *
+   * The office already knows: it finds a weapon by looking for the held grant
+   * whose own entry names the act it augments, and throws that name away on the
+   * way out. `weapon.for` is one field from a value already in hand, it is
+   * asked for again, and `weaponFor` reads it first — so the day it lands this
+   * line can be deleted with no other edit. Until then a reader should know
+   * that the act this bonus is attached to is the site's assertion and not the
+   * record's.
    *
    * WHY NOT DERIVE IT. Two of the room's acts state damage, and only one of
    * them is helped by what you are holding. Attaching the bonus to both would
@@ -2904,10 +2926,12 @@ export function mountCockpit(o) {
     const m = pxToWorld(gridNow(), local);
     if (!m) return;
     // ── THE GROUND'S OWN STRIDE (lane bday-law's dial, 2026-08-29) ──
-    // A room three metres across wants whole steps; the open world does not
-    // care. `walkStep` reads the ground's declared granularity and answers one
-    // metre where none is declared, which is what walking did before this
-    // existed — so an unmodified door leaves the gesture byte-identical.
+    // A room a few metres across wants a lattice; the open world has never had
+    // one and does not get one here. `walkStep` answers null for every ground
+    // that has not declared a stride — which is all of them today — and
+    // `snapPoint` hands the point straight back, so an unmodified door leaves
+    // this gesture byte-identical. (The first version of this said the same
+    // sentence over a one-metre floor that made it untrue everywhere.)
     walkFromMap(snapPoint(m, walkStep(state.answer)) ?? m);
   };
   doc.addEventListener("click", onMapClick, true);
