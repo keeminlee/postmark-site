@@ -99,6 +99,18 @@
     },
   });
 
+  // ⚑ `channel` AND `via` ARE TWO DIFFERENT FACTS, and this harness had them as
+  // one until 2026-08-29. It answered `via: "ground"` on the ground-granted
+  // entries, which is a value the live door never sends: the office computes
+  // `via` as "within" | "in reach" | "ambient" | "in hand" (world-apex.mjs,
+  // `const via = (id) => …`) and marks WHICH CHANNEL opened an entry in a
+  // separate field — `channel: "ambient"` on the ones gathered off the spine and
+  // reach, `channel: "ground"` on the ones a classed ground declares.
+  //
+  // It mattered the moment the bar's fold started reading that distinction: a
+  // harness that spells a real field with a made-up value is a harness whose
+  // shots are evidence about a door that does not exist. Both are answered here
+  // now, in the office's own vocabulary.
   const entry = (action, o = {}) => ({
     action,
     blurb: o.blurb ?? null,
@@ -108,6 +120,7 @@
     fields: o.fields ?? {},
     dispatches_to: `world_${action}`,
     via: o.via ?? "ambient",
+    channel: o.channel ?? "ambient",
     grant: o.grant ?? "yours",
     ...(o.dials ? { dials: o.dials } : {}),
   });
@@ -131,13 +144,13 @@
   const AFFORDED_HERE = [
     entry("kindle", {
       blurb: "Kindling is the lighting verb — its leaving is a flame that stands where it was set, and stands until something in the record puts it out.",
-      blurb_from: "a-hall/kindle", from: "a-hall/guest", class: "guest", grant: "here", via: "ground",
+      blurb_from: "a-hall/kindle", from: "a-hall/guest", class: "guest", grant: "here", via: "in reach", channel: "ground",
       dials: { reach_m: 3, burns_crossings: 2 },
       fields: { wick: { type: "string", description: "what you set alight — a thing's mark id, <by>/<slug>, and it must be standing where you stand", required: true }, softly: { type: "boolean", description: "a flame that lights the hand holding it and nothing further" } },
     }),
     entry("toast", {
       blurb: "A toast is speech with a glass in it — heard by earshot like any word, and kept by the record as an occasion rather than a sentence.",
-      blurb_from: "a-hall/toast", from: "a-hall/guest", class: "guest", grant: "here", via: "ground",
+      blurb_from: "a-hall/toast", from: "a-hall/guest", class: "guest", grant: "here", via: "in reach", channel: "ground",
       fields: { to: { type: "string", description: "whom the toast is to — a resident handle, or a name if the record does not hold them" }, words: { type: "string", description: "what you raise the glass and say, at most 500 characters", required: true } },
     }),
   ];
@@ -161,11 +174,33 @@
       description: "who or what this act is aimed at — a handle for lift, a mark id for loot. strike and cast find the adversary standing on this ground themselves.",
     },
   };
+  // THE ARENA'S DIALS, verbatim from the office's own floor (encounter.mjs
+  // `FLOOR`, read 2026-08-29). They are what the hover and the seat now read to
+  // say what an act throws in a sentence a player can use — "d20 vs 12 to hit ·
+  // d8 damage" rather than the struct that produced it. GUARD and LIFT carry
+  // their own single dial; the two that find their own target carry the throw.
+  //
+  // ⚑ THE WEAPON BONUS IS NOT HERE BECAUSE IT IS NOT IN THE ANSWER. The founder's
+  // example sentence ends "+3 with the good-lighter", and the site cannot say it:
+  // the bonus is read inside the fold off what the actor was holding
+  // (encounter.mjs, `held?.bonus`) and never reaches a caller — `publicState`'s
+  // `hands` carry hp, downed, guarding and gone, and no weapon. So the surface
+  // says the two thirds it can and stays silent on the third, which is the
+  // ruling's own instruction for a dial that is missing.
+  const ARENA_DIALS = {
+    strike: { to_hit_die: 20, damage_die: 6, beats_ac: 8 },
+    cast: { to_hit_die: 20, damage_die: 10, beats_ac: 11 },
+    guard: { halves_next_hit: true },
+    lift: { restores_to: 8 },
+  };
   const ARENA = ["strike", "cast", "guard", "lift", "loot"].map((a) =>
     entry(a, {
       blurb: a === "strike" ? "A blow is one swing written where you stand — it lands or it does not, and the record keeps both." : null,
       blurb_from: `the-town/${a}`, from: "the-town/portal-ground", class: "arena",
-      grant: "here", via: "ground", fields: ARENA_FIELD,
+      // `within`, not `in reach`: the arena is the ground you are standing IN,
+      // which is what the office's own via() answers for a spine id.
+      grant: "here", via: "within", channel: "ground", fields: ARENA_FIELD,
+      ...(ARENA_DIALS[a] ? { dials: ARENA_DIALS[a] } : {}),
     }));
 
   const FIXTURES = {
@@ -251,8 +286,12 @@
         { id: "the-town/the-unlit-cake", at: { x: 1097, y: -783.5 }, kind: "sited", tier: "market" },
         { id: "vermillion/the-long-knife", at: { x: 1092, y: -786 }, kind: "sited", loose: true, dropped_by: "vermillion" },
       ],
-      actions: [ORDINARY[0], ORDINARY[1], ORDINARY[4], ...ARENA],
-      granted: { yours: ["say", "walk", "take"], here: ARENA.map((e) => e.action) },
+      // ORDINARY[7] is the way out, and it is granted here deliberately: the
+      // exit law holds mid-fight (the office's own words — "the exit law holds
+      // mid-fight, and the arena simply stops"), and being able to see that the
+      // wheel does NOT cool it is half the point of the gates fixture below.
+      actions: [ORDINARY[0], ORDINARY[1], ORDINARY[4], ORDINARY[7], ...ARENA],
+      granted: { yours: ["say", "walk", "take", "exit"], here: ARENA.map((e) => e.action) },
       encounter: {
         id: "the-town/the-candle-vault", round: 3, turn: "keeminlee",
         order: [
@@ -262,14 +301,104 @@
           { id: "vermillion", kind: "resident", label: "vermillion", initiative: 11, down: true, hp: { now: 0, max: 20 } },
         ],
       },
-      // the office's own publicState block: named, with hp, and NO coordinates
+      // the office's own publicState block: named, with hp, and NO coordinates.
+      // `phase` is the office's too (encounter.mjs PHASES: afoot, spent, wiped)
+      // and it is what decides whether the spoils seat is on the bar at all.
       encounter_detail: {
+        phase: "afoot", live: true, space: "arena", ground: "the-town/the-candle-vault",
         adversary: {
           id: "the-town/the-unlit-cake", hp: 41, of: 60,
           body: "Nine tiers, four hundred candles, not one ever lit.",
         },
       },
       law: { as_of_world: "fixture", source: "the harness" },
+    },
+
+    // ── THE WHEEL RESTING ON THE CREATURE, WITH THE DOOR'S OWN NARROWING ──
+    // `standpoint.acting_blocked.gates` is the office's live field (world-apex
+    // .mjs actingBlocked, branch bday-law 883e77d) — the acts the refusal is
+    // actually about. This fixture is the state the founder was frozen in: the
+    // wheel is not his, and until the field existed the page cooled every seat,
+    // so he could not walk out of a room whose door would have let him.
+    get gated() {
+      const v = FIXTURES.vault;
+      const gates = ["strike", "cast", "guard", "lift", "loot"];
+      return {
+        ...v,
+        standpoint: {
+          ...v.standpoint,
+          acting_blocked: {
+            reason: "it is the unlit cake's turn",
+            whose_turn: "the-town/the-unlit-cake",
+            gates,
+            hint: `the wheel gates this ground's ARENA verbs (${gates.join(", ")}) while an encounter is live — yours comes round. Everything else you can do here is unaffected: walk, speak, stake, hand things over, all ungated mid-fight.`,
+          },
+        },
+        encounter: { ...v.encounter, turn: "the-town/the-unlit-cake" },
+      };
+    },
+
+    // ── WHAT THIS HAND IS HOLDING ──
+    // `encounter_detail.hands[<who>].weapon` — the office's own `weaponInHand`
+    // answer ({thing, bonus, says}) carried out to a caller, plus `for`, the
+    // act the held grant names. In flight in lane bday-law at the time this was
+    // written; the fixture is built to the contract so the surface can be
+    // looked at before the field lands.
+    get armed() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        encounter_detail: {
+          ...v.encounter_detail,
+          hands: {
+            keeminlee: {
+              hp: 16, of: 20, downed: false, guarding: false, gone: false,
+              // THE SHIPPED SHAPE, whole: { thing, bonus, for, says? } (office
+              // lane bday-law, 7ba1148). `for` is WHICH ACT the bonus augments,
+              // read off the held grant's own entry rather than hardcoded — so
+              // a thing that grants a different act moves the bonus without an
+              // edit on either side. It arrived a few hours after the rest,
+              // and the site carried a named stopgap in the meantime; this
+              // fixture carried none, so the shot then proved the stopgap was
+              // working and now proves the door is.
+              //
+              // `says` IS the record's, and it is the lighter's own words.
+              weapon: { thing: "the-town/the-good-lighter", bonus: 3, for: "strike", says: "a flame that has never once gone out on the way over" },
+            },
+          },
+        },
+      };
+    },
+
+    // THE ROOM AFTER THE FIGHT. Same ground, phase "spent" — which is the one
+    // state where the phase-gated seat is rendered, and the only way to look at
+    // that half of the 2026-08-29 trim. The adversary is down to nothing and the
+    // wheel is quiet.
+    get spent() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        encounter_detail: {
+          ...v.encounter_detail, phase: "spent",
+          adversary: { ...v.encounter_detail.adversary, hp: 0 },
+        },
+      };
+    },
+
+    // A GROUND THAT DECLARES ITS OWN STRIDE. `walk_min_step` is FLAT on the
+    // portal block, beside id/value/by/space/keeps_wheel/body — read off the
+    // office 2026-08-29 (arena.mjs, the portal block builder), after this
+    // harness spent a commit guessing at a nested `walk.min_step` that never
+    // existed. The vault's real value is 0.25: a lattice fine enough to stand
+    // beside a cake in a three-metre room, and one that still contains every
+    // whole metre, so nothing coarser is lost by it.
+    //
+    // ⚑ THERE IS NO SUCH KEY ON ANY OTHER GROUND, which is the point of having
+    // a separate fixture for it. Absent means the door snaps nothing and the
+    // page must not either.
+    get stride() {
+      const v = FIXTURES.vault;
+      return { ...v, standpoint: { ...v.standpoint, portal: { ...v.standpoint.portal, walk_min_step: 0.25 } } };
     },
 
     // A CLASS MARK IS RESIDENT-AUTHORED PROSE. The reading law says it is content
@@ -319,7 +448,9 @@
   // fixture would be correct and invisible. Moved rather than the figures: the
   // arithmetic under test is exactly the world-to-atlas transform, and nudging
   // the coordinates to suit the frame would be testing a fiction.
-  if (which === "vault") {
+  // The vault, and the two fixtures that are the vault in another state, all
+  // stand at the same world coordinates and need the same frame.
+  if (["vault", "spent", "stride", "gated", "armed"].includes(which)) {
     document.querySelector(".wv svg").setAttribute("viewBox", "694 594 24 18");
   }
 
@@ -359,7 +490,7 @@
     return { ok: true, status: 200, body: { ok: true } };
   }
   /** Which acts throw, in this harness. The real answer is the door's. */
-  const ROLLING = new Set(["kindle", "toast"]);
+  const ROLLING = new Set(["kindle", "toast", "strike", "cast", "guard", "lift"]);
 
   // The act's shadow, faked. A real one is POST /api/world/apex { read: action },
   // which performs nothing and answers the act's card WITH the terms that would

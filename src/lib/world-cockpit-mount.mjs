@@ -10,12 +10,14 @@
 // `world-cockpit.mjs`. There is no verb list here.
 
 import {
-  HUMAN_ACTOR, actorsFor, barSlots, cockpitShows, dialLine, dispatchEnvelope,
+  HUMAN_ACTOR, actorsFor, barSlots, cockpitShows, dispatchEnvelope,
   portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices,
+  aimField, aimTargets, aimable, barFold, consentSplit, dialSpeak, snapPoint, walkStep,
+  weaponFor,
 } from "./world-cockpit.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
 // — so the bar cannot be drawn for one standpoint and act from another.
@@ -118,7 +120,7 @@ export const COCKPIT_CSS = `
 }
 .pmc-bar {
   position: static; flex: 1 1 auto; min-width: 0;
-  display: flex; align-items: stretch; gap: .45em;
+  display: flex; align-items: stretch; gap: .35em;
   flex-wrap: nowrap;
   justify-content: flex-start; pointer-events: none;
   overflow-x: auto; overflow-y: visible; scrollbar-width: thin;
@@ -161,7 +163,7 @@ export const COCKPIT_CSS = `
    is how far: about 520px of overflow, down from where it was. */
 .pmc-slot {
   background: var(--pmc-panel); border: 1px solid var(--pmc-line); border-radius: 8px;
-  min-width: 5.4em; padding: .8em .48em .45em; text-align: center; position: relative;
+  min-width: 5.2em; padding: .8em .3em .45em; text-align: center; position: relative;
   cursor: pointer; pointer-events: auto; color: inherit; font: inherit;
   display: flex; flex-direction: column; justify-content: flex-end;
 }
@@ -188,9 +190,16 @@ export const COCKPIT_CSS = `
    where detail belongs. NOTE: this whole block is a JS template literal, so it
    can hold no backticks — one here silently ended the string and the module threw
    on the CSS that followed. */
+/* WIDER NOW THAT THE FOLD PAID FOR IT (2026-08-29). The cap above was 6.5em,
+   set when seventeen acts were fighting for a 1377px scrollport and one verbose
+   class could push the whole row wider. With the row folded to the ground's own
+   acts it measures 628px at 1440 — so the cap that was protecting the layout was
+   instead cutting the sentence the ruling asked for, and the seat read
+   "d20 vs 8 t…". Measured, not guessed: see qa-shots/shoot-cockpit-arena.mjs,
+   which fails the run if any ordinary laptop width scrolls. */
 .pmc-dial {
-  color: var(--pmc-dim); font: .68rem/1.3 ui-monospace, Consolas, monospace; margin-top: .2em;
-  max-width: 6.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--pmc-dim); font: .62rem/1.3 ui-monospace, Consolas, monospace; margin-top: .2em;
+  max-width: 11em; white-space: nowrap;
 }
 .pmc-slot.afford { border-style: dashed; }
 .pmc-slot.afford .pmc-name { color: var(--pmc-gold); }
@@ -218,6 +227,11 @@ export const COCKPIT_CSS = `
 .pmc-card[hidden] { display: none; }
 .pmc-blurb { font-style: italic; color: var(--pmc-ink); font-size: .88rem; line-height: 1.45; margin: 0; }
 .pmc-blurb.none { font-style: normal; color: var(--pmc-dim); }
+/* the thing in your hand, speaking about itself — quieter than the class's own
+   blurb because it is a smaller voice, and it names itself so the quote is not
+   mistaken for the act's */
+.pmc-blurb.pmc-voice-line { margin-top: .45em; font-size: .8rem; color: var(--pmc-gold); }
+.pmc-blurb.pmc-voice-line span { font-style: normal; color: var(--pmc-dim); font-size: .92em; }
 .pmc-from { color: var(--pmc-dim); font-size: .7rem; margin: .35em 0 .5em; line-height: 1.45; }
 .pmc-row { font: .74rem/1.65 ui-monospace, Consolas, monospace; color: var(--pmc-dim); margin: 0; }
 .pmc-row b { color: var(--pmc-gold); font-weight: normal; }
@@ -245,6 +259,24 @@ export const COCKPIT_CSS = `
 .pmc-said .hint { display: block; color: var(--pmc-dim); font-size: .92em; margin-top: .3em; }
 .pmc-terms { margin: .6em 0 0; padding: .5em .7em; border-left: 2px solid var(--pmc-gold-dim); font-size: .72rem; line-height: 1.55; color: var(--pmc-dim); }
 
+/* ── THE CONSENT SHEET ──
+   RULED 2026-08-29: the crossing sheet "dumps every field, vague and verbose".
+   What a player needs before stepping through is the room's own sentence and
+   two or three terms; what a lawyer needs is every word, and it is one press
+   away rather than in front of the button. Nothing is dropped — see
+   consentSplit, and the standing sentence about being shown law at the door. */
+.pmc-sheet .flavor {
+  margin: 0 0 .7em; font: 1.02rem/1.5 Georgia, serif; color: var(--pmc-ink);
+  font-style: italic; border-left: 2px solid var(--pmc-gold); padding-left: .7em;
+}
+.pmc-sheet .pmc-terms { border-left-color: var(--pmc-gold); color: var(--pmc-ink); }
+.pmc-sheet .pmc-terms b.lede { display: block; color: var(--pmc-gold-dim); font-weight: 400; margin-bottom: .3em; font-size: .92em; }
+.pmc-sheet .pmc-term { display: block; margin: .12em 0; }
+.pmc-sheet .pmc-term b { color: var(--pmc-dim); font-weight: 400; }
+.pmc-sheet details { margin-top: .5em; }
+.pmc-sheet summary { cursor: pointer; color: var(--pmc-gold-dim); font-size: .92em; }
+.pmc-sheet details .pmc-row { white-space: normal; overflow-wrap: anywhere; }
+
 /* ── the trigger plate ──
    RULED 2026-08-28, mid-fight: the arena's acts "must feel like a game — one
    tight line, prefilled, ENTER sends." Which acts get this is decided in
@@ -271,14 +303,10 @@ export const COCKPIT_CSS = `
 .pmc-trigger .pmc-actions { margin-top: .6em; }
 .pmc-trigger .pmc-btn { font-size: .66rem; padding: .38em .8em; }
 .pmc-trigger .pmc-btn.go { background: none; color: var(--pmc-gold); border-color: var(--pmc-gold-dim); }
-/* the terms, named in full and clipped in value — see termsBriefHtml */
-.pmc-terms.brief { margin-top: .55em; padding: .4em .6em; font-size: .66rem; line-height: 1.5; }
-.pmc-terms.brief .lede { color: var(--pmc-gold-dim); }
-.pmc-terms.brief .pmc-term { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pmc-terms.brief .pmc-term b { color: var(--pmc-dim); font-weight: 400; }
-.pmc-terms.brief details { margin-top: .35em; }
-.pmc-terms.brief summary { cursor: pointer; color: var(--pmc-gold-dim); }
-.pmc-terms.brief details .pmc-row { white-space: normal; overflow-wrap: anywhere; }
+/* The clipped-value terms block that stood here is gone with termsBriefHtml
+   (2026-08-29) — the consent sheet's own rules below render every terms block
+   now, and they clip by which terms are documents rather than by a character
+   count applied to all of them. */
 
 /* ── the chat line ──
    RULED 2026-08-28: "everything I can do via the ui buttons, I have to type in
@@ -312,28 +340,75 @@ export const COCKPIT_CSS = `
 .pmc-chat .keys { flex: 0 0 auto; color: var(--pmc-dim); font: .58rem/1.5 ui-monospace, Consolas, monospace; }
 .pmc-chat .pmc-said { margin: 0; }
 
-/* ── the thing you clicked ──
-   RULED 2026-08-28: clicking a thing on the map offers its context acts with
-   the object already in the slot. It opens AT the thing rather than at the bar,
-   because it is about that thing and the hand is already there. */
-.pmc-ctx {
-  position: fixed; z-index: 5; min-width: 11em; max-width: 20em;
-  padding: .5em .6em; pointer-events: auto;
+/* ── AIMING ──
+   RULED 2026-08-29: the act is pressed first, and then what it is aimed at
+   lights up. This is the strip that says an act is armed and offers the
+   targets the answer could not place on the map. It sits where the act form
+   sits, because it IS the act form for an aimable act — one question, asked
+   on the map instead of in a box. */
+.pmc-aim {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .5em;
+  max-width: calc(100vw - 24px); padding: .5em .8em;
 }
-.pmc-ctx .what {
-  display: block; color: var(--pmc-gold); font-size: .82rem;
-  padding: 0 .3em .35em; border-bottom: 1px solid var(--pmc-line); margin-bottom: .35em;
+.pmc-aim .arm {
+  flex: 0 0 auto; color: var(--pmc-gold);
+  font: .66rem/1 ui-monospace, Consolas, monospace; letter-spacing: .14em;
 }
-.pmc-ctx .what small { display: block; color: var(--pmc-dim); font: .6rem/1.5 ui-monospace, Consolas, monospace; }
-.pmc-ctx button {
-  display: block; width: 100%; text-align: left; cursor: pointer;
+.pmc-aim .tell { flex: 0 0 auto; color: var(--pmc-ink); font-size: .78rem; }
+.pmc-aim .keys { flex: 0 0 auto; color: var(--pmc-dim); font: .58rem/1.5 ui-monospace, Consolas, monospace; }
+/* A TARGET THE MAP COULD NOT PLACE IS STILL PRESSABLE. The nearby block is a
+   budgeted field of view, so someone genuinely down can carry no coordinate on
+   a given read — and an act that becomes unreachable exactly when it is needed
+   is worse than a chip. Placed targets are on the painting and get no chip.
+   (No backticks in this block: it is a template literal. See the warning at the
+   head of COCKPIT_CSS, which this comment tripped over on its first draft.) */
+.pmc-aim button {
+  flex: 0 0 auto; cursor: pointer; padding: .3em .7em; border-radius: 999px;
+  border: 1px solid var(--pmc-line); background: transparent;
+  color: var(--pmc-ink); font: .74rem/1.3 Georgia, serif;
+}
+.pmc-aim button:hover, .pmc-aim button:focus-visible {
+  border-color: var(--pmc-gold); background: rgba(217,168,96,.14); color: var(--pmc-gold); outline: none;
+}
+/* the armed seat, so the row says which act the map is now about */
+.pmc-slot.armed { border-color: var(--pmc-accent); background: rgba(226,96,63,.16); }
+.pmc-slot.armed .pmc-name, .pmc-slot.armed .pmc-ico { color: var(--pmc-accent); opacity: 1; }
+/* the map itself says it is waiting for a target */
+.pmc-aiming .wv svg { cursor: crosshair; }
+
+/* ── THE OVERFLOW TRAY ──
+   RULED 2026-08-29: "too many buttons". The acts of the room hold the row; what
+   you carry everywhere folds behind this. It is a seat like any other so the
+   row's arithmetic does not learn a special case, and it opens a plain list
+   above itself rather than a second scrolling row. */
+.pmc-slot.pmc-fold-btn { min-width: 3.4em; }
+.pmc-slot.pmc-fold-btn .pmc-name { letter-spacing: .1em; }
+.pmc-tray {
+  position: fixed; z-index: 5; min-width: 12em; max-width: 22em;
+  padding: .45em .5em; pointer-events: auto;
+  display: flex; flex-direction: column; gap: .15em;
+}
+.pmc-tray .pmc-cap { text-align: left; margin: .1em .35em .35em; }
+.pmc-tray button {
+  display: flex; align-items: center; gap: .6em; width: 100%; text-align: left; cursor: pointer;
   padding: .38em .5em; border: 1px solid transparent; border-radius: 5px;
   background: transparent; color: var(--pmc-ink); font: .8rem/1.3 Georgia, serif;
 }
-.pmc-ctx button:hover, .pmc-ctx button:focus-visible {
+/* THE GLYPH DOES NOT CENTRE ITSELF IN A ROW. On a seat it is drawn above the
+   name and margin:0 auto is what centres it there; inherited into a flex row it
+   ate the free space and shoved every label to the right edge — seen in the
+   shot, three act names hard against the tray's border with a gap the width of
+   the panel in front of them. Same glyph, different axis. */
+.pmc-tray button .pmc-ico { margin: 0; flex: 0 0 auto; }
+.pmc-tray button > span { flex: 0 0 auto; }
+/* the act's own line, pushed to the far side so the names stay in one column */
+.pmc-tray button small { margin-left: auto; text-align: right; }
+.pmc-tray button:hover, .pmc-tray button:focus-visible {
   border-color: var(--pmc-gold); background: rgba(217,168,96,.14); color: var(--pmc-gold); outline: none;
 }
-.pmc-ctx .none { color: var(--pmc-dim); font-size: .72rem; padding: .3em .5em; line-height: 1.5; }
+.pmc-tray button[disabled] { opacity: .42; cursor: not-allowed; }
+.pmc-tray button small { color: var(--pmc-dim); font: .62rem/1.4 ui-monospace, Consolas, monospace; }
 
 /* ══ THE TWO SPACES ══
    The founder ruled the dungeon as two rooms that should FEEL different: an
@@ -552,7 +627,8 @@ export function mountCockpit(o) {
     open: null,        // the action whose form is open
     said: null,        // the last thing the door said back
     voices: [],        // recent speech, from the conversations door
-    context: null,     // { thing, acts, at } — a thing on the map, clicked
+    aiming: null,      // { action, field } — an act armed, waiting for a target
+    tray: false,       // is the overflow tray open
   };
 
   const root = doc.createElement("div");
@@ -728,47 +804,95 @@ export function mountCockpit(o) {
    *  the overlay, filled on hover — see showCard. */
   function cardHtml(card) {
     if (!card) return "";
+    // ⚑ THE CARD LEADS WITH THE NUMBERS NOW (founder, 2026-08-29: "the 'terms'
+    // in the hover and click for the actions is NOT helpful to a human … bare
+    // fields … re-write to be concise, and just give info like it would in a
+    // game, not a debug panel").
+    //
+    // IT SUPERSEDES a card that opened with the blurb and then printed `fields`,
+    // `dials`, `reached you` and every term key as labelled rows — kept named
+    // here rather than silently replaced, because the rows were not decoration:
+    // each one was answering a real question about the grammar, and a reader who
+    // wants them should be able to tell a deliberate move from a regression.
+    //
+    // NOTHING IS DROPPED. Every row that led the card is still rendered, on the
+    // act's own panel, behind one disclosure — see fineHtml below and the note
+    // at the end of this function for why it moved off the card rather than
+    // collapsing on it. What changed is the ORDER, which is the whole of the
+    // ruling: a player mid-fight reads the throw and the number to beat, and a
+    // caller learning the grammar opens the fine print.
+    const speak = dialSpeak(card, { weapon: heldWeapon() });
+    const line = speak
+      ? `<p class="pmc-row pmc-speak"><b>${esc(card.action.toUpperCase())}</b> ${esc(speak)}</p>`
+      // AND NOT AN EMPTY CAPTION. "if a dial is missing, say nothing rather
+      // than showing a bare field name" — an act whose class states no dials
+      // has no costs to state, and a row saying so is the debug panel again.
+      : "";
+    const blurb = card.blurb
+      ? `<p class="pmc-blurb">“${esc(card.blurb)}”</p>`
+      : `<p class="pmc-blurb none">the class mark that defines this act carries no blurb</p>`;
+    // THE WEAPON'S OWN WORDS, where the record carries them. `says` comes off
+    // the held grant — the lighter's is "a flame that has never once gone out
+    // on the way over" — and it is the one line on this card with a voice in
+    // it: the dials are arithmetic and the blurb is the class speaking about
+    // acts in general, while this is the thing in your hand speaking about
+    // itself. Quoted, like every other piece of the record's prose here, and
+    // omitted entirely where the record kept none.
+    const w = heldWeapon();
+    const voice = w?.says && w.for === card.action
+      ? `<p class="pmc-blurb pmc-voice-line">“${esc(w.says)}”<span> — ${esc(w.label)}</span></p>`
+      : "";
+    // WHERE THE TERMS WENT, and why the hover no longer waits on a read. The
+    // bare standpoint answer carries no terms; the act's SHADOW does —
+    // `read: <action>` returns the act's full card with the terms that would
+    // bind it and performs nothing ("A read never performs", the apex's own
+    // law). The card used to print them, and the night before this it printed
+    // them clipped after the founder called the full text unhelpful. Now it
+    // prints none of them and the act's own panel prints them all: the shadow
+    // read is still warmed on hover (`askTerms`, from showCard) so the panel
+    // opens with them already in hand, and the delivery happens at the door
+    // where the act binds rather than on a tooltip beside it.
+    // ⚑ AND THE FINE PRINT IS NOT PUT BEHIND A DISCLOSURE *HERE*, which was the
+    // first shape of this and would have been unpressable. `.pmc-card` is
+    // `pointer-events: none` on purpose — a 24em card hangs across four of its
+    // neighbours and with a pointer on it the hover never reaches the seat
+    // underneath (the card's own note, and the QA shot that caught it). A
+    // <details> inside a surface that takes no clicks is law behind a control
+    // nobody can press, which is worse than the dump it replaced.
+    //
+    // So the split is by GESTURE rather than by disclosure. A hover is a
+    // glance and gets the glance: what this act throws, and the one sentence
+    // saying what it is. The fine print lives on the seat's own panel, which
+    // is a surface a hand has already committed to and can actually open — see
+    // fineHtml, called from formHtml. The terms still arrive before the act
+    // binds, at the door where it binds.
+    return `${line}${blurb}${voice}<p class="pmc-from">press for the fine print</p>`;
+  }
+
+  /**
+   * The rows the card used to lead with, on the surface that can be pressed.
+   *
+   * Everything here was on the face of the hover card until 2026-08-29 and none
+   * of it is gone — the grammar (what the act takes, what it costs, how it
+   * reached you, who defines it) and the terms that would bind it, one press
+   * away on the act's own panel. Closed by default, because the ruling is that
+   * a player mid-fight should not have to read past it.
+   */
+  function fineHtml(card) {
+    if (!card) return "";
     const fields = card.fields.length
       ? `<p class="pmc-row"><b>fields</b> ${card.fields.map((f) => esc(f.name) + (f.required ? "*" : "")).join(" · ")}</p>`
       : `<p class="pmc-row"><b>fields</b> none — this act takes no arguments</p>`;
     const dials = card.dials
       ? `<p class="pmc-row"><b>dials</b> ${esc(Object.entries(card.dials).map(([k, v]) => `${k} ${typeof v === "object" ? JSON.stringify(v) : v}`).join(" · "))}</p>`
       : "";
-    const blurb = card.blurb
-      ? `<p class="pmc-blurb">“${esc(card.blurb)}”</p>`
-      : `<p class="pmc-blurb none">the class mark that defines this act carries no blurb</p>`;
     const from = card.blurbFrom
       ? `<p class="pmc-from">quoted from the class mark that defines it — ${esc(card.blurbFrom)}${card.grantedBy && card.grantedBy !== card.blurbFrom ? `<br>granted here by ${esc(card.grantedBy)}` : ""}</p>`
       : "";
     const via = card.via || card.grant
       ? `<p class="pmc-row"><b>reached you</b> ${esc([card.via, card.grant === "here" ? "granted by the ground" : card.grant === "yours" ? "travels with what you are" : null].filter(Boolean).join(" · "))}</p>`
       : "";
-    // THE TERMS, ON THE CARD, BEFORE ANYTHING IS DONE. The bare standpoint read
-    // does not carry them; the act's SHADOW does — `read: <action>` returns the
-    // act's full card with the terms that would bind it, and performs nothing
-    // ("A read never performs", the apex's own law). So the card asks for them
-    // once per act, caches the answer, and shows them where the law says they
-    // belong: at the door, ahead of the act.
-    // ⚑ THE CARD IS FOR HUMAN EYES (founder, 2026-08-29, explicitly: "the hover
-    // text is unreadably verbose … it should be for human eyes").
-    //
-    // The act forms were tersed the night before and this was deliberately left
-    // whole, on the reasoning that the full text had to stay reachable SOMEWHERE
-    // and the card was where it lived. That reasoning survived about a day: with
-    // the forms tight, the card became the worst surface on the page — hovering a
-    // slot mid-fight dropped a third of the screen of raw JSON over the map,
-    // `articles` and `quoted` unrolling entire mark bodies.
-    //
-    // Reachable was never the same as readable. The terms now render exactly as
-    // they do on a trigger plate — every key the door sent, named in the door's
-    // own words, each value clipped to its head, with the whole of it one
-    // disclosure away IN PLACE. Nothing is dropped and nothing moves further
-    // away; it stops being dumped.
-    const known = termsCache.get(card.action);
-    const terms = known === undefined
-      ? `<p class="pmc-row"><b>terms</b> reading the act's shadow…</p>`
-      : known === null ? "" : termsBriefHtml(known);
-    return `${blurb}${from}${dials}${fields}${via}${terms}`;
+    return `<details class="pmc-fine"><summary>the fine print</summary>${from}${dials}${fields}${via}</details>`;
   }
 
   /** One row per key, whatever keys the door sent. */
@@ -777,42 +901,21 @@ export function mountCockpit(o) {
   }
 
   /**
-   * THE TERMS, STILL DELIVERED, IN THE ROOM A FIGHT LEAVES FOR THEM.
+   * ⚑ `termsBriefHtml` STOOD HERE and is gone (2026-08-29). It was the 08-28
+   * answer to "the FULL MCP TEXT when I click actions is NOT helping": every
+   * term key named on the face of the plate with its VALUE clipped to sixty-odd
+   * characters, and the whole of it one disclosure away.
    *
-   * The founder, mid-fight, 2026-08-28: "the FULL MCP TEXT when I click actions
-   * is NOT helping." The act form printed every term key with its value whole,
-   * and on this door that is genuinely a page of JSON — `articles` and `quoted`
-   * come back as arrays of full mark bodies, which buried the one line he was
-   * trying to press ENTER on under about forty lines of prose he had already
-   * read on the card.
-   *
-   * WHAT MAY NOT BE TRADED AWAY is the terms being READABLE BEFORE THE ACT
-   * BINDS — "you cannot be bound by law you were not shown at the door" is this
-   * surface's own sentence and the reason the shadow read exists at all. So
-   * nothing is hidden and nothing is dropped: every key the door sent is named
-   * on the face of the plate, in the door's own words, and each one's VALUE is
-   * clipped to the head of itself with the whole of it one disclosure away in
-   * the same plate — plus, as before, whole on the act's hover card.
-   *
-   * The distinction being drawn is between shown and dumped. A term you can see
-   * the name of and open in place has been delivered; forty lines you scroll
-   * past to find the button have not, and the founder reading past them is the
-   * evidence.
+   * `consentHtml` replaces it and keeps the part that could not be traded away —
+   * nothing hidden, nothing dropped, the whole text one press away in the same
+   * panel. What changed is WHAT gets clipped. Clipping every value to a fixed
+   * head made the short terms (the ones a player actually needs — what binds,
+   * what it means, the hit points) look exactly like the truncated heads of the
+   * documents, so the panel read as uniformly cut off and the reader could not
+   * tell which lines were whole. Splitting on length instead leaves the short
+   * ones intact and folds only the ones that are genuinely documents, which is
+   * the 08-29 ruling: "only the few terms a player needs".
    */
-  function termsBriefHtml(terms) {
-    const rows = termsRows(terms);
-    if (!rows.length) return "";
-    const CLIP = 68;
-    const head = rows.map((r) => {
-      const v = String(r.value ?? "");
-      return `<span class="pmc-term"><b>${esc(r.key)}</b> ${esc(v.length > CLIP ? v.slice(0, CLIP - 1) + "…" : v)}</span>`;
-    }).join("");
-    const long = rows.some((r) => String(r.value ?? "").length > CLIP);
-    return `<div class="pmc-terms brief">
-      <b class="lede">terms</b> — what would bind this act${head}
-      ${long ? `<details><summary>read them whole</summary>${termsHtml(terms)}</details>` : ""}
-    </div>`;
-  }
 
   /**
    * A GLYPH PER SEAT (founder's ruling, 2026-08-29: "some icons on the
@@ -860,6 +963,68 @@ export function mountCockpit(o) {
   };
   /** The neutral mark. A verb this map has never heard of is still a verb. */
   const ICON_DEFAULT = "M12 6a6 6 0 100 12 6 6 0 100-12";
+
+  /**
+   * THE THREE RULINGS THAT ARE ABOUT PARTICULAR ACTS, kept where the other
+   * name-keyed thing already lives.
+   *
+   * ⚑ THIS IS THE SECOND NAME TABLE ON THIS SURFACE and it is here for exactly
+   * the reason the first one is. `world-cockpit.mjs` holds no verb names and a
+   * falsifier greps it to keep that true; a ruling ABOUT a named act therefore
+   * cannot live in the arithmetic, and `barFold` takes these as arguments so it
+   * never learns one. Called with none of them it is a pure channel split.
+   *
+   * KEEP — founder, 2026-08-29: the room's acts plus "WALK/SAY/EXIT". The first
+   * of those needs no naming: `barFold` keeps every act the door opened on the
+   * ground's own channel, which IS the room's acts, whatever they are called
+   * tomorrow. These are the ambient ones that hold a seat anyway — going
+   * somewhere, speaking, and the way through a door are what you do in a room
+   * besides fight.
+   *
+   * ⚑ ENTER WAS ADDED AFTER THE FIRST BUILD (conductor's ruling, 2026-08-29,
+   * flagged for the founder's veto). His list named three and this is four, and
+   * the reasoning for the fourth is that the list was DECLUTTERING rather than
+   * hiding: the crossing act is the party's first gesture, it and the way out
+   * are one pair in the record (same class, same blurb — "An entry is one
+   * passage written … exit writes the next"), and folding one of a pair while
+   * seating the other put the way IN behind a tray in the antechamber, which is
+   * the room where it is the only thing anyone wants. Shipped as built, then
+   * reversed on the reading of the shot.
+   *
+   * HIDE — "hide the mark and note UI buttons in the dungeon grounds", and UI
+   * hiding is the whole of it: the acts are untouched, the door still affords
+   * them, the MCP still takes them, and stepping back out of portal ground
+   * brings the seats back. Leaving a claim on a boss room and writing yourself
+   * a private note mid-fight are not what the room is for.
+   *
+   * GATE — the one act whose whole precondition is the phase. The office's own
+   * words for it, read 2026-08-29: "Take what is left when the encounter is
+   * spent. Refused while anything is still standing — the … verb's own
+   * precondition is the phase." So the seat appears when the room reaches that
+   * phase and not before, which is the surface agreeing with a refusal the door
+   * was already going to give. `PHASES` is the office's list (encounter.mjs):
+   * afoot, spent, wiped.
+   */
+  const BAR_KEEP = ["walk", "say", "enter", "exit"];
+  const DUNGEON_HIDE = ["leave-mark", "note-to-self"];
+  const PHASE_GATE = { loot: "spent" };
+  /**
+   * ⚑ `WEAPON_HELPS` STOOD HERE AND IS GONE (2026-08-29). It was one line —
+   * the name of the act a weapon's bonus augments — and for a few hours it was
+   * load-bearing: the first shape of `hands[<handle>].weapon` carried
+   * `{ thing, bonus, says? }` and no word for WHICH act, so the site had to
+   * assert one, and the act the bonus appeared on was this file's claim rather
+   * than the record's.
+   *
+   * The office now sends `for` (lane bday-law, 7ba1148), read off the held
+   * grant's own entry rather than hardcoded — so a thing that grants a
+   * different act moves the bonus with no edit here. It is deleted rather than
+   * kept as a fallback ON PURPOSE: a weapon whose grant names no act should
+   * show no clause at all, because "the record did not say" and "the site
+   * guessed" must not look the same on this surface. `weaponFor` answers null
+   * for that case and nothing is said, which is the rule every other unknown
+   * here already follows.
+   */
   function iconFor(action) {
     const d = ICONS[String(action ?? "").toLowerCase()] ?? ICON_DEFAULT;
     return `<svg class="pmc-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
@@ -904,6 +1069,10 @@ export function mountCockpit(o) {
       ? `${s.label}${s.blocked ? " — " + s.blocked : ""}`
       : `${s.label} — not afforded where you stand`;
     const open = state.open === s.action ? " open" : "";
+    // ARMED is not OPEN. An armed seat has no panel under it — the question it
+    // is asking is being asked on the map — so it needs a state of its own or
+    // the row says nothing about why the cursor turned into a crosshair.
+    const armed = state.aiming?.action === s.action ? " armed" : "";
     const gated = s.blocked ? " gated" : "";
     // GATED IS aria-disabled, NOT disabled, and that is the founder's ruling
     // working rather than a nicety. A `disabled` button fires no pointer events at
@@ -912,32 +1081,125 @@ export function mountCockpit(o) {
     // Caught in the gated-card QA shot, which came back with an empty screen.
     // Not-afforded keeps real `disabled`: there is no card behind it to read.
     const stop = s.afforded ? `aria-disabled="${!s.enabled}"` : "disabled";
-    return `<button type="button" class="pmc-slot${extraClass ? " " + extraClass : ""}${open}${gated}" data-action="${esc(s.action)}"
+    return `<button type="button" class="pmc-slot${extraClass ? " " + extraClass : ""}${open}${armed}${gated}" data-action="${esc(s.action)}"
       aria-expanded="${state.open === s.action}"
       ${stop} aria-label="${esc(label)}"
       ${s.afforded ? 'aria-describedby="pmc-card"' : ""}>
       ${s.key ? `<span class="pmc-key">${s.key}</span>` : ""}
       ${iconFor(s.action)}
       <span class="pmc-name">${esc(s.label)}</span>
-      <span class="pmc-dial">${esc(s.afforded ? (leadsTo(s) ?? dialLine(s.card)) : "not here")}</span>
+      <span class="pmc-dial">${esc(s.afforded ? (leadsTo(s) ?? dialSpeak(s.card, { brief: true, weapon: heldWeapon() })) : "not here")}</span>
     </button>`;
   }
 
+  /** Which acts the door opened on the ground's own channel — the room's, as
+   *  opposed to what you carry everywhere. The same reading `barFold` makes,
+   *  needed here for the divider and the seat's dressing. */
+  const isGround = (s) => s.card?.channel === "ground" || s.card?.via === "ground";
+
+  /** What the hand holding this bar is carrying, if the door says. One reading,
+   *  used by every surface that says what an act costs — the seat, the card and
+   *  the panel — so the three cannot come to disagree about a number. */
+  function heldWeapon() {
+    // The door's own word for which act it helps, and nothing of ours — see the
+    // note above for what stood here and why it is not kept as a fallback.
+    return weaponFor(state.answer, state.acting);
+  }
+
+  /** The bar, folded. One reading, used by drawBar and by the keyboard — a
+   *  second one is how a number key came to open a seat that was not on the row. */
+  function foldedBar() {
+    const bar = barSlots(state.answer, { acting: state.acting });
+    const fold = barFold(bar, {
+      keep: BAR_KEEP,
+      // UI HIDING ONLY, and only inside portal ground — the door's own word for
+      // being in the dungeon at all. Step back out and the seats come back.
+      hide: portalOf(state.answer) ? DUNGEON_HIDE : [],
+      gate: PHASE_GATE,
+      phase: state.answer?.encounter_detail?.phase ?? null,
+    });
+    return { ...fold, blocked: bar.blocked };
+  }
+
   function drawBar() {
-    const { fixed, tray, blocked } = barSlots(state.answer, { acting: state.acting });
+    const { shown, folded, blocked } = foldedBar();
+    // THE HERE DIVIDER STILL MARKS THE SAME BOUNDARY it always did — what
+    // travels with you, then what this ground grants — it is just that the
+    // right-hand side is now the whole reason the left-hand side is short.
+    let dividerDone = false;
+    const seats = shown.map((s) => {
+      const ground = isGround(s);
+      const gap = ground && !dividerDone ? ((dividerDone = true), `<div class="pmc-gap"><span>HERE</span></div>`) : "";
+      return gap + slotHtml(s, ground ? "afford" : "");
+    }).join("");
     // The dock rides INSIDE the row but OUTSIDE the bar's scrollport — siblings,
     // so the scroll clips verbs and never the faces' name boxes.
     return `<div class="pmc-barrow">${drawRoster()}<div class="pmc-bar" role="toolbar" aria-label="what can be done from here">
-      ${fixed.map((s) => slotHtml(s)).join("")}
-      ${tray.length ? `<div class="pmc-gap"><span>HERE</span></div>` : ""}
-      ${tray.map((s) => slotHtml(s, "afford")).join("")}
+      ${seats}
+      ${folded.length ? foldButtonHtml(folded) : ""}
     </div></div>
-    ${blocked ? `<p class="pmc-gate" role="status">${esc(blocked.reason)}</p>` : ""}
+    ${blocked ? `<p class="pmc-gate" role="status">${esc(gateWords(blocked, shown, folded))}</p>` : ""}
     <span class="pmc-more" data-more="left" aria-hidden="true" hidden>‹</span>
     <span class="pmc-more" data-more="right" aria-hidden="true" hidden>›</span>
     <div class="pmc-card" id="pmc-card" role="tooltip" hidden></div>
-    ${contextHtml()}
-    ${state.open ? (opensAsChat(state.open) ? chatHtml(state.open) : formHtml(state.open)) : ""}`;
+    ${state.tray ? trayHtml(folded) : ""}
+    ${state.aiming ? aimHtml() : state.open ? (opensAsChat(state.open) ? chatHtml(state.open) : formHtml(state.open)) : ""}`;
+  }
+
+  /**
+   * THE ONE LINE ABOVE THE BAR, and what changed about it (2026-08-29).
+   *
+   * It printed the door's reason alone, which was the whole truth while a block
+   * meant every act. It no longer does: the door now narrows a refusal to the
+   * acts it is about, so the reason on its own read as a flat "you may not act"
+   * over a row where most of the seats were live — the same misreading, one
+   * layer up, that greyed the bar in the first place.
+   *
+   * So where the door narrowed, the line NAMES WHAT IS WAITING, in the seats'
+   * own words. Nothing here is written by the site: the reason is the door's
+   * sentence and the names are the labels the bar already draws for those acts.
+   * Where the door narrowed nothing, the line is exactly what it always was.
+   */
+  function gateWords(blocked, shown, folded) {
+    if (!blocked?.gates?.length) return blocked.reason;
+    const cold = [...shown, ...folded]
+      .filter((s) => s.afforded && blocked.gates.includes(s.action))
+      .map((s) => s.label.toLowerCase());
+    return cold.length ? `${blocked.reason} — ${cold.join(", ")} wait for it` : blocked.reason;
+  }
+
+  /** The overflow seat. A seat like any other so the row's measuring, its
+   *  scroll cue and its hover all keep working without learning a special case. */
+  function foldButtonHtml(folded) {
+    return `<button type="button" class="pmc-slot pmc-fold-btn${state.tray ? " open" : ""}" data-fold
+      aria-expanded="${Boolean(state.tray)}"
+      aria-label="${esc(`${folded.length} more act${folded.length === 1 ? "" : "s"} — what you carry everywhere`)}">
+      <span class="pmc-name">···</span>
+      <span class="pmc-dial">${folded.length} more</span>
+    </button>`;
+  }
+
+  /**
+   * What folded, listed.
+   *
+   * A LIST RATHER THAN A SECOND ROW, because a second row of seats is the thing
+   * the ruling was against — and because these are the acts a reader goes
+   * looking for by name rather than reaches for by muscle memory, which is a
+   * list's shape and not a row's. The three states a seat can be in are kept:
+   * afforded, gated with the clock's reason, or not afforded here at all.
+   */
+  function trayHtml(folded) {
+    const rows = folded.map((s) => {
+      const why = s.afforded ? (s.blocked ?? dialSpeak(s.card, { weapon: heldWeapon() }) ?? "") : "not afforded where you stand";
+      return `<button type="button" data-action="${esc(s.action)}"
+        ${s.afforded && s.enabled ? "" : "disabled"}
+        aria-label="${esc(s.label + (why ? " — " + why : ""))}">
+        ${iconFor(s.action)}<span>${esc(s.label)}</span>${why ? `<small>${esc(why)}</small>` : ""}
+      </button>`;
+    }).join("");
+    return `<div class="pmc-plate pmc-tray" role="menu" aria-label="more acts">
+      <div class="pmc-cap">WHAT YOU CARRY</div>${rows}
+    </div>`;
   }
 
   /**
@@ -1154,8 +1416,18 @@ export function mountCockpit(o) {
     const asking = seat();
     o.readTerms(action, asking).then((body) => {
       termsCache.set(action, termsFromRead(body));
-      // Re-render only if this act is still the one under the pointer — a card
-      // that repaints for an act the reader has already moved off is a flicker.
+      // ⚑ THE PANEL HAS TO BE TOLD TOO, and until 2026-08-29 only the card was.
+      // The shadow read was asked for from `showCard` alone, so an act reached
+      // WITHOUT hovering its seat — through the overflow tray, or by its number
+      // key — opened its panel with no terms in the cache and none on the way.
+      // Caught by the shot runner going through the tray for the crossing act,
+      // which is the one act on this surface whose panel is mostly terms: it
+      // came back a bare form. A consent sheet that is only a consent sheet when
+      // you happened to hover first is not a consent sheet.
+      if (state.open === action) paint();
+      // Re-render the card only if this act is still the one under the pointer —
+      // a card that repaints for an act the reader has already moved off is a
+      // flicker.
       const still = root.querySelector(".pmc-slot:hover, .pmc-slot:focus-visible");
       if (still?.getAttribute("data-action") === action) showCard(still);
     }).catch(() => { termsCache.set(action, null); });
@@ -1167,7 +1439,13 @@ export function mountCockpit(o) {
     // A card behind an open form says the act's blurb twice, in two panels that
     // overlap — seen in QA. The form IS the card, opened: while one is up, the
     // tooltip stands down.
-    if (state.open) return;
+    //
+    // ⚑ AND AN ARMED ACT IS THE SAME CASE, which the first pass missed because
+    // arming leaves `state.open` null. Seen in the shot: pressing a seat left
+    // the pointer on it, so the card stayed up and the aim strip opened across
+    // it — two panels, one of them explaining an act the reader had already
+    // chosen. An armed act's panel is the strip; the card has said its piece.
+    if (state.open || state.aiming) return;
     const all = barSlots(state.answer, { acting: state.acting });
     const s = [...all.fixed, ...all.tray].find((x) => x.action === slotEl.getAttribute("data-action"));
     if (!s?.card) return;
@@ -1223,6 +1501,10 @@ export function mountCockpit(o) {
     // note already says detail belongs.
     const readyToSend = c.fields.every((f) => !f.required || filled[f.name] != null);
     const trigger = readyToSend && !c.fields.some((f) => wantsTextarea(f));
+    // Resolved BEFORE the inputs, because a sheet's fields keep their captions
+    // and a fight plate's do not — see the note on `desc` below.
+    const shown = state.said?.terms ?? termsCache.get(action) ?? null;
+    const sheet = shown ? " pmc-sheet" : "";
 
     const inputs = c.fields.map((f) => {
       const id = `pmc-f-${esc(f.name)}`;
@@ -1253,9 +1535,19 @@ export function mountCockpit(o) {
       // here would be the site editing law to fit a box. On a TRIGGER it moves
       // onto the control instead of standing under it — same words, same door,
       // one hover or one focus away rather than five paragraphs deep.
-      const desc = f.description && !trigger ? `<p class="pmc-desc">${esc(f.description)}</p>` : "";
+      // ⚑ A SHEET KEEPS ITS CAPTIONS EVEN WHEN IT IS A TRIGGER. Moving the per-
+      // field prose onto the control is the fight plate's whole economy — five
+      // captions over one prefilled box was the wall the founder hit mid-swing.
+      // A consent sheet is the opposite surface: the field descriptions are
+      // where the door says what agreeing to this does, and hiding them behind
+      // a hover on a panel whose entire job is being read would be trading away
+      // the thing the sheet exists for. Seen in the shot — the crossing's own
+      // `accept` field, whose description says when the word is demanded, was
+      // reachable only by hovering it.
+      const captioned = !trigger || Boolean(sheet);
+      const desc = f.description && captioned ? `<p class="pmc-desc">${esc(f.description)}</p>` : "";
       const more = f.enumCount && !f.enum ? `<p class="pmc-desc">${f.enumCount} values — read the card at the door</p>` : "";
-      return `<label for="${id}"${trigger && f.description ? ` title="${esc(f.description)}"` : ""}>${esc(f.name)}${req}${control}</label>${desc}${more}`;
+      return `<label for="${id}"${!captioned && f.description ? ` title="${esc(f.description)}"` : ""}>${esc(f.name)}${req}${control}</label>${desc}${more}`;
     }).join("");
 
     const said = state.said
@@ -1263,12 +1555,23 @@ export function mountCockpit(o) {
       : "";
     // The terms the door has stated for this act — from the shadow read if the
     // card already asked for them, and replaced by whatever the door hands back
-    // at the act itself, which is the authoritative delivery.
-    const shown = state.said?.terms ?? termsCache.get(action) ?? null;
-    const terms = !shown ? ""
-      : trigger
-        ? termsBriefHtml(shown)
-        : `<div class="pmc-terms"><b>terms</b> — delivered before the act binds, because you cannot be bound by law you were not shown at the door${termsHtml(shown)}</div>`;
+    // at the act itself, which is the authoritative delivery. (Both `shown` and
+    // `sheet` are resolved above the inputs, which need them.)
+    //
+    // ⚑ TERMS MAKE A SHEET, TRIGGER OR NOT, and the first pass had this wrong in
+    // the one place it mattered. A trigger is the tight fight plate — every
+    // field optional, nothing prose, ENTER sends — and the CROSSING act fits
+    // that shape exactly (its two fields are both optional), so keying the sheet
+    // on "not a trigger" excluded the very panel the ruling was about. Caught by
+    // the shot runner, which went looking for a flavor line on the crossing and
+    // found none.
+    //
+    // Tightness is the right priority for an act that throws a die between two
+    // swings. It is the wrong priority for an act that is asking you to agree to
+    // something: where the door has sent terms, being read is what the panel is
+    // for. So terms decide the dress, and the fight plates are unaffected —
+    // their classes send none.
+    const terms = shown ? consentHtml(shown, c) : "";
     const actorWords = state.acting === HUMAN_ACTOR ? "as yourself" : `as ${esc(state.acting ?? "—")}`;
     // NOTHING LEFT TO TYPE is a state worth saying out loud. Where the door made
     // every field optional and found its own target — which is most of the
@@ -1288,9 +1591,13 @@ export function mountCockpit(o) {
     // A trigger keeps the blurb — one line, and it is the only sentence saying
     // what the act DOES — and drops the buttons for the keys, because a plate
     // you send with ENTER does not need a mouse target restating it.
-    return `<form class="pmc-plate pmc-form${trigger ? " pmc-trigger" : ""}" data-form="${esc(action)}">
+    // (A PANEL DELIVERING TERMS IS A CONSENT SHEET, whatever act it belongs to.
+    // No verb decides it: terms arrive on the acts that declare a counter-edge,
+    // and the door is the one that says which those are. `sheet` is resolved up
+    // beside `shown`, because the inputs read it too.)
+    return `<form class="pmc-plate pmc-form${trigger ? " pmc-trigger" : ""}${sheet}" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
-      ${c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
+      ${sheet ? flavorHtml(c) : c.blurb ? `<p class="pmc-blurb">“${esc(c.blurb)}”</p>` : ""}
       ${inputs || (trigger ? "" : `<p class="pmc-desc">This act takes no arguments.</p>`)}
       ${ready}${datalist}
       ${terms}${said}
@@ -1298,7 +1605,51 @@ export function mountCockpit(o) {
         <button type="submit" class="pmc-btn go">do it</button>
         <button type="button" class="pmc-btn" data-close>close</button>
       </div>
+      ${trigger && !sheet ? "" : fineHtml(c)}
     </form>`;
+  }
+
+  /**
+   * THE ROOM'S OWN SENTENCE, first and large.
+   *
+   * RULED 2026-08-29: the crossing sheet "dumps every field, vague and verbose"
+   * — render the door's flavor line prominently, then only the few terms a
+   * player needs.
+   *
+   * WHOSE SENTENCE IT IS, in the order a reader would want it: the ground the
+   * door says you are standing at the threshold of speaks first (a portal's
+   * `body` is the room describing itself), and the act's own class blurb stands
+   * in where there is no such ground. Both are the record's prose, quoted — the
+   * site writes no flavor of its own here, for the same reason it writes no
+   * blurb: prose claiming to be law is the one thing this surface must not do.
+   */
+  function flavorHtml(card) {
+    const said = portalOf(state.answer)?.body || card?.blurb || null;
+    return said ? `<p class="flavor">${esc(said)}</p>` : "";
+  }
+
+  /**
+   * The terms, as a player reads them at the door.
+   *
+   * `consentSplit` keeps what fits on a line and folds what does not — the
+   * door's `articles` and `quoted` come back as whole mark bodies, and those
+   * are the forty lines the founder was reading past to reach the button.
+   * NOTHING IS DROPPED: the long half is one press away in the same panel, and
+   * the sentence that makes this non-negotiable is written on the disclosure
+   * itself so the next editor cannot trade it away by accident.
+   */
+  function consentHtml(terms, card) {
+    const { brief, fine } = consentSplit(terms);
+    if (!brief.length && !fine.length) return "";
+    const rows = brief.map((r) =>
+      `<span class="pmc-term"><b>${esc(r.key)}</b> ${esc(r.value)}</span>`).join("");
+    const speak = dialSpeak(card, { weapon: heldWeapon() });
+    return `<div class="pmc-terms">
+      <b class="lede">what you are agreeing to</b>
+      ${speak ? `<span class="pmc-term"><b>this act</b> ${esc(speak)}</span>` : ""}
+      ${rows}
+      ${fine.length ? `<details><summary>read them whole — you cannot be bound by law you were not shown at the door</summary>${termsHtml(terms)}</details>` : ""}
+    </div>`;
   }
 
   // ── the chat line ─────────────────────────────────────────────────────────
@@ -1343,36 +1694,46 @@ export function mountCockpit(o) {
   }
 
   /**
-   * The little menu that opens on a thing.
+   * THE ACT IS ARMED AND THE MAP IS THE QUESTION.
    *
-   * It offers the acts, never invents one: `contextActs` filtered the door's own
-   * afforded-and-enabled list down to the ones with somewhere an object could go,
-   * and the labels are the bar's own. Where the ground affords none, it SAYS so
-   * — a menu that opened empty would read as broken, and "nothing here can be
-   * done to this" is a real answer about where you are standing.
+   * ⚑ IT SUPERSEDES THE OBJECT-FIRST MENU (`contextHtml`/`contextActs`, ruled in
+   * on 2026-08-28 and ruled out on 2026-08-29), and the old shape is named here
+   * rather than quietly deleted so the next reader can tell a reversal from a
+   * regression. That menu opened on a click on a thing and offered every act the
+   * ground affords with the thing seeded into a field. The founder, playing:
+   * that behaviour is nonsensical. It was, and the reason is structural rather
+   * than cosmetic — a surface with no verb list cannot know which pairings mean
+   * anything, so it offered all of them, and the menu's own note admitted as
+   * much while defending it ("a neutral pairing, not a sentence … written as
+   * '<act> <thing>' the menu read 'walk the unlit cake'").
+   *
+   * VERB-FIRST NEVER HAS TO KNOW. The reader names the act, so the only question
+   * left is which of the things the ANSWER placed it is pointed at — and that is
+   * a question the door's own words can answer (`aimField`, `aimTargets`).
+   *
+   * This strip is the act form for an armed act: one line saying what is armed,
+   * the targets the map could not place as chips, and the keys. The placed ones
+   * are on the painting and are pressed there.
    */
-  function contextHtml() {
-    const c = state.context;
-    if (!c) return "";
-    // A NEUTRAL PAIRING, NOT A SENTENCE. Written as "<act> <thing>" the menu
-    // read "lift the unlit cake" and "walk the unlit cake" — English claiming
-    // those acts mean something against that thing, which the site has no way to
-    // know and in those two cases they do not. The dot pairs them without
-    // asserting anything, which is the honest amount for a surface with no verb
-    // list to say.
-    //
-    // AND THEY ARE ALL STILL OFFERED. Narrowing the list would mean deciding
-    // which acts may be aimed at what — a permission calculus, which is the
-    // door's and never this file's. It is the same ruling the bar already obeys
-    // for a gated seat: disabled with the reason, never hidden. An act that does
-    // not apply comes back refused in the door's own words, which teaches the
-    // reader something; an act quietly missing teaches them nothing.
-    const rows = c.acts.length
-      ? c.acts.map((a) => `<button type="button" data-ctx-act="${esc(a.action)}" data-ctx-field="${esc(a.field)}">${esc(a.label.toLowerCase())} <span style="color:var(--pmc-dim)">· ${esc(c.thing.label)}</span></button>`).join("")
-      : `<p class="none">nothing this ground affords can be aimed at that right now.</p>`;
-    return `<div class="pmc-plate pmc-ctx" role="menu" aria-label="${esc(c.thing.label)}">
-      <span class="what">${esc(c.thing.label)}<small>${esc(c.thing.id)}</small></span>
-      ${rows}
+  function aimHtml() {
+    const { action } = state.aiming;
+    const targets = aimTargets(state.answer);
+    const loose = targets.filter((t) => !t.at);
+    const placed = targets.length - loose.length;
+    const tell = placed
+      ? `pick a target on the map${loose.length ? " — or here" : ""}`
+      : "pick a target";
+    const chips = loose.map((t) =>
+      `<button type="button" data-aim-at="${esc(t.value)}" title="${esc(t.why ?? "")}">${esc(t.label)}</button>`).join("");
+    const said = state.said
+      ? `<p class="pmc-said${state.said.ok ? "" : " bad"}">${esc(state.said.text)}${state.said.hint ? `<span class="hint">${esc(state.said.hint)}</span>` : ""}</p>`
+      : "";
+    return `<div class="pmc-plate pmc-aim" role="group" aria-label="${esc(action + " — pick a target")}">
+      <span class="arm">${esc(action.toUpperCase())} ▸</span>
+      <span class="tell">${esc(tell)}</span>
+      ${chips}
+      <span class="keys">esc cancels</span>
+      ${said}
     </div>`;
   }
 
@@ -1763,9 +2124,58 @@ export function mountCockpit(o) {
     }).join("");
   }
 
+  /**
+   * THE THINGS AN ARMED ACT MAY BE AIMED AT, lit.
+   *
+   * RULED 2026-08-29: press the act, and "the cake should be highlighted and
+   * clickable". This is the highlight; the clickable half is `onMapClick`,
+   * which hit-tests the same figures through `thingAt`.
+   *
+   * ⚑ IT TAKES NO POINTER, DELIBERATELY, and that is the living-references law
+   * being obeyed rather than worked around. A ring with `pointer-events: auto`
+   * would need a listener, and a listener on an svg child dies silently the
+   * next time the viewer rebuilds its painting — which is the seam that cost
+   * six bugs in one night and is why `onMapClick` lives on the document and
+   * resolves its geometry at use time. The rings are paint. The clicks are the
+   * document's, hit-tested against the answer, and nothing is held.
+   *
+   * A target the answer could not place draws nothing here and is offered as a
+   * chip on the strip instead (`aimHtml`) — nothing is drawn at a coordinate
+   * this file does not hold, which is the rule the token and the ring already
+   * follow.
+   */
+  function drawAim() {
+    if (!state.aiming || !tokenLayer || !gridNow()) return "";
+    const u = unitsPerPx();
+    return aimTargets(state.answer).map((t) => {
+      if (!t.at) return "";
+      const at = worldToPx(gridNow(), t.at);
+      if (!at) return "";
+      const r = 22 * u;
+      return `<g class="pmc-aim-ring" transform="translate(${at.x} ${at.y})">
+        <circle cx="0" cy="0" r="${r * 1.5}" fill="#f0d5a8" fill-opacity="0.10"/>
+        <circle cx="0" cy="0" r="${r}" fill="none" stroke="#f0d5a8" stroke-width="${r * 0.09}"
+          stroke-dasharray="${r * 0.34} ${r * 0.3}"/>
+        <path d="M ${-r * 1.5} 0 h ${r * 0.5} M ${r} 0 h ${r * 0.5} M 0 ${-r * 1.5} v ${r * 0.5} M 0 ${r} v ${r * 0.5}"
+          stroke="#f0d5a8" stroke-width="${r * 0.09}" stroke-linecap="round"/>
+        <title>${esc(t.label)} — ${esc(state.aiming.action)}</title>
+      </g>`;
+    }).join("");
+  }
+
   function drawToken() {
     if (!ensureTokenLayer()) return;
     tokenLayer.textContent = "";
+    // The aim rings draw FIRST, under every figure — they are about the things,
+    // not instead of them, and a highlight painted over a face would hide the
+    // thing it is pointing at.
+    const aiming = drawAim();
+    if (aiming) {
+      const g = doc.createElementNS(NS, "g");
+      g.setAttribute("class", "pmc-aim-layer");
+      g.innerHTML = aiming;
+      tokenLayer.appendChild(g);
+    }
     // WHAT STANDS AGAINST YOU DRAWS FIRST, under everything else on the floor.
     // It is the biggest thing in the room and the one people walk over to; a
     // ring painted last would put its glow across the faces of everyone fighting
@@ -1876,18 +2286,23 @@ export function mountCockpit(o) {
     // both are on screen.
     const gate = root.querySelector(".pmc-gate");
     if (gate) placeAbove(gate, form ?? root.querySelector(".pmc-bar"));
-    // The context menu opens AT the thing, clamped into the painting the same
-    // way the card is — it is about something on the map, so it belongs beside it.
-    const ctx = root.querySelector(".pmc-ctx");
-    if (ctx && state.context) {
+    // The aim strip stands where a panel stands, because it IS the panel for an
+    // armed act — one question, asked on the map instead of in a box.
+    const aim = root.querySelector(".pmc-aim");
+    if (aim) placeAbove(aim, root.querySelector(".pmc-bar"));
+    // The overflow tray opens above its own seat, clamped into the painting the
+    // same way the card is — it belongs to that seat and the hand is already there.
+    const ctx = root.querySelector(".pmc-tray");
+    const a = root.querySelector("[data-fold]")?.getBoundingClientRect?.();
+    if (ctx && a) {
       const box = ctx.getBoundingClientRect();
       const w = doc.defaultView?.innerWidth ?? 0;
       const hgt = doc.defaultView?.innerHeight ?? 0;
       const paint = liveSvg()?.getBoundingClientRect?.();
       const lo = Math.max(12, (paint?.left ?? 0) + 8);
       const hi = Math.max(lo, Math.min(w - box.width - 12, (paint ? paint.right : w) - box.width - 8));
-      ctx.style.left = `${Math.min(Math.max(lo, state.context.at.x + 12), hi)}px`;
-      ctx.style.top = `${Math.max(12, Math.min(state.context.at.y - 8, hgt - box.height - 12))}px`;
+      ctx.style.left = `${Math.min(Math.max(lo, a.left + a.width / 2 - box.width / 2), hi)}px`;
+      ctx.style.bottom = `${Math.max(8, hgt - a.top + 10)}px`;
     }
     root.querySelector(".pmc-bar")?.addEventListener("scroll", markOverflow, { passive: true });
     markOverflow();
@@ -1922,10 +2337,10 @@ export function mountCockpit(o) {
 
   // ── the wiring ────────────────────────────────────────────────────────────
   function onClick(ev) {
-    // A MENU ABOUT A THING CLOSES THE MOMENT YOU LOOK ELSEWHERE. Handled first,
-    // and without returning, so the click it was dismissed by still does
-    // whatever it was going to do — a menu should never cost a reader a click.
-    if (state.context && !ev.target.closest?.(".pmc-ctx")) { state.context = null; paint(); }
+    // THE TRAY CLOSES THE MOMENT YOU LOOK ELSEWHERE. Handled first, and without
+    // returning, so the click it was dismissed by still does whatever it was
+    // going to do — a tray should never cost a reader a click.
+    if (state.tray && !ev.target.closest?.(".pmc-tray, [data-fold]")) { state.tray = false; paint(); }
     const faceBtn = ev.target.closest?.(".pmc-face");
     if (faceBtn && root.contains(faceBtn)) {
       state.acting = faceBtn.getAttribute("data-actor");
@@ -1941,20 +2356,22 @@ export function mountCockpit(o) {
       speakActAs();
       return;
     }
-    // A CONTEXT ACT CARRIES ITS OBJECT IN. The thing's id is seeded into the
-    // field the menu already picked out for it, so the form opens with the
-    // question answered — which is the whole point of having clicked the thing
-    // rather than the seat.
-    const ctxBtn = ev.target.closest?.("[data-ctx-act]");
-    if (ctxBtn && root.contains(ctxBtn)) {
-      const action = ctxBtn.getAttribute("data-ctx-act");
-      const field = ctxBtn.getAttribute("data-ctx-field");
-      formValues = state.context ? { [field]: state.context.thing.id } : null;
-      state.open = action;
-      state.context = null;
-      state.said = null;
+    // A TARGET THE MAP COULD NOT PLACE, pressed on the strip instead. Same
+    // dispatch as pressing it on the painting — see sendAim.
+    const aimBtn = ev.target.closest?.("[data-aim-at]");
+    if (aimBtn && root.contains(aimBtn)) { sendAim(aimBtn.getAttribute("data-aim-at")); return; }
+    // THE OVERFLOW SEAT. It is a seat, so it is caught before the seat handler
+    // below — which would otherwise read its absent data-action as an act.
+    const foldBtn = ev.target.closest?.("[data-fold]");
+    if (foldBtn && root.contains(foldBtn)) {
+      state.tray = !state.tray;
       paint();
-      focusFirstOpen();
+      return;
+    }
+    const trayBtn = ev.target.closest?.(".pmc-tray button");
+    if (trayBtn && root.contains(trayBtn) && !trayBtn.disabled) {
+      state.tray = false;
+      openSeat(trayBtn.getAttribute("data-action"));
       return;
     }
     const closeBtn = ev.target.closest?.("[data-close]");
@@ -1963,15 +2380,52 @@ export function mountCockpit(o) {
     // A gated seat is aria-disabled so it can still be hovered for its card, so
     // the CLICK is what has to refuse — the browser will not refuse it for us.
     if (slot && root.contains(slot) && !slot.disabled && slot.getAttribute("aria-disabled") !== "true") {
-      const action = slot.getAttribute("data-action");
-      state.open = state.open === action ? null : action;
-      state.said = null;
-      formValues = null;
-      paint();
-      root.querySelector(".pmc-slot.open")?.scrollIntoView?.({ inline: "nearest", block: "nearest" });
-      markOverflow();
-      focusFirstOpen();
+      openSeat(slot.getAttribute("data-action"));
     }
+  }
+
+  /**
+   * PRESSING A SEAT — one route, three callers.
+   *
+   * Clicking a seat, pressing it in the overflow tray, and typing its number all
+   * end here. They diverged once already (the keyboard path was reading a bar
+   * the fold had changed) and one function is how they cannot again.
+   *
+   * WHICH OF TWO THINGS A PRESS DOES is decided by the CARD, never by a name: an
+   * act the door gave somewhere to aim, on a ground where the answer names
+   * something to aim at, ARMS — and the reader points at the target. Everything
+   * else opens its panel exactly as it did. So an act that becomes aimable
+   * because someone went down starts arming on its own, and one whose only
+   * target has been dealt with goes back to being a panel, with no edit here.
+   */
+  function openSeat(action, { focus = true } = {}) {
+    if (!action) return;
+    // pressing the armed seat again puts it down — the same toggle an open
+    // panel has always had, on the other of the two states a seat can be in
+    if (state.aiming?.action === action) { disarm(); return; }
+    const { shown, folded } = foldedBar();
+    const s = [...shown, ...folded].find((x) => x.action === action);
+    if (!s || !s.afforded || !s.enabled) return;
+    const field = aimable(s, state.answer) ? aimField(s.card) : null;
+    if (field) { arm(action, field.name); return; }
+    disarm(false);
+    state.open = state.open === action ? null : action;
+    state.said = null;
+    formValues = null;
+    // THE ACT'S SHADOW IS ASKED FOR BY OPENING IT, not only by hovering it. The
+    // terms are what the panel is for on any act that declares a counter-edge,
+    // and a reader who reached the seat through the tray or by its number never
+    // hovered anything. Cached per act for the life of the mount, so this is one
+    // request whichever gesture got here first.
+    if (state.open) askTerms(state.open);
+    paint();
+    // Bring the SEAT into view, not the panel. On a narrow screen the row can
+    // still scroll, so a seat opened by a late key can be off the right edge
+    // while its panel fills the screen — the bar then shows a different seat
+    // lit and says nothing about where the panel came from. Seen at 390.
+    root.querySelector(".pmc-slot.open")?.scrollIntoView?.({ inline: "nearest", block: "nearest" });
+    markOverflow();
+    if (focus) focusFirstOpen();
   }
 
   /**
@@ -2019,6 +2473,22 @@ export function mountCockpit(o) {
     });
     const go = form.querySelector(".pmc-btn.go");
     if (go) { go.disabled = true; go.textContent = "…"; }
+    await sendAct(action, args, form);
+  }
+
+  /**
+   * ONE WAY OUT, and the aimed acts use it too.
+   *
+   * Extracted from `onSubmit` when the map became a way to finish an act
+   * (2026-08-29). A click on a target is the same dispatch as pressing the
+   * panel's button — same envelope, same actor, same seat, same reading of the
+   * throw and of the bounce — and the surest way for those to have drifted
+   * apart would have been to write the aimed one a second time.
+   *
+   * `form` is optional: an act finished on the map has no panel to clear or to
+   * re-enable, which is the only difference between the two callers.
+   */
+  async function sendAct(action, args, form = null) {
     try {
       // The resident the door was READ as travels with every act, the human's
       // included: `as` says who acts, `handle` says whose standing the key is
@@ -2031,15 +2501,21 @@ export function mountCockpit(o) {
       // the one moment they cannot.
       const rolls = rollsFrom(res.body);
       if (rolls.length) showThrow(rolls);
+      const chat = Boolean(form?.hasAttribute?.("data-chat"));
       if (res.ok) {
-        state.said = { ok: true, text: form.hasAttribute("data-chat") ? "sent." : "done — the door took it." };
+        state.said = { ok: true, text: chat ? "sent." : "done — the door took it." };
         formValues = null;
+        // AN AIMED ACT PUTS ITSELF DOWN once the door has taken it. A swing does
+        // not stay armed: the reader chose an act, chose a target, and the act
+        // happened, so the next click on the map is a fresh gesture rather than
+        // a second swing nobody asked for.
+        state.aiming = null;
         // A CHAT LINE EMPTIES ITSELF AND STAYS OPEN. Cleared in the live DOM
         // rather than by trusting formValues, because paint() re-reads the form
         // before it repaints — so a line nulled only in that variable comes
         // straight back out of the element it was just sent from, and the reader
         // sends the same sentence twice.
-        if (form.hasAttribute("data-chat")) {
+        if (chat) {
           form.querySelectorAll("[data-field]").forEach((el) => { el.value = ""; });
         }
         if (o.refresh) { const fresh = await o.refresh().catch(() => null); if (fresh) state.answer = fresh; }
@@ -2065,33 +2541,32 @@ export function mountCockpit(o) {
       if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); }
       return;
     }
-    // ESCAPE PUTS DOWN WHATEVER IS UP, innermost first: the menu about a thing
-    // sits over the bar, so one press should close it and leave the bar standing.
-    if (ev.key === "Escape" && state.context) { state.context = null; paint(); return; }
+    // ESCAPE PUTS DOWN WHATEVER IS UP, innermost first. An armed act is the
+    // innermost of the three now: it is the state where the whole map has
+    // become a control, so it should be the first thing one press gives back.
+    if (ev.key === "Escape" && state.aiming) { disarm(); return; }
+    if (ev.key === "Escape" && state.tray) { state.tray = false; paint(); return; }
     if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); return; }
     if (!/^[1-9]$/.test(ev.key)) return;
     const n = Number(ev.key);
-    const { fixed, tray } = barSlots(state.answer, { acting: state.acting });
-    const slot = [...fixed, ...tray].find((s) => s.key === n);
+    // ⚑ THE NUMBERS FOLLOW THE ROW, not the door's whole list. `barSlots` keys
+    // every act the answer carried, folded or not — so with the fold in place
+    // the key printed on the fourth seat and the act the fourth key opened were
+    // two different acts. The row is what a reader is counting along, so the row
+    // is what the digit means: the seats that are on it, in the order they sit,
+    // and the overflow tray's contents are reached by name rather than by count.
+    const slot = foldedBar().shown[n - 1];
     if (!slot || !slot.enabled) return;
     ev.preventDefault();
-    state.open = state.open === slot.action ? null : slot.action;
-    state.said = null;
-    formValues = null;
-    paint();
-    // DELIBERATELY NO FOCUS INTO THE FORM on the keyboard path. Focus belongs in
-    // the field only when the reader has committed to filling it, and a digit
-    // typed into a focused text box must type a digit — so auto-focusing here
-    // killed the numbered bar the moment it was used: measured, pressing 1 then
-    // 2 then 9 left slot 1 open the whole time and put "29" in its first field.
-    // Clicking a seat is the committing gesture and still dives in; the numbers
-    // stay the bar's own navigation, which is what makes them worth having.
-    // Bring the SEAT into view, not the form. On a narrow screen the row scrolls,
-    // so a seat opened by key 9 can be off the right edge while its form fills the
-    // screen — the bar then shows a different seat lit and says nothing about
-    // where the form came from. Seen at 390.
-    root.querySelector(".pmc-slot.open")?.scrollIntoView?.({ inline: "nearest", block: "nearest" });
-    markOverflow();
+    // DELIBERATELY NO FOCUS INTO THE FORM on the keyboard path, which is why
+    // this one caller passes `focus: false`. Focus belongs in the field only
+    // when the reader has committed to filling it, and a digit typed into a
+    // focused text box must type a digit — so auto-focusing here killed the
+    // numbered bar the moment it was used: measured, pressing 1 then 2 then 9
+    // left slot 1 open the whole time and put "29" in its first field. Clicking
+    // a seat is the committing gesture and still dives in; the numbers stay the
+    // bar's own navigation, which is what makes them worth having.
+    openSeat(slot.action, { focus: false });
   }
 
   // The card follows the pointer AND the keyboard, because a bar with numbered
@@ -2302,39 +2777,103 @@ export function mountCockpit(o) {
     const near = (at, r) => at && Math.hypot(local.x - at.x, local.y - at.y) <= r;
     const placed = adversaryPlacement(state.answer, gridNow());
     if (placed && near(placed.at, 20 * u * 1.34)) {
-      return { id: placed.adversary.id, label: placed.adversary.label };
+      // `adversary: true` is what makes the entity reading win over the mark
+      // reading on this ground — see onMapClick.
+      return { id: placed.adversary.id, label: placed.adversary.label, adversary: true };
     }
     for (const t of looseThings(state.answer)) {
       const at = worldToPx(gridNow(), t.at);
-      if (near(at, 9 * u * 1.9)) return { id: t.id, label: t.label };
+      if (near(at, 9 * u * 1.9)) return { id: t.id, label: t.label, loose: true };
     }
     return null;
   }
 
   /**
-   * The acts that could be aimed at a thing, with it already in the slot.
+   * The seat that picks a thing up off the floor.
    *
-   * Verb-free, like everything else here: an act is offerable when the ground
-   * affords it, the clock allows it, and its card has a free-text field that is
-   * not prose — which is what "somewhere an object could go" means in the only
-   * vocabulary the door gave us. The thing's id goes in that field.
+   * RULED 2026-08-29: a loose thing is "click-to-take directly — that replaces
+   * the take button for floor items and is how the party picks up the weapon."
+   *
+   * ⚑ THE RULING NAMES THE SEAT, so this reads it by name and does not pretend
+   * otherwise. It could not be derived: several afforded acts take a mark id and
+   * choosing between them would be this surface deciding what an act means,
+   * which is the whole thing verb-first targeting exists to stop doing. The name
+   * lives in the arithmetic already — it is one of the six fixed seats — and the
+   * ruling is literally about that seat, so nothing new is being learned here.
+   *
+   * Null when the ground does not afford it or the clock will not allow it, and
+   * then a loose thing is not click-to-take: it stays a thing on the floor, and
+   * the reader is not offered a gesture the door would refuse.
    */
-  function contextActs(thing) {
-    const { fixed, tray } = barSlots(state.answer, { acting: state.acting });
-    return [...fixed, ...tray].filter((s) => {
-      if (!s.afforded || !s.enabled || !s.card) return false;
-      return s.card.fields.some((f) => !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
-    }).map((s) => {
-      const field = s.card.fields.find((f) => !f.enum?.length && f.type !== "number" && f.type !== "boolean" && !wantsTextarea(f));
-      return { action: s.action, label: s.label, field: field.name, value: thing.id };
-    });
+  function pickUpSeat() {
+    const { shown, folded } = foldedBar();
+    const s = [...shown, ...folded].find((x) => x.action === "take");
+    return s?.afforded && s.enabled && s.card ? s : null;
+  }
+
+  /** Arm an act. The seat lights, the map takes the next click, and no panel
+   *  opens — the question is being asked on the painting. */
+  function arm(action, field) {
+    state.aiming = { action, field };
+    state.open = null;
+    state.said = null;
+    formValues = null;
+    aimingSignal(true);
+    paint();
+  }
+  /** `repaint: false` for a caller that is about to paint anyway — two paints
+   *  in one gesture rebuild the row under a hand that is still on it. */
+  function disarm(repaint = true) {
+    if (!state.aiming) return;
+    state.aiming = null;
+    state.said = null;
+    aimingSignal(false);
+    if (repaint) paint();
+  }
+  /**
+   * THE CROSSHAIR, and why it is on the documentElement rather than on us.
+   *
+   * The cursor has to change over the PAINTING, and the painting is the
+   * viewer's element outside this overlay — so a class on `.pmc` reaches
+   * nothing. This is the same signal shape the dock already uses
+   * (`data-pmc-dock`), on our own class name, and it writes no attribute of the
+   * viewer's: the rule that reads it is ours, in COCKPIT_CSS, and the viewer
+   * never learns the class exists. Given back at destroy, like the dock's.
+   */
+  function aimingSignal(on) {
+    try { doc.documentElement.classList[on ? "add" : "remove"]("pmc-aiming"); } catch {}
+  }
+  /** Finish an armed act on one target. Straight out through `sendAct`, so an
+   *  act aimed on the map and one sent from a panel are the same dispatch. */
+  function sendAim(value) {
+    const { action, field } = state.aiming ?? {};
+    if (!action || !field) return;
+    sendAct(action, { [field]: value });
+  }
+
+  /**
+   * A THING ON THE FLOOR IS PICKED UP BY CLICKING IT (2026-08-29 ruling).
+   *
+   * One gesture, no menu and no panel: the ruling is that this "replaces the
+   * take button for floor items and is how the party picks up the weapon", and
+   * a panel in between would be the form the ruling was written against. Where
+   * the ground does not afford it the click does nothing rather than opening
+   * something — see `pickUpSeat`.
+   */
+  function takeFromFloor(thing) {
+    const seatFor = pickUpSeat();
+    const field = seatFor ? aimField(seatFor.card) : null;
+    if (!field) return;
+    sendAct(seatFor.action, { [field.name]: thing.id });
   }
 
   // The map's clicks, in the CAPTURE phase — so a click on one of our own
   // figures can be taken before the viewer sees it, and every other click is
   // left entirely alone. We stop propagation ONLY for a figure this cockpit
-  // drew; bare ground is a click the viewer does nothing with today, and a mark
-  // of the viewer's own is never intercepted at all.
+  // drew (and for any click at all while an act is armed, which is the reader
+  // having said the map is a targeting surface right now); bare ground is a
+  // click the viewer does nothing with today, and a mark of the viewer's own is
+  // never intercepted at all.
   const onMapClick = (ev) => {
     // THE LISTENER LIVES ON THE DOCUMENT, the figures live on whichever svg is
     // alive — the FIFTH sighting of the living-svg seam tonight, and the literal
@@ -2347,12 +2886,31 @@ export function mountCockpit(o) {
     const local = pointAt(ev);
     if (!local) return;
     const thing = thingAt(local);
+
+    // ── AN ARMED ACT OWNS THE NEXT CLICK ──
+    // On a target it finishes the act; anywhere else it disarms, which is the
+    // ruling's own escape hatch ("Escape or clicking elsewhere disarms"). Either
+    // way the viewer does not also act on it: a click meant as a target must not
+    // additionally arm a walk to the spot the target is standing on.
+    if (state.aiming) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const target = thing ? aimTargets(state.answer).find((t) => t.value === thing.id) : null;
+      if (target) sendAim(target.value); else disarm();
+      return;
+    }
+
     if (thing) {
       ev.preventDefault();
       ev.stopPropagation();
-      state.context = { thing, acts: contextActs(thing), at: { x: ev.clientX, y: ev.clientY } };
-      state.said = null;
-      paint();
+      if (thing.loose) takeFromFloor(thing);
+      // ⚑ AND THE ADVERSARY OPENS NOTHING (founder, 2026-08-29). The cake is one
+      // node wearing two readings — a mark of the world and the thing you are
+      // fighting — and in a fight the entity reading wins. Its acts are on the
+      // bar, where they are armed and then aimed; a menu here would be the
+      // object-first order the ruling reversed, offered a second time from the
+      // one place it read worst. The click is still swallowed, so it does not
+      // fall through and arm a walk into whatever you were aiming at.
       return;
     }
     // A MARK OF THE VIEWER'S IS THE VIEWER'S. Its overlay shapes carry data-id,
@@ -2361,7 +2919,14 @@ export function mountCockpit(o) {
     if (ev.target?.closest?.("#wv-overlay [data-id], .wv-card, .ctl, button, a")) return;
     const m = pxToWorld(gridNow(), local);
     if (!m) return;
-    walkFromMap(m);
+    // ── THE GROUND'S OWN STRIDE (lane bday-law's dial, 2026-08-29) ──
+    // A room a few metres across wants a lattice; the open world has never had
+    // one and does not get one here. `walkStep` answers null for every ground
+    // that has not declared a stride — which is all of them today — and
+    // `snapPoint` hands the point straight back, so an unmodified door leaves
+    // this gesture byte-identical. (The first version of this said the same
+    // sentence over a one-metre floor that made it untrue everywhere.)
+    walkFromMap(snapPoint(m, walkStep(state.answer)) ?? m);
   };
   doc.addEventListener("click", onMapClick, true);
 
@@ -2485,6 +3050,7 @@ export function mountCockpit(o) {
       camera?.disconnect();
       furniture?.disconnect();
       dockSignal(false); // hand the Act As question back to the viewer's own row
+      aimingSignal(false); // and the map's cursor back to the viewer's
       root.remove();
       throwLayer.remove();
       tokenLayer?.remove();
