@@ -86,21 +86,30 @@ record("and it sits inside the painting rather than on the page's furniture",
   !!hereBox && !!paintBox && hereBox.left >= paintBox.left - 1,
   `plate.left=${hereBox?.left?.toFixed(1)} paint.left=${paintBox?.left?.toFixed(1)}`);
 
-// …and it must not print on the dock's own name boxes, which is the collision
-// the 3.2em clearance was measured for.
+// ⚑ SUPERSEDED 2026-08-29, founder-ruled. This checked that hovering a FACE
+// showed the small name box AND the plate without one printing over the other —
+// which was the right check while both existed. The ruling deleted the small
+// box ("the hover should show the orange-rimmed LARGER card, not the small
+// nameplate"), so the collision it guarded against cannot happen, and what
+// replaces it is the claim the ruling actually makes: hovering a face shows the
+// plate, carrying THAT face's own state.
 await page.hover(".pmc-face");
 await page.waitForTimeout(250);
-await shot(page, "03-here-plate-and-a-name-box-together");
-const nmBox = await page.evaluate(() => {
-  const el = [...document.querySelectorAll(".pmc-nm")].find((n) => Number(getComputedStyle(n).opacity) > 0.5);
-  if (!el) return null;
-  const r = el.getBoundingClientRect();
-  return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+await shot(page, "03-face-hover-shows-that-fighters-plate");
+const noNameBox = await page.evaluate(() => document.querySelectorAll(".pmc-nm").length);
+record("the small name box is gone", noNameBox === 0, `found ${noNameBox}`);
+const plate = await page.evaluate(() => {
+  const el = document.querySelector(".pmc-here");
+  return {
+    opacity: Number(getComputedStyle(el).opacity),
+    who: el.querySelector(".who")?.textContent?.replace(/\s+/g, " ").trim() ?? null,
+    hp: el.querySelector(".pmc-hp .num")?.textContent?.trim() ?? null,
+    kit: el.querySelector(".kit")?.textContent?.replace(/\s+/g, " ").trim() ?? null,
+  };
 });
-const hereBox2 = await rect(page, ".pmc-here");
-record("hovering a FACE shows both the name box and the plate, not one over the other",
-  !!nmBox && !overlaps(nmBox, hereBox2),
-  nmBox ? `name box bottom=${nmBox.bottom.toFixed(1)} plate bottom=${hereBox2.bottom.toFixed(1)}` : "no name box shown");
+record("hovering a FACE shows the plate, carrying that fighter's own state",
+  plate.opacity === 1 && !!plate.who && !!plate.kit,
+  `who="${plate.who}" hp="${plate.hp}" kit="${plate.kit}"`);
 
 // ── 3 · the row clears the viewer's way-out pill ───────────────────────────
 // The harness has no .wv-scene-exit of its own, so one is planted with the

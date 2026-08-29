@@ -13,7 +13,7 @@ import {
   HUMAN_ACTOR, actorsFor, barSlots, cockpitShows, dispatchEnvelope,
   portalOf, readBounce, statedLimit, termsFromRead, termsRows, tokenFor, tokenPlacement,
   wantsTextarea, worldToPx,
-  blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
+  blockedReason, encounterOf, fighterState, humanWords, looseThings, rollsFrom, spaceOf,
   adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices,
   aimField, aimKind, aimTargets, aimable, barFold, combatantBars, consentSplit, dialSpeak, leavingName,
@@ -83,24 +83,22 @@ export const COCKPIT_CSS = `
 }
 .pmc-face img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
 .pmc-face[aria-pressed="true"] { border-color: var(--pmc-gold); box-shadow: 0 0 12px rgba(217,168,96,.5); color: var(--pmc-gold); }
-.pmc-face[disabled] { opacity: .4; cursor: not-allowed; }
+/* REFUSED IS aria-disabled, NOT disabled — a truly disabled button fires no
+   pointer events, and a face nobody can hover is a face that cannot say why it
+   is grey. Same trade the gated seats made, for the same reason. */
+.pmc-face[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
 .pmc-face:focus-visible { outline: 2px solid var(--pmc-gold); outline-offset: 2px; }
 /* horizontal dock: the residents|human rule stands upright between them */
 .pmc-rule { border-left: 1px dotted rgba(154,161,173,.4); align-self: stretch; margin: .15em .2em; }
 /* the dock's caption sits above its shoulder, out of the row's height */
 .pmc-roster .pmc-cap { position: absolute; left: .7em; bottom: calc(100% + .15em); margin: 0; }
-/* the name box rises ABOVE the face — the bar owns the bottom edge, so a box
-   hung to the right would run under the verb slots or off a phone's screen */
-.pmc-nm {
-  position: absolute; left: 50%; top: auto; bottom: calc(100% + .6em); transform: translateX(-50%);
-  background: var(--pmc-panel); border: 1px solid var(--pmc-line); border-radius: 5px;
-  padding: .15em .55em; font: .68rem/1.4 Georgia, serif; color: var(--pmc-ink);
-  white-space: nowrap; max-width: 22em; opacity: 0; transition: opacity .12s; pointer-events: none;
-}
-.pmc-face:hover .pmc-nm, .pmc-face:focus-visible .pmc-nm { opacity: 1; }
-/* the hovered face rises, so its name box is never painted under the next face */
+/* ⚑ THE SMALL NAME BOX (.pmc-nm) STOOD HERE AND IS GONE (2026-08-29). Hovering
+   a face raised two panels at once — its own box, and the dock's plate — and the
+   founder's ruling is that the hover shows the LARGER card and not the small
+   nameplate. Everything it said now lives on the plate: see drawHere. The rule
+   below stays, because a raised face still must not be painted under its
+   neighbour. */
 .pmc-face:hover, .pmc-face:focus-visible { z-index: 2; }
-.pmc-nm.wrap { white-space: normal; width: 16em; }
 
 /* ── the bar ── */
 /* THE BAR IS A ROW, and it stays one. Wrapping was the default and the first
@@ -632,8 +630,57 @@ export const COCKPIT_CSS = `
   opacity: 0; transition: opacity .12s; pointer-events: none;
 }
 .pmc-roster:hover .pmc-here, .pmc-roster:focus-within .pmc-here { opacity: 1; }
-.pmc-here .who { color: var(--pmc-gold); font-size: .95rem; }
+.pmc-here .who { color: var(--pmc-gold); font-size: .95rem; display: flex; align-items: center; gap: .45em; }
 .pmc-here .spine { color: var(--pmc-dim); font-size: .78rem; margin-top: .25em; line-height: 1.45; }
+/* ── the fighter's own state, on the plate (2026-08-29) ──
+   A NARROWER PLATE THAN THE RECITATION IT REPLACES. The old content was a
+   containment chain and wanted 30em; four short rows about one person want a
+   card, and a card the width of a paragraph reads as a paragraph. */
+.pmc-here { min-width: 15em; max-width: min(24em, 60vw); }
+/* the state words that are one word: down, acting now, yourself. They earn a
+   pill rather than a sentence because a reader is scanning for them. */
+.pmc-here .tag {
+  font: .6rem/1 ui-monospace, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase;
+  border: 1px solid currentColor; border-radius: 999px; padding: .25em .5em; opacity: .85;
+}
+.pmc-here .tag.you { color: var(--pmc-dim); }
+.pmc-here .tag.down, .pmc-here .tag.cold { color: var(--pmc-accent); }
+.pmc-here .tag.turn { color: var(--pmc-live); }
+/* THE HP BAR WITH THE NUMBERS ON IT — the founder's own words. The numbers ride
+   INSIDE the rail, over both of its grounds, which is why they carry a dark
+   halo: a flat colour is unreadable over one side or the other. Same shape as
+   the rail drawn over the figure on the map, so the two read as one language. */
+.pmc-hp {
+  position: relative; height: 1.25em; margin-top: .45em; border-radius: 999px;
+  background: rgba(0,0,0,.55); border: 1px solid var(--pmc-line); overflow: hidden;
+}
+.pmc-hp .fill { position: absolute; inset: 0 auto 0 0; background: var(--pmc-accent); opacity: .85; }
+.pmc-hp .num {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font: .68rem/1 ui-monospace, Consolas, monospace; color: #fdf1ea;
+  text-shadow: 0 0 3px #0d1015, 0 0 3px #0d1015, 0 1px 2px #0d1015;
+}
+.pmc-hp.out .fill { display: none; }
+/* what is in their hand. The glyph is the same 24-box every seat's icon is
+   drawn in, so the plate and the row speak one visual language. */
+.pmc-here .kit {
+  display: flex; align-items: center; gap: .4em; margin-top: .45em;
+  font: .78rem/1.4 Georgia, serif; color: var(--pmc-ink);
+}
+.pmc-here .kit b { color: var(--pmc-gold); font-weight: normal; font-size: .92em; }
+.pmc-here .kit.none { color: var(--pmc-dim); }
+.pmc-here .kit.none .pmc-ico { opacity: .45; }
+/* ⚑ THE GLYPH IS RE-DRESSED FOR THIS ROW, and the shot is why. The base icon
+   rule is written for a SEAT, where the glyph sits above its word: auto side
+   margins centre it in the seat's column, and 1.15em of a seat's font is a
+   readable mark. Inherited into a flex ROW, those auto margins pushed the glyph
+   into the middle of the plate and shoved the thing's name against the
+   right-hand edge, at about nine pixels across — a mark that read as a speck.
+   Both facts were invisible to every assertion and obvious in the crop. */
+.pmc-here .kit .pmc-ico {
+  margin: 0; flex: 0 0 auto; width: 1.5em; height: 1.5em;
+  color: var(--pmc-gold); opacity: 1;
+}
 
 @media (max-width: 720px) {
   .pmc-roster { padding: .25em .4em; gap: .25em; }
@@ -690,6 +737,7 @@ export function mountCockpit(o) {
     act: null,         // { action, args, label } — a target taken, waiting for confirm
     tray: false,       // is the overflow tray open
     hover: null,       // the id of the cockpit figure under the pointer, if any
+    peek: null,        // the dock face being looked at — whose state the plate shows
   };
 
   const root = doc.createElement("div");
@@ -826,25 +874,29 @@ export function mountCockpit(o) {
       const inner = token?.src
         ? `<img src="${esc(token.src)}" alt="">`
         : esc((f.label ?? "?").slice(0, 1).toUpperCase());
-      // The name box carries the REASON when a face is refused — a greyed circle
-      // that will not say why is the surface refusing to explain the law it is
-      // enforcing, which is the opposite of what this page is for. And an ALLOWED
-      // human's box carries the door's own sentence, through `humanWords`: this
-      // read `f.because` until 08-27, which is a field the office's roster does
-      // not emit, so the door's words vanished the day the door started sending
-      // them. See humanWords for the drift and why it is read both ways.
-      const words = f.allowed
-        ? (f.kind === "human" ? `${esc(f.label)} · yourself — ${esc(humanWords(f))}` : esc(f.label))
-        : `${esc(f.label)} — ${esc(f.reason ?? "not here")}`;
-      // The box wraps when its words are a SENTENCE rather than a handle — keyed
-      // on the length, not on whether the face was refused. Keyed on refusal, an
-      // allowed human's "yourself — a portal's ground seats a human" ran straight
-      // out through the right-hand border under nowrap + max-width, which the
-      // screenshot showed and no DOM read would have.
-      const wrap = words.replace(/&[a-z#0-9]+;/g, "x").length > 28 ? " wrap" : "";
-      return `<button type="button" class="pmc-face" data-actor="${esc(id)}"
-        aria-pressed="${on}"${f.allowed ? "" : " disabled"}
-        aria-label="${esc(f.label)}">${inner}<span class="pmc-nm${wrap}">${words}</span></button>`;
+      // ⚑ THE SMALL NAME BOX IS GONE (founder, 2026-08-29): the dock's hover
+      // "should show the orange-rimmed LARGER card, not the small nameplate."
+      // Both used to appear at once on a face hover — the box from the face and
+      // the plate from the dock — which is the doubling he was looking at.
+      //
+      // NOTHING THE BOX CARRIED IS ORPHANED. It held three things and the plate
+      // now holds all three: the label (its heading), the door's sentence about
+      // why a human may stand here (`humanWords`, in the stat row), and the
+      // REASON a refused face is refused — the last of which was the important
+      // one, because "a greyed circle that will not say why is the surface
+      // refusing to explain the law it is enforcing".
+      //
+      // ⚑ AND A REFUSED FACE IS `aria-disabled`, NOT `disabled`, which is what
+      // makes that possible: a truly disabled button fires no pointer events, so
+      // a face nobody can hover is a face that cannot explain itself. Exactly the
+      // trade the gated SEATS made for exactly the same reason — see slotHtml.
+      // The press is refused in onClick instead.
+      const label = f.allowed
+        ? (f.kind === "human" ? `${f.label} · yourself — ${humanWords(f)}` : f.label)
+        : `${f.label} — ${f.reason ?? "not here"}`;
+      return `<button type="button" class="pmc-face${f.allowed ? "" : " refused"}" data-actor="${esc(id)}"
+        aria-pressed="${on}" aria-disabled="${!f.allowed}"
+        aria-label="${esc(label)}">${inner}</button>`;
     };
     // DOCKED, not floating (2026-08-28): the roster is the bar's leftmost cell —
     // who-acts beside what-they-do. The law line rides as the dock's own title
@@ -1030,6 +1082,18 @@ export function mountCockpit(o) {
   };
   /** The neutral mark. A verb this map has never heard of is still a verb. */
   const ICON_DEFAULT = "M12 6a6 6 0 100 12 6 6 0 100-12";
+  /**
+   * WHAT IS IN A HAND — a hilt, gripped: a blade above, a guard across, the fist
+   * around it. It is NOT in the ICONS table on purpose; that table is keyed on
+   * act names and this is not an act, it is a thing being held.
+   *
+   * ONE GLYPH FOR BOTH ANSWERS, carrying nothing and carrying something, with
+   * the row's own class dimming it for the empty hand. Two different glyphs
+   * would make a reader compare pictures to learn a yes/no the words beside
+   * them already say.
+   */
+  const ICON_HAND =
+    `<svg class="pmc-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v10 M8 13h8 M10 13v7h4v-7"/></svg>`;
 
   /**
    * THE THREE RULINGS THAT ARE ABOUT PARTICULAR ACTS, kept where the other
@@ -2138,16 +2202,121 @@ export function mountCockpit(o) {
     doc.defaultView?.setTimeout(() => host.remove(), stay);
   }
 
-  // ── the standpoint plate ──────────────────────────────────────────────────
-  /** Drawn INTO the dock (see drawRoster) and revealed on its hover. It keeps its
-   *  own plate chrome, because it is still a card — only its anchor moved. */
+  // ── the fighter's plate ───────────────────────────────────────────────────
+  /**
+   * THE CARD THAT HANGS OFF THE DOCK, and what it says now.
+   *
+   * ⚑ IT SUPERSEDES THE STANDPOINT RECITATION (founder, 2026-08-29): the plate
+   * printed which seat the read rooted at and the whole containment chain, and
+   * his verdict on it was "useless for the human to see". The ruling: "replace
+   * the info in the larger card with their inventory (aka whether they are
+   * carrying the weapon, with an icon!) as well as their HP bar with numbers
+   * and whatever other stats".
+   *
+   * The old content is NAMED rather than silently swapped, because a plate that
+   * quietly changes what it is about reads as drift. What it said — the acting
+   * seat, the portal it roots in, the `within` chain — was answering a
+   * developer's question about where the read came from, on a surface a player
+   * uses to decide who swings next. Nothing is orphaned: the chain is still in
+   * the answer, and the standpoint is still drawn on the map itself.
+   *
+   * WHOSE STATE, and this is the other half of the ask ("the ACT AS bar's HOVER
+   * should show the larger card"): whichever face the pointer or the keyboard is
+   * on (`state.peek`), falling back to whoever is acting. So the dock became a
+   * way to LOOK at the party without changing who you are, which is what a
+   * roster of faces was always shaped like.
+   *
+   * ITS ANCHOR AND ITS CHROME ARE UNCHANGED — same box, same 3.2em clearance
+   * measured off the faces, same hover reveal. Only the words inside it moved.
+   */
   function drawHere() {
-    const p = portalOf(state.answer);
-    const spine = (state.answer.within ?? []).map((w) => w?.id).filter(Boolean).reverse();
+    const who = state.peek ?? state.acting;
+    const f = faces().find((x) => (x.kind === "human" ? HUMAN_ACTOR : x.handle) === who) ?? null;
+    const s = fighterState(state.answer, who);
+    // The name is the WHEEL's where the wheel has them, and the roster's where
+    // it does not — one person, two records, and the wheel is the one the rest
+    // of this plate is quoting.
+    const name = s.label ?? f?.label ?? (who === HUMAN_ACTOR ? "yourself" : who ?? "a spectator");
+    const mine = who === HUMAN_ACTOR ? `<span class="tag you">yourself</span>` : "";
+    // A REFUSED FACE EXPLAINS ITSELF HERE NOW. It was the small name box's one
+    // job — "a greyed circle that will not say why is the surface refusing to
+    // explain the law it is enforcing" — and that box is gone, so the plate
+    // takes the sentence over rather than letting it fall on the floor.
+    if (f && !f.allowed) {
+      return `<div class="pmc-plate pmc-here" role="tooltip">
+        <div class="who">${esc(name)} <span class="tag cold">cannot act here</span></div>
+        <div class="spine">${esc(f.reason ?? "not here")}</div>
+      </div>`;
+    }
     return `<div class="pmc-plate pmc-here" role="tooltip">
-      <div class="who">${esc(state.acting === HUMAN_ACTOR ? "yourself" : state.acting ?? "a spectator")} <span style="color:var(--pmc-dim)">· inside</span> ${esc(p?.id ?? "")}</div>
-      <div class="spine">the read roots at <b>${esc(p?.value ?? "—")}</b>${spine.length ? `<br>within: ${esc(spine.join(" ‹ "))}` : ""}</div>
+      <div class="who">${esc(name)}${mine}${s.down ? `<span class="tag down">down</span>` : ""}${s.current ? `<span class="tag turn">acting now</span>` : ""}</div>
+      ${hpRowHtml(s)}
+      ${statRowHtml(s)}
+      ${kitHtml(s)}
     </div>`;
+  }
+
+  /**
+   * THE HIT POINTS, AS A BAR WITH THE NUMBERS ON IT — the founder's own words,
+   * and the same reading the rail over their figure is drawn from, so the plate
+   * and the map cannot disagree about how hurt somebody is.
+   *
+   * A FIGHTER WHO IS NOT ON THE WHEEL GETS NO BAR, and says so. Standing in the
+   * room and not being in the fight is a real state; an empty bar would read as
+   * a fighter at zero, which is the opposite of the truth.
+   */
+  function hpRowHtml(s) {
+    if (!s.onWheel) return `<div class="spine">not in this fight</div>`;
+    if (!s.hp) return `<div class="spine">on the wheel — the door states no hit points</div>`;
+    const frac = Math.max(0, Math.min(1, s.hp.now / s.hp.max));
+    return `<div class="pmc-hp${s.down ? " out" : ""}" role="img"
+      aria-label="${esc(`${s.hp.now} of ${s.hp.max} hit points`)}">
+      <span class="fill" style="width:${(frac * 100).toFixed(1)}%"></span>
+      <span class="num">${s.hp.now}/${s.hp.max}</span>
+    </div>`;
+  }
+
+  /**
+   * THE OTHER STATS WORTH THE ROOM: when they act, and who is acting instead.
+   * Each clause is dropped where the door did not answer it, rather than printed
+   * with a dash — a plate of em-dashes is the debug panel again.
+   *
+   * ⚑ AND THE DOOR'S SENTENCE ABOUT WHY A HUMAN MAY STAND HERE IS NOT ON IT.
+   * The first draft put `humanWords` in this row, reasoning that a line the
+   * deleted name box used to carry should not be orphaned. The shot showed what
+   * that reasoning missed: it rendered "inside the-town/the-candle-vault — a
+   * portal's ground seats a human", wrapped over two lines, and it is a fact
+   * about the GROUND wearing a fighter's plate — which is the recitation this
+   * whole card was replaced for. It is still on the face's own accessible name,
+   * where a reader who wants it can get it and a player mid-fight does not have
+   * to read past it.
+   */
+  function statRowHtml(s) {
+    const bits = [];
+    if (s.initiative != null) bits.push(`initiative ${s.initiative}`);
+    if (s.joinedRound != null) bits.push(`joined round ${s.joinedRound}`);
+    if (s.onWheel && !s.current && s.turnOf) bits.push(`waiting on ${s.turnOf}`);
+    return bits.length ? `<div class="spine">${esc(bits.join(" · "))}</div>` : "";
+  }
+
+  /**
+   * WHAT IS IN THEIR HAND, WITH AN ICON — the ask, verbatim on the icon.
+   *
+   * AND EMPTY-HANDED IS ALSO AN ANSWER. The question he asked is "are they
+   * carrying the weapon", which is a yes/no; a plate that renders the row only
+   * when there IS one makes the reader guess whether the absence means nothing
+   * held or nothing known. Both are said.
+   *
+   * THE CLAUSE IS THE RECORD'S. `weaponFor` names which act the bonus augments
+   * off the held grant's own entry, and where the record does not say, no clause
+   * is printed — the standing rule on this surface that "the record did not say"
+   * and "the site guessed" must never look alike.
+   */
+  function kitHtml(s) {
+    const w = s.weapon;
+    if (!w) return `<div class="kit none">${ICON_HAND}<span>empty-handed</span></div>`;
+    const clause = w.for ? `+${w.bonus} to ${esc(w.for)}` : `+${w.bonus}`;
+    return `<div class="kit">${ICON_HAND}<span>${esc(w.label)}</span><b>${clause}</b></div>`;
   }
 
   // ── the token on the map ──────────────────────────────────────────────────
@@ -2831,6 +3000,11 @@ export function mountCockpit(o) {
     if (state.tray && !ev.target.closest?.(".pmc-tray, [data-fold]")) { state.tray = false; paint(); }
     const faceBtn = ev.target.closest?.(".pmc-face");
     if (faceBtn && root.contains(faceBtn)) {
+      // A REFUSED FACE IS PRESSABLE AND DOES NOTHING, which is the other half of
+      // aria-disabled: the browser no longer refuses the click for us, so the
+      // refusal is stated here. Swallowed rather than fallen through — the press
+      // was aimed at this face and should not become a click on the map.
+      if (faceBtn.getAttribute("aria-disabled") === "true") return;
       state.acting = faceBtn.getAttribute("data-actor");
       // a resident selection IS the seat; the human keeps the one it borrowed
       if (state.acting !== HUMAN_ACTOR) state.seat = state.acting;
@@ -3139,15 +3313,45 @@ export function mountCockpit(o) {
     openSeat(slot.action, { focus: false });
   }
 
+  /**
+   * WHOSE STATE THE PLATE IS SHOWING — the face under the pointer, or the
+   * keyboard's, or nobody's, in which case it falls back to whoever is acting.
+   *
+   * ⚑ IT REPAINTS THE PLATE ALONE, and that is not an optimisation. `paint()`
+   * replaces the whole overlay's innerHTML, so a full repaint on a face hover
+   * would destroy the very button the pointer is resting on and hand the reader
+   * a flickering dock — the surface rebuilding itself under a hand that has not
+   * moved. Only the plate's words change, so only the plate is rewritten.
+   *
+   * IT FOLLOWS THE KEYBOARD TOO, through the same handler the hover card is
+   * driven by, for the same reason stated there: a dock a reader can tab into
+   * must tell a tabbing reader what it tells a pointing one.
+   */
+  function peekAt(target) {
+    const face = target?.closest?.(".pmc-face");
+    const who = face && root.contains(face) ? face.getAttribute("data-actor") : null;
+    if (who === state.peek) return;
+    state.peek = who;
+    const host = root.querySelector(".pmc-here");
+    if (!host) return;
+    // The plate draws its own box, so what is swapped in is that box's INSIDES —
+    // replacing the element would drop the chrome and the hover rule with it.
+    const next = doc.createElement("div");
+    next.innerHTML = drawHere();
+    const fresh = next.firstElementChild;
+    if (fresh) { host.innerHTML = fresh.innerHTML; host.className = fresh.className; }
+  }
+
   // The card follows the pointer AND the keyboard, because a bar with numbered
   // slots is a keyboard surface first: tabbing to a seat must show the same card
   // hovering it does, or the law is readable only with a mouse.
   const onOver = (ev) => {
     const slot = ev.target.closest?.(".pmc-slot");
     if (slot && root.contains(slot) && !slot.disabled) showCard(slot); else hideCard();
+    peekAt(ev.target);
   };
   root.addEventListener("pointerover", onOver);
-  root.addEventListener("pointerleave", hideCard);
+  root.addEventListener("pointerleave", (ev) => { hideCard(); peekAt(null); });
   root.addEventListener("focusin", onOver);
   root.addEventListener("focusout", hideCard);
 

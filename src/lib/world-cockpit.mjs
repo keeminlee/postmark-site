@@ -781,6 +781,57 @@ export function weaponFor(answer, acting = null) {
   };
 }
 
+/**
+ * EVERYTHING THE WHEEL AND THE HOLDINGS KNOW ABOUT ONE FIGHTER, joined.
+ *
+ * FOUNDER-RULED 2026-08-29: the plate that hangs off the ACT AS dock recited
+ * the standpoint — which seat the read roots at, what the containment chain is —
+ * and he called it "useless for the human to see". What a player wants when
+ * they point at a face mid-fight is that person's STATE: how much of them is
+ * left, whether they are up, when they act, and what is in their hand.
+ *
+ * ONE JOIN, HERE, because it is two sources answering about the same person and
+ * the two are keyed differently — the wheel by the fighter's own id, the
+ * holdings by the door's `who`. The human is the case that makes it worth a
+ * function: acting as your household's human, the id on the wheel is not the
+ * handle you selected, and every surface that forgot that has shown one
+ * person's numbers under another person's face. `weaponFor` already resolves it
+ * that way and this resolves it the same way, once.
+ *
+ * ABSENCE IS ANSWERED, NEVER FILLED IN. A resident who is not on the wheel is
+ * `onWheel: false` with null numbers — a real state (they are standing here and
+ * not fighting) and one the caller must be able to tell from a fighter at full
+ * health. Nothing here invents a row.
+ *
+ * @param {object} answer   the door's standpoint answer
+ * @param {string|null} acting   a handle, or HUMAN_ACTOR
+ */
+export function fighterState(answer, acting = null) {
+  const enc = encounterOf(answer);
+  const id = acting === HUMAN_ACTOR
+    ? enc?.order.find((a) => a.kind === "human")?.id ?? null
+    : (typeof acting === "string" && acting ? acting : null);
+  const row = id && enc ? enc.order.find((a) => a.id === id) ?? null : null;
+  return {
+    id,
+    onWheel: Boolean(row),
+    label: row?.label ?? null,
+    kind: row?.kind ?? null,
+    hp: row?.hp ?? null,
+    initiative: row?.initiative ?? null,
+    down: row?.down === true,
+    joinedRound: row?.joinedRound ?? null,
+    // `current` is the wheel's own word for whose turn it is, already derived
+    current: row?.current === true,
+    round: enc?.round ?? null,
+    // WHO IS ACTING INSTEAD, in the wheel's own label rather than in an id — the
+    // one thing a waiting player wants after "not you". Null where the door
+    // names no turn.
+    turnOf: enc?.turn ? (enc.order.find((a) => a.id === enc.turn)?.label ?? enc.turn) : null,
+    weapon: weaponFor(answer, acting),
+  };
+}
+
 /** The caller's own row on the wheel, or null. */
 export function yourTurnRow(encounter, acting = null) {
   // ⚑ WHOSE ROW IS "YOU" DEPENDS ON WHO IS ACTING, and until this took an

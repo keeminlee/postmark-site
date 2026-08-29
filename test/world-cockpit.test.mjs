@@ -753,7 +753,18 @@ test("the cockpit's stylesheet is not cut off by a backtick in its own prose", (
   // (a truncation anywhere earlier fails), and every section it is made of must
   // still be in it (so a rule set deleted from the middle fails too).
   assert.match(COCKPIT_CSS, /\.pmc-card \{ width: 18em; \}\s*\}\s*$/, "the stylesheet must run to its final rule");
-  for (const section of [".pmc-roster", ".pmc-face", ".pmc-nm", ".pmc-bar", ".pmc-slot", ".pmc-gap", ".pmc-card", ".pmc-form", ".pmc-terms", ".pmc-here", ".pmc-more", "@media"]) {
+  // ⚑ `.pmc-nm` STOOD IN THIS LIST AND IS GONE (2026-08-29, founder-ruled): the
+  // dock's hover shows the larger plate "not the small nameplate", so the small
+  // name box was deleted and everything it carried moved onto the plate. The
+  // reversal is named here rather than the name quietly vanishing from a list.
+  //
+  // ⚠ AND IT IS ASSERTED GONE, not merely dropped — `includes(".pmc-nm")` was
+  // still TRUE with the rules deleted, because the comment that records the
+  // deletion names the class. A substring pin cannot tell a rule from prose
+  // about a rule, which is the same trap that has caught source pins here from
+  // the other side. `^\.pmc-nm \{` can only match a rule.
+  assert.doesNotMatch(COCKPIT_CSS, /^\.pmc-nm[ .:[]/m, "the small name box's rules are gone, not just unreferenced");
+  for (const section of [".pmc-roster", ".pmc-face", ".pmc-bar", ".pmc-slot", ".pmc-gap", ".pmc-card", ".pmc-form", ".pmc-terms", ".pmc-here", ".pmc-hp", ".pmc-more", "@media"]) {
     assert.ok(COCKPIT_CSS.includes(section), `the stylesheet must still dress ${section}`);
   }
   // and the rule that keeps a tooltip from swallowing the bar, by name

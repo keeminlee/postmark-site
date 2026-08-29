@@ -429,6 +429,30 @@
     // sits disabled with its reason"). Everything else about the room is the
     // vault's, including the creature, so a seat greyed here is greyed for the
     // want of an ALLY and not for want of a target in general.
+    // A FACE THE DOOR REFUSES. `actors` is the door's OWN roster — when it sends
+    // one it is used verbatim (world-cockpit.mjs actorsFor, first line), so this
+    // is a live shape rather than a state faked for the shot. It is the only way
+    // to look at a refused face here: the derived roster refuses a HUMAN only
+    // where there is no portal, and no portal means no cockpit at all.
+    //
+    // It is worth its own fixture because the refusal SENTENCE moved house on
+    // 2026-08-29 — it used to live in the small name box, which is deleted, and
+    // now lives on the plate. A branch that took over another element's job is
+    // the one most likely to be quietly broken.
+    get refused() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        actors: [
+          { kind: "resident", handle: "jetto-of-starforge", label: "jetto-of-starforge", allowed: true, reason: null },
+          { kind: "resident", handle: "wright", label: "wright", allowed: false,
+            reason: "wright is not within the-town/the-candle-vault — walk them in first" },
+          { kind: "human", id: "keeminlee", label: "DARKO", allowed: true, reason: null,
+            because: "inside the-town/the-candle-vault — a portal's ground seats a human" },
+        ],
+      };
+    },
+
     get nobodydown() {
       const v = FIXTURES.vault;
       return {
