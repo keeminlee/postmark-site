@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
-  aimKind, cardOf, consentSplit, dialSpeak, leavingName, looseThings, pointFields,
+  aimKind, cardOf, combatantBars, consentSplit, dialSpeak, leavingName, looseThings, pointFields,
   prefillFor, snapPoint, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
@@ -860,4 +860,90 @@ test("a panel that delivers terms is a consent sheet, whichever act it belongs t
     "quoted from the record, never written here");
   assert.match(MOUNT, /read them whole — you cannot be bound by law you were not shown at the door/,
     "and the sentence that makes the fold non-negotiable is written on the disclosure itself");
+});
+
+// ══ THE FIGHT, SIZED FOR THE ROOM (founder-ruled 2026-08-29, at the board) ═══
+//
+//   "the cake adversary token on the map ~3x larger, INCLUDING its hp bar"
+//   "hp bars on ALL combatant tokens in an encounter, the cake's style, small,
+//    only while a wheel is live for that ground"
+
+test("every fighter with hit points gets a rail, placed where the answer places them", () => {
+  // this fixture's wheel holds the cake, the human, and one resident. Placing
+  // the first two and NOT the third is what makes the last assertion mean
+  // something.
+  const answer = {
+    ...VAULT,
+    present: [{ handle: "keeminlee", x: 1083, y: -789.2 }],
+  };
+  const bars = combatantBars(answer);
+  assert.ok(bars.some((b) => b.id === "keeminlee"), "the human is a fighter like any other");
+  // …and a RESIDENT is too, once the answer places them
+  const withResident = combatantBars({ ...VAULT,
+    present: [{ handle: "keeminlee", x: 1083, y: -789.2 }, { handle: "vermillion", x: 1085, y: -789.6 }] });
+  assert.ok(withResident.some((b) => b.id === "vermillion"), "a resident on the wheel gets one too");
+  // a name in `present` that is NOT on the wheel is not a fighter and gets nothing
+  const bystander = combatantBars({ ...VAULT, present: [{ handle: "wright", x: 1082, y: -790 }] });
+  assert.ok(!bystander.some((b) => b.id === "wright"), "somebody standing nearby is not in the fight");
+
+  // ⚑ THE ADVERSARY IS EXCLUDED. It carries its own bar at its own scale with
+  // its own name plate; a second rail over the same figure is one number twice.
+  assert.ok(!bars.some((b) => b.id === "the-town/the-unlit-cake"), "the boss keeps its own bar and gets no rail");
+
+  // ⚑ AND AN UNPLACED FIGHTER GETS NOTHING RATHER THAN A GUESS. `nearby` is a
+  // budgeted field of view and `present` is banded, so a real combatant can be
+  // unplaceable on a given read — the same rule the token, the ring and the
+  // floor things already follow.
+  assert.ok(!bars.some((b) => b.id === "vermillion"), "a fighter the answer does not place is not drawn somewhere plausible");
+});
+
+test("the rails appear only while a wheel is actually turning", () => {
+  const placed = { present: [{ handle: "keeminlee", x: 1083, y: -789 }] };
+  // no encounter at all
+  assert.deepEqual(combatantBars({ ...VAULT, ...placed, encounter: undefined }), []);
+  // an encounter the door says is NOT live — representable, but nothing owed
+  assert.deepEqual(
+    combatantBars({ ...VAULT, ...placed, encounter_detail: { ...VAULT.encounter_detail, live: false } }), [],
+    "bars over a quiet room would say a fight was on");
+  // and a fighter with no hit points on the wheel has nothing to draw
+  const noHp = { ...VAULT, ...placed, encounter: { ...VAULT.encounter,
+    order: VAULT.encounter.order.map((a) => (a.id === "keeminlee" ? { id: a.id, kind: a.kind, label: a.label } : a)) } };
+  assert.ok(!combatantBars(noHp).some((b) => b.id === "keeminlee"));
+});
+
+test("a downed fighter's rail is drawn empty and still drawn", () => {
+  const answer = { ...VAULT, present: [{ handle: "vermillion", x: 1085, y: -789.6 }] };
+  const v = combatantBars(answer).find((b) => b.id === "vermillion");
+  assert.ok(v, "being at zero is a state to watch — a rail that vanished would read as having left");
+  assert.equal(v.hp.now, 0);
+  assert.equal(v.down, true);
+});
+
+test("the adversary's size is one constant, and three readers share it", () => {
+  // ⚑ THE POINT OF NAMING IT. The drawing, the hit-test that decides whether a
+  // click landed on the figure, and the reticle that frames it while an act is
+  // armed all measured it separately — so tripling the picture alone would have
+  // left clicks landing on empty floor and a crosshair inside the thing it
+  // frames.
+  assert.match(MOUNT, /const ADVERSARY_R = 60;/, "tripled from 20 on the founder's word");
+  assert.match(MOUNT, /const r = ADVERSARY_R \* u;/, "the drawing reads it");
+  assert.match(MOUNT, /near\(placed\.at, ADVERSARY_R \* u \* 1\.34\)/, "the hit-test reads it");
+  assert.match(MOUNT, /t\.value === advId \? ADVERSARY_R \* 1\.25 : 26/, "and the reticle sizes itself to what it frames");
+  // the hp bar is a multiple of r, so "including its hp bar" needed no second edit
+  assert.match(MOUNT, /const bw = r \* 2\.6;/, "the bar grows with the figure because it always was a multiple of it");
+});
+
+test("a person's rail is not the boss's colour, and rides above every figure", () => {
+  // Found by looking at a magnified crop, twice: drawn in the adversary's ember
+  // over the adversary's ember ring, three rails were in the DOM and invisible;
+  // drawn under the token and the speech layer, they were behind the very
+  // figures they belong to.
+  assert.match(MOUNT, /const gold = "#f0d5a8";/, "the cake owns ember on this map; a fighter does not");
+  assert.match(MOUNT, /function rails\(\) \{/, "the rails are their own pass");
+  assert.match(MOUNT, /tokenLayer\.appendChild\(g\);\r?\n\s*rails\(\);\r?\n\s*speech\(\);/,
+    "appended after the figures");
+  assert.match(MOUNT, /if \(!place\) \{ rails\(\); speech\(\); return; \}/,
+    "and drawn even where the human's own token is not — they are everyone's, not the human's");
+  assert.match(MOUNT, /const rails = tokenLayer\.querySelector\("\.pmc-combatant-layer"\);\r?\n\s*if \(rails\) tokenLayer\.insertBefore\(g, rails\); else tokenLayer\.appendChild\(g\);/,
+    "speech goes under them — a line fades on the door's clock, hit points do not");
 });

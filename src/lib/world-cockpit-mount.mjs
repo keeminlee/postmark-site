@@ -16,7 +16,7 @@ import {
   blockedReason, encounterOf, humanWords, looseThings, rollsFrom, spaceOf,
   actCandidates, adversaryOf, adversaryPlacement, chatField, chatShaped, prefillFor,
   pxToWorld, recentVoices,
-  aimField, aimKind, aimTargets, aimable, barFold, consentSplit, dialSpeak, leavingName,
+  aimField, aimKind, aimTargets, aimable, barFold, combatantBars, consentSplit, dialSpeak, leavingName,
   pointFields, snapPoint, walkStep, weaponFor,
 } from "./world-cockpit.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
@@ -2174,13 +2174,34 @@ export function mountCockpit(o) {
    * are the numbers `publicState` sent, and a bar with either missing simply is
    * not drawn rather than guessing a full one.
    */
+  /**
+   * HOW BIG THE THING YOU ARE FIGHTING IS, in screen pixels.
+   *
+   * ⚑ TRIPLED ON THE FOUNDER'S WORD (2026-08-29, live in the vault): the cake
+   * "reads too small". It was 20, sized when the ring was one figure among
+   * several on a town map; in a three-metre room it is the room's whole subject
+   * and the only thing anyone is looking at.
+   *
+   * ONE CONSTANT, THREE READERS, and that is the point of naming it. The
+   * drawing, the hit-test that decides whether a click landed on it, and the
+   * reticle that lights it while an act is armed all measured it separately
+   * before — so tripling the picture alone would have left a click landing on
+   * empty floor a third of the way in, and a crosshair sitting inside the
+   * figure it was supposed to frame. Everything the group draws is a multiple
+   * of this, the hp bar included, so the bar grows with it exactly as the
+   * founder asked.
+   */
+  const ADVERSARY_R = 60;
+  /** …and a thing on the floor, which did not change. */
+  const LOOSE_R = 9;
+
   function drawAdversary() {
     if (!tokenLayer || !gridNow()) return "";
     const placed = adversaryPlacement(state.answer, gridNow());
     if (!placed) return "";
     const { at, adversary: a } = placed;
     const u = unitsPerPx();
-    const r = 20 * u;
+    const r = ADVERSARY_R * u;
     const hasBar = Number.isFinite(a.hp) && Number.isFinite(a.of) && a.of > 0;
     const frac = hasBar ? Math.max(0, Math.min(1, a.hp / a.of)) : 0;
     const bw = r * 2.6;
@@ -2321,7 +2342,12 @@ export function mountCockpit(o) {
       // that read as a reticle rather than as decoration, and a slow pulse so
       // it moves against a still painting. White-hot rather than gold, because
       // gold is what every other panel on this surface already is.
-      const r = 26 * u;
+      // THE RETICLE FRAMES WHAT IT IS AIMED AT, so it takes the figure's own
+      // size: the adversary is now three times what it was and a fixed ring
+      // would sit inside it rather than around it. A thing on the floor keeps
+      // the smaller frame it always had.
+      const advId = adversaryOf(state.answer)?.id ?? null;
+      const r = (t.value === advId ? ADVERSARY_R * 1.25 : 26) * u;
       return `<g class="pmc-aim-ring" transform="translate(${at.x} ${at.y})">
         <circle cx="0" cy="0" r="${r * 1.85}" fill="#fff6d8" fill-opacity="0.16"/>
         <circle cx="0" cy="0" r="${r * 1.32}" fill="none" stroke="#fff6d8"
@@ -2333,6 +2359,58 @@ export function mountCockpit(o) {
                  M ${r * 1.9} ${r * 1.9} h ${-r * 0.72} M ${r * 1.9} ${r * 1.9} v ${-r * 0.72}"
           stroke="#ffffff" stroke-width="${r * 0.16}" stroke-linecap="round" fill="none"/>
         <title>${esc(t.label)} — ${esc(state.aiming.action)}</title>
+      </g>`;
+    }).join("");
+  }
+
+  /**
+   * A HIT-POINT RAIL OVER EVERY FIGHTER (founder-ruled 2026-08-29, at the board).
+   *
+   * The adversary has carried one since the fight shipped, and he asked for the
+   * same thing over everyone else on the wheel — "the cake's style, small". So
+   * this is that bar at a person's scale: same ember, same rounded rail, same
+   * arithmetic (`now / max`, both the door's numbers), a fifth of the size.
+   *
+   * WHOSE FIGURE IT SITS OVER IS NOT MINE TO DRAW. The residents on this map are
+   * the VIEWER's walkers and the human is the cockpit's own token — two owners,
+   * one row of numbers — so this layer draws only the RAIL, at the coordinates
+   * the answer places each fighter at, and lets whatever figure is already there
+   * be the figure. That also means a fighter the answer cannot place gets no bar
+   * rather than a bar somewhere plausible.
+   *
+   * A DOWNED FIGHTER'S RAIL IS DRAWN EMPTY AND STILL DRAWN, the same ruling the
+   * wheel already keeps: being at zero is a state to watch, and a rail that
+   * vanished would read as the person having left.
+   */
+  function drawCombatants() {
+    if (!tokenLayer || !gridNow()) return "";
+    const u = unitsPerPx();
+    return combatantBars(state.answer).map((c) => {
+      const at = worldToPx(gridNow(), c.at);
+      if (!at) return "";
+      // SIZED BY LOOKING AT IT, twice. The first pass was thirteen screen pixels
+      // wide and two tall — "small", as asked, and invisible: at vault zoom the
+      // rails vanished under the speech plates and inside the adversary's glow,
+      // present in the DOM and unreadable on the screen. That is the same
+      // mistake the speech layer made when it shipped at nine pixels, recorded
+      // in its own note, and the same cure: look at the shot rather than at the
+      // number. Still small against the cake's own rail, which is what the
+      // ruling asked for — a person is not the boss.
+      const w = 44 * u, h = 5.5 * u, y = -30 * u;
+      const frac = Math.max(0, Math.min(1, c.hp.now / c.hp.max));
+      // ⚑ A PERSON'S RAIL IS NOT THE BOSS'S COLOUR, and the first pass learned
+      // that the hard way: drawn in the adversary's ember, over the adversary's
+      // ember ring, three rails were present in the DOM and invisible on the
+      // screen — the founder would have reported them missing. The cake owns
+      // ember on this map. A fighter gets the cockpit's own pale gold, with a
+      // dark ground and a light rim so it reads over the ring, over the floor
+      // and over the glow alike.
+      const gold = "#f0d5a8";
+      return `<g class="pmc-combatant-hp" transform="translate(${at.x} ${at.y})"${c.down ? ' opacity="0.55"' : ""}>
+        <rect x="${-w / 2}" y="${y}" width="${w}" height="${h}" rx="${h / 2}"
+          fill="#0d1015" fill-opacity="0.92" stroke="${gold}" stroke-opacity="0.75" stroke-width="${h * 0.16}"/>
+        ${frac > 0 ? `<rect x="${-w / 2}" y="${y}" width="${w * frac}" height="${h}" rx="${h / 2}" fill="${gold}"/>` : ""}
+        <title>${esc(c.label)} — ${c.hp.now} of ${c.hp.max}${c.down ? " — down" : ""}</title>
       </g>`;
     }).join("");
   }
@@ -2377,8 +2455,13 @@ export function mountCockpit(o) {
     // ruling is about entering a zone where it is human-allowed, not about
     // drawing a second figure on every square of the world.
     const seated = !!(human?.allowed && portalOf(state.answer) && state.acting === HUMAN_ACTOR);
+    // ⚑ THE RAILS ARE DRAWN BY A FUNCTION OF THEIR OWN, called on both exits.
+    // They belong to every fighter on the wheel — residents included, whose
+    // figures are the VIEWER's walkers — so hanging them off the human token's
+    // early return would have deleted everyone else's hit points on every
+    // standpoint where the human is not drawn, which is most of them.
     const place = tokenPlacement(state.answer, gridNow(), human, { seated });
-    if (!place) return;
+    if (!place) { rails(); speech(); return; }
     const { at, token, beside } = place;
     // THE TOKEN IS SIZED IN SCREEN PIXELS, NOT MAP UNITS — measured, after the
     // first shot drew it two hundred metres across. A fixed map size is invisible
@@ -2419,7 +2502,31 @@ export function mountCockpit(o) {
          d="M0,-10 L2.2,-2.6 L10,0 L2.2,2.6 L0,10 L-2.2,2.6 L-10,0 L-2.2,-2.6 Z"/>` +
       `<title>${esc(token.label)} — standing here</title>`;
     tokenLayer.appendChild(g);
+    rails();
     speech();
+  }
+
+  /**
+   * THE HIT-POINT RAILS, APPENDED LAST OF THE FIGURES.
+   *
+   * Ordering settled by looking at a magnified crop, which is the only way it
+   * could have been: drawn under the token, the human's own portrait sat on top
+   * of their own rail; drawn under the speech layer, all three were behind a
+   * bubble, because in a three-metre room everyone stands inside one plate's
+   * width of everyone else. Nothing this layer paints may cover a number a
+   * player is watching to decide their next act — speech fades on the door's
+   * clock, and hit points do not.
+   */
+  function rails() {
+    if (!tokenLayer) return;
+    tokenLayer.querySelector(".pmc-combatant-layer")?.remove();
+    const bars = drawCombatants();
+    if (!bars) return;
+    const bg = doc.createElementNS(NS, "g");
+    bg.setAttribute("class", "pmc-combatant-layer");
+    bg.setAttribute("pointer-events", "none");
+    bg.innerHTML = bars;
+    tokenLayer.appendChild(bg);
   }
 
   /** The voices ride ABOVE every figure, because a line nobody can read is not a
@@ -2434,7 +2541,17 @@ export function mountCockpit(o) {
     g.setAttribute("class", "pmc-voice-layer");
     g.setAttribute("pointer-events", "none");
     g.innerHTML = voices;
-    tokenLayer.appendChild(g);
+    // ⚑ AND IT GOES UNDER THE HIT-POINT RAILS, which is the one ordering in this
+    // layer decided by what the marks MEAN rather than by what they are. Found
+    // by measuring rather than by looking: all three rails were on screen at
+    // 28x4 pixels and all three were behind a speech plate, because everyone in
+    // a three-metre room stands inside one bubble's width of everyone else.
+    //
+    // Speech is transient and fades on the door's own clock; hit points are the
+    // state a player is watching to decide their next act. A line that covers a
+    // number for five minutes costs more than a number that clips a line.
+    const rails = tokenLayer.querySelector(".pmc-combatant-layer");
+    if (rails) tokenLayer.insertBefore(g, rails); else tokenLayer.appendChild(g);
   }
 
   // ── painting ──────────────────────────────────────────────────────────────
@@ -2954,14 +3071,14 @@ export function mountCockpit(o) {
     const u = unitsPerPx();
     const near = (at, r) => at && Math.hypot(local.x - at.x, local.y - at.y) <= r;
     const placed = adversaryPlacement(state.answer, gridNow());
-    if (placed && near(placed.at, 20 * u * 1.34)) {
+    if (placed && near(placed.at, ADVERSARY_R * u * 1.34)) {
       // `adversary: true` is what makes the entity reading win over the mark
       // reading on this ground — see onMapClick.
       return { id: placed.adversary.id, label: placed.adversary.label, adversary: true };
     }
     for (const t of looseThings(state.answer)) {
       const at = worldToPx(gridNow(), t.at);
-      if (near(at, 9 * u * 1.9)) return { id: t.id, label: t.label, loose: true };
+      if (near(at, LOOSE_R * u * 1.9)) return { id: t.id, label: t.label, loose: true };
     }
     return null;
   }
