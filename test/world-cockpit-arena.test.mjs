@@ -38,7 +38,7 @@ import { fileURLToPath } from "node:url";
 import {
   HUMAN_ACTOR, aimField, aimTargets, aimable, barFold, barSlots, blockedReason,
   aimKind, cardOf, combatantBars, consentSplit, dialSpeak, fighterState, leavingName, looseThings, pointFields,
-  prefillFor, snapPoint, walkStep, weaponFor,
+  prefillFor, snapPoint, termsRows, walkStep, weaponFor,
 } from "../src/lib/world-cockpit.mjs";
 
 const MOUNT = readFileSync(fileURLToPath(new URL("../src/lib/world-cockpit-mount.mjs", import.meta.url)), "utf8");
@@ -337,26 +337,46 @@ test("how an act is aimed is read off the card, in three shapes", () => {
   } }))), null);
 });
 
-test("the room a crossing leaves is SHOWN and never sent", () => {
+test("the room an exit leaves is the ENTERED one, and it is shown and never sent", () => {
   // ⚑ THE RECEIPT THIS PROTECTS. The founder: exit "still requires you to select
   // a slug that you're exiting... which is very strange considering you have ONE
   // option." The obvious fix — fill the field in — was tried live on 2026-08-29
   // and the door REFUSED it: "rei is not within 'the-town/the-candle-vault' —
   // there is nothing to step out of", from a standpoint whose own portal IS that
-  // vault. The door's `within` for crossing back out is the entry it holds, not
+  // vault. The door's `within` for stepping back out is the entry it holds, not
   // the extent you are standing inside.
   //
-  // So the panel NAMES the room and the act omits the field, which is what the
-  // door's own words ask for: omit it and the innermost one is used.
+  // ⚑ AND THE SOURCE MOVED, WHICH IS THE BUG BENEATH ALL OF THAT. This read the
+  // containment chain's innermost entry and the founder's live card said FROM
+  // "the unlit cake" — a CREATURE he happened to be standing inside the
+  // footprint of. `standpoint.portal` is the door's own word for what you have
+  // ENTERED; `within` is geometry. Same disease the mark chip had, same cure,
+  // and `within` is left alone because the exit-prefill work reads it AS the
+  // containment chain and the two must not be conflated.
   const leaving = leavingName(VAULT);
   assert.equal(leaving.id, "the-town/the-candle-vault");
   assert.equal(leaving.label, "the candle vault", "deslugged the one way every id here is read");
-  assert.equal(leavingName({ within: [] }), null, "and a standpoint within nothing names nothing");
+  assert.equal(leavingName({ standpoint: {} }), null, "a standpoint that entered nothing names nothing");
+  // ⚑ THE CAN-FAIL CONTROL, and it is the founder's own screenshot as a fixture:
+  // a standpoint whose innermost CONTAINING mark is not the room it entered.
+  const inTheCake = {
+    ...VAULT,
+    within: [...(VAULT.within ?? []), { id: "the-town/the-unlit-cake" }],
+  };
+  assert.equal(inTheCake.within[inTheCake.within.length - 1].id, "the-town/the-unlit-cake",
+    "containment's innermost really is the creature here — without this the line below proves nothing");
+  assert.equal(leavingName(inTheCake).id, "the-town/the-candle-vault",
+    "…and the card still offers to leave the room, not the cake standing in it");
   // the panel prints it; `prefillFor` still refuses to fill a place field
   assert.deepEqual(prefillFor(cardFor(VAULT, "exit"), VAULT), {},
     "the field itself stays empty — that is the receipt, not an oversight");
-  assert.match(MOUNT, /rows\.push\(\["from", `<b>\$\{esc\(leaving\.label\)\}<\/b>`\]\);/,
-    "the room is a label on the panel");
+  // ⚑ AND IT IS A SENTENCE NOW, NOT A FROM/TO PAIR. The pair read "from the
+  // unlit cake, to back out" — the founder: "random text that makes no sense".
+  // "back out" was never a place; it was the same single fact as FROM, printed
+  // twice, once as a direction.
+  assert.match(MOUNT, /const line = leaving \? `step out of <b>\$\{esc\(leaving\.label\)\}<\/b>` : "";/,
+    "one plain line saying what the act does");
+  assert.doesNotMatch(MOUNT, /"back out"/, "and no direction masquerading as a destination");
 });
 
 test("a target is taken into the panel, not sent at the door", () => {
@@ -377,7 +397,12 @@ test("a self-directed act never opens a crosshair, and the site says so out loud
   // inside a field shared by the ones that do not. So this is a NAME, in the
   // drawer where the other name-keyed rulings live, and it carries the same
   // debt: a field of its own on the office side deletes this list.
-  assert.match(MOUNT, /const SELF_DIRECTED = \["guard", "loot", "pass"\];/);
+  // ⚑ `exit` JOINED THE LIST (founder, 2026-08-29). Its one field is the room to
+  // step out of, its own description says to omit it, and there is exactly one
+  // room you can be leaving — so the panel was asking a question with a single
+  // answer that it was then forbidden to send. Being flow-shaped is what stops
+  // the optional field being drawn, which is the whole of "exit takes no input".
+  assert.match(MOUNT, /const SELF_DIRECTED = \["guard", "loot", "pass", "exit"\];/);
   assert.match(MOUNT, /const kind = SELF_DIRECTED\.includes\(action\) \? "none" : aimKind\(s\.card\);/,
     "the name overrides the card's shape, and only in that direction");
   // the card really does look aimable, which is why the override is needed —
@@ -662,6 +687,30 @@ test("the sheet shows what fits on a line and folds the documents, dropping noth
     "a key nobody wrote a template for still reads at the door");
 });
 
+test("a term the door sent as a STRUCTURE is fine print, however short it is", () => {
+  // ⚑ FOUNDER, 2026-08-29, from the live confirm card: a raw JSON budget line
+  // was printing as prose on a party surface. Length alone let it through, and
+  // that is exactly why — a compact object is SHORT and has no newlines, so it
+  // sailed past a clip built to catch forty-line mark bodies and sat down beside
+  // the sentences. Shape is asked first now.
+  const budget = { cap_chars: 4000, per_mark_chars: 700 };
+  const { brief, fine } = consentSplit({ binds: "the-town/portal-ground", budget });
+  assert.deepEqual(brief.map((r) => r.key), ["binds"], "only the sentence reads as one");
+  assert.deepEqual(fine.map((r) => r.key), ["budget"], "and the structure goes to the expander");
+  // THE CAN-FAIL CONTROL. Under the old rule this object was brief: it is well
+  // inside the clip and single-line, so a length-only split would still put it
+  // on the card and this test would pass for the wrong reason without it.
+  const asText = JSON.stringify(budget);
+  assert.ok(asText.length <= 96 && !/[\r\n]/.test(asText),
+    "…and it is short and single-line, which is what a length-only rule was reading");
+  // NOTHING IS DROPPED, which is the assertion the whole sheet stands on.
+  assert.equal(brief.length + fine.length, 2, "every key the door sent is rendered somewhere");
+  assert.equal(fine[0].value, asText, "the structure is still there, whole, in its own words");
+  // and the row itself carries which kind it is, so no caller has to re-derive it
+  assert.equal(termsRows({ budget })[0].prose, false);
+  assert.equal(termsRows({ binds: "x" })[0].prose, true);
+});
+
 // ══ (6) THE WALK GRID ═══════════════════════════════════════════════════════
 
 /** The dial where the office actually puts it: FLAT on the portal block, beside
@@ -870,11 +919,26 @@ test("a panel that delivers terms is a consent sheet, whichever act it belongs t
   // the terms are asked for by OPENING the act, not only by hovering its seat
   assert.match(MOUNT, /if \(state\.open\) askTerms\(state\.open\);/,
     "so an act reached through the tray or by its number arrives with its terms");
-  assert.match(MOUNT, /function flavorHtml\(card\) \{/, "the room's own sentence leads");
-  assert.match(MOUNT, /const said = portalOf\(state\.answer\)\?\.body \|\| card\?\.blurb \|\| null;/,
-    "quoted from the record, never written here");
-  assert.match(MOUNT, /read them whole — you cannot be bound by law you were not shown at the door/,
-    "and the sentence that makes the fold non-negotiable is written on the disclosure itself");
+  assert.match(MOUNT, /function flavorHtml\(card\) \{/, "the act's own sentence leads");
+  // ⚑ AND THE ROOM'S SENTENCE IS THE ENTER ACT'S ALONE NOW (founder, 2026-08-29,
+  // from the live surface). A portal's `body` is the room saying what it is like
+  // to come IN, and this line handed it to every act whose door sent terms — so
+  // the cellar door's welcome, "Past the inner door the candles go up in
+  // tiers…", was recited on an EXIT confirm and again on a LIFT. Correct prose,
+  // wrong act, twice, from one composer gluing it onto all of them. Every other
+  // act falls through to its own blurb, which is the sentence saying what THAT
+  // act does.
+  assert.match(MOUNT, /const entering = ENTER_ACTS\.has\(card\?\.action\);\r?\n\s*const said = \(entering \? portalOf\(state\.answer\)\?\.body : null\) \|\| card\?\.blurb \|\| null;/,
+    "the threshold's welcome on entering, the act's own words otherwise — and both quoted, never written here");
+  assert.doesNotMatch(MOUNT, /const said = portalOf\(state\.answer\)\?\.body \|\| card\?\.blurb/,
+    "the unconditional reading is gone, not merely shadowed");
+  // ⚑ THE SUMMARY READS TWO WAYS NOW and the non-negotiable half is its tail. On
+  // a no-choice act every row folds (see the bare-card test below), so the
+  // disclosure opens by naming what it holds rather than with "read them whole"
+  // — but the sentence that makes folding legitimate at all is the same either
+  // way, and it is what this pins.
+  assert.match(MOUNT, /— you cannot be bound by law you were not shown at the door<\/summary>/,
+    "the sentence that makes the fold non-negotiable is written on the disclosure itself");
 });
 
 // ══ THE FIGHT, SIZED FOR THE ROOM (founder-ruled 2026-08-29, at the board) ═══
@@ -1026,8 +1090,13 @@ test("the confirm card is compact and sits on the right", () => {
   // WHAT WAS CUT: the act's blurb (the hover card carries it whole) and the
   // keys line, which a card with a confirm button under the cursor does not
   // need. WHO/FROM/TO and the confirm are what remain.
-  assert.match(MOUNT, /\$\{sheet \? flavorHtml\(c\) : ""\}\r?\n\s*\$\{flowRowsHtml\(c\)\}/,
-    "flavour only where a crossing is asking for consent; otherwise straight to the rows");
+  // ⚑ AND NOT ON A NO-CHOICE ACT EITHER (founder, 2026-08-29). His exit confirm
+  // led with four italic lines defining what an entry IS, above an act whose
+  // whole content is "leave" — the verbosity he objected to, in a different
+  // paragraph from the one fixed first. Flavour is for a card a reader has
+  // something to decide on.
+  assert.match(MOUNT, /\$\{sheet && !bare \? flavorHtml\(c\) : ""\}\r?\n\s*\$\{flowRowsHtml\(c\)\}/,
+    "flavour where consent is asked AND there is something to fill in; otherwise straight to the rows");
   assert.match(MOUNT, /\$\{sheet \? ready : ""\}/, "the keys line is a consent-sheet thing now");
   // the vertical is still MEASURED against the bar, which dodges the viewer's
   // own furniture — a fixed bottom would collide with whatever it dodged
@@ -1413,4 +1482,53 @@ test("the import list carries nothing it no longer calls", () => {
   assert.doesNotMatch(MOUNT, /^\s*pxToWorld, recentVoices, faceImageFor, briefWords,$/m,
     "not on the import line");
   assert.doesNotMatch(MOUNT, /briefWords\(/, "and not called anywhere in the file");
+});
+
+test("an exit tells the pane behind it, from the act's own answer", () => {
+  // ⚑ FOUNDER, 2026-08-29: he exited as rei, the door took it, and he was still
+  // looking at the inside of the vault. The viewer mounts the interior off
+  // occupancy, which it folds out of the enter-exit ledger on a clock — so
+  // between the act landing and the next read the page drew a room its reader
+  // had left. An act is the one moment we know the record changed and know which
+  // way, so the pane is told rather than left to find out.
+  assert.match(MOUNT, /function announceStoodOut\(left\) \{/);
+  assert.match(MOUNT, /w\.dispatchEvent\(new w\.CustomEvent\("pm:stood-out", \{ detail: \{ left \} \}\)\);/,
+    "the same guarded window-event shape as the dock and feed seams beside it");
+  assert.match(MOUNT, /if \(leftRoom\) announceStoodOut\(leftRoom\);/, "and only where a room was actually left");
+  // ⚑ READ BEFORE THE ACT, which is the whole of "drive from the answer": after
+  // it the standpoint is the new one and the room left is not in it any more.
+  assert.match(MOUNT, /const leftRoom = action === "exit" \? leavingName\(state\.answer\)\?\.id \?\? null : null;/,
+    "captured up front, by the same reader the panel printed to the reader");
+  // it is inside the ok branch — a refused exit left nobody anywhere
+  assert.match(MOUNT, /if \(res\.ok\) \{[\s\S]{0,3000}?if \(leftRoom\) announceStoodOut\(leftRoom\);/,
+    "a bounce moves no camera");
+});
+
+test("an act with nothing to fill in gets a bare card: who, one line, confirm", () => {
+  // ⚑ FOUNDER, 2026-08-29, on the live exit confirm: a threshold's prose, a
+  // from/to pair, an input whose own help text admitted it was optional, and
+  // four term rows — in front of a single unavoidable press. His shape: "exit
+  // takes NO input — WHO + one plain line + confirm. Terms stay reachable via
+  // the fine-print expander."
+  assert.match(MOUNT, /const bare = c\.fields\.every\(\(f\) => !f\.required && filled\[f\.name\] == null\);/,
+    "one reading of whether this panel has anything in it to fill");
+  assert.match(MOUNT, /const nothingToType = bare;/,
+    "and the keys line reads the same one, so the two cannot disagree");
+  assert.match(MOUNT, /const terms = shown \? consentHtml\(shown, c, \{ fold: bare \}\) : "";/,
+    "on a bare card the term rows fold");
+  // WHAT SURVIVES THE FOLD is the register he called GOOD — the dial facts. A
+  // fix that cost him "lifts to 8 · ends turn" would be a worse card than the
+  // one he complained about.
+  assert.match(MOUNT, /const shownRows = fold \? \[\] : brief;/);
+  assert.match(MOUNT, /\$\{speak \? `<span class="pmc-term"><b>this act<\/b> \$\{esc\(speak\)\}<\/span>` : ""\}/,
+    "the dial line is outside the fold, on every card");
+  // ⚑ AND NOTHING IS DROPPED — folding is showing, refusing to render is not.
+  // The whole of what the door sent goes into the expander, not just the half
+  // that did not fit.
+  assert.match(MOUNT, /const hidden = fold \? termsRows\(terms\) : fine;/,
+    "a folded card hides every row, and hides ALL of them — not brief-minus-fine");
+  assert.match(MOUNT, /\$\{hidden\.length \? `<details>/, "and the expander is rendered whenever there is anything in it");
+  // the orphan chrome goes too: a datalist belongs to an input
+  assert.match(MOUNT, /\$\{inputs \? datalist : ""\}/,
+    "no candidate list on a card with no field to attach it to");
 });

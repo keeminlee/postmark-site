@@ -308,6 +308,11 @@ export const COCKPIT_CSS = `
 }
 .pmc-flow-row .v { color: var(--pmc-ink); font-size: .84rem; }
 .pmc-flow-row .v b { color: var(--pmc-gold); font-weight: 400; }
+/* WHAT THIS ACT DOES, as a sentence — the one line that replaced a no-choice
+   act's from/to pair. Set as prose rather than as a labelled row, because it is
+   not a field with a value: it is the act, said. */
+.pmc-doing { margin: .3em 0 0; font: .88rem/1.4 Georgia, serif; color: var(--pmc-ink); }
+.pmc-doing b { color: var(--pmc-gold); font-weight: 400; }
 .pmc-form h3 { margin: 0 0 .2em; font: .8rem/1.3 ui-monospace, Consolas, monospace; letter-spacing: .12em; color: var(--pmc-gold); font-weight: normal; }
 .pmc-form label { display: block; margin: .6em 0 0; font-size: .72rem; color: var(--pmc-dim); }
 .pmc-form label .req { color: var(--pmc-gold); }
@@ -1342,7 +1347,13 @@ export function mountCockpit(o) {
    * `loot` and `pass` ride along on the founder's own parenthesis — they are
    * self-directed by the same reading, and neither should ever open a crosshair.
    */
-  const SELF_DIRECTED = ["guard", "loot", "pass"];
+  // ⚑ `exit` JOINS THEM (founder, 2026-08-29). Its one field is the room to step
+  // out of, the door's own description says to omit it and it will use the
+  // innermost, and there is exactly one room you can be leaving — so the panel
+  // was asking a question with one answer that it was then forbidden to send.
+  // Being flow-shaped is what stops the optional field being drawn at all, which
+  // is the whole of "exit takes no input".
+  const SELF_DIRECTED = ["guard", "loot", "pass", "exit"];
   /**
    * ACTS THAT MAY ONLY BE AIMED AT PARTICULAR KINDS OF TARGET, by name, for
    * exactly the reason SELF_DIRECTED is by name.
@@ -1945,6 +1956,13 @@ export function mountCockpit(o) {
     const filled = prefillFor(c, state.answer, { only: aimRoles(action) });
     const candidates = targetsFor(action);
     const listId = candidates.length ? `pmc-cand-${esc(action)}` : null;
+    // ⚑ AND IT IS ONLY EMITTED WHERE A FIELD COULD USE IT (see the render below).
+    // A datalist is invisible chrome that belongs to an input; with exit's field
+    // gone, the panel was still carrying a list of aim candidates — "the unlit
+    // cake — what stands against you here" — attached to nothing. Invisible on
+    // screen and very much there in the text, which is how the shot found it:
+    // the exit card was still naming the creature after the fix that took the
+    // creature off it.
     const datalist = listId
       ? `<datalist id="${listId}">${candidates.map((k) =>
           `<option value="${esc(k.value)}">${esc(k.label)}${k.why ? " — " + esc(k.why) : ""}</option>`).join("")}</datalist>`
@@ -2067,7 +2085,14 @@ export function mountCockpit(o) {
     // something: where the door has sent terms, being read is what the panel is
     // for. So terms decide the dress, and the fight plates are unaffected —
     // their classes send none.
-    const terms = shown ? consentHtml(shown, c) : "";
+    // ⚑ AN ACT WITH NOTHING TO FILL IN IS A DIFFERENT SHAPE OF CARD, and this is
+    // the flag that says so. The founder's exit confirm was a page of reading in
+    // front of a single unavoidable press: a threshold's prose, a from/to pair, a
+    // field, and four term rows, for an act whose whole content is "leave". His
+    // shape: WHO, one plain line, confirm — with the terms an expander away.
+    // Same test the panel already uses to know there is nothing to type.
+    const bare = c.fields.every((f) => !f.required && filled[f.name] == null);
+    const terms = shown ? consentHtml(shown, c, { fold: bare }) : "";
     const actorWords = state.acting === HUMAN_ACTOR ? "as yourself" : `as ${esc(state.acting ?? "—")}`;
     // NOTHING LEFT TO TYPE is a state worth saying out loud. Where the door made
     // every field optional and found its own target — which is most of the
@@ -2078,7 +2103,9 @@ export function mountCockpit(o) {
     // ON A TRIGGER IT IS THE WHOLE INSTRUCTION, so it says the keys rather than
     // a sentence, in the same words and the same corner the chat line already
     // uses. One surface, one way of saying "press this".
-    const nothingToType = c.fields.every((f) => !f.required && filled[f.name] == null);
+    // the same reading as `bare` above — one test, so the two cannot disagree
+    // about whether this panel has anything in it to fill
+    const nothingToType = bare;
     const ready = trigger
       ? `<span class="keys">↵ send · esc close</span>`
       : c.fields.length && nothingToType
@@ -2093,10 +2120,10 @@ export function mountCockpit(o) {
     // beside `shown`, because the inputs read it too.)
     return `<form class="pmc-plate pmc-form${trigger ? " pmc-trigger" : ""}${sheet}" data-form="${esc(action)}">
       <h3>${esc(action.toUpperCase())} <span style="color:var(--pmc-dim);letter-spacing:0">${actorWords}</span></h3>
-      ${sheet ? flavorHtml(c) : ""}
+      ${sheet && !bare ? flavorHtml(c) : ""}
       ${flowRowsHtml(c)}
       ${inputs}
-      ${sheet ? ready : ""}${datalist}
+      ${sheet ? ready : ""}${inputs ? datalist : ""}
       ${terms}${said}
       <div class="pmc-actions">
         <button type="submit" class="pmc-btn go">confirm</button>
@@ -2121,9 +2148,27 @@ export function mountCockpit(o) {
    * blurb: prose claiming to be law is the one thing this surface must not do.
    */
   function flavorHtml(card) {
-    const said = portalOf(state.answer)?.body || card?.blurb || null;
+    // ⚑ THE ROOM'S ENTRY PROSE RENDERS ON ENTER, AND ON NOTHING ELSE (founder,
+    // 2026-08-29, from the live surface). A portal's `body` is the room telling
+    // you what it is like to come IN — "Past the inner door the candles go up in
+    // tiers until you cannot see the top of them" — and this line handed it to
+    // every act whose door sent terms. So the founder read the cellar door's
+    // welcome on his EXIT confirm, and again on a LIFT: a room describing its
+    // threshold to somebody who is already inside and leaving, or kneeling over
+    // a fallen ally. Correct prose, wrong act, twice.
+    //
+    // ONE COMPOSER WAS GLUING IT ON, which is why the bug arrived on two
+    // unrelated acts at once and why the fix belongs here rather than in exit's
+    // card. Every other act falls through to its OWN blurb, which is the
+    // sentence saying what that act does.
+    const entering = ENTER_ACTS.has(card?.action);
+    const said = (entering ? portalOf(state.answer)?.body : null) || card?.blurb || null;
     return said ? `<p class="flavor">${esc(said)}</p>` : "";
   }
+  /** The acts a threshold's own welcome belongs to. A set rather than a string
+   *  compare, because the door has named this act two ways across the rename and
+   *  a page built either side of it must read the room the same. */
+  const ENTER_ACTS = new Set(["enter"]);
 
   /**
    * WHO · FROM · TO — the three rows the founder named, and only the ones that
@@ -2133,21 +2178,24 @@ export function mountCockpit(o) {
    *    only if appropriate, so for walk), and the CONFIRM button"
    *
    * WHO is the dock's own selection, so the panel and the faces cannot disagree
-   * about whose act this is. FROM appears only where there is a somewhere you
-   * are leaving: a point-aimed act (you are walking FROM here) and a crossing
-   * out (you are leaving THIS room). TO is whatever the target contributed —
-   * a thing's name, a pair of coordinates — or, for a crossing out, the room
-   * itself, which is the one act where FROM and TO are the same fact read from
-   * two sides and only one of them is worth printing.
+   * about whose act this is. FROM and TO belong to an act that goes somewhere:
+   * a point-aimed act is walking FROM here, and TO is whatever the target
+   * contributed.
    *
-   * ⚑ THE CROSSING'S ROOM IS SHOWN AND NEVER SENT. The founder's complaint was
-   * that it "requires you to select a slug… considering you have ONE option",
-   * and the obvious fix — fill the field in — was tried live and REFUSED by the
-   * door: its `within` for crossing back out is the entry it holds, not the
-   * extent you are standing inside. The door's own field says to omit it and it
-   * will use the innermost. So this row is a LABEL: it tells the reader what
-   * they are about to step out of, and the act goes out with the field absent,
-   * which is what the door asked for and what actually works.
+   * ⚑ AN EXIT HAS NEITHER, AND SAYS A SENTENCE INSTEAD (founder, 2026-08-29).
+   * It had both and both were wrong: FROM named a creature (see leavingName,
+   * where the source was fixed), and TO printed a DIRECTION rather than a place
+   * — which was in any case the same single fact as FROM, said a second time.
+   * A no-choice act does not have a from and a to; it has a thing it does.
+   *
+   * ⚑ THE ROOM IS STILL SHOWN AND STILL NEVER SENT. The founder's earlier
+   * complaint was that exit "requires you to select a slug… considering you have
+   * ONE option", and the obvious fix — fill the field in — was tried live and
+   * REFUSED by the door: its `within` for stepping back out is the entry it
+   * holds, not the extent you are standing inside. The door's own field says to
+   * omit it and it will use the innermost. So the sentence names the room for
+   * the reader and the act goes out with the field absent, which is what the
+   * door asked for and what actually works.
    */
   function flowRowsHtml(card) {
     const rows = [];
@@ -2163,18 +2211,26 @@ export function mountCockpit(o) {
       if (Number.isFinite(Number(sp?.x)) && Number.isFinite(Number(sp?.y))) {
         rows.push(["from", esc(`${Number(sp.x).toLocaleString()}, ${Number(sp.y).toLocaleString()}`)]);
       }
-    } else if (leaving) {
-      rows.push(["from", `<b>${esc(leaving.label)}</b>`]);
     }
 
-    // the target, where one has been taken; a crossing names the room it is
-    // leaving, which IS its destination read from the other side
-    const to = state.act?.action === card?.action ? state.act.label : (leaving ? "back out" : null);
+    // the target, where one has been taken
+    const to = state.act?.action === card?.action ? state.act.label : null;
     if (to) rows.push(["to", `<b>${esc(to)}</b>`]);
+
+    // ⚑ THE FROM/TO PAIR IS GONE FROM A LEAVING ACT (founder, 2026-08-29, on the
+    // live card — he called the pair random text that makes no sense). Both
+    // halves were wrong in different ways, and the reasons are in the doc block
+    // above. Neither sentence is quoted here on purpose: the falsifier for this
+    // asserts the old destination string appears nowhere in the file, and a
+    // comment naming it would be prose that reads as the rule.
+    //
+    // ONE PLAIN LINE REPLACES BOTH, because there is only one fact here and a
+    // reader wants it as a sentence: you are stepping out of this room.
+    const line = leaving ? `step out of <b>${esc(leaving.label)}</b>` : "";
 
     return `<div class="pmc-flow">${rows
       .map(([k, v]) => `<div class="pmc-flow-row"><span class="k">${k}</span><span class="v">${v}</span></div>`)
-      .join("")}</div>`;
+      .join("")}${line ? `<p class="pmc-doing">${line}</p>` : ""}</div>`;
   }
 
   /**
@@ -2187,17 +2243,31 @@ export function mountCockpit(o) {
    * the sentence that makes this non-negotiable is written on the disclosure
    * itself so the next editor cannot trade it away by accident.
    */
-  function consentHtml(terms, card) {
+  function consentHtml(terms, card, { fold = false } = {}) {
     const { brief, fine } = consentSplit(terms);
     if (!brief.length && !fine.length) return "";
-    const rows = brief.map((r) =>
+    // ⚑ ON A NO-CHOICE ACT EVERY ROW FOLDS, and the dial facts are what is left
+    // standing (founder, 2026-08-29). His shape for exit was "WHO + one plain
+    // line + confirm", with the terms reachable through the expander — and the
+    // register he named GOOD was "lifts to 8 · ends turn", which is the dial
+    // line rather than the term rows. So on an act with nothing to fill in, the
+    // card says what the act does and what it costs, and everything the door
+    // sent is one press away instead of four lines of it being read past.
+    //
+    // NOTHING IS DROPPED, and that is not a nicety: "you cannot be bound by law
+    // you were not shown at the door" is the sentence written on the disclosure
+    // itself, and folding is showing — refusing to render is not. The summary
+    // still says so, and it is still on the panel the hand has committed to.
+    const shownRows = fold ? [] : brief;
+    const hidden = fold ? termsRows(terms) : fine;
+    const rows = shownRows.map((r) =>
       `<span class="pmc-term"><b>${esc(r.key)}</b> ${esc(r.value)}</span>`).join("");
     const speak = dialSpeak(card, { weapon: heldWeapon() });
-    return `<div class="pmc-terms">
-      <b class="lede">what you are agreeing to</b>
+    return `<div class="pmc-terms${fold ? " is-folded" : ""}">
+      ${fold ? "" : `<b class="lede">what you are agreeing to</b>`}
       ${speak ? `<span class="pmc-term"><b>this act</b> ${esc(speak)}</span>` : ""}
       ${rows}
-      ${fine.length ? `<details><summary>read them whole — you cannot be bound by law you were not shown at the door</summary>${termsHtml(terms)}</details>` : ""}
+      ${hidden.length ? `<details><summary>${fold ? "what you are agreeing to" : "read them whole"} — you cannot be bound by law you were not shown at the door</summary>${termsHtml(terms)}</details>` : ""}
     </div>`;
   }
 
@@ -3808,7 +3878,25 @@ export function mountCockpit(o) {
    * `form` is optional: an act finished on the map has no panel to clear or to
    * re-enable, which is the only difference between the two callers.
    */
+  /**
+   * THE ONE WORD THIS SURFACE SAYS TO THE PANE BEHIND IT when an exit lands.
+   *
+   * Same shape as the dock and feed seams: a window CustomEvent, guarded, and
+   * dead wire on any page whose viewer does not listen. It carries the room that
+   * was left so a viewer showing somebody ELSE's standpoint can ignore it.
+   */
+  function announceStoodOut(left) {
+    const w = doc.defaultView;
+    if (!w || typeof w.CustomEvent !== "function") return;
+    try { w.dispatchEvent(new w.CustomEvent("pm:stood-out", { detail: { left } })); } catch { /* the clock will */ }
+  }
+
   async function sendAct(action, args, form = null) {
+    // READ BEFORE THE ACT, because after it the answer is the new standpoint and
+    // the room we left is no longer in it. `leavingName` is the same reader the
+    // panel printed — so the pane is told the room the reader was told, and the
+    // two cannot name different places.
+    const leftRoom = action === "exit" ? leavingName(state.answer)?.id ?? null : null;
     try {
       // The resident the door was READ as travels with every act, the human's
       // included: `as` says who acts, `handle` says whose standing the key is
@@ -3864,10 +3952,19 @@ export function mountCockpit(o) {
             autoSelectOnTurn();
           }
         }
-        // YOUR OWN LINE SHOULD NOT WAIT FOR THE TICK. The voices poll on a seven
-        // second clock, which is fine for hearing someone else and much too slow
-        // for seeing your own words land — the gesture would feel dropped. An act
-        // is the one moment we know the record just changed, so we ask.
+        // NOR SHOULD THE CAMERA. The viewer mounts the interior off occupancy,
+        // which it folds out of the enter-exit ledger on a clock — so the founder
+        // stepped out of the vault, the door took it, and he went on looking at
+        // the inside of the vault until a later read caught up. This is the one
+        // moment we KNOW the record changed and we know which way, so the pane is
+        // told now rather than left to find out.
+        //
+        // ⚑ FROM THE ACT'S OWN ANSWER, which is the founder's own instruction —
+        // `left` is the room the panel just said it was stepping out of, and the
+        // refreshed standpoint above is what decides whether we are outdoors at
+        // all. A page whose viewer booted without this seam simply keeps the
+        // clock it always had.
+        if (leftRoom) announceStoodOut(leftRoom);
         pullVoices();
       } else {
         const b = readBounce(res.body, res.status);

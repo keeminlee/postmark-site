@@ -104,7 +104,12 @@ export function beatLine(beat, opts = {}) {
     const round = num(beat.joins_round);
     return {
       tone: "join",
-      text: `${who} crosses in${init == null ? "" : ` — initiative ${init}`}${round && round > 1 ? `, at round ${round}` : ""}.`,
+      // ⚑ "STEPS IN", NOT THE FERRY WORD (founder-ruled: never that word for
+      // going through a door). It was printing in the live combat feed. And it
+      // is "steps in" rather than "enters" because the sentence for going the
+      // other way, four lines down, is already "steps out" — one pair, read
+      // together in the same scrolling column, so they had better rhyme.
+      text: `${who} steps in${init == null ? "" : ` — initiative ${init}`}${round && round > 1 ? `, at round ${round}` : ""}.`,
     };
   }
   if (act === "leave") {
@@ -358,13 +363,13 @@ export function beatsFromDelta(prev, next, opts = {}) {
   const nRound = num(next.wheel?.round);
   if (pRound != null && nRound != null && nRound > pRound) say("turn", `— round ${nRound} —`, `r${nRound}`);
 
-  // WHO ARRIVED. Crossing in IS joining on this ground, so a new row on the
+  // WHO ARRIVED. Stepping in IS joining on this ground, so a new row on the
   // wheel is somebody who just came through the door.
   const pOrder = new Set((prev.wheel?.order ?? []).map((j) => key(j.who)));
   for (const j of next.wheel?.order ?? []) {
     if (pOrder.has(key(j.who))) continue;
     const init = num(j.initiative);
-    say("join", `${actorName(j.who)} crosses in${init == null ? "" : ` — initiative ${init}`}.`, `j${j.who}`);
+    say("join", `${actorName(j.who)} steps in${init == null ? "" : ` — initiative ${init}`}.`, `j${j.who}`);
   }
 
   // WHAT THE HANDS TOOK. `hands` is the fold's per-hand block; a drop in hp is
