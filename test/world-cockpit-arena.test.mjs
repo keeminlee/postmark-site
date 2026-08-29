@@ -1532,3 +1532,36 @@ test("an act with nothing to fill in gets a bare card: who, one line, confirm", 
   assert.match(MOUNT, /\$\{inputs \? datalist : ""\}/,
     "no candidate list on a card with no field to attach it to");
 });
+
+test("the bare-card rule is a SHAPE, not a list of verbs the founder complained about", () => {
+  // ⚑ THREE NAMED INSTANCES — exit, then lift, then guard, on three separate
+  // reports. Their only shared thing is the composer that builds their confirm,
+  // which is why this is fixed once and asserted once rather than per verb.
+  //
+  // THE CAN-FAIL CONTROL IS THE ABSENCE OF A LIST. If any of these rules were
+  // keyed on an act's NAME, a fourth no-input act would arrive with the same
+  // faults and every other assertion here would still pass.
+  const flavour = /const entering = ENTER_ACTS\.has\(card\?\.action\);/.exec(MOUNT);
+  assert.ok(flavour, "the flavour rule reads a SET of entering acts");
+  assert.doesNotMatch(MOUNT, /const bare = [^\n]*(exit|guard|lift)/,
+    "the bare-card test names no verb");
+  assert.doesNotMatch(MOUNT, /consentHtml\(shown, c, \{ fold: [^)]*(exit|guard|lift)/,
+    "nor does the folding");
+  assert.match(MOUNT, /const bare = c\.fields\.every\(\(f\) => !f\.required && filled\[f\.name\] == null\);/,
+    "it is the card's own shape: nothing required, nothing prefilled");
+
+  // AND THE ONE PLACE A NAME IS UNAVOIDABLE says why, and is the narrowest kind.
+  // `SELF_DIRECTED` is a name-keyed list because the office hands all the arena
+  // acts ONE shared field object — the card genuinely cannot tell us — and that
+  // debt is written down where the list is.
+  assert.match(MOUNT, /const SELF_DIRECTED = \["guard", "loot", "pass", "exit"\];/);
+  assert.match(MOUNT, /THE CARD CANNOT TELL ME, which is the whole reason this list exists/,
+    "the reason the list exists is written beside it");
+
+  // ⚑ AND ENTRY PROSE IS THE ENTER ACT'S, WHICHEVER ACT ASKS. A no-input act is
+  // not the test for it — a fifth act with a field would have carried the room's
+  // welcome just as wrongly.
+  assert.match(MOUNT, /const ENTER_ACTS = new Set\(\["enter"\]\);/);
+  assert.match(MOUNT, /const said = \(entering \? portalOf\(state\.answer\)\?\.body : null\) \|\| card\?\.blurb \|\| null;/,
+    "gated on the ACT, not on whether the card happens to be bare");
+});

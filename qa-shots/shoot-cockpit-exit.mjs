@@ -108,45 +108,72 @@ console.log("\n── the exit card, from inside the vault ──");
   await page.close();
 }
 
-// ══ THE SAME DISEASE ON LIFT — the reason this was a class fix ══════════════
-console.log("\n── the lift confirm, which had it too ──");
-{
-  // the vault fixture is the one whose bar actually carries LIFT — a lift seat
-  // that is not on screen cannot prove a class fix reached its second act.
+// ══ THE CLASS, ACROSS EVERY NO-INPUT ACT ═══════════════════════════════════
+//
+// ⚑ THREE NAMED INSTANCES SETTLE A DIAGNOSIS. The founder reported the same two
+// faults on exit, then on lift, then on guard — three unrelated verbs whose only
+// shared thing is the composer that builds their confirm. So the assertions below
+// are written ONCE and run over the whole set: a fix that reached only the act
+// that was complained about is a fix that will be reported again tomorrow.
+const NO_INPUT = ["exit", "guard", "lift"];
+// which of them the door states a cost for — exit does not, and its silence is
+// the record's rather than something the cleanup took
+const DIALLED = new Set(["guard", "lift"]);
+
+for (const action of NO_INPUT) {
+  console.log(`
+── the ${action} confirm ──`);
   const page = await open("vault");
-  // LIFT IS AIMED, so its seat ARMS rather than opening a panel — the confirm
-  // only exists once a target has been taken. That is the act's own flow and
-  // not something to route around: the chip in the aim strip is the target a
-  // reader would press.
-  await page.click('.pmc-slot[data-action="lift"]');
+  // an AIMED act arms rather than opening — its confirm exists once a target is
+  // taken, which is the act's own flow and not something to route around
+  await page.click(`.pmc-slot[data-action="${action}"]`);
   await page.waitForTimeout(400);
   const chip = await page.$(".pmc-aim [data-aim], .pmc-aim button, .pmc-strip button");
   if (chip) { await chip.click(); await page.waitForTimeout(600); }
+  await page.waitForTimeout(400);
   const p = await page.evaluate(() => {
     const f = document.querySelector(".pmc-form");
     if (!f) return null;
     const r = f.getBoundingClientRect();
     return {
       txt: f.textContent.replace(/\s+/g, " ").trim(),
+      flavor: f.querySelector(".flavor")?.textContent?.trim() ?? null,
+      rows: [...f.querySelectorAll(".pmc-flow-row")].map((n) => n.querySelector(".k")?.textContent?.trim()),
+      fields: [...f.querySelectorAll("[data-field]")].map((n) => n.getAttribute("data-field")),
       terms: [...f.querySelectorAll(".pmc-term")].map((n) => n.textContent.replace(/\s+/g, " ").trim()),
+      details: [...f.querySelectorAll("details")].length,
+      // whether the DOOR gave this act any dials at all, read off the card's own
+      // fine print — so the assertion below can tell "the line is missing" from
+      // "there is nothing for a line to say"
       box: { x: r.x, y: r.y, width: r.width, height: r.height },
     };
   });
-  if (!p) {
-    note(false, "the lift panel did not open — the class fix is unproven on its second act");
-  } else {
-    note(!/Past the inner door/i.test(p.txt), "no entry flavor on a lift either");
-    note(!p.terms.some((t) => /cap_chars/.test(t)), "and no budget block on its card");
-    // AND THE REGISTER THE FOUNDER PRAISED IS UNTOUCHED — "lifts to 8 · ends
-    // turn" is the dial facts, and they are exactly what should stay.
-    note(p.terms.some((t) => /lifts to|ends turn/i.test(t)) || /lifts to|ends turn/i.test(p.txt),
-      `the dial facts still read (${JSON.stringify(p.terms.slice(0, 3))})`);
-    await crop(page, p.box, "02-lift-confirm.png");
-  }
+  if (!p) { note(false, `${action}: no confirm panel opened — the class is unproven on this act`); await page.close(); continue; }
+
+  note(!/Past the inner door/i.test(p.txt), `${action}: no room's ENTRY prose on it (flavor ${JSON.stringify(p.flavor)})`);
+  note(!p.terms.some((t) => /cap_chars/.test(t)), `${action}: no raw structure printed as a sentence`);
+  note(!/\{"/.test(p.txt.replace(/\s+/g, "")) || p.details > 0, `${action}: nothing JSON-shaped standing in prose`);
+  note(p.fields.length === 0, `${action}: nothing to fill in (${JSON.stringify(p.fields)})`);
+  note(p.rows.includes("who"), `${action}: it says WHO is acting`);
+  note(/confirm/i.test(p.txt), `${action}: and offers the press`);
+  note(p.details > 0, `${action}: the terms are one press away, which is where they live`);
+  // THE REGISTER THE FOUNDER CALLED GOOD survives the cleanup — "lifts to 8 ·
+  // ends turn" is the dial facts, and a fix that cost him those would be a worse
+  // card than the one he complained about.
+  // WHERE THE DOOR GAVE DIALS, the line survives the cleanup — that is the
+  // register the founder called GOOD, and a fix that cost him it would be a worse
+  // card than the one he complained about. Where it gave none, the absence is the
+  // RECORD's: exit states no cost, so there is nothing for a line to say, and the
+  // set below is read off the harness fixture rather than guessed at.
+  const dialled = DIALLED.has(action);
+  note(dialled === p.terms.some((t) => /^this act/.test(t)),
+    `${action}: dial facts ${dialled ? "kept" : "absent because the door states none"} (${JSON.stringify(p.terms.slice(0, 2))})`);
+  await crop(page, p.box, `0${NO_INPUT.indexOf(action) + 2}-${action}-confirm.png`);
   await page.close();
 }
 
 await browser.close();
-console.log(`\n${failures.length ? `FAILED (${failures.length})` : "all clear"}`);
+console.log(`
+${failures.length ? `FAILED (${failures.length})` : "all clear"}`);
 for (const f of failures) console.log(`  · ${f}`);
 process.exit(failures.length ? 1 : 0);
