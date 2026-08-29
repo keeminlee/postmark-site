@@ -256,6 +256,13 @@ export const COCKPIT_CSS = `
 .pmc-from { color: var(--pmc-dim); font-size: .7rem; margin: .35em 0 .5em; line-height: 1.45; }
 .pmc-row { font: .74rem/1.65 ui-monospace, Consolas, monospace; color: var(--pmc-dim); margin: 0; }
 .pmc-row b { color: var(--pmc-gold); font-weight: normal; }
+/* why a cold seat is cold — the card's first line when it has one, and the only
+   line on it in the accent, because it is the answer to the question a reader
+   hovering a greyed button actually has */
+.pmc-row.pmc-why {
+  font: .8rem/1.5 Georgia, serif; color: var(--pmc-accent);
+  margin: 0 0 .4em; padding-bottom: .4em; border-bottom: 1px solid rgba(255,255,255,.09);
+}
 
 /* ── the act form ── */
 /* The form lives in the overlay, not in the bar, for the scrollport reason above.
@@ -833,6 +840,7 @@ export function mountCockpit(o) {
     encSnap: null,     // the encounter block the last delta was derived against
     beatSeq: null,     // highest beat seq drawn FROM A TAIL; null = no tail has ever been seen
     lastTurn: undefined, // the wheel's turn as of the last read; undefined = never read one
+    hover: null,       // the id of the cockpit figure under the pointer, if any
   };
 
   const root = doc.createElement("div");
@@ -1031,8 +1039,14 @@ export function mountCockpit(o) {
   // ── the bar ───────────────────────────────────────────────────────────────
   /** The card's CONTENTS. The `.pmc-card` box itself is a single host element in
    *  the overlay, filled on hover — see showCard. */
-  function cardHtml(card) {
+  function cardHtml(card, { why = null } = {}) {
     if (!card) return "";
+    // WHY THIS SEAT IS COLD, first, above everything the act would cost if it
+    // were warm. A reader hovering a greyed seat has exactly one question and
+    // the numbers are not the answer to it. The sentence is the door's where
+    // the clock refused, and the ruling's where the room holds nothing this act
+    // may be aimed at (`narrowAim`) — never written here either way.
+    const cold = why ? `<p class="pmc-row pmc-why">${esc(why)}</p>` : "";
     // ⚑ THE CARD LEADS WITH THE NUMBERS NOW (founder, 2026-08-29: "the 'terms'
     // in the hover and click for the actions is NOT helpful to a human … bare
     // fields … re-write to be concise, and just give info like it would in a
@@ -1095,7 +1109,7 @@ export function mountCockpit(o) {
     // is a surface a hand has already committed to and can actually open — see
     // fineHtml, called from formHtml. The terms still arrive before the act
     // binds, at the door where it binds.
-    return `${line}${blurb}${voice}<p class="pmc-from">press for the fine print</p>`;
+    return `${cold}${line}${blurb}${voice}<p class="pmc-from">${why ? "the seat lights when it can be taken" : "press for the fine print"}</p>`;
   }
 
   /**
@@ -1270,6 +1284,40 @@ export function mountCockpit(o) {
    * self-directed by the same reading, and neither should ever open a crosshair.
    */
   const SELF_DIRECTED = ["guard", "loot", "pass"];
+  /**
+   * ACTS THAT MAY ONLY BE AIMED AT PARTICULAR KINDS OF TARGET, by name, for
+   * exactly the reason SELF_DIRECTED is by name.
+   *
+   * FOUNDER, live at the board 2026-08-29: "you can only select the unlit cake
+   * using the LIFT action." The act's whole law is spending your entire turn
+   * getting a downed ALLY back on their feet — the office's own sentence — so
+   * the creature is the one thing in the room it can never be aimed at, and it
+   * was the only thing being offered.
+   *
+   * WHY IT COULD NOT BE DERIVED, and this is the same wall as SELF_DIRECTED: the
+   * office hands all five arena acts ONE shared `object` field with ONE shared
+   * description, whose prose names which act takes a handle and which takes a
+   * mark id. Every aimed act therefore has an identical shape on the wire and
+   * an identical aim set followed from it. The honest fix is the office
+   * describing each act's own field — then `role` is read off the door's
+   * sentence and this table is deleted. Asked for, alongside SELF_DIRECTED's.
+   *
+   * `roles` are `actCandidates`' — what the answer says a thing is standing as.
+   * `idle` is what the seat says when the room holds none of them: a seat that
+   * armed a crosshair over an empty set would be a dead end wearing a
+   * crosshair, and one that armed the WRONG target is what he actually hit.
+   * An act absent from this table is offered every candidate, unchanged.
+   */
+  const AIM_ROLES = {
+    lift: { roles: ["downed"], idle: "nobody is down" },
+  };
+  /** The roles a named act may be aimed at, or null for "anything the answer
+   *  names". One reader, so the crosshair, the datalist, the prefill and the
+   *  seat's own greying cannot come to disagree about what an act is for. */
+  const aimRoles = (action) => AIM_ROLES[action]?.roles ?? null;
+  /** …and the same question asked of the live answer: what it may be aimed at
+   *  HERE, narrowed. */
+  const targetsFor = (action) => aimTargets(state.answer, { only: aimRoles(action) });
   // ⚑ GIVE AND TAKE ARE OFF THE ROW AGAIN (founder, live: "let's also just
   // remove the give and take buttons as it's confusing; we can just rely on the
   // agents to pick up the weapon/upgrade").
@@ -1390,6 +1438,33 @@ export function mountCockpit(o) {
 
   /** The bar, folded. One reading, used by drawBar and by the keyboard — a
    *  second one is how a number key came to open a seat that was not on the row. */
+  /**
+   * A CHOOSY ACT WITH NOTHING TO AIM AT IS GREYED, WITH ITS REASON.
+   *
+   * Founder's own shape for it, and it is the shape the clock already uses:
+   * "the button sits disabled with its reason, not armed with a wrong target."
+   * So this dresses the seat exactly as a turn-gate does — `blocked` carries the
+   * sentence, `enabled` goes false — and every surface that already reads those
+   * two fields (the seat's grey, its label, the tray's line, the card, and
+   * `openSeat`'s own refusal to arm a disabled seat) tells the same story with
+   * no edit of its own.
+   *
+   * IT TOUCHES ONLY THE ACTS `AIM_ROLES` NAMES. An act nobody has ruled on has
+   * no roles, and this returns its slot untouched — including the acts whose
+   * targets are simply absent tonight, which stay a panel the way they always
+   * did. And an act the DOOR has already blocked keeps the door's reason: the
+   * clock's refusal is the more urgent fact and it is not overwritten here.
+   */
+  function narrowAim(s) {
+    const roles = aimRoles(s.action);
+    if (!roles || !s.afforded || !s.enabled || !s.card) return s;
+    // The door gave it nowhere to aim, so there is no aim set to be empty. A
+    // ruling about targets has nothing to say about an act that takes none.
+    if (!aimField(s.card)) return s;
+    if (aimTargets(state.answer, { only: roles }).length) return s;
+    return { ...s, enabled: false, blocked: AIM_ROLES[s.action].idle };
+  }
+
   function foldedBar() {
     const bar = barSlots(state.answer, { acting: state.acting });
     const fold = barFold(bar, {
@@ -1400,7 +1475,11 @@ export function mountCockpit(o) {
       gate: PHASE_GATE,
       phase: state.answer?.encounter_detail?.phase ?? null,
     });
-    return { ...fold, blocked: bar.blocked };
+    return {
+      shown: fold.shown.map(narrowAim),
+      folded: fold.folded.map(narrowAim),
+      blocked: bar.blocked,
+    };
   }
 
   function drawBar() {
@@ -1772,11 +1851,15 @@ export function mountCockpit(o) {
     // it — two panels, one of them explaining an act the reader had already
     // chosen. An armed act's panel is the strip; the card has said its piece.
     if (state.open || state.aiming) return;
-    const all = barSlots(state.answer, { acting: state.acting });
-    const s = [...all.fixed, ...all.tray].find((x) => x.action === slotEl.getAttribute("data-action"));
+    // ⚑ THE SAME SLOTS THE ROW WAS DRAWN FROM, which is a fix as much as a
+    // rewiring: this read `barSlots` raw, so a seat the row had greyed hovered
+    // as though it were live. A grey seat is the one a reader hovers to find
+    // out WHY, and the card was the one surface that could not say.
+    const { shown, folded } = foldedBar();
+    const s = [...shown, ...folded].find((x) => x.action === slotEl.getAttribute("data-action"));
     if (!s?.card) return;
     askTerms(s.action);
-    host.innerHTML = cardHtml(s.card);
+    host.innerHTML = cardHtml(s.card, { why: s.blocked });
     host.hidden = false;
     placeAbove(host, slotEl);
   }
@@ -1796,8 +1879,12 @@ export function mountCockpit(o) {
     // deliberately narrow — one open slot and one named value, or nothing — and
     // the candidates it declined to choose between are offered as a datalist
     // instead, so the reader gets one keystroke rather than a guess.
-    const filled = prefillFor(c, state.answer);
-    const candidates = actCandidates(state.answer);
+    // …and both of them read the act's OWN aim set, narrowed where it is choosy
+    // (`AIM_ROLES`). The datalist is the typed half of the same question the
+    // crosshair asks, so a name the map would refuse must not be offered in the
+    // box either — the founder found the two disagreeing from the map's side.
+    const filled = prefillFor(c, state.answer, { only: aimRoles(action) });
+    const candidates = targetsFor(action);
     const listId = candidates.length ? `pmc-cand-${esc(action)}` : null;
     const datalist = listId
       ? `<datalist id="${listId}">${candidates.map((k) =>
@@ -2120,7 +2207,7 @@ export function mountCockpit(o) {
    */
   function aimHtml() {
     const { action } = state.aiming;
-    const targets = aimTargets(state.answer);
+    const targets = targetsFor(action);
     const loose = targets.filter((t) => !t.at);
     const placed = targets.length - loose.length;
     const tell = placed
@@ -2478,7 +2565,51 @@ export function mountCockpit(o) {
     // same two hex values the stylesheet's arena block holds; if that block
     // moves, this is the second place to move.
     const ember = "#e2603f";
-    return `<g class="pmc-adversary" transform="translate(${at.x} ${at.y})">
+    // ── AT REST: THE RING AND THE BAR. ON HOVER: THE WORDS. ──────────────────
+    //
+    // FOUNDER-RULED 2026-08-29, the same sitting that put the name there: take
+    // the name text off the figure, and move the numbers INTO the bar, revealed
+    // on hover — "to keep the map clean". So the standing picture is a ring and
+    // a rail, and both sentences about the creature arrive together when a
+    // reader asks for them by pointing.
+    //
+    // ⚑ THE NAME IS HIDDEN, NOT DELETED, and that is the one place I did not
+    // do exactly as asked. The ask assumed the name would still be on "the
+    // hover plate/title where it always was" — but `<title>` on this layer
+    // cannot fire: the whole token layer is `pointer-events: none` (see
+    // ensureTokenLayer), so no browser tooltip has ever appeared over this
+    // figure and none would appear over it now. Deleting the plate outright
+    // would have left the map with an orange ring and no way at all to learn
+    // what it is, which is the exact complaint the plate was built to answer.
+    // So hover reveals the plate AND the numbers, and the plate is the hover
+    // plate the ruling names. The wheel up top still carries the name always.
+    //
+    // WHAT COUNTS AS HOVER IS THE HIT-TEST, NOT `:hover`, for the same reason —
+    // a layer that takes no pointer events has no CSS hover state either. The
+    // pointer's position is run through `thingAt`, the SAME reader the click
+    // uses, so what lights under the cursor and what a press would resolve to
+    // are one answer by construction rather than two that agree today.
+    const hot = state.hover === a.id;
+    // ⚑ THE RAIL TAKES THE ROOM THE NUMBERS NEED, rather than the numbers being
+    // shrunk to fit the rail — measured, and the measurement is why. The resting
+    // rail is thirteen screen pixels; digits sized to sit inside that render at
+    // ten, which is the size the first hp rails shipped at and could not be read
+    // on a night map. So the rail thickens while it is being read and goes back
+    // to a slim mark when it is not, which is also the reveal saying it happened.
+    const bh = hot ? r * 0.42 : r * 0.26;
+    const numbers = hasBar && hot
+      // INSIDE THE RAIL, not beside it: the bar is 2.6 radii wide and the
+      // numbers are seven characters, so they fit with room to spare. Painted
+      // with a dark halo under a pale fill (`paint-order`) because the text
+      // crosses BOTH of the rail's grounds — the lit ember on the left of the
+      // fill line and the dark ground on its right — and one flat colour is
+      // unreadable over one of them whichever colour is chosen.
+      ? `<text x="0" y="${by + bh / 2}" text-anchor="middle" dominant-baseline="central"
+           font-size="${r * 0.3}" font-family="ui-monospace, Consolas, monospace"
+           paint-order="stroke" stroke="#0d1015" stroke-width="${r * 0.07}" stroke-linejoin="round"
+           fill="#fdf1ea">${a.hp}/${a.of}</text>`
+      : "";
+    return `<g class="pmc-adversary${hot ? " hot" : ""}" transform="translate(${at.x} ${at.y})">
       <defs><radialGradient id="pmc-adv-glow">
         <stop offset="45%" stop-color="${ember}" stop-opacity="0.34"/>
         <stop offset="100%" stop-color="${ember}" stop-opacity="0"/>
@@ -2489,9 +2620,10 @@ export function mountCockpit(o) {
         stroke-dasharray="${r * 0.9} ${r * 0.42}"/>
       <circle cx="0" cy="0" r="${r * 0.52}" fill="${ember}" fill-opacity="0.22"/>
       ${hasBar ? `<g class="pmc-adv-hp">
-        <rect x="${-bw / 2}" y="${by}" width="${bw}" height="${r * 0.26}" rx="${r * 0.13}"
+        <rect x="${-bw / 2}" y="${by}" width="${bw}" height="${bh}" rx="${bh / 2}"
           fill="#0d1015" fill-opacity="0.8" stroke="${ember}" stroke-width="${r * 0.03}" stroke-opacity="0.55"/>
-        <rect x="${-bw / 2}" y="${by}" width="${bw * frac}" height="${r * 0.26}" rx="${r * 0.13}" fill="${ember}"/>
+        <rect x="${-bw / 2}" y="${by}" width="${bw * frac}" height="${bh}" rx="${bh / 2}" fill="${ember}"/>
+        ${numbers}
       </g>` : ""}
       ${(() => {
         // THE RING GETS A NAME (founder, 2026-08-29: "it's not clear at ALL
@@ -2500,16 +2632,24 @@ export function mountCockpit(o) {
         // plate carries the label the WHEEL carries, in the wheel's own ember,
         // so the seat up top and the ring on the floor read as one creature.
         // Sized like the speech plates — screen-constant, its own ground.
+        //
+        // ⚑ AND IT IS NOW THE HOVER PLATE rather than a standing label — the
+        // ruling above. The `· hp/of` it used to carry is gone from here too:
+        // the numbers moved into the rail, and printing them twice on the same
+        // gesture would be the doubling the ruling was against.
         const nm = String(a.label ?? "");
-        if (!nm) return "";
+        if (!nm || !hot) return "";
         const fs = r * 0.42;
         const wErr = Math.max(nm.length, 6) * fs * 0.62 + fs * 1.2;
-        const ny = by + r * 0.45;
+        // clear of the rail at its READING thickness — the plate and the
+        // thickened rail only ever appear together, so it is measured against
+        // the thick one and never against the slim mark it grew from
+        const ny = by + bh + r * 0.2;
         return `<g class="pmc-adv-name">
           <rect x="${-wErr / 2}" y="${ny}" width="${wErr}" height="${fs * 1.5}" rx="${fs * 0.4}"
             fill="#0d1015" fill-opacity="0.88" stroke="${ember}" stroke-opacity="0.55" stroke-width="${r * 0.03}"/>
           <text x="0" y="${ny + fs * 1.08}" text-anchor="middle" font-size="${fs}"
-            fill="#f0c9b8" font-family="Georgia, serif">${esc(nm)}${hasBar ? ` · ${a.hp}/${a.of}` : ""}</text>
+            fill="#f0c9b8" font-family="Georgia, serif">${esc(nm)}</text>
         </g>`;
       })()}
       <title>${esc(a.label)}${hasBar ? ` — ${a.hp} of ${a.of}` : ""}${a.body ? ` — ${esc(a.body)}` : ""}</title>
@@ -2596,7 +2736,7 @@ export function mountCockpit(o) {
   function drawAim() {
     if (!state.aiming || !tokenLayer || !gridNow()) return "";
     const u = unitsPerPx();
-    return aimTargets(state.answer).map((t) => {
+    return targetsFor(state.aiming.action).map((t) => {
       if (!t.at) return "";
       const at = worldToPx(gridNow(), t.at);
       if (!at) return "";
@@ -2694,17 +2834,7 @@ export function mountCockpit(o) {
       g.innerHTML = aiming;
       tokenLayer.appendChild(g);
     }
-    // WHAT STANDS AGAINST YOU DRAWS FIRST, under everything else on the floor.
-    // It is the biggest thing in the room and the one people walk over to; a
-    // ring painted last would put its glow across the faces of everyone fighting
-    // it, which is the opposite of what the ring is for.
-    const adversary = drawAdversary();
-    if (adversary) {
-      const g = doc.createElementNS(NS, "g");
-      g.setAttribute("class", "pmc-adversary-layer");
-      g.innerHTML = adversary;
-      tokenLayer.appendChild(g);
-    }
+    advRing();
     // whatever is on the floor draws next, so a face always paints over an object
     const loose = drawLoose();
     if (loose) {
@@ -2783,6 +2913,33 @@ export function mountCockpit(o) {
    * player is watching to decide their next act — speech fades on the door's
    * clock, and hit points do not.
    */
+  /**
+   * WHAT STANDS AGAINST YOU, DRAWN FIRST — under everything else on the floor.
+   * It is the biggest thing in the room and the one people walk over to; a ring
+   * painted last would put its glow across the faces of everyone fighting it,
+   * which is the opposite of what the ring is for.
+   *
+   * A LAYER OF ITS OWN, LIKE THE RAILS, because hovering it now changes what it
+   * says. Repainting the whole token layer to reveal two lines of text would
+   * rebuild every figure on the map on every pointer move; this rebuilds one
+   * ring, and only when the answer to "is the pointer on it" actually changes.
+   */
+  function advRing() {
+    if (!tokenLayer) return;
+    tokenLayer.querySelector(".pmc-adversary-layer")?.remove();
+    const html = drawAdversary();
+    if (!html) return;
+    const g = doc.createElementNS(NS, "g");
+    g.setAttribute("class", "pmc-adversary-layer");
+    g.innerHTML = html;
+    // ITS PLACE IN THE STACK IS KEPT BY NAME, not by being appended at the right
+    // moment — a repaint triggered by a pointer arrives long after the figures
+    // it must stay beneath. Everything the cockpit draws after the ring is
+    // listed here; only the aim rings go under it, and they are not.
+    const above = tokenLayer.querySelector(".pmc-loose-layer, .pmc-token, .pmc-combatant-layer, .pmc-voice-layer");
+    if (above) tokenLayer.insertBefore(g, above); else tokenLayer.appendChild(g);
+  }
+
   function rails() {
     if (!tokenLayer) return;
     tokenLayer.querySelector(".pmc-combatant-layer")?.remove();
@@ -3345,7 +3502,7 @@ export function mountCockpit(o) {
     // reading of the field.
     const kind = SELF_DIRECTED.includes(action) ? "none" : aimKind(s.card);
     if (kind === "point") { arm(action, "point", pointFields(s.card)); return; }
-    if (kind === "thing" && aimable(s, state.answer)) { arm(action, "thing", aimField(s.card)); return; }
+    if (kind === "thing" && aimable(s, state.answer, { only: aimRoles(action) })) { arm(action, "thing", aimField(s.card)); return; }
     disarm(false);
     state.act = null;
     state.open = state.open === action ? null : action;
@@ -3892,6 +4049,40 @@ export function mountCockpit(o) {
     sendAct(seatFor.action, { [field.name]: thing.id });
   }
 
+  /**
+   * WHAT THE POINTER IS RESTING ON, out on the painting.
+   *
+   * The hover half of the ruling that took the creature's name off the map: the
+   * ring is bare until you point at it, and pointing at it is what asks for its
+   * name and its numbers.
+   *
+   * IT IS THE CLICK'S OWN READER, `thingAt`, and that is the point rather than a
+   * convenience — the figure that LIGHTS under the cursor and the figure a press
+   * would land on are then one answer, and cannot drift into two that happen to
+   * agree. It is also the only reader available: the token layer takes no
+   * pointer events, so neither `:hover` nor `<title>` can fire on anything drawn
+   * there, and a coordinate is all there is to go on.
+   *
+   * IT DOES ALMOST NOTHING, ALMOST ALWAYS. No creature on this ground and it
+   * returns on the first line; the answer unchanged and it returns on the third.
+   * Only the pointer actually passing the ring's edge repaints, and it repaints
+   * one layer.
+   */
+  const onMapHover = (ev) => {
+    const cool = () => { if (state.hover !== null) { state.hover = null; advRing(); } };
+    if (!adversaryOf(state.answer)) { cool(); return; }
+    const svg = liveSvg();
+    // Over the cockpit's own furniture is not over the map, even where the two
+    // overlap — the bar hangs across the bottom of the painting, and a pointer
+    // resting on a seat is not resting on whatever is behind it.
+    if (!svg || !svg.contains?.(ev.target) || ev.target?.closest?.("[data-pmc]")) { cool(); return; }
+    const thing = thingAt(pointAt(ev));
+    const id = thing?.adversary ? thing.id : null;
+    if (id === state.hover) return;
+    state.hover = id;
+    advRing();
+  };
+
   // The map's clicks, in the CAPTURE phase — so a click on one of our own
   // figures can be taken before the viewer sees it, and every other click is
   // left entirely alone. We stop propagation ONLY for a figure this cockpit
@@ -3936,7 +4127,12 @@ export function mountCockpit(o) {
       // ── AIMED AT A THING ── only the things the answer placed are targets;
       // a click on anything else disarms, which is the ruling's own escape
       // hatch ("Escape or clicking elsewhere disarms").
-      const target = thing ? aimTargets(state.answer).find((t) => t.value === thing.id) : null;
+      // ⚑ AND THE NARROWED SET IS WHAT A CLICK RESOLVES AGAINST, not the wide
+      // one. The ring is drawn from `targetsFor` and this is the gesture that
+      // answers the ring — reading a wider list here would let a click land on
+      // a figure the crosshair never lit, which is the founder's own bug with
+      // the aim strip telling the truth and the map lying.
+      const target = thing ? targetsFor(state.aiming.action).find((t) => t.value === thing.id) : null;
       if (target) takeAim({ [state.aiming.field.name]: target.value }, target.label);
       else disarm();
       return;
@@ -3968,6 +4164,9 @@ export function mountCockpit(o) {
     // for.
   };
   doc.addEventListener("click", onMapClick, true);
+  // On the DOCUMENT for the same reason the click is, and passive because it
+  // never answers a gesture — it only decides what a figure says about itself.
+  doc.addEventListener("pointermove", onMapHover, { passive: true });
 
   // ── the voices, on their own clock ────────────────────────────────────────
   //
@@ -4209,6 +4408,7 @@ export function mountCockpit(o) {
     if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
     if (encTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(encTimer);
     doc.removeEventListener("click", onMapClick, true);
+    doc.removeEventListener("pointermove", onMapHover);
     root.removeEventListener("error", onImgError, true);
     camera?.disconnect();
     furniture?.disconnect();

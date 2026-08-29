@@ -302,8 +302,8 @@ test("the cockpit takes only the clicks on figures it drew itself", () => {
 // fails against the pre-ruling file — the strings did not exist — which is the
 // flip.
 test("pressing an aimable seat arms it instead of opening a panel", () => {
-  assert.match(mount, /if \(kind === "thing" && aimable\(s, state\.answer\)\) \{ arm\(action, "thing", aimField\(s\.card\)\); return; \}/,
-    "openSeat arms when the card says the act is aimed at a thing and the answer names one");
+  assert.match(mount, /if \(kind === "thing" && aimable\(s, state\.answer, \{ only: aimRoles\(action\) \}\)\) \{ arm\(action, "thing", aimField\(s\.card\)\); return; \}/,
+    "openSeat arms when the card says the act is aimed at a thing and the answer names one it may be aimed at");
   // ⚑ AND AN ACT AIMED AT NOTHING FALLS STRAIGHT THROUGH TO THE PANEL, which is
   // the founder's own complaint answered: "guard asks you to pick a target on
   // the map... should just be a confirm button." The shape is the card's —

@@ -829,8 +829,8 @@ test("the hover is a glance and the fine print is somewhere a hand can reach", (
   // gesture: hover gets the glance, the panel gets the detail.
   assert.match(MOUNT, /\.pmc-card \{[\s\S]{0,400}?pointer-events: none;/,
     "the card still takes no pointer");
-  assert.match(MOUNT, /return `\$\{line\}\$\{blurb\}\$\{voice\}<p class="pmc-from">press for the fine print<\/p>`;/,
-    "so the card is the throw, the sentence, the weapon's own words, and a pointer to the rest");
+  assert.match(MOUNT, /return `\$\{cold\}\$\{line\}\$\{blurb\}\$\{voice\}<p class="pmc-from">\$\{why \? "the seat lights when it can be taken" : "press for the fine print"\}<\/p>`;/,
+    "so the card is why it is cold, the throw, the sentence, the weapon's own words, and a pointer to the rest");
   assert.match(MOUNT, /function fineHtml\(card\) \{/, "and the rest is rendered on the panel");
   assert.match(MOUNT, /\$\{trigger && !sheet \? "" : fineHtml\(c\)\}/,
     "which is where formHtml puts it — on every panel except the tight fight plate, and on that one too once it is delivering terms");
@@ -1020,4 +1020,179 @@ test("the confirm card is compact and sits on the right", () => {
   // own furniture — a fixed bottom would collide with whatever it dodged
   assert.match(MOUNT, /if \(form\) placeAbove\(form, root\.querySelector\("\.pmc-bar"\)\);/,
     "only the horizontal is pinned");
+});
+
+// ══ (7) AN ACT THAT MAY ONLY BE AIMED AT SOME OF WHAT IS HERE ═══════════════
+//
+// FOUNDER, live at the board 2026-08-29: "you can only select the unlit cake
+// using the LIFT action." The act whose whole law is spending your entire turn
+// getting a downed ALLY back on their feet was offering the creature — because
+// every aimed act was offered every candidate the answer named.
+//
+// THE FIXTURE'S NAME FOR IT IS `raise`, and the arithmetic never learns either
+// spelling: the narrowing is asked for in ROLES, which is what a candidate is
+// standing as. The mount holds the name, the way it holds every other one.
+
+test("a candidate carries the role it came in as", () => {
+  // The can-fail control for everything below: if the fixture stopped holding
+  // one of each, the filters would pass by having nothing to exclude.
+  const roles = aimTargets(VAULT).map((t) => t.role);
+  assert.deepEqual(roles, ["adversary", "downed", "loose"],
+    "the vault holds a creature, someone down, and a thing on the floor — one of each");
+});
+
+test("an act narrowed to the downed is offered exactly them", () => {
+  const targets = aimTargets(VAULT, { only: ["downed"] });
+  assert.deepEqual(targets.map((t) => t.value), ["vermillion"],
+    "the one ally who is down, and nobody else");
+  assert.ok(!targets.some((t) => t.value === "the-town/the-unlit-cake"),
+    "the creature is not in the set — which is the founder's bug, stated");
+  // …and the unplaced target survives the narrowing, which is the whole reason
+  // an unplaced target is kept at all: someone down is the likeliest figure the
+  // answer cannot place, and dropping them empties this set exactly when it
+  // matters most.
+  assert.equal(targets[0].at, null, "offered by name, with no coordinate invented for them");
+});
+
+test("the wide set is untouched, so the acts that fight still find the creature", () => {
+  // The other half, and the one a regression here would break silently: an act
+  // nobody has ruled on is offered everything, exactly as before.
+  const wide = aimTargets(VAULT).map((t) => t.value);
+  assert.deepEqual(wide, ["the-town/the-unlit-cake", "vermillion", "vermillion/the-long-knife"]);
+  assert.deepEqual(aimTargets(VAULT, { only: null }).map((t) => t.value), wide, "no narrowing is no narrowing");
+  assert.deepEqual(aimTargets(VAULT, { only: [] }).map((t) => t.value), wide, "and an empty list is not 'narrow to nothing'");
+  assert.ok(aimable(slotFor(VAULT, "swing"), VAULT), "the swinging act still has something to aim at");
+});
+
+test("with nobody down there is nothing for a narrowed act to be aimed at", () => {
+  const noneDown = {
+    ...VAULT,
+    encounter: {
+      ...VAULT.encounter,
+      order: VAULT.encounter.order.map((a) => (a.down ? { ...a, down: false, hp: { now: 14, max: 20 } } : a)),
+    },
+  };
+  assert.deepEqual(aimTargets(noneDown, { only: ["downed"] }), [], "the set is empty");
+  assert.equal(aimable(slotFor(noneDown, "raise"), noneDown, { only: ["downed"] }), false,
+    "so the seat cannot be armed — no crosshair over an empty room");
+  // ⚑ AND THE CREATURE IS STILL ABSENT FROM IT, which is the assertion that
+  // fails against the old file in BOTH states: unnarrowed, this set was the
+  // whole candidate list and the cake led it.
+  assert.ok(!aimTargets(noneDown, { only: ["downed"] }).some((t) => t.value === "the-town/the-unlit-cake"));
+  // the can-fail control: the cake is genuinely there to be wrongly offered
+  assert.ok(aimTargets(noneDown).some((t) => t.value === "the-town/the-unlit-cake"),
+    "…and it is present in the wide set, so its absence above is a filter and not an empty fixture");
+  assert.equal(aimable(slotFor(noneDown, "swing"), noneDown), true, "while an unnarrowed act is unaffected");
+});
+
+test("a narrowed act is never prefilled with a target its crosshair would refuse", () => {
+  // The typed half of the same question. With one ally down the box fills with
+  // THEM; in a room holding only the creature the unnarrowed prefill filled
+  // with the creature, which is the founder's bug in the box rather than on
+  // the map.
+  const card = cardFor(VAULT, "raise");
+  assert.deepEqual(prefillFor(card, VAULT, { only: ["downed"] }), { object: "vermillion" },
+    "one lawful value, so there is no choice being made");
+  const alone = {
+    ...VAULT,
+    nearby: VAULT.nearby.filter((n) => !n.loose),
+    encounter: { ...VAULT.encounter, order: VAULT.encounter.order.filter((a) => !a.down) },
+  };
+  assert.deepEqual(prefillFor(card, alone), { object: "the-town/the-unlit-cake" },
+    "unnarrowed, the creature is the one candidate and would be typed in for you");
+  assert.deepEqual(prefillFor(card, alone, { only: ["downed"] }), {},
+    "narrowed, nothing is filled in");
+});
+
+test("the seat that can be aimed at nobody is greyed with its reason, not armed", () => {
+  // FOUNDER'S OWN SHAPE: "when nobody is down, the button sits disabled with
+  // its reason (like the turn gating does), not armed with a wrong target."
+  //
+  // The ruling is name-keyed and lives in the mount with its siblings, so these
+  // are source pins — the same discipline SELF_DIRECTED's are held to.
+  assert.match(MOUNT, /const AIM_ROLES = \{\r?\n\s*lift: \{ roles: \["downed"\], idle: "nobody is down" \},\r?\n\s*\};/,
+    "one table, the act's name and the roles it may be aimed at");
+  assert.match(MOUNT, /return \{ \.\.\.s, enabled: false, blocked: AIM_ROLES\[s\.action\]\.idle \};/,
+    "and an empty aim set dresses the seat exactly as a turn-gate does");
+  assert.match(MOUNT, /if \(aimTargets\(state\.answer, \{ only: roles \}\)\.length\) return s;/,
+    "keyed on the live answer, so it warms again the moment someone goes down");
+  // ⚑ THE DOOR'S OWN REFUSAL OUTRANKS IT. A seat the clock has already blocked
+  // keeps the clock's sentence — the more urgent fact, and the one the gate
+  // line above the bar is explaining.
+  assert.match(MOUNT, /if \(!roles \|\| !s\.afforded \|\| !s\.enabled \|\| !s\.card\) return s;/);
+  assert.match(MOUNT, /shown: fold\.shown\.map\(narrowAim\),\r?\n\s*folded: fold\.folded\.map\(narrowAim\),/,
+    "every seat the row draws goes through it, on the row and in the tray");
+  // and the reason is READABLE: the hover card leads with it, which is the one
+  // surface a greyed seat could not speak from before
+  assert.match(MOUNT, /host\.innerHTML = cardHtml\(s\.card, \{ why: s\.blocked \}\);/);
+  assert.match(MOUNT, /const cold = why \? `<p class="pmc-row pmc-why">\$\{esc\(why\)\}<\/p>` : "";/);
+});
+
+test("one aim set, read by every surface that asks what an act is for", () => {
+  // The map's rings, the strip's chips, the click that resolves a target, the
+  // datalist and the prefill. They disagreed once — the founder found it from
+  // the map's side — and one reader is how they cannot again.
+  assert.match(MOUNT, /const targetsFor = \(action\) => aimTargets\(state\.answer, \{ only: aimRoles\(action\) \}\);/,
+    "one reader");
+  assert.match(MOUNT, /return targetsFor\(state\.aiming\.action\)\.map\(\(t\) => \{/, "the rings on the painting");
+  assert.match(MOUNT, /const targets = targetsFor\(action\);/, "the strip's chips");
+  assert.match(MOUNT, /const target = thing \? targetsFor\(state\.aiming\.action\)\.find\(\(t\) => t\.value === thing\.id\) : null;/,
+    "and the click that resolves one");
+  assert.match(MOUNT, /const filled = prefillFor\(c, state\.answer, \{ only: aimRoles\(action\) \}\);\r?\n\s*const candidates = targetsFor\(action\);/,
+    "with the typed half reading the same set");
+  assert.doesNotMatch(MOUNT, /aimTargets\(state\.answer\)\./, "and no surface reads the wide set behind its back");
+});
+
+// ══ (8) THE CREATURE'S TOKEN: THE RING AND THE RAIL, THEN THE WORDS ═════════
+//
+// FOUNDER, 2026-08-29: take the name text off the entity token, and move the hp
+// numbers INTO the bar, revealed on HOVER only — "to keep the map clean". At
+// rest: the ring and the bar. On hover: the bar shows its numbers.
+
+test("the creature's numbers live in its own rail, and only when asked for", () => {
+  assert.match(MOUNT, /const hot = state\.hover === a\.id;/, "one flag, the pointer's answer");
+  assert.match(MOUNT, /const numbers = hasBar && hot/, "the numbers are drawn only while it is hovered");
+  assert.match(MOUNT, /fill="#fdf1ea">\$\{a\.hp\}\/\$\{a\.of\}<\/text>/, "and they are the door's two numbers, over the rail");
+  // INSIDE the rail's own group, which is what "into the hp bar" means — a
+  // number beside the bar would be the name plate again wearing digits.
+  assert.match(MOUNT, /<g class="pmc-adv-hp">[\s\S]{0,900}?\$\{numbers\}\r?\n\s*<\/g>/,
+    "inside the rail's group, not beside it");
+  // ⚑ AND THE RAIL IS UNCONDITIONAL. The ruling moved the numbers, not the bar:
+  // at rest the figure is still a ring and a rail.
+  assert.match(MOUNT, /\$\{hasBar \? `<g class="pmc-adv-hp">/, "the rail itself is drawn whenever the door gives numbers");
+});
+
+test("the name comes back on hover rather than standing on the map", () => {
+  assert.match(MOUNT, /if \(!nm \|\| !hot\) return "";/, "no name text on the resting figure");
+  assert.match(MOUNT, /fill="#f0c9b8" font-family="Georgia, serif">\$\{esc\(nm\)\}<\/text>/,
+    "and the plate that returns carries the name alone");
+  assert.doesNotMatch(MOUNT, /\$\{esc\(nm\)\}\$\{hasBar \? ` · \$\{a\.hp\}\/\$\{a\.of\}` : ""\}/,
+    "the numbers it used to carry are gone from it — they are in the rail now");
+  // ⚑ WHY IT IS HIDDEN RATHER THAN DELETED, and this is the one place the ask
+  // was not followed literally: the ask assumed `<title>` would still name the
+  // figure, and `<title>` cannot fire here — the whole layer takes no pointer
+  // events, so no browser tooltip has ever appeared over it. Deleting the plate
+  // outright would leave an orange ring a reader cannot identify at all.
+  assert.match(MOUNT, /tokenLayer\.setAttribute\("pointer-events", "none"\);/,
+    "the layer takes no pointer events, which is why :hover and <title> are both unavailable");
+});
+
+test("what lights under the cursor is what a press would land on", () => {
+  // The hover is resolved by the CLICK's own reader, against a coordinate —
+  // the only reader available on a layer that takes no pointer events, and the
+  // reason the highlight and the gesture cannot drift apart.
+  assert.match(MOUNT, /const thing = thingAt\(pointAt\(ev\)\);\r?\n\s*const id = thing\?\.adversary \? thing\.id : null;/,
+    "the pointer's position through the same hit-test the click uses");
+  assert.match(MOUNT, /if \(id === state\.hover\) return;/, "and nothing repaints while the answer is unchanged");
+  assert.match(MOUNT, /doc\.addEventListener\("pointermove", onMapHover, \{ passive: true \}\);/,
+    "on the document, like every other listener that reads the living painting");
+  assert.match(MOUNT, /doc\.removeEventListener\("pointermove", onMapHover\);/, "and given back at destroy");
+  // ONE LAYER REPAINTS, not the whole map: a pointer move that rebuilt every
+  // figure would be a redraw of the room on every pixel of travel.
+  assert.match(MOUNT, /function advRing\(\) \{/, "the ring is a layer of its own");
+  assert.match(MOUNT, /const above = tokenLayer\.querySelector\("\.pmc-loose-layer, \.pmc-token, \.pmc-combatant-layer, \.pmc-voice-layer"\);/,
+    "which keeps its place under the figures by name, not by when it was appended");
+  // and the cockpit's own furniture is not the map — the bar hangs across the
+  // bottom of the painting, and a pointer on a seat is not on what is behind it
+  assert.match(MOUNT, /ev\.target\?\.closest\?\.\("\[data-pmc\]"\)\) \{ cool\(\); return; \}/);
 });
