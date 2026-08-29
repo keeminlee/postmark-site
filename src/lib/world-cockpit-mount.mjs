@@ -2740,19 +2740,31 @@ export function mountCockpit(o) {
     paint();
   }
 
+  /**
+   * A KEY THIS SURFACE CONSUMED DOES NOT REACH THE VIEWER'S.
+   *
+   * Both bind `keydown` on the document, and the viewer's Escape clears ITS own
+   * armed state — so one press was putting down the cockpit's panel and the
+   * viewer's selection together, and a reader who pressed Escape to cancel an
+   * aim also lost whatever the map had selected underneath. Stopping the
+   * propagation of a key we acted on is the whole fix; a key we ignore is left
+   * entirely alone, so the viewer keeps every Escape the cockpit had no use for.
+   */
+  const eatKey = (ev) => { ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation?.(); };
+
   function onKey(ev) {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
     const t = ev.target;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) {
-      if (ev.key === "Escape" && state.open) { state.open = null; state.said = null; formValues = null; paint(); }
+      if (ev.key === "Escape" && state.open) { eatKey(ev); state.open = null; state.said = null; formValues = null; paint(); }
       return;
     }
     // ESCAPE PUTS DOWN WHATEVER IS UP, innermost first. An armed act is the
     // innermost of the three now: it is the state where the whole map has
     // become a control, so it should be the first thing one press gives back.
-    if (ev.key === "Escape" && state.aiming) { disarm(); return; }
-    if (ev.key === "Escape" && state.tray) { state.tray = false; paint(); return; }
-    if (ev.key === "Escape" && state.open) { state.open = null; state.act = null; state.said = null; formValues = null; paint(); return; }
+    if (ev.key === "Escape" && state.aiming) { eatKey(ev); disarm(); return; }
+    if (ev.key === "Escape" && state.tray) { eatKey(ev); state.tray = false; paint(); return; }
+    if (ev.key === "Escape" && state.open) { eatKey(ev); state.open = null; state.act = null; state.said = null; formValues = null; paint(); return; }
     if (!/^[1-9]$/.test(ev.key)) return;
     const n = Number(ev.key);
     // ⚑ THE NUMBERS FOLLOW THE ROW, not the door's whole list. `barSlots` keys
@@ -3237,13 +3249,25 @@ export function mountCockpit(o) {
   paint();
   speakActAs();
 
+  // ⚑ A TORN-DOWN COCKPIT STAYS TORN DOWN. `update` destroys itself when the
+  // answer says this standpoint is no longer inside portal ground — but the
+  // CALLER still holds the handle, and a later update on it ran `paint()` over
+  // a detached root and re-appended a token layer to the living svg: map
+  // figures with no bar under them, owned by nothing, cleaned up by nobody.
+  //
+  // Guarded here rather than only at the call site, because every caller has
+  // the same hazard and only one of them would have remembered.
+  let dead = false;
   return {
     update(answer) {
+      if (dead) return;
       state.answer = answer;
       if (!cockpitShows(answer)) { this.destroy(); return; }
       paint();
     },
     destroy() {
+      if (dead) return;
+      dead = true;
       doc.removeEventListener("keydown", onKey);
       (doc.defaultView ?? globalThis).removeEventListener?.("resize", onResize);
       if (voiceTimer != null) (doc.defaultView ?? globalThis).clearInterval?.(voiceTimer);
