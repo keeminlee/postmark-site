@@ -670,6 +670,13 @@ export function termsRows(terms) {
   return Object.entries(terms).map(([key, value]) => ({
     key,
     value: typeof value === "string" ? value : JSON.stringify(value),
+    // ⚑ WHETHER THIS ROW IS PROSE OR A STRUCTURE WEARING PROSE'S CLOTHES. A term
+    // the door sent as an object is stringified above so nothing is ever lost —
+    // but `{"cap_chars":4000,"per_mark_chars":700}` is not a sentence, and it was
+    // being printed as one on the confirm card of a party surface (founder,
+    // 2026-08-29, screenshot). The stringify stays; what changes is that callers
+    // can now tell the two apart, and the raw shape has a home to go to.
+    prose: typeof value === "string",
   }));
 }
 
@@ -1368,10 +1375,27 @@ export function aimKind(card) {
  * the field absent, which is what the door asked for and what actually works.
  */
 export function leavingName(answer) {
-  const within = Array.isArray(answer?.within) ? answer.within : [];
-  const id = within[within.length - 1]?.id;
-  return typeof id === "string" && id
-    ? { id, label: id.split("/").pop().replace(/-/g, " ") }
+  // ⚑ THE PORTAL, NOT `within`, AND THIS WAS A LIVE BUG (founder, 2026-08-29:
+  // the exit card's FROM read "the unlit cake"). `within` is the GEOMETRIC
+  // containment chain — every extent your coordinates fall inside — and its
+  // innermost entry is whatever happens to be smallest under your feet. rei was
+  // standing in the cake's footprint, so the card offered to step out of the
+  // cake: a creature, which is not a room and was never entered.
+  //
+  // THE SAME DISEASE THE MARK CHIP HAD, and the same cure, in the founder's own
+  // words there: "it has to be the mark you're currently viewing the INTERIOR OF
+  // (aka ENTERED). geometric containment smallest is NOT appropriate for this."
+  // `standpoint.portal` is the door's own word for what you have ENTERED, and
+  // `portalOf` already reads it — one reader, so the exit card and the chip
+  // cannot name two different rooms.
+  //
+  // ⚑ AND `within` IS NOT MERELY WRONG HERE, IT IS SPOKEN FOR: the exit-prefill
+  // work leans on it as the containment chain it is. The two must not be
+  // conflated, which is why this reaches for the portal rather than filtering
+  // the chain down to something room-shaped.
+  const portal = portalOf(answer);
+  return portal
+    ? { id: portal.id, label: portal.id.split("/").pop().replace(/-/g, " ") }
     : null;
 }
 
@@ -1686,7 +1710,14 @@ export function consentSplit(terms) {
   const brief = [], fine = [];
   for (const r of termsRows(terms)) {
     const v = String(r.value ?? "");
-    (v.length <= CONSENT_CLIP && !/[\r\n]/.test(v) ? brief : fine).push(r);
+    // ⚑ A NON-PROSE TERM IS ALWAYS FINE PRINT, whatever its length, and the
+    // length test alone is exactly why one reached the card: a compact JSON
+    // object is SHORT and has no newlines, so `{"cap_chars":4000,…}` sailed
+    // through a clip meant to catch forty-line mark bodies and printed itself
+    // beside sentences. Shape first, then length — the expander is where a
+    // structure belongs, and nothing is dropped by sending it there.
+    const readable = r.prose && v.length <= CONSENT_CLIP && !/[\r\n]/.test(v);
+    (readable ? brief : fine).push(r);
   }
   return { brief, fine };
 }

@@ -665,6 +665,30 @@
     toast: { binds: "a-hall/guest", means: "a-hall/toast", schedule: "settles at the crossing" },
     say: { binds: "the-town/resident", means: "the-town/say", schedule: "settles at the crossing" },
     enter: { binds: "the-town/resident", means: "the-town/enter" },
+    // ⚑ THE EXIT CARD THE FOUNDER WAS LOOKING AT, 2026-08-29, staged so the fix
+    // has something to be a fix OF. Two things here are the bug and not the
+    // fixture's invention: the door really does send exit its terms (so the
+    // panel dresses as a consent sheet, which is what pulled the room's ENTRY
+    // flavor onto an exit), and one of those terms really is a STRUCTURE — the
+    // budget block, which was printing as raw JSON in prose on a party surface.
+    // Both are the door's shape, quoted; the fix is on this side of the wire.
+    exit: {
+      binds: "the-town/resident",
+      means: "the-town/enter — an entry is one passage written; exit writes the next",
+      budget: { cap_chars: 4000, per_mark_chars: 700 },
+    },
+    // AND LIFT CARRIES THEM TOO, which is why the founder read the same two
+    // faults on a second, unrelated act and why the fix belongs to the card
+    // CLASS rather than to exit's card. Staged here so the shot can prove both
+    // halves at once: the entry flavor and the budget block are gone from a
+    // lift, and the register he called GOOD — the dial facts, "lifts to 8 · ends
+    // turn" — is untouched. A fix that quietly cost him that would be a worse
+    // card than the one he complained about.
+    lift: {
+      binds: "the-town/resident",
+      means: "the-town/lift — an ally on their feet is worth a turn",
+      budget: { cap_chars: 4000, per_mark_chars: 700 },
+    },
   };
   async function readTerms(action) {
     await new Promise((r) => setTimeout(r, 250));
