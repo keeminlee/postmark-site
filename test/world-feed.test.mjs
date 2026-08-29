@@ -21,7 +21,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  actorName, atBottom, beatLine, beatsFromAct, beatsFromDelta, leafName, mergeFeed, voiceEntries,
+  actorName, atBottom, beatLine, beatsFromAct, beatsFromDelta, beatsFromTail,
+  leafName, mergeFeed, tailWatermark, voiceEntries,
 } from "../src/lib/world-feed.mjs";
 
 // ── the names ───────────────────────────────────────────────────────────────
@@ -151,7 +152,118 @@ test("crossing in is joining, and the open is the room's own event", () => {
     "the joined block names the acting resident, which the office does not put in it");
 });
 
-// ── everybody else's turns, derived ─────────────────────────────────────────
+// ── everybody else's turns, WHOLE: the tail ─────────────────────────────────
+//
+// `encounter_detail.beats_tail` — the fold's own beats, same shape as the ones
+// the act answer already carries. SITE-DEFINED CONTRACT at the time of writing:
+// checked against origin/bday-law 883e77d on 2026-08-29 and `publicState`
+// carries no tail yet, so these fixtures are the contract made visible, in the
+// office's own beat spelling.
+
+const tailOf = (...beats) => ({ phase: "afoot", live: true, beats_tail: beats });
+
+test("where the door sends a tail, every hand's line is whole and attributed", () => {
+  // The sentence the receiving voice was standing in for.
+  const { entries } = beatsFromTail(tailOf(
+    { seq: 40, actor: "rei", act: "strike", to_hit: 15, damage: 6, boss_left: 41, round: 3 },
+    { seq: 41, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "rei",
+      to_hit: 17, damage: 7, downed: true, dropped: "the-town/the-good-lighter", round: 3 },
+  ), { now: 1000, adversary: "the-town/the-unlit-cake" });
+  assert.equal(entries.length, 2);
+  assert.equal(entries[0].text, "rei strikes the unlit cake — 6. 41 left.");
+  assert.equal(entries[1].text, "the unlit cake strikes rei — 7. rei is down. the good lighter clatters to the floor.");
+  assert.equal(entries[1].who, "the-town/the-unlit-cake", "the hand is named, because the door named it");
+});
+
+test("a tail is read in seq order however it arrives", () => {
+  // Deliberately out of order — the door's window is a list, and nothing in the
+  // contract promises it is sorted. The watermark must be the window's TOP and
+  // not merely its last member, or one unsorted answer sets the watermark
+  // BACKWARDS and every beat between there and the real top is drawn twice.
+  const detail = tailOf(
+    { seq: 42, actor: "rei", act: "pass" },
+    { seq: 40, actor: "wright", act: "guard" },
+    { seq: 41, actor: "wright", act: "lift", lifted: "rei", to: 8 },
+  );
+  const { entries, watermark } = beatsFromTail(detail, { now: 1 });
+  assert.deepEqual(entries.map((e) => e.seq), [40, 41, 42]);
+  assert.equal(watermark, 42);
+  assert.equal(tailWatermark(detail), 42);
+});
+
+test("the watermark is the window's top, and `since` is exclusive", () => {
+  const detail = tailOf(
+    { seq: 40, actor: "rei", act: "pass" },
+    { seq: 41, actor: "wright", act: "guard" },
+    { seq: 42, actor: "rei", act: "pass" },
+  );
+  assert.equal(tailWatermark(detail), 42);
+  const { entries, watermark } = beatsFromTail(detail, { since: 41, now: 1 });
+  assert.deepEqual(entries.map((e) => e.seq), [42], "41 was already drawn, so it is not drawn again");
+  assert.equal(watermark, 42);
+  // and with no watermark yet, the whole window comes back — which is what a
+  // caller seeding itself wants to be handed and then throw away
+  assert.equal(beatsFromTail(detail, { now: 1 }).entries.length, 3);
+});
+
+test("no tail and an empty tail are different sentences", () => {
+  // ⚑ Only the first should send a caller to the delta fallback. Collapsing them
+  // would make a door that HAS beats and simply has none yet look like a door
+  // that cannot carry them.
+  assert.equal(beatsFromTail({ phase: "afoot" }, { now: 1 }), null, "no tail at all is null");
+  assert.equal(tailWatermark({ phase: "afoot" }), null);
+  const empty = beatsFromTail(tailOf(), { now: 1 });
+  assert.deepEqual(empty, { entries: [], watermark: null }, "a present-but-empty tail is an answer, not an absence");
+});
+
+test("a beat reaching the page twice is one line, whichever road it came by", () => {
+  // Your own strike arrives whole in the act answer, then again in the next
+  // tail. The id is the seq, so the merge drops the second — no coordination
+  // between the two roads is needed, and none exists.
+  const mine = beatsFromAct({ beat: { seq: 31, actor: "rei", act: "strike", damage: 6, boss_left: 54 } }, { now: 1 });
+  const feed = mergeFeed([], mine);
+  const later = beatsFromTail(tailOf(
+    { seq: 31, actor: "rei", act: "strike", damage: 6, boss_left: 54 },
+    { seq: 32, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "rei", damage: 5 },
+  ), { now: 2 });
+  const merged = mergeFeed(feed, later.entries);
+  assert.deepEqual(merged.map((e) => e.seq), [31, 32], "the repeat is dropped and the new beat is appended");
+});
+
+test("the round rule survives on the tail road, and both roads spell it the same", () => {
+  // It was a delta-only line at first, so switching to the tail quietly lost the
+  // one divider in the feed — caught by looking at the two shots side by side.
+  const detail = tailOf(
+    { seq: 44, actor: "rei", act: "pass", round: 3 },
+    { seq: 45, actor: "wright", act: "guard", round: 4 },
+    { seq: 46, actor: "rei", act: "pass", round: 4 },
+  );
+  const { entries } = beatsFromTail(detail, { since: 44, now: 1 });
+  assert.deepEqual(entries.map((e) => e.text), ["— round 4 —", "wright guards — the next hit lands at half.", "rei passes."]);
+  assert.equal(entries[0].id, "d:r4", "the same id the delta's round rule carries, so a deploy that flips roads mid-fight cannot draw it twice");
+
+  // Never on the window's first beat — nothing here knows whether it opened its
+  // round or is merely the oldest thing the door still remembers.
+  const first = beatsFromTail(tailOf({ seq: 44, actor: "rei", act: "pass", round: 3 }), { now: 1 });
+  assert.deepEqual(first.entries.map((e) => e.tone), ["plain"]);
+
+  // The boundary is read across the WHOLE window, including beats already drawn
+  // — walking only the fresh ones would put a rule at the top of every batch.
+  const already = beatsFromTail(detail, { since: 45, now: 1 });
+  assert.deepEqual(already.entries.map((e) => e.text), ["rei passes."], "round 4 was already opened and is not re-announced");
+});
+
+test("a tail beat with no seq is not silently dropped", () => {
+  // seq is the dedupe key, so a beat without one gets a per-arrival id rather
+  // than being filtered out — but it also cannot be compared to the watermark,
+  // which is why the filter demands one. Stated here so the trade is deliberate:
+  // a seq-less beat in a TAIL is skipped, and a seq-less beat in an ACT ANSWER
+  // (where there is no watermark to compare against) still gets its line.
+  assert.equal(beatsFromTail(tailOf({ actor: "rei", act: "pass" }), { now: 1 }).entries.length, 0);
+  assert.equal(beatsFromAct({ beat: { actor: "rei", act: "pass" } }, { now: 1 }).length, 1);
+});
+
+// ── everybody else's turns, derived: THE FALLBACK ───────────────────────────
 
 const encounter = (over) => ({
   phase: "afoot", live: true,

@@ -464,6 +464,9 @@
   // ?fight=1    walk the encounter forward on every refresh, so the DELTA
   //             derivation — everybody else's turns, which is the half the read
   //             door cannot hand over whole — actually produces lines here
+  // ?tail=1     serve `encounter_detail.beats_tail` beside it (bday-law's field,
+  //             site-defined contract until it lands), so the WHOLE-attributed
+  //             road can be shot beside the derived one and the two compared
   const params = new URLSearchParams(location.search);
   if (params.get("rail")) document.body.classList.add("has-rail");
 
@@ -497,6 +500,18 @@
    * would: the cake takes damage, a hand takes damage, somebody goes down and
    * their weapon falls, then a lift.
    */
+  // ?tail=1 ALSO serves `encounter_detail.beats_tail` — the fold's own beats,
+  // office spelling — so the whole-attributed-line road can be looked at beside
+  // the derived one. The tail is CUMULATIVE, as a last-N window is, which is
+  // what exercises the reader's watermark rather than just its formatter.
+  const BEATS = [
+    [{ seq: 40, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 16, damage: 5, round: 3 }],
+    [{ seq: 41, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 14, damage: 5, round: 3 }],
+    [{ seq: 42, actor: "jetto-of-starforge", act: "strike", to_hit: 18, damage: 11, weapon_bonus: 3, with: "the-town/the-good-lighter", boss_left: 38, round: 3 },
+     { seq: 43, actor: "vermillion", act: "cast", to_hit: 4, missed: true, round: 3 },
+     { seq: 44, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 19, damage: 2, downed: true, dropped: "the-town/the-good-lighter", round: 3 }],
+    [{ seq: 45, actor: "vermillion", act: "lift", lifted: "jetto-of-starforge", to: 8, round: 4 }],
+  ];
   const SCRIPT = [
     { adversary: 49, hands: { "jetto-of-starforge": 7, vermillion: 4 }, downed: [], dropped: [], acts: 12 },
     { adversary: 49, hands: { "jetto-of-starforge": 2, vermillion: 4 }, downed: [], dropped: [], acts: 13 },
@@ -520,6 +535,7 @@
         wheel: { round: s.round ?? 3, turn: "keeminlee", order: (answer.encounter?.order ?? []).map((a) => ({ who: a.id, kind: a.kind })) },
         hands: Object.fromEntries(Object.entries(s.hands).map(([h, hp]) => [h, { hp, of: 20, downed: s.downed.includes(h), guarding: false, gone: false }])),
         downed: s.downed, dropped: s.dropped, looted: [], attempts: 0, acts: s.acts,
+        ...(params.get("tail") ? { beats_tail: BEATS.slice(0, step + 1).flat() } : {}),
       },
     };
   }

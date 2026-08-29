@@ -26,19 +26,35 @@
 // actor, the die, the damage and the consequence, so `beatLine` can write a
 // real sentence with a real subject.
 //
-// EVERYBODY ELSE'S DO NOT. `publicState` — the encounter block the READ half
-// answers — says out loud that it withholds them: "`beats`, `ignored` and
-// `rolls` are the fold's full working and they are NOT carried here: an answer
-// that hands back every roll ever thrown in the room is an answer nobody
-// reads." There is no other door for them at this pin. So another player's turn
-// reaches this page only as a CHANGE IN STATE, and `beatsFromDelta` writes what
-// the change can honestly support: an effect with no hand on it.
+// EVERYBODY ELSE'S ARRIVE BY ONE OF TWO ROADS, and which one is the door's
+// choice rather than ours.
 //
-// ⚑ WHICH IS WHY THOSE LINES ARE IN THE RECEIVING VOICE. "rei takes 7" is what
-// two reads can prove; "the cake strikes rei for 7" is not — the hand is not in
-// the answer, and a log that guessed at it would be inventing the one fact a
-// player most wants to trust. The day the read carries beats, `beatsFromDelta`
-// is what gets deleted, and `beatLine` already writes the better sentence.
+// ① THE TAIL, where the door sends one. `encounter_detail.beats_tail` is the
+// last stretch of the fold's own beats in the same shape as your own, so
+// `beatsFromTail` writes WHOLE, ATTRIBUTED lines for everybody in the room —
+// "the unlit cake strikes rei — 7. rei is down; the good lighter clatters to
+// the floor." This is the road, wherever it exists.
+//
+// ② THE DELTA, where it does not. `publicState` — the encounter block the read
+// half has answered until now — says out loud that it withholds beats:
+// "`beats`, `ignored` and `rolls` are the fold's full working and they are NOT
+// carried here: an answer that hands back every roll ever thrown in the room is
+// an answer nobody reads." Against such a door another player's turn reaches
+// this page only as a CHANGE IN STATE, and `beatsFromDelta` writes what the
+// change can honestly support: an effect with no hand on it.
+//
+// ⚑ WHICH IS WHY THE DELTA'S LINES ARE IN THE RECEIVING VOICE. "rei takes 7" is
+// what two reads can prove; "the cake strikes rei for 7" is not — the hand is
+// not in the answer, and a log that guessed at it would be inventing the one
+// fact a player most wants to trust.
+//
+// THE DELTA IS DEMOTED, NOT DELETED. Its own header used to say it was what
+// would get deleted the day the read carried beats. It is kept as the fallback
+// instead, because dev may deploy the site before or after the office in either
+// order, and a page that went silent on the wrong deploy order would be worse
+// than one that reads thin for an afternoon. It stands down the moment a tail
+// appears, and it is the tail's PRESENCE that decides — never a version number,
+// never a flag anybody has to remember to set.
 
 /** The leaf of a world id, deslugged — the one spelling of a mark's name on
  *  this surface. Re-exported through world-cockpit.mjs, which is where the
@@ -164,6 +180,31 @@ export function beatLine(beat, opts = {}) {
 }
 
 /**
+ * ONE BEAT AS A FEED ENTRY. Shared by the act answer and the tail, so a beat
+ * cannot read one way when it is yours and another when it arrives in the
+ * door's window of the log.
+ *
+ * ⚑ THE ID IS THE SEQ, and that is what makes the two roads safe to both walk.
+ * The same beat reaches this page twice by design — whole from your own act
+ * answer, then again in the next tail — and `mergeFeed` drops the second by id.
+ * Nothing upstream has to coordinate; the log's own row number does it.
+ */
+function entryFor(beat, now, opts = {}, i = 0) {
+  const line = beatLine(beat, { adversary: opts.adversary });
+  if (!line) return null;
+  const seq = num(beat.seq);
+  return {
+    id: seq == null ? `b:${now}:${i}` : `b:${seq}`,
+    seq,
+    at: now,
+    kind: "beat",
+    who: typeof beat.actor === "string" ? beat.actor : null,
+    text: line.text,
+    tone: line.tone,
+  };
+}
+
+/**
  * THE ENTRIES ONE ACT ANSWER CARRIES — yours, then whatever your act drove.
  *
  * Order is the log's own: `beat` is your row, `then` is the hostile rows the
@@ -180,18 +221,8 @@ export function beatsFromAct(body, opts = {}) {
   const now = Number.isFinite(opts.now) ? opts.now : Date.now();
   const out = [];
   const push = (beat) => {
-    const line = beatLine(beat, { adversary: opts.adversary });
-    if (!line) return;
-    const seq = num(beat.seq);
-    out.push({
-      id: seq == null ? `b:${now}:${out.length}` : `b:${seq}`,
-      seq,
-      at: now,
-      kind: "beat",
-      who: typeof beat.actor === "string" ? beat.actor : null,
-      text: line.text,
-      tone: line.tone,
-    });
+    const e = entryFor(beat, now, opts, out.length);
+    if (e) out.push(e);
   };
   // The open is the room's own event, not anybody's act — said first because it
   // is what makes every line under it a fight rather than a room.
@@ -213,19 +244,107 @@ export function beatsFromAct(body, opts = {}) {
 }
 
 /**
- * WHAT CHANGED BETWEEN TWO READS, as lines — everybody else's turns.
+ * THE FOLD'S OWN BEATS, WHEN THE DOOR SENDS THEM.
  *
- * The read half carries no beats (see the header), so this is a derivation and
- * it is deliberately narrow: it says only what two `encounter_detail` blocks
- * together prove, in the receiving voice, with no hand attached.
+ * `encounter_detail.beats_tail` — the last stretch of the fold's beats, in the
+ * same shape the act answer's `beat` and `then` already carry (seq, actor, act,
+ * damage, downed, dropped, round). It is being added on the office's bday-law
+ * branch; SITE-DEFINED CONTRACT UNTIL IT LANDS, and named as one, because at the
+ * time of writing the field does not exist on that branch yet (checked
+ * 2026-08-29 against origin/bday-law 883e77d — `publicState` carries no tail).
  *
- * `unseen` is the honest remainder. The block carries `acts` — a COUNT of this
- * ground's rows — so when the count moves further than the lines account for,
- * the difference is a number of turns this page could not read. It is returned
- * rather than narrated, because "3 acts went by" is a fact about the reader's
- * connection, not about the fight, and the drawing decides how loudly to say
- * it. (See the site's own standing rule for the rail: a record this page could
- * not read is NAMED, never guessed at.)
+ * ⚑ THIS IS THE DELETION `beatsFromDelta` WAS WRITTEN EXPECTING. Its own header
+ * says so: "The day the read carries beats, `beatsFromDelta` is what gets
+ * deleted, and `beatLine` already writes the better sentence." That day is
+ * arriving, so the delta is not deleted — it is DEMOTED to the fallback, because
+ * dev may deploy the site before or after the office in either order and a page
+ * that went silent on the wrong deploy order would be worse than one that reads
+ * thin for a few hours.
+ *
+ * WHERE THE TAIL IS PRESENT the lines are WHOLE and ATTRIBUTED — "the unlit cake
+ * strikes rei — 7. rei is down; the good lighter clatters to the floor." — which
+ * is the sentence the receiving voice was standing in for.
+ *
+ * Answers `null` when the door sends no tail, and that is deliberately different
+ * from an empty one: "this door does not carry beats" and "nothing has happened"
+ * are different sentences, and only the first should send the caller to the
+ * fallback.
+ *
+ * `since` is the highest seq already turned into a line FROM A TAIL. Absent (or
+ * null) every beat in the window is returned, which is what a caller seeding its
+ * watermark wants and is why the caller, not this function, decides whether a
+ * first sight is narrated.
+ */
+export function beatsFromTail(detail, opts = {}) {
+  const tail = Array.isArray(detail?.beats_tail) ? detail.beats_tail : null;
+  if (!tail) return null;
+  const now = Number.isFinite(opts.now) ? opts.now : Date.now();
+  const since = Number.isFinite(opts.since) ? opts.since : null;
+  // THE WHOLE WINDOW IS WALKED, not only the fresh part of it — because a round
+  // boundary is a fact about two ADJACENT beats, and the beat on the far side of
+  // it may already have been drawn. Walking only the new arrivals would put a
+  // round rule at the top of every batch, or at none of them, depending on where
+  // the poll happened to cut.
+  const all = tail
+    .filter((b) => b && Number.isFinite(b.seq))
+    .sort((a, b) => a.seq - b.seq);
+  const entries = [];
+  let prevRound = null;
+  for (const b of all) {
+    const round = num(b.round);
+    const fresh = since == null || b.seq > since;
+    // The round rule, on the beat that opens a round. Never on the window's
+    // first beat: nothing here knows whether it opened its round or merely
+    // happens to be the oldest thing the door still remembers.
+    if (fresh && prevRound != null && round != null && round !== prevRound) {
+      // ⚑ THE DELTA'S OWN TAG. Both roads spell a round rule the same way, so a
+      // deploy that flips between them mid-fight cannot draw the same divider
+      // twice — mergeFeed drops it by id.
+      entries.push({ id: `d:r${round}`, seq: b.seq, at: now, kind: "beat", who: null, tone: "turn", text: `— round ${round} —` });
+    }
+    if (round != null) prevRound = round;
+    if (!fresh) continue;
+    const e = entryFor(b, now, opts, entries.length);
+    if (e) entries.push(e);
+  }
+  return { entries, watermark: tailWatermark(detail) };
+}
+
+/** The highest seq the window holds, or null where the door sends no tail (and
+ *  where it sends an empty one — an empty window has no row to stand on). */
+export function tailWatermark(detail) {
+  const tail = Array.isArray(detail?.beats_tail) ? detail.beats_tail : null;
+  if (!tail) return null;
+  let max = null;
+  for (const b of tail) if (Number.isFinite(b?.seq) && (max == null || b.seq > max)) max = b.seq;
+  return max;
+}
+
+/**
+ * WHAT CHANGED BETWEEN TWO READS, as lines — everybody else's turns, THE
+ * FALLBACK ROAD.
+ *
+ * Walked only where the door sends no `beats_tail` (see the header). It is a
+ * derivation and it is deliberately narrow: it says only what two
+ * `encounter_detail` blocks together prove, in the receiving voice, with no
+ * hand attached.
+ *
+ * `unseen` is the honest remainder, and it belongs to THIS road alone. The
+ * block carries `acts` — a COUNT of this ground's rows — so when the count
+ * moves further than the lines account for, the difference is a number of turns
+ * this page could not read. It is returned rather than narrated, because "3
+ * acts went by" is a fact about the reader's connection, not about the fight,
+ * and the drawing decides how loudly to say it. (See the site's own standing
+ * rule for the rail: a record this page could not read is NAMED, never guessed
+ * at.)
+ *
+ * ⚑ AND IT HAS NO COUNTERPART ON THE TAIL ROAD, deliberately. A tail carries
+ * every beat in its window, so there is nothing left over to confess — and the
+ * arithmetic that would look like a gap there cannot prove one: seq numbers the
+ * ground's ROWS, not its beats, and the fold ignores rows (`ignored`), so a
+ * jump between two tail seqs is the ordinary case rather than evidence of loss.
+ * A line claiming turns were missed on that road would be exactly the guess
+ * this file refuses everywhere else.
  */
 export function beatsFromDelta(prev, next, opts = {}) {
   const now = Number.isFinite(opts.now) ? opts.now : Date.now();

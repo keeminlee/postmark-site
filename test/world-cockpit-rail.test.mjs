@@ -88,10 +88,46 @@ test("the scroll contract is measured BEFORE the rewrite", () => {
 });
 
 test("your own beat goes in from the act answer, and the poll never tells it twice", () => {
-  assert.match(mount, /ingest\(beatsFromAct\(res\.body, \{ acting: seat\(\) \}\)\);/,
-    "the act answer's own beat, then and joined are read straight into the feed");
+  assert.match(mount, /ingest\(beatsFromAct\(res\.body, \{ acting: seat\(\), adversary: adversaryOf\(state\.answer\)\?\.id \?\? null \}\)\);/,
+    "the act answer's own beat, then and joined are read straight into the feed, naming what was swung at");
   assert.match(mount, /state\.encSnap = fresh\.encounter_detail \?\? state\.encSnap;/,
     "and the delta baseline moves with the refreshed answer, so the same swing is not derived again");
+});
+
+// ── the tail, when the door grows one (2026-08-29 addendum) ──
+//
+// bday-law is adding `encounter_detail.beats_tail`. Where it is present the feed
+// renders whole attributed lines and the delta stands down; where it is absent
+// nothing changes, because dev may deploy the site and the office in either
+// order and a page that went silent on the wrong order would be worse than one
+// that reads thin for an afternoon.
+test("a tail takes the road, and the delta stands down behind it", () => {
+  assert.match(mount, /const tail = beatsFromTail\(next, \{ since: state\.beatSeq, adversary \}\);\s*\n\s*if \(tail\) \{/,
+    "the tail is asked for first");
+  assert.match(mount, /ingest\(tail\.entries\);\s*\n\s*return;\s*\n\s*\}/,
+    "and it returns — the delta below is not also walked");
+  assert.match(mount, /if \(!prev \|\| !next\) return;\s*\n\s*const \{ entries, unseen \} = beatsFromDelta\(prev, next\);/,
+    "the delta is still there, reached only when no tail was sent");
+});
+
+test("only a tail advances the watermark", () => {
+  // ⚑ THE CORRECTNESS RULE. Your act answer arrives with seqs above anything a
+  // tail has shown; letting them advance the watermark would step over somebody
+  // else's beat still sitting lower in the window — skipped permanently, with
+  // nothing to say so. The seq-derived id is what stops the double print.
+  const absorb = mount.slice(mount.indexOf("function absorbEncounter"), mount.indexOf("function autoSelectOnTurn"));
+  assert.match(absorb, /state\.beatSeq = Math\.max\(state\.beatSeq, tail\.watermark\);/);
+  const submit = mount.slice(mount.indexOf("async function onSubmit"), mount.indexOf("function onKey"));
+  assert.doesNotMatch(submit, /state\.beatSeq/, "the act answer draws its lines and leaves the watermark alone");
+});
+
+test("a first tail is seeded, not narrated — and an empty one is not the same as none", () => {
+  assert.match(mount, /if \(state\.beatSeq == null\) \{ state\.beatSeq = seedBeatSeq\(next\); return; \}/,
+    "the first tail ever seen sets the watermark and says nothing");
+  assert.match(mount, /Array\.isArray\(detail\?\.beats_tail\) \? \(tailWatermark\(detail\) \?\? -1\) : null/,
+    "a present-but-empty tail seeds to -1; only an ABSENT tail leaves the watermark unseeded");
+  assert.match(mount, /state\.beatSeq = seedBeatSeq\(state\.encSnap\);/,
+    "and the mount seeds by the same rule it polls by");
 });
 
 test("the encounter is polled on its own clock, only inside portal ground", () => {
@@ -179,8 +215,8 @@ test("a manual click after an auto-select wins until the next turn change", () =
 test("the mount's first read seeds the baseline without narrating it", () => {
   // A reader arriving mid-fight should not be handed the whole fight as things
   // that just happened.
-  assert.match(mount, /state\.encSnap = o\.answer\?\.encounter_detail \?\? null;\s*\n\s*autoSelectOnTurn\(\);/,
-    "snapshot taken, nothing said — and the turn is read for the first time right after it");
+  assert.match(mount, /state\.encSnap = o\.answer\?\.encounter_detail \?\? null;\s*\n\s*state\.beatSeq = seedBeatSeq\(state\.encSnap\);\s*\n\s*autoSelectOnTurn\(\);/,
+    "both baselines taken, nothing said — and the turn is read for the first time right after them");
 });
 
 // ── the two halves that can be run, run ─────────────────────────────────────

@@ -155,6 +155,39 @@ const run = async () => {
     await page.close();
   }
 
+  // ── ①b the tail: whole attributed lines, and the delta stood down ────────
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1&fight=1&tail=1");
+    await page.waitForTimeout(12_000);
+    await shot(page, "06-rail-feed-tail");
+    const lines = await page.evaluate(() =>
+      [...document.querySelectorAll(".pmc-fline")].map((el) => el.textContent.trim()));
+    // The sentence the receiving voice was standing in for.
+    record("a tail gives the founder's own sample line, whole",
+      lines.some((t) => /^the unlit cake strikes jetto-of-starforge — 2\./.test(t) && /is down\./.test(t) && /clatters to the floor\./.test(t)),
+      JSON.stringify(lines.filter((t) => /clatters/.test(t))));
+    record("and it names the hand on every beat, not just the effect",
+      lines.some((t) => /^jetto-of-starforge strikes the unlit cake — 11 \(the good lighter, \+3\)\. 38 left\.$/.test(t)),
+      JSON.stringify(lines.filter((t) => /38 left/.test(t))));
+    record("a miss is in the tail too", lines.some((t) => /vermillion casts at .* and misses — 4\./.test(t)),
+      JSON.stringify(lines.filter((t) => /misses/.test(t))));
+    // ⚑ THE DELTA MUST HAVE STOOD DOWN. Its lines are recognisable by their
+    // voice — "X takes N" with no hand on it — and by the unseen confession,
+    // which belongs to that road alone.
+    record("the delta stood down — no receiving-voice line, no unseen confession",
+      !lines.some((t) => /^(jetto-of-starforge|vermillion) takes \d/.test(t))
+      && !lines.some((t) => /no door to read/.test(t)),
+      JSON.stringify(lines.filter((t) => / takes \d|no door to read/.test(t))));
+    // The one thing switching roads quietly lost, caught by reading the two
+    // shots side by side: the round divider was a delta-only line.
+    record("the round rule survives on the tail road",
+      lines.filter((t) => /^—\s*round 4\s*—$/i.test(t.replace(/\s+/g, " "))).length === 1,
+      JSON.stringify(lines.filter((t) => /round/i.test(t))));
+    record("and nothing is told twice",
+      new Set(lines).size === lines.length, `${lines.length} lines, ${new Set(lines).size} distinct`);
+    await page.close();
+  }
+
   // ── ② the dock's pictures ────────────────────────────────────────────────
   {
     const page = await openHarness(browser, "fixture=vault&rail=1");

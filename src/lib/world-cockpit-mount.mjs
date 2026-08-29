@@ -20,7 +20,7 @@ import {
 // The rail's feed — its sentences, its merge rule and its bottom test. All of
 // it pure, so the fight's whole grammar is falsifiable against fixtures without
 // a browser; this file only draws what it returns.
-import { atBottom, beatsFromAct, beatsFromDelta, mergeFeed, voiceEntries } from "./world-feed.mjs";
+import { atBottom, beatsFromAct, beatsFromDelta, beatsFromTail, mergeFeed, tailWatermark, voiceEntries } from "./world-feed.mjs";
 // ONE resolution of "which resident is this key standing as", shared with the read
 // — so the bar cannot be drawn for one standpoint and act from another.
 import { orientingHandle } from "./world-cockpit-door.mjs";
@@ -681,6 +681,7 @@ export function mountCockpit(o) {
     feed: [],          // the rail's own half of Lately — beats and says, newest LAST
     profiles: {},      // handle -> the profile bubble off /residents/{handle}, for the dock's faces
     encSnap: null,     // the encounter block the last delta was derived against
+    beatSeq: null,     // highest beat seq drawn FROM A TAIL; null = no tail has ever been seen
     lastTurn: undefined, // the wheel's turn as of the last read; undefined = never read one
   };
 
@@ -2106,23 +2107,66 @@ export function mountCockpit(o) {
   }
 
   /**
-   * EVERYBODY ELSE'S TURNS, derived from two reads.
+   * EVERYBODY ELSE'S TURNS — by the tail where the door sends one, by the delta
+   * where it does not.
    *
-   * The read half carries no beats (office arena.mjs `publicState` says so out
-   * loud), so another player's act reaches this page only as a change in the
-   * encounter block. `beatsFromDelta` writes what that change can honestly
-   * support and counts what it could not account for; the remainder is SAID
-   * rather than swallowed, which is the rail's own standing rule for a record
-   * it could not read.
+   * ① THE TAIL. `encounter_detail.beats_tail` is the fold's own beats, so every
+   * hand in the room gets the same whole, attributed sentence your own acts
+   * already got. `state.beatSeq` is the watermark: the highest seq this page has
+   * turned into a line FROM A TAIL.
    *
-   * The snapshot is taken on every absorb, including the one right after your
-   * own act — so your beat, which already arrived whole through the act answer,
-   * is inside the baseline and is never told twice.
+   * ⚑ THE WATERMARK IS ADVANCED BY THE TAIL AND BY NOTHING ELSE, and that is a
+   * correctness rule rather than tidiness. Your own act answer arrives with your
+   * beat AND the hostile turns it drove — seqs above anything a tail has yet
+   * shown us. Letting those advance the watermark would step over somebody
+   * else's beat that was sitting lower in the window and had not been read yet:
+   * it would be skipped, permanently, and nothing would say so. So the act
+   * answer draws its lines and leaves the watermark alone; when those same beats
+   * come round in the next tail, `mergeFeed` drops them by their seq-derived id.
+   * Two roads, one line, no coordination needed.
+   *
+   * A FIRST SIGHT IS SEEDED, NEVER NARRATED — the same law the delta baseline
+   * keeps. A reader arriving mid-fight must not be handed thirty lines of
+   * somebody else's fight as things that just happened. An EMPTY first tail
+   * seeds to -1 rather than staying unseeded, so the opening beats of a fight
+   * that starts after we arrive are not the ones that get swallowed.
+   *
+   * ② THE DELTA, unchanged, where there is no tail. The snapshot is taken on
+   * every absorb, including the one right after your own act — so your beat,
+   * which already arrived whole through the act answer, is inside the baseline
+   * and is never told twice.
    */
+  /**
+   * WHERE A WATERMARK STARTS, and the three answers are three different facts.
+   *
+   *   a window with beats  → its top; everything above it is new
+   *   a window with none   → -1; the door HAS a tail and it is empty, so the
+   *                          next beat written is genuinely the first
+   *   no window at all     → null; this door does not carry beats, and the
+   *                          first tail that ever arrives must be seeded rather
+   *                          than narrated
+   *
+   * Collapsing the middle two — treating an empty tail as no tail — is how the
+   * opening beats of a fight that starts after the reader arrives would be the
+   * ones swallowed by the seed.
+   */
+  const seedBeatSeq = (detail) =>
+    Array.isArray(detail?.beats_tail) ? (tailWatermark(detail) ?? -1) : null;
+
   function absorbEncounter(answer) {
     const next = answer?.encounter_detail ?? null;
     const prev = state.encSnap;
     state.encSnap = next;
+
+    const adversary = adversaryOf(answer)?.id ?? null;
+    const tail = beatsFromTail(next, { since: state.beatSeq, adversary });
+    if (tail) {
+      if (state.beatSeq == null) { state.beatSeq = seedBeatSeq(next); return; }
+      if (tail.watermark != null) state.beatSeq = Math.max(state.beatSeq, tail.watermark);
+      ingest(tail.entries);
+      return;
+    }
+
     if (!prev || !next) return;
     const { entries, unseen } = beatsFromDelta(prev, next);
     if (unseen > 0) {
@@ -2403,7 +2447,7 @@ export function mountCockpit(o) {
       // ON A BOUNCE TOO, deliberately: a refused act can still carry the roll
       // that refused it, and the same reasoning that shows the die on a miss
       // shows the line beside it.
-      ingest(beatsFromAct(res.body, { acting: seat() }));
+      ingest(beatsFromAct(res.body, { acting: seat(), adversary: adversaryOf(state.answer)?.id ?? null }));
       if (res.ok) {
         state.said = { ok: true, text: form.hasAttribute("data-chat") ? "sent." : "done — the door took it." };
         formValues = null;
@@ -2956,10 +3000,14 @@ export function mountCockpit(o) {
   // the first paint resolved.
   drawFeed();
   pullProfiles();
-  // Seed the delta baseline without narrating it. The state at mount is not an
+  // Seed BOTH baselines without narrating either. The state at mount is not an
   // event — a reader arriving mid-fight should not be handed the whole fight as
-  // things that just happened — so the snapshot is taken and nothing is said.
+  // things that just happened — so the snapshot and the watermark are taken and
+  // nothing is said. A mount with no tail leaves the watermark null, which is
+  // what sends the first tail that does arrive down the seed-and-say-nothing
+  // path rather than dumping its whole window.
   state.encSnap = o.answer?.encounter_detail ?? null;
+  state.beatSeq = seedBeatSeq(state.encSnap);
   autoSelectOnTurn();
 
   const teardown = () => {
