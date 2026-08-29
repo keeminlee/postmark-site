@@ -1907,6 +1907,7 @@ export function mountCockpit(o) {
     // are about to leave. frameScene answers once per arrival, so this costs
     // nothing on the paints where the reader has not moved.
     frameScene();
+    watchCamera();
     drawToken();
   }
 
@@ -2142,11 +2143,39 @@ export function mountCockpit(o) {
   // The camera moves without anything of ours firing — the viewer pans and zooms
   // by writing the viewBox, and a screen-sized token has to be re-drawn when it
   // does. Watching the attribute is the seam that needs no viewer internal.
+  // ⚑ AND IT FOLLOWS THE LIVING SVG, which is the third time tonight this same
+  // seam has bitten — the token layer, then the framing, now the watch itself.
+  // The viewer REBUILDS its painting on a view change, and this observer was
+  // pointed at the element that existed at mount. Once the viewer swapped it,
+  // the watch was on a detached node and never fired again: the token kept
+  // whatever size and offset it had at its last draw, both of which are screen
+  // constants derived from the viewBox.
+  //
+  // Seen in the founder's own tab and caught by reading the transform rather
+  // than the picture: the human's token sat at standpoint + 0.0288 units with
+  // the viewBox 240 units wide — exactly the offset that was correct back when
+  // the view was 1.6 units across, drawn once and then abandoned. On screen
+  // that is a portrait several times too large sitting on top of the ring it is
+  // supposed to stand beside.
+  //
+  // So the watch is re-pointed whenever the painting under it changes. Cheap:
+  // it compares the element and does nothing on the paints where it is the same
+  // one, which is nearly all of them.
   let camera = null;
-  if (o.svg && typeof MutationObserver === "function") {
+  let watched = null;
+  function watchCamera() {
+    if (typeof MutationObserver !== "function") return;
+    const svg = liveSvg();
+    if (!svg || svg === watched) return;
+    camera?.disconnect();
     camera = new MutationObserver(() => drawToken());
-    camera.observe(o.svg, { attributes: true, attributeFilter: ["viewBox"] });
+    camera.observe(svg, { attributes: true, attributeFilter: ["viewBox"] });
+    watched = svg;
+    // the painting we were watching is gone, so whatever was drawn on it was
+    // sized for a view that no longer exists
+    drawToken();
   }
+  watchCamera();
   // THE HAND WINS THE MAP. frameScene points the camera at the room on arrival;
   // the moment the reader drags or wheels it, they own it until they arrive
   // somewhere else, and the pointer is the only signal that says so. Watching

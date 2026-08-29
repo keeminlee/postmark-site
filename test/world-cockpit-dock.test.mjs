@@ -374,3 +374,24 @@ test("an act names the SELECTED resident's standing, not the key's first handle"
   assert.match(mount, /const asking = seat\(\);/,
     "the terms read asks whose standing the same way the act does");
 });
+
+test("the camera watch follows the living svg, like the layer and the framing before it", () => {
+  // ⚑ THE THIRD SIGHTING OF ONE SEAM IN ONE NIGHT — the token layer, then the
+  // framing, now the watch. The viewer REBUILDS its painting on a view change,
+  // and this observer was pointed at whichever element existed at mount. Once
+  // the viewer swapped it the watch was on a detached node and never fired
+  // again, so the token kept the size and offset it had at its last draw — both
+  // screen constants derived from the viewBox.
+  //
+  // Caught by reading the transform rather than the picture: the human's token
+  // sat at standpoint + 0.0288 units with the viewBox 240 units wide, which is
+  // exactly the offset that was right when the view was 1.6 units across. On
+  // screen, a portrait several times too large sitting on the ring it is meant
+  // to stand beside.
+  assert.match(mount, /const svg = liveSvg\(\);\s*\n\s*if \(!svg \|\| svg === watched\) return;/,
+    "the watch re-points when the painting under it is replaced, and no-ops when it is not");
+  assert.match(mount, /camera\?\.disconnect\(\);/,
+    "the old watch is dropped rather than left running on a detached node");
+  assert.doesNotMatch(mount, /camera\.observe\(o\.svg,/,
+    "and nothing observes the mount-time svg any more");
+});
