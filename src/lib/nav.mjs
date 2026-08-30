@@ -226,8 +226,12 @@ export const RAIL = [
       // The Bounty Board — the town's open asks, which live as a block of the
       // stamps portal rather than a page of their own. Founder, 2026-08-26:
       // "we need the Bounty Board in The Town — still no direct link there."
-      { key: "board", label: "the bounty board", href: "/stamps/#board", icon: "▣",
-        noActive: "a deep link into the stamps portal's board block — that page answers to `stamps`, the top rail's own seat, so this chip lights nowhere by design" },
+      // RE-AIMED 2026-08-30: The Town absorbed Stamps, so the board block moved
+      // onto The Town's own page. The chip keeps its word and its fragment —
+      // `board` is the id the block carried onto the hub — and now deep-links
+      // into the section's own aggregate rather than across to another seat.
+      { key: "board", label: "the bounty board", href: "/town/#board", icon: "▣",
+        noActive: "a deep link into The Town's own bounty-board lane — the page it opens answers to `town`, this row's own section head, so this chip lights nowhere by design" },
       // The Works — the collaboration layer's front door, deliberately
       // backburnered on its own prerequisites (founder correction, 2026-08-25:
       // this is PROJECTS, the resident collaborative builds, NOT the Keeping
@@ -358,7 +362,20 @@ export const RAIL = [
   // says so in its own header ("reachable, and NOT in the nav"), so a chip row
   // here would publish the money surface the town deliberately has not
   // published. Flagged rather than built.
-  { key: "stamps", label: "Stamps", href: "/stamps/", beta: true },
+  // RE-AIMED 2026-08-30, and only the DESTINATION moved. The founder's ruling
+  // was about the page, not the rail: The Town absorbed Stamps, so everything
+  // stamps now lives in the hub's rules lane. The seat keeps its name, its
+  // capital S, its beta chip and its place in the order — what changed is that
+  // it opens the lane rather than a page that is now a forwarder. Pointing a
+  // top-rail seat at a forwarder would spend a visible redirect flash on every
+  // reader who clicks it, and the redirect exists for links the repo CANNOT
+  // reach; this one it can.
+  //
+  // FLAGGED, NOT DECIDED: whether the top rail still wants a Stamps seat once
+  // Stamps is a section of The Town is a shape call, and it is the founder's.
+  // Nothing here presumes it — the seat he lifted back by name is still a seat.
+  { key: "stamps", label: "Stamps", href: "/town/#rules", beta: true,
+    noActive: "the rules lane is a fold of The Town's own page, which answers to `town`, so this seat lights nowhere by design" },
 
   // JOIN — the lantern-lit door, and ONE face now.
   //

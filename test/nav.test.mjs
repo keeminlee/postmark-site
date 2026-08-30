@@ -273,12 +273,17 @@ test("THE TOP RAIL IS FOR HUMANS — Residents, the Mail and Stamps are lifted b
     ["harbor", "join", "mail", "postmark", "residents", "stamps", "town", "world"],
     `the rail reads: ${RAIL.map((s) => s.label).join(" · ")}`);
 
-  // the three by name, each a SEAT and no longer a chip of The Town
+  // the three by name, each a SEAT and no longer a chip of The Town.
+  //
+  // STAMPS' DESTINATION MOVED 2026-08-30 and its seat did not: the founder
+  // ruled The Town absorbs Stamps, so the seat opens the hub's rules lane
+  // instead of a page that is now a forwarder. What this test claims — that the
+  // three are SEATS, with these names, each lighting its own key — is untouched.
   const town = RAIL.find((s) => s.key === "town");
   for (const [key, label, href] of [
     ["residents", "Residents", "/residents/"],
     ["mail", "The Mail", "/mail/"],
-    ["stamps", "Stamps", "/stamps/"],
+    ["stamps", "Stamps", "/town/#rules"],
   ]) {
     const seat = RAIL.find((s) => s.key === key);
     assert.ok(seat, `"${label}" is not on the top rail`);
@@ -704,11 +709,38 @@ test("/town/ IS NOT A DASHBOARD — no cards restating the chips, no wall of cou
   assert.equal(/t-rooms|t-room\b|ROOM_NOTE/.test(src), false, "the card grid is back on /town/");
 
   // THE DIALS. Four counts assembled from whatever the extracts happened to
-  // carry. The town's numbers live at /numbers/, held until S4.
-  assert.equal(/t-stats|t-dials|t-stat-note|\bdials\b/.test(src), false,
+  // carry, sitting where the page's body should be. The town's own numbers live
+  // at /numbers/, held until S4.
+  assert.equal(/t-stats|t-dials|t-stat-note/.test(src), false,
     "the aggregate-numbers dashboard is back on /town/");
   assert.equal(/from "@\/data\/postmark\/stats\.json"|from "@\/data\/postmark\/economy\.json"/.test(src), false,
     "/town/ imports the counts again");
+
+  // ── RE-AIMED 2026-08-30, and this is the interesting half ──────────────────
+  // The probe used to forbid the WORD `dials` anywhere in the file. That was a
+  // fine proxy while /town/ was one breath of prose, and it went red the day
+  // the founder ruled that The Town absorbs Stamps — because the stamps
+  // machinery legitimately brings the economy's dials onto this page.
+  //
+  // So the word is no longer the test; the PLACEMENT is, which is what the
+  // ruling was always about. His complaint was a page "just filled with… a
+  // generic dashboard of aggregate numbers" — numbers as the body, assembled
+  // because they were available. The dials on the hub are the opposite: they
+  // are the stamp machinery's own numbers, each carrying the sentence that
+  // says what it governs, folded shut inside the rules lane at the very bottom
+  // of the page. A reader meets the civic quarter, not a wall of counts.
+  //
+  // What must stay true, therefore: the dials are BELOW the quarter and INSIDE
+  // a lane, never in the page's opening.
+  const quarter = src.indexOf('<section class="cq"');
+  const rulesLane = src.indexOf('id="rules"');
+  const numbers = src.indexOf('id="numbers"');
+  if (numbers > 0) {
+    assert.ok(quarter > 0 && quarter < numbers,
+      "/town/ opens with numbers again — the civic quarter must come first");
+    assert.ok(rulesLane > 0 && rulesLane < numbers,
+      "the dials must live inside the rules lane, not loose on the page");
+  }
 
   // and deleting the body must not have deleted the page. It is no longer the
   // section's landing — the founder moved the seat to Ferry's Daily and hid

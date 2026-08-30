@@ -644,8 +644,13 @@ test("the household's funding shelf says the record in plain words, with no noun
 
 // The four surfaces that speak the word. Each must IMPORT the sentence; none
 // may retype it, because a second copy is a sentence that can drift.
+//
+// RE-AIMED 2026-08-30: the first of these was `stamps/index.astro` until The
+// Town absorbed it. The surface did not change — the same market, the same
+// pots, the same glossary entry — it changed address, so the list follows the
+// content rather than the URL it used to sit at.
 const HOLO_SURFACES = [
-  "../town/pages/stamps/index.astro",
+  "../town/pages/town/index.astro",
   "../town/pages/numbers/index.astro",
   "../town/pages/fund/[pot].astro",
   "../town/components/Household.astro",
@@ -743,7 +748,7 @@ test("the glossary's holo entry says what the name is short for", { skip: !built
   // The exemption, asserted from the other side: the once-per-page tests cut
   // the glossary out, so without this the entry could quietly lose the
   // expansion and every other probe would stay green.
-  const stamps = readFileSync(join(DIST, "stamps", "index.html"), "utf8");
+  const stamps = readFileSync(join(DIST, "town", "index.html"), "utf8");
   const gloss = insideGlossary(stamps);
   assert.ok(gloss, "the glossary anchor stopped matching — the cut in the tests above is a no-op");
   // the cid Astro appends to every tag is why this is not a bare `<dt>holo`
@@ -757,7 +762,7 @@ test("each money surface teaches it exactly once outside the glossary, in both o
   // the expansion moves between the fine print and the footer with the pot's
   // close shape — a pot whose bullets never name holo would otherwise ship a
   // page that never expands the word at all.
-  const named = [join(DIST, "stamps", "index.html"), join(DIST, "numbers", "index.html")];
+  const named = [join(DIST, "town", "index.html"), join(DIST, "numbers", "index.html")];
   const fundDir = join(DIST, "fund");
   if (existsSync(fundDir)) {
     for (const pot of readdirSync(fundDir)) named.push(join(fundDir, pot, "index.html"));
@@ -875,7 +880,7 @@ test("NO pot surface links an unattached gift to a resident page that cannot exi
   // pointing at a 404 — an unattached gift dressed as a resident. Showing every
   // receipt is only half the founder's ruling; the other half is that each one
   // shows its HONEST hand.
-  const surfaces = ["../town/pages/stamps/index.astro", "../town/pages/fund/[pot].astro"];
+  const surfaces = ["../town/pages/town/index.astro", "../town/pages/fund/[pot].astro"];
   for (const rel of surfaces) {
     const src = readFileSync(new URL(rel, import.meta.url), "utf8");
     assert.doesNotMatch(
