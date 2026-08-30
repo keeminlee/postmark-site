@@ -1,4 +1,4 @@
-name: Deploy (snapshot -> dev, release -> prod)
+name: Deploy (snapshot -> dev; release proves the tag, the box publishes prod)
 
 # THE CUTOVER (Keemin, 2026-08-21 night: "the site is honestly the MOST
 # important. we should make the cutover tonight for merge to main -> dev,
@@ -259,8 +259,17 @@ jobs:
             echo "stamper absent at this ref — /build.json not emitted (sentinel reads UNKNOWN)"
           fi
 
+      # ONE WRITER OWNS PROD (founder-ruled 2026-08-27, completed 2026-08-30).
+      # The 08-27 retirement (3314921a) moved prod content to the box's
+      # site-refresh timer and said "GitHub Actions keeps only code releases" —
+      # but left this rsync, so every release shipped a repo-stale content
+      # window over the box's fresh build (bitten live 2026-08-30: prod
+      # time-traveled to 08-27 data for half an hour). Now the release lane
+      # BUILDS (proving the tag) and stops: the box sees the new release tag
+      # at its next :10/:40 tick and publishes with fresh content, ≤30 min.
+      # The dev lane still rsyncs — dev.postmark.town has no box publisher.
       - name: Rsync to EC2 (${{ steps.lane.outputs.webroot }})
-        if: steps.pin.outputs.skip != 'true'
+        if: steps.pin.outputs.skip != 'true' && steps.lane.outputs.channel != 'release'
         env:
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
           HOST: ${{ secrets.EC2_HOST }}

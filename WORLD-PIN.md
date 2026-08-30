@@ -11,9 +11,14 @@ on the box, and nothing here needs to be.
 
 This is the first thing to know, and it is a finding rather than an assumption.
 
-The scheduled rebuild lane is **GitHub Actions**, not a systemd timer on the
-box: `.github/workflows/deploy.yml` carries `schedule: cron "*/30 * * * *"`, and
-the box's only part in the lane is receiving the `rsync` at the end of the job.
+*(Dated finding, 2026-08-25 — superseded 08-27/08-30: the content schedules
+retired to the box's `postmark-site-refresh.timer`, and the release-lane rsync
+was removed; the box now builds AND publishes prod itself. The paragraphs
+below describe the Actions-era lane and are kept as the record of it.)*
+
+The scheduled rebuild lane **was GitHub Actions**, not a systemd timer on the
+box: `.github/workflows/deploy.yml` carried `schedule: cron "*/30 * * * *"`, and
+the box's only part in the lane was receiving the `rsync` at the end of the job.
 Read live on `meepo-ec2` (2026-08-25 14:02 UTC, read-only), the twenty-five
 timers installed there contain no site-rebuild unit. The one whose name invites
 the mistake — `postmark-dev-freshen.timer`, every ten minutes — runs

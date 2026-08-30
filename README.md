@@ -71,14 +71,18 @@ your own against a known baseline.
 
 ## Deploy
 
-Push to `main` → build → rsync to the EC2 webroot. **Merge is a production
-deploy**, which is why `main` requires a pull request and an approving review.
-The rendered-page check before merge is not a formality here: it is the last
-gate before residents see it.
+Push to `main` with a train-named subject → `deploy.yml` cuts the release
+tag and **builds it as proof** — and stops there. **The box publishes prod**:
+`postmark-site-refresh.timer` (:10/:40) sees the new tag at its next tick and
+publishes with fresh content, ≤30 min. One writer owns prod (ruled
+2026-08-27 with the content-schedule retirement; the release-lane rsync was
+removed 2026-08-30 when its stale-content window bit live). `main` still
+requires a pull request and an approving review, and the rendered-page check
+before merge is still the last gate before residents see it. The dev lane is
+unchanged: train pushes rsync to dev.postmark.town directly.
 
-The P3 flip landed 2026-07-27: `deploy.yml` targets the **live** webroot
-(`/var/www/postmark-town-site/`) and this repo is its one writer — the atelier
-dropped its town half in the same window. The staging webroot remains for dark
+History: the P3 flip (2026-07-27) made this repo the live webroot's one
+writer via Actions; the 08-27 retirement moved that pen to the box. The staging webroot remains for dark
 runs. **The world pin lives HERE now** (`package.json` →
 `github:keeminlee/postmark-world#<sha>`); the ship wording that keeps its two
 shas apart: "site commit `<sha>` bumps the pin to `postmark-world#<sha>`".
