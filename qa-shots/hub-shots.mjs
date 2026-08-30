@@ -107,7 +107,7 @@ await page.screenshot({ path: join(OUT, "04-quest-guild-open.png") });
 // /stamps/#board and every teaching id were live URLs before today. Each must
 // arrive with its fold OPEN — including a teaching id, which is a fold inside
 // a fold and is the case a one-level router would silently miss.
-for (const [hash, sel] of [["#board", "#bounty-board"], ["#pots", "#rules"], ["#staking", "#staking"], ["#numbers", "#rules"]]) {
+for (const [hash, sel] of [["#board", "#bounty-board"], ["#pots", "#quests"]]) {
   await page.goto(`${BASE}/town/${hash}`, { waitUntil: "load" });
   await page.waitForTimeout(500);
   const open = await page.$eval(sel, (el) => el.open);
@@ -122,19 +122,49 @@ await page.goto(`${BASE}/town/#staking`, { waitUntil: "load" });
 await page.waitForTimeout(600);
 await page.screenshot({ path: join(OUT, "05-deep-link-staking.png") });
 
-// 6 · THE FORWARDER CARRIES THE FRAGMENT.
-// The reason /stamps/ is a page and not a config redirect. If this passes only
-// on the bare path, the whole anchor map is decorative.
-await page.goto(`${BASE}/stamps/#board`, { waitUntil: "load" });
-await page.waitForTimeout(800);
-const landed = page.url();
-record("/stamps/#board forwards to the hub's board", landed.endsWith("/town/#board"), landed);
-const boardOpen = await page.$eval("#bounty-board", (el) => el.open);
-record("and the board lane is open when it lands", boardOpen, `#bounty-board.open=${boardOpen}`);
-
+// 6 · THE FRAGMENT PARTITION AT /stamps/.
+// /stamps/ is a teaching page again, not a forwarder — so a TEACHING id must
+// stay put and open its section, while a LANE id must still forward to the
+// quarter carrying its fragment. Getting one right and the other wrong is the
+// whole risk of the partition, so both halves are asked separately.
 await page.goto(`${BASE}/stamps/#earning`, { waitUntil: "load" });
-await page.waitForTimeout(800);
-record("/stamps/#earning forwards to the teaching", page.url().endsWith("/town/#earning"), page.url());
+await page.waitForTimeout(700);
+const teachingStayed = page.url().includes("/stamps/");
+const earningOpen = await page.$eval("#earning", (el) => el.open).catch(() => false);
+record("a teaching id stays on /stamps/ and opens", teachingStayed && earningOpen,
+  `${page.url()} · #earning.open=${earningOpen}`);
+
+await page.goto(`${BASE}/stamps/#board`, { waitUntil: "load" });
+await page.waitForTimeout(900);
+record("a lane id forwards to the quarter", page.url().endsWith("/town/#board"), page.url());
+const fwdBoardOpen = await page.$eval("#bounty-board", (el) => el.open).catch(() => false);
+record("and the board lane is open when it lands", fwdBoardOpen, `#bounty-board.open=${fwdBoardOpen}`);
+
+await page.goto(`${BASE}/stamps/#pots`, { waitUntil: "load" });
+await page.waitForTimeout(900);
+record("#pots forwards to the Guild that now holds it", page.url().endsWith("/town/#pots"), page.url());
+
+// a bare /stamps/ is a PAGE now, not a doorway — it must not forward at all
+await page.goto(`${BASE}/stamps/`, { waitUntil: "load" });
+await page.waitForTimeout(700);
+record("bare /stamps/ stays put", /\/stamps\/(#.*)?$/.test(page.url()), page.url());
+await page.screenshot({ path: join(OUT, "11-stamps-teaching.png"), fullPage: true });
+
+// 6b · ALL FIVE BUILDINGS STAND.
+// The founder ruled ground a day-one act and the world planted all five. A
+// badge still showing would mean the site's id or its read is wrong — so this
+// asks the rendered page, not the derivation that fed it.
+await page.goto(`${BASE}/town/`, { waitUntil: "load" });
+await page.waitForTimeout(400);
+const badges = await page.$$eval(".cq-soon", (els) => els.map((e) => e.textContent.trim()));
+record("no building shows a not-standing badge", badges.length === 0,
+  badges.length ? `still badged: ${badges.join(", ")}` : "all five stand");
+
+// and the quarter's description is the PLAQUE's own words, from the world
+const say = await page.$eval(".cq-say", (el) => el.textContent.trim()).catch(() => "");
+record("the vignette quotes the quarter's plaque", say.startsWith("Where the town asks and is asked"),
+  say || "(no description rendered)");
+record("and no longer the town centre's quay line", !/lamplit quay/.test(say), say.slice(0, 60));
 
 // 7 · KEYBOARD REACHES THE BUILDINGS.
 // The buildings are anchors so this should be free — which is exactly why it
@@ -190,7 +220,7 @@ const bareLinks = await bare.$$eval(".cq-b", (els) => els.map((el) => el.getAttr
 record("with JS off the buildings are real anchors", bareLinks.every((h) => h && h.startsWith("#")),
   bareLinks.join(" "));
 const bareSummaries = await bare.$$eval(".c-lane > summary", (els) => els.length);
-record("and every lane is a native fold", bareSummaries === 6, `${bareSummaries} summaries`);
+record("and every lane is a native fold", bareSummaries === 5, `${bareSummaries} summaries — five lanes since the teaching went back to /stamps/`);
 const bareArt = await bare.$$eval(".cq-art rect", (els) => els.length);
 record("and the art is still drawn", bareArt > 400, `${bareArt} rects with no script`);
 await bare.screenshot({ path: join(OUT, "10-hub-no-js.png") });
