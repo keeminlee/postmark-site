@@ -160,11 +160,26 @@ const badges = await page.$$eval(".cq-soon", (els) => els.map((e) => e.textConte
 record("no building shows a not-standing badge", badges.length === 0,
   badges.length ? `still badged: ${badges.join(", ")}` : "all five stand");
 
-// and the quarter's description is the PLAQUE's own words, from the world
-const say = await page.$eval(".cq-say", (el) => el.textContent.trim()).catch(() => "");
-record("the vignette quotes the quarter's plaque", say.startsWith("Where the town asks and is asked"),
-  say || "(no description rendered)");
-record("and no longer the town centre's quay line", !/lamplit quay/.test(say), say.slice(0, 60));
+// 6c · THE VIGNETTE CARRIES NO DESCRIPTION.
+// Founder-ruled: with all five buildings drawn and named right there, any prose
+// under the heading only says again what the picture already says. This is
+// asked of the RENDER because that is where a description can come back — from
+// a reverted paragraph, a re-added derivation, or a stray helper — and because
+// two different sentences have already stood in that slot today.
+const say = await page.$eval(".cq-say", (el) => el.textContent.trim()).catch(() => null);
+record("the vignette carries no description", say === null,
+  say === null ? "no description element at all" : `still describing itself: "${say.slice(0, 70)}"`);
+
+// and neither of the two sentences that stood there is anywhere on the page
+const quarterText = await page.$eval(".cq", (el) => el.textContent).catch(() => "");
+record("neither retired description came back", !/lamplit quay|Where the town asks and is asked/.test(quarterText),
+  /lamplit quay/.test(quarterText) ? "the town centre's quay line is back"
+    : /Where the town asks and is asked/.test(quarterText) ? "the plaque quote is back"
+    : "the heading and the five buildings are the description");
+
+// the heading itself must still be there — "no description" is not "no label"
+const heading = await page.$eval(".cq-h", (el) => el.textContent.trim()).catch(() => "");
+record("the quarter still names itself", /civic quarter/i.test(heading), heading || "(no heading)");
 
 // 7 · KEYBOARD REACHES THE BUILDINGS.
 // The buildings are anchors so this should be free — which is exactly why it

@@ -56,7 +56,7 @@ import { HOLO_LINE, HOLO_NAME_LINE, livePots, loadPots, POT_FIXTURE, potGist, pa
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 import {
   LANES, standing, ideas, questStandings, questCards, marketplace,
-  loadPlaceMarks, quarterPlaque, BLUEPRINTS_REPO, THINK_TANK_PLACE,
+  loadPlaceMarks, BLUEPRINTS_REPO, THINK_TANK_PLACE,
 } from "@/lib/civic.mjs";
 import { paint, SPRITE_W, SPRITE_H } from "@/lib/civic-art.mjs";
 import houseRegistry from "@/data/postmark/households.json";
@@ -137,19 +137,17 @@ const LANE_ANCHORS = Object.fromEntries(LANES.map((l) => [l.key, l.id]));
 // and each lane's world place, so a section can quote its own building's plaque
 const LANE_PLACES = Object.fromEntries(LANES.map((l) => [l.key, l.place]));
 
-// THE QUARTER'S OWN PLAQUE, and it is DERIVED rather than typed.
+// THE VIGNETTE HAS NO DESCRIPTION, and that is the ruling rather than an
+// omission. It carried the town centre's lamplit-quay sentence, which was the
+// wrong mark speaking; the fix looked like quoting the quarter's OWN plaque
+// instead, and that shipped for one build. The founder walked it and went
+// further: with all five buildings drawn and named right there, any prose under
+// the heading only says again what the picture already says.
 //
-// This line used to be the town centre's sentence about a lamplit quay — which
-// was the wrong mark speaking. `the-town/the-town-centre` describes the whole
-// heart of the town; the quarter is a place inside it, and it has its own
-// plaque mark whose body the world planted for exactly this purpose ("the
-// quarter's plaque carries the one-breath description every rendering quotes").
+//   THE HEADING AND THE FIVE NAMED BUILDINGS ARE THE DESCRIPTION.
 //
-// If the plaque is ever absent this renders NOTHING rather than falling back to
-// the old prose. A page with no description is honest; a page describing itself
-// with a sentence about a different place is not, and that is the failure this
-// replaced.
-const plaque = quarterPlaque(worldState, placeMarks);
+// So nothing replaces it. `the-town/the-civic-quarter` still carries its plaque
+// in the world, for renderings that are not this one.
 
 // The section ids the router may open, and the test's list at the same time.
 // `rules` left with the teaching — that lane is /stamps/ again.
@@ -182,7 +180,6 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
         lane's own fold. */}
     <section class="cq" aria-labelledby="cq-h">
       <h2 id="cq-h" class="cq-h">The civic quarter</h2>
-      {plaque && <p class="cq-say">{plaque}</p>}
 
       <ul class="cq-row">
         {LANES.map((lane) => {
@@ -875,15 +872,13 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
       linear-gradient(var(--pm-harbor, #0d1426), var(--pm-night, #070b15));
     overflow: hidden;
   }
+  /* The bottom margin was the description paragraph's; with the description
+     gone the heading has to hold that gap itself, or the buildings ride up
+     into it. */
   .cq-h {
-    margin: 0; text-align: center;
+    margin: 0 0 1.4rem; text-align: center;
     font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.18em;
     text-transform: uppercase; color: rgba(232, 196, 139, 0.75); font-weight: 400;
-  }
-  .cq-say {
-    max-width: 46ch; margin: 0.7em auto 1.4em; text-align: center;
-    font-size: 0.86rem; line-height: 1.6; font-style: italic;
-    color: rgba(205, 194, 171, 0.7);
   }
 
   /* THE BUILDINGS STAND ON ONE LINE, and `flex-start` is what does it. Aligned
