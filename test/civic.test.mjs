@@ -17,8 +17,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   LANES, standing, ideas, isIdea, toIdea, questStandings, questCards, marketplace,
-  loadPlaceMarks, quarterPlaque, markBody, QUEST_REGISTRY,
-  THINK_TANK_PLACE, IDEA_CLASS, TITLE_MAX, BLUEPRINTS_REPO, CIVIC_QUARTER_PLACE,
+  loadPlaceMarks, markBody, QUEST_REGISTRY,
+  THINK_TANK_PLACE, IDEA_CLASS, TITLE_MAX, BLUEPRINTS_REPO,
 } from "../src/lib/civic.mjs";
 import { SPRITES, SPRITE_W, SPRITE_H, INK, paint, checkSprite, checkAllSprites } from "../src/lib/civic-art.mjs";
 import { BOARD_PLACE } from "../src/lib/board.mjs";
@@ -125,20 +125,16 @@ test("markBody takes the plaque and leaves the frontmatter", () => {
   assert.equal(markBody("---\nunterminated: true\n"), null, "a broken fence yields nothing, never half a file");
 });
 
-test("the quarter's plaque is quoted, and absent rather than invented", () => {
-  // THE RULE THIS PINS: fall back to NOTHING. The line this replaced was the
-  // town centre's sentence about a lamplit quay — the wrong mark speaking — and
-  // falling back to it would put a description of a different place under the
-  // quarter's own name.
-  const pen = { [CIVIC_QUARTER_PLACE]: "Where the town asks and is asked." };
-  assert.equal(quarterPlaque(null, pen), "Where the town asks and is asked.");
-  // the fold can answer too, when it has caught up
-  assert.equal(
-    quarterPlaque({ marks: [{ id: CIVIC_QUARTER_PLACE, body: "From the fold." }] }, {}),
-    "From the fold.");
-  assert.equal(quarterPlaque(null, {}), null, "no plaque means no sentence, not a borrowed one");
-  assert.equal(quarterPlaque({ marks: [] }, {}), null);
-});
+// RETIRED 2026-08-30 with the thing it protected: "the quarter's plaque is
+// quoted, and absent rather than invented". It held quarterPlaque() to reading
+// the world and never inventing a fallback sentence. The founder then ruled the
+// vignette carries no description AT ALL — the heading and the five named
+// buildings are the description — so the function lost its only caller and was
+// removed, and a test for a function that does not exist is worse than none.
+//
+// The law it protected did not vanish, it moved up a level and got stricter:
+// the vignette must render NO description, asserted on the rendered page in
+// qa-shots/hub-shots.mjs where the old prose could actually come back.
 
 test("the pen is read from the world package, not from a path typed here", () => {
   // Resolved through an EXPORTED specifier for board.mjs's own reason: the
@@ -226,6 +222,17 @@ const questMirror = [{
     "| 2 | wright | 0/5 | 4/5 | 0 | 15 |",
   ].join("\n"),
 }];
+
+// The registry's rows are quoted verbatim from the town's quest-registry.json.
+// A first idea is the w36 release's flagship quest — a trim that quietly drops
+// it from the cards should cost a named failure, not a silently shorter Guild.
+test("the first-idea quest rides the cards, honest about its missing mirror column", () => {
+  const cards = questCards(questStandings(questMirror));
+  const firstIdea = cards.find((c) => c.title === "A first idea");
+  assert.ok(firstIdea, "the registry carries the first-idea row");
+  assert.equal(firstIdea.cadence, "once, and kept");
+  assert.equal(firstIdea.done, null, "no mirror column yet — no count, never an invented zero");
+});
 
 test("the quest standings are read from the bulletin's own table", () => {
   const q = questStandings(questMirror);

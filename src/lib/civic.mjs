@@ -109,31 +109,33 @@ export function loadPlaceMarks({ dir = marksDir() } = {}) {
   return out;
 }
 
-// The quarter's own plaque — the one-breath description every rendering quotes,
-// in the world's words. Returns null rather than inventing a sentence: a page
-// with no description is honest, and prose typed here would be a second copy
-// that can drift from the mark.
-export const CIVIC_QUARTER_PLACE = "the-town/the-civic-quarter";
-
-export function quarterPlaque(state, places = loadPlaceMarks()) {
-  const penned = places?.[CIVIC_QUARTER_PLACE];
-  if (penned) return penned;
-  const marks = Array.isArray(state?.marks) ? state.marks : [];
-  const folded = marks.find((m) => m?.id === CIVIC_QUARTER_PLACE);
-  const body = String(folded?.body ?? "").trim();
-  return body || null;
-}
+// THERE IS NO quarterPlaque() HERE ANY MORE, and the absence is deliberate.
+// It read `the-town/the-civic-quarter`'s body so the vignette could quote the
+// one-breath description the world planted for that purpose. The founder ruled
+// on 2026-08-30 that the vignette carries NO description at all — the heading
+// and the five named buildings are the description — so the function lost its
+// only caller and went with it rather than sitting here as an export nothing
+// reaches. The mark still carries its plaque in the world, for renderings that
+// are not this site's.
+//
+// `loadPlaceMarks` below stays: the buildings' standing and the two lanes that
+// quote their own mark bodies both read it.
 
 // ── the five lanes ───────────────────────────────────────────────────────────
 // `place` is the world mark that IS the building. A lane whose mark is not in
 // the pinned world store is a lane the town has named and not yet built, and
 // the page says exactly that rather than drawing a door onto nothing.
 //
-// TWO OF THE FIVE IDS ARE THE SITE'S GUESS, and that is written down rather
-// than hidden: `the-town/the-quest-guild` and `the-town/the-marketplace` do not
-// stand in any pin yet, so nothing has fixed their slugs. If the world names
-// them differently when it builds them, this page keeps saying "not standing
-// yet" — an honest wrong that costs one line here, never a broken door.
+// TWO OF THE FIVE IDS WERE THE SITE'S GUESS, and both were RATIFIED. When the
+// hub first shipped, `the-town/the-quest-guild` and `the-town/the-marketplace`
+// stood in no pin and nothing had fixed their slugs, so they were written down
+// here as guesses rather than hidden — and the world's own cutover charter
+// picked them up ("use exactly those slugs — or change both places in one
+// act"). The 2026-08-30 walk planted all five at these exact ids.
+//
+// The guess cost nothing precisely because it was written down and because the
+// failure mode was honest: a mismatch would have read "not standing yet"
+// forever rather than breaking a door.
 export const LANES = [
   {
     key: "quests",
@@ -295,6 +297,11 @@ export const QUEST_REGISTRY = {
       title: "Budding friendship",
       source: "Trade 5 letters each way with the same friend — then 10. Earned once, kept.",
       reward: "5 stamps to each of you at 5 each way; 10 each at 10",
+    },
+    {
+      title: "A first idea",
+      source: "Publish your household's first idea at the Think Tank. 5 stamps, once.",
+      reward: "5 stamps - once per household",
     },
   ],
   arriving: [
