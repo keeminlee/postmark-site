@@ -16,8 +16,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  LANES, standing, ideas, isIdea, toIdea, questStandings, marketplace,
-  THINK_TANK_PLACE, IDEA_CLASS, TITLE_MAX, BLUEPRINTS_REPO,
+  LANES, standing, ideas, isIdea, toIdea, questStandings, questCards, marketplace,
+  loadPlaceMarks, quarterPlaque, markBody, QUEST_REGISTRY,
+  THINK_TANK_PLACE, IDEA_CLASS, TITLE_MAX, BLUEPRINTS_REPO, CIVIC_QUARTER_PLACE,
 } from "../src/lib/civic.mjs";
 import { SPRITES, SPRITE_W, SPRITE_H, INK, paint, checkSprite, checkAllSprites } from "../src/lib/civic-art.mjs";
 import { BOARD_PLACE } from "../src/lib/board.mjs";
@@ -52,18 +53,18 @@ test("the bounty lane reuses board.mjs's own place, rather than retyping it", ()
 test("standing() reads the world, and tells an unreadable store from an empty one", () => {
   // These two render the same emptiness and do not mean the same thing — the
   // distinction board.mjs drew for the notices, kept for the buildings.
-  const none = standing(null);
+  const none = standing(null, {});
   assert.equal(none.storeRead, false, "a null store must be reported as unread");
   assert.deepEqual(Object.values(none.built), [false, false, false, false, false]);
 
-  const empty = standing({ marks: [] });
+  const empty = standing({ marks: [] }, {});
   assert.equal(empty.storeRead, true, "a store that loaded and holds nothing HAS been read");
   assert.deepEqual(Object.values(empty.built), [false, false, false, false, false]);
 });
 
 test("a building stands exactly when its mark is in the world", () => {
   const world = { marks: [{ id: BOARD_PLACE }, { id: "the-town/the-ballot-house" }] };
-  const s = standing(world);
+  const s = standing(world, {});
   assert.equal(s.built.bounties, true, "the board is in the world and must read as standing");
   assert.equal(s.built.votes, true, "so is the ballot house");
   assert.equal(s.built.quests, false, "the quest guild is not, and must not be claimed");
@@ -73,9 +74,82 @@ test("a building stands exactly when its mark is in the world", () => {
   // AND IT CLEARS ITSELF. The whole reason this is read rather than written
   // down: the day the world builds the Think Tank, the page lights it with no
   // edit. If this ever needs a code change to go true, the mechanism is broken.
-  const later = standing({ marks: [...world.marks, { id: THINK_TANK_PLACE }] });
+  const later = standing({ marks: [...world.marks, { id: THINK_TANK_PLACE }] }, {});
   assert.equal(later.built.ideas, true,
     "adding the mark to the world must be enough to stand the building up");
+});
+
+// ── the pen and the fold ─────────────────────────────────────────────────────
+
+test("a mark the pen has and the fold does not still stands", () => {
+  // THE LIVE DEFECT THIS CAUGHT, on the pin the hub was built against. The
+  // world commit that planted the civic quarter (0b4616cc, "THE CIVIC QUARTER
+  // stands whole") added four mark.md files and did NOT re-run the fold, so
+  // world-state.json at that exact pin carries none of them. Reading the fold
+  // alone drew four buildings the world had genuinely planted as "not standing
+  // yet" — a page contradicting the world it renders.
+  const fold = { marks: [{ id: BOARD_PLACE }] };
+  const pen = { "the-town/the-quest-guild": "The Quest Guild — the town's asks." };
+  const s = standing(fold, pen);
+  assert.equal(s.built.bounties, true, "the fold's own mark still counts");
+  assert.equal(s.source.bounties, "fold");
+  assert.equal(s.built.quests, true, "a penned mark the fold has not caught up to still stands");
+  assert.equal(s.source.quests, "pen", "and the page can tell which record answered");
+  assert.equal(s.built.ideas, false, "a mark in NEITHER record does not stand");
+  assert.equal(s.source.ideas, null);
+});
+
+test("the Think Tank's own lane agrees with the vignette about the Think Tank", () => {
+  // A SECOND LIVE DEFECT, and the reason `ideas()` takes the pen too. With the
+  // vignette reading the union and this reading the fold, the quarter drew the
+  // tank standing while the lane beneath it said "The Think Tank is not
+  // standing yet" — one page, one building, two answers.
+  const fold = { marks: [] };
+  const pen = { [THINK_TANK_PLACE]: "Where ideas enter the town." };
+  assert.equal(standing(fold, pen).built.ideas, true);
+  assert.equal(ideas(fold, { places: pen }).placeExists, true,
+    "the lane must use the same union the buildings use");
+  assert.equal(ideas(fold).placeExists, false,
+    "and with no pen offered it still reads the fold alone");
+});
+
+test("markBody takes the plaque and leaves the frontmatter", () => {
+  const md = [
+    "---", "kind: sited", "by: the-town", "at: { x: 250, y: -176 }", "---", "",
+    "Where the town asks and is asked: the Quest Guild, the Think Tank.", "",
+    "A second paragraph that is elaboration, not the plaque.",
+  ].join("\n");
+  assert.equal(markBody(md), "Where the town asks and is asked: the Quest Guild, the Think Tank.");
+  assert.equal(markBody("no frontmatter at all"), "no frontmatter at all");
+  assert.equal(markBody(""), null);
+  assert.equal(markBody("---\nunterminated: true\n"), null, "a broken fence yields nothing, never half a file");
+});
+
+test("the quarter's plaque is quoted, and absent rather than invented", () => {
+  // THE RULE THIS PINS: fall back to NOTHING. The line this replaced was the
+  // town centre's sentence about a lamplit quay — the wrong mark speaking — and
+  // falling back to it would put a description of a different place under the
+  // quarter's own name.
+  const pen = { [CIVIC_QUARTER_PLACE]: "Where the town asks and is asked." };
+  assert.equal(quarterPlaque(null, pen), "Where the town asks and is asked.");
+  // the fold can answer too, when it has caught up
+  assert.equal(
+    quarterPlaque({ marks: [{ id: CIVIC_QUARTER_PLACE, body: "From the fold." }] }, {}),
+    "From the fold.");
+  assert.equal(quarterPlaque(null, {}), null, "no plaque means no sentence, not a borrowed one");
+  assert.equal(quarterPlaque({ marks: [] }, {}), null);
+});
+
+test("the pen is read from the world package, not from a path typed here", () => {
+  // Resolved through an EXPORTED specifier for board.mjs's own reason: the
+  // package.json is not in the exports map, so resolving it throws and the
+  // reader would silently see no marks at all.
+  const places = loadPlaceMarks();
+  assert.ok(Object.keys(places).length > 0,
+    "no authored marks resolved — the pen half of the union is dead");
+  // and a bad directory is fail-soft, exactly like an unreadable store
+  assert.deepEqual(loadPlaceMarks({ dir: "G:/nowhere/at/all" }), {});
+  assert.deepEqual(loadPlaceMarks({ dir: null }), {});
 });
 
 // ── the Think Tank's ideas ───────────────────────────────────────────────────

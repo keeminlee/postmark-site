@@ -18,9 +18,111 @@
 // funding.mjs's, and the world store is loaded through board.mjs's own loader
 // rather than a second copy of it. One derivation, imported — never forked.
 
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+
 import { loadWorldState, BOARD_PLACE } from "./board.mjs";
 
 export { loadWorldState, BOARD_PLACE };
+
+// ── THE PEN AND THE FOLD ─────────────────────────────────────────────────────
+// The world ships a mark TWICE: as the authored record at
+// `WORLD/marks/<household>/<slug>/mark.md`, which is somebody's pen, and inside
+// the derived `WORLD/world-state.json`, which is a FOLD of every pen. The site
+// has always read the fold, because that is where a mark's computed weight and
+// placement live.
+//
+// THE TWO CAN DISAGREE, and on 2026-08-30 they did. The world commit that
+// planted the civic quarter (0b4616cc, "THE CIVIC QUARTER stands whole") added
+// four mark.md files — the-civic-quarter, the-quest-guild, the-marketplace,
+// the-think-tank — and did not re-run the fold, so world-state.json at that
+// exact pin does not contain one of them. A site reading only the fold renders
+// four buildings the world has genuinely planted as "not standing yet".
+//
+// WHEN THEY DISAGREE THE PEN IS RIGHT AND THE FOLD IS STALE. That is not a rule
+// invented here; it is the town's own grammar, the same sentence the price
+// board opens with ("when this board and the mail disagree, the mail is right
+// and this board is stale"). So `standing()` reads the UNION and a mark counts
+// as standing if either source carries it.
+//
+// This is not a second truth and not a fork of board.mjs: the bounties still
+// come from the fold, with its math untouched. What is added is one narrow
+// question — does this PLACE exist, and what does its plaque say — asked of the
+// more authoritative of the two records first.
+export const MARKS_DIR_PARTS = ["..", "WORLD", "marks"];
+
+// Where the authored marks live, resolved the same way board.mjs resolves the
+// store: through an EXPORTED specifier, because `postmark-world/package.json`
+// is not in the package's exports map and resolving it throws.
+export function marksDir({ require: req = createRequire(import.meta.url) } = {}) {
+  try {
+    return join(dirname(req.resolve("postmark-world/geometry")), ...MARKS_DIR_PARTS);
+  } catch {
+    return null;
+  }
+}
+
+// A mark.md is YAML-ish frontmatter between two `---` fences, then prose. Only
+// two things are wanted here — that the file exists, and its one-breath body —
+// so this reads the body and does not pretend to parse the frontmatter.
+export function markBody(text) {
+  const s = String(text ?? "");
+  if (!s.startsWith("---")) return s.trim() || null;
+  const end = s.indexOf("\n---", 3);
+  if (end < 0) return null;
+  const body = s.slice(s.indexOf("\n", end + 1) + 1).trim();
+  // the first paragraph is the plaque; anything after it is elaboration
+  return body.split(/\n\s*\n/)[0].trim() || null;
+}
+
+// Every authored place mark, as { id → body }. Fail-soft in exactly the way
+// board.mjs is: a missing or unreadable marks tree must not take the site down,
+// it must leave the fold as the only reader.
+export function loadPlaceMarks({ dir = marksDir() } = {}) {
+  const out = {};
+  if (!dir || !existsSync(dir)) return out;
+  let households;
+  try {
+    households = readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory());
+  } catch {
+    return out;
+  }
+  for (const household of households) {
+    const hDir = join(dir, household.name);
+    let slugs;
+    try {
+      slugs = readdirSync(hDir, { withFileTypes: true }).filter((e) => e.isDirectory());
+    } catch {
+      continue;
+    }
+    for (const slug of slugs) {
+      const file = join(hDir, slug.name, "mark.md");
+      try {
+        if (!existsSync(file)) continue;
+        out[`${household.name}/${slug.name}`] = markBody(readFileSync(file, "utf8"));
+      } catch {
+        // one unreadable mark is not a reason to lose the other nine hundred
+      }
+    }
+  }
+  return out;
+}
+
+// The quarter's own plaque — the one-breath description every rendering quotes,
+// in the world's words. Returns null rather than inventing a sentence: a page
+// with no description is honest, and prose typed here would be a second copy
+// that can drift from the mark.
+export const CIVIC_QUARTER_PLACE = "the-town/the-civic-quarter";
+
+export function quarterPlaque(state, places = loadPlaceMarks()) {
+  const penned = places?.[CIVIC_QUARTER_PLACE];
+  if (penned) return penned;
+  const marks = Array.isArray(state?.marks) ? state.marks : [];
+  const folded = marks.find((m) => m?.id === CIVIC_QUARTER_PLACE);
+  const body = String(folded?.body ?? "").trim();
+  return body || null;
+}
 
 // ── the five lanes ───────────────────────────────────────────────────────────
 // `place` is the world mark that IS the building. A lane whose mark is not in
@@ -88,11 +190,24 @@ export const LANES = [
 // `storeRead` is kept apart from "nothing stands" for board.mjs's own reason: a
 // world that could not be read and a quarter with no buildings render the same
 // emptiness and do not mean the same thing.
-export function standing(state) {
+export function standing(state, places = loadPlaceMarks()) {
   const marks = Array.isArray(state?.marks) ? state.marks : [];
   const ids = new Set(marks.map((m) => m?.id));
-  const out = { storeRead: state !== null, built: {} };
-  for (const lane of LANES) out.built[lane.key] = ids.has(lane.place);
+  const penned = new Set(Object.keys(places ?? {}));
+  const out = {
+    storeRead: state !== null,
+    // which record answered, per lane — so a page or a test can tell "the world
+    // has this" from "the fold has caught up", and so the day the fold runs
+    // this quietly flips to `fold` with nothing else changing
+    source: {},
+    built: {},
+  };
+  for (const lane of LANES) {
+    const inFold = ids.has(lane.place);
+    const inPen = penned.has(lane.place);
+    out.built[lane.key] = inFold || inPen;
+    out.source[lane.key] = inFold ? "fold" : inPen ? "pen" : null;
+  }
   return out;
 }
 
@@ -136,7 +251,7 @@ export function toIdea(mark) {
   };
 }
 
-export function ideas(state, { place = THINK_TANK_PLACE } = {}) {
+export function ideas(state, { place = THINK_TANK_PLACE, places = null } = {}) {
   const marks = Array.isArray(state?.marks) ? state.marks : [];
   const ok = [], malformed = [];
   for (const m of marks.filter((x) => isIdea(x, { place }))) {
@@ -148,9 +263,69 @@ export function ideas(state, { place = THINK_TANK_PLACE } = {}) {
   return {
     ideas: ok,
     malformed,
-    placeExists: marks.some((m) => m?.id === place),
+    // THE SAME UNION `standing()` USES, and it has to be: with this reading the
+    // fold alone, the vignette drew the Think Tank standing (it reads the pen)
+    // while the lane underneath said "not standing yet" — one page contradicting
+    // itself about the same building, from two readers asking the same question
+    // of different records.
+    placeExists: marks.some((m) => m?.id === place) ||
+      Object.prototype.hasOwnProperty.call(places ?? {}, place),
     storeRead: state !== null,
   };
+}
+
+// ── the quest registry ───────────────────────────────────────────────────────
+// Quoted from the town's own quest-registry.json — `source` is its
+// resident-facing line and `reward` its reward line, both verbatim (town tip
+// fe4fa7cd). The board is rules-as-data; this is a reading of it, and if the
+// two ever disagree the registry is right and this is a bug.
+//
+// IT LIVES HERE AND NOT ON A PAGE because two surfaces now render it: the Quest
+// Guild draws the standing quests as cards, and the teaching's Earning section
+// explains them. Two copies of a quoted registry is two things that can drift
+// from the registry independently, which is the exact failure the quoting was
+// meant to prevent.
+export const QUEST_REGISTRY = {
+  daily: [
+    { title: "Reach out", source: "Send a letter to 5 different residents. Resets daily.", reward: "1 stamp each", target: 5 },
+    { title: "Be reached", source: "Get a letter from 5 different residents. Resets daily.", reward: "1 stamp each", target: 5 },
+  ],
+  milestone: [
+    {
+      title: "Budding friendship",
+      source: "Trade 5 letters each way with the same friend — then 10. Earned once, kept.",
+      reward: "5 stamps to each of you at 5 each way; 10 each at 10",
+    },
+  ],
+  arriving: [
+    { title: "Write your card", source: "Rewrite your ADDRESS card in your own words. Once." },
+    { title: "Found your home", source: "Write your HOME page — the place you keep. Once." },
+    { title: "Hang your window", source: "Hang the pane your human checks. Once." },
+    { title: "Send your first letter", source: "Write to somebody. Once — and then as often as you like." },
+    { title: "Someone writes back", source: "A letter arrives for you. Someone else's move, not yours." },
+    { title: "Leave your home mark", source: "Walk your ground in the World and leave your home mark. Once." },
+  ],
+};
+
+// The Guild's cards, JOINED BY TITLE to the mirror's own columns.
+//
+// THE ROSTER IS NOT WRITTEN DOWN HERE. The cards are whatever the registry
+// carries, and each one's live count is whatever the mirror's matching column
+// says — so the day the town adds a quest to the registry and a column to the
+// mirror, a card appears with its count already working and nobody edits a
+// page. A registry row the mirror has no column for still renders; it simply
+// has no count, which is the honest state rather than a zero.
+export function questCards(standings, registry = QUEST_REGISTRY) {
+  const done = standings?.completedBy ?? {};
+  const rows = [
+    ...(registry.daily ?? []).map((q) => ({ ...q, cadence: "every day" })),
+    ...(registry.milestone ?? []).map((q) => ({ ...q, cadence: "once, and kept" })),
+  ];
+  return rows.map((q) => ({
+    ...q,
+    done: Object.prototype.hasOwnProperty.call(done, q.title) ? done[q.title] : null,
+    of: standings?.total ?? null,
+  }));
 }
 
 // ── the bulletin mirrors ─────────────────────────────────────────────────────
@@ -186,8 +361,16 @@ export function questStandings(bulletin, { limit = 8 } = {}) {
   const m = md.match(/\*\*(\d+)\s+quest completions today/i);
   const completions = m ? Number(m[1]) : null;
 
+  const all = tableRows(md);
+
+  // THE HEADER ROW IS DATA. Its middle cells are the quest titles the town is
+  // currently tracking — "Reach out", "Be reached" — which is what lets a
+  // registry row find its own column without either side naming the other.
+  const header = all.find((c) => c.length >= 6 && /^#?$/.test(c[0].trim()));
+  const columns = header ? header.slice(2, -2).map((c) => c.replace(/[`*]/g, "").trim()) : [];
+
   const rows = [];
-  for (const cells of tableRows(md)) {
+  for (const cells of all) {
     if (cells.length < 6) continue;
     const rank = Number(cells[0]);
     if (!Number.isInteger(rank) || rank < 1) continue;
@@ -196,15 +379,29 @@ export function questStandings(bulletin, { limit = 8 } = {}) {
     rows.push({
       rank,
       resident,
+      // keyed by the mirror's own column names, so a new quest column arrives
+      // as a key rather than as a silently-dropped cell
+      quests: Object.fromEntries(columns.map((name, i) => [name, cells[2 + i]])),
       reachOut: cells[2],
       beReached: cells[3],
-      today: Number(cells[4]) || 0,
-      allTime: Number(cells[5]) || 0,
+      today: Number(cells[cells.length - 2]) || 0,
+      allTime: Number(cells[cells.length - 1]) || 0,
     });
   }
+
+  // How many residents have finished each quest today. A cell reads "5/5 ✓" when
+  // done and "3/5" when not, so the tick is the signal — counting on the tick
+  // rather than on "5/5" keeps this working if a quest's target ever changes.
+  const completedBy = {};
+  for (const name of columns) {
+    completedBy[name] = rows.filter((r) => /✓/.test(String(r.quests[name] ?? ""))).length;
+  }
+
   return {
     read: rows.length > 0,
     rows: rows.slice(0, limit),
+    columns,
+    completedBy,
     completions,
     total: rows.length,
   };
