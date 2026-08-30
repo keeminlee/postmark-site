@@ -232,16 +232,12 @@ const asOfText = potsAsOf
                 <p class="m-kind">{n.civic ? "the town is asking" : n.poster}</p>
                 <h3 class="m-title">{n.ask}</h3>
                 {n.body && <p class="m-body">{n.body}</p>}
-                {n.threshold ? (
-                  <div class="m-bar-wrap">
-                    <div class="m-bar" role="img" aria-label={`${n.backed} of ${n.threshold} stamps staked`}>
-                      <i style={`width:${Math.max(2, pct(n.progress))}%`}></i>
-                    </div>
-                    <p class="m-barlab"><b>{n.backed}</b> of {n.threshold} staked{n.backed > n.threshold && <span class="m-dim"> · over-subscribed</span>}</p>
-                  </div>
-                ) : (
-                  <p class="m-barlab"><b>{n.backed}</b> backed</p>
-                )}
+                {/* FOUNDER-RULED 2026-08-30: stakes on a bounty MARK are the
+                    attention economy's ordinary mark-stakes — visibility, not
+                    a funding pot, and no transfer obligation. Rendering them
+                    here as "backed" implied backers were paying, which misled.
+                    The World shows a mark's stakes where every mark's stakes
+                    live; this page shows the ask and the reward. */}
                 <p class="m-foot">
                   <span class="m-chip">{n.reward}✦</span>
                   {n.date && <span class="m-dim">{n.date}</span>}
