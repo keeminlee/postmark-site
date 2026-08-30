@@ -83,20 +83,39 @@ function everyPageFile(dir = new URL("../town/pages/", import.meta.url).pathname
   return out;
 }
 
-const PORTAL_PATH = "../town/pages/town/index.astro";
-const src = read(PORTAL_PATH);
-// the forwarder that /stamps/ became — asserted in its own section at the foot
-const FORWARDER_PATH = "../town/pages/stamps/index.astro";
+// ── TWO SURFACES, AND WHICH LAW LIVES ON WHICH ───────────────────────────────
+// The founder split them on 2026-08-30 evening: the LANES are the civic
+// quarter's and the TEACHING is /stamps/'s. So this file reads both, and each
+// law reads the surface its content actually sits on.
+//
+//   HUB      the quarter, the five buildings, the five lanes, the board, the pots
+//   TEACHING the one-breath head, the nine sections, the dials
+//
+// Getting this wrong is not hypothetical: when the teaching moved back, every
+// content law in here went red at once while every sentence it asserts was
+// present and correct one file over.
+const HUB_PATH = "../town/pages/town/index.astro";
+const TEACHING_PATH = "../town/pages/stamps/index.astro";
 
 // Markup wraps quoted sentences across lines and threads <b> through them, so
 // every assertion below reads a whitespace-flattened, tag-stripped view. A
 // quotation broken by a line wrap is still the quotation.
 const flat = (s) => s.replace(/<[^>]+>/g, "").replace(/\s+/g, " ");
+// a page's prose only — the frontmatter carries provenance comments, which
+// legitimately name R10 and quote its wording
+const prose = (s) => s.slice(s.indexOf("---", 3) + 3);
 
-// The page's prose only — the frontmatter carries provenance comments, which
-// legitimately name R10 and quote its wording.
-const raw = src.slice(src.indexOf("---", 3) + 3);
+const hubSrc = read(HUB_PATH);
+const raw = prose(hubSrc);
 const body = flat(raw);
+
+const teachSrc = read(TEACHING_PATH);
+const teachRaw = prose(teachSrc);
+const teachBody = flat(teachRaw);
+
+// `src` keeps its name for the many hub laws that read it; the teaching's
+// equivalents read `teachSrc`.
+const src = hubSrc;
 
 // The Rules panel's nine accordions, in teaching order. The router keys on this
 // same list, which is why a renamed one has to break something loudly.
@@ -104,14 +123,19 @@ const RULE_IDS = [
   "what", "earning", "staking", "seam", "minterest",
   "ownership", "faq", "glossary", "check",
 ];
-// The market's two blocks and the dials, which KEPT THEIR IDS through the move
-// for the reason the forwarder's header gives: every deep link ever written
-// points at these words.
-const MARKET_IDS = ["board", "pots", "numbers"];
+// EVERY ID THE PORTAL ANSWERED TO, split by which surface carries it now.
+// All of them kept their WORDS through both moves — that is what made the
+// anchor maps identities and why nothing had to be renamed — but they no
+// longer all live on one page, so a law that checks "does this id exist" has
+// to know where to look.
+const HUB_IDS = ["board", "pots"];              // lanes: the civic quarter
+const TEACH_IDS = ["numbers"];                  // the dials: /stamps/
+const MARKET_IDS = [...HUB_IDS, ...TEACH_IDS];  // the whole set, for the map
 
-// The six lanes of the hub, as their <details> ids. The five buildings of the
-// civic quarter plus the rules that run under all of them.
-const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-house", "rules"];
+// The five lanes of the hub, as their <details> ids — one per building.
+// The rules lane was the sixth for one afternoon and went back to /stamps/
+// with the teaching, which is why this list is the buildings and nothing else.
+const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-house"];
 
 // The five lanes the world's own ontology names, in src/lib/civic.mjs.
 const LANE_KEYS = ["quests", "ideas", "bounties", "listings", "votes"];
@@ -120,7 +144,7 @@ const LANE_KEYS = ["quests", "ideas", "bounties", "listings", "votes"];
 
 test("the tri-law appears in the law's own words", () => {
   assert.ok(
-    body.includes("voice returns · public-good rewards mint fresh · currency conversion burns"),
+    teachBody.includes("voice returns · public-good rewards mint fresh · currency conversion burns"),
     "the tri-law must be quoted verbatim from LOGOS/the-derivation.md § 9",
   );
 });
@@ -138,14 +162,14 @@ test("no dial value is written into the portal's rendered words", () => {
   // have sailed past a body-only check. Frontmatter STRING LITERALS are read
   // too, and only those: the comments around them legitimately quote R10.
   const frontmatterStrings = (() => {
-    const fm = src.slice(0, src.indexOf("---", 3));
+    const fm = teachSrc.slice(0, teachSrc.indexOf("---", 3));
     return [...fm.matchAll(/"([^"\\]*)"|`([^`\\]*)`/g)].map((m) => m[1] ?? m[2]).join("   ");
   })();
   // `body` is tag-STRIPPED, so it cannot see attribute text — and the page's
   // own <PostmarkLayout description="…"> renders into the meta description. A
   // dial typed there was invisible to the first version of this check, so the
   // untouched markup is scanned as well.
-  for (const surface of [body, raw, frontmatterStrings]) {
+  for (const surface of [teachBody, teachRaw, frontmatterStrings]) {
     for (const re of forks) {
       const hit = surface.match(re);
       assert.equal(hit, null, `the portal restates a dial: ${hit && hit[0]}`);
@@ -154,23 +178,24 @@ test("no dial value is written into the portal's rendered words", () => {
 });
 
 test("the portal points at the dials rather than owning them", () => {
-  assert.ok(raw.includes('href="/numbers/"'), "the portal must link The Town's Numbers");
-  assert.ok(/readEconomy\(loadEconomy\(\)\)/.test(src),
+  assert.ok(teachRaw.includes('href="/numbers/"'), "the teaching must link The Town's Numbers");
+  assert.ok(/readEconomy\(loadEconomy\(\)\)/.test(teachSrc),
     "and read its tile values from the emission, never from a literal");
 });
 
 test("every holo mention carries the ruling's line", () => {
   // HOLO_LINE is imported rather than typed, so the sentence cannot drift from
   // the one every other money surface carries.
-  assert.ok(/import \{[^}]*HOLO_LINE[^}]*\} from "@\/lib\/funding\.mjs"/.test(src),
+  assert.ok(/import \{[^}]*HOLO_LINE[^}]*\} from "@\/lib\/funding\.mjs"/.test(teachSrc),
     "HOLO_LINE must be imported, not retyped");
-  assert.ok(body.includes("{HOLO_LINE}"), "the portal must render HOLO_LINE");
+  assert.ok(body.includes("{HOLO_LINE}") && teachBody.includes("{HOLO_LINE}"),
+    "both the pots and the teaching must render HOLO_LINE");
   // AND NO TYPED COPY OF IT ANYWHERE. Counting occurrences was the wrong
   // instrument — with three mentions on the page, replacing one with prose
   // left the count healthy and the probe green. The law is that the sentence
   // comes from the constant so it cannot drift, so what must be forbidden is
   // the hand-typed copy, not a headcount.
-  assert.equal(/a record of contribution, not a promise of profit/.test(raw), false,
+  assert.equal(/a record of contribution, not a promise of profit/.test(raw + teachRaw), false,
     "the ruling's line must come from HOLO_LINE, never be typed into the markup");
   // WHAT THIS DOES NOT CATCH, said plainly: a holo mention that drops the line
   // altogether rather than retyping it. Counting mentions was tried and is the
@@ -190,14 +215,16 @@ test("the nav carries one Stamps entry, flagged beta", () => {
   // What has never moved is the law: ONE door, wearing the beta chip. Both
   // moves cost a one-line red rather than a silent green, which is the whole
   // reason this reads the structure and not a regex over the layout's text.
-  // (3) 2026-08-30: The Town absorbed Stamps, so the seat's DESTINATION moved
-  // to the hub's rules lane and nothing else about it did. The law this test
-  // has always asserted is unchanged — ONE door, wearing the beta chip — which
-  // is exactly why the move cost one line here instead of a rewrite.
+  // (3) 2026-08-30 afternoon: The Town absorbed Stamps, so the seat's
+  // DESTINATION moved to the hub's rules lane and nothing else about it did.
+  // (4) 2026-08-30 evening: the founder sent the teaching back to /stamps/ and
+  // resolved the tee this test carried for one afternoon — whether the rail
+  // still wanted a Stamps seat at all. It does, and it points at /stamps/
+  // again, because /stamps/ is a page again.
   //
-  // WHAT THIS DELIBERATELY DOES NOT DECIDE: whether the top rail still wants a
-  // Stamps seat now that Stamps is a section of The Town. That is a shape call
-  // and it is the founder's; the seat he lifted back by name is still a seat.
+  // FOUR MOVES, ONE UNCHANGED LAW: one door, wearing the beta chip. Each move
+  // cost a one-line red rather than a silent green, which is the whole reason
+  // this reads the structure and not a regex over the layout's text.
   const stamps = allEntries().filter((e) => e.key === "stamps");
   assert.equal(stamps.length, 1, "ONE Stamps door in the rail — a second rebuilds the split the portal removed");
   assert.equal(stamps[0].label, "Stamps");
@@ -206,19 +233,23 @@ test("the nav carries one Stamps entry, flagged beta", () => {
   assert.equal(stamps[0].section, "stamps", "Stamps is not a top-rail seat");
   assert.equal(stamps[0].depth, 0, "Stamps is a chip of some section again");
 
-  // AND IT MUST NOT POINT AT THE FORWARDER. The redirect exists for links the
-  // repo cannot reach; this one it can, and sending every reader who clicks the
-  // top rail through a redirect flash to arrive somewhere the rail could have
-  // named directly is a cost paid for nothing.
-  assert.equal(stamps[0].href, "/town/#rules",
-    "the Stamps seat must open the lane, not the stub that forwards to it");
-  assert.deepEqual(allEntries().filter((e) => /^\/stamps\//.test(e.href)), [],
-    "nothing in the rail may point at /stamps/ — it is a forwarder now");
+  // AND IT OPENS THE PAGE DIRECTLY. It wore a `noActive` escape for one
+  // afternoon, while its destination was a fold of somebody else's page and it
+  // could therefore never light. That is gone with the reason for it: the seat
+  // has its own room again and lights normally, which is what a top-rail seat
+  // is supposed to do.
+  assert.equal(stamps[0].href, "/stamps/", "the Stamps seat must open the teaching");
+  assert.equal(stamps[0].noActive, undefined,
+    "the Stamps seat has its own page again — it must be able to light up");
+  // and nothing in the rail deep-links PAST the door into the teaching's
+  // sections, which would be a second Stamps door wearing a fragment
+  assert.deepEqual(allEntries().filter((e) => /^\/stamps\/.+/.test(e.href)), [],
+    "no second Stamps door in the rail");
 });
 
 // ── the hub is one page of six lanes, entered through the quarter ────────────
 
-test("the hub carries all six lanes, each a fold", () => {
+test("the hub carries a lane for every building, each a fold", () => {
   for (const id of LANE_IDS) {
     assert.ok(raw.includes(`<details class="c-lane" id="${id}">`) ||
               raw.includes(`<details class="c-lane" id="${id}" open>`) ||
@@ -302,9 +333,9 @@ test("the head answers WHAT IS THIS unfolded, with the five things behind one cl
   // a bare indexOf("</header>") returns a position before p-head even starts
   // and slices an empty string — every assertion below then fails on a head
   // that is entirely present and correct.
-  const headAt = raw.indexOf('<header class="p-head">');
+  const headAt = teachRaw.indexOf('<header class="p-head">');
   assert.ok(headAt > 0, "the stamps head did not survive the move");
-  const head = raw.slice(headAt, raw.indexOf("</header>", headAt));
+  const head = teachRaw.slice(headAt, teachRaw.indexOf("</header>", headAt));
   const primer = head.indexOf('<details class="p-primer">');
   assert.ok(head.includes('class="p-folk"'), "the head lost its plain one-breath definition");
   assert.ok(primer > 0, "the five things must be in the head, folded");
@@ -316,19 +347,49 @@ test("the head answers WHAT IS THIS unfolded, with the five things behind one cl
     "the five things to know are five");
   // and the giver's door: a reader who only wants to help pay the bills is
   // pointed at the pots without having to learn the economy first.
-  assert.ok(head.includes('href="#pots"'), "the head must point a giver at the pots");
+  // THE GIVER'S DOOR NOW CROSSES A PAGE. The pots are the Quest Guild's, so
+  // the head points at /town/#pots rather than at a fragment of its own page —
+  // the law is that a reader who only wants to help pay the bills is pointed
+  // straight at the need, not that the need is on this page.
+  assert.ok(head.includes('href="/town/#pots"'), "the head must point a giver at the pots");
 });
 
 // ── the teaching, re-homed as accordions ─────────────────────────────────────
 
-test("the Rules lane carries all nine teaching sections, ids intact", () => {
-  const rulesAt = raw.indexOf('id="rules"');
-  assert.ok(rulesAt > 0, "the rules lane is gone");
-  const rules = raw.slice(rulesAt);
+test("the teaching carries all nine sections, ids intact", () => {
+  // RE-AIMED 2026-08-30 evening: these were a lane of the hub for one
+  // afternoon; the founder sent them back to /stamps/ and they are the page's
+  // body again. The law never changed — nine sections, ids intact — so it
+  // follows the prose rather than staying pointed at the lane it left.
   for (const id of RULE_IDS) {
-    assert.ok(rules.includes(`<details class="r-fold" id="${id}">`),
-      `the Rules lane is missing #${id} — the move dropped a section`);
+    assert.ok(teachRaw.includes(`<details class="r-fold" id="${id}">`),
+      `the teaching is missing #${id} — the move dropped a section`);
   }
+});
+
+test("the teaching LEADS with the questions, and the dials sit under them", () => {
+  //   "lead with the questions now that the quest guild absorbed the town's
+  //    asks"                                    — the founder, 2026-08-30
+  //
+  // The portal opened with the MARKET, because a market square does not open
+  // with its constitution nailed to the gate. The market is not on this page
+  // any more — the board and the pots are lanes of the civic quarter — so what
+  // is left is a teaching, and the order the founder ruled is questions first.
+  const firstFold = teachRaw.indexOf('<details class="r-fold"');
+  const dials = teachRaw.indexOf('id="numbers"');
+  assert.ok(firstFold > 0, "the teaching lost its sections");
+  assert.ok(dials > 0, "the teaching lost the dials");
+  assert.ok(firstFold < dials, "the dials open the page — the questions must come first");
+});
+
+test("the lanes did NOT come with the teaching", () => {
+  // The absorption's whole point. A copy of the board or the pots here would be
+  // the split the quarter closed, and it would be a second surface that looks
+  // like the board.
+  assert.equal(/<div id="board"/.test(teachRaw), false, "the board is a lane, not a teaching block");
+  assert.equal(/<div id="pots"/.test(teachRaw), false, "the pots are the Guild's now");
+  assert.equal(/loadPots|livePots|notices\(/.test(teachSrc), false,
+    "the teaching still reads a lane's derivation");
 });
 
 test("every accordion starts shut", () => {
@@ -348,9 +409,13 @@ test("every id the portal answered to still exists on the hub", () => {
   //
   // This is the assertion that made the move safe: the blocks kept their ids,
   // so the anchor map is an identity and there was nothing to get wrong.
-  for (const id of [...RULE_IDS, ...MARKET_IDS]) {
+  for (const id of HUB_IDS) {
     assert.ok(new RegExp(`id="${id}"`).test(raw),
       `the hub has no #${id} — every /stamps/#${id} ever written now lands nowhere`);
+  }
+  for (const id of [...RULE_IDS, ...TEACH_IDS]) {
+    assert.ok(new RegExp(`id="${id}"`).test(teachRaw),
+      `the teaching has no #${id} — every /stamps/#${id} ever written now lands nowhere`);
   }
 });
 
@@ -390,7 +455,7 @@ test("the hub works with the script switched off", () => {
   assert.equal(/<button[^>]*class="cq-b"/.test(raw), false,
     "a building must not be a button — a button does nothing without script");
   assert.ok((raw.match(/<summary class="c-sum">/g) || []).length === LANE_IDS.length,
-    "every lane needs its own native summary");
+    `every lane needs its own native summary (expected ${LANE_IDS.length})`);
   assert.ok(raw.includes("<svg class=\"cq-art\""),
     "the art must be inline markup, not drawn by a client script");
 });
@@ -540,11 +605,15 @@ test("both retired routes redirect somewhere that exists", () => {
   const config = read("../astro.config.town.mjs");
   assert.match(config, /'\/board\/':\s*'\/town\/#board'/,
     "the board's old path must land on the block that absorbed it");
-  assert.match(config, /'\/stamps\/guide\/':\s*'\/town\/#rules'/,
-    "and the guide's, on the lane that absorbed it");
-  // a redirect at a fragment the hub does not carry lands nowhere at all
+  // RE-AIMED TWICE IN ONE DAY: the guide pointed at /town/#rules while The
+  // Town held the teaching, and comes back to /stamps/ now that the teaching
+  // does. The guide's content and this route's target have been the same thing
+  // throughout; only the address of that thing moved, and back.
+  assert.match(config, /'\/stamps\/guide\/':\s*'\/stamps\/'/,
+    "and the guide's, on the page that carries the teaching");
+  // a redirect at a fragment the target does not carry lands nowhere at all
   assert.ok(raw.includes('<div id="board"'), "#board must still be on the hub");
-  assert.ok(raw.includes('id="rules"'), "and the rules lane must still be there");
+  assert.ok(teachRaw.includes('<details class="r-fold"'), "and the teaching must still be there");
   assert.equal(existsSync(new URL("../town/pages/stamps/guide/index.astro", import.meta.url)), false,
     "the guide page is gone — a second page beside the hub would be the split this closed");
   // /board/ is also a public asset prefix, and a page paints with one of them.
@@ -568,12 +637,15 @@ test("nothing in the repo still points at a retired route", () => {
     assert.equal(/href="\/stamps\/guide\/"/.test(s), false,
       `${page} still links /stamps/guide/`);
   }
-  // AND THE HUB MUST NOT LINK ITS OWN FORWARDER. Four of the moved sentences
-  // carried an absolute /stamps/#board at them; on the hub that is a link from
-  // the page to a stub that bounces straight back to the page, which is a
-  // visible flash and a wasted navigation to reach a block already on screen.
-  assert.equal(/href="\/stamps\//.test(raw), false,
-    "the hub links /stamps/ — a moved self-link that now round-trips the forwarder");
+  // AND THE HUB LINKS /stamps/ ON PURPOSE NOW. For one afternoon that was
+  // forbidden, because /stamps/ was a stub that bounced back here; the founder
+  // made it the teaching page the same evening, so the hub's lanes point at it
+  // the way any page points at another. What must NOT come back is a link at a
+  // fragment this page no longer carries.
+  assert.equal(/href="\/town\/#rules"/.test(raw), false,
+    "the hub links /town/#rules — the lane that went back to /stamps/");
+  assert.ok(raw.includes('href="/stamps/#staking"') || raw.includes('href="/stamps/#earning"'),
+    "the lanes must point at the teaching where it actually lives");
 });
 
 test("every bare fragment on the hub names something the hub has", () => {
@@ -591,68 +663,66 @@ test("every bare fragment on the hub names something the hub has", () => {
   }
 });
 
-// ── the forwarder that /stamps/ became ──────────────────────────────────────
+// ── /stamps/, which is a teaching page again ────────────────────────────────
+//
+// It was a pure forwarder for one afternoon. The founder sent the teaching back
+// to it the same evening, so the laws here changed shape with the route: what
+// was "does it forward everything" is now "does it forward the RIGHT things and
+// keep the rest". The three assertions the forwarder carried are retired, each
+// with its reason, on this file's own precedent:
+//
+//   · noindex + canonical — a forwarder should not be a search result; a
+//     teaching page should, and now is. Asserting noindex would forbid the
+//     page from being findable, which is the opposite of what it is for.
+//   · "no page in the repo may link /stamps/" — that was true while the route
+//     was a stub whose only job was to bounce. It is a real page with real
+//     content now, and the nav seat, the hub's lanes and the fund page all
+//     link it ON PURPOSE. The law it protected (do not route readers through a
+//     redirect to reach content) survives below as the no-round-trip check.
+//   · "the forwarder carries the fragment" — half of it survives verbatim as
+//     the lane half of the partition; the other half is now the opposite claim.
 
-test("/stamps/ still answers, and carries the fragment it was asked for", () => {
+test("/stamps/ still answers, and partitions the fragments it was asked for", () => {
   // THE LAW: a path is an API for consumers the repo cannot reach. Letters in
-  // the town's own record link /stamps/#board; whatever anyone bookmarked links
-  // it. Nothing may 404 and nothing may land on a page without the thing it was
-  // asked for.
-  const fwd = read(FORWARDER_PATH);
-  assert.ok(existsSync(new URL(FORWARDER_PATH, import.meta.url)), "/stamps/ must not 404");
+  // the town's own record link /stamps/#board AND /stamps/#earning, and those
+  // two now live on different pages. Both must land.
+  const teach = read(TEACHING_PATH);
+  assert.ok(existsSync(new URL(TEACHING_PATH, import.meta.url)), "/stamps/ must not 404");
 
-  // THE FRAGMENT IS THE WHOLE POINT, and it is why this is a page rather than
-  // one more line in the redirects map: that map matches PATHS, and a fragment
-  // never reaches the server. A config redirect would silently drop the #board
-  // the reader actually asked for.
-  assert.ok(/location\.hash/.test(fwd), "the forwarder must read the incoming fragment");
-  assert.ok(/location\.replace\(HUB \+/.test(fwd), "and carry it onto the hub");
-  assert.ok(/location\.replace/.test(fwd) && !/location\.assign/.test(fwd),
-    "replace, not assign — Back must not bounce the reader through the forwarder again");
+  // TEACHING ids are native — they open their section here
+  assert.ok(/const RULE_IDS = \[/.test(teach), "the teaching must know its own section ids");
+  assert.ok(/RULE_IDS\.indexOf\(which\) === -1/.test(teach),
+    "the router must tell a teaching id from a foreign one");
 
-  // AND IT WORKS WITH NO SCRIPT. Degraded (it lands at the top of the hub
-  // rather than at the reader's block) but never dead.
-  assert.match(fwd, /http-equiv="refresh"/,
-    "a reader with no scripting must still be forwarded");
-  assert.ok(fwd.indexOf("location.hash") < fwd.indexOf('http-equiv="refresh"'),
-    "the script must come FIRST — it is the only one of the two that keeps the fragment");
-  assert.match(fwd, /<a href={HUB}>/, "and an ordinary link, for anything that honours neither");
+  // LANE ids forward, carrying the fragment, by the mechanics the forwarder
+  // used — because a redirects map matches PATHS and never sees a fragment.
+  assert.match(teach, /const LANE_FRAGMENTS = \{ board: "board", pots: "pots", market: "board" \}/,
+    "the lane partition must name its three fragments in one place");
+  assert.ok(/location\.replace\(HUB \+ "#"/.test(teach), "a lane id must forward WITH its fragment");
+  assert.ok(/location\.replace/.test(teach) && !/location\.assign/.test(teach),
+    "replace, not assign — Back must not bounce the reader through the hop again");
+  assert.ok(/if \(forwardIfLane\(\)\) return;/.test(teach),
+    "the forward must run BEFORE anything renders a teaching section for a lane id");
 
-  // the one fragment whose name changed, and nothing else pretending to
-  assert.match(fwd, /const REMAP = \{ market: "board" \}/,
-    "the anchor map is an identity but for #market, and says so in one place");
+  // AND A BARE /stamps/ STAYS PUT. This is the whole difference from the
+  // afternoon's forwarder, and the one thing that could regress silently: a
+  // page that forwards its own bare path is a doorway, not a page.
+  assert.equal(/http-equiv="refresh"/.test(teach), false,
+    "a meta refresh would forward every reader off the teaching page");
+  assert.equal(/name="robots" content="noindex/.test(teach), false,
+    "the teaching is a real page and must be findable");
 });
 
-test("no page in the repo links the forwarder — it is for links we cannot reach", () => {
-  // THE MISS THIS EXISTS BECAUSE OF. The move re-aimed the hub's own self-links
-  // and the nav, and left SIX behind: three on the fund page, the home page's
-  // milestone link, and two on /numbers/. Every one of them worked — the
-  // forwarder carries the fragment, so a reader still landed on the right block
-  // — which is exactly why nothing caught it. A working link that spends a
-  // whole extra navigation and a visible flash is not a broken link; it is a
-  // slow one, and slow ones do not go red.
-  //
-  // The law is the one the redirects map's own header states: a redirect exists
-  // for consumers the repo CANNOT reach. Anything in this tree can be pointed
-  // at the real thing, so it must be.
-  //
-  // NOTE THE CARVE-OUT, and it is a real one: `API + "/stamps/" + handle` in
-  // Household.astro is the OFFICE's stamps endpoint, not this site's route.
-  // Matching on href= rather than on the string keeps that out.
-  const offenders = [];
-  for (const file of everyPageFile()) {
-    const s = readFileSync(file, "utf8");
-    if (file.endsWith(join("stamps", "index.astro"))) continue; // the forwarder names its own path
-    if (/href="\/stamps\//.test(s)) offenders.push(file.split(/[\\/]/).slice(-2).join("/"));
-  }
-  assert.deepEqual(offenders, [],
-    `these pages route readers through the forwarder instead of linking the hub: ${offenders.join(", ")}`);
-});
-
-test("the forwarder is not a page anyone should land on from a search", () => {
-  const fwd = read(FORWARDER_PATH);
-  assert.match(fwd, /name="robots" content="noindex/, "a forwarder must not be indexed");
-  assert.match(fwd, /rel="canonical" href={HUB}/, "and must name the hub as the real page");
+test("the teaching does not route its own readers through a redirect", () => {
+  // The law the retired "nobody links the forwarder" test protected, kept:
+  // a page must link content DIRECTLY rather than at a fragment that will
+  // bounce. The teaching's own prose points at the board and the pots several
+  // times, and each of those must name the quarter rather than a fragment of
+  // this page that the router would then forward.
+  const laneFragments = [...teachRaw.matchAll(/href="#(board|pots|market)"/g)].map((m) => m[1]);
+  assert.deepEqual(laneFragments, [],
+    `the teaching points at #${laneFragments[0]} — a fragment its own router forwards, so the reader pays a redirect to reach a page we could have named`);
+  assert.ok(teachRaw.includes('href="/town/#pots"'), "the giver's door must name the pots directly");
 });
 
 test("an elastic pot gets a bar against its floor, and the bar says the roll keeps growing", () => {

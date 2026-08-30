@@ -171,11 +171,27 @@ test("THE BALLOT, by name — the page this law exists because of", () => {
   // Not a redundant case. This is the one the old array got wrong, and a
   // refactor that quietly drops the votes entry should cost a named failure,
   // not a silently shorter list.
-  const ballot = allEntries().find((e) => e.key === "votes");
-  assert.ok(ballot, "the ballot left the rail");
-  assert.equal(ballot.href, "/votes/");
-  assert.ok(pageFileFor("/votes/"));
-  assert.ok(CLAIMED.has("votes"), "/votes/ does not mark itself active — the seat is there and dead");
+  // RE-AIMED 2026-08-30 evening, and this test's own warning is why it is
+  // re-aimed rather than deleted: "a refactor that quietly drops the votes
+  // entry should cost a named failure, not a silently shorter list." It cost
+  // exactly that, and here is the named change.
+  //
+  // The founder made the Ballot House a building of the civic quarter and
+  // struck the ballot chip from The Town's row, because a row that lists the
+  // whole and two of its five parts offers three doors into one page. What
+  // this test has always protected is NOT the chip — it is that /votes/ is
+  // reachable and that the page is never left lighting nothing. Both still bind.
+  assert.ok(pageFileFor("/votes/"), "the ballot page left the site");
+  assert.ok(CLAIMED.has("votes"), "/votes/ does not mark itself active — the page is there and dark");
+  assert.ok(sectionOf("votes"), "/votes/ lights no seat — the exact condition this file exists for");
+  assert.equal(sectionOf("votes").key, "town",
+    "the Ballot House is a room of the town, reached through the quarter, so the town's seat answers for it");
+
+  // AND THE DOOR IS STILL DRAWN, one level in: the quarter's Ballot House lane
+  // opens /votes/, so removing the chip removed a repetition and not a route.
+  const hub = readFileSync(join(PAGES, "town", "index.astro"), "utf8");
+  assert.ok(hub.includes('href="/votes/"'),
+    "nothing on the hub opens the Ballot Box — the chip went and took the only door with it");
 });
 
 // ── rule 3: the first chip is the aggregate ──────────────────────────────────
@@ -209,7 +225,7 @@ test("every chip row leads with its own aggregate, at both depths", () => {
   }
 });
 
-test("THE TOWN GOES TO FERRY'S DAILY, and 'the town' is hidden", () => {
+test("THE TOWN COMES BACK TO ITS OWN PAGE — the 2026-08-25 hold, released", () => {
   //   "the town goes to ferry's daily, hide 'the town' (it's empty now, maybe
   //    comes back later if we have town info to put there)"
   //                                              — the founder, 2026-08-25
@@ -221,17 +237,31 @@ test("THE TOWN GOES TO FERRY'S DAILY, and 'the town' is hidden", () => {
   // was left was an empty room. He moved the seat rather than fill it. Both
   // states are recorded here on purpose — the earlier ruling is not a mistake
   // to be scrubbed, it is the rung this one stands on.
+  // THE CONDITION WAS IN HIS OWN SENTENCE, and it has now fired. He hid the
+  // page because "it's EMPTY NOW, maybe comes back later IF WE HAVE TOWN INFO
+  // TO PUT THERE." On 2026-08-30 the civic quarter landed on it: five
+  // buildings, the town's asks and its residents', the whole of what the town
+  // wants from anyone. It is not an empty room any more, so the hold released
+  // and the seat came home.
+  //
+  // BOTH STATES STAY RECORDED. The 2026-08-25 ruling is not a mistake being
+  // scrubbed — it was right about the law (a section needs a real aggregate)
+  // and it is the rung this one stands on.
   const town = RAIL.find((s) => s.key === "town");
   assert.ok(town, "The Town left the rail");
-  assert.equal(town.href, "/daily/", "The Town's seat no longer lands on Ferry's Daily");
-  assert.equal(town.members[0].key, "daily", "the row does not lead with the read the seat leads to");
+  assert.equal(town.href, "/town/", "The Town's seat no longer lands on its own page");
+  assert.equal(town.members[0].key, "town", "the row does not lead with the read the seat leads to");
+  assert.equal(town.members[0].href, "/town/");
 
-  // HIDDEN means out of every rendered row, at every depth — not merely
-  // demoted, and not held (a hold is a chip waiting; this is a page unlinked).
-  assert.equal(allEntries().some((e) => e.href === "/town/"), false,
-    "'the town' is back in a chip row");
-  assert.equal(chipsFor("town").chips.some((c) => c.href === "/town/"), false,
-    "'the town' renders in The Town's own row");
+  // AND IT IS VISIBLE AGAIN, which is the half that inverted: the page that
+  // had to be out of every rendered row at every depth is now the row's first
+  // chip. What must NOT come back is the emptiness — so this asserts the page
+  // has the quarter on it, not merely that it is linked.
+  assert.ok(chipsFor("town").chips.some((c) => c.href === "/town/"),
+    "'the town' is missing from The Town's own row");
+  const hubSrc = readFileSync(join(PAGES, "town", "index.astro"), "utf8");
+  assert.ok(hubSrc.includes('<section class="cq"'),
+    "the seat came back to a page with no civic quarter on it — that is the empty room again");
 
   // and the page KEEPS ITS URL — "maybe comes back later" is a page waiting,
   // not a page deleted, so a lane that tidies it away should go red here.
@@ -283,7 +313,7 @@ test("THE TOP RAIL IS FOR HUMANS — Residents, the Mail and Stamps are lifted b
   for (const [key, label, href] of [
     ["residents", "Residents", "/residents/"],
     ["mail", "The Mail", "/mail/"],
-    ["stamps", "Stamps", "/town/#rules"],
+    ["stamps", "Stamps", "/stamps/"],
   ]) {
     const seat = RAIL.find((s) => s.key === key);
     assert.ok(seat, `"${label}" is not on the top rail`);
@@ -325,11 +355,15 @@ test("THE ORDER IS THE OLD ORDER, with Ferry's Daily replaced by The Town", () =
     ["postmark", "town", "world", "mail", "harbor", "residents", "stamps", "join"],
     `the rail reads: ${RAIL.map((s) => s.label).join(" · ")}`);
 
-  // THE SUBSTITUTION, stated as itself: whatever stands second is the seat that
-  // leads where Ferry's Daily used to lead.
+  // THE SUBSTITUTION, stated as itself: whatever stands second is The Town.
+  //
+  // AMENDED 2026-08-30: it used to lead to Ferry's Daily, because /town/ was an
+  // empty room and the Daily was the town's real aggregate. The civic quarter
+  // filled the room, so the seat leads to /town/ again — the SEAT's position in
+  // the order, which is what this test is actually about, never moved.
   assert.equal(RAIL[1].key, "town", "the second seat is no longer The Town");
-  assert.equal(RAIL[1].href, "/daily/",
-    "The Town no longer stands where Ferry's Daily stood — the substitution is undone");
+  assert.equal(RAIL[1].href, "/town/",
+    "The Town's seat no longer lands on the civic quarter");
 
   // and The Works is not a seat, because it is a chip (his own earlier ruling,
   // and the reason the old rail's ninth entry has no successor here)
@@ -359,9 +393,17 @@ test("THE TOWN KEEPS THE FOUNDER'S OWN LIST, and the meeps is back in it", () =>
   // the Bounty Board in The Town -- still no direct link there") -- a deep link
   // into the stamps portal's board block, seated between the ballot and the
   // works: asks, then builds.
-  assert.deepEqual(chipsFor("daily").chips.map((c) => c.key),
-    ["daily", "bulletin", "votes", "board", "works", "meeps"],
-    `The Town's row reads: ${chipsFor("daily").chips.map((c) => c.label).join(" · ")}`);
+  // AMENDED 2026-08-30 evening, twice over and both by the founder's word:
+  //   · the civic quarter LEADS the row ("the town's default face"), which is
+  //     also what the aggregate-first law has always demanded of every section;
+  //   · the ballot and the bounty board LEAVE it — both are buildings of the
+  //     quarter now, and listing the whole beside two of its parts is the
+  //     card-grid mistake in miniature.
+  // His 2026-08-25 list is still underneath: ferry's daily, the bulletin, the
+  // works, and the meeps he appended. What changed is what wraps it.
+  assert.deepEqual(chipsFor("town").chips.map((c) => c.key),
+    ["town", "daily", "bulletin", "works", "meeps"],
+    `The Town's row reads: ${chipsFor("town").chips.map((c) => c.label).join(" · ")}`);
   assert.equal(town.members.some((m) => m.key === "numbers" && m.held), true,
     "the S4 hold left the structure — the chip must still be there, waiting, with its reason");
 
@@ -496,9 +538,12 @@ test("A HOUSEHOLD IS A HOUSEHOLD OF RESIDENTS — the key the retired seat used 
 });
 
 test("the section row a page draws never shows a held chip, and never appears where there is no family", () => {
-  const town = chipsFor("daily");
+  const town = chipsFor("town");
   assert.equal(town.of.label, "The Town");
-  assert.ok(town.chips.some((m) => m.key === "votes"), "the ballot is missing from its own row");
+  // the ballot left this row for the quarter on 2026-08-30 — asserted where
+  // that ruling is recorded, not here; what this test is about is that a row
+  // renders its family and hides what is held
+  assert.ok(town.chips.some((m) => m.key === "town"), "the quarter is missing from its own row");
   assert.ok(town.chips.some((m) => m.key === "works"), "The Works is missing from the row it was demoted into");
   assert.equal(town.chips.some((m) => m.key === "numbers"), false, "the S4 hold leaked onto the row");
   // the held page still draws its section's row when a reader lands on it
@@ -742,13 +787,11 @@ test("/town/ IS NOT A DASHBOARD — no cards restating the chips, no wall of cou
       "the dials must live inside the rules lane, not loose on the page");
   }
 
-  // and deleting the body must not have deleted the page. It is no longer the
-  // section's landing — the founder moved the seat to Ferry's Daily and hid
-  // this chip the next sitting — but a reader who still has the URL lands on a
-  // real page that draws The Town's row.
+  // and the page IS the section's landing again — the 2026-08-25 hold released
+  // when the civic quarter filled the room its emptiness had emptied.
   assert.ok(CLAIMED.get("town")?.has(join(PAGES, "town", "index.astro")));
   assert.equal(rowFor("town").place, "section");
-  assert.equal(rowFor("town").chips[0].key, "daily");
+  assert.equal(rowFor("town").chips[0].key, "town");
 });
 
 test("the Harbor keeps its own flag — a root-relative spelling would be wrong from one of the two domains", () => {
@@ -805,7 +848,7 @@ test("LITTLE ICONS FOR THE TOWN'S CHIPS — decoration, never the name", () => {
   // deliberately still bare and extending it is an open option, not something
   // done quietly here. Every rendered chip in The Town's row wears one; a chip
   // that arrives later without one is a gap a reader sees as a ragged row.
-  const row = chipsFor("daily").chips;
+  const row = chipsFor("town").chips;
   const bare = row.filter((c) => !c.icon).map((c) => c.label);
   assert.deepEqual(bare, [], `these Town chips have no icon: ${bare.join(", ")}`);
 
@@ -817,8 +860,12 @@ test("LITTLE ICONS FOR THE TOWN'S CHIPS — decoration, never the name", () => {
 
   // THE LABEL IS UNCHANGED. An icon that replaced a word would be a different
   // request; his was for icons on the chips, not instead of them.
+  // AMENDED 2026-08-30 evening with the row itself: the civic quarter leads,
+  // and the ballot and the bounty board left for the quarter that now draws
+  // them. The claim is unchanged — every chip keeps its WORDS, and the icon is
+  // decoration beside the label rather than a replacement for it.
   assert.deepEqual(row.map((c) => c.label),
-    ["ferry’s daily", "the bulletin", "the ballot", "the bounty board", "the works", "the meeps"]);
+    ["the civic quarter", "ferry’s daily", "the bulletin", "the works", "the meeps"]);
 
   // AND THEY ARE HIDDEN FROM A SCREEN READER, because a decorative glyph read
   // aloud beside its own label says the chip twice in two vocabularies.

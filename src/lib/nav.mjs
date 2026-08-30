@@ -195,8 +195,29 @@ export const RAIL = [
   {
     key: "town",
     label: "The Town",
-    href: "/daily/",
+    // THE SEAT COMES BACK TO /town/, and the earlier ruling is the rung this
+    // one stands on rather than a mistake being scrubbed. On 2026-08-25 the
+    // founder moved this seat to Ferry's Daily and hid 'the town' — with the
+    // condition written into his own sentence: "it's empty now, MAYBE COMES
+    // BACK LATER IF WE HAVE TOWN INFO TO PUT THERE."
+    //
+    // That condition has fired. /town/ is the civic quarter now: five buildings,
+    // the town's asks and its residents', the whole of what the town wants from
+    // anyone. It is no longer an empty room, so the seat lands on it again and
+    // the row leads with it — which is also what the aggregate-first law has
+    // always demanded of every other section.
+    href: "/town/",
+    // /votes/ lost its chip to the quarter (below) but still marks itself
+    // `active="votes"`, and a page that lights no seat is the exact condition
+    // this whole file was written because of. The Ballot House is a room of the
+    // town reached through the quarter, so the town's seat answers for it.
+    alsoKey: "votes",
     members: [
+      // CHIP ONE IS THE QUARTER — founder-ruled 2026-08-30 evening: the civic
+      // quarter is the town's default face. It carries the section's own key,
+      // the same shape The World's row uses for its map, so standing on /town/
+      // lights both the seat and this chip.
+      { key: "town", label: "the civic quarter", href: "/town/", icon: "⌂" },
       // ▤ U+25A4 — a page of ruled type, which is what a daily is. It is NOT
       // the first glyph tried: ☼ U+263C reads "white sun with rays" in a code
       // editor and renders as a SETTINGS COG in the browser, which the suite
@@ -221,17 +242,21 @@ export const RAIL = [
       // than the other way, because that word is the one in the URL, the key,
       // the frontmatter and every letter's deep link.
       { key: "bulletin", label: "the bulletin", href: "/bulletin/", icon: "⚑" },
-      // The Ballot — the page this whole law exists because of.
-      { key: "votes", label: "the ballot", href: "/votes/", icon: "☑" },
-      // The Bounty Board — the town's open asks, which live as a block of the
-      // stamps portal rather than a page of their own. Founder, 2026-08-26:
-      // "we need the Bounty Board in The Town — still no direct link there."
-      // RE-AIMED 2026-08-30: The Town absorbed Stamps, so the board block moved
-      // onto The Town's own page. The chip keeps its word and its fragment —
-      // `board` is the id the block carried onto the hub — and now deep-links
-      // into the section's own aggregate rather than across to another seat.
-      { key: "board", label: "the bounty board", href: "/town/#board", icon: "▣",
-        noActive: "a deep link into The Town's own bounty-board lane — the page it opens answers to `town`, this row's own section head, so this chip lights nowhere by design" },
+      // THE BALLOT AND THE BOUNTY BOARD LEFT THIS ROW, founder-ruled
+      // 2026-08-30 evening: both are buildings of the civic quarter now, and
+      // the quarter's chip is directly above. A chip row that lists the whole
+      // and two of its five parts is the card-grid mistake in miniature — the
+      // reader is offered three doors into one page and cannot tell that two of
+      // them are inside the first.
+      //
+      // THE PAGES BOTH STAY at the URLs they have. /votes/ is still the live
+      // Ballot Box and the Ballot House lane opens its door; the board is still
+      // /town/#board and /board/ still redirects there. Nothing is unreachable;
+      // what is gone is a chip repeating a room the quarter already draws.
+      //
+      // `votes` had a key in this row and now has none, so /votes/ needs a seat
+      // to light: it claims `town` below, which is true — it is a room of the
+      // town, reached through the quarter.
       // The Works — the collaboration layer's front door, deliberately
       // backburnered on its own prerequisites (founder correction, 2026-08-25:
       // this is PROJECTS, the resident collaborative builds, NOT the Keeping
@@ -371,11 +396,13 @@ export const RAIL = [
   // reader who clicks it, and the redirect exists for links the repo CANNOT
   // reach; this one it can.
   //
-  // FLAGGED, NOT DECIDED: whether the top rail still wants a Stamps seat once
-  // Stamps is a section of The Town is a shape call, and it is the founder's.
-  // Nothing here presumes it — the seat he lifted back by name is still a seat.
-  { key: "stamps", label: "Stamps", href: "/town/#rules", beta: true,
-    noActive: "the rules lane is a fold of The Town's own page, which answers to `town`, so this seat lights nowhere by design" },
+  // RESOLVED 2026-08-30 evening: the seat STAYS, and it points at /stamps/
+  // again. The tee was whether a Stamps seat still made sense once Stamps was a
+  // fold of The Town; the founder answered it by making /stamps/ a real page
+  // again — the teaching, leading with the questions — so the seat has its own
+  // room to open and lights normally. The `noActive` escape it wore for one
+  // afternoon is gone with the reason for it.
+  { key: "stamps", label: "Stamps", href: "/stamps/", beta: true },
 
   // JOIN — the lantern-lit door, and ONE face now.
   //

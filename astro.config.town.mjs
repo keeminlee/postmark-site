@@ -70,9 +70,14 @@ export default defineConfig({
     '/board/': '/town/#board',
     // The Guide lived at its own route for a few hours on 2026-08-23 before the
     // portal absorbed it. Nothing outside the repo links it yet, but the route
-    // existed and cost nothing to keep alive: the hub's router reads the
-    // fragment and opens the Rules lane.
-    '/stamps/guide/': '/town/#rules',
+    // existed and cost nothing to keep alive.
+    //
+    // RE-AIMED TWICE IN ONE DAY, which is worth saying rather than hiding: it
+    // pointed at /town/#rules while The Town held the teaching, and comes back
+    // to /stamps/ now that the teaching does. The guide's content and this
+    // route's target have been the same thing throughout; only the address of
+    // that thing moved, and back.
+    '/stamps/guide/': '/stamps/',
   },
   vite: {
     ...(DEV ? {
