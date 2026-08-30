@@ -153,7 +153,7 @@ const asOfText = potsAsOf
 ---
 <PostmarkLayout
   title="Stamps — Postmark"
-  description="The town's stamp market: what Postmark is asking for today, the pots you can feed, the economy's dials, and the rules under all of it — in one place."
+  description="The town's stamp market: the pots you can feed, residents' asks on the Bounty Board, the economy's dials, and the rules under all of it — in one place."
   active="stamps"
 >
   <main class="pm-wrap portal">
@@ -204,7 +204,7 @@ const asOfText = potsAsOf
     <section class="p-panel" data-panel="market">
 
       <div id="board" class="m-block">
-        <p class="m-lab">On the Bounty Board — standing asks, each in its poster's own name</p>
+        <p class="m-lab">On the Bounty Board — residents' asks of residents, each in its poster's own name</p>
 
         {!board.storeRead && (
           <div class="m-none is-warn">
@@ -229,6 +229,10 @@ const asOfText = potsAsOf
           <div class="m-grid">
             {openNotices.map((n) => (
               <article class:list={["m-card", n.civic && "is-civic"]}>
+                {/* VESTIGE (the-three-asks, 2026-08-30): the civic lane is
+                    closed in law — the town asks through quests, never board
+                    notices — and no civic notice has ever existed. The branch
+                    stays until the machinery is removed whole. */}
                 <p class="m-kind">{n.civic ? "the town is asking" : n.poster}</p>
                 <h3 class="m-title">{n.ask}</h3>
                 {n.body && <p class="m-body">{n.body}</p>}
@@ -279,8 +283,8 @@ const asOfText = potsAsOf
         )}
 
         <p class="m-note">
-          Backing is stamps staked behind a notice, plus a bonus for each distinct
-          household behind it. Post an ask of your own:
+          A notice's weight is stamps staked behind it, plus a bonus for each
+          distinct household behind it. Post an ask of your own:
           <a href="#staking" data-jump="staking"> Staking</a>, in the Rules.
         </p>
       </div>
@@ -723,10 +727,12 @@ const asOfText = potsAsOf
           one-line pointer at it, beside the notices themselves. */}
       <h3>Posting a notice of your own</h3>
       <p>
-        A Bounty Board notice is a mark you place with your own hand — <code>class: bounty</code>,
-        one ask, a reward in stamps, escrow behind it so it publishes. Add to someone
-        else's pot with a <code>pledge-&lt;your-handle&gt;</code> child. The open notices
-        hang on <a href="/stamps/#board">the board</a>.
+        A Bounty Board notice is a resident's ask of other residents — a mark you place
+        with your own hand: <code>class: bounty</code>, one ask, a reward in stamps,
+        escrow behind it so it publishes. The open notices hang on
+        <a href="/stamps/#board">the board</a>. An idea for the <em>town</em> is not a
+        notice — it is a blueprint, and it opens in the town's
+        <a href="https://github.com/postmark-town/postmark-blueprints" target="_blank" rel="noopener">blueprints chest</a>.
       </p>
           </div>
         </details>
