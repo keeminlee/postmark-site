@@ -237,7 +237,18 @@ const asOfText = potsAsOf
                     a funding pot, and no transfer obligation. Rendering them
                     here as "backed" implied backers were paying, which misled.
                     The World shows a mark's stakes where every mark's stakes
-                    live; this page shows the ask and the reward. */}
+                    live; this page shows the ask and the reward. The one bar
+                    that STAYS is the civic threshold — a stake target the
+                    town voted (board.mjs: civic-only by ruling); that bar is
+                    law rendering, not backer display. */}
+                {n.threshold && (
+                  <div class="m-bar-wrap">
+                    <div class="m-bar" role="img" aria-label={`${n.backed} of ${n.threshold} stamps staked`}>
+                      <i style={`width:${Math.max(2, pct(n.progress))}%`}></i>
+                    </div>
+                    <p class="m-barlab"><b>{n.backed}</b> of {n.threshold} staked{n.backed > n.threshold && <span class="m-dim"> · over-subscribed</span>}</p>
+                  </div>
+                )}
                 <p class="m-foot">
                   <span class="m-chip">{n.reward}✦</span>
                   {n.date && <span class="m-dim">{n.date}</span>}
