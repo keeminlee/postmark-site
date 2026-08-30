@@ -623,6 +623,32 @@ test("/stamps/ still answers, and carries the fragment it was asked for", () => 
     "the anchor map is an identity but for #market, and says so in one place");
 });
 
+test("no page in the repo links the forwarder — it is for links we cannot reach", () => {
+  // THE MISS THIS EXISTS BECAUSE OF. The move re-aimed the hub's own self-links
+  // and the nav, and left SIX behind: three on the fund page, the home page's
+  // milestone link, and two on /numbers/. Every one of them worked — the
+  // forwarder carries the fragment, so a reader still landed on the right block
+  // — which is exactly why nothing caught it. A working link that spends a
+  // whole extra navigation and a visible flash is not a broken link; it is a
+  // slow one, and slow ones do not go red.
+  //
+  // The law is the one the redirects map's own header states: a redirect exists
+  // for consumers the repo CANNOT reach. Anything in this tree can be pointed
+  // at the real thing, so it must be.
+  //
+  // NOTE THE CARVE-OUT, and it is a real one: `API + "/stamps/" + handle` in
+  // Household.astro is the OFFICE's stamps endpoint, not this site's route.
+  // Matching on href= rather than on the string keeps that out.
+  const offenders = [];
+  for (const file of everyPageFile()) {
+    const s = readFileSync(file, "utf8");
+    if (file.endsWith(join("stamps", "index.astro"))) continue; // the forwarder names its own path
+    if (/href="\/stamps\//.test(s)) offenders.push(file.split(/[\\/]/).slice(-2).join("/"));
+  }
+  assert.deepEqual(offenders, [],
+    `these pages route readers through the forwarder instead of linking the hub: ${offenders.join(", ")}`);
+});
+
 test("the forwarder is not a page anyone should land on from a search", () => {
   const fwd = read(FORWARDER_PATH);
   assert.match(fwd, /name="robots" content="noindex/, "a forwarder must not be indexed");
