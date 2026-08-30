@@ -34,6 +34,11 @@ const LEDGER = `${TOWN}/WHITE_PAGES/stamp-ledger.md`;
 
 const econ = readEconomy(loadEconomy());
 
+// The card's roll caps at three names — the fourth donation spilled the card
+// (founder, 2026-08-29 night). The pot's own /fund/<pot>/ page is the full
+// roll, so "and N more" links there rather than truncating anyone away.
+const PATRONS_SHOWN = 3;
+
 // the live half — the same two readers, unchanged
 const wantFixture = import.meta.env.DEV &&
   (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
@@ -365,10 +370,14 @@ const asOfText = potsAsOf
                       `outside:stripe` and shipped exactly that. patronLabel is
                       the one shape-rule (funding.mjs); it links a hand and
                       names a gift. */}
+                  {/* The separator lives BETWEEN the nowrap spans, not inside
+                      them — inside, the whole roll is one unbreakable run and
+                      spills the card (the fourth donation proved it). Nowrap
+                      still keeps each name with its dollars. */}
                   {p.patrons.length > 0
-                    ? <>{p.patrons.map((c, i) => { const who = patronLabel(c.patron); return (
-                        <span class="m-patron">{i > 0 && " · "}{who.href ? <a href={who.href}>{who.label}</a> : <span class="m-gift">{who.label}</span>} <span class="m-dim">{usd(c.usd)}</span>{c.holo > 0 && <> <span class="pm-holo-ink m-holo">✧{c.holo}</span></>}</span>
-                      ); })}</>
+                    ? <>{p.patrons.slice(0, PATRONS_SHOWN).map((c, i) => { const who = patronLabel(c.patron); return (
+                        <>{i > 0 && " · "}<span class="m-patron">{who.href ? <a href={who.href}>{who.label}</a> : <span class="m-gift">{who.label}</span>} <span class="m-dim">{usd(c.usd)}</span>{c.holo > 0 && <> <span class="pm-holo-ink m-holo">✧{c.holo}</span></>}</span></>
+                      ); })}{p.patrons.length > PATRONS_SHOWN && <> · <span class="m-patron m-dim">and <a href={`/fund/${p.pot}/`}>{p.patrons.length - PATRONS_SHOWN} more</a></span></>}</>
                     : <span class="m-dim">the roll is open — nobody has fed this pot yet</span>}
                 </p>
 
