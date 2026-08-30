@@ -30,6 +30,9 @@ import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/bo
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
 const WORLD = "https://github.com/keeminlee/postmark-world/blob/main";
+// ECONOMY.md moved to the blueprints documentation shelf 2026-08-30; the
+// world-root stub still resolves, but citations point at the living page.
+const ECON = "https://github.com/postmark-town/postmark-blueprints/blob/main/documentation/ECONOMY.md";
 const LEDGER = `${TOWN}/WHITE_PAGES/stamp-ledger.md`;
 
 const econ = readEconomy(loadEconomy());
@@ -538,7 +541,7 @@ const asOfText = potsAsOf
           discretionary judgment. A corollary governs all quest design: reward <i>that</i>
           one participated, never <i>how loudly</i> — recognitions are firsts and
           thresholds; volume never mints.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 2</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 2</a></cite>
         </blockquote>
         <blockquote>
           The tri-law keeps the burn contained: <b>voice returns · public-good rewards mint
@@ -688,7 +691,7 @@ const asOfText = potsAsOf
           <b>Law of stakes.</b> <i>Stakes on decisions return; stakes on deliverables pay.</i>
           A decision consumes nothing; a good costs something. Both semantics coexist on
           the same instrument, including stacked on a single object.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 4</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 4</a></cite>
         </blockquote>
         <blockquote>
           <b>A stake is not a spend.</b> … <b>Everything returns at close.</b> Every stamp
@@ -926,7 +929,7 @@ const asOfText = potsAsOf
           are the standing postmortem). Value exits as <i>goods and works</i> — merchandise,
           commissions, shipped projects paying real dollars through pots — never as currency
           conversion.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 7</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 7</a></cite>
         </blockquote>
         <p class="s-law-foot">
           The dials the close actually runs on — the split and the cap — are published at
@@ -965,19 +968,19 @@ const asOfText = potsAsOf
           where <code>cᵢ</code> is each backing household's stake on the mark, the sum runs
           over its backers, <code>M</code> is the global cumulative mint, and <code>q</code>
           is a town-set scalar.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 9.1</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 9.1</a></cite>
         </blockquote>
         <blockquote>
           The <b>creator</b> receives it, not the stakers — worldbuilding becomes a durable
           income stream, while staking a mark stays a decision (voice), returned.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 9.1</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 9.1</a></cite>
         </blockquote>
         <blockquote>
           <b>q is monetary policy by vote.</b> On a slow cadence (a monthly ballot) the town
           sets how much the World-as-a-project matters, scaling the whole beauty-engine up or
           down. It is literally the town voting its own inflation rate, and the pressure
           valve if the engine is ever seen to be farmed.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 9.1</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 9.1</a></cite>
         </blockquote>
       </details>
           </div>
@@ -1029,12 +1032,12 @@ const asOfText = potsAsOf
           follows living attention.</i> Equity (past tense) is the claim on the venture's
           external value… It governs <b>nothing</b> inside the town. Steering — quest
           ratification, marks, ballots, prices — runs entirely on liquid and staked stamps.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 5</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 5</a></cite>
         </blockquote>
         <blockquote>
           Plutocracy is excluded twice: externally (money cannot buy stamps, § 7) and
           internally (equity cannot vote).
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 5</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 5</a></cite>
         </blockquote>
         <blockquote>
           the founding contribution is a residual, declared claim, never a priced one. …
@@ -1042,7 +1045,7 @@ const asOfText = potsAsOf
           <i>ratified</i> — and the ratification mechanism is <b>accession</b>. Everyone who
           contributes under the posted rules after epoch accepts the genesis as part of the
           law they are joining.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 6</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 6</a></cite>
         </blockquote>
         <blockquote>
           It requires <b>local comprehensibility</b> (each interaction understandable at the
@@ -1051,7 +1054,7 @@ const asOfText = potsAsOf
           learns what a pot is remains fully whole — still minting, still accumulating their
           share, protected by the caps from being out-farmed. Corollary: no decay mechanics,
           no use-it-or-lose-it, ever.
-          <cite><a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener">ECONOMY.md § 10</a></cite>
+          <cite><a href={`${ECON}`} target="_blank" rel="noopener">ECONOMY.md § 10</a></cite>
         </blockquote>
       </details>
           </div>
@@ -1230,7 +1233,7 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
         <a href={`${TOWN}/STAMPS.md`} target="_blank" rel="noopener"> STAMPS.md</a>,
         <a href={`${TOWN}/ECONOMY-DIALS.json`} target="_blank" rel="noopener"> ECONOMY-DIALS.json</a>,
         <a href={`${TOWN}/quest-registry.json`} target="_blank" rel="noopener"> quest-registry.json</a> or
-        <a href={`${WORLD}/ECONOMY.md`} target="_blank" rel="noopener"> the World's ECONOMY.md</a>,
+        <a href={`${ECON}`} target="_blank" rel="noopener"> the World's ECONOMY.md</a>,
         those are right and this is a bug.
       </p>
     </section>
