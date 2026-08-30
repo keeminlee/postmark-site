@@ -1,0 +1,331 @@
+---
+// WorldCockpit — the action bar, the ACT AS roster, and the human's own token,
+// over the world map, WHEREVER THERE IS SOMEONE TO ACT AS.
+//
+// THE FOUNDER'S SCOPE RULING (2026-08-27): the bar mounts wherever the actors
+// roster is present, parcels included, or wherever the door says we are inside a
+// portal.
+//
+// IT SUPERSEDES THE RULING OF 2026-08-26, kept here beside it because a reversal
+// that hides the thing it reversed leaves the next reader unable to tell it from a
+// regression. The superseded ruling: "the cockpit ships inside portal ground; the
+// world page outside portals keeps today's chrome untouched." Under it the bar
+// could not appear on a parcel however much that ground granted, and the site's
+// own parcel-embodied-human reading was unreachable code from the day it was
+// written.
+//
+// EITHER WAY IT IS KEPT LITERALLY rather than only visually: where the door sends
+// neither a roster nor a portal, this island appends no element, adds no
+// stylesheet rule, and binds no key. A signed-out visitor's page is unchanged down
+// to the network tab — nothing is fetched at all. A signed-in reader outside the
+// scope costs one script tag and two reads: their own `/me`, and the apex, which
+// this page's arrival chrome is already standing on.
+//
+// MCP-FIRST, which on this page means: the site consumes the office's apex door
+// and renders its answer. `GET /api/world/apex` is the READ half (keyless — "the
+// spine, the salient marks and the affordances in force at a point are all
+// published-main facts", office server.mjs) and `POST /api/world/apex` is the ACT
+// half, taking the identical `{do, args}` envelope the MCP `world` verb takes.
+// There is no second grammar here and no verb list: what the bar offers is
+// whatever the door listed, and what a tooltip says about an act is quoted from
+// the class mark the door named.
+//
+// THE MAP'S GRID is read from `/WORLD/skeleton.json` — the same bytes the viewer
+// reads it from, parsed with the viewer's own two regexes. One source, two
+// readers; a copied constant would be a second number to drift.
+//
+// Degrades in every direction it can: no door, no cockpit; no portal, no cockpit;
+// a skeleton whose `_grid` changed shape, no token. Nothing here is required for
+// the world page to be exactly the page it is today.
+---
+
+<script>
+  import { mountCockpit } from "@/lib/world-cockpit-mount.mjs";
+  import { cockpitShows, gridFrom } from "@/lib/world-cockpit.mjs";
+  import { APEX_PATH, orientingHandle, readDoor } from "@/lib/world-cockpit-door.mjs";
+  import { KEYS, tokenIsFresh } from "@/lib/auth.mjs";
+
+  (function () {
+    // Same base resolution the household and compose islands use: prod is
+    // same-origin /api; a dev host talks to the live office. A BUILD-TIME env
+    // (never a query param — a shared ?office= link would post the reader's
+    // bearer to whoever minted the link) lets a local walk aim at a local
+    // office; prod builds set nothing and keep the standing resolution.
+    const OFFICE = import.meta.env.PUBLIC_OFFICE_BASE
+      ?? (location.hostname.endsWith("postmark.town")
+        ? location.origin + "/api"
+        : "https://postmark.town/api");
+
+    const bearer = () => {
+      try {
+        const t = JSON.parse(localStorage.getItem(KEYS.token) || "null");
+        if (tokenIsFresh(t)) return t.access_token;
+      } catch {}
+      // THE PAGE'S OTHER SIGN-IN (2026-08-28, found at the dress rehearsal):
+      // the viewer signs a reader in as a bare Bearer in localStorage['pm_key']
+      // (WorldSignIn plants it "before the viewer boots, so the lens is live on
+      // load"). The cockpit read only the OAuth token shape, so for a pm_key
+      // reader — every stage key, and any resident signed in the viewer's way —
+      // bearer() answered null and the cockpit degraded to nothing, silently,
+      // on the very standpoints it was built for. One page, one signed-in
+      // reader: the cockpit accepts the same word the viewer does.
+      try { return localStorage.getItem("pm_key") || null; } catch { return null; }
+    };
+    const authed = (extra) => {
+      const k = bearer();
+      return Object.assign({ accept: "application/json" }, k ? { authorization: "Bearer " + k } : {}, extra || {});
+    };
+
+    async function readMe() {
+      if (!bearer()) return null;
+      const r = await fetch(OFFICE + "/me", { headers: authed() });
+      return r.ok ? r.json() : null;
+    }
+
+    async function readGrid() {
+      // Same-origin first, exactly as the viewer does it. A build with no staged
+      // WORLD directory simply has no grid, and the token is not drawn.
+      try {
+        const r = await fetch("/WORLD/skeleton.json");
+        if (!r.ok) return null;
+        return gridFrom(await r.json());
+      } catch { return null; }
+    }
+
+    /**
+     * The act's SHADOW, for the tooltip's terms. `read: <action>` returns the
+     * act's full card WITH the terms that would bind it and performs nothing —
+     * "A read never performs" is the apex's own law, and the office's
+     * `readNeverPerforms` enforces it. This is how a card can show the terms
+     * before the reader does anything, which is where the law says they belong.
+     *
+     * One request per act for the life of the mount (the mount caches). It is a
+     * POST because the apex's GET half takes no `read:`, and it needs the key
+     * because a shadow reads YOUR domain — what is in your earshot, your
+     * holdings, your note.
+     */
+    async function readTerms(action, handle) {
+      const r = await fetch(OFFICE + APEX_PATH, {
+        method: "POST",
+        headers: authed({ "content-type": "application/json" }),
+        body: JSON.stringify(handle ? { read: action, handle } : { read: action }),
+      });
+      if (!r.ok) return null;
+      return r.json();
+    }
+
+    /**
+     * WHAT HAS JUST BEEN SAID, AND WHERE. The other half of the chat ruling
+     * (2026-08-28) — a line you type should appear beside whoever said it.
+     *
+     * A SECOND DOOR, because the apex answer carries no speech at all. Speech in
+     * this world is a sound, and its record lives at the conversations door,
+     * which is KEYLESS on purpose — "speech is public the way street conversation
+     * is" (office server.mjs). Each voice carries the coordinates the speaker
+     * stood at when they spoke it, which is what lets a line be drawn on the map
+     * rather than listed in a panel.
+     *
+     * The site's own conversations page has polled this same door since it
+     * shipped; this is the second reader of one source, not a new surface.
+     *
+     * Answers null on any failure, and the map simply draws no speech — the same
+     * degradation as every other read on this page.
+     */
+    async function readVoices() {
+      try {
+        const r = await fetch(OFFICE + "/world/conversations", { headers: { accept: "application/json" } });
+        return r.ok ? r.json() : null;
+      } catch { return null; }
+    }
+
+    /**
+     * A RESIDENT'S OWN CARD, for the face in the dock.
+     *
+     * The founder, 2026-08-29: "there needs to be profiles of tokens loaded
+     * into the act as bar." Every handle on the key should show its picture,
+     * and this is where the picture's name comes from: `GET /residents/{handle}`
+     * answers `profile`, whose `avatar` is the basename of the file the
+     * resident uploaded (office src/edit.mjs writes it into PROFILE.md's
+     * frontmatter). `residentAvatar` turns that into a URL; nothing here is a
+     * new door.
+     *
+     * KEYLESS ON PURPOSE. A resident's card is public — it is the same read the
+     * town's own directory is built from — so the dock's pictures do not depend
+     * on who is signed in, and a face is never blank because a key went stale.
+     *
+     * Answers null on anything that is not a 200, which the dock draws as the
+     * initial-letter tile every face already had.
+     */
+    async function readResident(handle) {
+      if (!/^[a-z0-9-]+$/.test(String(handle ?? ""))) return null;
+      try {
+        const r = await fetch(OFFICE + "/residents/" + handle, { headers: { accept: "application/json" } });
+        return r.ok ? r.json() : null;
+      } catch { return null; }
+    }
+
+    async function dispatch(envelope) {
+      const k = bearer();
+      if (!k) return { ok: false, status: 401, body: { defect: "performing needs a key", hint: "sign in to act — the read half of this door is keyless, an act is not" } };
+      // AN ACT NAMES THE RESIDENT IT ORIENTS FROM, the human's act included —
+      // `dispatchEnvelope` puts it in `handle`. Said here as well as there because
+      // this is the wire, and on a multi-resident key a nameless act bounces at
+      // orient before the human seam is ever reached: the act would look refused
+      // when it was only unaddressed.
+      if (!envelope.handle) console.warn("world cockpit: an act is going out naming no resident — on a multi-resident key the door bounces it at orient", envelope);
+      const r = await fetch(OFFICE + APEX_PATH, {
+        method: "POST",
+        headers: authed({ "content-type": "application/json" }),
+        body: JSON.stringify(envelope),
+      });
+      let body = null;
+      try { body = await r.json(); } catch { /* a body-less bounce is still a bounce */ }
+      return { ok: r.ok, status: r.status, body };
+    }
+
+    /**
+     * The map's svg — found through the overlay it contains, never as "the first
+     * svg in .wv". The viewer renders small `.wv-arrow` svgs of its own
+     * (spectator/viewer.mjs mints them for the telling's direction glyphs), so
+     * the first svg under `.wv` is not reliably the painting, and a token layer
+     * appended to a 10x10 arrow would be invisible and blameless.
+     *
+     * `#wv-overlay` is created by the viewer and appended to the map svg itself,
+     * so its ownerSVGElement IS the map — and the site's own arrival island on
+     * this page already treats that id as the honest readiness signal.
+     */
+    function mapSvg() {
+      // THE PAINTING THE READER IS LOOKING THROUGH, not the one this island
+      // met first (2026-08-29, the founder's vault). In a room view the world
+      // svg is detached and the ROOM ground is the living painting — it
+      // carries the projection stamp (data-wv-m-per-px, world repo e703b7c0),
+      // which makes the stamp double as the discovery signal: a stamped svg
+      // that is connected IS the current scene. No stamp anywhere means the
+      // world painting, found through its overlay exactly as before.
+      const scene = document.querySelector(".wv svg[data-wv-m-per-px]");
+      if (scene?.isConnected) return scene;
+      const overlay = document.querySelector(".wv #wv-overlay");
+      return overlay?.ownerSVGElement ?? null;
+    }
+
+    async function boot() {
+      // NOT SIGNED IN: no fetch at all, so an anonymous visitor's world page is
+      // unchanged down to the network tab. This costs no behaviour — the door
+      // answers a keyless caller from the quay with `stance: "spectator"` and no
+      // standpoint of their own (read live 2026-08-26), so a signed-out reader is
+      // never inside portal ground, and a spectator could not act on the bar in
+      // any case. The read half of the apex is keyless on purpose and would have
+      // answered; there is just nothing here to answer about.
+      if (!bearer()) return;
+
+      // /me COMES FIRST, and the order is the fix. The apex answers a NAMED
+      // resident's standpoint, and a key holding several residents is this town's
+      // default shape — the founder's own key is one — so a read naming nobody is
+      // refused 422 rather than answered. On 08-26 the read went first, took that
+      // refusal, and the island could not tell it apart from "you are not in a
+      // portal": the cockpit built that day never mounted, silently. So the
+      // resident is resolved BEFORE the door is asked.
+      const me = await readMe().catch(() => null);
+      // THE READ ROOTS AT THE SELECTED RESIDENT, NOT AT handles[0] (found live,
+      // 2026-08-28 rehearsal night). orientingHandle's first-handle rule was
+      // written for a key holding one resident; the founder's dev key holds SIX,
+      // in six different places, and the office happened to order the
+      // Illuminator first — so the founder stood in her looking-room all night
+      // while rei fought in the candle vault, and no click could move him. The
+      // seat follows the SELECTION: the viewer's own stored choice when it names
+      // a resident this key holds, else the first handle exactly as before. A
+      // stale stored name (a resident this key no longer holds) falls through
+      // rather than bouncing the read.
+      // ⚑ AND IT READS BOTH KEYS THE VIEWER READS (2026-08-29). This consulted
+      // only `pm.world.act_as` and fell back to the first handle; the viewer
+      // resolves from `act_as` AND `pm.world.last_resident`, and treats the
+      // spectator sentinel explicitly. So on a reload where `act_as` was absent
+      // or held the sentinel, the viewer's camera and this apex read ROOTED AT
+      // DIFFERENT RESIDENTS until the reader clicked a face — the Act As row
+      // naming one resident while the page showed another's standpoint. Not a
+      // special case for the fight, as it looked: two answers to one question.
+      //
+      // THE LAW IS THE WORLD REPO'S, in spectator/act-as.mjs, which exists so
+      // both sides can import ONE resolver. This mirrors it rather than importing
+      // it for one reason only: the pinned postmark-world in node_modules does
+      // not carry that file yet, so importing it today breaks the build. The
+      // moment the pin (or the dev clone) moves past it, these six lines become
+      //     import { resolveActAsSelection } from "postmark-world/spectator/act-as.mjs";
+      // and the duplication goes. Until then the precedence below is copied
+      // deliberately and is named as a copy, which is the honest version of a
+      // thing that cannot yet be shared.
+      const SPECTATOR = "__spectator__";
+      const handles = Array.isArray(me?.handles) ? me.handles : [];
+      const read = (k) => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
+      const stored = read("pm.world.act_as");
+      const lastResident = read("pm.world.last_resident");
+      let acting = handles.includes(stored) ? stored
+        : handles.includes(lastResident) ? lastResident
+        : (stored === SPECTATOR ? (handles[0] ?? null) : orientingHandle(me));
+      if (!acting) console.warn("world cockpit: /api/me named no resident on this key, so the apex read cannot say whose standpoint to answer");
+      // One composition, used by the boot read, the refresh after an act, the
+      // re-read on return to the tab, and the re-read on a dock selection — so
+      // the handle cannot be threaded into one of the four and forgotten in the
+      // others, which is exactly how 08-26 got three calls to one door that
+      // disagreed about naming a resident. `acting` is a let for the same
+      // reason: one variable, every caller reads it at call time.
+      const door = () => readDoor({ fetch, office: OFFICE, handle: acting, headers: authed() });
+
+      const answer = await door().catch((err) => {
+        console.warn("world cockpit: the apex could not be reached at all", err);
+        return null;
+      });
+      if (!answer || !cockpitShows(answer)) return; // the page stays exactly as it is
+      const grid = await readGrid();
+
+      let handle = null;
+      const mount = () => {
+        handle = mountCockpit({
+          document, host: document.body, svg: mapSvg(), svgOf: mapSvg, answer, me, grid,
+          dispatch, readTerms, refresh: door, readVoices, readResident,
+        });
+      };
+      // Wait for a drawn overlay before mounting, for the reason the arrival
+      // island already documents on this page: "an element exists" was the wrong
+      // readiness signal here once already. Capped, and mounts anyway when the
+      // cap runs out — a cockpit with no token beats no cockpit.
+      let tries = 0;
+      (function ready() {
+        const overlay = document.querySelector(".wv #wv-overlay");
+        if ((!overlay || !overlay.childNodes.length) && tries++ < 200) { setTimeout(ready, 125); return; }
+        mount();
+      })();
+
+      // Re-read when the reader comes back to the tab. Cheap, and it is when a
+      // stale answer is most likely: crossings settle while a tab is hidden.
+      document.addEventListener("visibilitychange", async () => {
+        if (document.visibilityState !== "visible" || !handle) return;
+        const fresh = await door().catch(() => null);
+        if (fresh) handle.update(fresh);
+        // the mount tears itself down when the answer leaves portal ground; drop
+        // our reference with it so nothing later paints through a dead handle
+        if (!document.documentElement.hasAttribute("data-pmc-dock")) handle = null;
+      });
+
+      // Re-read when the dock picks a different resident (pm:act-as, the
+      // mount's own event, detail: { actor }). This is the other half of the
+      // seat-follows-the-selection fix above: without it the dock changed who
+      // ACTS while the answer stayed rooted where the old resident stood, and
+      // the map, the wheel and the bar all described somebody else's room. The
+      // human face deliberately speaks no pm:act-as (resident handles only), so
+      // acting-as-yourself keeps borrowing the selected resident's place — the
+      // seat law, kept.
+      window.addEventListener("pm:act-as", async (e) => {
+        const who = e?.detail?.actor;
+        if (!who || who === acting || !handles.includes(who)) return;
+        acting = who;
+        const fresh = await door().catch(() => null);
+        if (fresh && handle) handle.update(fresh);
+        if (!document.documentElement.hasAttribute("data-pmc-dock")) handle = null;
+      });
+    }
+
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+    else boot();
+  })();
+</script>

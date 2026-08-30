@@ -294,6 +294,21 @@ export const RAIL = [
     // PostmarkLayout, so no page can mark it active; the section still lights up
     // from its members, and the row appears on the other three.
     noActive: "the spectator shell renders its own document, not PostmarkLayout",
+    // /world/birthday/ — the guests' programme for the dungeon, a page in this
+    // family that is NOT a chip. It takes `alsoKey` rather than a fifth member
+    // for one reason: a chip would ANNOUNCE it, and the dungeon is deliberately
+    // unannounced (the office's own spec: "Branch-only. Nothing here is merged,
+    // deployed, or announced"). This way a reader who arrives by link sees The
+    // World lit and the section's row under it, and nobody who did not arrive by
+    // link is told the room exists. Promoting it to a member is one line, the
+    // day the founder wants it public.
+    //
+    // It also stops the page lighting the wrong chip: with `active="world"` the
+    // row lit "the living map" while the reader stood on a different page —
+    // and that chip is `noActive`, so this page would have been the only thing
+    // ever lighting it. A key of its own lights the seat and no chip, which is
+    // the truth.
+    alsoKey: "birthday",
     members: [
       { key: "world", label: "the living map", href: "/world/", noActive: "the spectator shell renders its own document, not PostmarkLayout" },
       { key: "replay", label: "replay", href: "/replay/" },

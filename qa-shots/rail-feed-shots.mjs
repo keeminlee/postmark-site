@@ -1,0 +1,544 @@
+// rail-feed-shots.mjs — rendered QA for the side-rail lane (2026-08-29).
+//
+//   node qa-shots/cockpit-harness.mjs 4321 &
+//   BASE=http://127.0.0.1:4321 node qa-shots/rail-feed-shots.mjs
+//
+// WHY A SHOT RUNNER. All three of this lane's rulings are about a thing landing
+// on a screen: a section that has to defeat the viewer's own `hidden`, a list
+// whose ORDER is flipped in CSS, a scrollport that must follow or hold, and a
+// picture that either loads from a real URL or does not. None of that is
+// reachable from a unit test, and this repo has been caught by exactly that gap
+// before — "the machine twin read the text and reported it present; the
+// screenshot is what caught it".
+//
+// So these read GEOMETRY: measured rectangles, scroll positions, naturalWidth.
+// The shots beside them are for the pair of eyes; the checks are what can fail.
+//
+// Playwright is resolved out of G:/Wright-HQ, the same as the runner next door.
+import { createRequire } from "node:module";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+
+const require = createRequire("G:/Wright-HQ/package.json");
+const { chromium } = require("playwright");
+
+// NOT 4321. That is Astro's own default and a preview server sitting on it will
+// answer every path with the built site's 404 page — which looks exactly like a
+// harness that mounted nothing, and cost an hour the first time.
+const BASE = process.env.BASE ?? "http://127.0.0.1:4399";
+const OUT = join(process.cwd(), "qa-shots", "rail-feed");
+mkdirSync(OUT, { recursive: true });
+
+const checks = [];
+const record = (name, pass, detail) => {
+  checks.push({ name, pass, detail });
+  console.log(`${pass ? "PASS" : "FAIL"}  ${name}  —  ${detail}`);
+};
+const shot = (page, name) => page.screenshot({ path: join(OUT, `${name}.png`) });
+
+const openHarness = async (browser, query, size = { width: 1440, height: 900 }) => {
+  const page = await browser.newPage({ viewport: size });
+  page.on("pageerror", (e) => record("no page error", false, String(e)));
+  await page.goto(`${BASE}/qa-shots/cockpit-harness.html?${query}`, { waitUntil: "load" });
+  await page.waitForFunction(() => window.__cockpitReady?.mounted === true, null, { timeout: 10_000 });
+  return page;
+};
+
+const run = async () => {
+  const browser = await chromium.launch();
+  // A THROW MUST STILL CLOSE THE BROWSER. Without this a failed wait leaves
+  // chromium open, node never exits, and the run looks like a hang rather than
+  // like the failure it is.
+  process.on("uncaughtException", async (e) => { console.error(e); await browser.close(); process.exit(1); });
+  try {
+
+  // ── ① the rail: shape, order, scroll ──────────────────────────────────────
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1&fight=1");
+    // four poll ticks at 2.5s, plus slack for the last derivation to draw
+    await page.waitForTimeout(12_000);
+    await shot(page, "01-rail-feed-desktop");
+
+    const m = await page.evaluate(() => {
+      const box = document.querySelector(".wv .wv-activity");
+      const acts = [...document.querySelectorAll(".wv-acts .wv-act-line")];
+      const feed = document.querySelector(".pmc-feed");
+      const lines = [...document.querySelectorAll(".pmc-fline")].map((el) => el.textContent.trim());
+      const r = (el) => (el ? el.getBoundingClientRect().toJSON() : null);
+      return {
+        sectionHidden: box?.hasAttribute("hidden") ?? null,
+        sectionShown: box ? getComputedStyle(box).display : null,
+        canScroll: box ? box.scrollHeight > box.clientHeight + 2 : false,
+        scrollTop: box?.scrollTop ?? null,
+        scrollBottom: box ? box.scrollHeight - box.clientHeight : null,
+        sectionTop: box ? box.getBoundingClientRect().top : null,
+        h2: r(box?.querySelector("h2")),
+        firstAct: r(acts[0]), lastAct: r(acts[acts.length - 1]),
+        feedTop: r(feed)?.top ?? null,
+        lines,
+        htmlAttr: document.documentElement.getAttribute("data-pmc-feed"),
+      };
+    });
+
+    record("the reshape hangs on one attribute", m.htmlAttr === "1", `data-pmc-feed=${m.htmlAttr}`);
+    record("the viewer's own hidden section is still hidden, and shown anyway",
+      m.sectionHidden === true && m.sectionShown === "flex",
+      `hidden attribute ${m.sectionHidden}, computed display ${m.sectionShown}`);
+    // ⚑ THE FLIP. renderActivity writes newest FIRST into the DOM; column-reverse
+    // draws that same DOM oldest-at-top. So the DOM-first line must sit LOWER on
+    // the screen than the DOM-last one.
+    record("Lately reads oldest-at-top — the viewer's newest-first DOM, flipped",
+      m.firstAct && m.lastAct && m.firstAct.top > m.lastAct.top,
+      `newest row at y=${Math.round(m.firstAct?.top)}, oldest at y=${Math.round(m.lastAct?.top)}`);
+    record("the cockpit's half sits under the record, not over it",
+      m.feedTop != null && m.firstAct && m.feedTop > m.firstAct.top,
+      `feed at y=${Math.round(m.feedTop)}, newest record row at y=${Math.round(m.firstAct?.top)}`);
+    record("the section is a scrollport", m.canScroll,
+      `scrollHeight - clientHeight = ${m.scrollBottom}`);
+    record("and it is pinned to the bottom, because the reader never scrolled up",
+      m.canScroll && Math.abs(m.scrollTop - m.scrollBottom) <= 24,
+      `scrollTop ${Math.round(m.scrollTop)} of ${Math.round(m.scrollBottom)}`);
+    // ⚑ NO STRIP ABOVE THE STICKY HEADING. Sticky pins at the CONTENT box, so
+    // the section's own top padding stayed transparent and a scrolling row
+    // printed through it — a line of the record sliced in half above the word
+    // LATELY. The invariant is that the heading IS the top of the scrollport.
+    record("the sticky heading is the top of the scrollport, with no strip above it",
+      m.h2 != null && m.sectionTop != null && m.h2.top - m.sectionTop <= 2,
+      `heading top ${Math.round(m.h2?.top)}, section top ${Math.round(m.sectionTop)}`);
+    record("the fight is in the feed", m.lines.some((t) => /takes \d/.test(t)),
+      `${m.lines.length} lines; last: ${JSON.stringify(m.lines.slice(-3))}`);
+    record("and what is being said is in it too", m.lines.some((t) => /mind the ninth tier/.test(t)),
+      `says present: ${m.lines.some((t) => /ninth tier/.test(t))}`);
+
+    // ⚑ THE OLDEST ROW MUST BE REACHABLE. "you can scroll UP to see older
+    // things" is half the ruling, and it was the half that broke: a
+    // column-reverse list that shrinks overflows out of its START edge, and
+    // overflow above a scrollport's top cannot be scrolled to at all. The rows
+    // were painted, present in the DOM, and unreachable — which no assertion
+    // about their existence would have caught.
+    await page.evaluate(() => { document.querySelector(".wv .wv-activity").scrollTop = 0; });
+    await page.waitForTimeout(200);
+    await shot(page, "01b-rail-scrolled-to-oldest");
+    const top = await page.evaluate(() => {
+      const box = document.querySelector(".wv .wv-activity").getBoundingClientRect();
+      const acts = [...document.querySelectorAll(".wv-acts .wv-act-line")];
+      const oldest = acts[acts.length - 1].getBoundingClientRect();
+      return { boxTop: Math.round(box.top), boxBottom: Math.round(box.bottom), oldestTop: Math.round(oldest.top) };
+    });
+    record("scrolled all the way up, the oldest row is inside the section",
+      top.oldestTop >= top.boxTop - 1 && top.oldestTop < top.boxBottom,
+      `oldest row at y=${top.oldestTop}, section ${top.boxTop}..${top.boxBottom}`);
+
+    // ── the other half of the chat contract: scrolled up, it HOLDS ──────────
+    //
+    // ⚑ THE ARRIVAL IS A REAL ONE. The first cut of this check appended an <li>
+    // to the feed by hand and set the pill's hidden attribute itself — which
+    // proved the CSS and nothing about the contract, and then failed for a
+    // reason that was entirely its own doing (nothing had marked anything
+    // pending, so the next tick correctly hid a pill nothing had earned). So
+    // somebody SAYS something instead, and it arrives down the page's own road:
+    // the conversations poll, the merge, the draw.
+    await page.evaluate(() => { document.querySelector(".wv .wv-activity").scrollTop = 0; });
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      window.__spoken.push({ handle: "wright", said: "a line that arrived while you were reading history",
+        at_ms: Date.now(), x: 1090, y: -787 });
+    });
+    // the voices poll runs on a seven second clock
+    await page.waitForFunction(
+      () => { const p = document.querySelector(".pmc-feed-new"); return p && !p.hidden; },
+      null, { timeout: 12_000 },
+    ).catch(() => {});
+    await shot(page, "02-rail-scrolled-up");
+    const held = await page.evaluate(() => {
+      const box = document.querySelector(".wv .wv-activity");
+      const pill = document.querySelector(".pmc-feed-new");
+      const lines = [...document.querySelectorAll(".pmc-fline")].map((e) => e.textContent);
+      return {
+        top: Math.round(box.scrollTop),
+        arrived: lines.some((t) => /reading history/.test(t)),
+        pillShown: Boolean(pill && !pill.hidden && pill.getClientRects().length > 0),
+      };
+    });
+    record("a line said while the reader is scrolled up does arrive", held.arrived,
+      `the said line is in the feed: ${held.arrived}`);
+    record("scrolled up, the feed holds where the reader left it", held.top === 0,
+      `scrollTop ${held.top}`);
+    record("and says there is something new below", held.pillShown === true,
+      `the new-below pill is ${held.pillShown ? "visible" : "not visible"}`);
+
+    await page.close();
+  }
+
+  // ── ①b the tail: whole attributed lines, and the delta stood down ────────
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1&fight=1&tail=1");
+    await page.waitForTimeout(12_000);
+    await shot(page, "06-rail-feed-tail");
+    const lines = await page.evaluate(() =>
+      [...document.querySelectorAll(".pmc-fline")].map((el) => el.textContent.trim()));
+    // The sentence the receiving voice was standing in for.
+    record("a tail gives the founder's own sample line, whole",
+      lines.some((t) => /^the unlit cake strikes jetto-of-starforge — 2\./.test(t) && /is down\./.test(t) && /clatters to the floor\./.test(t)),
+      JSON.stringify(lines.filter((t) => /clatters/.test(t))));
+    record("and it names the hand on every beat, not just the effect",
+      lines.some((t) => /^jetto-of-starforge strikes the unlit cake — 11 \(the good lighter, \+3\)\. 38 left\.$/.test(t)),
+      JSON.stringify(lines.filter((t) => /38 left/.test(t))));
+    record("a miss is in the tail too", lines.some((t) => /vermillion casts at .* and misses — 4\./.test(t)),
+      JSON.stringify(lines.filter((t) => /misses/.test(t))));
+    // ⚑ THE DELTA MUST HAVE STOOD DOWN. Its lines are recognisable by their
+    // voice — "X takes N" with no hand on it — and by the unseen confession,
+    // which belongs to that road alone.
+    record("the delta stood down — no receiving-voice line, no unseen confession",
+      !lines.some((t) => /^(jetto-of-starforge|vermillion) takes \d/.test(t))
+      && !lines.some((t) => /no door to read/.test(t)),
+      JSON.stringify(lines.filter((t) => / takes \d|no door to read/.test(t))));
+    // The one thing switching roads quietly lost, caught by reading the two
+    // shots side by side: the round divider was a delta-only line.
+    record("the round rule survives on the tail road",
+      lines.filter((t) => /^—\s*round 4\s*—$/i.test(t.replace(/\s+/g, " "))).length === 1,
+      JSON.stringify(lines.filter((t) => /round/i.test(t))));
+    record("and nothing is told twice",
+      new Set(lines).size === lines.length, `${lines.length} lines, ${new Set(lines).size} distinct`);
+    await page.close();
+  }
+
+  // ── ①c THE LIVE BUG: a rail that arrives in waves ────────────────────────
+  //
+  // The founder on dev, after a hard reload: "lately isn't scrolled down
+  // correctly". A static fixture cannot produce it — the real viewer fills
+  // Lately from three async loads, each rewriting .wv-acts long after the
+  // cockpit drew and pinned. ?waves=1 reproduces that shape.
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1&fight=1&tail=1&waves=1");
+    // one wave lands at 1.2s, then 3.8s, then 6.4s; wait past the last with slack
+    await page.waitForTimeout(11_000);
+    await shot(page, "07-rail-waves");
+    const m = await page.evaluate(() => {
+      const box = document.querySelector(".wv .wv-activity");
+      const feed = document.querySelector(".pmc-feed");
+      const last = feed?.lastElementChild;
+      const br = box.getBoundingClientRect();
+      const lr = last?.getBoundingClientRect();
+      return {
+        rows: document.querySelectorAll(".wv-acts .wv-act-line").length,
+        scrollTop: Math.round(box.scrollTop),
+        scrollBottom: Math.round(box.scrollHeight - box.clientHeight),
+        lastVisible: lr ? lr.bottom <= br.bottom + 2 && lr.top >= br.top - 2 : false,
+        lastText: last?.textContent.trim() ?? null,
+      };
+    });
+    // ⚑ THE PAGE MUST STILL BE ANSWERING. The first cut of the watch pinned on
+    // its own pill toggle and spun the tab into an unbreakable loop — it did not
+    // fail a check, it hung the runner. Asked explicitly so that failure has a
+    // name next time.
+    const alive = await Promise.race([
+      page.evaluate(() => 1 + 1),
+      new Promise((r) => setTimeout(() => r("timed out"), 4000)),
+    ]);
+    record("the page is still responsive — the watch is not pinning on its own writes",
+      alive === 2, String(alive));
+    record("all three waves landed", m.rows === 5, `${m.rows} record rows`);
+    // ⚑ THE ACTUAL COMPLAINT. Every wave grows the content ABOVE the feed while
+    // the section keeps its scrollTop, walking the reader off the bottom.
+    record("the feed is still pinned to the bottom after the rail arrives in waves",
+      Math.abs(m.scrollTop - m.scrollBottom) <= 2,
+      `scrollTop ${m.scrollTop} of ${m.scrollBottom}`);
+    record("and the newest line is actually on screen",
+      m.lastVisible, `last line "${m.lastText}" visible: ${m.lastVisible}`);
+
+    // and the other half still holds: scrolled up, a late wave must NOT yank
+    // the reader back down
+    await page.evaluate(() => { document.querySelector(".wv .wv-activity").scrollTop = 0; });
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      const list = document.querySelector(".wv-acts");
+      list.innerHTML = '<li class="wv-act-line is-walk"><span class="who">a late wave</span> set out</li>' + list.innerHTML;
+    });
+    await page.waitForTimeout(400);
+    const held = await page.evaluate(() => Math.round(document.querySelector(".wv .wv-activity").scrollTop));
+    record("a wave landing while the reader is scrolled up does not yank them down",
+      held === 0, `scrollTop ${held}`);
+    await page.close();
+  }
+
+  // ── ② the dock's pictures ────────────────────────────────────────────────
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1");
+    // the profile reads are a fetch to the real town repo — give them room
+    await page.waitForTimeout(6000);
+    await shot(page, "03-dock-portraits");
+    const faces = await page.evaluate(() => [...document.querySelectorAll(".pmc-face")].map((b) => {
+      const img = b.querySelector("img");
+      return {
+        actor: b.getAttribute("data-actor"),
+        src: img?.getAttribute("src") ?? null,
+        loaded: img ? img.naturalWidth > 0 : false,
+        letter: b.querySelector(".pmc-mono")?.textContent ?? b.textContent.trim().slice(0, 1),
+        box: b.getBoundingClientRect().toJSON(),
+      };
+    }));
+    const wright = faces.find((f) => f.actor === "wright");
+    const jetto = faces.find((f) => f.actor === "jetto-of-starforge");
+    const human = faces.find((f) => f.actor === "human:self");
+    record("a resident with an avatar wears it, from the URL the derivation builds",
+      Boolean(wright?.loaded) && /raw\.githubusercontent\.com\/postmark-town\/postmark\/main\/WHITE_PAGES\/wright\/avatar\.jpg$/.test(wright?.src ?? ""),
+      `${wright?.src} loaded=${wright?.loaded}`);
+    record("a resident with none wears the letter, which is not a failure",
+      jetto && !jetto.src && jetto.letter === "J", `jetto: src=${jetto?.src} letter=${jetto?.letter}`);
+    record("the human keeps the token the stage serves",
+      Boolean(human?.loaded) && human?.src === "/birthday/darko-token.png", `${human?.src} loaded=${human?.loaded}`);
+    // ⚑ AND THE WHEEL TOO — for every hand in the room, not only the ones this
+    // key can act as. vermillion is on the wheel and not in the dock; resolving
+    // pictures through the roster alone left her wearing a letter beside two
+    // portraits, which is the same inconsistency one surface along.
+    const pips = await page.evaluate(() => [...document.querySelectorAll(".pmc-turn")].map((li) => {
+      const img = li.querySelector("img");
+      return { nm: li.querySelector(".nm")?.textContent ?? "", src: img?.getAttribute("src") ?? null, loaded: img ? img.naturalWidth > 0 : false };
+    }));
+    const verm = pips.find((r) => r.nm === "vermillion");
+    const cake = pips.find((r) => /cake/.test(r.nm));
+    record("a hand on the wheel who is not on this key still gets her face",
+      Boolean(verm?.loaded) && /WHITE_PAGES\/vermillion\/avatar\.jpg$/.test(verm?.src ?? ""),
+      `vermillion pip: ${verm?.src} loaded=${verm?.loaded}`);
+    record("and the creature is not given one — it is not a resident",
+      cake != null && cake.src === null, `cake pip src: ${cake?.src}`);
+
+    // ── ONE HOVER, ONE CARD (founder, live 2026-08-29, screenshot-verified) ──
+    //
+    // Reproduced here before it was fixed: the standpoint plate at 642..741 and
+    // the human face's name box at 738..789, stacked, the box also covering the
+    // ACT AS caption — plus the dock's native `title` tooltip as a third, on the
+    // browser's own clock.
+    await page.hover('.pmc-face[data-actor="human:self"]');
+    await page.waitForTimeout(1200); // past the browser's own tooltip delay
+    await shot(page, "08-human-hover");
+    const cards = await page.evaluate(() => {
+      const out = [];
+      for (const el of document.querySelectorAll(".pmc-nm, .pmc-here")) {
+        const cs = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        if (cs.opacity !== "0" && cs.display !== "none" && r.width > 0)
+          out.push({ cls: el.className, txt: el.textContent.trim(), box: r.toJSON() });
+      }
+      return { out, titles: [...document.querySelectorAll("[data-pmc] [title]")].map((e) => e.getAttribute("title")) };
+    });
+    // ⚑ THIS RUNNER WAS ASSERTING THREE THINGS THAT ARE NO LONGER TRUE, and it
+    // is the reason to keep reading a shot runner after the ruling it was
+    // written under is superseded. All three were right on the day and became
+    // written-down false claims a few hours later:
+    //
+    //   · WHICH card survives one hover was settled the other way — "the hover
+    //     should show the orange-rimmed LARGER card, not the small nameplate."
+    //     The nameplate is deleted; the survivor is the PLATE.
+    //   · the plate no longer carries the door's sentence about why a human may
+    //     stand here. It was moved off deliberately: rendered, it read as a fact
+    //     about the GROUND wearing a fighter's plate, which is the recitation the
+    //     card was emptied of. It lives on the face's accessible name now.
+    //   · the journalling disclosure had been dropped from the plate entirely by
+    //     the same rewrite — not by any ruling. THIS LINE IS WHAT CAUGHT IT, and
+    //     it is put back (narrowed to your own seat), so the claim below is a
+    //     true one again rather than a deleted one.
+    record("hovering the human face shows exactly one card",
+      cards.out.length === 1 && /pmc-here/.test(cards.out[0]?.cls ?? ""),
+      cards.out.map((c) => c.cls).join(" + ") || "(none)");
+    record("and no native tooltip rides under it",
+      cards.titles.length === 0, JSON.stringify(cards.titles));
+    record("the card is one fighter, not a recitation",
+      !/grants them/.test(cards.out[0]?.txt ?? "") && !/the read roots at/.test(cards.out[0]?.txt ?? ""),
+      `${cards.out[0]?.txt.length} chars: ${JSON.stringify(cards.out[0]?.txt)}`);
+    await page.hover(".pmc-roster .pmc-cap");
+    await page.waitForTimeout(400);
+    const plate = await page.evaluate(() => {
+      const el = document.querySelector(".pmc-here");
+      return { op: getComputedStyle(el).opacity, txt: el.textContent.trim() };
+    });
+    record("hovering the dock itself still opens the plate",
+      plate.op === "1", `opacity ${plate.op}`);
+    record("and the journalling disclosure is on it, over your own seat",
+      /journals on every act/.test(plate.txt), plate.txt.slice(0, 160));
+    // …and the door's sentence is not lost, only rehoused: it is the face's own
+    // accessible name, where a reader who wants it can get it and a player
+    // mid-fight does not have to read past it.
+    const spoken = await page.evaluate(() =>
+      document.querySelector('.pmc-face[data-actor="human:self"]')?.getAttribute("aria-label") ?? "");
+    record("the door's sentence rehoused on the face's accessible name",
+      /a portal's ground seats a human/.test(spoken), JSON.stringify(spoken.slice(0, 120)));
+
+    record("every face is drawn at the same size",
+      faces.length > 1 && new Set(faces.map((f) => Math.round(f.box.width))).size === 1,
+      faces.map((f) => `${f.actor}:${Math.round(f.box.width)}`).join(" "));
+    await page.close();
+  }
+
+  // ── ②b A PINNED VIEWER BUBBLE, under the dock (2026-08-29, seam review) ──
+  //
+  // The review's hypothesis for the doubled hover: the second card is a pinned
+  // viewer bubble (.wv-bubble.is-pinned, pointer-events:auto) persisting under
+  // the cockpit's plates. Measured here rather than argued, because the cockpit
+  // genuinely has no awareness of pinned bubbles and the question is a fair one.
+  //
+  // THE ANSWER IS NO, ON THE STACKING: the bubble layer is z-index 7 inside the
+  // map; the cockpit's overlay is fixed at 7000. A bubble can only ever be
+  // UNDERNEATH, so it cannot be a card stacked on top of a hover card. And the
+  // dock's hover cannot reach it — the dock is a body-hosted fixed overlay, not
+  // a map mark, so the viewer's own bubble handlers never see it.
+  //
+  // WHAT IS REAL, AND IS A DIFFERENT BUG: the dock COVERS a low pinned bubble
+  // and, because the bubble takes pointer events, steals the clicks on the strip
+  // it covers. Left unfixed deliberately — it is not what the founder reported,
+  // and standing the viewer's bubbles down would suppress a panel the reader
+  // deliberately opened. Pinned here so it cannot be forgotten or rediscovered.
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1&bubble=1");
+    // the row's berth with NO bubble open — the baseline it must return to
+    await page.waitForTimeout(900);
+    const bare = await page.evaluate(() => {
+      const r = document.querySelector(".pmc-barrow").getBoundingClientRect();
+      return { l: Math.round(r.left), r: Math.round(r.right), b: Math.round(r.bottom) };
+    });
+    // the fixture pins one at 1.5s, the way the viewer creates it lazily on the
+    // first pin — which is the case the cockpit cannot observe at mount
+    await page.waitForTimeout(3500);
+    const before = await page.evaluate(() => {
+      const b = document.querySelector(".wv-bubble.is-pinned").getBoundingClientRect();
+      return { t: Math.round(b.top), l: Math.round(b.left) };
+    });
+
+    // ⚑ THE FIX: the row steps clear of a bubble it would otherwise eat the
+    // clicks of. Asked as the reader would find out — press the middle of the
+    // bubble and see who answers.
+    const clear = await page.evaluate(() => {
+      const bub = document.querySelector(".wv-bubble.is-pinned").getBoundingClientRect();
+      const row = document.querySelector(".pmc-barrow").getBoundingClientRect();
+      const hit = bub.left < row.right && row.left < bub.right && bub.top < row.bottom && row.top < bub.bottom;
+      const at = (x, y) => String(document.elementFromPoint(Math.round(x), Math.round(y))?.className ?? "");
+      return {
+        overlaps: hit,
+        atBubbleMiddle: at((bub.left + bub.right) / 2, (bub.top + bub.bottom) / 2),
+        atBubbleTop: at((bub.left + bub.right) / 2, bub.top + 6),
+        row: { l: Math.round(row.left), r: Math.round(row.right), b: Math.round(row.bottom) },
+        rowShown: row.width > 0 && row.height > 0,
+      };
+    });
+    record("with a bubble pinned under it, the row no longer overlaps it",
+      !clear.overlaps, `row ${clear.row.l}..${clear.row.r} @${clear.row.b}, bubble was at ${before.l},${before.t}`);
+    record("so the bubble takes its own clicks back",
+      /wv-bubble|wv-card|cname/.test(clear.atBubbleMiddle) && /wv-bubble|wv-card|cname/.test(clear.atBubbleTop),
+      `middle → "${clear.atBubbleMiddle}", top edge → "${clear.atBubbleTop}"`);
+    record("and the dock is still on screen — it stepped aside, it did not hide",
+      clear.rowShown, `row ${clear.row.l}..${clear.row.r}`);
+
+    // closing it gives the berth back — a bubble is transient and the row must
+    // not stay squeezed for the rest of the standpoint
+    await page.evaluate(() => window.__pinBubble(false));
+    await page.waitForTimeout(600);
+    const after = await page.evaluate(() => {
+      const r = document.querySelector(".pmc-barrow").getBoundingClientRect();
+      return { l: Math.round(r.left), r: Math.round(r.right), b: Math.round(r.bottom) };
+    });
+    record("closing the bubble gives the row its berth back",
+      Math.abs(after.l - bare.l) <= 2 && Math.abs(after.r - bare.r) <= 2 && Math.abs(after.b - bare.b) <= 2,
+      `bare ${bare.l}..${bare.r}@${bare.b} → after ${after.l}..${after.r}@${after.b}`);
+    await page.evaluate(() => window.__pinBubble(true));
+    await page.waitForTimeout(600);
+    await page.hover('.pmc-face[data-actor="human:self"]');
+    await page.waitForTimeout(900);
+    await shot(page, "09-pinned-bubble-under-dock");
+    const m = await page.evaluate(() => {
+      const rect = (s) => { const e = document.querySelector(s); return e ? e.getBoundingClientRect() : null; };
+      const bub = rect(".wv-bubble.is-pinned"), dock = rect(".pmc-roster");
+      const hit = (r1, r2) => r1 && r2 && r1.left < r2.right && r2.left < r1.right && r1.top < r2.bottom && r2.top < r1.bottom;
+      let onTop = null;
+      if (hit(bub, dock)) {
+        const x = Math.round((Math.max(bub.left, dock.left) + Math.min(bub.right, dock.right)) / 2);
+        const y = Math.round((Math.max(bub.top, dock.top) + Math.min(bub.bottom, dock.bottom)) / 2);
+        onTop = String(document.elementFromPoint(x, y)?.className ?? "");
+      }
+      const cards = [...document.querySelectorAll(".pmc-nm, .pmc-here")]
+        .filter((e) => getComputedStyle(e).opacity !== "0" && e.getBoundingClientRect().width > 0);
+      return { bub: { t: Math.round(bub.top), l: Math.round(bub.left) }, overlaps: hit(bub, dock), onTop, cards: cards.length };
+    });
+    record("hovering the dock does not raise or move a pinned viewer bubble",
+      m.bub.t === before.t && m.bub.l === before.l, `bubble at ${before.t},${before.l} → ${m.bub.t},${m.bub.l}`);
+    // The stacking fact that falsified the review's hypothesis. It is still
+    // true — the cockpit is above — which is exactly WHY the row has to step
+    // aside rather than rely on the bubble winning; they simply no longer meet
+    // at the dock, so this now reads on the wheel plate above instead.
+    record("a pinned bubble can only ever be UNDER the cockpit, never a card over it",
+      !m.overlaps || /pmc-/.test(m.onTop ?? ""),
+      m.overlaps ? `where they overlap the top element is "${m.onTop}"` : "they no longer overlap at all — the row stepped clear");
+    record("so a bubble under the dock adds no second card to the hover",
+      m.cards === 1, `${m.cards} card(s) visible while hovering the human face`);
+    await page.close();
+  }
+
+  // ── ③ auto-select on the turn ────────────────────────────────────────────
+  {
+    // The vault fixture's wheel rests on the human, so the dock must NOT take a
+    // resident's seat for it. Then the turn is moved to a handle this key holds,
+    // and the dock must follow — through pm:act-as, which is listened for here.
+    const page = await openHarness(browser, "fixture=vault&rail=1");
+    await page.waitForTimeout(1200);
+    const before = await page.evaluate(() => document.querySelector('.pmc-face[aria-pressed="true"]')?.getAttribute("data-actor"));
+    record("a turn belonging to nobody on this key moves no seat",
+      before !== "wright" && before !== "jetto-of-starforge",
+      `selected: ${before}`);
+
+    const after = await page.evaluate(async () => {
+      const seen = [];
+      window.addEventListener("pm:act-as", (e) => seen.push(e.detail?.actor));
+      // the door's next answer, with the wheel come round to a handle this key holds
+      const handle = window.__cockpitHandle;
+      if (!handle) return { error: "the harness does not expose the mount handle" };
+      const base = window.__cockpitAnswer;
+      handle.update({ ...base, encounter: { ...base.encounter, turn: "wright" } });
+      await new Promise((r) => setTimeout(r, 300));
+      return {
+        seen,
+        selected: document.querySelector('.pmc-face[aria-pressed="true"]')?.getAttribute("data-actor"),
+      };
+    });
+    record("the dock takes the seat when the turn becomes a handle this key holds",
+      after.selected === "wright", `selected: ${after.selected}${after.error ? ` (${after.error})` : ""}`);
+    record("and it speaks pm:act-as rather than writing the viewer's choice",
+      Array.isArray(after.seen) && after.seen.includes("wright"), `events: ${JSON.stringify(after.seen)}`);
+    await shot(page, "04-turn-autoselect");
+    await page.close();
+  }
+
+  // ── the phone: the viewer hides the rail below 720, so nothing must break ──
+  {
+    const page = await openHarness(browser, "fixture=vault&rail=1", { width: 390, height: 780 });
+    await page.waitForTimeout(1500);
+    await shot(page, "05-phone");
+    const ok = await page.evaluate(() => {
+      const bar = document.querySelector(".pmc-barrow");
+      const nav = document.querySelector(".wv-nav");
+      return {
+        barShown: Boolean(bar?.getClientRects().length),
+        overflowX: document.documentElement.scrollWidth <= window.innerWidth + 1,
+        railShown: Boolean(nav?.getClientRects().length),
+        feedMounted: Boolean(document.querySelector(".pmc-feed")),
+      };
+    });
+    record("the bar still stands at 390", ok.barShown, `bar visible: ${ok.barShown}`);
+    record("and nothing pushes the page sideways", ok.overflowX, `no horizontal overflow: ${ok.overflowX}`);
+    // ⚑ A LIMITATION, NAMED. The viewer hides its whole rail below 720px, so on
+    // a phone there is no Lately section — and therefore no feed. This is the
+    // viewer's own responsive rule, not something this lane can reach from the
+    // site repo; the check exists so the day it changes, this says so.
+    record("on a phone the viewer has no rail, so the feed has no home",
+      !ok.railShown, `rail visible at 390: ${ok.railShown}, feed element present: ${ok.feedMounted}`);
+    await page.close();
+  }
+
+  } finally {
+    await browser.close();
+  }
+  const failed = checks.filter((c) => !c.pass);
+  console.log(`\n${checks.length - failed.length} of ${checks.length} pass · shots in ${OUT}`);
+  if (failed.length) process.exitCode = 1;
+};
+
+run().catch((e) => { console.error(e); process.exitCode = 1; });

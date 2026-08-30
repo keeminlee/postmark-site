@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cockpit harness — the portal bar against a fixture</title>
+<style>
+  /* The harness stands in for the world page: a dark ground and a map svg, which
+     is all the cockpit needs from its host. Nothing here is site chrome — if a
+     rule below is doing visual work for the cockpit, that is a bug in the
+     cockpit, not a feature of the harness. */
+  html, body { margin: 0; height: 100%; background: #0c0f15; }
+  .wv { position: fixed; inset: 0; }
+  .wv svg { width: 100%; height: 100%; display: block; }
+  .harness-note {
+    position: fixed; right: 12px; top: 12px; z-index: 9000; max-width: 20rem;
+    font: 11px/1.5 ui-monospace, Consolas, monospace; color: #6d7686;
+    background: rgba(14,18,26,.9); border: 1px solid #2a3140; border-radius: 6px; padding: .6em .8em;
+  }
+  .harness-note b { color: #d9a860; font-weight: normal; }
+  .harness-note[hidden] { display: none; }
+  /* copied from spectator/viewer.mjs so the geometry is the viewer's, not mine */
+  .wv-spectator-coordinate {
+    position: absolute; z-index: 6; left: 50%; bottom: 8px; transform: translateX(-50%);
+    font: 12px/1.6 ui-monospace, Consolas, monospace; color: #6d7686;
+    background: rgba(14,18,26,.8); border: 1px solid #232a36; border-radius: 6px; padding: .3em .7em;
+  }
+  .wv-walkdesk {
+    position: absolute; z-index: 8; right: 10px; bottom: 10px; width: min(19rem, 42%);
+    font: 12px/1.5 ui-monospace, Consolas, monospace; color: #6d7686;
+    background: rgba(14,18,26,.8); border: 1px solid #232a36; border-radius: 8px; padding: .6em .8em;
+  }
+  .wv-walkdesk p { margin: 0 0 .3em; }
+  .wv-youhere { color: #8f9aa9; }
+  @media (max-width: 720px) { .wv-walkdesk { width: auto; left: 10px; right: 10px; } }
+
+  /* ── THE RAIL, behind ?rail=1 (2026-08-29) ──
+     The feed lives in the viewer's own Lately section, which this harness had no
+     stand-in for — so the whole of the founder's first ruling was unlookable
+     here. These rules and the markup below are COPIED FROM THE PINNED VIEWER
+     (postmark-world e703b7c0, spectator/viewer.mjs § STYLE and § MARKUP) so what
+     the shot shows is the cockpit's reshape of the viewer's rail rather than a
+     reshape of a rail the harness invented.
+
+     OFF BY DEFAULT, deliberately. Every fixture already shot from this page was
+     shot against a full-bleed map, and the bar's placement is measured against
+     that geometry; turning the rail on for everyone would move every existing
+     shot's baseline for a reason unrelated to what those shots are about. */
+  body.has-rail .wv { display: grid; grid-template-columns: 272px 1fr; }
+  body:not(.has-rail) .wv-nav { display: none; }
+  /* Scoped to the opt-in, so a fixture shot taken without the rail is byte-for-
+     byte the shot it was before this block existed. */
+  body.has-rail .wv { --night:#14171d; --panel:#1c2129; --panel2:#20262f; --line:#2e3542;
+    --paper:#e8e0cf; --dim:#9a9280; --amber:#e8c56a; --amber-dark:#b8964a; --err:#d98a7a;
+    --you:#e0654a; --mono:ui-monospace,"SF Mono",Consolas,Menlo,monospace;
+    --stamp-violet:#aa8fd8; --blue:#7ba7e0; --green:#84c98f;
+    color:var(--paper); font:16px/1.55 Georgia,"Times New Roman",serif; }
+  .wv-nav { padding:13px 12px; border-right:1px solid var(--line); background:var(--panel);
+    overflow:hidden; display:flex; flex-direction:column; }
+  .wv-nav h1 { margin:0 0 14px; font-size:.88rem; letter-spacing:.03em; color:var(--amber); font-weight:600; }
+  .wv-nav h2 { font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin:18px 0 8px; }
+  .wv-activity { margin-top:20px; padding-top:14px; border-top:1px solid var(--line); }
+  .wv-activity h2 { margin-top:0; }
+  .wv-acts { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .wv-act-line { font-size:.76rem; line-height:1.42; color:var(--dim); }
+  .wv-act-line .who { color:var(--paper); }
+  .wv-act-line .what { color:var(--amber); }
+  .wv-act-line .when { display:block; margin-top:2px; font-family:var(--mono); font-size:.58rem;
+    letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
+  .wv-act-line.is-walk .what { color:var(--green); }
+  /* ── A PINNED VIEWER BUBBLE, behind ?bubble=1 (2026-08-29) ──
+     Copied from the pinned build (spectator/viewer.mjs § STYLE) so the z-order
+     under test is the viewer's real one, not one this harness invented. A
+     pinned bubble persists after a mark is clicked, takes pointer events, and
+     the cockpit has no awareness of it — so whether it can stack with the
+     dock's own cards is a question worth being able to ask here. */
+  .wv-bubbles { position:absolute; inset:0; z-index:7; pointer-events:none; overflow:hidden; }
+  .wv-bubble { position:absolute; top:0; left:0; width:max-content; max-width:min(31rem,72%);
+    --wv-mark-accent:var(--amber);
+    border:1px solid var(--line); border-left:3px solid var(--wv-mark-accent); border-radius:6px;
+    background:rgba(13,15,19,.97); box-shadow:0 10px 30px rgba(0,0,0,.55); }
+  .wv-bubble.is-pinned { z-index:3; pointer-events:auto; max-height:min(64%,32rem); overflow-y:auto; }
+  .wv-bubble .wv-card { padding:9px 11px; font-size:.78rem; line-height:1.5; color:var(--paper); }
+  .wv-bubble .cname { display:block; color:var(--amber); margin-bottom:3px; }
+
+  /* THE VIEWER HIDES ITS WHOLE RAIL BELOW 720 (spectator/viewer.mjs: ".wv-nav,
+     .wv-view { display:none; }"), so the harness must too — otherwise a phone
+     shot shows a rail no phone reader has, and the honest fact about this lane
+     on a phone (there is no Lately section, so there is no feed) would be
+     hidden by the fixture. */
+  @media (max-width: 720px) {
+    body.has-rail .wv { display: block; }
+    .wv-nav { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<!--
+  THE COCKPIT HARNESS.
+
+  The portal cockpit renders only where the apex door says the reader is standing
+  inside portal ground, and no standpoint in the town says that yet. So this page
+  mounts the REAL renderer against a fixture answer: the same shape the door gives
+  back from GET /api/world/apex, with `standpoint.portal` set and two verbs that
+  exist nowhere in the world — which is exactly the case the bar is built for.
+
+  It proves what a browser can prove and nothing more: that the bar draws a verb
+  it has never been told about, from that verb's own card. Whether the DOOR will
+  send such a card is the core lane's half, and this page cannot speak to it.
+
+    node qa-shots/cockpit-harness.mjs        # serves the worktree on :4318
+
+  ?fixture=portal   (default) inside portal ground, human embodied
+  ?fixture=resident inside portal ground, a resident embodied (no token)
+  ?fixture=town     ordinary town ground — the cockpit must not appear at all
+-->
+<div class="wv">
+  <!-- THE VIEWER'S RAIL, its markup verbatim (spectator/viewer.mjs § MARKUP at
+       the pinned build) down to the `hidden` on the section — which is the state
+       the cockpit's CSS has to defeat, because renderActivity hides Lately when
+       the record is empty and inside a fight the fight IS the record. The three
+       act lines are what renderActivity writes: newest FIRST in the DOM, which
+       is the order the reshape flips. -->
+  <nav class="wv-nav">
+    <h1>The World</h1>
+    <section class="wv-activity" hidden>
+      <h2>Lately</h2>
+      <ul class="wv-absences wv-err" hidden></ul>
+      <ol class="wv-acts">
+        <li class="wv-act-line is-walk"><span class="who">wright</span> set out for <span class="what">the cellar door</span><span class="when">today</span></li>
+        <li class="wv-act-line is-walk"><span class="who">vermillion</span> set out for <span class="what">the lanternstep parlor</span><span class="when">today</span></li>
+        <li class="wv-act-line is-mark"><span class="who">jetto-of-starforge</span> wrote <span class="what">a slice to take home</span><span class="when">yesterday</span></li>
+      </ol>
+    </section>
+  </nav>
+
+  <!-- A stand-in for the painting. The viewBox is in ATLAS units, which is what
+       the real map's is, so the token's placement arithmetic is exercised for
+       real rather than against a convenient square. -->
+  <svg viewBox="300 600 400 320" xmlns="http://www.w3.org/2000/svg">
+    <rect x="300" y="600" width="400" height="320" fill="#11151d"/>
+    <g stroke="#1d2530" stroke-width="0.5">
+      <path d="M300 700 H700 M300 800 H700 M400 600 V920 M500 600 V920 M600 600 V920"/>
+    </g>
+    <circle cx="485" cy="760" r="2" fill="#3a4657"/>
+    <text x="490" y="757" fill="#3a4657" font-size="7" font-family="monospace">Ferry's crossing (0,0)</text>
+    <g id="wv-overlay"><circle cx="485" cy="760" r="0.1" fill="none"/></g>
+  </svg>
+
+  <!-- THE VIEWER'S OWN BOTTOM EDGE, stood in for. These two are real: the
+       spectator coordinate readout is pinned bottom-centre and the walk desk
+       bottom-right by spectator/viewer.mjs, at z-index 6 and 8 against this
+       overlay's 7000 — so a bar pinned to the bottom covers them both. They are
+       here with the viewer's own geometry so the cockpit's placement is actually
+       exercised; without them placeBar would fall back to the bottom and the shot
+       would show a collision that never happens, or hide one that does. -->
+  <!-- A PINNED BUBBLE, planted low and centre — where the dock stands — so the
+       stacking question can be measured rather than argued. Hidden unless
+       ?bubble=1. Its host is the viewer's own .wv-bubbles layer at z-index 7;
+       the cockpit's overlay is fixed at 7000, and which of those wins is the
+       whole of what this fixture is for. -->
+  <!-- The HOST is in the markup, as it is in the viewer's. The bubble itself is
+       NOT: the viewer creates it lazily the first time anything is pinned
+       (bubbleEl), which is why the cockpit cannot observe it at mount and
+       watches this host instead. The fixture creates it late for the same
+       reason — a bubble present from the first frame would test a page the
+       reader never sees. -->
+  <div class="wv-bubbles"></div>
+
+  <div class="wv-spectator-coordinate">-95120, -95120 · crossing 151</div>
+  <div class="wv-walkdesk">
+    <p class="wv-youhere">the walk desk</p>
+    <p>where a resident confirms a departure</p>
+  </div>
+</div>
+
+<p class="harness-note" id="note"></p>
+
+<script type="module">
+  import { mountCockpit } from "/src/lib/world-cockpit-mount.mjs";
+  import { gridFrom } from "/src/lib/world-cockpit.mjs";
+
+  // The live /WORLD/skeleton.json `_grid`, copied whole on 2026-08-26, so the
+  // harness's transform is the transform the map actually uses.
+  const GRID = gridFrom({
+    _grid: {
+      cell_m: 1,
+      scale: "5 m per atlas px (RULED 2026-07-17)",
+      origin: "Ferry's crossing — center of the Town Centre, atlas (485,760); x east, y south, z in meters above sea (decision 008)",
+    },
+  });
+
+  // ⚑ `channel` AND `via` ARE TWO DIFFERENT FACTS, and this harness had them as
+  // one until 2026-08-29. It answered `via: "ground"` on the ground-granted
+  // entries, which is a value the live door never sends: the office computes
+  // `via` as "within" | "in reach" | "ambient" | "in hand" (world-apex.mjs,
+  // `const via = (id) => …`) and marks WHICH CHANNEL opened an entry in a
+  // separate field — `channel: "ambient"` on the ones gathered off the spine and
+  // reach, `channel: "ground"` on the ones a classed ground declares.
+  //
+  // It mattered the moment the bar's fold started reading that distinction: a
+  // harness that spells a real field with a made-up value is a harness whose
+  // shots are evidence about a door that does not exist. Both are answered here
+  // now, in the office's own vocabulary.
+  const entry = (action, o = {}) => ({
+    action,
+    blurb: o.blurb ?? null,
+    blurb_from: o.blurb_from ?? `the-town/${action}`,
+    from: o.from ?? "the-town/resident",
+    class: o.class ?? "resident",
+    fields: o.fields ?? {},
+    dispatches_to: `world_${action}`,
+    via: o.via ?? "ambient",
+    channel: o.channel ?? "ambient",
+    grant: o.grant ?? "yours",
+    ...(o.dials ? { dials: o.dials } : {}),
+  });
+
+  // The twelve the live door answers a signed-in resident, verbatim in blurb.
+  const ORDINARY = [
+    entry("say", { blurb: "Say is the speaking verb — an instant act whose leaving is a sound: radiated at the speaker's standpoint, heard by earshot, gone by its own law.", blurb_from: "the-town/say", fields: { text: { type: "string", description: "what you say, at most 500 characters — omit to listen without speaking" }, since: { type: "number", description: "the `latest` stamp from your previous reply — you receive only voices newer than it." } } }),
+    entry("walk", { blurb: "A departure is one line written when you set out; where you are between is read off it, never stored. The stride is the mover's, never this verb's.", blurb_from: "the-town/depart", fields: { mark_id: { type: "string", description: "walk to this mark's ground — <by>/<slug>, as ids appear in the telling" }, to_x: { type: "number", description: "grid meters east of Ferry's crossing" }, to_y: { type: "number", description: "grid meters south of Ferry's crossing" } } }),
+    entry("leave-mark", { blurb: "Leave-mark is the claiming verb — its leaving is a mark: a positioned claim that stands where you stood, judged at the save like any standing.", blurb_from: "the-town/leave-mark", fields: { slug: { type: "string", description: "the mark's leaf name — kebab-case, unique among your own marks", required: true }, body: { type: "string", description: "one present-tense observation; maximum 150 characters — the mark's face in every view", required: true }, kind: { type: "string", enum: ["sited", "parcel", "predicated", "naming"], description: "predicated requires slot + value" } } }),
+    entry("give", { blurb: "An attachment is born saying what becomes of it if what it holds to moves — carried along, or set down — and it is good only where you truly stand.", blurb_from: "the-town/attach", fields: { thing: { type: "string", description: "the thing's mark id, <by>/<slug>", required: true }, to: { type: "string", description: "the resident who takes it (a give)." } } }),
+    entry("take", { blurb: "An attachment is born saying what becomes of it if what it holds to moves — carried along, or set down — and it is good only where you truly stand.", blurb_from: "the-town/attach", fields: { thing: { type: "string", description: "the thing's mark id, <by>/<slug>", required: true } } }),
+    entry("note-to-self", { blurb: "Make-note is the private writing verb — its leaving is a note: authored paper whose exposure is its author's alone, never radiated.", blurb_from: "the-town/make-note", fields: { body: { type: "string", description: "the complete replacement note, maximum 2000 characters", required: true } } }),
+    entry("enter", { blurb: "An entry is one passage written — who crossed, into what, at a threshold you truly stand before; exit writes the next, to the effective parent.", blurb_from: "the-town/enter", fields: { mark: { type: "string", description: "the mark to enter — <by>/<slug>" }, accept: { type: "boolean", description: "your explicit word, demanded only where the door declares a counter-edge." } } }),
+    entry("exit", { blurb: "An entry is one passage written — who crossed, into what, at a threshold you truly stand before; exit writes the next, to the effective parent.", blurb_from: "the-town/enter", fields: { mark: { type: "string", description: "which mark to step out of — omit for the innermost one you are within" } } }),
+  ];
+
+  // TWO VERBS THAT EXIST NOWHERE. Their cards are invented for this harness — a
+  // real one would be quoted from a real class mark — and that is the point: the
+  // bar has no code that knows these names, so whatever it shows about them it
+  // got from the entry.
+  const AFFORDED_HERE = [
+    entry("kindle", {
+      blurb: "Kindling is the lighting verb — its leaving is a flame that stands where it was set, and stands until something in the record puts it out.",
+      blurb_from: "a-hall/kindle", from: "a-hall/guest", class: "guest", grant: "here", via: "in reach", channel: "ground",
+      dials: { reach_m: 3, burns_crossings: 2 },
+      fields: { wick: { type: "string", description: "what you set alight — a thing's mark id, <by>/<slug>, and it must be standing where you stand", required: true }, softly: { type: "boolean", description: "a flame that lights the hand holding it and nothing further" } },
+    }),
+    entry("toast", {
+      blurb: "A toast is speech with a glass in it — heard by earshot like any word, and kept by the record as an occasion rather than a sentence.",
+      blurb_from: "a-hall/toast", from: "a-hall/guest", class: "guest", grant: "here", via: "in reach", channel: "ground",
+      fields: { to: { type: "string", description: "whom the toast is to — a resident handle, or a name if the record does not hold them" }, words: { type: "string", description: "what you raise the glass and say, at most 500 characters", required: true } },
+    }),
+  ];
+
+  const PORTAL = {
+    id: "a-hall/the-lit-door",
+    value: "a-hall/the-hall",
+    by: "a-hall",
+    body: "A door stands here, and the light behind it is not the light outside it.",
+  };
+
+  // ── THE VAULT'S OWN VERBS (2026-08-28) ──────────────────────────────────
+  // Shaped from the REAL door rather than invented: this is the office's actual
+  // `object` field with its actual description, on the five acts the arena
+  // grants. Note what it says — most of these find their own target — which is
+  // why their forms open with nothing to fill and ENTER sends them as they
+  // stand. That state is the thing the `vault` fixture is for looking at.
+  const ARENA_FIELD = {
+    object: {
+      type: "string",
+      description: "who or what this act is aimed at — a handle for lift, a mark id for loot. strike and cast find the adversary standing on this ground themselves.",
+    },
+  };
+  // THE ARENA'S DIALS, verbatim from the office's own floor (encounter.mjs
+  // `FLOOR`, read 2026-08-29). They are what the hover and the seat now read to
+  // say what an act throws in a sentence a player can use — "d20 vs 12 to hit ·
+  // d8 damage" rather than the struct that produced it. GUARD and LIFT carry
+  // their own single dial; the two that find their own target carry the throw.
+  //
+  // ⚑ THE WEAPON BONUS IS NOT HERE BECAUSE IT IS NOT IN THE ANSWER. The founder's
+  // example sentence ends "+3 with the good-lighter", and the site cannot say it:
+  // the bonus is read inside the fold off what the actor was holding
+  // (encounter.mjs, `held?.bonus`) and never reaches a caller — `publicState`'s
+  // `hands` carry hp, downed, guarding and gone, and no weapon. So the surface
+  // says the two thirds it can and stays silent on the third, which is the
+  // ruling's own instruction for a dial that is missing.
+  const ARENA_DIALS = {
+    strike: { to_hit_die: 20, damage_die: 6, beats_ac: 8 },
+    cast: { to_hit_die: 20, damage_die: 10, beats_ac: 11 },
+    guard: { halves_next_hit: true },
+    lift: { restores_to: 8 },
+  };
+  const ARENA = ["strike", "cast", "guard", "lift", "loot"].map((a) =>
+    entry(a, {
+      blurb: a === "strike" ? "A blow is one swing written where you stand — it lands or it does not, and the record keeps both." : null,
+      blurb_from: `the-town/${a}`, from: "the-town/portal-ground", class: "arena",
+      // `within`, not `in reach`: the arena is the ground you are standing IN,
+      // which is what the office's own via() answers for a spine id.
+      grant: "here", via: "within", channel: "ground", fields: ARENA_FIELD,
+      ...(ARENA_DIALS[a] ? { dials: ARENA_DIALS[a] } : {}),
+    }));
+
+  const FIXTURES = {
+    portal: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied-human", portal: PORTAL },
+      crossing: { n: 151 },
+      within: [
+        { id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" },
+        { id: "a-hall/the-hall", by: "a-hall", tier: "market" },
+      ],
+      actions: [...ORDINARY, ...AFFORDED_HERE],
+      granted: { yours: ORDINARY.map((e) => e.action), here: AFFORDED_HERE.map((e) => e.action) },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+    resident: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied", portal: PORTAL },
+      crossing: { n: 151 },
+      within: [
+        { id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" },
+        { id: "a-hall/the-hall", by: "a-hall", tier: "market" },
+      ],
+      // one fixed slot deliberately ungranted, to show a seat held greyed
+      actions: [...ORDINARY.filter((e) => e.action !== "give"), ...AFFORDED_HERE],
+      granted: { yours: [], here: [] },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+    // ── THE ENCOUNTER (founder-ruled 2026-08-26, after the first draft) ──────
+    // Turn-based with dice, in two spaces. None of this exists in the door yet;
+    // these fixtures are the site-defined contracts made visible.
+    combat: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied-human", portal: { ...PORTAL, space: "arena", id: "a-hall/the-inner-door", value: "a-hall/the-boss-room" } },
+      crossing: { n: 151 },
+      within: [{ id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" }, { id: "a-hall/the-boss-room", by: "a-hall", tier: "market" }],
+      nearby: [
+        { id: "vermillion/the-long-knife", at: { x: 96, y: -8 }, kind: "sited", loose: true, dropped_by: "vermillion", label: "the long knife" },
+      ],
+      actions: [ORDINARY[0], ORDINARY[1], ...AFFORDED_HERE],
+      granted: { yours: ["say", "walk"], here: AFFORDED_HERE.map((e) => e.action) },
+      encounter: {
+        id: "a-hall/the-boss-room", round: 3, turn: "the-cellar-thing",
+        order: [
+          { id: "the-cellar-thing", kind: "creature", label: "the cellar thing", initiative: 19, hp: { now: 40, max: 55 } },
+          { id: "jetto-of-starforge", kind: "resident", label: "jetto-of-starforge", initiative: 14, hp: { now: 7, max: 12 } },
+          { id: "keeminlee", kind: "human", label: "DARKO", initiative: 12, hp: { now: 10, max: 10 }, you: true },
+          { id: "vermillion", kind: "resident", label: "vermillion", initiative: 11, down: true, hp: { now: 0, max: 14 } },
+          { id: "wright", kind: "resident", label: "wright", initiative: 6, hp: { now: 9, max: 9 }, joined_round: 3 },
+        ],
+      },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+    get yourturn() {
+      const c = FIXTURES.combat;
+      return { ...c, encounter: { ...c.encounter, turn: "keeminlee" } };
+    },
+    get downed() {
+      const c = FIXTURES.combat;
+      return {
+        ...c,
+        encounter: {
+          ...c.encounter, turn: "keeminlee",
+          order: c.encounter.order.map((a) => (a.you ? { ...a, down: true, hp: { now: 0, max: 10 } } : a)),
+        },
+      };
+    },
+
+    vault: {
+      standpoint: {
+        x: 1083, y: -792, from: "where your walk arrived", stance: "embodied-human",
+        portal: {
+          id: "the-town/the-candle-vault", value: "the-town/the-candle-vault",
+          by: "the-town", space: "arena",
+          body: "Past the inner door the candles go up in tiers until you cannot see the top of them.",
+        },
+      },
+      crossing: { n: 151 },
+      within: [
+        { id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" },
+        { id: "the-town/the-cellar-door", by: "the-town", tier: "market" },
+        { id: "the-town/the-candle-vault", by: "the-town", tier: "market" },
+      ],
+      // THE OTHER FIGHTERS, PLACED. A combatant the answer names no coordinate
+      // for gets no hp rail — the same rule the token, the ring and the floor
+      // things already follow — so a fixture that wants to SEE the rails has to
+      // place the people. `present` is where the live door carries them.
+      // THE BOSS IS AT THE VAULT TOP AND THE PARTY STANDS BELOW IT (the mark
+      // moved there 2026-08-29), so the fixture ranks them the way the room
+      // really seats them rather than stacking everyone on the cake — which is
+      // what the first version did, and it made three correct hp rails
+      // unreadable behind one another.
+      // ⚑ VERMILLION IS DELIBERATELY NOT HERE. She is on the wheel and she is
+      // down, and the answer places her nowhere — which is a real state (the
+      // field of view is budgeted) and the one that exercises two rules at once
+      // in a browser: an unplaced fighter gets NO hp rail rather than a rail at
+      // a guessed spot, and an unplaced target is offered as a NAMED CHIP on
+      // the aim strip rather than a ring on the painting. Placing her cost both.
+      present: [
+        { handle: "jetto-of-starforge", x: 1081, y: -789.5 },
+        { handle: "keeminlee", x: 1083, y: -789.2 },
+      ],
+      nearby: [
+        { id: "the-town/the-good-lighter", at: { x: 1095.5, y: -784 }, kind: "sited", tier: "market" },
+        { id: "the-town/the-unlit-cake", at: { x: 1083, y: -792.4 }, kind: "sited", tier: "market" },
+        { id: "vermillion/the-long-knife", at: { x: 1092, y: -786 }, kind: "sited", loose: true, dropped_by: "vermillion" },
+      ],
+      // ORDINARY[7] is the way out, and it is granted here deliberately: the
+      // exit law holds mid-fight (the office's own words — "the exit law holds
+      // mid-fight, and the arena simply stops"), and being able to see that the
+      // wheel does NOT cool it is half the point of the gates fixture below.
+      actions: [ORDINARY[0], ORDINARY[1], ORDINARY[4], ORDINARY[7], ...ARENA],
+      granted: { yours: ["say", "walk", "take", "exit"], here: ARENA.map((e) => e.action) },
+      encounter: {
+        id: "the-town/the-candle-vault", round: 3, turn: "keeminlee",
+        order: [
+          { id: "the-town/the-unlit-cake", kind: "creature", label: "the unlit cake", initiative: 19 },
+          { id: "jetto-of-starforge", kind: "resident", label: "jetto-of-starforge", initiative: 14, hp: { now: 7, max: 20 } },
+          { id: "keeminlee", kind: "human", label: "DARKO", initiative: 12, hp: { now: 16, max: 20 }, you: true },
+          { id: "vermillion", kind: "resident", label: "vermillion", initiative: 11, down: true, hp: { now: 0, max: 20 } },
+        ],
+      },
+      // the office's own publicState block: named, with hp, and NO coordinates.
+      // `phase` is the office's too (encounter.mjs PHASES: afoot, spent, wiped)
+      // and it is what decides whether the spoils seat is on the bar at all.
+      encounter_detail: {
+        phase: "afoot", live: true, space: "arena", ground: "the-town/the-candle-vault",
+        adversary: {
+          id: "the-town/the-unlit-cake", hp: 41, of: 60,
+          body: "Nine tiers, four hundred candles, not one ever lit.",
+        },
+      },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+
+    // ── THE WHEEL RESTING ON THE CREATURE, WITH THE DOOR'S OWN NARROWING ──
+    // `standpoint.acting_blocked.gates` is the office's live field (world-apex
+    // .mjs actingBlocked, branch bday-law 883e77d) — the acts the refusal is
+    // actually about. This fixture is the state the founder was frozen in: the
+    // wheel is not his, and until the field existed the page cooled every seat,
+    // so he could not walk out of a room whose door would have let him.
+    get gated() {
+      const v = FIXTURES.vault;
+      const gates = ["strike", "cast", "guard", "lift", "loot"];
+      return {
+        ...v,
+        standpoint: {
+          ...v.standpoint,
+          acting_blocked: {
+            reason: "it is the unlit cake's turn",
+            whose_turn: "the-town/the-unlit-cake",
+            gates,
+            hint: `the wheel gates this ground's ARENA verbs (${gates.join(", ")}) while an encounter is live — yours comes round. Everything else you can do here is unaffected: walk, speak, stake, hand things over, all ungated mid-fight.`,
+          },
+        },
+        encounter: { ...v.encounter, turn: "the-town/the-unlit-cake" },
+      };
+    },
+
+    // ── WHAT THIS HAND IS HOLDING ──
+    // `encounter_detail.hands[<who>].weapon` — the office's own `weaponInHand`
+    // answer ({thing, bonus, says}) carried out to a caller, plus `for`, the
+    // act the held grant names. In flight in lane bday-law at the time this was
+    // written; the fixture is built to the contract so the surface can be
+    // looked at before the field lands.
+    get armed() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        encounter_detail: {
+          ...v.encounter_detail,
+          hands: {
+            keeminlee: {
+              hp: 16, of: 20, downed: false, guarding: false, gone: false,
+              // THE RULED SHAPE: { thing, bonus, augments, says? }. `augments`
+              // is WHICH ACT the bonus helps, read off the held grant's own
+              // entry rather than hardcoded — so a thing that grants a different
+              // act moves the bonus without an edit on either side.
+              //
+              // NOT `for`: that word already means the ACTOR KIND in the grants
+              // vocabulary, on the very entry this value is read from, so it was
+              // renamed out (office cf50015) while it was still one edit each
+              // side. This fixture spelled the new name for a commit before the
+              // office pushed it — which is why the site was ready for the
+              // rename rather than blank on the day it landed.
+              //
+              // `says` IS the record's, and it is the lighter's own words.
+              weapon: { thing: "the-town/the-good-lighter", bonus: 3, augments: "strike", says: "a flame that has never once gone out on the way over" },
+            },
+          },
+        },
+      };
+    },
+
+    // THE ROOM AFTER THE FIGHT. Same ground, phase "spent" — which is the one
+    // state where the phase-gated seat is rendered, and the only way to look at
+    // that half of the 2026-08-29 trim. The adversary is down to nothing and the
+    // wheel is quiet.
+    get spent() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        encounter_detail: {
+          ...v.encounter_detail, phase: "spent",
+          adversary: { ...v.encounter_detail.adversary, hp: 0 },
+        },
+      };
+    },
+
+    // A GROUND THAT DECLARES ITS OWN STRIDE. `walk_min_step` is FLAT on the
+    // portal block, beside id/value/by/space/keeps_wheel/body — read off the
+    // office 2026-08-29 (arena.mjs, the portal block builder), after this
+    // harness spent a commit guessing at a nested `walk.min_step` that never
+    // existed. The vault's real value is 0.25: a lattice fine enough to stand
+    // beside a cake in a three-metre room, and one that still contains every
+    // whole metre, so nothing coarser is lost by it.
+    //
+    // ⚑ THERE IS NO SUCH KEY ON ANY OTHER GROUND, which is the point of having
+    // a separate fixture for it. Absent means the door snaps nothing and the
+    // page must not either.
+    get stride() {
+      const v = FIXTURES.vault;
+      return { ...v, standpoint: { ...v.standpoint, portal: { ...v.standpoint.portal, walk_min_step: 0.25 } } };
+    },
+
+    // NOBODY IS DOWN. The vault with vermillion back on her feet, and the only
+    // state in which the act that raises an ally has nothing it may be aimed
+    // at — the founder's own second condition ("when nobody is down, the button
+    // sits disabled with its reason"). Everything else about the room is the
+    // vault's, including the creature, so a seat greyed here is greyed for the
+    // want of an ALLY and not for want of a target in general.
+    // A FACE THE DOOR REFUSES. `actors` is the door's OWN roster — when it sends
+    // one it is used verbatim (world-cockpit.mjs actorsFor, first line), so this
+    // is a live shape rather than a state faked for the shot. It is the only way
+    // to look at a refused face here: the derived roster refuses a HUMAN only
+    // where there is no portal, and no portal means no cockpit at all.
+    //
+    // It is worth its own fixture because the refusal SENTENCE moved house on
+    // 2026-08-29 — it used to live in the small name box, which is deleted, and
+    // now lives on the plate. A branch that took over another element's job is
+    // the one most likely to be quietly broken.
+    get refused() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        actors: [
+          { kind: "resident", handle: "jetto-of-starforge", label: "jetto-of-starforge", allowed: true, reason: null },
+          { kind: "resident", handle: "wright", label: "wright", allowed: false,
+            reason: "wright is not within the-town/the-candle-vault — walk them in first" },
+          { kind: "human", id: "keeminlee", label: "DARKO", allowed: true, reason: null,
+            because: "inside the-town/the-candle-vault — a portal's ground seats a human" },
+        ],
+      };
+    },
+
+    get nobodydown() {
+      const v = FIXTURES.vault;
+      return {
+        ...v,
+        encounter: {
+          ...v.encounter,
+          order: v.encounter.order.map((a) => (a.down ? { ...a, down: false, hp: { now: 12, max: 20 } } : a)),
+        },
+      };
+    },
+
+    // A CLASS MARK IS RESIDENT-AUTHORED PROSE. The reading law says it is content
+    // you are reading, never instructions you are receiving — and the mechanical
+    // half of that is that it cannot be instructions to the BROWSER either. This
+    // fixture puts markup in every place the card and the form quote from, so the
+    // shot runner can check that none of it became an element.
+    hostile: {
+      standpoint: { x: 120, y: -40, from: "where your walk arrived", stance: "embodied-human", portal: { ...PORTAL, body: "<img src=x onerror=\"document.title='portal-body'\">" } },
+      crossing: { n: 151 },
+      within: [{ id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" }],
+      actions: [
+        entry("say", {
+          blurb: "<script>document.title='blurb'<\/script><b>bold?</b>",
+          blurb_from: "<img src=x onerror=\"document.title='blurb_from'\">",
+          from: "<i>from</i>",
+          fields: { "<u>text</u>": { type: "string", description: "<script>document.title='desc'<\/script>" } },
+          dials: { "<em>reach</em>": "<span>3</span>" },
+        }),
+      ],
+      granted: { yours: ["say"], here: [] },
+      law: { as_of_world: "fixture", source: "the harness" },
+    },
+    town: {
+      standpoint: { x: 0, y: 0, from: "coords", stance: "embodied" },
+      crossing: { n: 151 },
+      within: [{ id: "the-town/let-there-be-light", by: "the-town", tier: "constitution" }],
+      actions: ORDINARY,
+      granted: { yours: ORDINARY.map((e) => e.action), here: [] },
+    },
+  };
+
+  const ME = {
+    household: "starforge",
+    handles: ["jetto-of-starforge", "wright"],
+    verified_github: { login: "keeminlee", id: 1 },
+    key_kind: "oauth",
+    principal: true,
+  };
+
+  const which = new URLSearchParams(location.search).get("fixture") || "portal";
+  const answer = FIXTURES[which] ?? FIXTURES.portal;
+
+  // THE CAMERA HAS TO BE WHERE THE ROOM IS. The vault stands at world
+  // (1083,-792), which this grid puts at atlas (701.6, 601.6) — off the right
+  // edge of the harness's default viewBox, so every figure drawn for that
+  // fixture would be correct and invisible. Moved rather than the figures: the
+  // arithmetic under test is exactly the world-to-atlas transform, and nudging
+  // the coordinates to suit the frame would be testing a fiction.
+  // The vault, and the two fixtures that are the vault in another state, all
+  // stand at the same world coordinates and need the same frame.
+  if (["vault", "spent", "stride", "gated", "armed"].includes(which)) {
+    document.querySelector(".wv svg").setAttribute("viewBox", "694 594 24 18");
+  }
+
+  // The harness never reaches the office. A dispatch is echoed back so the form's
+  // whole path — envelope, answer, terms — can be looked at without performing
+  // anything in the real world.
+  // A FORCED REFUSAL, for the half of a ruling that only exists when things go
+  // wrong. `?fail=say` makes the door bounce that act — without it there is no
+  // way to look at what a spoken line does when it does NOT land, and that half
+  // (the words come back, the defect is under them) is the whole reason
+  // close-on-enter is safe to ship.
+  const FAIL = new URLSearchParams(location.search).get("fail");
+  async function dispatch(envelope) {
+    if (FAIL && envelope.do === FAIL) {
+      document.getElementById("note").innerHTML = `<b>forced bounce</b> ${envelope.do}`;
+      return { ok: false, status: 503, body: { defect: "the office is not answering", hint: "your words are kept — try again" } };
+    }
+    document.getElementById("note").innerHTML =
+      `<b>dispatch</b> POST /api/world/apex<br>${JSON.stringify(envelope, null, 1).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c])).replace(/\n/g, "<br>")}`;
+    // A SPEAKING ACT LANDS IN THE RECORD THE MAP READS. Whatever prose field the
+    // envelope carried becomes a voice at the standpoint, which is how the chat
+    // line's round trip is looked at here.
+    const prose = Object.entries(envelope.args ?? {}).find(([, v]) => typeof v === "string" && v.length > 1);
+    if (prose && envelope.do === "say") {
+      const sp = (FIXTURES[which] ?? FIXTURES.portal).standpoint;
+      SPOKEN.push({ handle: envelope.as === "human" ? "DARKO" : envelope.handle, said: prose[1], at_ms: Date.now(), x: sp.x, y: sp.y });
+    }
+    // ⚑ A REFUSAL WEARING A 200 — `?refuse=<act>`, and it is a DIFFERENT knob from
+    // `?fail=` beside it on purpose. `fail` answers 503, which every reader
+    // already treats as a bounce; this answers the shape that actually caught the
+    // founder out on 2026-08-29: HTTP says yes, the DOOR says no, in the body.
+    // An arena gates movement to whoever the wheel is on, and its refusal names
+    // the turn — which is exactly the sentence he needed to read and did not,
+    // because the panel said "done" and moved his camera out of a room he was
+    // still standing in.
+    // an exit the door TAKES moves the standpoint out — see `left` at refresh
+    if (envelope.do === "exit" && new URLSearchParams(location.search).get("refuse") !== "exit") left = true;
+    const REFUSE = new URLSearchParams(location.search).get("refuse");
+    if (REFUSE && envelope.do === REFUSE) {
+      document.getElementById("note").innerHTML = `<b>refused, with a 200</b> ${envelope.do}`;
+      return { ok: true, status: 200, body: { defect: "it is vermillion's turn", hint: "wait for the wheel to come round to you" } };
+    }
+    if (envelope.args && envelope.args.accept !== true && envelope.do === "enter") {
+      return { ok: false, status: 422, body: { error: "bounce", defect: "this door declares a counter-edge", hint: "call again with accept: true", terms: { binds: "the-town/enter", means: "the-town/enter" } } };
+    }
+    // A ROLL, when the act is one that throws. `?roll=crit` forces the ruled
+    // crit so its styling can be looked at; `?roll=max` gives a natural max the
+    // door has NOT ruled a crit, which is the pair worth seeing side by side.
+    const want = new URLSearchParams(location.search).get("roll");
+    if (ROLLING.has(envelope.do)) {
+      const body = { ok: true };
+      if (want === "crit") body.roll = { die: "d20", faces: 20, value: 18, modifier: 4, total: 22, crit: true, for: envelope.do, against: "the cellar thing" };
+      else if (want === "max") body.roll = { die: "d20", faces: 20, value: 20, modifier: 2, total: 22, for: envelope.do, against: "the cellar thing" };
+      else if (want === "many") body.rolls = [
+        { die: "d20", faces: 20, value: 11, modifier: 3, total: 14, for: "initiative" },
+        { die: "d20", faces: 20, value: 4, modifier: 1, total: 5, for: "initiative" },
+        { die: "d6", faces: 6, value: 6, modifier: 0, total: 6, for: "damage" },
+      ];
+      else body.roll = { die: "d20", faces: 20, value: 13, modifier: 3, total: 16, for: envelope.do, against: "the cellar thing" };
+      return { ok: true, status: 200, body };
+    }
+    return { ok: true, status: 200, body: { ok: true } };
+  }
+  /** Which acts throw, in this harness. The real answer is the door's. */
+  const ROLLING = new Set(["kindle", "toast", "strike", "cast", "guard", "lift"]);
+
+  // The act's shadow, faked. A real one is POST /api/world/apex { read: action },
+  // which performs nothing and answers the act's card WITH the terms that would
+  // bind it. The delay is deliberate: it makes the card's "reading the act's
+  // shadow…" line visible, which is a state a real reader will see.
+  const TERMS = {
+    kindle: { binds: "a-hall/guest", means: "a-hall/kindle", schedule: "settles at the crossing", charter: "the light is the town's, and what is lit by it is seen by it" },
+    toast: { binds: "a-hall/guest", means: "a-hall/toast", schedule: "settles at the crossing" },
+    say: { binds: "the-town/resident", means: "the-town/say", schedule: "settles at the crossing" },
+    enter: { binds: "the-town/resident", means: "the-town/enter" },
+    // ⚑ THE EXIT CARD THE FOUNDER WAS LOOKING AT, 2026-08-29, staged so the fix
+    // has something to be a fix OF. Two things here are the bug and not the
+    // fixture's invention: the door really does send exit its terms (so the
+    // panel dresses as a consent sheet, which is what pulled the room's ENTRY
+    // flavor onto an exit), and one of those terms really is a STRUCTURE — the
+    // budget block, which was printing as raw JSON in prose on a party surface.
+    // Both are the door's shape, quoted; the fix is on this side of the wire.
+    exit: {
+      binds: "the-town/resident",
+      means: "the-town/enter — an entry is one passage written; exit writes the next",
+      budget: { cap_chars: 4000, per_mark_chars: 700 },
+    },
+    // AND LIFT CARRIES THEM TOO, which is why the founder read the same two
+    // faults on a second, unrelated act and why the fix belongs to the card
+    // CLASS rather than to exit's card. Staged here so the shot can prove both
+    // halves at once: the entry flavor and the budget block are gone from a
+    // lift, and the register he called GOOD — the dial facts, "lifts to 8 · ends
+    // turn" — is untouched. A fix that quietly cost him that would be a worse
+    // card than the one he complained about.
+    lift: {
+      binds: "the-town/resident",
+      means: "the-town/lift — an ally on their feet is worth a turn",
+      budget: { cap_chars: 4000, per_mark_chars: 700 },
+    },
+    // GUARD IS THE THIRD NAMED INSTANCE (founder, 2026-08-29) and the one that
+    // settles the diagnosis: three unrelated acts, one composer, the same two
+    // faults. It is staged with the same shape as the other two so the class
+    // assertion has a third act to be true of rather than two.
+    guard: {
+      binds: "the-town/resident",
+      means: "the-town/guard — a turn spent not swinging is a turn spent standing",
+      budget: { cap_chars: 4000, per_mark_chars: 700 },
+    },
+  };
+  async function readTerms(action) {
+    await new Promise((r) => setTimeout(r, 250));
+    const terms = TERMS[action];
+    return terms ? { read: action, card: { action, terms } } : { read: action, card: { action } };
+  }
+
+  // THE CONVERSATIONS DOOR, faked. The real one is GET /api/world/conversations
+  // — keyless, because "speech is public the way street conversation is" — and
+  // this is its shape verbatim, down to `fade_minutes` being the door's number
+  // rather than the site's. Whatever the chat line sends is appended here, so
+  // the round trip (type → ENTER → a line on the map beside the speaker) can be
+  // looked at without an office.
+  const SPOKEN = [
+    { handle: "vermillion", said: "mind the ninth tier", at_ms: Date.now() - 40_000, x: 1092, y: -786 },
+    { handle: "jetto-of-starforge", said: "it has opinions about the dark", at_ms: Date.now() - 8_000, x: 1088, y: -790 },
+  ];
+  async function readVoices() {
+    return {
+      now: Date.now(), earshot_m: 60, fade_minutes: 5, close_minutes: 30,
+      pinned: [], closed: [],
+      live: [{ id: "t1", live: true, place: "the candle vault", at: { x: 1090, y: -787 }, voices: SPOKEN }],
+    };
+  }
+
+  // ── the rail, and what the feed is fed (2026-08-29) ────────────────────────
+  //
+  // ?rail=1     stand the viewer's Lately section up, so the feed has its home
+  // ?fight=1    walk the encounter forward on every refresh, so the DELTA
+  //             derivation — everybody else's turns, which is the half the read
+  //             door cannot hand over whole — actually produces lines here
+  // ?tail=1     serve `encounter_detail.beats_tail` beside it (bday-law's field,
+  //             site-defined contract until it lands), so the WHOLE-attributed
+  //             road can be shot beside the derived one and the two compared
+  const params = new URLSearchParams(location.search);
+  if (params.get("rail")) document.body.classList.add("has-rail");
+  /**
+   * PIN A BUBBLE, the way the viewer does: create the element on demand and
+   * append it to the host. Exposed as well as auto-fired, so a shot runner can
+   * open and close one and watch the row answer.
+   *
+   * Planted bottom-left of the painting — where the dock stands — because that
+   * is the collision worth measuring. `left`/`bottom` stand in for the viewer's
+   * transform placement; what is under test is the rectangle, not how it got
+   * there.
+   */
+  window.__pinBubble = (on = true) => {
+    const host = document.querySelector(".wv-bubbles");
+    let el = host.querySelector(".wv-bubble.is-pinned");
+    if (!on) { el?.remove(); return null; }
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "wv-bubble is-pinned t-market";
+      el.style.cssText = "left:22%; bottom:14px; top:auto;";
+      el.innerHTML = '<div class="wv-card"><span class="cname">the good lighter</span>'
+        + " a brass lighter with somebody else's initials worn off it.</div>";
+      host.appendChild(el);
+    }
+    return el;
+  };
+  if (params.get("bubble")) setTimeout(() => window.__pinBubble(true), 1500);
+
+  /**
+   * ?waves=1 — THE RAIL ARRIVES IN WAVES, as it does on the real page.
+   *
+   * ⚑ THE FIXTURE THAT WOULD HAVE CAUGHT THE LIVE BUG. This harness drew its
+   * three Lately rows in the markup, all at once, forever — and the founder's
+   * "lately isn't scrolled down correctly" is precisely the failure a static
+   * fixture cannot produce. The viewer fills that list from THREE separate
+   * async loads (loadWalkLedger / loadSettlements / loadStakeEvents, each
+   * .then(renderActivity)), rewriting .wv-acts's innerHTML and re-setting the
+   * section's hidden attribute whenever its fetch happens to land. On a hard
+   * reload all three land after the cockpit has mounted and drawn.
+   *
+   * So this reproduces the shape rather than the timings: the rows are taken
+   * out of the markup and put back in waves, by innerHTML rewrite, exactly the
+   * way renderActivity does it — including the hidden flag, which starts true
+   * and is cleared by the first wave.
+   */
+  const RAIL_WAVES = [
+    ['<li class="wv-act-line is-mark"><span class="who">jetto-of-starforge</span> wrote <span class="what">a slice to take home</span><span class="when">yesterday</span></li>'],
+    ['<li class="wv-act-line is-walk"><span class="who">vermillion</span> set out for <span class="what">the lanternstep parlor</span><span class="when">today</span></li>'],
+    ['<li class="wv-act-line is-walk"><span class="who">wright</span> set out for <span class="what">the cellar door</span><span class="when">today</span></li>',
+     '<li class="wv-act-line is-stake"><span class="who">rei</span> backed <span class="what">the good lighter</span><span class="when">today</span></li>',
+     '<li class="wv-act-line is-settlement"><span class="wv-act-bless">S151 blessed</span><span class="when">today</span></li>'],
+  ];
+  if (params.get("waves")) {
+    const box = document.querySelector(".wv-activity");
+    const list = document.querySelector(".wv-acts");
+    if (box && list) {
+      list.innerHTML = "";
+      box.hidden = true;
+      let rows = [];
+      RAIL_WAVES.forEach((wave, i) => setTimeout(() => {
+        // newest first, which is the order renderActivity writes
+        rows = [...wave, ...rows];
+        list.innerHTML = rows.join("");
+        box.hidden = false;
+      }, 1200 + i * 2600));
+    }
+  }
+
+  /**
+   * A RESIDENT'S CARD, faked — the real one is GET /api/residents/{handle},
+   * keyless, answering `profile.avatar` as a BASENAME.
+   *
+   * THE ANSWERS ARE THE REAL ONES. `wright` and `vermillion` have uploaded an
+   * avatar and `jetto-of-starforge` has not (checked against the extractor's own
+   * media map, 2026-08-29), so the shot shows portraits and the letter tile
+   * beside each other — and the portraits are fetched from the URL the
+   * derivation actually builds, against the real public town repo. A harness
+   * that invented a local image would have proved the img tag and nothing about
+   * the URL.
+   *
+   * `vermillion` is deliberately NOT one of this key's handles: she is on the
+   * wheel and not in the dock, which is how the shot shows that a hand in the
+   * room gets a face whether or not the reader can act as her.
+   */
+  const HAS_AVATAR = new Set(["wright", "vermillion", "rei"]);
+  async function readResident(h) {
+    await new Promise((r) => setTimeout(r, 120));
+    return { handle: h, profile: HAS_AVATAR.has(h) ? { avatar: "avatar.jpg" } : null };
+  }
+
+  /**
+   * THE FIGHT, MOVING. The apex read carries no beats, so another player's turn
+   * reaches the page only as a change in `encounter_detail` — which means a
+   * harness whose refresh answers the same object forever can never exercise
+   * the derivation at all. This walks the block the way a room full of people
+   * would: the cake takes damage, a hand takes damage, somebody goes down and
+   * their weapon falls, then a lift.
+   */
+  // ?tail=1 ALSO serves `encounter_detail.beats_tail` — the fold's own beats,
+  // office spelling — so the whole-attributed-line road can be looked at beside
+  // the derived one. The tail is CUMULATIVE, as a last-N window is, which is
+  // what exercises the reader's watermark rather than just its formatter.
+  const BEATS = [
+    [{ seq: 40, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 16, damage: 5, round: 3 }],
+    [{ seq: 41, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 14, damage: 5, round: 3 }],
+    [{ seq: 42, actor: "jetto-of-starforge", act: "strike", to_hit: 18, damage: 11, weapon_bonus: 3, with: "the-town/the-good-lighter", boss_left: 38, round: 3 },
+     { seq: 43, actor: "vermillion", act: "cast", to_hit: 4, missed: true, round: 3 },
+     { seq: 44, actor: "the-town/the-unlit-cake", act: "strike", kind: "hostile", at: "jetto-of-starforge", to_hit: 19, damage: 2, downed: true, dropped: "the-town/the-good-lighter", round: 3 }],
+    [{ seq: 45, actor: "vermillion", act: "lift", lifted: "jetto-of-starforge", to: 8, round: 4 }],
+  ];
+  const SCRIPT = [
+    { adversary: 49, hands: { "jetto-of-starforge": 7, vermillion: 4 }, downed: [], dropped: [], acts: 12 },
+    { adversary: 49, hands: { "jetto-of-starforge": 2, vermillion: 4 }, downed: [], dropped: [], acts: 13 },
+    { adversary: 38, hands: { "jetto-of-starforge": 0, vermillion: 4 }, downed: ["jetto-of-starforge"],
+      dropped: [{ thing: "the-town/the-good-lighter", by: "jetto-of-starforge", at_seq: 44 }], acts: 15 },
+    { adversary: 38, hands: { "jetto-of-starforge": 8, vermillion: 4 }, downed: [],
+      dropped: [{ thing: "the-town/the-good-lighter", by: "jetto-of-starforge", at_seq: 44 }], acts: 16, round: 4 },
+  ];
+  let step = -1;
+  // ⚑ AN ACCEPTED EXIT PUTS YOU OUTDOORS, and the refresh has to say so or the
+  // camera's receipt can never be satisfied. The office answers a NEW standpoint
+  // after an act; a harness that answers the same object forever cannot tell a
+  // landed exit from a refused one — which is exactly the distinction under test,
+  // and it is how I nearly shipped a camera fix that never fires. `left` is set
+  // by the dispatch above when it takes an exit.
+  let left = false;
+  async function refresh() {
+    if (left) {
+      // outdoors: no portal, which is the fact the cockpit reads as "they left" —
+      // and NO ENCOUNTER either, because walking out of the arena leaves the
+      // wheel behind you. That second half is what lets the ending of a fight be
+      // looked at: the combat rail must go back to being the viewer's own Lately.
+      const { portal, ...standpoint } = answer.standpoint ?? {};
+      return { ...answer, standpoint, within: (answer.within ?? []).slice(0, 1),
+               encounter: undefined, encounter_detail: undefined };
+    }
+    if (!params.get("fight")) return answer;
+    step = Math.min(step + 1, SCRIPT.length - 1);
+    const s = SCRIPT[step];
+    return {
+      ...answer,
+      encounter: { ...answer.encounter, ...(s.round ? { round: s.round } : {}) },
+      encounter_detail: {
+        ...(answer.encounter_detail ?? {}),
+        phase: "afoot", live: true,
+        adversary: { ...(answer.encounter_detail?.adversary ?? {}), id: "the-town/the-unlit-cake", hp: s.adversary, of: 60 },
+        wheel: { round: s.round ?? 3, turn: "keeminlee", order: (answer.encounter?.order ?? []).map((a) => ({ who: a.id, kind: a.kind })) },
+        hands: Object.fromEntries(Object.entries(s.hands).map(([h, hp]) => [h, { hp, of: 20, downed: s.downed.includes(h), guarding: false, gone: false }])),
+        downed: s.downed, dropped: s.dropped, looted: [], attempts: 0, acts: s.acts,
+        ...(params.get("tail") ? { beats_tail: BEATS.slice(0, step + 1).flat() } : {}),
+      },
+    };
+  }
+
+  const handle = mountCockpit({
+    document, host: document.body, svg: document.querySelector(".wv svg"),
+    answer, me: ME, grid: GRID, dispatch, readTerms, refresh,
+    readVoices, readResident,
+  });
+
+  const note = document.getElementById("note");
+  if (!handle) {
+    note.innerHTML = `<b>fixture: ${which}</b><br>the cockpit did not mount — the door did not say this standpoint is inside portal ground, which is the founder's scope ruling working.`;
+  } else {
+    note.innerHTML = `<b>fixture: ${which}</b><br>harness only — no office is reached. Hover a slot for its card; 1-9 opens one.`;
+  }
+  // The window the shot-runner waits on, rather than a timer.
+  window.__cockpitReady = { mounted: Boolean(handle), fixture: which };
+  // The mount's own handle and the fixture it was given, so a shot runner can
+  // hand the cockpit a NEXT answer — a turn coming round, a hand going down —
+  // the way the page's own door read does. Without it the only way to exercise
+  // an update from outside would be to reload, which is not the same event.
+  window.__cockpitHandle = handle;
+  window.__cockpitAnswer = answer;
+  // The spoken record, so a shot runner can make somebody SAY something and
+  // have it arrive down the page's own road — the voices poll, the merge, the
+  // draw. Faking a line into the feed's DOM instead would prove the CSS and
+  // nothing about the contract that decides whether the reader is yanked to it.
+  window.__spoken = SPOKEN;
+</script>
+</body>
+</html>
