@@ -22,6 +22,13 @@ import { join } from "node:path";
 const require = createRequire("G:/Wright-HQ/package.json");
 const { chromium } = require("playwright");
 
+// The Guild's cards are the registry's own rows, so the count this expects is
+// READ from the registry rather than written down — a number typed here would
+// need editing every time the town adds a quest, which is exactly the drift
+// this check exists to catch.
+const { QUEST_REGISTRY } = await import("../src/lib/civic.mjs");
+const EXPECTED_CARDS = QUEST_REGISTRY.daily.length + QUEST_REGISTRY.milestone.length;
+
 const BASE = process.env.BASE ?? "http://localhost:4399";
 const OUT = join(process.cwd(), "qa-shots", "hub");
 mkdirSync(OUT, { recursive: true });
@@ -101,6 +108,21 @@ record("clicking a building opens its lane", !beforeOpen && afterOpen,
   `#quests open: ${beforeOpen} → ${afterOpen}`);
 record("and scrolls the lane into view", questTop > -50 && questTop < 250,
   `#quests top is ${Math.round(questTop)}px from the viewport top`);
+
+// 4b · EVERY REGISTRY ROW RIDES THE CARDS.
+// THE DRIFT THIS CATCHES, which already happened once: a quest row was added to
+// the registry and the shots were re-taken from a stale build, so the committed
+// record showed three cards for a four-row registry. Nothing was broken — the
+// page was right and the PICTURE OF IT was wrong — and no existing check could
+// see the difference, because they all counted what was rendered against
+// itself. Asking the registry is what makes the two disagree out loud.
+const cardTitles = await page.$$eval(".m-card.is-quest .m-title", (els) => els.map((e) => e.textContent.trim()));
+record("every registry quest rides the cards", cardTitles.length === EXPECTED_CARDS,
+  `${cardTitles.length} cards for ${EXPECTED_CARDS} registry rows: ${cardTitles.join(" · ")}`);
+for (const q of [...QUEST_REGISTRY.daily, ...QUEST_REGISTRY.milestone]) {
+  record(`  card: ${q.title}`, cardTitles.includes(q.title),
+    cardTitles.includes(q.title) ? "rides the Guild" : "IN THE REGISTRY, NOT ON THE PAGE");
+}
 await page.screenshot({ path: join(OUT, "04-quest-guild-open.png") });
 
 // 5 · THE DEEP LINKS THAT MUST NOT BREAK.
