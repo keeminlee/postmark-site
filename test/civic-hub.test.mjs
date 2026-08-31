@@ -188,8 +188,31 @@ test("every holo mention carries the ruling's line", () => {
   // the one every other money surface carries.
   assert.ok(/import \{[^}]*HOLO_LINE[^}]*\} from "@\/lib\/funding\.mjs"/.test(teachSrc),
     "HOLO_LINE must be imported, not retyped");
-  assert.ok(body.includes("{HOLO_LINE}") && teachBody.includes("{HOLO_LINE}"),
-    "both the pots and the teaching must render HOLO_LINE");
+  // RE-AIMED 2026-08-31 — HALF RETIRED WITH ITS REASON, half made stricter.
+  //
+  // This required BOTH surfaces to render HOLO_LINE. That was right when the
+  // 2026-08-26 placement rule was written and the hub and the teaching were one
+  // page: whichever surface said "holo" first owed the reader the expansion.
+  // They split the next day, and the founder ruled on 2026-08-31 that the
+  // explanation has one home — /stamps/, where it already stood in three fuller
+  // forms — and the hub keeps a pointer at most.
+  //
+  // So the teaching half stands unchanged; the hub half is REPLACED rather than
+  // dropped, by the stronger thing the move needs: the hub must not carry the
+  // ruling's sentence at all, in a constant OR in prose. A page that owes a
+  // reader a pointer and gives them a paragraph is the state this now forbids.
+  assert.ok(teachBody.includes("{HOLO_LINE}"),
+    "the teaching is holo's one home and must render HOLO_LINE");
+  // Asked as RENDER and IMPORT rather than as "the string appears", because the
+  // frontmatter comment that records the move names both constants on purpose —
+  // and a check a correct comment turns red is a check that teaches people to
+  // stop explaining themselves.
+  assert.equal(/\{HOLO_LINE\}|\{HOLO_NAME_LINE\}/.test(raw), false,
+    "the hub must not render the holo lines — /stamps/ is their home");
+  assert.equal(/^\s*import\s*\{[^}]*HOLO_(?:NAME_)?LINE/m.test(hubSrc), false,
+    "and must not import them either — an import kept 'just in case' is how the paragraph comes back");
+  assert.ok(/href="\/stamps\/#\w+"[^<]*>holo</.test(raw) || /✧ is <a href="\/stamps\//.test(raw),
+    "but the hub must still point a reader at where holo is explained");
   // AND NO TYPED COPY OF IT ANYWHERE. Counting occurrences was the wrong
   // instrument — with three mentions on the page, replacing one with prose
   // left the count healthy and the probe green. The law is that the sentence
@@ -250,11 +273,16 @@ test("the nav carries one Stamps entry, flagged beta", () => {
 // ── the hub is one page of six lanes, entered through the quarter ────────────
 
 test("the hub carries a lane for every building, each a fold", () => {
+  // RE-AIMED 2026-08-31, and the reason is the general one: this asserted three
+  // exact spellings of an opening tag, so it went red when the lanes gained a
+  // `style` attribute for their tint — a change that took nothing away from the
+  // law it protects. The law is "there is a <details class="c-lane"> with this
+  // id", and that is what it now asks, with whatever else the tag carries. The
+  // sibling below (`every lane ships shut but the board`) was already written
+  // this way, which is why it survived the same edit untouched.
   for (const id of LANE_IDS) {
-    assert.ok(raw.includes(`<details class="c-lane" id="${id}">`) ||
-              raw.includes(`<details class="c-lane" id="${id}" open>`) ||
-              raw.includes(`<details class="c-lane is-rules" id="${id}">`),
-      `the ${id} lane is missing`);
+    const re = new RegExp(`<details class="c-lane(?: is-rules)?" id="${id}"[^>]*>`);
+    assert.ok(re.test(raw), `the ${id} lane is missing`);
   }
   assert.ok(raw.includes("<PostmarkLayout"), "and it is wrapped in the layout");
 });
@@ -314,6 +342,141 @@ test("a building that does not stand in the world says so, and says it from the 
   assert.ok(raw.includes("not standing yet"), "and an unbuilt lane must say so on the building");
   assert.equal(/const\s+BUILT\s*=\s*\[/.test(src), false,
     "a written-down list of standing buildings is a lie with a date on it");
+});
+
+// ── the founder's five, 2026-08-31 ───────────────────────────────────────────
+// He read the live pages after release/2026-w36.1 and named five things. Each
+// gets a law here in his own words, because four of the five are REMOVALS and a
+// removal with no falsifier is a paragraph waiting to be helpfully restored.
+
+// WHAT ACTUALLY REACHES A READER. `body` above strips TAGS, and a JSX comment
+// is not a tag — so `{/* … */}` text lands in it as though the page had said it.
+// That is fine for the older laws, which look for sentences nobody would write
+// in a comment. It is exactly wrong for a law about a REMOVAL: the comment that
+// records what was struck quotes the struck sentence, which is the whole point
+// of the comment, and turned three of the five laws below red on their first
+// run against a page that was already correct.
+//
+// A check a truthful comment fails is a check that teaches people to stop
+// explaining themselves. So the removals ask this view instead, and the shared
+// `body` is left exactly as it was — no existing law is loosened to make room.
+const stripComments = (s) => s.replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, " ");
+const rendered = flat(stripComments(raw));
+
+// A slice of one lane's fold, so a law about order asks the lane and not the
+// page. Every lane is a <details> and they do not nest, so the next one's
+// opening tag is the end of this one.
+function lane(id) {
+  const open = raw.search(new RegExp(`<details class="c-lane(?: is-rules)?" id="${id}"`));
+  assert.ok(open > 0, `the ${id} lane is gone`);
+  const rest = raw.slice(open + 1);
+  const next = rest.search(/<details class="c-lane/);
+  return next < 0 ? rest : rest.slice(0, next);
+}
+
+test("THE LAW: the Guild reads cards, then the pots, then the standings", () => {
+  // THE FOUNDER'S WORDS, 2026-08-31: "'What the Town Needs Money For' (the pots)
+  // goes directly under the quest cards at the top; the standings go below
+  // everything else."
+  //
+  // Asked as ORDER because order is the whole ruling — every one of these three
+  // blocks was already on the page, and a test that only asked whether they are
+  // present would have passed before the change and after it.
+  const guild = lane("quests");
+  const cards = guild.indexOf("questRows.map");
+  const pots = guild.indexOf('<div id="pots"');
+  const standings = guild.indexOf('<ol class="q-stand">');
+  assert.ok(cards > 0 && pots > 0 && standings > 0,
+    `the Guild lost a block — cards:${cards} pots:${pots} standings:${standings}`);
+  assert.ok(cards < pots, "the pots must sit directly under the quest cards, not below the standings");
+  assert.ok(pots < standings, "and the standings go below everything else");
+});
+
+test("THE LAW: the Guild does not recite its own plaque", () => {
+  // THE FOUNDER'S WORDS, 2026-08-31, on the Quest Guild's mark body — "The
+  // Quest Guild — the town's asks for its residents: standing quests,
+  // town-minted. The standings still hang at the works; this is their home
+  // now." — rendered under a lane already headed with the same words: "not
+  // necessary."
+  //
+  // The sentence is asked for by its OWN HALVES rather than as one string,
+  // because it reached the page through `placeMarks[…]` and could come back
+  // through any reader of that mark, spelled any way the mark is spelled.
+  assert.equal(/standings still hang at the works/.test(rendered), false,
+    "the Guild's plaque is being rendered again");
+  assert.equal(/placeMarks\[LANE_PLACES\.quests\]/.test(raw), false,
+    "the Guild must not read its own plaque onto the page at all");
+  // and the marketplace's plaque, which he did NOT strike, is still rendered —
+  // so this law is about one lane's prose and not a quiet ban on quoting marks
+  assert.ok(/placeMarks\[LANE_PLACES\.listings\]/.test(raw),
+    "the Marketplace's plaque was not struck and must still render");
+});
+
+test("THE LAW: how an idea enters is READ from the quay note, never typed", () => {
+  // THE CAUSE THIS FIXES, and it is the reason the law is shaped this way. The
+  // page carried a hand copy of `the-town/how-ideas-enter` — "…Open a blueprint
+  // in the chest — BLUEPRINTS/, your slug — and talk in its Discussions." —
+  // taken at world commit 6b235216 and superseded FOUR HOURS LATER by e383e992.
+  // The pin was never behind: it is a descendant of e383e992 and carries the
+  // current body. Only the copy was stale, and only a person could ever have
+  // noticed.
+  //
+  // So the law is not "the page shows the right sentence" — that would go green
+  // on a fresh transcription and rot exactly the same way. It is that the page
+  // holds NO transcription.
+  assert.ok(/\{howIdeasEnter\}/.test(raw), "the quay note must be rendered from the mark");
+  assert.ok(/HOW_IDEAS_ENTER_PLACE/.test(hubSrc), "and the mark named by id, not by a path");
+  assert.equal(/Open a blueprint in the chest/.test(rendered), false,
+    "the superseded version of the quay note is typed into the page");
+  assert.equal(/Plant a bounty here/.test(rendered), false,
+    "any hand copy of the quay note is a copy that will go stale — read the mark");
+  // the chest keeps its line, demoted: where a drawn idea GOES
+  assert.ok(/postmark-blueprints ↗/.test(rendered), "the chest link must survive as the secondary line");
+});
+
+test("THE LAW: the Bounty Board carries no weight paragraph, and /stamps/ still teaches it", () => {
+  // THE FOUNDER'S WORDS, 2026-08-31, on "A notice's weight is stamps staked
+  // behind it, plus a bonus for each distinct household behind it. Post an ask
+  // of your own: Staking, in the Stamps teaching." — "confusing for readers
+  // learning about this."
+  assert.equal(/A notice's weight is stamps staked/.test(rendered), false,
+    "the weight paragraph is back on the board");
+  assert.equal(/bonus for each\s+distinct household/.test(rendered), false,
+    "and so is its breadth-bonus paraphrase");
+  // HIS INSTRUCTION WAS TO CHECK, NOT ONLY TO DELETE: "If the staking pointer
+  // has value, it belongs on /stamps/, which already teaches it; check it's
+  // there." So the destination is asserted, and this law goes red if a later
+  // trim of the teaching quietly takes the explanation with it.
+  assert.ok(teachRaw.includes('id="staking"'), "the teaching's Staking section is the destination");
+  assert.ok(/mark weight = sum of open escrows \+ k x unique staking households/.test(teachBody),
+    "and it must still quote the weight rule from ECONOMY-DIALS.json § read_side.weight");
+  assert.ok(/Posting a notice of your own/.test(teachBody),
+    "and still teach posting a notice, which is what the struck pointer pointed at");
+});
+
+test("THE LAW: the Ballot House says where the votes live, in one sentence, and keeps its door", () => {
+  // THE FOUNDER'S WORDS, 2026-08-31: the description is "overtechnical and
+  // confusing" — replace it with "one concise sentence saying where the votes
+  // currently live", and "keep the button."
+  const ballot = stripComments(lane("ballot-house"));
+  const say = flat(ballot).match(/<p class="c-say">[\s\S]*?<\/p>/) ??
+    (ballot.match(/<p class="c-say">([\s\S]*?)<\/p>/) || [])[1];
+  assert.ok(say, "the ballot lane lost its description entirely — one sentence, not none");
+  const sentences = flat(say).split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0);
+  assert.equal(sentences.length, 1, `the description is ${sentences.length} sentences: ${flat(say).trim()}`);
+  assert.match(flat(say), /Ballot Box/, "and it must say where the votes live");
+
+  // THE BUTTON. Named by its class, because "keep the button" is about the
+  // thing a reader clicks, not about the word on it.
+  assert.ok(/<a class="c-door" href="\/votes\/">/.test(ballot), "the Ballot Box door must stay");
+
+  // AND THE MACHINERY IS GONE. Each of these is a fact a reader now gets at the
+  // door instead — /votes/ carries the two cast doors and the clip/mint fine
+  // print verbatim, which is what made striking them safe rather than lossy.
+  for (const technical of [/stake_topic/, /stake_candidate/, /household's headroom/, /liquid balance/]) {
+    assert.equal(technical.test(flat(ballot)), false,
+      `the ballot lane is technical again: ${technical}`);
+  }
 });
 
 test("the head answers WHAT IS THIS unfolded, with the five things behind one click", () => {

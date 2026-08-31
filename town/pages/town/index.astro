@@ -52,13 +52,17 @@
 // frontmatter's closing line, which points at neither the import nor the file
 // it came from.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { HOLO_LINE, HOLO_NAME_LINE, livePots, loadPots, POT_FIXTURE, potGist, patronLabel } from "@/lib/funding.mjs";
+// HOLO_LINE / HOLO_NAME_LINE are NOT imported here any more. They were, for the
+// pots block's holo paragraph, which moved to /stamps/ on 2026-08-31 — and an
+// import kept "just in case" is how a retyped copy of a ruling's sentence finds
+// its way back onto a page that is no longer supposed to carry one.
+import { livePots, loadPots, POT_FIXTURE, potGist, patronLabel } from "@/lib/funding.mjs";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 import {
   LANES, standing, ideas, questStandings, questCards, marketplace,
-  loadPlaceMarks, BLUEPRINTS_REPO, THINK_TANK_PLACE,
+  loadPlaceMarks, laneLaw, BLUEPRINTS_REPO, THINK_TANK_PLACE, HOW_IDEAS_ENTER_PLACE,
 } from "@/lib/civic.mjs";
-import { paint, SPRITE_W, SPRITE_H } from "@/lib/civic-art.mjs";
+import { paint, tint, SPRITE_W, SPRITE_H } from "@/lib/civic-art.mjs";
 import houseRegistry from "@/data/postmark/households.json";
 import meeps from "@/data/postmark/meeps.json";
 import bulletin from "@/data/postmark/bulletin.json";
@@ -136,6 +140,23 @@ const market = marketplace(bulletin);
 const LANE_ANCHORS = Object.fromEntries(LANES.map((l) => [l.key, l.id]));
 // and each lane's world place, so a section can quote its own building's plaque
 const LANE_PLACES = Object.fromEntries(LANES.map((l) => [l.key, l.place]));
+
+// EVERY LANE'S TINT, from the same table its building is painted with. Handed
+// to each panel as two custom properties rather than written into the stylesheet
+// — a hex typed in the <style> block below would be a second palette, and two
+// palettes for one lane is exactly one too many.
+const LANE_TINTS = Object.fromEntries(LANES.map((l) => [l.key, tint(l.key)]));
+const tintVars = (key) => {
+  const t = LANE_TINTS[key];
+  return `--lane-edge:${t.edge};--lane-edge-open:${t.edgeOpen};--lane-wash:${t.wash};--lane-wash-hover:${t.washHover}`;
+};
+
+// THE TWO SENTENCES THE THINK TANK QUOTES, both read from the pen rather than
+// kept as copies here. `laneLaw` explains at length what that bought; the short
+// version is that the page held a transcription of a mark the founder had
+// already rewritten, and nothing on either side could tell.
+const ideasLaw = laneLaw(LANES.find((l) => l.key === "ideas"), placeMarks);
+const howIdeasEnter = placeMarks[HOW_IDEAS_ENTER_PLACE] ?? null;
 
 // THE VIGNETTE HAS NO DESCRIPTION, and that is the ruling rather than an
 // omission. It carried the town centre's lamplit-quay sentence, which was the
@@ -229,7 +250,7 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
     </section>
 
     {/* ── THE QUEST GUILD ─────────────────────────────────────────────── */}
-    <details class="c-lane" id="quests">
+    <details class="c-lane" id="quests" style={tintVars("quests")}>
       <summary class="c-sum">
         <span class="c-sum-name">the Quest Guild</span>
         <span class="c-sum-who">quests — the town's asks for its residents</span>
@@ -270,60 +291,22 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
           </>
         )}
 
-        {quests.read ? (
-          <>
-            <p class="m-lab">
-              Today's standings
-              {quests.completions != null && <span class="n-asof"> · {quests.completions} quest completions today</span>}
-            </p>
-            <ol class="q-stand">
-              {quests.rows.map((r) => (
-                <li class="q-row">
-                  <span class="q-rank">{r.rank}</span>
-                  <a class="q-who" href={`/residents/${r.resident}/`}>{r.resident}</a>
-                  <span class="q-pair"><span class="q-k">reach out</span> {r.reachOut}</span>
-                  <span class="q-pair"><span class="q-k">be reached</span> {r.beReached}</span>
-                  <span class="q-all">{r.allTime}<span class="q-u">✦</span></span>
-                </li>
-              ))}
-            </ol>
-            <p class="m-note">
-              {quests.total} residents are on the board today; the rest of the
-              standing, and every column of it, is on
-              <a href="/bulletin/#quests"> the Quest Board</a>. That mirror is
-              regenerated each ferry crossing — a resident's own live progress is
-              on <a href="/residents/">their page</a>, which reads the office
-              directly. HOW earning works, and every row of the registry, is in
-              <a href="/stamps/#earning"> Earning</a>, in the Stamps teaching.
-            </p>
-          </>
-        ) : (
-          <div class="m-none">
-            <b>The quest mirror could not be read.</b>
-            <span>
-              These standings render from the bulletin's own Quest Board, which
-              this build did not find in a shape it could read — a build-input
-              problem, not a town with no questers. Nothing has been invented to
-              fill the gap; <a href="/bulletin/#quests">the mirror itself</a> is
-              the thing to read.
-            </span>
-          </div>
-        )}
+        {/* THE GUILD'S PLAQUE IS NOT RENDERED, founder-ruled 2026-08-31:
+            "not necessary." It quoted `the-town/the-quest-guild` — "The Quest
+            Guild — the town's asks for its residents: standing quests,
+            town-minted. The standings still hang at the works; this is their
+            home now." — and beside a lane already headed "the Quest Guild ·
+            quests — the town's asks for its residents", with the standings
+            themselves further down the same fold, it said nothing the reader
+            had not just read.
 
-        {/* THE BUILDING'S OWN WORDS, when it has any. The world planted these
-            mark bodies already honest about what is and is not wired up — the
-            Guild's says the standings still hang at the works — so quoting the
-            mark says more, and more accurately, than a hand-written note here
-            could. Falls back to naming the absence when the ground is not laid. */}
-        {placeMarks[LANE_PLACES.quests]
-          ? <p class="c-soon">{placeMarks[LANE_PLACES.quests]}</p>
-          : !quarter.built.quests && (
-            <p class="c-soon">
-              The Guild is a lane, not yet a place. Quests are live and paying
-              today — what has not been built is a building in the World to stand
-              in front of.
-            </p>
-          )}
+            THE FALLBACK WENT WITH IT, deliberately. It only ever rendered when
+            the Guild does NOT stand, and re-introducing prose into the slot he
+            struck the moment a mark went missing is the wrong way to be honest
+            about an absence. The vignette above already badges an unbuilt
+            building ("not standing yet"), which is where that fact belongs —
+            on the building, not in the lane. The mark keeps its plaque in the
+            world for renderings that are not this one. */}
 
         {/* ── WHAT THE TOWN NEEDS MONEY FOR ───────────────────────────────
             The pots live in the GUILD, and that is the asks matrix rather
@@ -458,30 +441,99 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
           </div>
         )}
 
-        {/* THE PAGE'S FIRST HOLO MENTION, so it is the one that carries the
-            expansion (the founder's placement rule, 2026-08-26): a reader meets
-            the word here before the seam card or the glossary, and both of those
-            stay bare below. */}
+        {/* THE HOLO EXPLANATION MOVED TO ITS ONE HOME, founder-ruled
+            2026-08-31. It stood here under the 2026-08-26 placement rule —
+            whichever surface says "holo" first carries the expansion — and that
+            rule was written when this page and the teaching were ONE page. They
+            split the next day, and the expansion has lived on /stamps/ ever
+            since in three fuller forms (the seam card, the minterest section,
+            the glossary entry). So this was not the first mention of a word,
+            it was a fourth copy of a paragraph.
+
+            NOTHING WAS ADDED TO /stamps/ TO RECEIVE IT, and that is worth
+            saying rather than assuming: the teaching already carried every
+            sentence this paragraph did, HOLO_LINE and HOLO_NAME_LINE included,
+            read from the same constants. What is left here is a pointer, which
+            is what a lane owes a word it uses and does not define. */}
         <p class="m-note">
-          ✧ holo is {HOLO_NAME_LINE} Here it is the payers' keepsake — {HOLO_LINE}. It
-          never spends. How to give, and what a dollar does and doesn't get you, live on
-          each pot's own page.
+          ✧ is <a href="/stamps/#seam">holo</a>, the payers' keepsake — what it is,
+          and what a dollar does and doesn't get you, are in the Stamps teaching and
+          on each pot's own page.
         </p>
       </div>
+
+      {/* ── TODAY'S STANDINGS, LAST ────────────────────────────────────────
+          Founder-ruled 2026-08-31: the pots go directly under the quest cards
+          and "the standings go below everything else." The order is the lane's
+          argument — what the town is asking of you, then what it is asking for,
+          and only then how everybody else is doing. A leaderboard read first
+          makes a page about ranking; read last it is a footnote about a day.
+
+          The block itself is unchanged, and deliberately so: this is a MOVE,
+          not a rewrite. Same reader, same four kinds of nothing, same links. */}
+      {quests.read ? (
+        <>
+          <p class="m-lab">
+            Today's standings
+            {quests.completions != null && <span class="n-asof"> · {quests.completions} quest completions today</span>}
+          </p>
+          <ol class="q-stand">
+            {quests.rows.map((r) => (
+              <li class="q-row">
+                <span class="q-rank">{r.rank}</span>
+                <a class="q-who" href={`/residents/${r.resident}/`}>{r.resident}</a>
+                <span class="q-pair"><span class="q-k">reach out</span> {r.reachOut}</span>
+                <span class="q-pair"><span class="q-k">be reached</span> {r.beReached}</span>
+                <span class="q-all">{r.allTime}<span class="q-u">✦</span></span>
+              </li>
+            ))}
+          </ol>
+          <p class="m-note">
+            {quests.total} residents are on the board today; the rest of the
+            standing, and every column of it, is on
+            <a href="/bulletin/#quests"> the Quest Board</a>. That mirror is
+            regenerated each ferry crossing — a resident's own live progress is
+            on <a href="/residents/">their page</a>, which reads the office
+            directly. HOW earning works, and every row of the registry, is in
+            <a href="/stamps/#earning"> Earning</a>, in the Stamps teaching.
+          </p>
+        </>
+      ) : (
+        <div class="m-none">
+          <b>The quest mirror could not be read.</b>
+          <span>
+            These standings render from the bulletin's own Quest Board, which
+            this build did not find in a shape it could read — a build-input
+            problem, not a town with no questers. Nothing has been invented to
+            fill the gap; <a href="/bulletin/#quests">the mirror itself</a> is
+            the thing to read.
+          </span>
+        </div>
+      )}
       </div>
     </details>
 
     {/* ── THE THINK TANK ──────────────────────────────────────────────── */}
-    <details class="c-lane" id="ideas">
+    <details class="c-lane" id="ideas" style={tintVars("ideas")}>
       <summary class="c-sum">
         <span class="c-sum-name">the Think Tank</span>
         <span class="c-sum-who">ideas — residents' asks of the town</span>
       </summary>
       <div class="c-body">
+        {/* THE TANK'S OWN PLAQUE, READ — not the chest's, and not typed.
+            This quoted `the-town/blueprint`, a mark about where a DRAWN idea
+            goes; the founder read the lane and said it was "more about
+            blueprints than the Ideas themselves". The law now comes from
+            `the-town/the-think-tank` through civic.mjs's `laneLaw`, which
+            prefers the live mark body over the constant beside it — so the
+            cite names the mark the sentence actually came from, and both move
+            together the next time the founder edits the plaque. */}
         <p class="c-law">
-          A resident's ask of the town: a proposal in the blueprints chest,
-          climbing the Idea Lifecycle from its first breath.
-          <cite>the world's own words, at <code>the-town/blueprint</code></cite>
+          {ideasLaw.text}
+          <cite>
+            the world's own words, at <code>{ideasLaw.from}</code>
+            {!ideasLaw.live && <> — from this build's copy; the pen could not be read</>}
+          </cite>
         </p>
 
         {/* THE FOUR KINDS OF NOTHING, borrowed whole from the Bounty Board's
@@ -538,13 +590,35 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
           </div>
         )}
 
+        {/* ── HOW AN IDEA ENTERS, READ FROM THE QUAY NOTE ─────────────────
+            THE STALE QUOTE, AND ITS ACTUAL CAUSE (2026-08-31). This paragraph
+            carried the sentence in hand-typed quotation marks: "…Open a
+            blueprint in the chest — BLUEPRINTS/, your slug — and talk in its
+            Discussions." That is `the-town/how-ideas-enter` as it read at world
+            commit 6b235216, 13:55 on 2026-08-30 — superseded at 17:21 the SAME
+            DAY by e383e992 ("the Think Tank stands"), which rewrote it to route
+            an idea to the tank instead of straight to the chest.
+
+            THE PIN WAS NEVER BEHIND. `0b4616cc`, the world this site is built
+            against, is a descendant of e383e992 and carries the current body
+            byte-for-byte; so does world main today. The page was not rendering
+            a stale record — it was rendering a HAND COPY of a record, made four
+            hours before the record changed, and no mechanism existed that could
+            ever have noticed. That is the cause, and the fix is to stop keeping
+            a copy: the note is READ from the mark the page already loads.
+
+            The chest keeps its line, demoted to what it is — where a drawn idea
+            GOES, not what an idea IS (the founder's distinction). */}
+        {howIdeasEnter && (
+          <p class="m-note">
+            How an idea enters, in the town's own words on the quay:
+            <em> "{howIdeasEnter}"</em>
+          </p>
+        )}
         <p class="m-note">
-          How an idea enters, in the town's own words on the quay:
-          <em> "Asking a resident? Plant a bounty here. An idea for the town? Open a
-          blueprint in the chest — BLUEPRINTS/, your slug — and talk in its
-          Discussions."</em> The chest is
-          <a href={BLUEPRINTS_REPO} target="_blank" rel="noopener"> postmark-blueprints ↗</a>,
-          and a drawn idea becomes a blueprint in it. An ask of a <em>resident</em> is
+          A drawn idea becomes a blueprint in the town's chest,
+          <a href={BLUEPRINTS_REPO} target="_blank" rel="noopener"> postmark-blueprints ↗</a>.
+          An ask of a <em>resident</em> is
           <a href="#board" data-jump="board"> the Bounty Board</a> instead.
         </p>
       </div>
@@ -554,7 +628,7 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
         The block below is the /stamps/ board, MOVED — same derivation
         (board.mjs), same markup, same four kinds of nothing. It keeps
         id="board" because every deep link ever written points at that word. */}
-    <details class="c-lane" id="bounty-board" open>
+    <details class="c-lane" id="bounty-board" open style={tintVars("bounties")}>
       <summary class="c-sum">
         <span class="c-sum-name">the Bounty Board</span>
         <span class="c-sum-who">bounties — residents' asks of other residents</span>
@@ -644,17 +718,27 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
           </div>
         )}
 
-        <p class="m-note">
-          A notice's weight is stamps staked behind it, plus a bonus for each
-          distinct household behind it. Post an ask of your own:
-          <a href="/stamps/#staking"> Staking</a>, in the Stamps teaching.
-        </p>
+        {/* THE WEIGHT PARAGRAPH IS GONE, founder-ruled 2026-08-31: "confusing
+            for readers learning about this." It explained the breadth bonus —
+            escrow plus k per distinct staking household — to a reader who had
+            come to look at what the town is asking for, and the board does not
+            render weight anywhere, so it was machinery with nothing on this
+            page that shows it.
+
+            CHECKED BEFORE REMOVING, per his instruction: /stamps/#staking
+            already teaches it, and more precisely than this did — it quotes
+            ECONOMY-DIALS.json § read_side.weight verbatim ("mark weight = sum
+            of open escrows + k x unique staking households OTHER THAN the
+            mark's own"), which this paraphrase silently dropped the exclusion
+            from. It also carries "Posting a notice of your own" whole. The
+            pointer's destination is intact; only the doorway from this lane is
+            not, and that is the ruling. */}
       </div>
       </div>
     </details>
 
     {/* ── THE MARKETPLACE ─────────────────────────────────────────────── */}
-    <details class="c-lane" id="marketplace">
+    <details class="c-lane" id="marketplace" style={tintVars("listings")}>
       <summary class="c-sum">
         <span class="c-sum-name">the Marketplace</span>
         <span class="c-sum-who">listings — residents asking stamps for goods</span>
@@ -712,7 +796,7 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
     </details>
 
     {/* ── THE BALLOT HOUSE ────────────────────────────────────────────── */}
-    <details class="c-lane" id="ballot-house">
+    <details class="c-lane" id="ballot-house" style={tintVars("votes")}>
       <summary class="c-sum">
         <span class="c-sum-name">the Ballot House</span>
         <span class="c-sum-who">votes — the town asking residents for their word</span>
@@ -730,20 +814,33 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
             one, and would make the hub's own freshness a question. The lane
             says what a vote IS and opens the door to the room that is already
             live. */}
+        {/* ONE SENTENCE AND THE DOOR, founder-ruled 2026-08-31: the lane's
+            description was "overtechnical and confusing" — minting, household
+            headroom, liquid balance, cap bounces, the two cast doors and their
+            three frontmatter keys, all before a reader had been told where the
+            votes are.
+
+            WHAT THE SENTENCE HAD TO GET RIGHT is where the ballots live, and
+            it is read from the sources rather than composed: /votes/ is the
+            Ballot Box and renders `GET /api/votes` client-side "so the page is
+            current between site builds" (its own header), and the ballot
+            house's world mark says one law decides every staked stamp there
+            "whether cast at the counter or carried in by mail". So: the office
+            answers, this build does not, and both doors land in the same room.
+
+            NOTHING WAS LOST, checked rather than assumed: /votes/ itself
+            carries the two doors under "How to cast a stake" and the clip /
+            mint / final-for-the-window fine print verbatim, and the tri-law is
+            in /stamps/#staking. Every fact struck here is one click away at the
+            door this lane's whole job is to open. */}
         <p class="c-say">
-          The town's open ballots are live at the Ballot Box, tallied from the
-          office's own API rather than from this build. Your first stake on a
-          topic mints one stamp; stakes clip to your household's headroom and
-          your liquid balance, so they never bounce for cap reasons; and the
-          whole tally can be re-derived by anyone from a clone — the ledger
-          <em> is</em> the ballot box.
+          The town's open ballots live at <a href="/votes/">the Ballot Box</a>,
+          tallied straight from the office rather than from this build — so what
+          you see there is the vote as it stands right now, not as it stood when
+          this page was made.
         </p>
         <p class="m-note">
           <a class="c-door" href="/votes/">Open the Ballot Box →</a>
-          Two doors to cast: the <code>stake_vote</code> tool, or a letter to the
-          postmaster carrying <code>stake_topic</code>, <code>stake_candidate</code> and
-          <code>stake_stamps</code>. Where a staked stamp goes is the tri-law, in
-          <a href="/stamps/#staking"> Staking</a>, in the Stamps teaching.
         </p>
       </div>
     </details>
@@ -969,15 +1066,35 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
   }
 
   /* ── the lanes ─────────────────────────────────────────────────────── */
+  /* EACH PANEL WEARS ITS BUILDING'S COLOUR, founder-ruled 2026-08-31: "colour
+     the panels similarly to their pixel art buildings." The four `--lane-*`
+     properties are set inline per lane from civic-art.mjs's own ACCENTS table
+     — the very table `paint()` inks the sprite from — so a lane's panel and its
+     building can never disagree about what colour that lane is. NO HEX IS
+     TYPED HERE, and the falsifier in test/civic.test.mjs is the thing that
+     keeps it that way; the moment one is, the panels have a second palette.
+
+     The fallbacks are the gold the lanes wore before today. They are not
+     decoration: a panel rendered outside this page, or one whose lane key ever
+     stops matching a sprite, falls back to the site's own chrome instead of to
+     `transparent`, which would read as a missing border rather than as a
+     styling gap. */
   .c-lane {
-    border: 1px solid rgba(232, 196, 139, 0.18);
+    border: 1px solid var(--lane-edge, rgba(232, 196, 139, 0.18));
     border-radius: 12px;
     margin: 0 0 0.75rem;
     background: rgba(14, 22, 42, 0.4);
     /* the sticky rail must not sit on top of a lane the router just opened */
     scroll-margin-top: 4.5rem;
   }
-  .c-lane[open] { border-color: rgba(232, 196, 139, 0.34); }
+  .c-lane[open] { border-color: var(--lane-edge-open, rgba(232, 196, 139, 0.34)); }
+  /* the wash rides the HEADING STRIP only. A lane whose whole body took its
+     accent would stop being the town's night and start being its own page —
+     the building is what should carry the colour, and the panel only has to
+     agree with it. The strip keeps its radius on the two corners it shares
+     with the panel so the tint does not square off a rounded box. */
+  .c-lane > .c-sum { background: var(--lane-wash, transparent); border-radius: 11px 11px 0 0; }
+  .c-lane:not([open]) > .c-sum { border-radius: 11px; }
   .c-sum {
     list-style: none; cursor: pointer;
     display: flex; align-items: baseline; gap: 0.9em; flex-wrap: wrap;
@@ -989,7 +1106,7 @@ const LANE_IDS = ["quests", "ideas", "bounty-board", "marketplace", "ballot-hous
     font-family: var(--pm-mono); color: rgba(232, 196, 139, 0.6);
   }
   .c-lane[open] > .c-sum::after { content: "−"; }
-  .c-sum:hover { background: rgba(232, 196, 139, 0.05); }
+  .c-lane > .c-sum:hover { background: var(--lane-wash-hover, rgba(232, 196, 139, 0.05)); }
   .c-lane > .c-sum:focus-visible { outline: 2px solid var(--pm-gold); outline-offset: -2px; }
   .c-sum-name {
     font-family: var(--pm-serif); font-size: 1.06rem; color: var(--pm-gold-bright);

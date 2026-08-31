@@ -153,8 +153,18 @@ export const LANES = [
     name: "the Think Tank",
     lane: "ideas",
     place: "the-town/the-think-tank",
-    // quoted from the-town/blueprint
-    law: "A resident's ask of the town: a proposal in the blueprints chest, climbing the Idea Lifecycle from its first breath.",
+    // QUOTED FROM THE BUILDING ITSELF, and it did not used to be. This line
+    // quoted `the-town/blueprint` — a mark about the blueprints CHEST, which is
+    // where a drawn idea GOES, not what an idea IS. The founder read the lane
+    // and said so: "more about blueprints than the Ideas themselves."
+    //
+    // `lawFrom` is what makes the fix permanent rather than a better sentence.
+    // The page prefers the LIVE body of the named mark and falls back to this
+    // constant, so the day the founder edits the tank's plaque the lane says the
+    // new thing with no edit here — the same pen-over-fold discipline the rest
+    // of this file already runs on.
+    lawFrom: "the-town/the-think-tank",
+    law: "Where ideas enter the town: publish yours as a mark here — class: idea, your own hand — and the Idea Lifecycle carries it to standing law.",
     who: "residents' asks of the town",
   },
   {
@@ -213,6 +223,33 @@ export function standing(state, places = loadPlaceMarks()) {
   return out;
 }
 
+// A lane's law line, preferring the LIVE mark body over the constant beside it.
+//
+// WHY THIS EXISTS. A quote typed into a page is a copy of somebody else's
+// sentence that nothing keeps honest, and this page has already been caught by
+// exactly that: the "how an idea enters" note carried a transcription of
+// `the-town/how-ideas-enter` that the founder had superseded FOUR HOURS after it
+// was copied, and the page went on reciting the dead version for a day. The pin
+// was never behind — the text was simply not being read.
+//
+// So a lane that names a `lawFrom` gets its law from the pen, and the constant
+// becomes the fallback for a world that could not be read. Only lanes whose mark
+// sits at `<household>/<slug>` can do this: `loadPlaceMarks` walks exactly two
+// levels, and the bounty board's and ballot house's marks are filed much deeper
+// (`let-there-be-light/the-town-centre/…`), so their law lines stay constants
+// until something reads that tree. Naming the limit is the point — a lane with
+// no `lawFrom` is one this mechanism cannot reach, not one nobody got to.
+export function laneLaw(lane, places = null) {
+  const live = lane?.lawFrom ? (places ?? {})[lane.lawFrom] : null;
+  const text = String(live ?? "").trim() || lane?.law || null;
+  return { text, from: lane?.lawFrom ?? null, live: Boolean(live) };
+}
+
+// The quay note that tells a resident how an idea enters the town. It is a
+// world mark like any other and is READ, never retyped — see `laneLaw` above
+// for the day that rule was bought.
+export const HOW_IDEAS_ENTER_PLACE = "the-town/how-ideas-enter";
+
 // ── the Think Tank's ideas ───────────────────────────────────────────────────
 // An idea IS a world mark, exactly as a bounty is: `class: idea`, placed under
 // the think tank. This mirrors board.mjs's isNotice/toNotice shape deliberately
@@ -257,7 +294,18 @@ export function toIdea(mark) {
     by: mark.by ?? mark.household ?? null,
     stage: String(mark.stage ?? "").trim() || null,
     date: String(mark.date ?? "").slice(0, 10) || null,
-    body: String(mark.body ?? "").trim() || null,
+    // THE CLAIM IS SHOWN ONCE. With the body being the claim (the hotfix above),
+    // an idea written the way the door writes it — no title field at all — made
+    // `title` and `body` the same sentence, and the card printed it twice: once
+    // as its heading and again as its paragraph. The founder read the live lane
+    // and called it what it is, redundancy.
+    //
+    // The rule lives HERE rather than in the page's markup because `title` is
+    // already derived from `body` here; a page-side `i.body !== i.title` would
+    // be a second copy of that derivation, free to disagree with this one. A
+    // body distinct from the claim still renders — an idea whose hand wrote a
+    // real title AND a real body has two things to say, and the card says both.
+    body: body && body !== title ? body : null,
   };
 }
 

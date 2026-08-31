@@ -15,13 +15,32 @@
 // checked as data, and `paint` is held to refusing ink it does not know.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   LANES, standing, ideas, isIdea, toIdea, questStandings, questCards, marketplace,
-  loadPlaceMarks, markBody, QUEST_REGISTRY,
+  loadPlaceMarks, laneLaw, markBody, QUEST_REGISTRY,
   THINK_TANK_PLACE, IDEA_CLASS, TITLE_MAX, BLUEPRINTS_REPO,
 } from "../src/lib/civic.mjs";
-import { SPRITES, SPRITE_W, SPRITE_H, INK, paint, checkSprite, checkAllSprites } from "../src/lib/civic-art.mjs";
+import {
+  SPRITES, SPRITE_W, SPRITE_H, INK, ACCENTS, paint, tint, channels,
+  checkSprite, checkAllSprites,
+} from "../src/lib/civic-art.mjs";
 import { BOARD_PLACE } from "../src/lib/board.mjs";
+
+// An `rgba(r, g, b, a)` string, taken apart — so a panel's colour can be
+// compared to the sprite ink it is supposed to have come from. Reading the
+// string rather than trusting it is the point: the whole claim under test is
+// that these two numbers are the same number.
+const rgbOf = (s) => {
+  const m = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(String(s));
+  if (!m) throw new Error(`not an rgba() string: ${s}`);
+  return [Number(m[1]), Number(m[2]), Number(m[3])];
+};
+const alphaOf = (s) => {
+  const m = /^rgba\(\d+, \d+, \d+, ([\d.]+)\)$/.exec(String(s));
+  if (!m) throw new Error(`not an rgba() string: ${s}`);
+  return Number(m[1]);
+};
 
 // ── the ontology ─────────────────────────────────────────────────────────────
 
@@ -368,6 +387,74 @@ test("paint merges runs, and every rect it emits is inside the sprite", () => {
   }
 });
 
+// ── the law lines, read rather than kept ─────────────────────────────────────
+
+test("THE LAW: the Think Tank's lane quotes the-town/the-think-tank, not the chest", () => {
+  // THE FOUNDER'S WORDS, 2026-08-31, on the lane's law line quoting
+  // `the-town/blueprint`: "more about blueprints than the Ideas themselves."
+  // The mark that IS the building is `the-town/the-think-tank`, and its body on
+  // world main — and on the pin this site is built against, byte for byte — is:
+  //
+  //   "Where ideas enter the town: publish yours as a mark here — class: idea,
+  //    your own hand — and the Idea Lifecycle carries it to standing law."
+  const lane = LANES.find((l) => l.key === "ideas");
+  assert.equal(lane.lawFrom, THINK_TANK_PLACE,
+    "the ideas lane must name the tank's own mark as the source of its law");
+  assert.equal(/blueprints chest/.test(lane.law), false,
+    "and must not describe the chest where a drawn idea goes");
+
+  // AND IT IS ASSERTED AGAINST THE WORLD, not against itself. A constant that
+  // agrees with a constant proves nothing; this reads the pen the site ships
+  // with and requires the rendered law to BE that sentence.
+  const penned = loadPlaceMarks()[THINK_TANK_PLACE];
+  assert.ok(penned, "the tank's mark is not in the pinned world — the premise is gone, not the law");
+  assert.match(penned, /^Where ideas enter the town/,
+    "the pinned tank mark is not the sentence this law was written against");
+  const live = laneLaw(lane, loadPlaceMarks());
+  assert.equal(live.text, penned, "the lane must render the pen's body, not its own copy");
+  assert.equal(live.live, true, "and must report that it read the pen");
+});
+
+test("THE LAW: a quoted mark is read, and the constant is only the fallback", () => {
+  // The failure this exists for, in one sentence: the page carried a HAND COPY
+  // of `the-town/how-ideas-enter` made four hours before the founder rewrote
+  // that mark, and recited the dead version for a day because nothing on either
+  // side compared them. A copy nothing checks goes stale silently.
+  const lane = LANES.find((l) => l.key === "ideas");
+  const pretend = { [THINK_TANK_PLACE]: "The world said something else today." };
+  assert.equal(laneLaw(lane, pretend).text, "The world said something else today.",
+    "a changed mark body must change the rendered law with no edit here");
+
+  // and the fallback is exactly that — for a world that could not be read
+  const blind = laneLaw(lane, {});
+  assert.equal(blind.text, lane.law, "with no pen, the constant stands in");
+  assert.equal(blind.live, false, "and the page is told the pen did not answer");
+  assert.equal(laneLaw(lane, null).live, false, "a null pen is the same honest nothing");
+
+  // a lane with no `lawFrom` is one this mechanism cannot reach, and says so
+  // rather than pretending it read something
+  const votes = LANES.find((l) => l.key === "votes");
+  assert.equal(laneLaw(votes, pretend).from, null);
+  assert.equal(laneLaw(votes, pretend).text, votes.law);
+});
+
+test("THE LAW: an idea's claim is shown once", () => {
+  // THE FOUNDER'S WORDS, 2026-08-31: "with the body now the claim, a card
+  // renders `by`, then the claim as title, then the same text again as body.
+  // Render the claim once." So a mark whose body IS its claim carries no
+  // separate body, and the card has nothing to print twice.
+  const claim = "A guided first hour for a new resident, walking arrival to first idea.";
+  const bodyOnly = toIdea({ id: "wright/a-newcomers-first-hour", class: IDEA_CLASS, body: claim });
+  assert.equal(bodyOnly.title, claim, "the body is still the claim");
+  assert.equal(bodyOnly.body, null, "and must not come back a second time as the card's body");
+
+  // A DISTINCT BODY STILL RENDERS, which is the half that keeps this from being
+  // a deletion: a hand that wrote both a title and a body said two things.
+  const both = toIdea({ id: "x", class: IDEA_CLASS, title: "A second bench", body: "By the quay, facing the water." });
+  assert.equal(both.title, "A second bench");
+  assert.equal(both.body, "By the quay, facing the water.", "two real statements are both kept");
+});
+
 test("the art wears the town's own palette and invents no hex", () => {
   // The vignette is a warm accent on the site's weather, not a theme takeover.
   // Every shared ink is one the town already wears in src/styles/postmark.css.
@@ -375,4 +462,56 @@ test("the art wears the town's own palette and invents no hex", () => {
   assert.equal(INK.G, "#f6dcae", "the hot window must be --pm-gold-bright");
   assert.equal(INK.g, "#e8c48b", "and the warm one --pm-gold");
   assert.equal(INK.p, "#f7efdc", "paper must be --pm-paper");
+});
+
+test("THE LAW: a panel wears its own building's palette and invents no hex", () => {
+  // THE FOUNDER'S WORDS, 2026-08-31: "colour the panels similarly to their
+  // pixel art buildings." The sibling of the art law above, and it asserts the
+  // same thing one level up — the panel's colour is not merely *similar* to the
+  // building's, it is READ FROM THE SAME TABLE, so the two cannot drift.
+  for (const lane of LANES) {
+    const t = tint(lane.key);
+    const accent = ACCENTS[lane.key];
+    // every value is that lane's own accent, channel for channel
+    assert.deepEqual(channels(accent.A), rgbOf(t.edge), `${lane.key}'s border is not its lit accent`);
+    assert.deepEqual(channels(accent.A), rgbOf(t.edgeOpen), `${lane.key}'s open border is not its lit accent`);
+    assert.deepEqual(channels(accent.a), rgbOf(t.wash), `${lane.key}'s wash is not its accent`);
+    assert.deepEqual(channels(accent.a), rgbOf(t.washHover), `${lane.key}'s hover wash is not its accent`);
+    // A TINT, NOT A FLOOD. The wash rides a heading strip over the page's own
+    // night; past a low alpha it stops being a tint and the lane becomes its
+    // own coloured page, which is the thing "similarly to" does not mean.
+    assert.ok(alphaOf(t.wash) <= 0.25, `${lane.key}'s wash is a flood at ${alphaOf(t.wash)}`);
+    assert.ok(alphaOf(t.washHover) <= 0.3, `${lane.key}'s hover wash is a flood`);
+    // and the border has to be visible at all, or the panel is not tinted
+    assert.ok(alphaOf(t.edge) >= 0.2 && alphaOf(t.edgeOpen) > alphaOf(t.edge),
+      `${lane.key}'s border does not read, or does not wake when the lane opens`);
+  }
+
+  // FIVE PANELS, FIVE COLOURS — the same distinctness the buildings are held to,
+  // because a reader who can tell the buildings apart and not the panels has
+  // been given a colour that means nothing.
+  const edges = LANES.map((l) => tint(l.key).edge);
+  assert.equal(new Set(edges).size, LANES.length, "two panels share a tint");
+
+  // and the page must take them from here rather than typing them
+  const hub = readFileSync(new URL("../town/pages/town/index.astro", import.meta.url), "utf8");
+  const style = hub.slice(hub.indexOf("<style>"));
+  const lanesCss = style.slice(style.indexOf(".c-lane {"), style.indexOf(".q-stand"));
+  assert.equal(/#[0-9a-f]{6}/i.test(lanesCss), false,
+    `the lane panels' CSS types a hex: ${(lanesCss.match(/#[0-9a-f]{6}/i) || [])[0]} — the palette is civic-art.mjs's`);
+  assert.ok(/--lane-edge/.test(lanesCss) && /--lane-wash/.test(lanesCss),
+    "the panels must wear the tint variables");
+  for (const lane of LANES) {
+    assert.ok(hub.includes(`tintVars("${lane.key}")`), `the ${lane.key} panel is not tinted`);
+  }
+});
+
+test("channels() refuses anything that is not a colour", () => {
+  // A can-fail flip on the tint's own foundation. If this parsed junk into
+  // zeroes, every assertion above would compare black to black and pass.
+  assert.deepEqual(channels("#a4632a"), [164, 99, 42]);
+  assert.throws(() => channels("a4632a"), /not a six-digit hex/, "a bare hex must be refused");
+  assert.throws(() => channels("#abc"), /not a six-digit hex/, "and a shorthand one");
+  assert.throws(() => channels(null), /not a six-digit hex/);
+  assert.throws(() => tint("no-such-lane"), /no palette for lane/);
 });
