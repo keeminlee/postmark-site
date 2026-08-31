@@ -1,1003 +1,203 @@
-# RESULT — world-page UI lift
+# RESULT — Civic Quarter polish, site `train/2026-w37`
+
+**Jetto (`meepo-prime`), 2026-08-31.** Brief: `G:/Starstory/docs/2026-08-31/jetto-brief-civic-quarter-polish.md`.
+Worktree: `G:/Postmark/worktrees/civic-polish-w37` (`--no-track`, created off `release/2026-w36.1`; its own `npm ci`, no junction).
+
+---
+
+## Branch and remote tip
 
-Completed locally on 2026-07-29. Nothing was pushed, and `G:/postmark/office` was read-only throughout.
-
-## Outcome
-
-The world page now has one identity, one lens, and one marks filter row:
-
-- Signed-in households get a sticky `Act As` resident picker in the viewer nav. The selection is browser UI memory only; every stake, unstake, and walk request still sends `handle` explicitly.
-- The view starts with the single `True World ⟷ My World` lens. The only marks vocabulary is `everything · just mine · new`; anonymous viewers see `just mine` disabled rather than a second filter surface.
-- Every rendered mark cell has an inline `✦ back this` flow: amount, exact sealed ledger-line preview, then confirm. A cell backed by the acting resident also offers `take back`.
-- The walk desk accepts a published sited mark or raw point. It previews distance and ETA with `tools/walk.mjs` and names crossings with `tools/water.mjs`, then posts the confirmed departure to `/world/walks`.
-- The acting resident's viewpoint follows the public walk-ledger derivation. A resident with no departure yet uses the office-derived home as the honest starting fallback.
-- Signed features disappear when there is no `pm_key` or office response. The standalone spectator and ALPHA banner remain intact. Stand At and Move remain localhost/principal dev tools.
-
-The simpler “Act As only inside dialogs” kill-condition was considered and not taken: stake cells, unstake cells, the walk desk, and the ledger-derived viewpoint all consume the same actor, so the first-class nav picker reads as one shared page identity rather than repeated dialog state.
-
-## `postmark-world` worktree
-
-Commit: `53225189063106cdc53c0d6ea6a7700059cb49a7` (`feat: unify resident actions in the world viewer`)
-
-Implementation files:
-
-- `spectator/viewer.mjs` — unified office-base helper, Act As, lens/filter row, inline stake/unstake, walk desk, ledger-derived position, and spectator-safe feature detection.
-- `spectator/index.html` — shell description updated for credentialed office acts.
-- `tools/viewer-axes.test.mjs` — lens/filter, office base, sealed line, and pure walk-preview coverage.
-- `tools/settlement-sweep.mjs` — made the existing tar extraction gate Windows-safe by extracting from the temp directory, avoiding drive-letter-as-remote parsing.
-
-## `postmark-site` worktree
-
-Implementation commit: `38d2a427db7c8b667f832c31084ecc6d49a78744` (`feat: make world acts native to the viewer`)
-
-Implementation files:
-
-- `town/pages/world.astro` — remains the verbatim viewer passthrough with noindex, the `pm_key` bridge, and `<WorldSignIn />`; the duplicate island is gone.
-- `src/components/MyWorldIslands.astro` — deleted.
-- `src/lib/my-world.mjs` — deleted; all still-needed behavior moved to the viewer, so no dead exports remain.
-- `test/my-world.test.mjs` — deleted with the retired surface.
-- `astro.config.town.mjs` — dev-only `/api` proxy to `https://postmark.town/api`, with `changeOrigin` and prefix rewrite; build config has no proxy.
-- `src/lib/auth.mjs`, `test/auth.test.mjs` — one same-origin office helper, `localStorage["pm.office.base"] || "/api"`, including OAuth endpoint getters and tests.
-- `src/components/WorldSignIn.astro` — documentation aligned with the viewer-owned signed features.
-- `town/scripts/world-engine-island.mjs`, `README.md` — source/staging map wording updated after the retirement.
-
-This `RESULT.md` is committed separately as the local handoff record.
-
-The pre-existing local `package.json`/`package-lock.json` file-link changes, `.omx/`, and supplied `BRIEF.md` were preserved but not included in the implementation commits. The current `node_modules/postmark-world` link is what makes the two local worktrees run together without an unpushable package pin.
-
-## Validation
-
-- World: `npm test` — 49/49 tests passed across the six configured test files, including `viewer-axes`.
-- Site: `npm test` — 17/17 tests passed.
-- Site: `npm run build` — 1,560 pages built; `/world/` emitted and the current viewer plus browser-safe engine tools staged under `/world-engine/`.
-- Staging check: source and staged `spectator/viewer.mjs` SHA-256 hashes matched.
-- Spectator smoke: `node spectator/server.mjs` booted on `http://localhost:4877/`; `/` returned HTTP 200.
-- Anonymous headless-browser QA: viewer and ALPHA mounted, all three chips shared one row, `just mine` was disabled, signed walk controls stayed hidden, and no load error appeared.
-- Mocked signed-in browser QA: two Act As residents rendered and persisted, exactly one lens and one filter row rendered, walk desk and mark backing controls appeared, the sealed stake line and pure walk preview rendered, actor switching worked, and there were no runtime exceptions.
-- Astro dev smoke: `http://127.0.0.1:4327/world/` and `/world-engine/spectator/viewer.mjs` returned HTTP 200; `/api/ops/whoami` proxied successfully to the production office shape.
-- `git diff --check` passed before both implementation commits.
-
-No live stake or walk was submitted during automated QA: that would write a real ledger. The preview/confirm UI and exact request shapes were exercised with intercepted office responses; the recipe below is the intentional human confirmation path.
-
-## Exact local signed-in test recipe
-
-Use PowerShell in the existing worktrees.
-
-1. Verify the local viewer link and start the town site:
-
-   ```powershell
-   Set-Location G:\postmark\worktrees\site-world-ui
-   Get-Item node_modules\postmark-world | Format-List LinkType,Target
-   npm run dev -- --host 127.0.0.1
-   ```
-
-2. Open `http://127.0.0.1:4321/world/`.
-
-3. Click `Sign in with GitHub`. Complete the callback and return to `/world/`. Leave `pm.office.base` unset to exercise the dev proxy and same-origin `/api`; an intentional alternate door can be selected in DevTools with:
-
-   ```js
-   localStorage.setItem("pm.office.base", "https://your-office.example/api")
-   location.reload()
-   ```
-
-4. Confirm the signed UI:
-
-   - `Act As` lists every resident returned by `/api/ops/whoami`; switch residents, reload, and confirm the choice persists.
-   - Toggle only `True World ⟷ My World`.
-   - Use the single `everything · just mine · new` row; `just mine` is the complete My-marks surface.
-
-5. Preview backing without committing until the receipt is correct:
-
-   - On any mark cell, click `✦ back this`.
-   - Enter a whole stamp amount.
-   - Click `preview the sealed line`; verify resident, mark id, amount, and `sig: …`.
-   - Click `confirm and send` only if a real ledger write is intended.
-   - On a mark already backed by the acting resident, use `take back`, preview, then confirm.
-
-6. Preview and optionally declare a walk:
-
-   - Pick a mark in the Walk desk, switch to point coordinates, or click the painting to fill a point.
-   - Click `preview the leg`; verify metres, ETA in crossings, and named water crossings.
-   - Click `confirm departure` only if a real walk-ledger write is intended.
-   - After the receipt, the viewpoint and map walker should reflect `/api/world/walkers`.
-
-7. Check the tokenless spectator separately:
-
-   ```powershell
-   Set-Location G:\postmark\worktrees\world-ui-lift
-   node spectator/server.mjs
-   ```
-
-   Open `http://localhost:4877/`. The ALPHA viewer should render, signed controls should be absent/disabled, and the local walk-ledger overlay should remain readable.
-
-8. Re-run all gates:
-
-   ```powershell
-   Set-Location G:\postmark\worktrees\world-ui-lift
-   npm test
-
-   Set-Location G:\postmark\worktrees\site-world-ui
-   npm test
-   npm run build
-   ```
-
-## Improvement pass
-
-Completed locally on 2026-07-29 from `BRIEF2.md`. Nothing was pushed, no live
-stake or walk was submitted, and `G:/postmark/office` remained read-only.
-
-### What changed
-
-- Stamp-touching UI now carries the retired island's named violet family:
-  `--stamp-violet`, `--stamp-violet-dark`, `--stamp-violet-heading`, and
-  `--stamp-violet-subhead`. The `✦ back this` and take-back buttons, both act
-  sheets, their headings and confirmations, actor balances, and every
-  `.wv-chip.stamps` weight chip use those tokens. World/telling surfaces remain
-  amber.
-- A signed viewer reads the acting resident's liquid balance from the keyless
-  `GET /stamps/{handle}` shape. The active Act As chip now reads like
-  `wright · ✦ 199`, actor switching refreshes it, and the stake sheet names
-  `you hold ✦ N`.
-- Stake amounts have an HTML maximum and a pure balance clamp. An over-limit
-  preview is not silently accepted: the field moves to the liquid balance, the
-  refusal names the resident, requested amount, and available balance, and the
-  reader must preview the balance-sized act again before confirmation.
-- The viewer banner is now BETA. Its two sentences say that the record and acts
-  are real while the viewer may still change shape without notice.
-- The Walk desk has no destination/mark dropdowns and no coordinate form.
-  Clicking the painting chooses a point; `walk here` on a mark cell chooses that
-  cell's point; parcel cells now participate. The selected point is labeled with
-  the smallest recorded extent containing it, excluding the world root, so open
-  parcel ground reads `in wright/the-trueing-house-parcel`.
-- Walk confirmation uses `{ x, y, handle }` for both painting and cell targets,
-  making parcel targeting viewer-derived without an office or ledger change.
-  The named-water-crossings line remains.
-- `previewWalkLeg` still returns `etaCrossings`. Viewer prose converts that value
-  with the named 12-hours-per-crossing rule, rounds to the nearest minute, and
-  renders `≈ H h MM m` in the desk, receipt, and walker tooltip.
-
-### Files and local commits
-
-`postmark-world`:
-
-- `spectator/viewer.mjs` — violet tokens, balance fetch/clamp, point-first walk
-  desk, containment labels, parcel targets, and ETA formatting.
-- `spectator/index.html` — BETA shell annotation.
-- `tools/viewer-axes.test.mjs` — balance clamp, h/min formatter, and point
-  containment coverage.
-- `1a16a0c8e19bbfadb771a24eefc9a1cb46098645` —
-  `feat: make stamp balance first-class in viewer`
-- `21a264d7af3d2dbc7d5c3eaff42d7dc6c8fa1791` —
-  `feat: make the walk desk point-first`
-- `1cd82507c7896ff3e33a10bc2bcaf8b952c14afb` —
-  `chore: mature the world viewer to beta`
-
-`postmark-site`:
-
-- `RESULT.md` — this appended improvement record. The site implementation stays
-  the existing verbatim viewer passthrough; build staging consumed the linked
-  world worktree without copying engine source into the tracked site tree.
-
-The pre-existing local `package.json`/`package-lock.json` file-link changes,
-`.omx/`, `BRIEF.md`, and `BRIEF2.md` remain uncommitted and were not folded into
-the improvement commits.
-
-### Validation
-
-- World `npm test`: 51/51 passed across the six configured test files.
-- Site `npm test`: 17/17 passed.
-- Site `npm run build`: 1,560 pages built; `/world/` and
-  `/world-engine/spectator/viewer.mjs` were emitted.
-- Source/staged `spectator/viewer.mjs` SHA-256:
-  `0F8E9240F1301DC88D415BC087DF8442152D205CF077E91CC5DFB58B8A51FC1`
-  on both sides.
-- Standalone `node spectator/server.mjs`: booted read-only on
-  `http://localhost:4877/`; `/` and the viewer module both returned HTTP 200.
-- Anonymous headless browser: BETA mounted, the identity block stayed empty,
-  the walk desk stayed hidden, and no stake affordance rendered.
-- Mocked signed browser, with no write endpoint invoked: `wright · ✦ 199`
-  rendered; switching actor refreshed to `rei · ✦ 17`; stamp controls resolved
-  to the named violet colors; a `200` request clamped to `199` with an honest
-  refusal; the parcel cell selected
-  `in wright/the-trueing-house-parcel`; the desk had no select/input fallback;
-  and its preview rendered an h/min ETA.
-- `git diff --check` passed for the full world improvement range and the site
-  handoff change.
-
-### Judgment calls and updated check
-
-- “Balance” means the API's liquid `stamps`/`liquid` value, not `assets`,
-  because only liquid stamps can be newly backed.
-- Over-limit input clamps visibly but does not auto-preview the changed amount.
-  Requiring a second preview keeps the exact sealed line deliberate.
-- Painting clicks choose the smallest containing extent. A cell button keeps
-  the chosen cell's id in the label even when its center also lies inside a
-  smaller child; this makes `walk here` name the thing the reader chose.
-- Raw coordinate inputs were dropped rather than dev-gated because painting
-  clicks provide the same point path without making coordinates the desk's
-  primary vocabulary.
-- Minute conversion rounds, rather than floors, because the UI marks ETA as
-  approximate; engine and office crossing values remain untouched.
-
-For the signed improvement check, follow the existing local recipe above but
-replace its old Walk step with: click anywhere on the painting and verify the
-desk names the point and its containing extent, or press `walk here` on a sited
-or parcel cell; preview and verify `ETA ≈ H h MM m` plus the unchanged named
-water crossings line. Before backing, verify the Act As balance and `you hold`
-line agree; enter one more than the balance and confirm the UI names and clamps
-the excess without enabling confirmation until the corrected act is previewed.
-
-## Interaction pass
-
-Completed locally on 2026-07-29 from `BRIEF3.md`. Nothing was pushed, no live
-stake or walk was submitted, and `G:/postmark/office` remained read-only.
-
-### What changed
-
-- The Act As block now consists only of its resident buttons and the acting
-  resident's stamp balance. The remembered-choice caption is gone.
-- The Walk desk no longer has a `preview the leg` button. Choosing a painting
-  point, pressing `walk here`, selecting a walkable mark, or switching actors
-  with a destination already set immediately recomputes the pure client-side
-  leg. A valid preview shows metres, h/min ETA, and named water crossings and
-  arms `confirm departure`; an invalid origin or destination leaves it
-  disabled with an honest refusal.
-- One `createMarkInteractionStore` owns `selectedId` and `hoveredId` for both
-  the telling and the painting. Cells and glyphs no longer maintain parallel
-  highlight state.
-- Painting glyph hit-testing is screen-space and buffered. The nearest glyph
-  within 18 px wins before point containment is considered; only genuinely
-  open ground follows the BRIEF2 raw-point path.
-- Clicking a mark on either surface selects the same state. Matching cells and
-  glyphs remain highlighted, a painting click scrolls the selected cell into
-  view, and a signed walkable mark becomes the destination and previews at
-  once. Selection remains available to spectators, while destination arming
-  remains signed-only. Marks without geometry remain cell-only selections.
-- Hover works in both directions without scrolling. A hovered cell lights the
-  mark's authored shape and glyph on the painting; a hovered painting glyph
-  lights its matching cell and gets an in-map id/title label. Leaving restores
-  the persistent selected highlight.
-
-### Files and local commit
-
-`postmark-world`:
-
-- `spectator/viewer.mjs` — shared interaction store, buffered glyph hit test,
-  bidirectional hover/selection rendering, in-map identity label, click-scroll,
-  and automatic walk previews.
-- `tools/viewer-axes.test.mjs` — 18 px nearest-hit behavior and shared-store
-  state/notification coverage.
-- `42e1675aa86ef58c90ef68cda0d52eb433de40a5` —
-  `feat: unify mark interactions and walk previews`
-
-`postmark-site`:
-
-- `RESULT.md` — this interaction-pass handoff. The site remains a verbatim
-  passthrough and staged the linked world viewer without copied source changes.
-
-The pre-existing local `package.json`/`package-lock.json` file-link changes,
-`.omx/`, and supplied `BRIEF.md`, `BRIEF2.md`, and `BRIEF3.md` remain outside
-the implementation commits.
-
-### Validation
-
-- World `npm test`: 53/53 passed across all six configured test files.
-- Site `npm test`: 17/17 passed.
-- Site `npm run build`: 1,560 pages built; `/world/` and the linked viewer were
-  emitted under `dist-town/world-engine/`.
-- Source and staged `spectator/viewer.mjs` SHA-256 matched:
-  `EBD235C46CBDC42850BFB58CFBDADE16F6F50F16CA9FCBB54664C008D5CFFF96`.
-- Standalone `node spectator/server.mjs`: `/` and
-  `/world-engine/spectator/viewer.mjs` both returned HTTP 200.
-- Anonymous headless-browser QA: hovering a painting glyph highlighted the
-  same-id cell and displayed the identity label; clicking selected that cell,
-  set `aria-selected`, and brought it into the viewport. The walk desk stayed
-  hidden.
-- Mocked signed-browser QA, with no write endpoint invoked: `walk here`
-  selected `wright/the-crossing-bench`, immediately rendered distance, h/min
-  ETA, and named water crossings, and armed confirmation. Switching from
-  `wright` to `rei` recomputed the preview and re-armed confirmation; the
-  manual-preview button count was zero.
-- `node --check spectator/viewer.mjs` and `git diff --check` passed.
-
-### Judgment calls
-
-- The snap radius is 18 CSS pixels at every zoom. This is slightly larger than
-  the normal glyph, giving a forgiving buffer without converting nearby open
-  ground into a mark click. Nearest distance wins, with id order only as a
-  deterministic tie-break.
-- Hover uses the mark's existing tier accent (amber market, green home, blue
-  constitution) on both surfaces. Selection adds a persistent tier-colored
-  outline; while another mark is hovered, the map temporarily shows that hover
-  and returns to the selected glyph on leave.
-- The map identity label uses the mark id plus its short title/body lead,
-  remains screen-readable while zooming, and clamps to the visible viewBox.
-- Only painting clicks scroll the list. Hover never calls `scrollIntoView`, and
-  cell clicks stay where the reader already is.
-
-## Performance pass
-
-Completed locally on 2026-07-29 from the PULSE gold plan. Nothing was pushed,
-`G:/postmark/office` stayed read-only, and no synced
-`public/atelier/postmark/**` artifact was edited.
-
-### Outcome
-
-- The island integration stages `WORLD/world-state.json`,
-  `WORLD/skeleton.json`, and `seeding/manifest.json` beside the viewer in both
-  dev and build output. The raw GitHub sources remain the viewer's resilience
-  fallback.
-- The built `/world` head derives 22 modulepreloads from the same staging walk
-  and adds four fetch preloads for the three records plus `/atlas/town.html`.
-- The viewer adds `loading="lazy"` and `decoding="async"` to detached atlas
-  `<img>` and SVG `<image>` nodes before mounting them.
-- Signed hydration starts composed world, home, and balance reads together
-  after `whoami`.
-- The front-page mintbar renders the build-time public stamp count immediately,
-  falls back safely when that snapshot is unavailable, and still hydrates live.
-- Astro prefetches internal navigation on hover. Windows-only Astro preview
-  preserves the public uppercase `/WORLD/**` URLs despite the case-insensitive
-  collision with the `/world/` page directory.
-
-### Local commits
-
-`postmark-site`:
-
-- `c0622a12d314b9d8f80f26d9beef0567689dfe99` — S1 record staging.
-- `ff59754ab10002076ddb090e1867a113253b9ad1` — S2 preload chain.
-- `612612a5b33629c129b8c5f3104ade0155cb4fe8` — S5 mint snapshot.
-- `20ace236666d68d8276872cacc9ed665e8e7b1e3` — S6 nav prefetch.
-- `657643bc50e84455af41a350bfa5f99fbe50eb51` — S7 Playwright
-  proof and preview compatibility.
-
-`postmark-world`:
-
-- `c96eb2c67ef9237d17cacf2ec742433b842fce76` — S3 atlas image
-  discipline.
-- `c323957eca921af84af2f669025071d4c1e419eb` — S4 signed-lane
-  parallelization.
-
-### Validation
-
-- Playwright fixture, exact baselines site `2d153f0` and world `42e1675`, with
-  identical 35 ms critical-resource latency: overlap-wave depth fell from
-  5 to 2. Critical resource entries changed from 12 to 27 because the browser
-  now discovers the full preload set in the first wave.
-- The same proof changed `/WORLD/world-state.json` from 404 to 200 and changed
-  atlas lazy/async coverage from 0/34 to 34/34, with no page exceptions.
-- Real Astro dev and real `astro preview` both served the 170,707-byte
-  `/WORLD/world-state.json` at HTTP 200. Preview served 22 modulepreloads and
-  four fetch preloads.
-- World `npm test`: 54/54 passed. Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages; 25 viewer/engine/record files staged and
-  26 preload hints emitted.
-- Read-only spectator smoke: `/` and `/WORLD/world-state.json` both returned
-  HTTP 200.
-- The built mintbar snapshot was `2,878` stamps with a `100.0%` immediate fill;
-  the live `/api/stamps` hydration remained present.
-
-## Legibility pass
-
-Executed locally on 2026-07-29 from the PULSE silver
-`silver-2026-07-29_postmark-world-viewer-legibility-batch`. Nothing was pushed,
-and `G:/postmark/office` was used only to confirm the public
-`GET /world/stake?mark=…` read contract.
-
-### Outcome
-
-- Ambient ancestry now keeps the world root and fog-like conditions out of every
-  extent, direction, hit target, and off-screen-location path.
-- Mark cells lead with resolved Names, show fold-determined names in gold, keep a
-  larger meaningful-direction arrow beside the Name, and reveal id/author/date,
-  honest extent, cardinal position, distance, and direction on hover or
-  selection.
-- Polygon claims carry polygon glyphs. Painting hits resolve by 18 px pip snap,
-  then smallest containing non-ambient true extent, then open ground.
-- Every cell shows current backing passively. The unchanged violet `back` sheet
-  reads the public holder rows and shows the top five plus the remaining count.
-- The walk desk has no `walk here` chip. Cell selection arms a named destination;
-  open ground uses a dot plus cardinal position; repeat-click or Esc clears both
-  selection and destination; previews contain only distance, h/min ETA, and
-  destination.
-- All viewer positions use the shared cardinal Town Centre formatter. Selected
-  and hovered off-screen marks retain tier-colored edge locators; non-ambient
-  predicates resolve through their nearest embodied ancestor.
-- “Where you stand” is exact, the redundant “What tells from here” heading is
-  gone, and each distance band derives its approximate range from the live LOD
-  band dials.
-
-### Local `postmark-world` commits
-
-- `82c1068` — ambient classifier.
-- `27138b4` — resolved Name-first cells and hover/selection details.
-- `bbebc34` — honest rectangle/polygon extent glyphs.
-- `229e0b9` — passive backing and top-five backers.
-- `b9604f4` — shared cardinal position display.
-- `dbbc23d` — walk-desk declutter and deselection.
-- `62bfca2` — off-screen edge locators.
-- `1887da0` — painting extent hit order.
-- `f5d66b0` — section and distance-band hierarchy.
-- `54d0871` — selected-locator persistence while another mark is hovered.
-
-### Validation
-
-- World `npm test`: 62/62 passed across all six configured test files, including
-  the required ambient, name, cardinal, containment-order, and backer-summary
-  pure coverage.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
-  and 26 preload hints emitted.
-- Linked source and built `spectator/viewer.mjs` SHA-256 matched:
-  `253ED6609B70113FE12AB538BF0F6EB81343201382EEA13956255B1CB1CDD5CB`.
-- Anonymous Chrome spectator smoke: 16/16 checks passed with zero runtime
-  exceptions. Signed controls feature-detected off; passive backing, hover,
-  selection/detail reveal, repeat-click/Esc deselection, and the persistent
-  off-screen locator all worked.
-
-## Containment + nits pass
-
-Executed locally on 2026-07-29 from the bronze dispatch
-`wright-2026-07-29-sea-false-containment-in-where-you-stand`. Nothing was
-pushed.
-
-### Outcome
-
-- The hypothesized mechanism was confirmed against the live Sea mark. At
-  `(4000, 4000)`, the Sea's `at/extent` bounding rectangle returned true while
-  its authored coast polygon returned false; the rectangle-only runtime
-  `containmentChain()` therefore put `the-town/the-sea` in `within` on dry
-  land.
-- Runtime standpoint containment, investigation ancestry, walk point labels,
-  and the viewer's legacy home-set fallback now use the existing true-shape
-  geometry path. A wet control remains inside the Sea.
-- Extent hover/selection was already polygon-aware and its existing regression
-  remained green. The held-back painting hit-test structure was not changed.
-- Fog mechanic cells no longer show a crossing number, hover/selection details
-  no longer repeat the `{author}/{slug}` mark id, and cell Names are bold.
-
-### Local `postmark-world` commit
-
-- `b701200ccdf302fcec125cf69ffce67629f9a5cc` — true-shape containment plus
-  the three viewer riders.
-
-### Validation
-
-- Red control: the new real-Sea engine assertion and polygon walk-label
-  assertion both failed before the fix; the targeted engine/viewer run then
-  passed 36/36.
-- World `npm test`: 64/64 passed across all six configured test files.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
-  and 26 preload hints emitted.
-- Read-only spectator smoke: `/`,
-  `/world-engine/spectator/viewer.mjs`, and `/WORLD/world-state.json` all
-  returned HTTP 200; the state carried 288 marks.
-
-## Telling-filter pass
-
-Executed locally on 2026-07-29 from the bronze dispatch
-`wright-2026-07-29-viewer-telling-filter-you-color-coordinate-quiet`. Nothing
-was pushed.
-
-### Outcome
-
-- Painting extent-hover now draws candidates only from the current radial
-  telling plus its containment ladder. Pip snap keeps its existing telling-only
-  order, a within-chain parcel remains hoverable without a pip, and untold
-  foggy/occluded extents are inert.
-- The existing click/select/investigate structure is unchanged. A miss still
-  follows the existing open-ground walk/camera path, whose containment labeler
-  deliberately continues to read the full record.
-- Viewer-facing absolute Town Centre readouts are gone. Standing locations use
-  the smallest containing mark's Name or `on open ground`; open-ground
-  destinations use distance and direction from the walker while retaining an
-  `in <Name>` containment suffix; hover details keep only relative
-  distance/direction. The pure cardinal formatter remains exported and tested,
-  and the dev-only Move pad keeps raw coordinates.
-- One `--you` red-orange token now colors the painting's actor dot/halo, the
-  selected Act As chip, and both standing-location accents.
-
-### Local `postmark-world` commit
-
-- `21ef432c44c3aee031801d079f33310a9f1b0f2d` —
-  `fix: make viewer perception obey the telling`
-
-### Validation
-
-- Targeted viewer axes: 18/18 passed, including told-plus-within candidate
-  order, a no-pip containment extent, an inert untold extent, named standing
-  containment, and relative open-ground labels.
-- World `npm test`: 65/65 passed across all six configured test files.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
-  and 26 preload hints emitted.
-- Source and staged `spectator/viewer.mjs` SHA-256 matched:
-  `FC8EDD0E1D156B2B53896A1349F0E3E24D686C3DF0ECB9B4BA4A07A9ADD5A908`.
-- Read-only spectator smoke: 3/3 HTTP checks and 8/8 rendered-Chrome checks
-  passed. The state carried 288 marks; telling cards and named standing
-  containment rendered; the shared `--you` token was present; absolute Town
-  Centre/detail-position readouts and telling errors were absent.
-
-## Cells v1.5 pass
-
-Executed locally on 2026-07-29 from the bronze dispatch
-`wright-2026-07-29-viewer-cells-v1-5-dedup-and-select-then-act`. Nothing was
-pushed, and the nested cells-v2 tree was not attempted.
-
-### Outcome
-
-- Investigate `sits inside`, `within it`, and `alongside` entries are compact,
-  tier-accented bold Name lines. They remain select-and-drill targets and never
-  quote the relative's body.
-- Predicated and naming marks fold into a flat `slot: value · ✦weight` attribute
-  on a rendered non-predicate subject cell. The attribute keeps its own mark id
-  and backing/take-back affordance. If the subject is absent, the predicate's
-  standalone card remains unchanged; predicate-on-predicate chains remain
-  standalone for the later nested-tree design.
-- Cell clicks now select and investigate only. A selected walkable cell reveals
-  `walk here`; only that action arms the walk desk. Painting open-ground walking,
-  re-click deselection, and Esc clearing remain intact.
-- Ambient elevation and fog mechanic readings survive on their folded attribute
-  lines.
-
-### Local commits
-
-- `postmark-world`:
-  `cf8d7dfd915c9f554aa5c2caf4ef227fb10ce82d` —
-  `feat: add cells v1.5 select-then-act` (2 files, +188/-45).
-
-### Validation
-
-- Targeted viewer axes: 20/20 passed, including the required predicate-fold
-  decision and body-free name-line renderer coverage.
-- World `npm test`: 67/67 passed across all six configured test files.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
-  and 26 preload hints emitted.
-- Source and staged `spectator/viewer.mjs` SHA-256 matched:
-  `BC06183331285D024842E256513002247ECA2EC035C1AEEABD0C84F0BC95A68B`.
-- Read-only spectator smoke: 2/2 HTTP checks passed; anonymous Chrome rendered
-  14 cells, 2 initially folded ambient attributes, and 16 body-free relative
-  name-lines with zero viewer/runtime errors. The New view kept 5 predicates
-  standalone because their parents were absent and folded 7 whose parents were
-  present.
-- Read-only signed-lane browser mock: 7 walkable cells exposed a selected-only
-  action. Selection left the destination unset; `walk here` armed the preview;
-  re-click and Esc each cleared selection and destination.
-
-## Journey pass
-
-Executed locally on 2026-07-30 from the bronze dispatch
-`wright-2026-07-30-viewer-journey-panel-chip-and-help-bubble`. Nothing was
-pushed.
-
-### Outcome
-
-- The acting resident's latest walker derivation now selects one of three desk
-  states. An unarrived departure renders an ember journey panel with resolved
-  destination Name, meters left, clock ETA, an on-road standing line, and an
-  explicit `change course` affordance. An arrived departure renders
-  `arrived at <Name>` while the standing line returns to normal containment.
-- Destination display uses the departure's carried mark id first, point
-  containment second, and `open ground` last. The same pure resolver drives
-  both the desk panel and the on-road line.
-- Every backing count is a violet, bordered, padded, hover-brightening
-  `✦ N · back` pill, including a quiet `✦ 0 · back`. Its click opens the
-  backing sheet for signed residents and a read-only, sign-in-framed sheet for
-  spectators.
-- The painting caption now lives in the `?` beside `THE PAINTING`, appearing on
-  hover/focus and toggling on tap. The old below-map paragraph is gone; the
-  walkers readout remains in place.
-- The site dependency and lock now pin the local `postmark-world` commit
-  `5f696306b770c6bec9cc86ad364844842b0b7cf6`.
-
-### Validation
-
-- World `npm test`: 69/69 passed across all six configured test files,
-  including new journey-state and destination-name coverage.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
-  and 26 preload hints emitted.
-- Source, installed dependency, and built `spectator/viewer.mjs` SHA-256:
-  `C49EF2C7FC9F6CB3D5FEB61DE661EA5C06D36DE83C48245871F2E430A59349F6`.
-- Anonymous rendered-Chrome smoke: 16/16 checks passed. The walk desk stayed
-  signed-only; 14 cells rendered without viewer errors; the below-map caption
-  was absent; the walkers readout node remained; `?` opened and closed the
-  complete caption bubble; and `✦ 0 · back` opened a spectator-safe sheet.
-
-## Rider pass
-
-Executed locally on 2026-07-30 from Rider items 5–6 of
-`wright-2026-07-30-viewer-journey-panel-chip-and-help-bubble`. Items 1–4 were
-left intact and nothing was pushed.
-
-### Outcome
-
-- Investigate children, `sits inside`, and `alongside` entries now use the
-  parent-cell identity language at every depth: a bold resolved Name
-  (de-slugged by default, amber when fold-determined), the same promoted violet
-  `✦ N · back` control, and author/date confined to the entry's own
-  hover/focus/selection details.
-- Raw `{author}/{slug}` text is gone from relation entries and drilled
-  breadcrumbs. Second-depth breadcrumbs resolve to Name instead.
-- The zero-weight investigate detail now reads
-  `✦ 0 — no belief staked yet` in the same clickable violet chip treatment.
-  The false pre-mark/provenance claim is gone.
-- The site dependency and lock pin local `postmark-world` commit
-  `55a7ece1711a7447da67994009c02d5da6e8e714`.
-
-### Validation
-
-- World `npm test`: 70/70 passed across all six configured test files. The two
-  Rider tests cover resolved/de-slugged identity, fold-determined styling,
-  compact author/date details, promoted backing controls, absence of visible
-  raw ids/body prose, and the exact neutral zero copy.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages built; 25 world files staged; 26 preload
-  hints emitted.
-- Source, installed dependency, and built `spectator/viewer.mjs` SHA-256:
-  `F35BBE8CC17715951516758D37F03EA893795C218CE80A09D8FD8665EF278B89`.
-- Read-only rendered-Chrome spectator smoke: 3/3 HTTP surfaces served; 14 cards
-  and a 16-entry investigate expansion rendered with zero runtime errors.
-  Relation author/date stayed hidden until its own focus, every relation carried
-  `✦ N · back`, a nested chip opened the spectator-safe backing sheet for the
-  correct mark, the zero detail used the exact neutral copy, and a second-depth
-  breadcrumb rendered `The Cathedral Canopy` with no raw id.
-
-## Byline + chip order pass
-
-Executed locally on 2026-07-30 from the bronze dispatch
-`wright-2026-07-30-viewer-byline-and-chip-order`. Nothing was pushed.
-
-### Outcome
-
-- Every rendered world-mark cell now carries one visible
-  `By {author} {YYYY-MM-DD}` byline. Author and date were removed from both
-  parent-card and investigate-relation hover/selection details.
-- The literal `made {date}` renderer lived in
-  `postmark-world/spectator/viewer.mjs`'s New-feed path, not site-side. It was
-  removed there; non-sited New entries retain only their useful
-  `a property of …` annotation.
-- A cell's title row now orders Name, directional arrow, then the
-  `home` / `constitution` tier chip. The following identity row orders the
-  byline and violet backing/actions, so the selected parent's back chip is
-  above folded attributes and investigate relations.
-- First-depth investigate no longer duplicates the parent's backing/tier
-  controls. Drilled targets keep a target-local byline/backing row above their
-  relations, and relation entries retain the Rider pass's own bold Name,
-  tier-accented edge, and violet `✦ N · back` treatment.
-- The site dependency and lock pin local `postmark-world` commit
-  `01298e12c8eb1505f78c7779e7c8f0cc25234049`.
-
-### Validation
-
-- World `npm test`: 79/79 passed across all seven configured test files. New
-  pure-render coverage proves exact day slicing, byline/backing co-location,
-  arrow/tier adjacency, and absence of duplicated relation author/date details.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,601 pages built; 25 world files staged; 26 preload
-  hints emitted.
-- Source, linked dependency, and built `spectator/viewer.mjs` SHA-256 matched:
-  `AEA84092C66E97A7B86884F833398CFB6AA4C824DABC92C8B884DC16F67ABA15`.
-- Read-only rendered-Chrome smoke passed in both habitats: standalone spectator
-  and built site `/world/` each rendered 14 cards, opened the same 16-entry
-  expansion, passed all 9 byline/detail/order assertions, and reported zero
-  runtime exceptions.
-
-<!-- Recovery note, 2026-07-31: the four sections below (Improvement, Interaction,
-Performance, Legibility — all executed 2026-07-29) were dropped from this file in
-the 07-30 worktree realign and recovered from commit 32edf32d. They chronologically
-PRECEDE the Journey/Rider/Byline sections above. -->
-
-## Improvement pass
-
-Completed locally on 2026-07-29 from `BRIEF2.md`. Nothing was pushed, no live
-stake or walk was submitted, and `G:/postmark/office` remained read-only.
-
-### What changed
-
-- Stamp-touching UI now carries the retired island's named violet family:
-  `--stamp-violet`, `--stamp-violet-dark`, `--stamp-violet-heading`, and
-  `--stamp-violet-subhead`. The `✦ back this` and take-back buttons, both act
-  sheets, their headings and confirmations, actor balances, and every
-  `.wv-chip.stamps` weight chip use those tokens. World/telling surfaces remain
-  amber.
-- A signed viewer reads the acting resident's liquid balance from the keyless
-  `GET /stamps/{handle}` shape. The active Act As chip now reads like
-  `wright · ✦ 199`, actor switching refreshes it, and the stake sheet names
-  `you hold ✦ N`.
-- Stake amounts have an HTML maximum and a pure balance clamp. An over-limit
-  preview is not silently accepted: the field moves to the liquid balance, the
-  refusal names the resident, requested amount, and available balance, and the
-  reader must preview the balance-sized act again before confirmation.
-- The viewer banner is now BETA. Its two sentences say that the record and acts
-  are real while the viewer may still change shape without notice.
-- The Walk desk has no destination/mark dropdowns and no coordinate form.
-  Clicking the painting chooses a point; `walk here` on a mark cell chooses that
-  cell's point; parcel cells now participate. The selected point is labeled with
-  the smallest recorded extent containing it, excluding the world root, so open
-  parcel ground reads `in wright/the-trueing-house-parcel`.
-- Walk confirmation uses `{ x, y, handle }` for both painting and cell targets,
-  making parcel targeting viewer-derived without an office or ledger change.
-  The named-water-crossings line remains.
-- `previewWalkLeg` still returns `etaCrossings`. Viewer prose converts that value
-  with the named 12-hours-per-crossing rule, rounds to the nearest minute, and
-  renders `≈ H h MM m` in the desk, receipt, and walker tooltip.
-
-### Files and local commits
-
-`postmark-world`:
-
-- `spectator/viewer.mjs` — violet tokens, balance fetch/clamp, point-first walk
-  desk, containment labels, parcel targets, and ETA formatting.
-- `spectator/index.html` — BETA shell annotation.
-- `tools/viewer-axes.test.mjs` — balance clamp, h/min formatter, and point
-  containment coverage.
-- `1a16a0c8e19bbfadb771a24eefc9a1cb46098645` —
-  `feat: make stamp balance first-class in viewer`
-- `21a264d7af3d2dbc7d5c3eaff42d7dc6c8fa1791` —
-  `feat: make the walk desk point-first`
-- `1cd82507c7896ff3e33a10bc2bcaf8b952c14afb` —
-  `chore: mature the world viewer to beta`
-
-`postmark-site`:
-
-- `RESULT.md` — this appended improvement record. The site implementation stays
-  the existing verbatim viewer passthrough; build staging consumed the linked
-  world worktree without copying engine source into the tracked site tree.
-
-The pre-existing local `package.json`/`package-lock.json` file-link changes,
-`.omx/`, `BRIEF.md`, and `BRIEF2.md` remain uncommitted and were not folded into
-the improvement commits.
-
-### Validation
-
-- World `npm test`: 51/51 passed across the six configured test files.
-- Site `npm test`: 17/17 passed.
-- Site `npm run build`: 1,560 pages built; `/world/` and
-  `/world-engine/spectator/viewer.mjs` were emitted.
-- Source/staged `spectator/viewer.mjs` SHA-256:
-  `0F8E9240F1301DC88D415BC087DF8442152D205CF077E91CC5DFB58B8A51FC1`
-  on both sides.
-- Standalone `node spectator/server.mjs`: booted read-only on
-  `http://localhost:4877/`; `/` and the viewer module both returned HTTP 200.
-- Anonymous headless browser: BETA mounted, the identity block stayed empty,
-  the walk desk stayed hidden, and no stake affordance rendered.
-- Mocked signed browser, with no write endpoint invoked: `wright · ✦ 199`
-  rendered; switching actor refreshed to `rei · ✦ 17`; stamp controls resolved
-  to the named violet colors; a `200` request clamped to `199` with an honest
-  refusal; the parcel cell selected
-  `in wright/the-trueing-house-parcel`; the desk had no select/input fallback;
-  and its preview rendered an h/min ETA.
-- `git diff --check` passed for the full world improvement range and the site
-  handoff change.
-
-### Judgment calls and updated check
-
-- “Balance” means the API's liquid `stamps`/`liquid` value, not `assets`,
-  because only liquid stamps can be newly backed.
-- Over-limit input clamps visibly but does not auto-preview the changed amount.
-  Requiring a second preview keeps the exact sealed line deliberate.
-- Painting clicks choose the smallest containing extent. A cell button keeps
-  the chosen cell's id in the label even when its center also lies inside a
-  smaller child; this makes `walk here` name the thing the reader chose.
-- Raw coordinate inputs were dropped rather than dev-gated because painting
-  clicks provide the same point path without making coordinates the desk's
-  primary vocabulary.
-- Minute conversion rounds, rather than floors, because the UI marks ETA as
-  approximate; engine and office crossing values remain untouched.
-
-For the signed improvement check, follow the existing local recipe above but
-replace its old Walk step with: click anywhere on the painting and verify the
-desk names the point and its containing extent, or press `walk here` on a sited
-or parcel cell; preview and verify `ETA ≈ H h MM m` plus the unchanged named
-water crossings line. Before backing, verify the Act As balance and `you hold`
-line agree; enter one more than the balance and confirm the UI names and clamps
-the excess without enabling confirmation until the corrected act is previewed.
-
-## Interaction pass
-
-Completed locally on 2026-07-29 from `BRIEF3.md`. Nothing was pushed, no live
-stake or walk was submitted, and `G:/postmark/office` remained read-only.
-
-### What changed
-
-- The Act As block now consists only of its resident buttons and the acting
-  resident's stamp balance. The remembered-choice caption is gone.
-- The Walk desk no longer has a `preview the leg` button. Choosing a painting
-  point, pressing `walk here`, selecting a walkable mark, or switching actors
-  with a destination already set immediately recomputes the pure client-side
-  leg. A valid preview shows metres, h/min ETA, and named water crossings and
-  arms `confirm departure`; an invalid origin or destination leaves it
-  disabled with an honest refusal.
-- One `createMarkInteractionStore` owns `selectedId` and `hoveredId` for both
-  the telling and the painting. Cells and glyphs no longer maintain parallel
-  highlight state.
-- Painting glyph hit-testing is screen-space and buffered. The nearest glyph
-  within 18 px wins before point containment is considered; only genuinely
-  open ground follows the BRIEF2 raw-point path.
-- Clicking a mark on either surface selects the same state. Matching cells and
-  glyphs remain highlighted, a painting click scrolls the selected cell into
-  view, and a signed walkable mark becomes the destination and previews at
-  once. Selection remains available to spectators, while destination arming
-  remains signed-only. Marks without geometry remain cell-only selections.
-- Hover works in both directions without scrolling. A hovered cell lights the
-  mark's authored shape and glyph on the painting; a hovered painting glyph
-  lights its matching cell and gets an in-map id/title label. Leaving restores
-  the persistent selected highlight.
-
-### Files and local commit
-
-`postmark-world`:
-
-- `spectator/viewer.mjs` — shared interaction store, buffered glyph hit test,
-  bidirectional hover/selection rendering, in-map identity label, click-scroll,
-  and automatic walk previews.
-- `tools/viewer-axes.test.mjs` — 18 px nearest-hit behavior and shared-store
-  state/notification coverage.
-- `42e1675aa86ef58c90ef68cda0d52eb433de40a5` —
-  `feat: unify mark interactions and walk previews`
-
-`postmark-site`:
-
-- `RESULT.md` — this interaction-pass handoff. The site remains a verbatim
-  passthrough and staged the linked world viewer without copied source changes.
-
-The pre-existing local `package.json`/`package-lock.json` file-link changes,
-`.omx/`, and supplied `BRIEF.md`, `BRIEF2.md`, and `BRIEF3.md` remain outside
-the implementation commits.
-
-### Validation
-
-- World `npm test`: 53/53 passed across all six configured test files.
-- Site `npm test`: 17/17 passed.
-- Site `npm run build`: 1,560 pages built; `/world/` and the linked viewer were
-  emitted under `dist-town/world-engine/`.
-- Source and staged `spectator/viewer.mjs` SHA-256 matched:
-  `EBD235C46CBDC42850BFB58CFBDADE16F6F50F16CA9FCBB54664C008D5CFFF96`.
-- Standalone `node spectator/server.mjs`: `/` and
-  `/world-engine/spectator/viewer.mjs` both returned HTTP 200.
-- Anonymous headless-browser QA: hovering a painting glyph highlighted the
-  same-id cell and displayed the identity label; clicking selected that cell,
-  set `aria-selected`, and brought it into the viewport. The walk desk stayed
-  hidden.
-- Mocked signed-browser QA, with no write endpoint invoked: `walk here`
-  selected `wright/the-crossing-bench`, immediately rendered distance, h/min
-  ETA, and named water crossings, and armed confirmation. Switching from
-  `wright` to `rei` recomputed the preview and re-armed confirmation; the
-  manual-preview button count was zero.
-- `node --check spectator/viewer.mjs` and `git diff --check` passed.
-
-### Judgment calls
-
-- The snap radius is 18 CSS pixels at every zoom. This is slightly larger than
-  the normal glyph, giving a forgiving buffer without converting nearby open
-  ground into a mark click. Nearest distance wins, with id order only as a
-  deterministic tie-break.
-- Hover uses the mark's existing tier accent (amber market, green home, blue
-  constitution) on both surfaces. Selection adds a persistent tier-colored
-  outline; while another mark is hovered, the map temporarily shows that hover
-  and returns to the selected glyph on leave.
-- The map identity label uses the mark id plus its short title/body lead,
-  remains screen-readable while zooming, and clamps to the visible viewBox.
-- Only painting clicks scroll the list. Hover never calls `scrollIntoView`, and
-  cell clicks stay where the reader already is.
-
-## Performance pass
-
-Completed locally on 2026-07-29 from the PULSE gold plan. Nothing was pushed,
-`G:/postmark/office` stayed read-only, and no synced
-`public/atelier/postmark/**` artifact was edited.
-
-### Outcome
-
-- The island integration stages `WORLD/world-state.json`,
-  `WORLD/skeleton.json`, and `seeding/manifest.json` beside the viewer in both
-  dev and build output. The raw GitHub sources remain the viewer's resilience
-  fallback.
-- The built `/world` head derives 22 modulepreloads from the same staging walk
-  and adds four fetch preloads for the three records plus `/atlas/town.html`.
-- The viewer adds `loading="lazy"` and `decoding="async"` to detached atlas
-  `<img>` and SVG `<image>` nodes before mounting them.
-- Signed hydration starts composed world, home, and balance reads together
-  after `whoami`.
-- The front-page mintbar renders the build-time public stamp count immediately,
-  falls back safely when that snapshot is unavailable, and still hydrates live.
-- Astro prefetches internal navigation on hover. Windows-only Astro preview
-  preserves the public uppercase `/WORLD/**` URLs despite the case-insensitive
-  collision with the `/world/` page directory.
-
-### Local commits
-
-`postmark-site`:
-
-- `c0622a12d314b9d8f80f26d9beef0567689dfe99` — S1 record staging.
-- `ff59754ab10002076ddb090e1867a113253b9ad1` — S2 preload chain.
-- `612612a5b33629c129b8c5f3104ade0155cb4fe8` — S5 mint snapshot.
-- `20ace236666d68d8276872cacc9ed665e8e7b1e3` — S6 nav prefetch.
-- `657643bc50e84455af41a350bfa5f99fbe50eb51` — S7 Playwright
-  proof and preview compatibility.
-
-`postmark-world`:
-
-- `c96eb2c67ef9237d17cacf2ec742433b842fce76` — S3 atlas image
-  discipline.
-- `c323957eca921af84af2f669025071d4c1e419eb` — S4 signed-lane
-  parallelization.
-
-### Validation
-
-- Playwright fixture, exact baselines site `2d153f0` and world `42e1675`, with
-  identical 35 ms critical-resource latency: overlap-wave depth fell from
-  5 to 2. Critical resource entries changed from 12 to 27 because the browser
-  now discovers the full preload set in the first wave.
-- The same proof changed `/WORLD/world-state.json` from 404 to 200 and changed
-  atlas lazy/async coverage from 0/34 to 34/34, with no page exceptions.
-- Real Astro dev and real `astro preview` both served the 170,707-byte
-  `/WORLD/world-state.json` at HTTP 200. Preview served 22 modulepreloads and
-  four fetch preloads.
-- World `npm test`: 54/54 passed. Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages; 25 viewer/engine/record files staged and
-  26 preload hints emitted.
-- Read-only spectator smoke: `/` and `/WORLD/world-state.json` both returned
-  HTTP 200.
-- The built mintbar snapshot was `2,878` stamps with a `100.0%` immediate fill;
-  the live `/api/stamps` hydration remained present.
-
-## Legibility pass
-
-Executed locally on 2026-07-29 from the PULSE silver
-`silver-2026-07-29_postmark-world-viewer-legibility-batch`. Nothing was pushed,
-and `G:/postmark/office` was used only to confirm the public
-`GET /world/stake?mark=…` read contract.
-
-### Outcome
-
-- Ambient ancestry now keeps the world root and fog-like conditions out of every
-  extent, direction, hit target, and off-screen-location path.
-- Mark cells lead with resolved Names, show fold-determined names in gold, keep a
-  larger meaningful-direction arrow beside the Name, and reveal id/author/date,
-  honest extent, cardinal position, distance, and direction on hover or
-  selection.
-- Polygon claims carry polygon glyphs. Painting hits resolve by 18 px pip snap,
-  then smallest containing non-ambient true extent, then open ground.
-- Every cell shows current backing passively. The unchanged violet `back` sheet
-  reads the public holder rows and shows the top five plus the remaining count.
-- The walk desk has no `walk here` chip. Cell selection arms a named destination;
-  open ground uses a dot plus cardinal position; repeat-click or Esc clears both
-  selection and destination; previews contain only distance, h/min ETA, and
-  destination.
-- All viewer positions use the shared cardinal Town Centre formatter. Selected
-  and hovered off-screen marks retain tier-colored edge locators; non-ambient
-  predicates resolve through their nearest embodied ancestor.
-- “Where you stand” is exact, the redundant “What tells from here” heading is
-  gone, and each distance band derives its approximate range from the live LOD
-  band dials.
-
-### Local `postmark-world` commits
-
-- `82c1068` — ambient classifier.
-- `27138b4` — resolved Name-first cells and hover/selection details.
-- `bbebc34` — honest rectangle/polygon extent glyphs.
-- `229e0b9` — passive backing and top-five backers.
-- `b9604f4` — shared cardinal position display.
-- `dbbc23d` — walk-desk declutter and deselection.
-- `62bfca2` — off-screen edge locators.
-- `1887da0` — painting extent hit order.
-- `f5d66b0` — section and distance-band hierarchy.
-- `54d0871` — selected-locator persistence while another mark is hovered.
-
-### Validation
-
-- World `npm test`: 62/62 passed across all six configured test files, including
-  the required ambient, name, cardinal, containment-order, and backer-summary
-  pure coverage.
-- Site `npm test`: 18/18 passed.
-- Site `npm run build`: 1,560 pages built; 25 viewer/engine/record files staged
-  and 26 preload hints emitted.
-- Linked source and built `spectator/viewer.mjs` SHA-256 matched:
-  `253ED6609B70113FE12AB538BF0F6EB81343201382EEA13956255B1CB1CDD5CB`.
-- Anonymous Chrome spectator smoke: 16/16 checks passed with zero runtime
-  exceptions. Signed controls feature-detected off; passive backing, hover,
-  selection/detail reveal, repeat-click/Esc deselection, and the persistent
-  off-screen locator all worked.
+| | |
+|---|---|
+| Branch | `train/2026-w37` (new; base `release/2026-w36.1` = tag `c0e417e1` → commit `7d4c7e836`) |
+| **Remote tip** | **`6c6adc083262f5b9319789fb07aa5460a27fc616`** |
+| Receipt | `git ls-remote origin refs/heads/train/2026-w37` → `6c6adc083262f5b9319789fb07aa5460a27fc616` (LOCAL == REMOTE) |
+| Commits | 4 — the five rulings · the holo-surfaces re-aim · the QA runner + shots · the dev QA + a correction |
+| No release tag cut | correct per the brief |
+
+Upstream check at creation: `git rev-parse --abbrev-ref @{u}` → *"no upstream configured"*. The lane
+ref-trap was disarmed before any work; `push -u` later set it to its **own** remote branch.
+
+## Dev deploy
+
+| | |
+|---|---|
+| Run on tip `f8f950bb9` | **success** — https://github.com/keeminlee/postmark-site/actions/runs/33411222862 |
+| Run on the final tip `6c6adc083` | **success** — https://github.com/keeminlee/postmark-site/actions/runs/33411748663 |
+| Verified how | not by the run's word — by the **served** `/build.json` on dev. Final read: `code_sha` **`6c6adc083262f5b9319789fb07aa5460a27fc616`**, `code_ref` `train/2026-w37`, `channel` `snapshot` — dev is serving this branch's tip |
+| Dev QA | **14/14 checks** against `https://dev.postmark.town/town/` (taken on `f8f950bb9`; the only change since is RESULT.md and shot PNGs, no page code) |
+
+⚠ **A green run is not a receipt that dev is still serving you.** Dev is shared and reclaimed by
+later pushes; every dev claim below is scoped to the sha in that stamp.
+
+## Shots — before / after, read with my own eyes
+
+Committed under `qa-shots/civic-polish/`. Runner: `qa-shots/civic-polish-shots.mjs`
+(`SHOT_TAG=before|after`, same script both halves so the two sets cannot drift in what they measure).
+**before 9/22 · after 21/22 · dev 14/14.**
+
+| Item | Before | After |
+|---|---|---|
+| 1 · Quest Guild (drop plaque · pots under cards · standings last · holo moved) | `before/02-quest-guild.png` | `after/02-quest-guild.png`, `dev/02-dev-quest-guild.png` |
+| 2 · Think Tank (law line · claim once · quay note) | `before/03-think-tank.png` | `after/03-think-tank.png`, `dev/03-dev-think-tank.png` |
+| 2a · the card, against a world that HAS an idea | `before-settlement/03-think-tank.png` | `after-settlement/03-think-tank.png` |
+| 3 · Bounty Board (weight paragraph removed) | `before/04-bounty-board.png` | `after/04-bounty-board.png` |
+| 4 · Ballot House (one sentence + the button) | `before/05-ballot-house.png` | `after/05-ballot-house.png`, `dev/05-dev-ballot-house.png` |
+| 5 · panels tinted like their buildings | `before/01-lanes-shut-tinted.png` | `after/01-lanes-shut-tinted.png`, `dev/01-dev-town-top.png` |
+| whole page, 1440 and 420 | `before/06,07,08` | `after/06,07,08`, `dev/06-dev-town-full.png` |
+
+---
+
+## The cause of the stale quote (item 2c) — reproduced, not guessed
+
+The page held a **hand copy**, and the pin was never behind.
+
+- The page's literal: *"Asking a resident? Plant a bounty here. An idea for the town? **Open a
+  blueprint in the chest — BLUEPRINTS/, your slug — and talk in its Discussions.**"*
+- That is `the-town/how-ideas-enter` **exactly as it read at world commit `6b235216`** (2026-08-30
+  13:55 EDT).
+- It was superseded **the same day at 17:21** by `e383e992` ("the Think Tank stands"), which rewrote
+  the body to route an idea to the tank.
+- **The site's world pin `0b4616cc` is a descendant of `e383e992`** (`git merge-base --is-ancestor`
+  → true) and carries the **current** body byte-for-byte. So does world `main` (`ea584802`) today.
+
+So: not a stale snapshot, not a pin behind main, not a bad reader — **a transcription made four
+hours before the record changed, with nothing on either side that could compare them.**
+
+**The fix is not a better transcription** (which would rot identically). The note is now READ from
+the mark the page already loads, via `HOW_IDEAS_ENTER_PLACE`, and a falsifier forbids the page
+holding *any* copy of it. The same disease was in the law line (item 2b): `civic.mjs` gained
+`laneLaw`, which prefers the live pen body over the constant, and the ideas lane carries
+`lawFrom: "the-town/the-think-tank"`. **Named limit:** only lanes whose mark sits at
+`<household>/<slug>` can do this — `loadPlaceMarks` walks two levels, and the bounty board's and
+ballot house's marks are filed at `let-there-be-light/the-town-centre/…`, so their law lines stay
+constants. That limit is written in the code, not left as a gap.
+
+---
+
+## Tests — by name, versus base, same worktree
+
+| | tests | pass | fail | skipped |
+|---|---|---|---|---|
+| Base (`release/2026-w36.1`, six files flipped back) | 559 | 551 | 4 | 4 |
+| Branch | 570 | 561 | 4 | 5 |
+| Branch, with `dist-town` built | **570** | **566** | **4** | **0** |
+
+**Zero new failures by name.** The four are identical in both runs and all live in
+`test/extract-seam.test.mjs`, which reads a local town clone (`../postmark` /
+`../../seam-overnight/town-main`) — the known stale-local-fixture class, red on any dev machine.
+
+**+11 tests = exactly the new falsifiers** (5 reader/art, 5 hub content laws, 1 built-page);
+the +1 skip at the un-built measurement is that built-page law, which stops skipping once a build
+exists. Base measured by flipping the six files back **from a committed branch** — nothing
+uncommitted was ever at risk, and the tree was proved clean after.
+
+### Can-fail flips — 15 red, 1 apparatus fault caught
+
+- **6 hub content laws** red against the base page (the five new + the re-aimed holo law).
+- **9 per-law mutations** on the reader and the art, each verified applied to disk, tree proved
+  byte-identical after: `9/9 red, 0 apparatus faults`
+  (runner: scratchpad `civic-polish-w37-flips.mjs`).
+- **1 built-page flip.** My first attempt came back **GREEN** — and it was **my mutation**, not the
+  law: I injected the expansion with an HTML entity where the constant carries an em dash, so it
+  matched nothing. Re-done with the verbatim constant → **RED**, green again on restore.
+
+---
+
+## What the brief got wrong
+
+1. **`NODE_PATH=G:/postmark/site/node_modules` would have made every measurement in this lane
+   false.** That clone is on `main`, whose lockfile pins the world at `0c1aa924`, and its *installed*
+   tree is older still (`272ed4bb`) — three pins from this branch's `0b4616cc`, with **no
+   `WORLD/marks/the-town/` directory at all**. Every civic-quarter reading (which buildings stand,
+   the pen-vs-fold union, both mark bodies I now read) would have come back empty and looked like a
+   defect in my work. I ran the worktree's own `npm ci` instead, and verified the installed world
+   carries the pinned marks before trusting a single number.
+
+2. **The site has no light theme.** Item 5 says the tint "must hold contrast in light AND dark
+   theme; check both." There is no second theme to check: zero `prefers-color-scheme` and zero
+   `data-theme` in `src/` or `town/`. I held contrast on the one theme that exists and measured it
+   rather than eyeballing — the lane heading over its composited tint is **12.74:1 at worst** (AA
+   needs 4.5:1), reported per lane in the shot runner's output.
+
+3. **"`civic-art.mjs` already carries a per-lane palette from `src/styles/postmark.css`" is half
+   true.** The shared INK table is from `postmark.css` (all four asserted hexes are in it), but the
+   per-lane ACCENTS are **not**: only 3 of the 5 base accents appear there, and the lit/mid tones
+   appear nowhere. They are invented in `civic-art.mjs`, which is fine — it is still *one* source,
+   which is what the ruling needs — but "no new hex" means "no hex the art doesn't already use",
+   not "no hex the CSS doesn't already use". The falsifier asserts the former, channel for channel.
+
+4. **Item 1's "header sentence" is not a header.** The sentence he quoted is
+   `the-town/the-quest-guild`'s **mark body**, rendered as `<p class="c-soon">` *below* the
+   standings, near the bottom of the fold. There is exactly one instance of it on the page and I
+   removed it; naming this because "drop the header sentence" would send the next reader to the
+   lane's `<summary>`, which is a different thing and must stay.
+
+5. **Item 1's holo move needs nothing added to `/stamps/`.** The brief says move it there as "its
+   one home" — it is already there, in **three** fuller forms (the seam card, the minterest section,
+   the glossary entry), all reading the same constants. The hub's paragraph was the fourth copy.
+   Only the removal and a one-line pointer were needed.
+
+---
+
+## Things I found that are not mine
+
+1. ⚠ **Item 2a cannot be seen on dev, and Keemin should be told before he walks it.** Every
+   world-pin step in `deploy.yml` is gated on `channel == 'release'`. A train push takes the
+   **snapshot** lane, which builds the world from the branch's own `package.json` pin — and
+   `0b4616cc`'s fold carries **zero `class: idea` marks** (1023 marks, 0 ideas; so does site main's
+   `0c1aa924`). **The Think Tank on dev reads "The Think Tank is up, and empty."** The claim-twice
+   redundancy has no instance there. It appears when the release lane resolves `settlement/S51`,
+   which does carry the town's first idea (`wright/a-newcomers-first-hour`, planted 03:36Z today).
+   The before/after pair for that item was shot against S51's fold staged over the installed one —
+   which is what prod will read — and the fold was restored and re-verified afterwards.
+
+2. ⚠ **The vaulted dev recipe does not produce a signed-in lens on the site's own pages, and I
+   could not get one.** `POSTMARK-DEV-ACCESS.md` says setting `localStorage.pm_key` "is enough for
+   the signed-in lens" — that is the **world viewer's** shape. `PostmarkLayout.astro` (the top rail
+   on every page) reads **`pm.oauth.token`**. Seeding a well-formed one from the static fleet key
+   gets the handles cache to render `✦ jetto-of-starforge` and is then **undone**: the auth island
+   **401s three times** against the office and hides the pill back to "Sign in". So **my dev QA is
+   signed-OUT for the site chrome.** None of the five items is auth-gated — no changed text, order
+   or tint depends on a session — so the verdict stands; what I did not verify is the signed-in
+   chrome. The recipe wants a line about the site's token shape before the next lane trusts it.
+
+3. **28px of horizontal overflow at 420px** with all five lanes force-opened — **identical at
+   base**, so not mine. Not reachable by default (lanes ship shut but the board). Flagged, not
+   patched.
+
+4. **Removing the Bounty Board paragraph takes the hub's only door to "post an ask of your own."**
+   That was his ruling and I applied it; noting the consequence. `/stamps/#staking` still carries
+   "Posting a notice of your own" whole, and it is the better text — the struck paraphrase had
+   silently dropped the weight rule's *other than the mark's own* exclusion.
+
+5. **Four other lanes still hardcode their law lines** (`the-town/quest`, `the-town/bounty-lane`,
+   the marketplace's, the ballot's) and can go stale exactly as the ideas lane did. Three of the
+   four cannot be fixed the same way today, because their marks are filed deeper than
+   `loadPlaceMarks` walks. Reported rather than widened into — that is a reader change, not polish.
+
+---
+
+## Two of my own instruments were wrong before the page ever was
+
+Said plainly because both would have put a false finding in this report.
+
+- **The QA twin sliced element text to 160 characters and then judged it.** The Think Tank's law
+  line is 143 characters before its cite, so the window cut the cite off and "does the law name its
+  mark" reported a page that names it perfectly well as one that had lost it. I nearly filed it.
+  **An instrument that truncates the evidence and then rules on it invents findings** — the same
+  disease as one that cannot fail, pointed the other way.
+- **The dev probe read `stamp.sha`; the stamp's field is `code_sha`.** It reported a dev that was
+  serving this exact tip as one that was not. A probe naming the wrong field returns a false
+  negative just as silently.
+- (And Astro's dev toolbar sat across the pot cards in the first Guild shot. A QA shot with a widget
+  parked over the content can hide the thing it was taken to find; it is removed before anything is
+  measured.)
+
+---
+
+## Not done, and why
+
+- **No release tag** — the brief forbids it; prod waits for Keemin's walk.
+- **No world/law text touched.** Both mark bodies I now render are read, never edited.
+- **Nothing under `spectator/`, no `MAX_WINDOW`, no viewer/cockpit.**
