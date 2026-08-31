@@ -1,0 +1,277 @@
+// civic-art.mjs — the civic quarter's pixel art, drawn by hand in this file.
+//
+// FIVE BUILDINGS, ONE QUAY. Each sprite below is a character map: one character
+// per pixel, one string per row. You can read the building in the source — that
+// is the point. `paint()` turns a map into SVG <rect>s at build time, so the
+// page ships static markup and the browser runs nothing to see the town.
+//
+// WHY HAND-DRAWN AND NOT GENERATED. The founder's word, 2026-08-30: image
+// generation stays reserved for proper world marks. Nothing here is fetched,
+// generated, or borrowed — it is typed. That constraint is also why the maps
+// are small (24×24): a hand can hold a 24×24 building in its head and fix one
+// pixel without redrawing the roof.
+//
+// THE SCENE THE MAPS ARE DRAWING is the town centre's own sentence, quoted from
+// its world mark (`the-town/the-town-centre`):
+//
+//   "The lamplit quay where mail-houses lean over wet stone steps and stamping
+//    rooms glow amber — the one heart every address in Postmark bears from."
+//
+// So: night behind, amber in the windows, wet stone under everything. The
+// palette below is the town's own (src/styles/postmark.css) — no building
+// invents a hex that the site does not already wear.
+
+// ── the palette ──────────────────────────────────────────────────────────────
+// One shared ink table. A character means the same colour in every sprite, so a
+// building cannot quietly drift warm while its neighbour stays cold.
+//
+//   .  transparent      k  night outline     s  wet stone      S  stone, lit
+//   w  wall             W  wall, lamplit     d  doorway        g  window glow
+//   G  window glow, hot p  paper / plaque    t  timber
+//
+// and three that each building sets for itself, so the five read apart even in
+// the dark: `a` its accent, `A` that accent lit, `m` its mid tone.
+export const INK = {
+  k: "#070b15",
+  s: "#2f3a56",
+  S: "#465577",
+  w: "#443c30",
+  W: "#655741",
+  d: "#161c2b",
+  g: "#e8c48b",
+  G: "#f6dcae",
+  p: "#f7efdc",
+  t: "#7a5a3a",
+};
+
+const ACCENTS = {
+  quests: { a: "#a4632a", A: "#c9823d", m: "#6d4220" },
+  ideas: { a: "#4a5c8a", A: "#6d82b5", m: "#2f3c5c" },
+  bounties: { a: "#7a5a3a", A: "#9c7549", m: "#513b26" },
+  listings: { a: "#9c3f2e", A: "#c4553f", m: "#6a2a1f" },
+  votes: { a: "#65517f", A: "#8a72ab", m: "#433554" },
+};
+
+// ── the buildings ────────────────────────────────────────────────────────────
+// 24 wide, 24 tall, ground at row 21. Read them as pictures; that is what they
+// are. Row lengths are asserted below rather than trusted — a map one character
+// short skews every pixel after it and looks like a rendering bug.
+//
+// A MAST DRAWN IN `k` IS AN INVISIBLE MAST. Night ink on a night sky reads as
+// nothing, so the first draft's flagpoles and finials vanished and left their
+// one lit pixel hanging in the air like dirt on the screen. Anything that
+// stands against the sky is drawn in the building's own accent, never in
+// outline ink. Caught by looking at the render, which is the only thing that
+// could have caught it: the maps themselves were correct.
+
+// THE QUEST GUILD — a hall with a pennant and its asks nailed to the front.
+// The town's own asks hang where anyone crossing the quay can read them.
+const QUEST_GUILD = [
+  "..........a.............",
+  "..........aAAa..........",
+  "..........aAa...........",
+  "..........a.............",
+  "..........a.............",
+  "........kaaaaaak........",
+  "......kaaaaaaaaaak......",
+  "....kaaaaaaaaaaaaaak....",
+  "..kaaaaaaaaaaaaaaaaaak..",
+  ".kAAAAAAAAAAAAAAAAAAAAk.",
+  "..kwwwwwwwwwwwwwwwwwwk..",
+  "..kwGgwwwwwwwwwwwwgGwk..",
+  "..kwggwwwwwwwwwwwwggwk..",
+  "..kwwwwwppppppppwwwwwk..",
+  "..kwwwwwppppppppwwwwwk..",
+  "..kwwwwwppppppppwwwwwk..",
+  "..kwwwwwwwwwwwwwwwwwwk..",
+  "..kwwwwwwwddddwwwwwwwk..",
+  "..kwwwwwwwddddwwwwwwwk..",
+  "..kwwwwwwwddGdwwwwwwwk..",
+  "..kkkkkkkkkkkkkkkkkkkk..",
+  "..sSssssSsssssSssssSss..",
+  "........................",
+  "........................",
+];
+
+// THE THINK TANK — a domed lantern-room with a lit mast. One big warm window,
+// because an idea arriving is the only thing that happens here.
+const THINK_TANK = [
+  "...........G............",
+  "...........G............",
+  "..........AGA...........",
+  ".........kkkkk..........",
+  ".......kkaaaaakk........",
+  "......kaaaAAAaaak.......",
+  ".....kaaAAAAAAAaak......",
+  "....kaaAAAAAAAAAaak.....",
+  "....kmmmmmmmmmmmmmk.....",
+  "....kwwwwwwwwwwwwwk.....",
+  "....kwwwkGGGGGkwwwk.....",
+  "....kwwkGGGGGGGkwwk.....",
+  "....kwWkGGGGGGGkWwk.....",
+  "....kwWkGGGGGGGkWwk.....",
+  "....kwWwkGGGGGkwWwk.....",
+  "....kwWwwkkkkkwwWwk.....",
+  "....kwwwwwwwwwwwwwk.....",
+  "....kwwwwddddwwwwwk.....",
+  "....kwwwwddddwwwwwk.....",
+  "....kwwwwddGdwwwwwk.....",
+  "....kkkkkkkkkkkkkkk.....",
+  "..ssssSsssssSssssssS....",
+  "........................",
+  "........................",
+];
+
+// THE BOUNTY BOARD — the one that is genuinely a board. A plank face under a
+// little shingle hood, papers pinned all over it, and a lamp burning on the
+// post so a resident can still read the asks after the last ferry.
+const BOUNTY_BOARD = [
+  "........................",
+  "...aGa..................",
+  "...aGa..................",
+  "..kkkkkkkkkkkkkkkkkkkk..",
+  "..kaaaaaaaaaaaaaaaaaak..",
+  "..kAAAAAAAAAAAAAAAAAAk..",
+  "...kttttttttttttttttk...",
+  "...ktpppppttttttttttk...",
+  "...ktppppptpppppptttk...",
+  "...ktppppptpppppptttk...",
+  "...ktttttttpppppptttk...",
+  "...ktttttttpppppptttk...",
+  "...ktpppppppttttttttk...",
+  "...ktppppppptpppppttk...",
+  "...ktppppppptpppppttk...",
+  "...ktttttttttpppppttk...",
+  "...kttttttttttttttttk...",
+  "...kttttttttttttttttk...",
+  "...kttttttttttttttttk...",
+  "....tt..........tt......",
+  "..kkkkkkkkkkkkkkkkkkkk..",
+  "..sSssssSsssssSssssSss..",
+  "........................",
+  "........................",
+];
+
+// THE MARKETPLACE — a stall under a striped awning, crates at the front.
+// Lower and wider than its neighbours: a market is not a hall.
+const MARKETPLACE = [
+  "........................",
+  "........................",
+  "........................",
+  "...........a............",
+  "...........a............",
+  "..kkkkkkkkkkkkkkkkkkkk..",
+  "..kaaApaaApaaApaaApaak..",
+  "..kaaApaaApaaApaaApaak..",
+  "..kmmmmmmmmmmmmmmmmmmk..",
+  "..kwwwwwwwwwwwwwwwwwwk..",
+  "..kwwwkgggkwwkgggkwwwk..",
+  "..kwwwkGGGkwwkGGGkwwwk..",
+  "..kwwwkgggkwwkgggkwwwk..",
+  "..kwwwwwwwwwwwwwwwwwwk..",
+  "..kppppppppppppppppppk..",
+  "..kwwwwwwwwwwwwwwwwwwk..",
+  "..kwwtttwwwwwwwwtttwwk..",
+  "..kwwtttwwwwwwwwtttwwk..",
+  "..kwwwwwwwwwwwwwwwwwwk..",
+  "..kwwwwwwwwwwwwwwwwwwk..",
+  "..kkkkkkkkkkkkkkkkkkkk..",
+  "..sSssssSsssssSssssSss..",
+  "........................",
+  "........................",
+];
+
+// THE BALLOT HOUSE — a small civic hall with a portico. Columns, a pediment,
+// and one lit slot of a door: the town asking, and waiting.
+const BALLOT_HOUSE = [
+  "........................",
+  "..........A.............",
+  ".........AGA............",
+  "..........A.............",
+  "..........A.............",
+  "........kaaaak..........",
+  "......kaaaaaaaak........",
+  "....kaaaaaaaaaaaak......",
+  "..kaaaaaaaaaaaaaaaaak...",
+  "..kAAAAAAAAAAAAAAAAAk...",
+  "..kmmmmmmmmmmmmmmmmmk...",
+  "..kwWwwWwwWwwWwwWwwWk...",
+  "..kwWwwWwwWwwWwwWwwWk...",
+  "..kwWwwWwwWwwWwwWwwWk...",
+  "..kwWwwWwwWwwWwwWwwWk...",
+  "..kwWwwWwwWwwWwwWwwWk...",
+  "..kwwwwwwwwwwwwwwwwwk...",
+  "..kwwwwwwwdddwwwwwwwk...",
+  "..kwwwwwwwdGdwwwwwwwk...",
+  "..kwwwwwwwdddwwwwwwwk...",
+  "..kkkkkkkkkkkkkkkkkkk...",
+  "..sSssssSsssssSssssSs...",
+  "........................",
+  "........................",
+];
+
+export const SPRITES = {
+  quests: QUEST_GUILD,
+  ideas: THINK_TANK,
+  bounties: BOUNTY_BOARD,
+  listings: MARKETPLACE,
+  votes: BALLOT_HOUSE,
+};
+
+export const SPRITE_W = 24;
+export const SPRITE_H = 24;
+
+// A map with a short row skews every pixel after it, and the result reads as a
+// rendering bug rather than as a typo in a string. So the maps are checked, not
+// trusted — at paint time, where the message can still name the row.
+export function checkSprite(name, rows) {
+  const bad = [];
+  if (!Array.isArray(rows)) return [`sprite "${name}" is not a map`];
+  if (rows.length !== SPRITE_H) bad.push(`${rows.length} rows, expected ${SPRITE_H}`);
+  rows.forEach((r, i) => {
+    if (r.length !== SPRITE_W) bad.push(`row ${i} is ${r.length} chars, expected ${SPRITE_W}`);
+  });
+  return bad;
+}
+
+export function checkAllSprites() {
+  const out = {};
+  for (const [name, rows] of Object.entries(SPRITES)) {
+    const bad = checkSprite(name, rows);
+    if (bad.length) out[name] = bad;
+  }
+  return out;
+}
+
+// ── paint ────────────────────────────────────────────────────────────────────
+// One character map → a list of SVG rects, RUN-LENGTH MERGED along each row.
+// Merging is not a micro-optimisation: a 24×24 map is 576 candidate rects and
+// five of those on one page is a wall of markup for a picture. Runs of the same
+// ink become one rect, which cuts it by roughly four fifths and changes nothing
+// about what is drawn.
+export function paint(name) {
+  const rows = SPRITES[name];
+  if (!rows) throw new Error(`civic-art: no sprite named "${name}"`);
+  const bad = checkSprite(name, rows);
+  if (bad.length) throw new Error(`civic-art: sprite "${name}" is malformed — ${bad.join("; ")}`);
+  const ink = { ...INK, ...(ACCENTS[name] ?? {}) };
+
+  const rects = [];
+  rows.forEach((row, y) => {
+    let x = 0;
+    while (x < row.length) {
+      const ch = row[x];
+      let run = 1;
+      while (x + run < row.length && row[x + run] === ch) run++;
+      const fill = ink[ch];
+      // '.' is transparent by design; an UNKNOWN character is a typo in a map
+      // and must not paint silently as a hole in a wall.
+      if (ch !== "." && !fill) {
+        throw new Error(`civic-art: sprite "${name}" row ${y} uses ink "${ch}", which has no colour`);
+      }
+      if (fill) rects.push({ x, y, w: run, fill });
+      x += run;
+    }
+  });
+  return rects;
+}

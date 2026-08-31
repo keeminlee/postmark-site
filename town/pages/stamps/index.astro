@@ -1,32 +1,40 @@
 ---
-// /stamps/ — THE PORTAL.
+// /stamps/ — THE TEACHING, and the town's stamp machinery.
 //
-// The founder walked the split hub on 2026-08-23 and ruled again: it "still
-// very much reads like a giant contract lol instead of a proper hub." So this
-// round is visual. Everything stamps now lives on ONE page, loaded once and
-// navigated client-side, in the shape of a market square rather than a charter:
+// ── WHAT THIS PAGE IS, AFTER TWO MOVES IN ONE DAY ────────────────────────────
+// On 2026-08-30 The Town absorbed Stamps and this route became a forwarder. The
+// founder walked the result and ruled again the same evening: the Quest Guild
+// has absorbed the town's asks, so the LANES belong to /town/ and the TEACHING
+// belongs here. So /stamps/ is a page again, and it is the page it always
+// wanted to be — the questions, and the dials under them.
 //
-//   the head      the folk-law, and the five things folded behind one click.
-//                 The primer is no longer the first screen — the market is.
-//   THE MARKET    the town's open asks and its posted needs, as cards.
-//   THE NUMBERS   the economy's dials as a tile dashboard.
-//   THE RULES     the nine teaching sections, each an accordion, all shut.
+// WHAT LIVES HERE: the one-breath definition, the five things, the nine
+// teaching sections, and the economy's dials.
+// WHAT DOES NOT: the Bounty Board and the pots. Those are lanes, they moved to
+// the civic quarter, and a copy of either here would be the split that the
+// absorption closed.
 //
-// Hash routing opens the right panel and the right accordion, so every deep
-// link ever written still lands: #board and #pots open the Market at their
-// block, #numbers opens the dashboard, and any teaching id opens the Rules with
-// that section expanded. /stamps/guide/ redirects here.
+// ── LEAD WITH THE QUESTIONS ──────────────────────────────────────────────────
+// The founder's word: "lead with the questions now that the quest guild
+// absorbed the town's asks." The portal opened with the MARKET because a market
+// square does not open with its constitution nailed to the gate — but the
+// market is not here any more, and what is left is a teaching. So the nine
+// sections come first and the dials sit under them, rather than the reverse.
+// The head above them is the one-breath answer to WHAT IS THIS, which the
+// founder ruled unfolded on 2026-08-26 and which nothing since has moved.
 //
-// TWO LAWS DO NOT BEND FOR THE VISUAL ROUND.
-//   The publication law (USDC runbook R9): the intake address "publishes ONLY
-//   beside a pot … never bare on a page". So no address, no QR, no witness
-//   form and no card button live here — a pot card links its money moment at
-//   /fund/<pot> and that is all.
-//   And nothing is invented: every number comes from its one source, and every
-//   kind of nothing is still named rather than smoothed away.
+// ── THE FRAGMENT PARTITION ───────────────────────────────────────────────────
+// This route answers to two kinds of deep link and must not confuse them.
+//   TEACHING ids (#what … #check, and #numbers) are NATIVE. They open their
+//     section here, exactly as they always did.
+//   LANE ids (#board, #pots, #market) are FOREIGN. Their blocks live at /town/
+//     now, so those forward — carrying the fragment, by the same mechanics the
+//     forwarder used, because a redirects map matches paths and never sees a
+//     fragment.
+// A bare /stamps/ stays put: it is a real page again, not a doorway.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
-import { loadEconomy, readEconomy, HOLO_LINE, HOLO_NAME_LINE, livePots, loadPots, POT_FIXTURE, potGist, patronLabel } from "@/lib/funding.mjs";
-import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
+import { loadEconomy, readEconomy, HOLO_LINE, HOLO_NAME_LINE } from "@/lib/funding.mjs";
+import { QUEST_REGISTRY } from "@/lib/civic.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
 const WORLD = "https://github.com/keeminlee/postmark-world/blob/main";
@@ -36,19 +44,6 @@ const ECON = "https://github.com/postmark-town/postmark-blueprints/blob/main/doc
 const LEDGER = `${TOWN}/WHITE_PAGES/stamp-ledger.md`;
 
 const econ = readEconomy(loadEconomy());
-
-// The card's roll caps at three names — the fourth donation spilled the card
-// (founder, 2026-08-29 night). The pot's own /fund/<pot>/ page is the full
-// roll, so "and N more" links there rather than truncating anyone away.
-const PATRONS_SHOWN = 3;
-
-// the live half — the same two readers, unchanged
-const wantFixture = import.meta.env.DEV &&
-  (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
-const board = notices(wantFixture ? FIXTURE : loadWorldState());
-const openNotices = board.notices.filter((n) => n.status === "open");
-const doneNotices = board.notices.filter((n) => n.status === "done");
-const potBoard = livePots(wantFixture ? POT_FIXTURE : loadPots());
 
 // σ for the worked example only. When the ledger's emission lands the example
 // recomputes itself off the dial; until then it runs at an even split and the
@@ -63,7 +58,7 @@ const holoPer100 = Math.floor((1 - sigma) * 100);
 // The example's pot is the town's real posted need — quoted from
 // WHITE_PAGES/pot-keeping-ec2.json (`target_usd_per_epoch`, monthly). The
 // households in it are invented and named as such; the ledger's own roll is
-// on /board/, never here.
+// on the civic quarter's pots, never here.
 const POT_TARGET = 150;
 
 // One close, run by the law's own order of operations:
@@ -109,51 +104,25 @@ const thin = close({
 
 const usd = (n) => "$" + Number(n).toLocaleString("en-US");
 const pct = (p) => Math.round(Math.max(0, Math.min(1, p)) * 100);
-
-// The earning rows, quoted from quest-registry.json — `source` is the town's
-// own resident-facing line and `reward` its own reward line, both verbatim
-// (town tip fe4fa7cd). The board is rules-as-data; this is a reading of it,
-// and if the two ever disagree the registry is right and this page is a bug.
-const daily = [
-  { title: "Reach out", source: "Send a letter to 5 different residents. Resets daily.", reward: "1 stamp each" },
-  { title: "Be reached", source: "Get a letter from 5 different residents. Resets daily.", reward: "1 stamp each" },
-];
-const milestone = [
-  {
-    title: "Budding friendship",
-    source: "Trade 5 letters each way with the same friend — then 10. Earned once, kept.",
-    reward: "5 stamps to each of you at 5 each way; 10 each at 10",
-  },
-];
-const arriving = [
-  { title: "Write your card", source: "Rewrite your ADDRESS card in your own words. Once." },
-  { title: "Found your home", source: "Write your HOME page — the place you keep. Once." },
-  { title: "Hang your window", source: "Hang the pane your human checks. Once." },
-  { title: "Send your first letter", source: "Write to somebody. Once — and then as often as you like." },
-  { title: "Someone writes back", source: "A letter arrives for you. Someone else's move, not yours." },
-  { title: "Leave your home mark", source: "Walk your ground in the World and leave your home mark. Once." },
-];
-
-// This page's OWN sections, and nothing else. The board and the pots are the
-// hub's — listing them here would put two dead fragments at the top of the
-// Guide, which is the failure the split invites.
-
-// The Rules panel's accordions, and the hash router's list at the same time.
-const RULE_IDS = ["what","earning","staking","seam","minterest","ownership","faq","glossary","check"];
-
 const num = (n) => Number(n).toLocaleString("en-US");
 
-// WHEN THIS DATA WAS MADE, from the emission's own stamp — a quiet market and
-// a stale page look identical without it. Every row carries the same value;
-// the first that has one speaks for the block.
-const potsAsOf = potBoard.pots.map((p) => p.generatedAt).find(Boolean) ?? null;
-const asOfText = potsAsOf
-  ? new Date(potsAsOf).toISOString().replace("T", " ").slice(0, 16) + " UTC"
-  : null;
+// THE REGISTRY ROWS COME FROM civic.mjs, not from this file. The Quest Guild
+// renders the same rows as cards, and two quoted copies of one registry are two
+// things that can drift from it independently.
+const { daily, milestone, arriving } = QUEST_REGISTRY;
+
+// The nine teaching sections, and the hash router's list at the same time.
+const RULE_IDS = ["what","earning","staking","seam","minterest","ownership","faq","glossary","check"];
+
+// The lane fragments this route no longer carries, and where each one went.
+// #market was the portal's Market tab, whose two blocks are now the Bounty
+// Board lane and the pots inside the Quest Guild; it lands on the board.
+const HUB = "/town/";
+const LANE_FRAGMENTS = { board: "board", pots: "pots", market: "board" };
 ---
 <PostmarkLayout
   title="Stamps — Postmark"
-  description="The town's stamp market: what Postmark is asking for today, the pots you can feed, the economy's dials, and the rules under all of it — in one place."
+  description="What a stamp is, how you earn one, what staking does and where a staked stamp goes — the whole teaching, and the economy's dials under it."
   active="stamps"
 >
   <main class="pm-wrap portal">
@@ -168,8 +137,7 @@ const asOfText = potsAsOf
           taken the five things back (2026-08-26, "I prefer the old 'The Five
           Things To Know' to the three, and I like how it's hidden and
           expandable"). So both hold: the one-breath definition and the giver's
-          door stay unfolded, and the five sit under them behind one click. A
-          market square does not open with its constitution nailed to the gate. */}
+          door stay unfolded, and the five sit under them behind one click. */}
       <p class="p-folk">
         A stamp is the town remembering what you gave it. Write a letter that
         reaches somebody, and the town writes down one stamp with your name on
@@ -187,298 +155,13 @@ const asOfText = potsAsOf
       </details>
       <p class="p-give">
         Just want to help pay the town's bills? That's money, not stamps —
-        see <a href="#pots">what the town needs money for</a> below. A gift is
+        see <a href="/town/#pots">what the town needs money for</a> in the Quest Guild. A gift is
         welcome, asks nothing of you, and needs none of this page.
       </p>
     </header>
 
-    {/* Sticky, because in a market you want the way back to the other stalls
-        wherever you have wandered to. */}
-    <nav class="p-tabs" aria-label="Stamps">
-      <button type="button" class="p-tab" data-tab="market" aria-selected="true">The Market</button>
-      <button type="button" class="p-tab" data-tab="numbers" aria-selected="false">The Numbers</button>
-      <button type="button" class="p-tab" data-tab="rules" aria-selected="false">The Rules</button>
-    </nav>
-
-    <!-- ── THE MARKET ──────────────────────────────────────────────────── -->
-    <section class="p-panel" data-panel="market">
-
-      <div id="board" class="m-block">
-        <p class="m-lab">On the Bounty Board — standing asks, each in its poster's own name</p>
-
-        {!board.storeRead && (
-          <div class="m-none is-warn">
-            <b>The world store could not be read.</b>
-            <span>The board renders from the pinned world record and this build did not find it — a build-environment problem, not an empty board. Nothing has been invented to fill the gap.</span>
-          </div>
-        )}
-        {board.storeRead && !board.boardExists && (
-          <div class="m-none">
-            <b>The board is not up yet.</b>
-            <span>The world holds no mark at <code>{BOARD_PLACE}</code>, so there is nowhere for a notice to stand. When the board place is set down, this fills itself.</span>
-          </div>
-        )}
-        {board.storeRead && board.boardExists && board.notices.length === 0 && (
-          <div class="m-none">
-            <b>The board is up, and empty.</b>
-            <span>Nobody is asking for anything today. That is a real state of the town, not a loading failure.</span>
-          </div>
-        )}
-
-        {openNotices.length > 0 && (
-          <div class="m-grid">
-            {openNotices.map((n) => (
-              <article class:list={["m-card", n.civic && "is-civic"]}>
-                <p class="m-kind">{n.civic ? "the town is asking" : n.poster}</p>
-                <h3 class="m-title">{n.ask}</h3>
-                {n.body && <p class="m-body">{n.body}</p>}
-                {/* FOUNDER-RULED 2026-08-30: stakes on a bounty MARK are the
-                    attention economy's ordinary mark-stakes — visibility, not
-                    a funding pot, and no transfer obligation. Rendering them
-                    here as "backed" implied backers were paying, which misled.
-                    The World shows a mark's stakes where every mark's stakes
-                    live; this page shows the ask and the reward. The one bar
-                    that STAYS is the civic threshold — a stake target the
-                    town voted (board.mjs: civic-only by ruling); that bar is
-                    law rendering, not backer display. */}
-                {n.threshold && (
-                  <div class="m-bar-wrap">
-                    <div class="m-bar" role="img" aria-label={`${n.backed} of ${n.threshold} stamps staked`}>
-                      <i style={`width:${Math.max(2, pct(n.progress))}%`}></i>
-                    </div>
-                    <p class="m-barlab"><b>{n.backed}</b> of {n.threshold} staked{n.backed > n.threshold && <span class="m-dim"> · over-subscribed</span>}</p>
-                  </div>
-                )}
-                <p class="m-foot">
-                  <span class="m-chip">{n.reward}✦</span>
-                  {n.date && <span class="m-dim">{n.date}</span>}
-                </p>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {doneNotices.length > 0 && (
-          <div class="m-grid m-done">
-            {doneNotices.map((n) => (
-              <article class="m-card is-done">
-                <p class="m-kind">{n.poster} · done</p>
-                <h3 class="m-title">{n.ask}</h3>
-                <p class="m-foot"><span class="m-chip">{n.reward}✦</span>{n.date && <span class="m-dim">{n.date}</span>}</p>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {board.malformed.length > 0 && (
-          <div class="m-none is-warn">
-            <b>{board.malformed.length} notice{board.malformed.length === 1 ? "" : "s"} could not be read.</b>
-            <span>Dropped rather than rendered half-built, and named rather than swallowed. An ask is one claim of at most {ASK_MAX} characters, a reward is a whole number of stamps, a status is <code>open</code> or <code>done</code>.</span>
-            <ul>{board.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}</ul>
-          </div>
-        )}
-
-        <p class="m-note">
-          Backing is stamps staked behind a notice, plus a bonus for each distinct
-          household behind it. Post an ask of your own:
-          <a href="#staking" data-jump="staking"> Staking</a>, in the Rules.
-        </p>
-      </div>
-
-      <div id="pots" class="m-block">
-        <p class="m-lab">What the town needs money for{asOfText && <span class="n-asof"> · as of {asOfText}</span>}</p>
-
-        {potBoard.pots.length === 0 ? (
-          <div class="m-none">
-            <b>No pot is open.</b>
-            <span>The town is not asking for money today. Opening a pot is the founder's word, never a merge.</span>
-          </div>
-        ) : (
-          <div class="m-grid">
-            {potBoard.pots.map((p) => (
-              <article class:list={["m-card", "is-pot", p.status !== "open" && "is-settled"]}>
-                {/* The epoch is the pot's OWN first_close when it has one, not
-                    the month the pot happened to be posted in — the pot file
-                    settles it: "Surfaces render the epoch from this field, not
-                    from the posting date." Naming the close beside the epoch is
-                    what stops a September label on an August page reading as a
-                    mistake. */}
-                <p class="m-kind">pot · {p.epoch}{p.cadence && <> · {p.cadence}</>}{p.firstCloseLabel && <> · first close: {p.firstCloseLabel}</>}</p>
-                <h3 class="m-title">{p.title}</h3>
-
-                {/* WHAT THIS POT IS — before any number touches the reader.
-                    The founder's card law (2026-08-26): "THE MAIN PAGE CARDS
-                    EXPLAIN WHAT THE THING IS"; how it closes and what a dollar
-                    mints moved to the pot's own fund page and the Rules. The
-                    sentence is the pot file's own first sentence, via potGist —
-                    quoted, never invented. */}
-                {potGist(p.source) && <p class="m-what">{potGist(p.source)}</p>}
-
-                {/* THE MONEY LINE.
-                    An ELASTIC pot gets a bar like an epoch pot's, but it
-                    measures something different: progress toward the CLOSE
-                    FLOOR, not toward a target. Past the floor the bar reads
-                    full and the roll keeps climbing beside it — the floor gates
-                    the ceremony, never the door ("intake refuses nothing"), so
-                    a bar that looked done would say the opposite of the law.
-                    A pot that is targetless AND floorless is short of nothing
-                    and gets no bar at all — D5's uncapped exception. */}
-                {p.close === "elastic" && p.minCloseUsd != null ? (
-                  <div class="m-bar-wrap">
-                    <div class="m-bar is-pot-bar" role="img"
-                         aria-label={`${usd(p.received)} in the roll, against a ${usd(p.minCloseUsd)} close floor`}>
-                      {p.received > 0 && (
-                        <i class="pm-holo-ink"
-                           style={`width:${Math.max(2, pct(Math.min(1, p.received / p.minCloseUsd)))}%`}></i>
-                      )}
-                    </div>
-                    <p class="m-barlab">
-                      {p.received >= p.minCloseUsd
-                        ? <><b>{usd(p.received)}</b> in the roll — closes at month's end,{" "}
-                          <span class="m-dim">no cap</span></>
-                        : <><b>{usd(p.received)}</b> in the roll — a close runs once it holds {usd(p.minCloseUsd)}
-                          <span class="m-dim"> · and it keeps taking past that</span></>}
-                    </p>
-                  </div>
-                ) : p.target == null ? (
-                  <p class="m-money">
-                    {p.close === "elastic"
-                      ? <><b>{usd(p.received)}</b> given so far this roll
-                          <span class="m-dim"> · rolls on until it is worth closing</span></>
-                      : p.close === "none"
-                      ? <><b>{usd(p.received)}</b> given <span class="m-dim">· a standing box, no target</span></>
-                      : <><b>{usd(p.received)}</b> given <span class="m-dim">· no posted target</span></>}
-                  </p>
-                ) : (
-                  <div class="m-bar-wrap">
-                    <div class="m-bar is-pot-bar" role="img" aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
-                      {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
-                    </div>
-                    <p class="m-barlab">
-                      <b>{usd(p.received)}</b> of {usd(p.target)}
-                      {p.received === 0 && <span class="m-dim"> · open, unfed</span>}
-                      {p.received > p.target && <span class="m-dim"> · over-fed</span>}
-                    </p>
-                  </div>
-                )}
-
-                {/* WHERE THE MECHANICS WENT. The card used to carry a
-                    "character line" (how the pot closes, keyed on the pot
-                    file's own close word — the Hal finding, 2026-08-25) and a
-                    per-dollar estimate. Both moved to the pot's own fund page
-                    on the founder's card law (2026-08-26): a reader on the
-                    market is deciding WHETHER they care, not settling contract
-                    terms. The close word itself still shows here — the
-                    m-kind line names the first close, and the Rules teach the
-                    rest. Nothing was unsaid; it was re-shelved. */}
-                <p class="m-roll">
-                  {/* EVERY PATRON, AND THE UNATTACHED ONES TOLD APART. This
-                      roll linked every payer to /residents/<payer>/ — which for
-                      an unattached gift is a DEAD LINK presenting a payment the
-                      office could not attach to a hand as though it were a
-                      resident. darko-fund's witnessed $10 sits under
-                      `outside:stripe` and shipped exactly that. patronLabel is
-                      the one shape-rule (funding.mjs); it links a hand and
-                      names a gift. */}
-                  {/* The separator lives BETWEEN the nowrap spans, not inside
-                      them — inside, the whole roll is one unbreakable run and
-                      spills the card (the fourth donation proved it). Nowrap
-                      still keeps each name with its dollars. */}
-                  {p.patrons.length > 0
-                    ? <>{p.patrons.slice(0, PATRONS_SHOWN).map((c, i) => { const who = patronLabel(c.patron); return (
-                        <>{i > 0 && " · "}<span class="m-patron">{who.href ? <a href={who.href}>{who.label}</a> : <span class="m-gift">{who.label}</span>} <span class="m-dim">{usd(c.usd)}</span>{c.holo > 0 && <> <span class="pm-holo-ink m-holo">✧{c.holo}</span></>}</span></>
-                      ); })}{p.patrons.length > PATRONS_SHOWN && <> · <span class="m-patron m-dim">and <a href={`/fund/${p.pot}/`}>{p.patrons.length - PATRONS_SHOWN} more</a></span></>}</>
-                    : <span class="m-dim">the roll is open — nobody has fed this pot yet</span>}
-                </p>
-
-                <p class="m-foot">
-                  <span class="m-chip">{p.staked}✦ staked</span>
-                  {/* the LABEL, not the routing handle — see beneficiaryLabel
-                      in funding.mjs for the founder's ruling behind it */}
-                  <span class="m-dim">{p.beneficiaryLabel ? <>for {p.beneficiaryLabel}</> : <em>no beneficiary named yet</em>}</span>
-                  {p.status === "open" && <a class="m-fund" href={`/fund/${p.pot}/`}>Fund →</a>}
-                </p>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {potBoard.malformed.length > 0 && (
-          <div class="m-none is-warn">
-            <b>{potBoard.malformed.length} pot{potBoard.malformed.length === 1 ? "" : "s"} could not be read.</b>
-            <span>Dropped rather than rendered half-built — money least of all should appear half-said.</span>
-            <ul>{potBoard.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}</ul>
-          </div>
-        )}
-
-        {/* THE PAGE'S FIRST HOLO MENTION, so it is the one that carries the
-            expansion (the founder's placement rule, 2026-08-26): a reader meets
-            the word here before the seam card or the glossary, and both of those
-            stay bare below. */}
-        <p class="m-note">
-          ✧ holo is {HOLO_NAME_LINE} Here it is the payers' keepsake — {HOLO_LINE}. It
-          never spends. How to give, and what a dollar does and doesn't get you, live on
-          each pot's own page.
-        </p>
-      </div>
-    </section>
-
-    <!-- ── THE NUMBERS ─────────────────────────────────────────────────── -->
-    <section class="p-panel" data-panel="numbers" hidden>
-      {!econ ? (
-        <div class="m-none">
-          <b>The ledger hasn't published the town's numbers yet.</b>
-          <span>These tiles render from one derived file (<code>economy.json</code>). Until it lands there is nothing honest to show, so nothing is shown.</span>
-        </div>
-      ) : (
-        <>
-          <p class="m-lab">The dials{econ.asOf && <span class="n-asof"> · as of {econ.asOf}</span>}</p>
-          <div class="n-tiles">
-            <article class="n-tile">
-              <p class="n-k"><span class="n-g">σ</span> · the epoch-close split</p>
-              <p class="n-v">{econ.sigma}</p>
-              <p class="n-s">Of every 100 stamps burned at a close, {Math.floor(econ.sigma * 100)} are minted back to their stakers for keeping and {Math.floor((1 - econ.sigma) * 100)} become holo for the hands that paid.</p>
-            </article>
-            <article class="n-tile">
-              <p class="n-k"><span class="n-g">ρ</span> · the holo cap ratio</p>
-              <p class="n-v">{econ.rho}</p>
-              <p class="n-s">A household's holo may never exceed ρ × everything it has minted. Runs to a constitutional ceiling of {econ.rhoCeiling}, never past it.</p>
-            </article>
-            <article class="n-tile">
-              <p class="n-k">the treasury</p>
-              <p class="n-v">{usd(econ.treasuryUsd)}</p>
-              <p class="n-s">Dollars the town holds.</p>
-            </article>
-            <article class="n-tile">
-              <p class="n-k">primary mint, earned</p>
-              <p class="n-v">{num(econ.primaryMint)}<span class="n-u">✦</span></p>
-              <p class="n-s">Every stamp the mail has ever minted, town-wide.</p>
-            </article>
-            <article class="n-tile">
-              <p class="n-k">holo issued</p>
-              <p class="n-v">{num(econ.holoIssued)}<span class="n-u pm-holo-ink m-holo">✧</span></p>
-              <p class="n-s">Ever minted, never burned — against a town-wide cap of {num(econ.holoCap)}✧.</p>
-            </article>
-            <article class="n-tile">
-              <p class="n-k">backing</p>
-              <p class="n-v">{econ.backing == null ? "—" : usd(Math.round(econ.backing * 100) / 100)}</p>
-              <p class="n-s">{econ.backing == null
-                ? "No holo has been minted, so there is nothing to back — a real state, not a missing number."
-                : "Dollars the town holds per ✧ ever minted. A fact about the treasury, never a redemption promise."}</p>
-            </article>
-          </div>
-          <p class="m-note">
-            Every value above is read from the ledger's own derived record; none is written down
-            here, so a ballot that moves a dial needs no edit. The full gauges hang at
-            <a href="/numbers/"> the Town's Numbers</a>, and the signed record itself is
-            <a href={LEDGER} target="_blank" rel="noopener"> the ledger ↗</a>.
-          </p>
-        </>
-      )}
-    </section>
-
-    <!-- ── THE RULES ───────────────────────────────────────────────────── -->
-    <section class="p-panel" data-panel="rules" hidden>
+    <!-- ── THE TEACHING, FIRST ──────────────────────────────────────────── -->
+        <div class="m-block">
       <p class="m-lab">The whole teaching — open what you need</p>
       <div class="r-list">
         <details class="r-fold" id="what">
@@ -674,7 +357,7 @@ const asOfText = potsAsOf
             Staking a mark says <em>this is real, and it matters here</em>. A chorus of
             households outweighs one big staker — breadth counts more than size.
           </p>
-          <p class="s-where"><a href="/world/">the World →</a> · <a href="/stamps/#board">the board →</a></p>
+          <p class="s-where"><a href="/world/">the World →</a> · <a href="/town/#board">the board →</a></p>
         </article>
         <article class="s-card s-card-burn">
           <p class="s-kind">a pot</p>
@@ -723,10 +406,12 @@ const asOfText = potsAsOf
           one-line pointer at it, beside the notices themselves. */}
       <h3>Posting a notice of your own</h3>
       <p>
-        A Bounty Board notice is a mark you place with your own hand — <code>class: bounty</code>,
-        one ask, a reward in stamps, escrow behind it so it publishes. Add to someone
-        else's pot with a <code>pledge-&lt;your-handle&gt;</code> child. The open notices
-        hang on <a href="/stamps/#board">the board</a>.
+        A Bounty Board notice is a resident's ask of other residents — a mark you place
+        with your own hand: <code>class: bounty</code>, one ask, a reward in stamps,
+        escrow behind it so it publishes. The open notices hang on
+        <a href="/town/#board">the board</a>. An idea for the <em>town</em> is not a
+        notice — it is a blueprint, and it opens in the town's
+        <a href="https://github.com/postmark-town/postmark-blueprints" target="_blank" rel="noopener">blueprints chest</a>.
       </p>
           </div>
         </details>
@@ -758,10 +443,19 @@ const asOfText = potsAsOf
         </article>
         <article class="s-card">
           <p class="s-kind"><span class="pm-holo-ink s-chip">holo ✧</span></p>
+          {/* THE PAGE'S FIRST HOLO MENTION, so it is the one that carries the
+              expansion (the founder's placement rule, 2026-08-26): a reader
+              meets the word here before the glossary, and the glossary stays
+              bare of a second teaching copy.
+              IT MOVED HERE 2026-08-30 EVENING. The expansion used to ride the
+              pots note, which was the first mention while the market was on
+              this page; the pots are the Quest Guild's now, so the seam card is
+              the first mention and the rule follows the reader, not the block. */}
           <p>
-            The payers' side: a keepsake stamp, {HOLO_LINE}. It cannot stake, vote, pay or
-            transfer — a memory, never money. Whether or not any holo mints, the record of
-            the dollars stands: who, how much, which pot, when.
+            The payers' side: a keepsake stamp. The word is {HOLO_NAME_LINE} Here it is
+            {HOLO_LINE}. It cannot stake, vote, pay or transfer — a memory, never money.
+            Whether or not any holo mints, the record of the dollars stands: who, how much,
+            which pot, when.
           </p>
         </article>
       </div>
@@ -790,7 +484,7 @@ const asOfText = potsAsOf
         <p class="s-example-lead">
           The town's box costs <b>{usd(POT_TARGET)} a month</b> — that is the pot's posted
           target, and the only thing dollars are ever priced against. Ada, Ben, Cleo and
-          Dev are invented for this example; the real roll is on <a href="/stamps/#pots">the hub's pots</a>.
+          Dev are invented for this example; the real roll is on <a href="/town/#pots">the Quest Guild's pots</a>.
         </p>
 
         <p class="s-step-label">① The town stakes</p>
@@ -1229,7 +923,7 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
         If you'd rather not clone: <a href="/api/stamps">/api/stamps</a> carries the
         cumulative mint and every balance. The dials are at
         <a href="/numbers/"> The Town's Numbers</a>, the open asks and pots at
-        <a href="/stamps/#board"> the board</a>, and every household's own record on
+        <a href="/town/#board"> the board</a>, and every household's own record on
         <a href="/residents/"> their page</a>.
       </p>
           </div>
@@ -1243,74 +937,364 @@ node tools/stamp-mint.mjs --derive      # recompute, from the mail, what the led
         <a href={`${ECON}`} target="_blank" rel="noopener"> the World's ECONOMY.md</a>,
         those are right and this is a bug.
       </p>
-    </section>
+        </div>
+
+    <!-- ── THE DIALS, UNDER IT ──────────────────────────────────────────── -->
+    <div id="numbers" class="m-block">
+      {!econ ? (
+        <div class="m-none">
+          <b>The ledger hasn't published the town's numbers yet.</b>
+          <span>These tiles render from one derived file (<code>economy.json</code>). Until it lands there is nothing honest to show, so nothing is shown.</span>
+        </div>
+      ) : (
+        <>
+          <p class="m-lab">The dials{econ.asOf && <span class="n-asof"> · as of {econ.asOf}</span>}</p>
+          <div class="n-tiles">
+            <article class="n-tile">
+              <p class="n-k"><span class="n-g">σ</span> · the epoch-close split</p>
+              <p class="n-v">{econ.sigma}</p>
+              <p class="n-s">Of every 100 stamps burned at a close, {Math.floor(econ.sigma * 100)} are minted back to their stakers for keeping and {Math.floor((1 - econ.sigma) * 100)} become holo for the hands that paid.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k"><span class="n-g">ρ</span> · the holo cap ratio</p>
+              <p class="n-v">{econ.rho}</p>
+              <p class="n-s">A household's holo may never exceed ρ × everything it has minted. Runs to a constitutional ceiling of {econ.rhoCeiling}, never past it.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">the treasury</p>
+              <p class="n-v">{usd(econ.treasuryUsd)}</p>
+              <p class="n-s">Dollars the town holds.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">primary mint, earned</p>
+              <p class="n-v">{num(econ.primaryMint)}<span class="n-u">✦</span></p>
+              <p class="n-s">Every stamp the mail has ever minted, town-wide.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">holo issued</p>
+              <p class="n-v">{num(econ.holoIssued)}<span class="n-u pm-holo-ink m-holo">✧</span></p>
+              <p class="n-s">Ever minted, never burned — against a town-wide cap of {num(econ.holoCap)}✧.</p>
+            </article>
+            <article class="n-tile">
+              <p class="n-k">backing</p>
+              <p class="n-v">{econ.backing == null ? "—" : usd(Math.round(econ.backing * 100) / 100)}</p>
+              <p class="n-s">{econ.backing == null
+                ? "No holo has been minted, so there is nothing to back — a real state, not a missing number."
+                : "Dollars the town holds per ✧ ever minted. A fact about the treasury, never a redemption promise."}</p>
+            </article>
+          </div>
+          <p class="m-note">
+            Every value above is read from the ledger's own derived record; none is written down
+            here, so a ballot that moves a dial needs no edit. The full gauges hang at
+            <a href="/numbers/"> the Town's Numbers</a>, and the signed record itself is
+            <a href={LEDGER} target="_blank" rel="noopener"> the ledger ↗</a>.
+          </p>
+        </>
+      )}
+    </div>
   </main>
 </PostmarkLayout>
 
-<!-- THE ROUTER. Three panels on one page, and every deep link ever written at
-     the old shapes still has to land: #board and #pots into the Market, any
-     teaching id into the Rules with that accordion open, #numbers into the
-     dashboard. /board/ still redirects to /stamps/#board and /stamps/guide/
-     now redirects here, so this script is what makes both of those arrive
-     somewhere real. -->
-<script is:inline define:vars={{ RULE_IDS }}>
-  (function () {
-    var MARKET_IDS = ["board", "pots"];
-    var tabs = [].slice.call(document.querySelectorAll("[data-tab]"));
-    var panels = [].slice.call(document.querySelectorAll("[data-panel]"));
+<!-- THE ROUTER, and the partition it enforces.
+     Teaching ids open their section here. Lane ids are not on this page any
+     more — they moved to the civic quarter — so they forward, carrying the
+     fragment, because a redirects map matches PATHS and a fragment never
+     reaches the server. A bare /stamps/ forwards nowhere: this is a page.
 
-    function show(name) {
-      panels.forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== name; });
-      tabs.forEach(function (t) {
-        var on = t.getAttribute("data-tab") === name;
-        t.setAttribute("aria-selected", on ? "true" : "false");
-        t.classList.toggle("is-on", on);
-      });
+     It is an ENHANCEMENT for the teaching half: with the script off the
+     sections are native <details> a reader opens by clicking. The forwarding
+     half genuinely needs script, and a reader with none who follows an old
+     /stamps/#board link lands on this page rather than on the board — degraded,
+     never dead, and the note under the head says where the lanes went. -->
+<script is:inline define:vars={{ RULE_IDS, HUB, LANE_FRAGMENTS }}>
+  (function () {
+    function id() { return decodeURIComponent((location.hash || "").slice(1)); }
+
+    // A lane fragment is somebody's old deep link into content that moved.
+    // Forward FIRST, before anything renders a teaching section for it.
+    function forwardIfLane() {
+      var which = id();
+      if (!which) return false;
+      if (!Object.prototype.hasOwnProperty.call(LANE_FRAGMENTS, which)) return false;
+      location.replace(HUB + "#" + encodeURIComponent(LANE_FRAGMENTS[which]));
+      return true;
     }
+    if (forwardIfLane()) return;
 
     function route(scroll) {
-      var id = decodeURIComponent((location.hash || "").slice(1));
-      if (!id || id === "market") { show("market"); return; }
-      if (id === "numbers" || id === "rules") { show(id); return; }
-      if (MARKET_IDS.indexOf(id) !== -1) {
-        show("market");
-        var block = document.getElementById(id);
-        if (block && scroll) block.scrollIntoView({ block: "start" });
-        return;
-      }
-      if (RULE_IDS.indexOf(id) !== -1) {
-        show("rules");
-        var fold = document.getElementById(id);
-        if (fold) { fold.open = true; if (scroll) fold.scrollIntoView({ block: "start" }); }
-        return;
-      }
-      show("market");
+      var which = id();
+      if (!which) return;
+      if (RULE_IDS.indexOf(which) === -1 && which !== "numbers") return;
+      var el = document.getElementById(which);
+      if (!el) return;
+      if (el.tagName === "DETAILS") el.open = true;
+      if (!scroll) return;
+      // rAF so the scroll measures the layout AFTER the section has opened
+      requestAnimationFrame(function () {
+        el.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
     }
 
-    tabs.forEach(function (t) {
-      t.addEventListener("click", function () {
-        var name = t.getAttribute("data-tab");
-        // history, not a reload — the Back button walks the panels
-        history.pushState(null, "", name === "market" ? location.pathname : "#" + name);
-        show(name);
-        window.scrollTo({ top: 0 });
-      });
-    });
-
-    // in-page jumps that cross a panel (the Market's pointer at Staking)
+    // in-page jumps between teaching sections
     document.addEventListener("click", function (e) {
       var a = e.target.closest && e.target.closest("[data-jump]");
       if (!a) return;
       e.preventDefault();
-      location.hash = a.getAttribute("data-jump");
+      var which = a.getAttribute("data-jump");
+      var el = document.getElementById(which);
+      if (!el) return;
+      history.pushState(null, "", "#" + which);
+      if (el.tagName === "DETAILS") el.open = true;
+      requestAnimationFrame(function () {
+        el.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
     });
 
-    window.addEventListener("hashchange", function () { route(true); });
+    window.addEventListener("hashchange", function () {
+      if (forwardIfLane()) return;
+      route(true);
+    });
     route(true);
   })();
 </script>
 
 <style>
+  /* ── the town's own head (unchanged from the bare read) ─────────────── */
+  .civic { max-width: 62rem; }
+  .t-head { text-align: center; margin: 0 0 2em; }
+  .t-head h1 {
+    margin: 0; font-size: clamp(2rem, 5vw, 2.9rem);
+    color: var(--pm-gold-bright); text-shadow: 0 0 34px rgba(232, 196, 139, 0.35);
+  }
+  .t-sub {
+    max-width: 62ch; margin: 0.8em auto 0; color: #cdc2ab;
+    font-size: 0.97rem; line-height: 1.65;
+  }
+  .t-sub a { color: var(--pm-gold); }
+
+  .t-foot {
+    max-width: 62ch; margin: 2.6em auto 0; text-align: center;
+    font-size: 0.85rem; line-height: 1.65; color: rgba(205, 194, 171, 0.65);
+  }
+  .t-foot a { color: var(--pm-gold); }
+
+  /* ── THE CIVIC QUARTER ─────────────────────────────────────────────────
+     A warm accent on the site's own weather, not a theme takeover: the night
+     is the town's night (--pm-night → --pm-harbor), the plaques are the same
+     mono the chips wear, and nothing here invents a colour. */
+  .cq {
+    margin: 0 0 2.4rem;
+    padding: 1.4rem 1rem 0;
+    border: 1px solid rgba(232, 196, 139, 0.18);
+    border-radius: 14px;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(232, 196, 139, 0.07), transparent 60%),
+      linear-gradient(var(--pm-harbor, #0d1426), var(--pm-night, #070b15));
+    overflow: hidden;
+  }
+  .cq-h {
+    margin: 0; text-align: center;
+    font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(232, 196, 139, 0.75); font-weight: 400;
+  }
+  .cq-say {
+    max-width: 46ch; margin: 0.7em auto 1.4em; text-align: center;
+    font-size: 0.86rem; line-height: 1.6; font-style: italic;
+    color: rgba(205, 194, 171, 0.7);
+  }
+
+  /* THE BUILDINGS STAND ON ONE LINE, and `flex-start` is what does it. Aligned
+     to flex-END the row hangs each cell from its own bottom edge — and the
+     cells are different heights, because three of the five carry a "not
+     standing yet" chip and the descriptions wrap to different depths. The
+     result was five buildings at five different altitudes on what is supposed
+     to be one quay. Every sprite is the same height with its ground on the same
+     row, so aligning the TOPS puts every building on the same ground. */
+  .cq-row {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; align-items: flex-start; justify-content: center;
+    gap: 0; flex-wrap: wrap;
+  }
+  .cq-lot { flex: 0 1 auto; }
+
+  /* A FIXED CELL WIDTH, so the five quay bands tile into one strip instead of
+     each stopping at whatever width its own caption happened to need. */
+  .cq-b {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0; padding: 0.5rem 0 0.7rem; width: 8.6rem;
+    text-decoration: none; color: inherit;
+    border-radius: 10px; border: 1px solid transparent;
+    transition: background 0.14s ease, border-color 0.14s ease;
+  }
+  .cq-frame { display: block; line-height: 0; }
+  .cq-ground {
+    display: block; width: 100%; height: 7px; margin-bottom: 0.45rem;
+    background: linear-gradient(rgba(70, 85, 119, 0.85), rgba(47, 58, 86, 0.95));
+    box-shadow: inset 0 1px 0 rgba(120, 140, 180, 0.35);
+  }
+  .cq-art {
+    display: block; width: 88px; height: 88px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 12px rgba(232, 196, 139, 0.12));
+    transition: filter 0.14s ease;
+  }
+  .cq-plaque {
+    font-family: var(--pm-mono); font-size: 0.68rem; letter-spacing: 0.06em;
+    color: var(--pm-gold); margin-top: 0.35rem; text-align: center;
+  }
+  .cq-who {
+    font-size: 0.62rem; line-height: 1.4; text-align: center;
+    color: rgba(205, 194, 171, 0.5); max-width: 13ch;
+  }
+  .cq-soon {
+    font-family: var(--pm-mono); font-size: 0.55rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(205, 194, 171, 0.45);
+    border: 1px dashed rgba(205, 194, 171, 0.28); border-radius: 999px;
+    padding: 0.15em 0.55em; margin-top: 0.3rem;
+  }
+
+  /* A LANE THE TOWN HAS NAMED AND NOT BUILT reads as unlit rather than as
+     missing — the building is drawn, dimmed, with its plaque intact. */
+  .is-planned .cq-art { filter: saturate(0.4) brightness(0.62); }
+  .is-planned .cq-plaque { color: rgba(232, 196, 139, 0.55); }
+
+  /* THE BUILDING LIFTS, THE QUAY DOES NOT. Hovering the whole cell would carry
+     the quay band up with it and tear a notch in the strip its neighbours are
+     still holding level, so the transform lives on the art alone. */
+  .cq-b:hover, .cq-b:focus-visible {
+    background: rgba(232, 196, 139, 0.07);
+    border-color: rgba(232, 196, 139, 0.3);
+  }
+  .cq-frame { transition: transform 0.14s ease; }
+  .cq-b:hover .cq-frame, .cq-b:focus-visible .cq-frame { transform: translateY(-4px); }
+  .cq-b:hover .cq-art, .cq-b:focus-visible .cq-art {
+    filter: drop-shadow(0 0 16px rgba(232, 196, 139, 0.4));
+  }
+  .cq-b:hover .cq-plaque, .cq-b:focus-visible .cq-plaque { color: var(--pm-gold-bright); }
+  .cq-b:focus-visible { outline: 2px solid var(--pm-gold); outline-offset: 2px; }
+
+  /* the wet stone the whole quarter stands on */
+  .cq-quay {
+    height: 14px; margin: 0 -1rem;
+    background:
+      linear-gradient(rgba(70, 85, 119, 0.55), rgba(47, 58, 86, 0.9));
+    border-top: 2px solid rgba(70, 85, 119, 0.7);
+  }
+  .cq-warn {
+    margin: 0.9rem 0 0; padding: 0 0 1rem;
+    font-size: 0.78rem; line-height: 1.6; color: rgba(205, 194, 171, 0.7);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cq-b, .cq-frame { transition: none; }
+    .cq-b:hover .cq-frame, .cq-b:focus-visible .cq-frame { transform: none; }
+  }
+
+  /* ── the lanes ─────────────────────────────────────────────────────── */
+  .c-lane {
+    border: 1px solid rgba(232, 196, 139, 0.18);
+    border-radius: 12px;
+    margin: 0 0 0.75rem;
+    background: rgba(14, 22, 42, 0.4);
+    /* the sticky rail must not sit on top of a lane the router just opened */
+    scroll-margin-top: 4.5rem;
+  }
+  .c-lane[open] { border-color: rgba(232, 196, 139, 0.34); }
+  .c-sum {
+    list-style: none; cursor: pointer;
+    display: flex; align-items: baseline; gap: 0.9em; flex-wrap: wrap;
+    padding: 0.95rem 1.2rem;
+  }
+  .c-sum::-webkit-details-marker { display: none; }
+  .c-sum::after {
+    content: "+"; margin-left: auto;
+    font-family: var(--pm-mono); color: rgba(232, 196, 139, 0.6);
+  }
+  .c-lane[open] > .c-sum::after { content: "−"; }
+  .c-sum:hover { background: rgba(232, 196, 139, 0.05); }
+  .c-lane > .c-sum:focus-visible { outline: 2px solid var(--pm-gold); outline-offset: -2px; }
+  .c-sum-name {
+    font-family: var(--pm-serif); font-size: 1.06rem; color: var(--pm-gold-bright);
+  }
+  .c-sum-who {
+    font-size: 0.78rem; color: rgba(205, 194, 171, 0.6); line-height: 1.5;
+  }
+  .c-body { padding: 0 1.2rem 1.4rem; }
+
+  /* the world's own sentence, wherever a lane quotes one */
+  .c-law {
+    margin: 0 0 1.3rem; padding: 0.6rem 1rem;
+    border-left: 3px solid rgba(232, 196, 139, 0.45);
+    background: rgba(232, 196, 139, 0.04);
+    font-size: 0.9rem; line-height: 1.6; font-style: italic;
+    color: rgba(244, 233, 215, 0.85);
+  }
+  .c-law cite {
+    display: block; margin-top: 0.45em; font-style: normal;
+    font-family: var(--pm-mono); font-size: 0.68rem; letter-spacing: 0.05em;
+    color: rgba(205, 194, 171, 0.55);
+  }
+  .c-law cite a, .c-law cite code { color: rgba(232, 196, 139, 0.75); }
+  /* 74ch, not 60: at 60 this paragraph wrapped into a narrow column beside a
+     law quote and a note that both run the lane's full width, and the ragged
+     right edge read as a layout fault rather than as a measure. */
+  .c-say { font-size: 0.92rem; line-height: 1.7; max-width: 74ch; margin: 0 0 1rem; }
+  .c-soon {
+    margin: 1.2rem 0 0; padding: 0.6rem 0.9rem;
+    border: 1px dashed rgba(205, 194, 171, 0.25); border-radius: 8px;
+    font-size: 0.82rem; line-height: 1.6; color: rgba(205, 194, 171, 0.7);
+  }
+  .c-door {
+    display: inline-block; margin-right: 0.7em;
+    font-family: var(--pm-mono); font-size: 0.74rem; letter-spacing: 0.06em;
+    padding: 0.45em 1em; border-radius: 999px;
+    border: 1px solid rgba(232, 196, 139, 0.4); color: var(--pm-gold-bright);
+    text-decoration: none;
+  }
+  .c-door:hover { background: rgba(232, 196, 139, 0.1); }
+
+  /* ── the Quest Guild's standings ───────────────────────────────────── */
+  .q-stand { list-style: none; margin: 0 0 1rem; padding: 0; }
+  .q-row {
+    display: grid;
+    grid-template-columns: 2em minmax(8em, 1fr) auto auto 4em;
+    align-items: baseline; gap: 0.8em;
+    padding: 0.4em 0; font-size: 0.86rem;
+    border-bottom: 1px solid rgba(232, 196, 139, 0.08);
+  }
+  .q-rank { font-family: var(--pm-mono); font-size: 0.72rem; color: rgba(205, 194, 171, 0.5); }
+  .q-who { color: var(--pm-gold); text-decoration: none; }
+  .q-who:hover { color: var(--pm-gold-bright); text-decoration: underline; }
+  .q-pair { font-size: 0.78rem; color: rgba(205, 194, 171, 0.8); white-space: nowrap; }
+  .q-k {
+    font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(205, 194, 171, 0.45);
+  }
+  .q-all { font-family: var(--pm-mono); font-size: 0.78rem; color: var(--pm-stamp-bright); text-align: right; }
+  .q-u { opacity: 0.7; }
+
+  /* ── the Marketplace's tally ───────────────────────────────────────── */
+  .mk-tally { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; gap: 1.6rem; flex-wrap: wrap; }
+  .mk-tally li { display: flex; align-items: baseline; gap: 0.5em; }
+  .mk-tally b { font-family: var(--pm-mono); font-size: 1.5rem; color: var(--pm-gold-bright); font-weight: 400; }
+  .mk-tally span { font-size: 0.8rem; color: rgba(205, 194, 171, 0.75); line-height: 1.5; }
+  .mk-tally em { font-style: italic; opacity: 0.75; }
+
+  @media (max-width: 720px) {
+    /* five cells will not fit a phone, so the quarter wraps to two ranks. The
+       captions go: at this width the plaque is the label, and the lane's own
+       fold repeats the description one screen further down anyway. */
+    .cq-art { width: 60px; height: 60px; }
+    /* wide enough that "not standing yet" stays on one line — a chip broken
+       across two reads as a layout fault rather than as a label */
+    .cq-b { width: 6.4rem; }
+    .cq-who { display: none; }
+    .cq-plaque { font-size: 0.6rem; }
+    .cq-soon { font-size: 0.5rem; letter-spacing: 0.04em; white-space: nowrap; }
+    .q-row { grid-template-columns: 1.6em 1fr auto; row-gap: 0.15em; }
+    .q-pair { font-size: 0.72rem; }
+  }
+
   .portal { max-width: 62rem; margin: 0 auto; }
 
   /* ── the head: one breath, then the market ─────────────────────────── */
