@@ -11,8 +11,8 @@ Worktree: `G:/Postmark/worktrees/civic-polish-w37` (`--no-track`, created off `r
 |---|---|
 | Branch | `train/2026-w37` (new; base `release/2026-w36.1` = tag `c0e417e1` → commit `7d4c7e836`) |
 | **Last CODE commit** | **`6c6adc083262f5b9319789fb07aa5460a27fc616`** — everything measured, deployed and QA'd below is this sha |
-| **Remote tip** | **`a9c0f8578897fc01d7961fbdf7d16961ec1c04ba`** — this file, committed on top. A RESULT can only ever quote the tip beneath itself; the two are named apart so nobody has to guess which one the receipts belong to. |
-| Receipt | `git ls-remote origin refs/heads/train/2026-w37` → `a9c0f8578897fc01d7961fbdf7d16961ec1c04ba` (LOCAL == REMOTE) |
+| **Remote tip** | this file, committed on top of `6c6adc083`. **A RESULT cannot quote its own sha** — writing one in only ever names the commit before it, which is how a receipt starts lying about itself. The code sha above is the stable one and is what every number below belongs to; for the branch tip, ask git. |
+| Receipt | `git ls-remote origin refs/heads/train/2026-w37` — verified LOCAL == REMOTE after every push in this lane |
 | Commits | 5 — the five rulings · the holo-surfaces re-aim · the QA runner + shots · the dev QA + a correction · this file |
 | No release tag cut | correct per the brief |
 
