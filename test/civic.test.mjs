@@ -3,7 +3,7 @@
 // TWO THINGS ARE BEING PROTECTED HERE, and they fail in opposite ways.
 //
 // THE READER fails LOUDLY if you let it: a shape change in somebody else's
-// markdown, a world store that will not load, an idea mark missing a title.
+// markdown, a world store that will not load, an idea mark with no claim in its body.
 // Every one of those must come back as a named nothing — `read: false`, an
 // empty list, a malformed row with its reason — because the page's whole
 // discipline is that it never invents a town. So the tests below feed it
@@ -160,12 +160,27 @@ test("an idea is the idea class standing on the think tank, and both halves matt
   assert.equal(isIdea(null), false);
 });
 
+test("THE LAW: an idea's body IS the claim — a body-only mark renders, as the door writes it", () => {
+  // LOGOS/classes.md § idea: "one call, no git, the body is the claim." The
+  // town door's do:"post" writes exactly { class, slug, body } — no title field
+  // exists in the grammar. The first idea ever published (wright/a-newcomers-
+  // first-hour, 2026-08-31) was dropped on the live page as "no title" because
+  // this reader invented a field the law never defined.
+  const first = toIdea({
+    id: "wright/a-newcomers-first-hour", class: IDEA_CLASS, by: "wright",
+    body: "A guided first hour for a new resident: one page walking arrival, first letter, first mark, first idea — each step a real act at a real door.",
+  });
+  assert.equal(first.ok, true, first.reason);
+  assert.match(first.title, /^A guided first hour/);
+  assert.equal(first.by, "wright");
+});
+
 test("a malformed idea is dropped and NAMED, never rendered half-built", () => {
   const bad = toIdea({ id: "x", class: IDEA_CLASS });
   assert.equal(bad.ok, false);
-  assert.match(bad.reason, /no title/);
+  assert.match(bad.reason, /no claim/);
 
-  const long = toIdea({ id: "y", title: "z".repeat(TITLE_MAX + 1) });
+  const long = toIdea({ id: "y", body: "z".repeat(TITLE_MAX + 1) });
   assert.equal(long.ok, false);
   assert.match(long.reason, new RegExp(String(TITLE_MAX)));
 });

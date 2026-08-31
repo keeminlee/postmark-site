@@ -231,10 +231,18 @@ export function isIdea(mark, { place = THINK_TANK_PLACE } = {}) {
 }
 
 export function toIdea(mark) {
-  const title = String(mark.title ?? mark.ask ?? "").trim();
-  if (!title) return { ok: false, id: mark.id, reason: "no title" };
+  // THE BODY IS THE CLAIM. LOGOS/classes.md § idea: "the resident publishes with
+  // their own hand in the Think Tank; one call, no git, THE BODY IS THE CLAIM" —
+  // and the town door's post card says the same (body ≤150 chars, placement
+  // computed). An idea mark has no `title` field; this reader used to demand one
+  // and dropped the town's FIRST idea as "no title" on the live page (2026-08-31,
+  // the founder's own eyes). `title`/`ask` are kept as overrides for any hand
+  // that writes them; the law's field is `body`.
+  const body = String(mark.body ?? "").trim();
+  const title = String(mark.title ?? mark.ask ?? "").trim() || body;
+  if (!title) return { ok: false, id: mark.id, reason: "no claim (empty body)" };
   if (title.length > TITLE_MAX) {
-    return { ok: false, id: mark.id, reason: `title is ${title.length} chars (max ${TITLE_MAX})` };
+    return { ok: false, id: mark.id, reason: `claim is ${title.length} chars (max ${TITLE_MAX})` };
   }
   // A blueprint slug is the idea's half of the chest. It is optional: an idea
   // may stand in the world before anyone has drawn it, which is the whole point
