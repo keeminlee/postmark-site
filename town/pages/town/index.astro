@@ -213,9 +213,22 @@ const howIdeasEnter = placeMarks[HOW_IDEAS_ENTER_PLACE] ?? null;
 // So nothing replaces it. `the-town/the-civic-quarter` still carries its plaque
 // in the world, for renderings that are not this one.
 
-// The section ids the router may open, and the test's list at the same time.
-// `rules` left with the teaching — that lane is /stamps/ again.
-const LANE_IDS = LANES.map((l) => l.id);
+// `LANE_IDS` IS GONE, and the way it went is worth a line, because for one
+// build it was WRONG and harmless at the same time.
+//
+// It was a literal list of the five PANEL ids that the fold router used to
+// decide what it might open. Rewriting it as `LANES.map((l) => l.id)` looked
+// like the same list read from the source of truth and is not: the bounty
+// lane's `id` is `board` — the INNER block's anchor, which every deep link
+// ever written points at — while its panel is `bounty-board`. A lane's anchor
+// and a lane's panel are two different ids on purpose, and one of them cannot
+// be derived from the other.
+//
+// It never showed, because the router that consumed it left with the folds and
+// nothing has read it since. A wrong value nothing reads is a trap with a
+// timer on it, so it goes rather than gets corrected — the panel ids live in
+// the markup and in test/civic-hub.test.mjs's own list, which is where a test
+// that checks the markup should keep them.
 
 // WHEN THIS WORLD WAS READ — the pin, because the world store carries no clock
 // of its own (civic.mjs § WHEN THIS WORLD WAS READ). Short form for a caption;
@@ -1194,7 +1207,7 @@ const switchCss = [
      preventDefault would have to reimplement the thing it was intercepting),
      and the a[data-lane] click handler (same reason: the anchor already does
      it). Every one of those was machinery for opening a <details>. -->
-<script is:inline define:vars={{ LANE_IDS }}>
+<script is:inline>
   (function () {
     var main = document.querySelector("main.civic");
     if (!main) return;
