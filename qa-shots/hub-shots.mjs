@@ -1,3 +1,24 @@
+// ⚠ PARTLY SUPERSEDED 2026-09-01 — the FOLD checks in here now read a shape
+// that does not exist, and will report defects about a correct page.
+//
+// The founder's one-panel ruling replaced the five <details> folds with one
+// panel region of five <section class="c-lane">. Every `el.open` read below —
+// the `#quests` open/close pair, the four `arrives open` deep links, the
+// `#bounty-board.open` after the /stamps/ forward, and the `.c-lane > summary`
+// count on the scriptless page — is asking a <section> for a property only a
+// <details> has, and gets `undefined`.
+//
+// WHAT IS STILL TRUE IN HERE: the buildings, the plaques, the quay, the 88px
+// legibility pass, the forwarding ROUTES themselves (/stamps/#board landing on
+// /town/#board is unchanged), and the no-JavaScript degrade — which now
+// degrades differently and better, because the panel switch is CSS rather than
+// script. See qa-shots/civic-panel-shots.mjs, which asks the panel's questions
+// of the panel.
+//
+// Re-aiming the fold half is a job someone should do on purpose; naming it
+// here is what stops the next run being read as a page full of regressions.
+//
+// ── the original header follows ────────────────────────────────────────────
 // hub-shots.mjs — rendered QA for the civic hub (/town/), 2026-08-30.
 //
 //   npx astro preview --config astro.config.town.mjs --port 4399 &

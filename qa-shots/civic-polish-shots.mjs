@@ -1,3 +1,23 @@
+// ⚠ SUPERSEDED 2026-09-01 — DO NOT RUN THIS AGAINST /town/ AND BELIEVE IT.
+//
+// Every check below reads `details.c-lane`, `.c-sum-name` or `#ideas .c-law`.
+// The founder's one-panel ruling of 2026-09-01 replaced the five <details>
+// folds with one panel region of five <section class="c-lane">, and the `c-law`
+// pull-quote with the plaque as the panel's heading. So this file's selectors
+// find nothing, and "found nothing" is how it reports a DEFECT — it would hand
+// back a page of red about a page that is correct.
+//
+// It is kept rather than deleted because the five RULINGS it judges are still
+// law and their falsifiers are still green in test/civic-hub.test.mjs (the
+// order of the Guild's blocks, the quay note read rather than typed, the
+// Bounty Board's struck weight paragraph, the Ballot House's one sentence and
+// its door). What is dead is this instrument, not the law it was built for.
+//
+// The runner for the current page is qa-shots/civic-panel-shots.mjs.
+// Re-aiming this one is a job someone should do on purpose, not a side effect
+// of tonight's lane; until then, this notice is the honest state.
+//
+// ── the original header follows ────────────────────────────────────────────
 // civic-polish-shots.mjs — rendered QA for the founder's five, 2026-08-31.
 //
 //   npx astro dev --config astro.config.town.mjs --port 4411 &

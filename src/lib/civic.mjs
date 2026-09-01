@@ -23,8 +23,57 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 
 import { loadWorldState, BOARD_PLACE } from "./board.mjs";
+import { floorPinFrom } from "../../tools/lib/world-pin.mjs";
 
 export { loadWorldState, BOARD_PLACE };
+
+// ── WHEN THIS WORLD WAS READ ─────────────────────────────────────────────────
+// Every derived block on the quarter has to be markable with its as-of, the way
+// the pots carry the emission's own stamp — "a quiet market and a stale page
+// look identical without it".
+//
+// THE WORLD STORE CARRIES NO CLOCK. `world-state.json` has a `tick` (0 on this
+// pin) and no generated-at field of any kind, so there is no timestamp to read
+// and a build-time clock would tick even when nothing changed — the exact thing
+// the pots' stamp exists to avoid. What the world DOES have is a commit, and
+// the pin names it: this build read that world and no other.
+//
+// So the as-of is the PIN, read from the site's own package.json through
+// tools/lib/world-pin.mjs's `floorPinFrom` — the same function the rebuild-time
+// pin machinery reads it with, imported rather than re-parsed, so a change to
+// the pin spec's shape cannot leave two readers disagreeing about it.
+//
+// PIN-AS-ASKED IS PIN-AS-INSTALLED HERE, and the reason is `npm ci`: it
+// installs the lockfile's resolution and FAILS when the lock and package.json
+// disagree, so on any build that got this far the two are the same sha. On a
+// tree assembled some other way they could differ, and this would then name the
+// world the site asked for rather than the one it read — which is why the
+// falsifier in test/civic.test.mjs checks the pin against the resolved package
+// rather than trusting this.
+//
+// TWO CANDIDATE PATHS, and the second one is not belt-and-braces. Astro bundles
+// page frontmatter into a chunk, so `import.meta.url` at build time is the
+// chunk's URL and not this file's — the first build with only that candidate
+// rendered every as-of caption absent, silently, and looked fine. `cwd` is the
+// project root during a build and during `node --test`, which is what actually
+// answers. The first candidate that yields a valid pin wins.
+//
+// Fail-soft: `floorPinFrom` throws when the dependency is missing or is not a
+// 40-hex pin, and a page must not die because it could not date itself.
+export function worldPin({ paths = null } = {}) {
+  const candidates = paths ?? [
+    join(process.cwd(), "package.json"),
+    new URL("../../package.json", import.meta.url),
+  ];
+  for (const candidate of candidates) {
+    try {
+      return floorPinFrom(readFileSync(candidate, "utf8")).sha;
+    } catch {
+      // this candidate is not the site's package.json; try the next
+    }
+  }
+  return null;
+}
 
 // ── THE PEN AND THE FOLD ─────────────────────────────────────────────────────
 // The world ships a mark TWICE: as the authored record at
@@ -76,36 +125,117 @@ export function markBody(text) {
   return body.split(/\n\s*\n/)[0].trim() || null;
 }
 
-// Every authored place mark, as { id → body }. Fail-soft in exactly the way
-// board.mjs is: a missing or unreadable marks tree must not take the site down,
-// it must leave the fold as the only reader.
-export function loadPlaceMarks({ dir = marksDir() } = {}) {
+// The SCALAR frontmatter lines, and only those. `by`, `kind`, `slot` and
+// `value` are what this reader needs and every one of them is a one-line
+// scalar; `at: { x, y }` and `extent:` are flow maps and are deliberately not
+// parsed, because a half-parser that guesses at nested YAML is a second, worse
+// copy of the fold's own loader. What is not a plain `key: value` line comes
+// back absent, which every caller already treats as "the pen did not say".
+export function markFields(text) {
+  const s = String(text ?? "");
+  if (!s.startsWith("---")) return {};
+  const end = s.indexOf("\n---", 3);
+  if (end < 0) return {};
+  const out = {};
+  for (const line of s.slice(3, end).split(/\r?\n/)) {
+    const m = /^([A-Za-z_][\w-]*):\s*(.*)$/.exec(line);
+    if (!m) continue;
+    const raw = m[2].trim();
+    if (!raw || raw.startsWith("{") || raw.startsWith("[")) continue;
+    out[m[1]] = raw.replace(/^["'](.*)["']$/, "$1");
+  }
+  return out;
+}
+
+// ── THE PEN, WALKED WHOLE ────────────────────────────────────────────────────
+// THIS USED TO WALK EXACTLY TWO LEVELS — `<household>/<slug>` — and that was
+// not a shortcut, it was a WRONG MODEL of the tree, which is why it cost two
+// lanes their plaque and cost the file a comment apologising for the limit.
+//
+// A mark's id is `<by>/<slug>`. Its DIRECTORY is its PLACEMENT: the bounty
+// board's mark is filed at `let-there-be-light/the-town-centre/the-bounty-board`
+// because that is where it stands, and its id is still `the-town/the-bounty-
+// board` because `by: the-town` wrote it. Depth is placement, never identity —
+// so a two-level walk found the two lanes whose buildings happen to sit at the
+// root and missed the three filed under the town centre.
+//
+// PROVEN, NOT ASSUMED: `id = <frontmatter by>/<directory name>` resolves all
+// 1050 authored marks in the pinned world onto the 1050 ids the fold gives
+// them, with zero unmatched either way. That equality is asserted as a law in
+// test/civic.test.mjs against the shipped pin rather than against a fixture,
+// because a derivation that agrees with a fixture agrees only with itself.
+//
+// A mark with no `by:` gets no id and is skipped rather than guessed at.
+export function readPen({ dir = marksDir() } = {}) {
   const out = {};
   if (!dir || !existsSync(dir)) return out;
-  let households;
-  try {
-    households = readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory());
-  } catch {
-    return out;
-  }
-  for (const household of households) {
-    const hDir = join(dir, household.name);
-    let slugs;
+  const walk = (d, depth) => {
+    // the tree is shallow (deepest authored mark today is six levels); the cap
+    // is a runaway guard, not a model of the shape
+    if (depth > 12) return;
+    let entries;
     try {
-      slugs = readdirSync(hDir, { withFileTypes: true }).filter((e) => e.isDirectory());
+      entries = readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory());
     } catch {
-      continue;
+      return;
     }
-    for (const slug of slugs) {
-      const file = join(hDir, slug.name, "mark.md");
+    for (const entry of entries) {
+      const child = join(d, entry.name);
+      const file = join(child, "mark.md");
       try {
-        if (!existsSync(file)) continue;
-        out[`${household.name}/${slug.name}`] = markBody(readFileSync(file, "utf8"));
+        if (existsSync(file)) {
+          const text = readFileSync(file, "utf8");
+          const fields = markFields(text);
+          const by = String(fields.by ?? "").trim();
+          if (by) {
+            const id = `${by}/${entry.name}`;
+            out[id] = {
+              id,
+              body: markBody(text),
+              kind: fields.kind ?? null,
+              slot: fields.slot ?? null,
+              value: fields.value ?? null,
+              // the parent is the mark this one is FILED UNDER, which is how a
+              // predicated child names what it predicates. Resolved in the
+              // second pass below, once every mark's directory is known.
+              parent: null,
+              dir: child,
+            };
+          }
+        }
       } catch {
         // one unreadable mark is not a reason to lose the other nine hundred
       }
+      walk(child, depth + 1);
+    }
+  };
+  walk(dir, 0);
+  // Second pass for parentage: a child's parent is the nearest ANCESTOR
+  // DIRECTORY that carries a mark, resolved by path rather than by name, so a
+  // slug that repeats under two households cannot claim the wrong parent.
+  const byDir = new Map(Object.values(out).map((m) => [m.dir, m]));
+  for (const mark of Object.values(out)) {
+    let d = mark.dir;
+    while (d.length > dir.length) {
+      const cut = Math.max(d.lastIndexOf("/"), d.lastIndexOf("\\"));
+      if (cut <= 0) break;
+      d = d.slice(0, cut);
+      const parent = byDir.get(d);
+      if (parent) { mark.parent = parent.id; break; }
     }
   }
+  return out;
+}
+
+// Every authored place mark, as { id → body }. The shape callers have always
+// had; `readPen` above is the walk and this is its projection, so there is one
+// traversal of the tree and one derivation of an id.
+//
+// Fail-soft in exactly the way board.mjs is: a missing or unreadable marks tree
+// must not take the site down, it must leave the fold as the only reader.
+export function loadPlaceMarks({ dir = marksDir() } = {}) {
+  const out = {};
+  for (const [id, mark] of Object.entries(readPen({ dir }))) out[id] = mark.body;
   return out;
 }
 
@@ -136,6 +266,30 @@ export function loadPlaceMarks({ dir = marksDir() } = {}) {
 // The guess cost nothing precisely because it was written down and because the
 // failure mode was honest: a mismatch would have read "not standing yet"
 // forever rather than breaking a door.
+// ── NO LANE CARRIES A `law` STRING ANY MORE ──────────────────────────────────
+// Every row here used to keep a `law:` — a hand transcription of the lane's
+// world mark — and one of them (`lawFrom`) had begun to read the pen with the
+// constant as its fallback. The founder's 2026-09-01 ruling collapses that:
+// the panel's heading IS the building's plaque body, verbatim, for all five
+// lanes. So there is nothing left for a constant to be a fallback FOR, and the
+// five it held were already stale copies of bodies the founder rewrote at
+// 00:35 the same night — the exact drift this page has now been caught by
+// twice.
+//
+// WHAT REPLACES THE FALLBACK, and why it is not a sentence. A stale quote and a
+// fresh quote are indistinguishable to a reader; a MISSING quote is not. So
+// when the plaque cannot be read the panel falls back to the lane's own NAME —
+// site-owned chrome, never a quotation, nothing that can go stale because it is
+// not a copy of anything — and says "plaque unreadable" beside it. See
+// `plaque()` below. The lane's `who` line is chrome of the same kind and stays;
+// it is a label, not a quote.
+//
+// `live` is the site's own fact about whether a lane's machinery has landed —
+// one owner, here, so the badge on the building and the heading in the panel
+// cannot disagree about it. It is NOT the same question as `standing()`, which
+// asks the world whether the building exists; a lane can stand in the world and
+// still not be live, which is exactly the marketplace's and the ballot house's
+// state today.
 export const LANES = [
   {
     key: "quests",
@@ -143,9 +297,8 @@ export const LANES = [
     name: "the Quest Guild",
     lane: "quests",
     place: "the-town/the-quest-guild",
-    // quoted from the-town/quest
-    law: "The town asks through the quest registry alone — standing rules and one-time steps, paid by town mint. The town posts no board notices.",
     who: "the town's asks for its residents",
+    live: true,
   },
   {
     key: "ideas",
@@ -153,19 +306,8 @@ export const LANES = [
     name: "the Think Tank",
     lane: "ideas",
     place: "the-town/the-think-tank",
-    // QUOTED FROM THE BUILDING ITSELF, and it did not used to be. This line
-    // quoted `the-town/blueprint` — a mark about the blueprints CHEST, which is
-    // where a drawn idea GOES, not what an idea IS. The founder read the lane
-    // and said so: "more about blueprints than the Ideas themselves."
-    //
-    // `lawFrom` is what makes the fix permanent rather than a better sentence.
-    // The page prefers the LIVE body of the named mark and falls back to this
-    // constant, so the day the founder edits the tank's plaque the lane says the
-    // new thing with no edit here — the same pen-over-fold discipline the rest
-    // of this file already runs on.
-    lawFrom: "the-town/the-think-tank",
-    law: "Where ideas enter the town: publish yours as a mark here — class: idea, your own hand — and the Idea Lifecycle carries it to standing law.",
     who: "residents' asks of the town",
+    live: true,
   },
   {
     key: "bounties",
@@ -173,9 +315,8 @@ export const LANES = [
     name: "the Bounty Board",
     lane: "bounties",
     place: BOARD_PLACE,
-    // quoted from the-town/bounty-lane
-    law: "The residents' lane: its law is the bounty class under mark — a resident's ask of other residents; version 4 carries the who.",
     who: "residents' asks of other residents",
+    live: true,
   },
   {
     key: "listings",
@@ -183,8 +324,11 @@ export const LANES = [
     name: "the Marketplace",
     lane: "listings",
     place: "the-town/the-marketplace",
-    law: "An index, never an authority. A row here is an advertisement; the binding deal is what the letters say.",
     who: "residents asking stamps for goods",
+    // COMING SOON, founder-ruled 2026-09-01: "they're not live yet and are
+    // mostly thin redirects to the legacy places." The listing class has not
+    // landed; a row is hand-set by the office on the bulletin's price board.
+    live: false,
   },
   {
     key: "votes",
@@ -192,10 +336,16 @@ export const LANES = [
     name: "the Ballot House",
     lane: "votes",
     place: "the-town/the-ballot-house",
-    law: "Stakes are escrow, not payment — every stamp returns when a vote closes.",
     who: "the town asking residents for their word",
+    live: false,
   },
 ];
+
+// The lane the panel opens on when a reader arrives with no fragment.
+// Founder-ruled 2026-09-01: the Think Tank, because it is the lane the head's
+// own sentence — "You and your agent can help us build Postmark, together" —
+// is about.
+export const DEFAULT_LANE = "ideas";
 
 // Which lane marks are actually standing in the pinned world.
 //
@@ -223,26 +373,151 @@ export function standing(state, places = loadPlaceMarks()) {
   return out;
 }
 
-// A lane's law line, preferring the LIVE mark body over the constant beside it.
+// ── THE PANEL'S HEADING IS THE BUILDING'S PLAQUE ─────────────────────────────
+// Founder, 2026-09-01: "The marks that we drafted up should be really big font
+// (like the title of that panel)" — and the cite line goes, because "Don't
+// include distracting text like 'the world's own words, at the-town/quest', BUT
+// it *should* [be] the words from the mark pulled verbatim."
 //
-// WHY THIS EXISTS. A quote typed into a page is a copy of somebody else's
-// sentence that nothing keeps honest, and this page has already been caught by
-// exactly that: the "how an idea enters" note carried a transcription of
-// `the-town/how-ideas-enter` that the founder had superseded FOUR HOURS after it
-// was copied, and the page went on reciting the dead version for a day. The pin
-// was never behind — the text was simply not being read.
+// So the heading is the mark body and nothing else, read from the record on
+// every build. The page holds no copy of any of the five, which is the only
+// arrangement that cannot go stale.
 //
-// So a lane that names a `lawFrom` gets its law from the pen, and the constant
-// becomes the fallback for a world that could not be read. Only lanes whose mark
-// sits at `<household>/<slug>` can do this: `loadPlaceMarks` walks exactly two
-// levels, and the bounty board's and ballot house's marks are filed much deeper
-// (`let-there-be-light/the-town-centre/…`), so their law lines stay constants
-// until something reads that tree. Naming the limit is the point — a lane with
-// no `lawFrom` is one this mechanism cannot reach, not one nobody got to.
-export function laneLaw(lane, places = null) {
-  const live = lane?.lawFrom ? (places ?? {})[lane.lawFrom] : null;
-  const text = String(live ?? "").trim() || lane?.law || null;
-  return { text, from: lane?.lawFrom ?? null, live: Boolean(live) };
+// PEN FIRST, FOLD SECOND, and on tonight's pin that ordering is load-bearing
+// rather than theoretical: world main `b9fd4b3f` rewrote all five plaques and
+// did NOT re-run the fold, so `world-state.json` still carries the five
+// superseded bodies while the mark.md files carry the founder's new ones. A
+// reader that preferred the fold would render five sentences the founder
+// replaced tonight and look correct doing it. The town's own grammar settles
+// which wins — "when this board and the mail disagree, the mail is right and
+// this board is stale" — and civic.mjs's header has run on it since 2026-08-30.
+//
+// `source` says which record answered, so the page and a test can tell a pen
+// read from a fold read, and so the day the fold catches up this quietly flips
+// to `fold` with nothing else changing.
+export function plaque(lane, { pen = null, state = null } = {}) {
+  const place = lane?.place ?? null;
+  if (!place) return { text: null, from: null, live: false, source: null };
+
+  const penBody = String((pen ?? {})[place]?.body ?? (pen ?? {})[place] ?? "").trim();
+  if (penBody) return { text: penBody, from: place, live: true, source: "pen" };
+
+  const marks = Array.isArray(state?.marks) ? state.marks : [];
+  const foldBody = String(marks.find((m) => m?.id === place)?.body ?? "").trim();
+  if (foldBody) return { text: foldBody, from: place, live: true, source: "fold" };
+
+  // NEITHER RECORD ANSWERED. The fallback is the lane's own name — chrome this
+  // site owns, not a quotation of anybody — and `live: false` is what tells the
+  // page to badge the absence rather than pass the name off as a plaque.
+  return { text: lane?.name ?? null, from: place, live: false, source: null };
+}
+
+// A mark's predicated children: `slot · value` rows, in the world's own words.
+//
+// THE PEN IS THE READER HERE, and on this pin it is the ONLY one. The 22
+// predicated children planted under the five plaques on 2026-09-01 are mark.md
+// files three and four levels deep (`the-town/the-think-tank/tank-post/`,
+// `let-there-be-light/the-town-centre/the-bounty-board/board-post/`) and
+// `world-state.json` carries none of them: the store folds new marks at the
+// settlement sweep, so a page reading the fold alone would render an empty
+// predicates block tonight and it would look like this page's defect rather
+// than a pipeline's cadence.
+//
+// The fold is still asked, second, because a child that HAS been folded and
+// whose mark.md is gone is still a real child; a child in both is counted once.
+// This is the same pen-over-fold ordering the plaque uses and the same one
+// civic.mjs's header has run on since 2026-08-30.
+//
+// ORDERED BY SLOT, because the world carries no order. A predicated mark has
+// `slot` and `value` and no rank, so any narrative order would be this page's
+// invention; alphabetical is the one order that is the same on every build. It
+// happens to read well — `asked-by` sorts first in all five sets, which is the
+// row a stranger needs first — but that is luck, not design, and the sort is
+// stable rather than clever on purpose.
+//
+// NONE PRESENT RENDERS NOTHING. There is no placeholder and no "no predicates
+// yet" line: a slot the world has not filled is not a state a reader needs told
+// about, and an empty row would be the page inventing furniture.
+export function predicatesOf(place, { pen = null, state = null } = {}) {
+  const seen = new Set();
+  const out = [];
+  const take = (slot, value) => {
+    const s = String(slot ?? "").trim();
+    const v = String(value ?? "").trim();
+    // keyed on the PAIR, JSON-encoded — a plain `slot + sep + value` join can
+    // collide whenever the separator can appear in either half, and a slot
+    // name is hyphenated free text
+    const key = JSON.stringify([s, v]);
+    if (!s || !v || seen.has(key)) return;
+    seen.add(key);
+    out.push({ slot: s, value: v });
+  };
+  for (const mark of Object.values(pen ?? {})) {
+    if (mark?.kind === "predicated" && mark.parent === place) take(mark.slot, mark.value);
+  }
+  for (const mark of (Array.isArray(state?.marks) ? state.marks : [])) {
+    const parent = mark?.parent ?? mark?.placementParent ?? null;
+    if (mark?.kind === "predicated" && parent === place) take(mark.slot, mark.value);
+  }
+  out.sort((a, b) => a.slot.localeCompare(b.slot) || a.value.localeCompare(b.value));
+  return out;
+}
+
+// ── THE ONE SOURCE OF A MARK'S STAKE ─────────────────────────────────────────
+// The founder, 2026-08-31: "right now you can't even see how many stamps are
+// staked on an idea mark via the site." The number exists and is already in the
+// record this site reads — nothing had to be fetched, extracted or added to the
+// bake.
+//
+// `world-state.json § portfolios` is the escrow ledger, folded: an object of
+// `household → [{ mark, stamps }]`, one row per household per mark. Summed by
+// mark it gives the ✦ staked; counted by mark it gives how many households are
+// behind it. That second number is the one nothing else in the store carries —
+// `mark.stamps` is the total and `weight_parts.breadth.external_households`
+// counts only the households OTHER THAN the mark's own, so neither can answer
+// "how many households are backing this."
+//
+// TWO DERIVATIONS OF THE SAME NUMBER, AND THEY AGREE. Every one of the 1050
+// marks in the pinned world has `mark.stamps` exactly equal to the sum of its
+// portfolio rows. That is asserted as a law in test/civic.test.mjs against the
+// shipped pin, and it is what makes the household count trustworthy: the ledger
+// this reads is provably the same ledger the fold's own totals came from.
+//
+// AN UNREADABLE STORE IS `read: false`, NEVER ZERO. A mark with no escrow and a
+// store that could not be read are both "no number", and the page says which —
+// the founder's rule for the quest mirror, kept for the stakes.
+export function markStakes(state) {
+  const portfolios = state?.portfolios;
+  if (!portfolios || typeof portfolios !== "object" || Array.isArray(portfolios)) {
+    return { read: false, byMark: {}, byHousehold: {} };
+  }
+  const byMark = {};
+  const byHousehold = {};
+  for (const [household, rows] of Object.entries(portfolios)) {
+    for (const row of Array.isArray(rows) ? rows : []) {
+      const id = String(row?.mark ?? "").trim();
+      const stamps = Number(row?.stamps);
+      if (!id || !Number.isFinite(stamps) || stamps <= 0) continue;
+      (byMark[id] ??= { stamps: 0, households: [] });
+      byMark[id].stamps += stamps;
+      if (!byMark[id].households.includes(household)) byMark[id].households.push(household);
+      // household → mark → stamps, so "what has this house put on THIS mark"
+      // is one lookup rather than a scan, and a leaderboard over one lane's
+      // marks never has to re-walk the ledger.
+      (byHousehold[household] ??= {});
+      byHousehold[household][id] = (byHousehold[household][id] ?? 0) + stamps;
+    }
+  }
+  return { read: true, byMark, byHousehold };
+}
+
+// One mark's stake, as the page renders it. `null` for both numbers when the
+// ledger could not be read — "uncounted", which the page says in words rather
+// than printing a zero the town did not earn.
+export function stakeOf(id, stakes) {
+  if (!stakes?.read) return { staked: null, households: null };
+  const row = stakes.byMark[id];
+  return { staked: row?.stamps ?? 0, households: row?.households.length ?? 0 };
 }
 
 // The quay note that tells a resident how an idea enters the town. It is a
@@ -309,17 +584,29 @@ export function toIdea(mark) {
   };
 }
 
-export function ideas(state, { place = THINK_TANK_PLACE, places = null } = {}) {
+// THE ORDER IS STAMP-BACKED, founder-ruled 2026-09-01: "the actual state (as in
+// the items on the board), in stamp-backed order". Most ✦ first, then newest,
+// then the id — a total order, so two ideas with the same stake and the same
+// day do not shuffle between builds.
+//
+// AN UNREADABLE LEDGER DOES NOT REORDER THE LANE. With no stakes to read every
+// idea's `staked` is null, the first comparator is a constant, and the sort
+// falls through to date — the order the lane had before tonight. A silent
+// re-ranking on a build that could not read the escrow would be the worst of
+// both: a claim about backing, made out of nothing.
+export function ideas(state, { place = THINK_TANK_PLACE, places = null, stakes = null } = {}) {
   const marks = Array.isArray(state?.marks) ? state.marks : [];
   const ok = [], malformed = [];
   for (const m of marks.filter((x) => isIdea(x, { place }))) {
     const i = toIdea(m);
-    if (i.ok) ok.push(i); else malformed.push(i);
+    if (i.ok) ok.push({ ...i, ...stakeOf(i.id, stakes) }); else malformed.push(i);
   }
   ok.sort((a, b) =>
+    (Number(b.staked ?? 0) - Number(a.staked ?? 0)) ||
     String(b.date ?? "").localeCompare(String(a.date ?? "")) || a.id.localeCompare(b.id));
   return {
     ideas: ok,
+    counted: Boolean(stakes?.read),
     malformed,
     // THE SAME UNION `standing()` USES, and it has to be: with this reading the
     // fold alone, the vignette drew the Think Tank standing (it reads the pen)
@@ -330,6 +617,83 @@ export function ideas(state, { place = THINK_TANK_PLACE, places = null } = {}) {
       Object.prototype.hasOwnProperty.call(places ?? {}, place),
     storeRead: state !== null,
   };
+}
+
+// ── THE DASHBOARDS, one per LIVE lane ────────────────────────────────────────
+// Founder, 2026-09-01: "Underneath, let's have a similar leaderboard/dashboard
+// to Quests for each one, in a way that's relevant to that one (no need to have
+// one for marketplace/ballots as it's not live yet)."
+//
+// The Guild's "Today's standings" is the model, and its discipline is the part
+// that matters: every figure is DERIVED from a record this build read, and a
+// figure that cannot be derived comes back `null` so the page can say
+// "uncounted" rather than print a zero the town did not earn. Nothing in here
+// counts anything a reader could not go and count themselves.
+//
+// `counted` is the whole block's honesty flag: false means the escrow ledger
+// did not answer, and every ✦ figure below it is null rather than nought.
+
+// The Think Tank's dashboard: what the lane holds, and who is behind it.
+export function ideaDashboard(tank, stakes) {
+  const rows = tank?.ideas ?? [];
+  const counted = Boolean(stakes?.read);
+  const houses = new Set();
+  let staked = 0;
+  for (const idea of rows) {
+    if (!counted) continue;
+    staked += Number(idea.staked ?? 0);
+    for (const h of stakes.byMark[idea.id]?.households ?? []) houses.add(h);
+  }
+  // The top backers are households ranked by ✦ staked ON IDEAS — not by their
+  // whole portfolio, which would rank somebody's home mark against a proposal.
+  const ideaIds = new Set(rows.map((i) => i.id));
+  const backers = counted
+    ? Object.entries(stakes.byHousehold)
+        .map(([household, marks]) => {
+          const mine = Object.entries(marks).filter(([id]) => ideaIds.has(id));
+          return {
+            household,
+            stamps: mine.reduce((sum, [, n]) => sum + n, 0),
+            ideas: mine.length,
+          };
+        })
+        .filter((b) => b.ideas > 0 && b.stamps > 0)
+        .sort((a, b) => b.stamps - a.stamps || b.ideas - a.ideas || a.household.localeCompare(b.household))
+    : [];
+  return {
+    counted,
+    ideas: rows.length,
+    staked: counted ? staked : null,
+    households: counted ? houses.size : null,
+    // A DRAWN idea is one with a blueprint slug — the chest's half of the
+    // lifecycle, and the only stage figure this record can actually answer.
+    drawn: rows.filter((i) => i.slug).length,
+    backers,
+  };
+}
+
+// The Bounty Board's dashboard: what is open, what is done, and what is behind
+// the asks. `notices` is board.mjs's own list, unforked.
+export function boardDashboard(rows, stakes) {
+  const list = Array.isArray(rows) ? rows : [];
+  const counted = Boolean(stakes?.read);
+  const open = list.filter((n) => n.status === "open");
+  const done = list.filter((n) => n.status === "done");
+  const staked = counted ? list.reduce((sum, n) => sum + Number(stakeOf(n.id, stakes).staked ?? 0), 0) : null;
+  const mostStaked = counted
+    ? [...open].map((n) => ({ ...n, ...stakeOf(n.id, stakes) }))
+        .filter((n) => n.staked > 0)
+        .sort((a, b) => b.staked - a.staked || a.id.localeCompare(b.id))
+    : [];
+  // Posters, by how many notices they have put up — a count of asks, never a
+  // count of stamps, because a bounty's stake is visibility and not funding
+  // (founder-ruled 2026-08-30) and ranking posters by money would say the
+  // opposite of that ruling.
+  const posters = Object.entries(
+    list.reduce((acc, n) => { const p = n.poster ?? "the town"; acc[p] = (acc[p] ?? 0) + 1; return acc; }, {}),
+  ).map(([poster, notices]) => ({ poster, notices }))
+    .sort((a, b) => b.notices - a.notices || a.poster.localeCompare(b.poster));
+  return { counted, open: open.length, done: done.length, staked, mostStaked, posters };
 }
 
 // ── the quest registry ───────────────────────────────────────────────────────

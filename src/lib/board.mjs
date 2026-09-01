@@ -113,7 +113,28 @@ export function toNotice(mark) {
   };
 }
 
-// The board, read. Sorted: open before done, then most-backed, then newest.
+// The board, read. Sorted: open before done, then most-STAKED, then newest.
+//
+// ── WHY `escrow` AND NOT `backed` (2026-09-01) ───────────────────────────────
+// The founder's ruling for the civic quarter's panel: "open notices ordered by
+// ✦ staked desc, then date; done notices after." This sorted on `backed`, which
+// is the town's read-side LEDGER WEIGHT — raw escrow PLUS the breadth bonus for
+// unique external staking households — and that is a different number from the
+// one the page shows. On the pin this shipped against they differ by nearly
+// half: the board's one notice carries 6 in escrow and a ledger weight of 11.
+//
+// A LANE ORDERED BY A NUMBER IT DOES NOT DISPLAY is unreadable by design: a
+// reader sees 6✦ above 9✦ and has no way to learn that a third quantity put
+// them in that order. So the sort key is the number on the card. `backed` is
+// untouched and still carries the weight for anything that wants it — this
+// changes which of the two decides the order, not what either means.
+//
+// CONSUMERS, with cardinality: `notices()` is read by exactly one renderer,
+// town/pages/town/index.astro (the Bounty Board panel, one row per bounty-class
+// mark placed under BOARD_PLACE — one such mark in the pinned world today), and
+// by test/board.test.mjs, whose fixture-ordering assertion moved with this and
+// now reads `escrow`. Nothing else imports it. Checked by grep across src/,
+// town/, tools/, test/ and qa-shots/.
 export function notices(state, { boardPlace = BOARD_PLACE } = {}) {
   const marks = Array.isArray(state?.marks) ? state.marks : [];
   const candidates = marks.filter((m) => isNotice(m, { boardPlace }));
@@ -124,7 +145,7 @@ export function notices(state, { boardPlace = BOARD_PLACE } = {}) {
   }
   open.sort((a, b) =>
     (a.status === b.status ? 0 : a.status === "open" ? -1 : 1) ||
-    b.backed - a.backed ||
+    b.escrow - a.escrow ||
     String(b.date ?? "").localeCompare(String(a.date ?? "")) ||
     a.id.localeCompare(b.id));
   return {

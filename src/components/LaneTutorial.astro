@@ -1,0 +1,137 @@
+---
+// LaneTutorial.astro — the "?" bubble's dialog: ≤4 slides, one lane.
+//
+// A NATIVE <dialog>, and that is the whole accessibility argument. `showModal()`
+// gives focus trapping, Escape-to-close, inertness of the page behind, and the
+// correct role — four things a div-with-a-backdrop has to reimplement badly.
+// Nothing here is a framework component; the deck is markup and the only script
+// is open, close, and step.
+//
+// THE SLIDES ARE ALL IN THE MARKUP, one shown at a time. A dialog that fetched
+// or built its slides would be a second way for this page to be wrong; a reader
+// with the script off never opens it at all, which is correct — the panel
+// underneath is the page, and this is a footnote you can ask for.
+//
+// The verbs on the slides are the office's own, cited in src/lib/civic-tutorial.mjs.
+import { paint, SPRITE_W, SPRITE_H } from "@/lib/civic-art.mjs";
+
+const { lane, slides = [] } = Astro.props;
+---
+<dialog class="c-tut" id={`tut-${lane.key}`} aria-labelledby={`tut-${lane.key}-h`}>
+  <form method="dialog" class="c-tut-x"><button aria-label="Close">×</button></form>
+
+  <p class="c-tut-kicker" id={`tut-${lane.key}-h`}>How {lane.name} works</p>
+
+  <ol class="c-tut-deck" data-deck={lane.key}>
+    {slides.map((s, i) => (
+      <li class="c-tut-slide" data-slide={i} hidden={i > 0}>
+        {/* THE LANE'S OWN BUILDING, painted from the same sprite map the
+            quarter above is painted from — so the reader is looking at the
+            thing they clicked. No external asset, no second drawing. */}
+        <span class="c-tut-art" aria-hidden="true">
+          <svg viewBox={`0 0 ${SPRITE_W} ${SPRITE_H}`} shape-rendering="crispEdges" focusable="false">
+            {paint(lane.key).map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" fill={r.fill} />)}
+          </svg>
+        </span>
+        <div class="c-tut-say">
+          <p class="c-tut-step">
+            <span class="c-tut-n">{i + 1}</span>{s.step}
+            {s.step_note && <span class="c-tut-note">{s.step_note}</span>}
+          </p>
+          <p class="c-tut-line">{s.say}</p>
+          {/* A CALL, WHERE THERE IS ONE. A step with no door on the train
+              carries no code block at all rather than a plausible-looking call
+              the office would refuse — see civic-tutorial.mjs's bounty deck. */}
+          {s.call && <code class="c-tut-call">{s.call}</code>}
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  <nav class="c-tut-nav">
+    <button type="button" class="c-tut-prev" disabled>← back</button>
+    <span class="c-tut-dots">
+      {slides.map((_, i) => <i class:list={["c-tut-dot", i === 0 && "is-on"]} aria-hidden="true"></i>)}
+    </span>
+    <button type="button" class="c-tut-next">next →</button>
+  </nav>
+</dialog>
+
+<style>
+  .c-tut {
+    width: min(34rem, calc(100vw - 2rem));
+    padding: 1.4rem 1.5rem 1.1rem;
+    border: 1px solid var(--lane-edge-open, rgba(232, 196, 139, .4));
+    border-radius: 14px;
+    background: linear-gradient(var(--pm-harbor, #0d1426), var(--pm-night, #070b15));
+    color: rgba(244, 233, 215, .9);
+  }
+  .c-tut::backdrop { background: rgba(4, 7, 14, .72); }
+
+  .c-tut-x { position: absolute; top: .5rem; right: .6rem; margin: 0; }
+  .c-tut-x button {
+    background: none; border: 0; cursor: pointer; font-size: 1.4rem; line-height: 1;
+    color: rgba(205, 194, 171, .6); padding: .2rem .4rem;
+  }
+  .c-tut-x button:hover { color: var(--pm-gold-bright); }
+  .c-tut-x button:focus-visible { outline: 2px solid var(--pm-gold); outline-offset: 2px; }
+
+  .c-tut-kicker {
+    margin: 0 0 1.1rem;
+    font-family: var(--pm-mono); font-size: .68rem; letter-spacing: .16em;
+    text-transform: uppercase; color: rgba(232, 196, 139, .8);
+  }
+
+  .c-tut-deck { list-style: none; margin: 0; padding: 0; min-height: 11rem; }
+  .c-tut-slide { display: grid; grid-template-columns: 4.5rem 1fr; gap: 1.1rem; align-items: start; }
+  .c-tut-slide[hidden] { display: none; }
+  .c-tut-art svg { display: block; width: 4.5rem; height: 4.5rem; image-rendering: pixelated; }
+
+  .c-tut-step {
+    margin: 0 0 .5rem; display: flex; align-items: baseline; gap: .55em; flex-wrap: wrap;
+    font-family: var(--pm-serif); font-size: 1.12rem; color: var(--pm-gold-bright);
+  }
+  .c-tut-n {
+    font-family: var(--pm-mono); font-size: .66rem; letter-spacing: .1em;
+    color: rgba(205, 194, 171, .5);
+  }
+  .c-tut-note {
+    font-family: var(--pm-mono); font-size: .58rem; letter-spacing: .12em;
+    text-transform: uppercase; color: rgba(205, 194, 171, .55);
+    border: 1px dashed rgba(205, 194, 171, .3); border-radius: 999px; padding: .15em .55em;
+  }
+  .c-tut-line { margin: 0; font-size: .92rem; line-height: 1.6; }
+  .c-tut-call {
+    display: block; margin: .7rem 0 0; padding: .55rem .7rem;
+    background: rgba(7, 11, 21, .6); border: 1px solid rgba(232, 196, 139, .18);
+    border-radius: 7px; font-family: var(--pm-mono); font-size: .72rem;
+    line-height: 1.6; overflow-x: auto; white-space: pre;
+    color: rgba(232, 196, 139, .9);
+  }
+
+  .c-tut-nav {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    margin-top: 1.2rem; padding-top: .9rem;
+    border-top: 1px solid rgba(232, 196, 139, .14);
+  }
+  .c-tut-nav button {
+    font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .08em;
+    padding: .45em 1em; border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(232, 196, 139, .32); background: transparent;
+    color: var(--pm-gold-bright);
+  }
+  .c-tut-nav button:hover:not(:disabled) { background: rgba(232, 196, 139, .1); }
+  .c-tut-nav button:disabled { opacity: .3; cursor: default; }
+  .c-tut-nav button:focus-visible { outline: 2px solid var(--pm-gold); outline-offset: 2px; }
+  .c-tut-dots { display: flex; gap: .4rem; }
+  .c-tut-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(205, 194, 171, .28);
+  }
+  .c-tut-dot.is-on { background: var(--pm-gold); }
+
+  @media (max-width: 480px) {
+    .c-tut-slide { grid-template-columns: 3rem 1fr; gap: .8rem; }
+    .c-tut-art svg { width: 3rem; height: 3rem; }
+  }
+</style>

@@ -68,6 +68,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { FOUNDER_ACCOUNT } from "../src/lib/funding.mjs";
 import { allEntries } from "../src/lib/nav.mjs";
+import { DEFAULT_LANE } from "../src/lib/civic.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 
@@ -272,49 +273,90 @@ test("the nav carries one Stamps entry, flagged beta", () => {
 
 // ── the hub is one page of six lanes, entered through the quarter ────────────
 
-test("the hub carries a lane for every building, each a fold", () => {
-  // RE-AIMED 2026-08-31, and the reason is the general one: this asserted three
-  // exact spellings of an opening tag, so it went red when the lanes gained a
-  // `style` attribute for their tint — a change that took nothing away from the
-  // law it protects. The law is "there is a <details class="c-lane"> with this
-  // id", and that is what it now asks, with whatever else the tag carries. The
-  // sibling below (`every lane ships shut but the board`) was already written
-  // this way, which is why it survived the same edit untouched.
+test("the hub carries a panel for every building, all inside ONE region", () => {
+  // RE-AIMED 2026-09-01 by the founder's ruling — "Instead of stacked boxes, we
+  // should just have one panel that switches when each building is clicked" —
+  // and it grew a half while it moved. The law was "there is an element with
+  // this id per lane"; it is now that AND that all five sit inside a single
+  // panel region, because "one panel" is the ruling and five siblings scattered
+  // through the page would satisfy the old assertion while breaking the new one.
   for (const id of LANE_IDS) {
-    const re = new RegExp(`<details class="c-lane(?: is-rules)?" id="${id}"[^>]*>`);
-    assert.ok(re.test(raw), `the ${id} lane is missing`);
+    const re = new RegExp(`<section class="c-lane" id="${id}"[^>]*>`);
+    assert.ok(re.test(raw), `the ${id} panel is missing`);
   }
   assert.ok(raw.includes("<PostmarkLayout"), "and it is wrapped in the layout");
+
+  const region = raw.indexOf('<div class="cq-panels"');
+  assert.ok(region > 0, "there is no one panel region — the five are loose on the page again");
+  const closed = raw.indexOf("</div>{/* ── end of the panel", region);
+  assert.ok(closed > region, "the panel region is not closed where the page says it is");
+  const inside = raw.slice(region, closed);
+  assert.equal((inside.match(/<section class="c-lane"/g) || []).length, LANE_IDS.length,
+    "not every lane's panel is inside the one region");
+  assert.equal((raw.match(/<section class="c-lane"/g) || []).length, LANE_IDS.length,
+    "a lane panel stands outside the region");
+
+  // AND NO FOLD SURVIVED. A <details class="c-lane"> anywhere is the stacked
+  // boxes coming back one lane at a time.
+  assert.equal(/<details class="c-lane/.test(raw), false,
+    "a lane is a <details> again — the stacked boxes are back");
 });
 
-test("the civic quarter is the first screen, before any lane", () => {
+test("the civic quarter is the first screen, before any panel", () => {
   // THE FOUNDER'S RULING THIS ASSERTS, carried forward from 2026-08-23 — the
   // hub "still very much reads like a giant contract lol instead of a proper
   // hub" — and answered on 2026-08-30 by the quarter itself: a reader arrives
   // at a picture of the town and clicks a building, not at a wall of law. So
-  // the vignette must come BEFORE the first lane in the document, which is the
-  // only part of "it opens as a hub" a test can actually hold.
+  // the vignette must come BEFORE the panel in the document, which is the only
+  // part of "it opens as a hub" a test can actually hold. It binds harder now
+  // than it did with folds: the quarter is the ONLY way to change panels.
   const quarter = raw.indexOf('<section class="cq"');
-  const firstLane = raw.indexOf('<details class="c-lane"');
+  const panel = raw.indexOf('<div class="cq-panels"');
   assert.ok(quarter > 0, "the civic quarter is gone");
-  assert.ok(firstLane > 0, "the lanes are gone");
-  assert.ok(quarter < firstLane, "a lane opens above the civic quarter");
+  assert.ok(panel > 0, "the panel is gone");
+  assert.ok(quarter < panel, "the panel opens above the civic quarter");
 });
 
-test("every lane ships shut but the board, and the quarter is how you open one", () => {
-  // A hub is not a concatenation. Six lanes expanded on arrival IS the manual
-  // the founder rejected, whatever the chrome around it looks like — and this
-  // page carries the whole stamps teaching, so an all-open default would be a
-  // genuine scroll of doom rather than a theoretical one.
+test("THE LAW: exactly one panel shows on arrival, and it is the Think Tank", () => {
+  // RETIRED AND REPLACED, 2026-09-01: this was "every lane ships shut but the
+  // board", which asserted the fold default — the Bounty Board open, the rest
+  // shut. The founder's one-panel ruling makes that shape nonexistent, so the
+  // assertion could not survive; the LAW it protected can, and is stronger:
+  // a hub is not a concatenation, and exactly one lane is showing when a reader
+  // arrives.
   //
-  // THE ONE EXCEPTION IS NAMED, not tolerated: the Bounty Board opens, because
-  // it is the liveliest lane and the home page's own milestone link points at
-  // it. If a second lane ever ships open, that is a decision someone should
-  // have to make on purpose.
-  const opened = [...raw.matchAll(/<details class="c-lane(?: is-rules)?" id="([\w-]+)"([^>]*)>/g)]
-    .filter((m) => /\bopen\b/.test(m[2])).map((m) => m[1]);
-  assert.deepEqual(opened, ["bounty-board"],
-    `these lanes ship expanded: ${opened.join(", ") || "(none — the board must be open)"}`);
+  // THE DEFAULT MOVED WITH THE RULING. It was the board ("the liveliest lane
+  // and the one the home page's milestone link points at"); it is the Think
+  // Tank now, founder-ruled, because that is the lane the head's own sentence
+  // is about — "You and your agent can help us build Postmark, together." The
+  // milestone link still lands on the board, which is the next test.
+  // READ FROM `hubSrc`, NOT `raw`: the switch is built in the FRONTMATTER, and
+  // `raw` is the page with its frontmatter sliced off. The first version of
+  // this read `raw` and reported "the switch is gone" about a switch that was
+  // there and working — an instrument fault dressed as a finding.
+  const at = hubSrc.indexOf("const switchCss");
+  assert.ok(at > 0, "the switch is gone");
+  const css = hubSrc.slice(at, hubSrc.indexOf("\n---", at));
+  assert.ok(/\.c-lane\{display:none\}/.test(css.replace(/\s+/g, " ")) || /display:none/.test(css),
+    "the panels must be hidden by default inside the @supports block");
+  assert.ok(css.includes("${DEFAULT_LANE}"),
+    "the default panel must be read from civic.mjs's DEFAULT_LANE, not typed here");
+  assert.equal(/data-panel="(quests|bounties|listings|votes)"\]\{display:block\}/.test(css), false,
+    "a second lane is shown by default");
+
+  // AND WHICH LANE THAT RESOLVES TO. The first version of this stopped at "the
+  // page reads DEFAULT_LANE", and its own can-fail flip caught it: changing
+  // DEFAULT_LANE to "quests" left this test green while the page opened on a
+  // lane the founder did not name. A law titled "and it is the Think Tank" that
+  // cannot see which lane it is, is a title doing the work of an assertion.
+  assert.equal(DEFAULT_LANE, "ideas",
+    "the panel must open on the Think Tank — the lane the head's own sentence is about");
+  const ideas = LANE_KEYS.indexOf(DEFAULT_LANE);
+  assert.ok(ideas >= 0, `DEFAULT_LANE "${DEFAULT_LANE}" is not one of the five lanes`);
+
+  // and no panel carries an `open`-shaped default of its own
+  assert.equal(/<section class="c-lane"[^>]*\bopen\b/.test(raw), false,
+    "a panel ships open — the switch, not the markup, decides what shows");
 });
 
 test("the quarter draws a building for every lane the world names", () => {
@@ -361,16 +403,34 @@ test("a building that does not stand in the world says so, and says it from the 
 // explaining themselves. So the removals ask this view instead, and the shared
 // `body` is left exactly as it was — no existing law is loosened to make room.
 const stripComments = (s) => s.replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, " ");
-const rendered = flat(stripComments(raw));
 
-// A slice of one lane's fold, so a law about order asks the lane and not the
-// page. Every lane is a <details> and they do not nest, so the next one's
-// opening tag is the end of this one.
+// THE MARKUP, WITHOUT THE STYLESHEET AND THE SCRIPT. `stripComments` above
+// removes JSX comments and nothing else, which was enough while every
+// explanatory comment on this page was a JSX one. It is not enough now: the
+// <style> block's CSS comments record which rulings struck which rules, and
+// they QUOTE the struck text — so a law asking "is this sentence still on the
+// page" reads a stylesheet's honest changelog as prose the reader sees, and
+// goes red on a page that is already correct. Same failure the file's own note
+// above describes, one comment syntax over.
+const noChrome = (s) => s
+  .replace(/<style[\s\S]*?<\/style>/g, " ")
+  .replace(/<script[\s\S]*?<\/script>/g, " ");
+const markup = stripComments(noChrome(raw));
+const rendered = flat(markup);
+
+// A slice of one lane's PANEL, so a law about order asks the lane and not the
+// page. Every lane is a <section class="c-lane"> and they do not nest, so the
+// next one's opening tag is the end of this one.
+//
+// RE-AIMED 2026-09-01 with the folds: this searched `<details class="c-lane"`,
+// which is the element the founder's one-panel ruling replaced. The law it
+// serves — a lane's blocks are in the founder's order — did not change at all,
+// which is why this is a re-aim and not a retirement.
 function lane(id) {
-  const open = raw.search(new RegExp(`<details class="c-lane(?: is-rules)?" id="${id}"`));
+  const open = raw.search(new RegExp(`<section class="c-lane" id="${id}"`));
   assert.ok(open > 0, `the ${id} lane is gone`);
   const rest = raw.slice(open + 1);
-  const next = rest.search(/<details class="c-lane/);
+  const next = rest.search(/<section class="c-lane"/);
   return next < 0 ? rest : rest.slice(0, next);
 }
 
@@ -392,24 +452,190 @@ test("THE LAW: the Guild reads cards, then the pots, then the standings", () => 
   assert.ok(pots < standings, "and the standings go below everything else");
 });
 
-test("THE LAW: the Guild does not recite its own plaque", () => {
-  // THE FOUNDER'S WORDS, 2026-08-31, on the Quest Guild's mark body — "The
-  // Quest Guild — the town's asks for its residents: standing quests,
-  // town-minted. The standings still hang at the works; this is their home
-  // now." — rendered under a lane already headed with the same words: "not
-  // necessary."
+test("THE LAW: every panel's title is READ, and the page holds no copy of a plaque", () => {
+  // SUPERSEDED AND REPLACED, 2026-09-01, and the supersession is worth writing
+  // down because it looks like a reversal and is not.
   //
-  // The sentence is asked for by its OWN HALVES rather than as one string,
-  // because it reached the page through `placeMarks[…]` and could come back
-  // through any reader of that mark, spelled any way the mark is spelled.
-  assert.equal(/standings still hang at the works/.test(rendered), false,
-    "the Guild's plaque is being rendered again");
-  assert.equal(/placeMarks\[LANE_PLACES\.quests\]/.test(raw), false,
-    "the Guild must not read its own plaque onto the page at all");
-  // and the marketplace's plaque, which he did NOT strike, is still rendered —
-  // so this law is about one lane's prose and not a quiet ban on quoting marks
-  assert.ok(/placeMarks\[LANE_PLACES\.listings\]/.test(raw),
-    "the Marketplace's plaque was not struck and must still render");
+  // This was "the Guild does not recite its own plaque" — founder-ruled
+  // 2026-08-31, when the Guild's mark body was rendered as a quotation UNDER a
+  // heading that already said the same words: "not necessary." The founder has
+  // now ruled the plaque IS the heading ("The marks that we drafted up should
+  // be really big font (like the title of that panel)"), which does not
+  // reinstate the redundancy — it removes the heading that made it redundant.
+  // The old assertion asked for the absence of a specific sentence from a mark
+  // body the world has since rewritten, so its premise is gone twice over.
+  //
+  // WHAT SURVIVES, AND IT IS THE HALF THAT MATTERED: no plaque is TYPED. The
+  // page renders five titles and holds none of them, so nothing here can go
+  // stale the way `how-ideas-enter` did on 2026-08-31.
+  for (const key of LANE_KEYS) {
+    assert.ok(raw.includes(`plaque={PLAQUES.${key}}`),
+      `the ${key} panel does not render a read plaque`);
+  }
+  assert.equal((raw.match(/plaque=\{PLAQUES\./g) || []).length, LANE_KEYS.length,
+    "a panel renders something other than its own lane's plaque");
+
+  // AND THE FIVE BODIES, BY THEIR OPENING WORDS, must appear nowhere in this
+  // page's source. Asked by prefix rather than in full because a copy is a copy
+  // whether or not somebody re-wrapped it, and because the bodies change: what
+  // is forbidden is the page carrying them, not this test knowing them.
+  for (const opening of [
+    "The town asks your resident for things here",
+    "Your resident can propose ideas to this town here",
+    "Your resident can ask other residents for help here",
+    "Your resident can offer things for sale here",
+    "Your resident can vote here on the town",
+  ]) {
+    assert.equal(hubSrc.includes(opening), false,
+      `the hub types a plaque body: "${opening}…" — read the mark, never copy it`);
+  }
+
+  // NO CITE LINE UNDER A TITLE. Founder-ruled the same day: "Don't include
+  // distracting text like 'the world's own words, at the-town/quest'."
+  assert.equal(/the world's own words, at/.test(rendered), false,
+    "a plaque carries a cite line again");
+  assert.equal(/<p class="c-law">/.test(raw), false,
+    "the law pull-quote is back — the plaque is the heading now");
+});
+
+test("THE LAW: the head says what the page is for, in the founder's own sentence", () => {
+  // THE FOUNDER'S WORDS, 2026-09-01, given verbatim as the intro paragraph —
+  // and it replaced a paragraph that described the town's MACHINERY (ferries,
+  // the public record) to a reader who had not yet been told why they were
+  // here. Asserted whole, because "verbatim" was the instruction.
+  assert.ok(rendered.includes(
+    "Postmark isn't just a sandbox simulation for agents. You and your agent can help us build Postmark, together. Click each of the buildings to see how."),
+    "the head's sentence is not the founder's, verbatim");
+  assert.ok(/<h1>The Civic Quarter<\/h1>/.test(raw), "the page is The Civic Quarter now");
+  assert.equal(/<h1>The Town<\/h1>/.test(raw), false, "the old heading is back");
+  assert.ok(/title="The Civic Quarter — Postmark"/.test(raw), "and the browser tab says so too");
+  // the struck paragraph, by the clause that made it machinery-first
+  assert.equal(/A slow-mail town for AI agents\. Letters move on/.test(rendered), false,
+    "the machinery paragraph is back above the quarter");
+});
+
+test("THE LAW: COMING SOON rides both surfaces, for exactly the lanes that are not live", () => {
+  // THE FOUNDER'S WORDS, 2026-09-01: "Both need 'COMING SOON' on their pixel
+  // building and the opened page, as they're not live yet and are mostly thin
+  // redirects to the legacy places."
+  //
+  // BOTH SURFACES IS THE RULING, so both are asserted — a badge on the building
+  // with nothing in the panel is a reader clicking through to find the promise
+  // gone. And the fact has ONE owner: `LANES[].live`. A hardcoded pair of lane
+  // names on this page would be correct today and a lie the moment one ships.
+  assert.ok(/{!lane\.live && <span class="cq-coming">/.test(raw),
+    "the building's badge must be read from the lane's own live flag");
+  assert.equal(/(marketplace|ballot-house|listings|votes)['"]\s*\)\s*&&\s*<span class="cq-coming"/.test(raw), false,
+    "a lane is named by hand rather than read from LANES[].live");
+
+  const head = read("../src/components/LaneHead.astro");
+  assert.ok(/{!lane\.live && <p class="c-coming-head">Coming soon<\/p>}/.test(head),
+    "the opened panel must carry COMING SOON too, from the same flag");
+
+  // and the world's own "not standing yet" is a DIFFERENT fact and must survive
+  // beside it — one is the world's answer, the other the site's
+  assert.ok(raw.includes("not standing yet"), "the world's standing badge was absorbed into COMING SOON");
+  assert.ok(/quarter\.built\[lane\.key\]/.test(raw), "and it must still be read per lane from the world");
+});
+
+test("THE LAW: the '?' belongs to every live lane and to no other", () => {
+  // THE FOUNDER'S WORDS, 2026-09-01: "Each panel for the live ones (Quests,
+  // Ideas, Bounties) needs to have a '?' bubble in the top right corner."
+  //
+  // Held against LANES[].live rather than against three names, so the day the
+  // Marketplace goes live its "?" is a data change and not a page edit — and so
+  // a lane that quietly loses its deck costs a red.
+  const head = read("../src/components/LaneHead.astro");
+  assert.ok(/const helps = lane\.live && slides > 0/.test(head),
+    "the bubble must be gated on the lane being live AND having a deck");
+  assert.ok(/data-tut={lane\.key}/.test(head), "and it must name its own lane's deck");
+  assert.ok(/aria-haspopup="dialog"/.test(head), "the button must announce what it opens");
+  for (const key of LANE_KEYS) {
+    assert.ok(raw.includes(`slides={tutorialFor("${key}").length}`),
+      `the ${key} panel does not ask civic-tutorial.mjs how many slides it has`);
+  }
+  // A BUBBLE THAT OPENS AN EMPTY BOX is worse than no bubble: it promises an
+  // answer and delivers chrome.
+  assert.equal(/data-tut="[a-z]+"/.test(raw), false,
+    "a lane's deck is named by hand on the page rather than by its own key");
+});
+
+test("THE LAW: stamps are purple — every ✦ on this page wears the one family", () => {
+  // THE LAW, verbatim from src/styles/postmark.css: "stamps are purple (law,
+  // Keemin 2026-07-29) — every stamp-touching surface (mint bar, balances,
+  // backing, ✦-weight) uses THIS family, no per-page hex".
+  //
+  // THIS LANE WAS BREAKING IT and had been since the board moved here: the
+  // bounty reward chip and the pot's staked chip each rendered a ✦ inside a
+  // plain `.m-chip`, which is gold. Nothing invented a hex — the stamps simply
+  // wore the page's chrome colour instead of their own, which is the same
+  // failure one step quieter and is exactly why a headcount of hexes would
+  // never have found it.
+  //
+  // ASKED AS: every ✦ in the markup sits inside an element that carries a stamp
+  // token, and the tokens are the shared ones rather than a copy.
+  const stampish = /(m-stamp|q-all|is-stamp|is-quest|pm-holo-ink)/;
+  const lines = markup.split("\n");
+  const naked = lines
+    .map((line, i) => [i + 1, line])
+    .filter(([, line]) => line.includes("✦"))
+    .filter(([, line]) => !stampish.test(line));
+  assert.deepEqual(naked.map(([n, l]) => `${n}: ${l.trim()}`), [],
+    "a ✦ renders outside the stamp family — see postmark.css's stamps-are-purple law");
+
+  // and the family is the town's, read from the tokens, never re-typed
+  const style = hubSrc.slice(hubSrc.indexOf("<style>"));
+  assert.ok(/var\(--pm-stamp-bright\)/.test(style) && /var\(--pm-stamp-rgb\)/.test(style),
+    "the stamp colours must come from postmark.css's tokens");
+  // ASKED OF THE DECLARATIONS, NOT THE FILE. The first version of this scanned
+  // `hubSrc` whole and went red the moment the fix for a dead rule EXPLAINED
+  // itself: the comment recording that `rgba(var(--pm-stamp-bright, #d8c7ef),
+  // 0.75)` was invalid has to quote the hex to be worth reading. Same failure
+  // the file's own note above names — a check a truthful comment fails is a
+  // check that teaches people to stop explaining themselves — so the comments
+  // come out first, all three syntaxes this file uses.
+  const declarations = hubSrc
+    .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, " ")
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/(^|\s)\/\/[^\n]*/g, "$1");
+  assert.equal(/#(aa8fd8|d8c7ef|65517f)/i.test(declarations), false,
+    "a stamp hex is typed into the hub — the tokens own those three");
+  // and the token that can actually be used in an rgba() is the CHANNEL LIST.
+  // `rgba(var(--pm-stamp-bright), …)` expands to `rgba(#d8c7ef, …)`, which is
+  // invalid and silently dropped — the exact dead rule this lane shipped with.
+  assert.equal(/rgba\(var\(--pm-stamp(-bright|-dark)?\)/.test(declarations), false,
+    "a stamp colour token is being fed to rgba() — only the -rgb channel lists work there");
+  // pm-holo-ink is HOLO, a different thing, and must never be used AS the stamp
+  // colour — it is silver-iridescent and soulbound, "never rendered as a
+  // spendable balance, so it never wears the stamp violet" (postmark.css)
+  assert.equal(/class="pm-holo-ink[^"]*"[^>]*>[^<]*✦/.test(raw), false,
+    "a ✦ is being inked as holo — those are two different things");
+});
+
+test("THE LAW: every derived block says which world it was derived from", () => {
+  // The pots' own law, carried to the quarter by the founder's 2026-09-01
+  // instruction: "Mark every derived block with its as-of (the world store's
+  // stamp, the way the pots do)."
+  //
+  // The world store has no clock, so the as-of is the PIN — see civic.mjs
+  // § WHEN THIS WORLD WAS READ. What matters here is that it is READ and not
+  // stamped: a build-time clock would tick even when nothing changed, which is
+  // the exact failure the pots' own stamp exists to avoid.
+  assert.ok(/const pin = worldPin\(\)/.test(hubSrc), "the page must read the pin");
+  assert.equal(/new Date\(\)\.toISOString/.test(src), false,
+    "the page must not stamp itself — that would look fresh on stale data");
+  // every world-derived block carries it
+  for (const block of [
+    "What the town is being asked for",
+    "The tank, counted",
+    "On the Bounty Board",
+    "The board, counted",
+  ]) {
+    const at = raw.indexOf(block);
+    assert.ok(at > 0, `the "${block}" block is gone`);
+    const label = raw.slice(at, raw.indexOf("</p>", at));
+    assert.ok(label.includes("{worldAsOf}"), `"${block}" does not say which world it read`);
+  }
 });
 
 test("THE LAW: how an idea enters is READ from the quay note, never typed", () => {
@@ -582,45 +808,75 @@ test("every id the portal answered to still exists on the hub", () => {
   }
 });
 
-test("the router opens a fold inside a fold, and yields to the page", () => {
-  // THE BUG THIS EXISTS TO PREVENT. A teaching accordion is a <details> nested
-  // inside the Rules lane's own <details>. A router that opened only the
-  // innermost would scroll the reader to something still hidden — the link
-  // would look broken while every id it named was present and correct. So the
-  // reveal walks UP from the target, opening every fold on the way.
-  assert.ok(/while \(node && node !== main\)/.test(src),
-    "the router must walk ancestors, not just open the target");
-  assert.ok(/node\.tagName === "DETAILS"/.test(src) && /node\.open = true/.test(src),
-    "and open each fold it passes");
+test("THE LAW: a deep link INTO a panel opens that panel, not just the lane's own id", () => {
+  // RETIRED AND REPLACED, 2026-09-01: this was "the router opens a fold inside
+  // a fold", which asserted `reveal()` walking DETAILS ancestors. There are no
+  // folds and no reveal, so the assertion could not survive — but the BUG it
+  // existed to prevent is exactly as live as it was, and one level nastier.
+  //
+  // THE BUG: #board and #pots are blocks INSIDE a panel, not panels. A switch
+  // keyed on `:target` alone would match the panel only when the fragment names
+  // the panel itself, so /town/#pots — the giver's door, linked from the stamps
+  // teaching, the numbers page and the fund pages — would open nothing at all
+  // and scroll to something still `display:none`. `:has(:target)` asks the
+  // question the reader is actually asking: is the thing you named in here?
+  // the frontmatter, for the same reason the sibling law above reads it
+  const css = hubSrc.slice(hubSrc.indexOf("const switchCss"), hubSrc.indexOf("\n---", hubSrc.indexOf("const switchCss")));
+  assert.ok(/\.c-lane:has\(:target\)\{display:block\}/.test(css),
+    "the switch must open a panel that CONTAINS the target, not only one that IS it");
+  assert.ok(/\.c-lane:target\{display:block\}/.test(css),
+    "and one that is the target");
+
+  // THE FLOOR, and it is not belt-and-braces. A selector list containing an
+  // unsupported pseudo-class is dropped WHOLE, so a browser with no `:has()`
+  // would keep `display:none` and show a reader no panel at all. The base rule
+  // outside the @supports must therefore show every panel.
+  const supports = css.indexOf("@supports selector(:has(*))");
+  assert.ok(supports > 0, "the :has() rules must be gated on @supports");
+  assert.ok(/\.c-lane\{display:block\}/.test(css.slice(0, supports)),
+    "without :has() a reader must see every panel, not none");
+
   assert.ok(src.includes('addEventListener("hashchange"'),
     "a hash changed after load is the same deep link and gets the same treatment");
-  assert.ok(/history\.pushState/.test(src),
-    "an in-page jump writes history rather than reloading — Back walks the lanes");
-  // scrolling BEFORE the folds open measures the old layout and lands somewhere
-  // else entirely, which on a page made of folds is most of the page away
+  // scrolling BEFORE the swap measures the old layout and lands somewhere else
+  // entirely — the same reason the fold router needed this, for the same frame
   assert.ok(/requestAnimationFrame/.test(src),
-    "the scroll must be measured after the folds have opened");
+    "the scroll must be measured after the panel has swapped");
 });
 
 test("the hub works with the script switched off", () => {
-  // THE BRIEF'S HARD REQUIREMENT, and the reason the router is written as an
-  // enhancement rather than as the page's legs: the buildings degrade to plain
-  // anchor links. Three things carry that, and each is asserted because each
-  // could be quietly lost in a refactor toward "cleaner" JS-driven markup.
+  // THE BRIEF'S HARD REQUIREMENT, and the reason the switch is CSS rather than
+  // a click handler: with no script the buildings are still ordinary anchors
+  // and the fragment they set is still what selects a panel. Each half is
+  // asserted because each could be quietly lost in a refactor toward "cleaner"
+  // JS-driven markup.
   //
-  //   the buildings are real <a href="#…">     — not buttons, not onclick spans
-  //   the lanes are native <details>/<summary> — a reader can open one by hand
-  //   the art is markup                        — painted at BUILD time, so a
-  //                                              scriptless browser still sees
-  //                                              the town
+  //   the buildings are real <a href="#…">  — not buttons, not onclick spans
+  //   the switch is :target                 — no handler in the mechanism
+  //   the art is markup                     — painted at BUILD time, so a
+  //                                           scriptless browser sees the town
+  //
+  // RE-AIMED 2026-09-01: the third assertion was "every lane needs its own
+  // native <summary>", which was the no-script story WHILE the lanes were
+  // folds. It is retired with the folds and replaced by the stronger thing the
+  // panel needs — that the script contains no switch at all.
   assert.ok(/<a class="cq-b" href={`#\$\{LANE_ANCHORS\[lane\.key\]\}`}/.test(raw),
     "a building must be an anchor with a real fragment href");
   assert.equal(/<button[^>]*class="cq-b"/.test(raw), false,
     "a building must not be a button — a button does nothing without script");
-  assert.ok((raw.match(/<summary class="c-sum">/g) || []).length === LANE_IDS.length,
-    `every lane needs its own native summary (expected ${LANE_IDS.length})`);
   assert.ok(raw.includes("<svg class=\"cq-art\""),
     "the art must be inline markup, not drawn by a client script");
+
+  // THE SWITCH IS NOT IN THE SCRIPT. If any of these come back the page has
+  // quietly become script-dependent while every other assertion stayed green.
+  const script = src.slice(src.indexOf("<script is:inline"), src.indexOf("</script>", src.indexOf("<script is:inline")));
+  assert.ok(script.length > 0, "the enhancement script is gone");
+  assert.equal(/a\[data-lane\]/.test(script), false,
+    "the script intercepts the buildings again — the anchor is the mechanism");
+  assert.equal(/preventDefault/.test(script), false,
+    "the script cancels a navigation — a fragment IS the switch, so cancelling it breaks the switch");
+  assert.equal(/\.style\.display|classList\.(add|remove|toggle)\(["']is-on/.test(script), false,
+    "the script shows or hides a panel — that is CSS's job and only CSS's");
 });
 
 // ── the market ───────────────────────────────────────────────────────────────
