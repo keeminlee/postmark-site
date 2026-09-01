@@ -212,7 +212,24 @@ test("every holo mention carries the ruling's line", () => {
     "the hub must not render the holo lines — /stamps/ is their home");
   assert.equal(/^\s*import\s*\{[^}]*HOLO_(?:NAME_)?LINE/m.test(hubSrc), false,
     "and must not import them either — an import kept 'just in case' is how the paragraph comes back");
-  assert.ok(/href="\/stamps\/#\w+"[^<]*>holo</.test(raw) || /✧ is <a href="\/stamps\//.test(raw),
+  // RE-AIMED 2026-09-01 (the minimalism ruling) — LOOSENED IN SHAPE, TIGHTENED
+  // IN SUBSTANCE, and the reason is worth writing down because it looks like a
+  // relaxation.
+  //
+  // This matched two exact spellings, both of which put the word "holo" inside
+  // the anchor: `>holo<` or the literal opening `✧ is <a href="/stamps/`. The
+  // second of those WAS the sentence the founder struck twice — he removed the
+  // paragraph on 08-31, it came back shortened on the same day, and on 09-01 he
+  // named the shortened form as not-a-removal. A test that hard-codes a struck
+  // sentence's opening as one of its two accepted forms is a test holding the
+  // door open for it.
+  //
+  // What the hub owes a reader has not changed: a POINTER at where holo is
+  // explained. What the ruling adds is its shape — "what must survive survives
+  // as a link whose text is a question" — so the assertion asks for the link
+  // and for the word inside its text, and the sibling law below asks that the
+  // text is a question and that nothing else is left.
+  assert.ok(/href="\/stamps\/#\w+"[^>]*>[^<]*holo[^<]*</i.test(raw),
     "but the hub must still point a reader at where holo is explained");
   // AND NO TYPED COPY OF IT ANYWHERE. Counting occurrences was the wrong
   // instrument — with three mentions on the page, replacing one with prose
@@ -624,18 +641,36 @@ test("THE LAW: every derived block says which world it was derived from", () => 
   assert.ok(/const pin = worldPin\(\)/.test(hubSrc), "the page must read the pin");
   assert.equal(/new Date\(\)\.toISOString/.test(src), false,
     "the page must not stamp itself — that would look fresh on stale data");
-  // every world-derived block carries it
-  for (const block of [
-    "What the town is being asked for",
-    "The tank, counted",
-    "On the Bounty Board",
-    "The board, counted",
+
+  // RE-AIMED 2026-09-01 EVENING, and the law is unchanged while the shape is
+  // the opposite of what it was. This walked FOUR block labels and required
+  // each to carry `{worldAsOf}` inline — which is exactly what the founder then
+  // struck: "The as-of stamps stay but move to ONE small line per panel, not
+  // per block." Four stamps on one screen, all naming the same build, is the
+  // stamp saying nothing four times.
+  //
+  // SO THE ASSERTION INVERTS: every panel that derives from the world says
+  // which world, exactly once, and no block label carries a stamp of its own.
+  // "The as-of stamps stay" is the half that would be lost by a careless read
+  // of the ruling, so it is the half asserted first.
+  for (const [id, needle] of [
+    ["ideas", "{worldAsOf}"],
+    ["bounty-board", "{worldAsOf}"],
+    // the Guild reads the pots' EMISSION, which carries its own stamp — a
+    // different clock, named as such
+    ["quests", "as of {asOfText}"],
   ]) {
-    const at = raw.indexOf(block);
-    assert.ok(at > 0, `the "${block}" block is gone`);
-    const label = raw.slice(at, raw.indexOf("</p>", at));
-    assert.ok(label.includes("{worldAsOf}"), `"${block}" does not say which world it read`);
+    const panel = lane(id);
+    const stamps = (panel.match(/<p class="c-asof">/g) || []).length;
+    assert.equal(stamps, 1,
+      `the ${id} panel carries ${stamps} as-of lines — the ruling is ONE small line per panel`);
+    assert.ok(panel.includes(needle),
+      `the ${id} panel's as-of does not name the record it read (${needle})`);
   }
+  // AND NO BLOCK KEEPS ONE. `n-asof` was the span that rode the labels; if it
+  // comes back, the four-stamps-per-screen state is back with it.
+  assert.equal(/class="n-asof"/.test(raw), false,
+    "a block label carries its own as-of again — one small line per panel");
 });
 
 test("THE LAW: how an idea enters is READ from the quay note, never typed", () => {
@@ -650,14 +685,49 @@ test("THE LAW: how an idea enters is READ from the quay note, never typed", () =
   // So the law is not "the page shows the right sentence" — that would go green
   // on a fresh transcription and rot exactly the same way. It is that the page
   // holds NO transcription.
-  assert.ok(/\{howIdeasEnter\}/.test(raw), "the quay note must be rendered from the mark");
-  assert.ok(/HOW_IDEAS_ENTER_PLACE/.test(hubSrc), "and the mark named by id, not by a path");
+  // RE-AIMED 2026-09-01 EVENING BY REMOVAL, and this is the case the file's own
+  // "retired vs lost" discipline was written for.
+  //
+  // The rendered quay note is GONE — founder-ruled: "the 'How an idea enters, in
+  // the town's own words on the quay: …' note → gone (the plaque already says
+  // it)". The Think Tank's plaque IS the panel's title now and it says how an
+  // idea enters, so the page was reading two marks to answer one question.
+  //
+  // THE LAW SURVIVES THE REMOVAL AND GETS STRICTER. It was never "the page shows
+  // the right sentence" — that goes green on a fresh transcription and rots the
+  // same way. It was "the page holds NO transcription", and the page now holds
+  // no transcription AND makes no second reading, which is the strongest form
+  // of it this surface can carry. The two superseded spellings stay asserted
+  // absent: they are what a helpful hand would type back in.
+  assert.equal(/\{howIdeasEnter\}/.test(raw), false,
+    "the quay note is rendered again — the plaque above already says it");
+  // ASKED OF THE IMPORT STATEMENT, NOT OF THE FILE. The first spelling of this
+  // scanned `hubSrc` whole and went red on the frontmatter comment that RECORDS
+  // the removal — which has to name the constant to be worth reading. Same
+  // failure this file's own standing note describes: a check a truthful comment
+  // fails is a check that teaches people to stop explaining themselves. Caught
+  // by running it, not by reading it.
+  const imports = hubSrc.slice(0, hubSrc.indexOf("---", 3));
+  assert.equal(/import\s*\{[^}]*HOW_IDEAS_ENTER_PLACE/.test(imports), false,
+    "and the page must not import the id either — an import kept 'just in case' is how a struck block comes back");
+  assert.equal(/in the town's own words on the quay/.test(rendered), false,
+    "the quay note's own framing sentence is back on the page");
   assert.equal(/Open a blueprint in the chest/.test(rendered), false,
     "the superseded version of the quay note is typed into the page");
   assert.equal(/Plant a bounty here/.test(rendered), false,
     "any hand copy of the quay note is a copy that will go stale — read the mark");
-  // the chest keeps its line, demoted: where a drawn idea GOES
-  assert.ok(/postmark-blueprints ↗/.test(rendered), "the chest link must survive as the secondary line");
+  // AND THE MARK IS STILL READABLE FROM THE MODULE, so this is a page ruling and
+  // not a deletion: another surface can render it tomorrow without re-deriving
+  // the id. (civic.mjs's own suite asserts the constant and its reader.)
+  const civic = read("../src/lib/civic.mjs");
+  assert.ok(/export const HOW_IDEAS_ENTER_PLACE = "the-town\/how-ideas-enter"/.test(civic),
+    "the quay note's id must survive in civic.mjs — the page stopped rendering it, the town did not stop saying it");
+  // the chest keeps its line, demoted to what it is: where a drawn idea GOES.
+  // Asked by HREF rather than by label text, because the label was shortened by
+  // the same ruling ("postmark-blueprints ↗" → "the town's chest ↗") and a law
+  // about a door should not break when the door's sign is repainted.
+  assert.ok(new RegExp(`href="?\\{?BLUEPRINTS_REPO`).test(raw) || /href=\{BLUEPRINTS_REPO\}/.test(raw),
+    "the chest link must survive, and its URL must come from civic.mjs");
 });
 
 test("THE LAW: the Bounty Board carries no weight paragraph, and /stamps/ still teaches it", () => {
@@ -1063,8 +1133,24 @@ test("nothing in the repo still points at a retired route", () => {
   // fragment this page no longer carries.
   assert.equal(/href="\/town\/#rules"/.test(raw), false,
     "the hub links /town/#rules — the lane that went back to /stamps/");
-  assert.ok(raw.includes('href="/stamps/#staking"') || raw.includes('href="/stamps/#earning"'),
-    "the lanes must point at the teaching where it actually lives");
+  // RE-AIMED 2026-09-01 EVENING. This named two of the teaching's nine sections
+  // by hand, and the minimalism ruling took both of those pointers off the page
+  // — the standings footnote (which linked #earning) became one link to the
+  // full board, and the weight pointer had already gone on 08-31. What is left
+  // is #seam, holo's home, and it is exactly as much "the teaching where it
+  // actually lives" as the other two were.
+  //
+  // So the law asks its real question: does the hub point at a section the
+  // teaching HAS? Held against RULE_IDS — the teaching's own list, which this
+  // file already reads — so a pointer at a section that was renamed or removed
+  // still costs a red, which is the failure the original two names were a proxy
+  // for.
+  const teachLinks = [...raw.matchAll(/href="\/stamps\/#([\w-]+)"/g)].map((m) => m[1]);
+  assert.ok(teachLinks.length > 0, "the hub points at no part of the teaching at all");
+  for (const id of teachLinks) {
+    assert.ok(RULE_IDS.includes(id),
+      `the hub points at /stamps/#${id}, which is not one of the teaching's sections`);
+  }
 });
 
 test("every bare fragment on the hub names something the hub has", () => {
@@ -1194,4 +1280,252 @@ test("the pots block says when its data was made", () => {
   assert.ok(raw.includes("as of {asOfText}"), "and rendered on the pots block");
   assert.equal(/new Date\(\)\.toISOString/.test(src), false,
     "the page must not stamp itself — that would look fresh on stale data");
+});
+
+// ── THE FOUNDER'S SIX, 2026-09-01 EVENING ────────────────────────────────────
+//
+// He read the live /town/ and said, verbatim: **"minimalism minimalism
+// minimalism"** — and then asked to be understood at the CLASS level rather
+// than given a spot list. So each law below quotes the rule it enforces, and
+// each is written to bind on every panel rather than on the example that
+// happened to be named.
+//
+// FOUR OF THE SIX ARE REMOVALS, and this file's own precedent applies: a
+// removal with no falsifier is a paragraph waiting to be helpfully restored.
+// The other two (air, and nothing scrolling sideways) are rendered facts and
+// their falsifiers live in qa-shots/civic-minimal-shots.mjs, where a browser
+// can actually answer them — a stylesheet cannot be asked what size the text
+// came out.
+
+test("RULE 1: no machine voice on a human page", () => {
+  // THE FOUNDER'S RULE, verbatim: "No machine voice on a human page. … Remove
+  // the predicates block from every panel. Door verbs, mark ids, file names,
+  // postmark.town/fund/<pot>/ — none of it on the page."
+  //
+  // THE PREDICATES WERE READ, NOT TYPED, which is why this needed a ruling and
+  // not a bug report: every row was the world's own words. What made them wrong
+  // is the register, not the provenance.
+  assert.equal(/class="c-preds"/.test(read("../src/components/LaneHead.astro")), false,
+    "the predicates block renders again — the verbs live behind the '?' and at the doors");
+  assert.equal(/predicates=\{/.test(raw), false,
+    "a panel hands predicates to its head again");
+  // THE IMPORT STATEMENT, not the file — see the quay-note law's note for the
+  // same catch. The frontmatter comment recording this removal names
+  // `predicatesOf` on purpose.
+  assert.equal(/import\s*\{[^}]*predicatesOf/.test(hubSrc.slice(0, hubSrc.indexOf("---", 3))), false,
+    "the page imports the predicate reader again — an import kept 'just in case' is how a struck block comes back");
+
+  // THE READER SURVIVES, and that is half the ruling: "The reader in civic.mjs
+  // that collects predicates may stay (the office half uses the same idea); the
+  // page stops rendering it." A law that deleted the derivation would have
+  // over-read him.
+  const civic = read("../src/lib/civic.mjs");
+  assert.ok(/export function predicatesOf\(/.test(civic),
+    "civic.mjs's predicate reader must survive — the page stopped rendering it, the world did not stop saying it");
+
+  // AND NO DOOR VERB, MARK ID OR FUND PATH IN THE PANELS' PROSE. Asked of the
+  // rendered markup with the comments and chrome stripped, because the
+  // frontmatter's own commentary quotes the struck rows on purpose and a check
+  // a truthful comment fails is a check that teaches people to stop explaining
+  // themselves (this file's standing note).
+  for (const [what, re] of [
+    ["a door verb", /\b(?:do|read):\s*"/],
+    ["an apex grammar line", /\b(?:town|household|world)\s*\{\s*(?:do|read)\b/],
+    ["a fund path", /postmark\.town\/fund\//],
+    ["a source file name", /\b[\w-]+\.(?:mjs|astro)\b/],
+  ]) {
+    const hit = rendered.match(re);
+    assert.equal(hit, null, `the page speaks machine: ${what} — ${hit && hit[0]}`);
+  }
+});
+
+test("RULE 2: explain by link, never inline — and what survives is a question", () => {
+  // THE FOUNDER'S RULE, verbatim: "Explain by link, never inline." And the
+  // meta-rule under all six: "'remove' means gone. What must survive survives
+  // as a link whose text is a question."
+  //
+  // THE HOLO PARAGRAPH IS THE CASE THAT PROVED IT — struck on 08-31, back
+  // shortened the same day, and named on 09-01 as not-a-removal. So the law is
+  // not "the paragraph is shorter"; it is that what stands in its place is a
+  // LINK and its TEXT IS A QUESTION.
+  const seam = /<a href="\/stamps\/#seam">([^<]+)<\/a>/.exec(raw);
+  assert.ok(seam, "the holo pointer is gone entirely — a lane owes a word it uses and does not define");
+  assert.match(seam[1], /^What's holo\?$/,
+    `the holo pointer's text must be the question itself, not a sentence: got "${seam[1]}"`);
+
+  // THE STRUCK EXPLANATIONS, each by the clause that made it an explanation.
+  // Every one of these was true, and every one was prose doing a link's job.
+  for (const [what, re] of [
+    ["the shortened holo paragraph", /the payers' keepsake/],
+    ["the daily-mirror excuse", /not counted on the daily mirror/],
+    ["the standings footnote", /regenerated each ferry crossing/],
+    ["the quay note's framing", /in the town's own words on the quay/],
+    ["the marketplace's five-fact paragraph", /market pace is\s+ferry pace/],
+    ["the boxed listing-class note", /The listing class has not landed/],
+  ]) {
+    assert.equal(re.test(rendered), false, `${what} is back on the page`);
+  }
+
+  // AND EACH ONE LEFT A DOOR BEHIND. "Remove" means gone; it does not mean the
+  // reader loses the answer — it means they have to click for it. A law that
+  // only forbade the prose would go green on a page that simply dropped the
+  // destination.
+  for (const [what, href] of [
+    ["where holo is explained", "/stamps/#seam"],
+    ["the full quest board", "/bulletin/#quests"],
+    ["the price board", "/bulletin/#marketplace"],
+    ["the postmaster, who hand-sets a listing", "/mail/compose/?to=postmaster"],
+  ]) {
+    assert.ok(raw.includes(`href="${href}"`), `${what} lost its door — removal is not deletion`);
+  }
+});
+
+test("RULE 3: labels name, they don't narrate", () => {
+  // THE FOUNDER'S RULE, verbatim: "Labels name, they don't narrate. … Two or
+  // three words, nouns; qualifiers become tooltips (title=) or die."
+  //
+  // ASKED OF EVERY LABEL ON THE PAGE, not of the five he happened to name —
+  // "you are measured by the rules, not by the examples". A sixth block added
+  // next month gets the same three words.
+  const labels = [...markup.matchAll(/<p class="m-lab"[^>]*>([\s\S]*?)<\/p>/g)]
+    .map((m) => flat(m[1]).trim());
+  assert.ok(labels.length >= 6, `only ${labels.length} labels found — the selector has drifted off the page`);
+  for (const label of labels) {
+    const words = label.split(/\s+/).filter(Boolean);
+    assert.ok(words.length <= 3,
+      `the label "${label}" is ${words.length} words — two or three, nouns`);
+    assert.equal(/[—·:]/.test(label), false,
+      `the label "${label}" carries a qualifier — a title= or it dies`);
+    // an expression left inside a label is a figure riding a heading, which is
+    // exactly what the as-of spans and the completions count were
+    assert.equal(/[{}]/.test(label), false,
+      `the label "${label}" renders a value — a label names, it does not report`);
+  }
+
+  // THE SIX HE NAMED, by the clause that made each one a sentence. Kept beside
+  // the general law rather than instead of it: the general law is what binds,
+  // and these are what it was derived from.
+  for (const struck of [
+    "The town's standing asks",
+    "What the town needs money for",
+    "On the Bounty Board — residents' asks",
+    "What the town is being asked for",
+    "The tank, counted",
+    "The board, counted",
+  ]) {
+    assert.equal(rendered.includes(struck), false, `the narrating label "${struck}…" is back`);
+  }
+});
+
+test("RULE 4: say each thing once", () => {
+  // THE FOUNDER'S RULE, verbatim: "Say each thing once. The building caption
+  // under the sprite … is repeated as the panel kicker beside the panel name —
+  // keep it under the building, drop it from the panel (the plaque IS the
+  // panel's sentence)."
+  const head = read("../src/components/LaneHead.astro");
+  assert.ok(/<span class="cq-who">\{lane\.who\}<\/span>/.test(raw),
+    "the who-line must stay under the building, where it labels the picture");
+  assert.equal(/\{lane\.who\}/.test(head), false,
+    "the panel kicker says the who-line again — the plaque is the panel's sentence");
+
+  // THE POT'S KIND LINE IS ONE FACT. It read `pot · 2026-09 · monthly · first
+  // close: end of September` — four, of which "pot" is said by the card, the
+  // epoch is said again by the close date, and the cadence is a contract term.
+  const kind = /<p class="m-kind">\{p\.[\s\S]*?<\/p>/.exec(raw);
+  assert.ok(kind, "the pot card lost its kind line");
+  assert.equal(/·/.test(kind[0]), false,
+    `the pot's kind line carries more than one fact: ${flat(kind[0])}`);
+  assert.equal(/>pot ·/.test(rendered), false, "and it says 'pot' on a pot card again");
+
+  // AND NO CARD REPEATS ITS OWN PILE'S LABEL. "· done" rode every done card
+  // while the pile had no heading at all; the heading is the place for it.
+  assert.equal(/\{n\.poster\} · done/.test(raw), false,
+    "a done card says 'done' again — the pile it is in is labelled Done");
+
+  // THE DATES LEFT BOTH CARD KINDS. This lane is ordered by stake, so a date
+  // orders nothing the reader can see.
+  assert.equal(/\{i\.date && <span/.test(raw), false, "the idea card carries its date again");
+  assert.equal(/\{n\.date && <span/.test(raw), false, "the notice card carries its date again");
+});
+
+test("RULE 5 (source half): one body size, declared once and read everywhere", () => {
+  // THE FOUNDER'S RULE, verbatim: "Type scale: plaque big (as now), labels
+  // small caps, everything else one body size — no third and fourth sizes."
+  //
+  // THE RENDERED HALF OF THIS LAW IS IN qa-shots/civic-minimal-shots.mjs, and
+  // it is the half that actually binds — a stylesheet cannot be asked what size
+  // the text came out, and this page has twice shipped a declaration that was
+  // dropped by every browser while reading as correct in source.
+  //
+  // WHAT THE SOURCE HALF CAN SAY is that there is ONE PLACE the sizes are
+  // decided. A page whose panel rules each name their own rem value passes the
+  // rendered check the day it is written and drifts the week after.
+  const style = hubSrc.slice(hubSrc.indexOf("<style>")).replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.ok(/--civic-body:\s*\.9rem/.test(style) && /--civic-label:\s*\.7rem/.test(style),
+    "the two sizes must be declared as tokens, in one place");
+
+  // ASKED BY SELECTOR, NOT BY BYTE RANGE, and the first spelling of this is why.
+  // It sliced the stylesheet from `.c-lane {` to the numbers block and checked
+  // every `font-size` in between — which swept in `.cq-coming` and the 720px
+  // media query's `.cq-plaque`/`.cq-soon`, none of which are panel text at all.
+  // They are the VIGNETTE's chrome: the badge on a building and the plaque
+  // under it, which the ruling explicitly leaves alone ("plaque big (as now)").
+  // A law that measures the wrong elements reports the page's correctness as a
+  // defect, which is this lane's third own-instrument catch.
+  //
+  // So the rule names its own subjects: any selector carrying a panel-content
+  // class. `.c-q…` is excluded by the negative lookahead — that prefix is the
+  // civic quarter, not the civic lane.
+  const PANEL_SELECTOR = /(^|[\s,>+~])\.(m-|q-|d-|mk-|c-(?!q))/;
+  const rules = style.split("}").map((chunk) => {
+    const at = chunk.indexOf("{");
+    return at < 0 ? null : { sel: chunk.slice(0, at).trim(), body: chunk.slice(at + 1) };
+  }).filter(Boolean).filter((r) => PANEL_SELECTOR.test(r.sel));
+
+  const declared = rules.flatMap((r) =>
+    [...r.body.matchAll(/font-size:\s*([^;]+);/g)].map((m) => [r.sel.replace(/\s+/g, " "), m[1].trim()]));
+  assert.ok(declared.length >= 10,
+    `only ${declared.length} font-sizes found on panel selectors — the selector rule has drifted off the stylesheet`);
+  for (const [sel, size] of declared) {
+    assert.ok(/var\(--civic-(body|label)\)/.test(size),
+      `"${sel}" sizes text with "${size}" instead of the two tokens — that is a third size`);
+  }
+});
+
+test("RULE 6 (source half): the dialog is sized to the viewport and its code wraps", () => {
+  // THE FOUNDER'S RULE, verbatim: "Nothing scrolls sideways, anywhere. The
+  // tutorial dialog scales to the viewport (width: min(92vw, 40rem), height by
+  // content, max-height: 90vh with vertical scroll inside if it must); <code>
+  // and the call lines WRAP (white-space: pre-wrap; overflow-wrap: anywhere);
+  // the sprite scales with the dialog."
+  //
+  // THE RENDERED HALF — the scrollWidth assertions at three widths with the
+  // dialog OPEN — is in qa-shots/civic-minimal-shots.mjs. This half pins the
+  // declarations, because the fault they fix was invisible to reading exactly
+  // once: `overflow-x: auto` on the call was present, correct, and unreachable,
+  // because the grid track grew instead of the code scrolling.
+  const tut = read("../src/components/LaneTutorial.astro");
+  assert.ok(/width:\s*min\(92vw,\s*40rem\)/.test(tut), "the dialog must be sized to the viewport");
+  assert.ok(/max-height:\s*90vh/.test(tut) && /overflow-y:\s*auto/.test(tut),
+    "and scroll DOWN inside itself rather than growing past the screen");
+  assert.ok(/white-space:\s*pre-wrap/.test(tut) && /overflow-wrap:\s*anywhere/.test(tut),
+    "the call lines must wrap");
+  assert.equal(/white-space:\s*pre;/.test(tut), false,
+    "an unbreakable <code> is back — that is the rail, and it grows the grid track rather than scrolling");
+  assert.ok(/grid-template-columns:[^;]*minmax\(0,\s*1fr\)/.test(tut),
+    "the slide's text track must be minmax(0, 1fr) — a bare 1fr cannot shrink below its content and the next long token reopens this");
+  assert.ok(/clamp\(/.test(tut), "and the sprite must scale with the dialog rather than holding a fixed column");
+
+  // THE PAGE'S OWN HALF of rule 6. The Guild panel made the DOCUMENT 448px wide
+  // in a 390px window on the base build, because `minmax(19rem, 1fr)` floors a
+  // track at 304px and the card in it could not shrink below a `nowrap` chip
+  // carrying a 50-character reward sentence.
+  const style = hubSrc.slice(hubSrc.indexOf("<style>"));
+  assert.ok(/minmax\(min\(19rem,\s*100%\),\s*1fr\)/.test(style),
+    "the card grid's track must be able to fall to the container");
+  assert.ok(/\.m-card\s*\{[^}]*min-width:\s*0/.test(style), "and the card must be able to follow it");
+  assert.ok(/\.m-chip\.is-stamp\s*\{\s*white-space:\s*nowrap/.test(style),
+    "nowrap belongs to the stamp FIGURES — a chip carrying a sentence held unbreakable is what made this page scroll");
+  assert.equal(/\.m-chip\s*\{[^}]*white-space:\s*nowrap/.test(style), false,
+    "every chip is unbreakable again");
 });

@@ -820,7 +820,20 @@ test("the built hub teaches the expansion ZERO times, and still points at where 
   const hub = readFileSync(join(DIST, "town", "index.html"), "utf8");
   const n = holoTimes(outsideGlossary(hub));
   assert.equal(n, 0, `the built hub teaches the expansion ${n} times — /stamps/ is its one home`);
-  assert.match(hub, /href="\/stamps\/#\w+"[^<]*>holo</,
+  // RE-AIMED 2026-09-01 EVENING, on the built page, for the same reason its
+  // twin in civic-hub.test.mjs was: the pointer's TEXT changed shape when the
+  // founder ruled that "what must survive survives as a link whose text is a
+  // question". This matched `>holo<` — the word alone inside the anchor — which
+  // was the spelling of the shortened paragraph he then struck. It is now
+  // `>What's holo?<`.
+  //
+  // The law has not moved an inch: the built hub must carry a LINK to the
+  // teaching with the word in its text, so a reader who meets "✧" in the pot
+  // roll can find out what it is. Asked of the BUILT page rather than the
+  // source, which is the whole reason this copy of the law exists beside the
+  // source-side one — a pointer that a build silently drops is a pointer that
+  // reads correct in a diff and is not on the page.
+  assert.match(hub, /href="\/stamps\/#\w+"[^>]*>[^<]*holo[^<]*</i,
     "the hub must still point a reader at where holo is explained");
 });
 

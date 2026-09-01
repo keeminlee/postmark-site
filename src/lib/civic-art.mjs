@@ -51,12 +51,21 @@ export const INK = {
 // to drift warm while its building stayed cold — the exact failure the shared
 // ink table above exists to prevent, one level up. So the panels read THIS
 // table and there is still one place a lane's colour is decided.
+// TWO LANES TRADED COLOURS, founder-ruled 2026-09-01: "the quest guild has the
+// most to do with the stamps themselves", and stamps are purple (postmark.css's
+// own law). So the Guild takes the purple the Ballot House was wearing and the
+// Ballot House takes the Guild's orange. Nothing else moved and no new hex was
+// invented — the two rows below are the same two rows, swapped.
+//
+// ONE SOURCE, so the swap is one edit: the sprite is inked from this table and
+// the panel is tinted from it through `tint()`, which is why neither the pixel
+// art nor the panel wash needed touching and why they cannot now disagree.
 export const ACCENTS = {
-  quests: { a: "#a4632a", A: "#c9823d", m: "#6d4220" },
+  quests: { a: "#65517f", A: "#8a72ab", m: "#433554" },
   ideas: { a: "#4a5c8a", A: "#6d82b5", m: "#2f3c5c" },
   bounties: { a: "#7a5a3a", A: "#9c7549", m: "#513b26" },
   listings: { a: "#9c3f2e", A: "#c4553f", m: "#6a2a1f" },
-  votes: { a: "#65517f", A: "#8a72ab", m: "#433554" },
+  votes: { a: "#a4632a", A: "#c9823d", m: "#6d4220" },
 };
 
 // A hex from the table above, as the three channels a CSS rgba() needs. Kept

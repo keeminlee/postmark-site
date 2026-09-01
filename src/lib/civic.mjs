@@ -536,10 +536,71 @@ export const TITLE_MAX = 150;
 // The blueprints chest — where a drawn idea becomes a proposal.
 export const BLUEPRINTS_REPO = "https://github.com/postmark-town/postmark-blueprints";
 
-export function isIdea(mark, { place = THINK_TANK_PLACE } = {}) {
-  if (!mark || mark.class !== IDEA_CLASS) return false;
-  const parent = mark.placementParent ?? mark.parent ?? null;
-  return parent === place;
+// ── AN IDEA MAY STAND ANYWHERE ───────────────────────────────────────────────
+// FOUNDER-RULED 2026-09-01, and it is a change of ontology rather than of
+// filter: **class says what a mark is; the Think Tank is where ideas are read,
+// not a container that makes them ideas.**
+//
+// This used to require `placementParent === THINK_TANK_PLACE`, which quietly
+// made GEOMETRY constitutive — an idea posted while standing somewhere else in
+// the world was not an idea as far as this page was concerned, and the lane
+// showed a town with fewer asks in it than the town has. The town door's post
+// verb picks a cell for you; a resident who leaves an idea mark from their own
+// ground has still asked the town for something.
+//
+// WHAT IS NOT IN SCOPE, said plainly because the symmetry is tempting: the
+// BOUNTY BOARD's reader (board.mjs) still requires the board ground. That is
+// unruled, and reading the founder's ruling about ideas onto bounties would be
+// this file deciding a question nobody asked it.
+//
+// `place` stays in the signature and is still used — by `ideas()` below, to
+// decide which cards carry a "standing at" line. It no longer decides what an
+// idea IS.
+//
+// ── ONE EXCLUSION, AND IT IS NOT GEOMETRY ────────────────────────────────────
+// FOUND BY RUNNING IT, not by reading the ruling: dropping the placement test
+// swept `the-town/idea` into the lane — `kind: "class"`, `parent:
+// the-town/mark`, body "One thought by a resident, of the town: …". That mark
+// is the town's own DEFINITION of the idea class. It carries `class: idea`
+// because it IS the class; it is a dictionary entry, not somebody's ask.
+//
+// Rendering it as an idea would put a proposal on the board that no resident
+// made — the precise failure this page's whole discipline exists to prevent
+// ("a board that invented a notice to look alive would be lying about what the
+// town wants"). So a `kind: "class"` mark is excluded.
+//
+// THIS IS NOT THE OLD TEST IN NEW CLOTHES. The old test asked WHERE a mark
+// stands and the founder ruled that constitutive-by-geometry. This asks what
+// the mark SAYS IT IS in its own frontmatter — `kind` is the mark's own
+// declaration, the same field `sited` / `predicated` / `parcel` live in, and
+// the ruling's own sentence is that the mark's declaration decides. A class
+// definition and an instance of that class are different things in every
+// ontology, including this town's.
+//
+// `sited` AND `predicated` BOTH PASS, which is the founder's second ruling of
+// the same day: a predicated idea has no `at` at all and is still an idea.
+// Nothing here reads `at` — see the falsifier in test/civic.test.mjs, whose
+// fixture omits the key entirely rather than setting it to null.
+//
+// FLAGGED UP rather than settled: whether the class marks should be excluded
+// here or should stop carrying `class: idea` in the world is a RECORD-side
+// question, and it is Wright's and the founder's. This is the narrowest
+// reading that does not put words in a resident's mouth.
+export const DEFINITION_KIND = "class";
+
+export function isIdea(mark) {
+  return Boolean(mark) && mark.class === IDEA_CLASS && mark.kind !== DEFINITION_KIND;
+}
+
+// Where a mark STANDS, as the town spells it — derived from the placement
+// parent's id, never typed. `the-town/the-garrison` → "the garrison".
+//
+// THE SLUG IS THE NAME. A mark carries no title field (LOGOS: the body is the
+// claim), so there is nothing else to read; the household half of the id is who
+// wrote the place down, which is not what "where does this stand" is asking.
+export function placeName(id) {
+  const slug = String(id ?? "").split("/").pop() ?? "";
+  return slug ? slug.replace(/-/g, " ") : null;
 }
 
 export function toIdea(mark) {
@@ -594,12 +655,29 @@ export function toIdea(mark) {
 // falls through to date — the order the lane had before tonight. A silent
 // re-ranking on a build that could not read the escrow would be the worst of
 // both: a claim about backing, made out of nothing.
+// THE TANK READS BY CLASS, NOT BY GEOMETRY — founder-ruled 2026-09-01. This
+// walked the Tank's children; it walks EVERY mark in the world state now and
+// keeps the ones whose class says idea. See `isIdea` above for the ruling.
+//
+// EACH ROW CARRIES WHERE IT STANDS, and only when that is not the Tank: an idea
+// standing in the Think Tank saying "standing at: the think tank" is the page
+// telling a reader which panel they are looking at (rule 4, say each thing
+// once). `standingAt` is null in that case and the card renders no line.
+//
+// A PREDICATED IDEA HAS NO `at` AND IS STILL AN IDEA (founder, 2026-09-01, with
+// the world lint changing to allow `kind: predicated, class: idea`). Nothing
+// here reads `kind` or `at`, which is why that ruling costs this reader no
+// change: `placementParent ?? parent` is the mark it is an idea OF, and that is
+// the same question "where does this stand" asks of a sited one. Same line,
+// same wording, by construction rather than by a second branch.
 export function ideas(state, { place = THINK_TANK_PLACE, places = null, stakes = null } = {}) {
   const marks = Array.isArray(state?.marks) ? state.marks : [];
   const ok = [], malformed = [];
-  for (const m of marks.filter((x) => isIdea(x, { place }))) {
+  for (const m of marks.filter(isIdea)) {
     const i = toIdea(m);
-    if (i.ok) ok.push({ ...i, ...stakeOf(i.id, stakes) }); else malformed.push(i);
+    const parent = m.placementParent ?? m.parent ?? null;
+    const standingAt = parent && parent !== place ? placeName(parent) : null;
+    if (i.ok) ok.push({ ...i, standingAt, ...stakeOf(i.id, stakes) }); else malformed.push(i);
   }
   ok.sort((a, b) =>
     (Number(b.staked ?? 0) - Number(a.staked ?? 0)) ||

@@ -58,8 +58,49 @@ const { lane, slides = [] } = Astro.props;
 </dialog>
 
 <style>
+  /* ── NOTHING SCROLLS SIDEWAYS, ANYWHERE ───────────────────────────────────
+     THE FOUNDER, 2026-09-01, and the fault he read was IN HERE.
+
+     REPRODUCED BEFORE IT WAS TOUCHED, at 390px and 768px, on the base build
+     AND on the branch (identical numbers, so it is the base's fault and not
+     this lane's): the deck and the showing slide measure 518px inside a 297px
+     content box on the Think Tank's deck and 453px on the Bounty Board's, and
+     `.c-tut-say`'s children render out to x=565 in a 390px window. The reader
+     sees the sentence run off the right of the screen.
+
+     THE CAUSE IS THE `<code>`, NOT THE WIDTH, and the asymmetry is what proves
+     it rather than a plausible story: the QUEST deck at the same width has no
+     rail at all. The three decks differ only in how long their longest `call`
+     is — ideas 65 chars, bounties 53, quests 45 — and the rail's size tracks
+     that ordering exactly. A width fault would hit all three equally.
+
+     The mechanism: `.c-tut-call` is `white-space: pre`, so it is one
+     unbreakable box as wide as its longest line. It sits in the `1fr` track of
+     the slide's grid, and a `1fr` track has an implicit `min-width: auto` —
+     the track cannot shrink below its content's min-content, so instead of the
+     code scrolling inside its own `overflow-x: auto`, the TRACK grows and
+     takes the slide, the deck and the reader's eye with it. `overflow-x: auto`
+     on the code never engages, which is why this was invisible to reading: the
+     rule that would have contained it is present and correct and unreachable.
+
+     THREE CHANGES, and each one closes a different half of it:
+       · the call WRAPS (`pre-wrap` + `overflow-wrap: anywhere`) — a door's
+         grammar broken across two lines is still the door's grammar, and it is
+         better than a grammar the reader cannot see the end of;
+       · the track is `minmax(0, 1fr)`, so the next long token — a slug, a URL,
+         a mark id somebody adds in a year — cannot do this again;
+       · the dialog is sized to the VIEWPORT (`min(92vw, 40rem)`) with an
+         explicit `max-height: 90vh` and its own vertical scroll, so a tall
+         deck scrolls DOWN inside the box rather than growing past the screen.
+
+     The UA's default `max-height: calc(100% - 42px)` was doing the vertical
+     job by accident; an explicit value is the difference between a behaviour
+     and a decision. */
   .c-tut {
-    width: min(34rem, calc(100vw - 2rem));
+    width: min(92vw, 40rem);
+    max-width: 40rem;
+    max-height: 90vh;
+    overflow-y: auto;
     padding: 1.4rem 1.5rem 1.1rem;
     border: 1px solid var(--lane-edge-open, rgba(232, 196, 139, .4));
     border-radius: 14px;
@@ -83,9 +124,17 @@ const { lane, slides = [] } = Astro.props;
   }
 
   .c-tut-deck { list-style: none; margin: 0; padding: 0; min-height: 11rem; }
-  .c-tut-slide { display: grid; grid-template-columns: 4.5rem 1fr; gap: 1.1rem; align-items: start; }
+  /* `minmax(0, 1fr)`, NOT `1fr` — see § NOTHING SCROLLS SIDEWAYS above. And the
+     SPRITE SCALES WITH THE DIALOG rather than holding a fixed 4.5rem column: at
+     390px that column was 12% of the whole box and the sentence beside it had
+     what was left. `clamp` keeps it a building at 1280 and a thumbnail at 390,
+     with no second breakpoint to keep in step with the first. */
+  .c-tut-slide {
+    display: grid; grid-template-columns: clamp(2.6rem, 11%, 4.5rem) minmax(0, 1fr);
+    gap: 1.1rem; align-items: start;
+  }
   .c-tut-slide[hidden] { display: none; }
-  .c-tut-art svg { display: block; width: 4.5rem; height: 4.5rem; image-rendering: pixelated; }
+  .c-tut-art svg { display: block; width: 100%; height: auto; aspect-ratio: 1; image-rendering: pixelated; }
 
   .c-tut-step {
     margin: 0 0 .5rem; display: flex; align-items: baseline; gap: .55em; flex-wrap: wrap;
@@ -101,11 +150,14 @@ const { lane, slides = [] } = Astro.props;
     border: 1px dashed rgba(205, 194, 171, .3); border-radius: 999px; padding: .15em .55em;
   }
   .c-tut-line { margin: 0; font-size: .92rem; line-height: 1.6; }
+  /* IT WRAPS. `overflow-x: auto` is gone with `white-space: pre` — a scroller
+     around content that now wraps is a scrollbar that can never appear, which
+     is the same species of dead rule this page has already shipped twice. */
   .c-tut-call {
     display: block; margin: .7rem 0 0; padding: .55rem .7rem;
     background: rgba(7, 11, 21, .6); border: 1px solid rgba(232, 196, 139, .18);
     border-radius: 7px; font-family: var(--pm-mono); font-size: .72rem;
-    line-height: 1.6; overflow-x: auto; white-space: pre;
+    line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere;
     color: rgba(232, 196, 139, .9);
   }
 
@@ -130,8 +182,11 @@ const { lane, slides = [] } = Astro.props;
   }
   .c-tut-dot.is-on { background: var(--pm-gold); }
 
+  /* THE 480px BREAKPOINT IS GONE, and its going is the point: it re-declared
+     the grid and the sprite size, which is a second place the column width was
+     decided and a second place to forget. `clamp()` above covers every width
+     between 390 and 1280 continuously, so there is one rule. */
   @media (max-width: 480px) {
-    .c-tut-slide { grid-template-columns: 3rem 1fr; gap: .8rem; }
-    .c-tut-art svg { width: 3rem; height: 3rem; }
+    .c-tut-slide { gap: .8rem; }
   }
 </style>

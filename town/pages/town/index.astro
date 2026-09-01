@@ -63,11 +63,16 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 // its way back onto a page that is no longer supposed to carry one.
 import { livePots, loadPots, POT_FIXTURE, potGist, patronLabel } from "@/lib/funding.mjs";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
+// `predicatesOf` and `HOW_IDEAS_ENTER_PLACE` are NOT imported here any more —
+// the 2026-09-01 minimalism ruling took both renders off the page (§ rule 1 and
+// § rule 2 below). Both still exist in civic.mjs and both are still tested; an
+// import kept "just in case" is how a struck block finds its way back, which
+// this page has now been taught twice (HOLO_LINE was the first).
 import {
   LANES, DEFAULT_LANE, standing, ideas, questStandings, questCards, marketplace,
-  readPen, loadPlaceMarks, plaque, predicatesOf, markStakes, stakeOf,
+  readPen, loadPlaceMarks, plaque, markStakes, stakeOf,
   ideaDashboard, boardDashboard, worldPin,
-  BLUEPRINTS_REPO, THINK_TANK_PLACE, HOW_IDEAS_ENTER_PLACE,
+  BLUEPRINTS_REPO, THINK_TANK_PLACE,
 } from "@/lib/civic.mjs";
 import { paint, tint, SPRITE_W, SPRITE_H } from "@/lib/civic-art.mjs";
 import { tutorialFor } from "@/lib/civic-tutorial.mjs";
@@ -156,13 +161,24 @@ const quests = questStandings(bulletin);
 const questRows = questCards(quests);
 const market = marketplace(bulletin);
 
-// THE FIVE PLAQUES AND THEIR PREDICATES, per lane, read from the record. No
-// sentence below is typed into this page; the falsifier in test/civic-hub.test
-// .mjs is what keeps it that way.
+// THE FIVE PLAQUES, per lane, read from the record. No sentence below is typed
+// into this page; the falsifier in test/civic-hub.test.mjs is what keeps it
+// that way.
+//
+// ── THE PREDICATES ARE NOT READ HERE ANY MORE ────────────────────────────────
+// A `PREDICATES` map stood beside this and each panel rendered its rows under
+// the plaque: `asked-by · the town`, `pays · town mint — the law stands at
+// the-town/quest`, `daily · household read:"quests"`, `pots · darko-fund,
+// keeping-ec2`. Every row was true and every row was READ, which is exactly why
+// it took a ruling rather than a bug report to remove them: the founder, on
+// 2026-09-01, "minimalism minimalism minimalism" — and, as a class, NO MACHINE
+// VOICE ON A HUMAN PAGE. Door verbs, mark ids, file names and fund paths are
+// the record's law-voice serialized, and they belong at the doors and behind
+// the "?" deck (which cites every one of them, file and line).
+//
+// `predicatesOf` is UNTOUCHED in civic.mjs and still under test. This is a
+// render that was removed, not a derivation.
 const PLAQUES = Object.fromEntries(LANES.map((l) => [l.key, plaque(l, { pen, state: worldState })]));
-const PREDICATES = Object.fromEntries(
-  LANES.map((l) => [l.key, predicatesOf(l.place, { pen, state: worldState })]),
-);
 
 // The two dashboards, derived from the same ledger the cards are ordered by —
 // so a count under a lane and the order of the cards above it can never
@@ -195,11 +211,22 @@ const tintVars = (key) => {
   return `--lane-edge:${t.edge};--lane-edge-open:${t.edgeOpen};--lane-wash:${t.wash};--lane-wash-hover:${t.washHover}`;
 };
 
-// The quay note, read from the mark exactly as the five plaques are. It is the
-// sentence that bought this whole discipline: the page carried a hand copy of
-// it, made four hours before the founder rewrote the mark, and recited the dead
-// version for a day because nothing on either side could compare them.
-const howIdeasEnter = placeMarks[HOW_IDEAS_ENTER_PLACE] ?? null;
+// THE QUAY NOTE IS NOT READ HERE ANY MORE, and the way it goes matters because
+// it is the sentence that bought this page's whole read-never-copy discipline.
+//
+// It was a hand copy, made four hours before the founder rewrote the mark, and
+// the page recited the dead version for a day. The fix was to READ the mark —
+// `placeMarks[HOW_IDEAS_ENTER_PLACE]`, rendered under the tank's cards as "How
+// an idea enters, in the town's own words on the quay: …". That fix was right
+// and it is now redundant: the founder's 2026-09-01 ruling made the Think
+// Tank's own PLAQUE the panel's title, and the plaque already says how an idea
+// enters. Two marks answering the same question on one panel is the thing being
+// removed — "say each thing once", and "the plaque already says it".
+//
+// THE DISCIPLINE SURVIVES THE REMOVAL and is asserted harder than before: the
+// page now holds no copy AND makes no second reading. `HOW_IDEAS_ENTER_PLACE`
+// is still exported and still tested in civic.mjs's own suite; the mark still
+// stands in the world for renderings that are not this one.
 
 // THE VIGNETTE HAS NO DESCRIPTION, and that is the ruling rather than an
 // omission. It carried the town centre's lamplit-quay sentence, which was the
@@ -415,18 +442,39 @@ const switchCss = [
     {/* ── THE QUEST GUILD ─────────────────────────────────────────────── */}
     <section class="c-lane" id="quests" data-panel="quests" style={tintVars("quests")}>
       <div class="c-body">
-        <LaneHead lane={LANE_BY.quests} plaque={PLAQUES.quests}
-                  predicates={PREDICATES.quests} slides={tutorialFor("quests").length} />
+        <LaneHead lane={LANE_BY.quests} plaque={PLAQUES.quests} slides={tutorialFor("quests").length} />
 
         {questRows.length > 0 && (
           <>
-            <p class="m-lab">The town's standing asks — every one of them a first or a threshold</p>
+            {/* A LABEL NAMES, IT DOES NOT NARRATE. This read "The town's
+                standing asks — every one of them a first or a threshold",
+                which is a sentence about the cards wearing a label's clothes.
+                Founder-ruled 2026-09-01: two or three words, nouns; the
+                qualifier is either a `title=` or it dies. This one dies — the
+                cards below say their own cadence on every card. */}
+            <p class="m-lab">Quests</p>
             <div class="m-grid">
               {questRows.map((q) => (
                 <article class="m-card is-quest">
                   <p class="m-kind">{q.cadence}</p>
                   <h3 class="m-title">{q.title}</h3>
                   <p class="m-body">{q.source}</p>
+                  {/* UNCOUNTED IS NOT ZERO, and one word carries it. The line
+                      that stood here explained the bulletin's column shapes to
+                      a reader who had come to see what the town is asking —
+                      this build's problem, told as if it were theirs. The
+                      DISTINCTION is what had to survive the shortening, and it
+                      does: a quest the daily mirror cannot measure says so
+                      neutrally rather than showing a zero it did not earn.
+
+                      THE COMMENT LIVES OUT HERE, as a JSX comment rather than a
+                      block comment inside the ternary, and that is mechanical:
+                      the content laws in test/civic-hub.test.mjs strip JSX
+                      comments before asking "is this struck sentence still on
+                      the page", and a bare block comment in an expression
+                      position is invisible to that stripper — so quoting the
+                      struck line there turned the removal's own falsifier red
+                      about a page that was already correct. */}
                   {q.done != null && q.of ? (
                     <div class="m-bar-wrap">
                       <div class="m-bar" role="img" aria-label={`${q.done} of ${q.of} residents finished this today`}>
@@ -435,10 +483,7 @@ const switchCss = [
                       <p class="m-barlab"><b>{q.done}</b> of {q.of} residents today</p>
                     </div>
                   ) : (
-                    /* A quest the mirror has no column for is not at zero — it
-                       is uncounted, and saying zero would be inventing a fact
-                       about the town. */
-                    <p class="m-barlab m-dim">not counted on the daily mirror</p>
+                    <p class="m-barlab m-dim">uncounted</p>
                   )}
                   <p class="m-foot"><span class="m-chip">{q.reward}</span></p>
                 </article>
@@ -472,7 +517,11 @@ const switchCss = [
             reason the board kept id="board" — every deep link ever written
             points at that word. */}
       <div id="pots" class="m-block">
-        <p class="m-lab">What the town needs money for{asOfText && <span class="n-asof"> · as of {asOfText}</span>}</p>
+        {/* "What the town needs money for · as of 2026-09-01 04:12 UTC" → "Pots".
+            The label names; the as-of moved to the ONE line at the foot of this
+            panel, because a stamp per block is four stamps saying the same
+            thing on one screen. */}
+        <p class="m-lab">Pots</p>
 
         {potBoard.pots.length === 0 ? (
           <div class="m-none">
@@ -489,7 +538,16 @@ const switchCss = [
                     from the posting date." Naming the close beside the epoch is
                     what stops a September label on an August page reading as a
                     mistake. */}
-                <p class="m-kind">pot · {p.epoch}{p.cadence && <> · {p.cadence}</>}{p.firstCloseLabel && <> · first close: {p.firstCloseLabel}</>}</p>
+                {/* ONE FACT ON THE KIND LINE, founder-ruled 2026-09-01. This
+                    read `pot · 2026-09 · monthly · first close: end of
+                    September` — four facts, of which "pot" is said by the card
+                    it is on, "2026-09" is said again by the close date beside
+                    it, and "monthly" is a contract term. The close date is the
+                    one a reader deciding whether to give actually needs; the
+                    rest is on /fund/<pot>/, which the card already links.
+                    The epoch is the fallback for a pot with no posted close —
+                    a kind line saying nothing would be worse than one fact. */}
+                <p class="m-kind">{p.firstCloseLabel ? <>closes {p.firstCloseLabel}</> : p.epoch}</p>
                 <h3 class="m-title">{p.title}</h3>
 
                 {/* WHAT THIS POT IS — before any number touches the reader.
@@ -611,11 +669,22 @@ const switchCss = [
             sentence this paragraph did, HOLO_LINE and HOLO_NAME_LINE included,
             read from the same constants. What is left here is a pointer, which
             is what a lane owes a word it uses and does not define. */}
-        <p class="m-note">
-          ✧ is <a href="/stamps/#seam">holo</a>, the payers' keepsake — what it is,
-          and what a dollar does and doesn't get you, are in the Stamps teaching and
-          on each pot's own page.
-        </p>
+        {/* ── "REMOVED" MEANS GONE, AND THIS IS THE CASE THAT PROVED IT ─────
+            The founder struck the holo paragraph on 2026-08-31. It came back
+            SHORTER — "✧ is holo, the payers' keepsake — what it is, and what a
+            dollar does and doesn't get you, are in the Stamps teaching and on
+            each pot's own page." — and on 2026-09-01 he named that for what it
+            is: not removal. A shortened explanation is still an explanation
+            sitting on a page whose job is to show the town's state.
+
+            WHAT SURVIVES IS A LINK WHOSE TEXT IS THE QUESTION. That is the
+            general form of the whole ruling — "explain by link, never inline" —
+            and the question-as-link-text is what makes it work: a reader who
+            does not have the question never has to read the answer, and a
+            reader who does can see, before clicking, that this is where it gets
+            answered. /stamps/#seam is holo's one home and carries the expansion
+            in three fuller forms; nothing was added there to receive this. */}
+        <p class="m-note"><a href="/stamps/#seam">What's holo?</a></p>
       </div>
 
       {/* ── TODAY'S STANDINGS, LAST ────────────────────────────────────────
@@ -629,10 +698,11 @@ const switchCss = [
           not a rewrite. Same reader, same four kinds of nothing, same links. */}
       {quests.read ? (
         <>
-          <p class="m-lab">
-            Today's standings
-            {quests.completions != null && <span class="n-asof"> · {quests.completions} quest completions today</span>}
-          </p>
+          {/* "Today's standings · 11 quest completions today" → "Standings".
+              The completions figure is not a label, it is a number, and it is
+              on the full board this block links — where it stands beside every
+              other column rather than riding a heading. */}
+          <p class="m-lab">Standings</p>
           <ol class="q-stand">
             {quests.rows.map((r) => (
               <li class="q-row">
@@ -644,15 +714,14 @@ const switchCss = [
               </li>
             ))}
           </ol>
-          <p class="m-note">
-            {quests.total} residents are on the board today; the rest of the
-            standing, and every column of it, is on
-            <a href="/bulletin/#quests"> the Quest Board</a>. That mirror is
-            regenerated each ferry crossing — a resident's own live progress is
-            on <a href="/residents/">their page</a>, which reads the office
-            directly. HOW earning works, and every row of the registry, is in
-            <a href="/stamps/#earning"> Earning</a>, in the Stamps teaching.
-          </p>
+          {/* FOUR SENTENCES BECAME ONE LINK. This explained, in order: how many
+              residents are on the board, that the mirror is partial, that it
+              regenerates each ferry crossing, where a resident's live progress
+              lives, and where earning is taught. Every clause was true and the
+              whole paragraph was a footnote about the machinery under a table
+              the reader can simply read. The one thing it owed them is where
+              the rest of the standing is, and that is a link. */}
+          <p class="m-note"><a href="/bulletin/#quests">the full board</a></p>
         </>
       ) : (
         <div class="m-none">
@@ -666,6 +735,22 @@ const switchCss = [
           </span>
         </div>
       )}
+
+      {/* ── ONE AS-OF PER PANEL ──────────────────────────────────────────────
+          THE LAW IS UNCHANGED and the placement is what moved. Every derived
+          block still says which record it was derived from — the founder's
+          2026-09-01 instruction, and the pots' own discipline before it ("a
+          quiet market and a stale page look identical without it"). What
+          changed on 2026-09-01 evening is that this panel carried the stamp
+          FOUR TIMES, once per block, each saying the same thing about the same
+          build. One small line at the foot of the panel is the same guarantee
+          with three fewer repetitions.
+
+          THE GUILD READS THE EMISSION, not the world: the pots come from
+          funding.mjs's own generated file and carry its stamp, which is a
+          different clock from the world pin the other two panels name. So this
+          line says which. */}
+      {asOfText && <p class="c-asof">as of {asOfText}</p>}
       </div>
       <LaneTutorial lane={LANE_BY.quests} slides={tutorialFor("quests")} />
     </section>
@@ -683,8 +768,7 @@ const switchCss = [
             plaque is gone too, and that is a promotion rather than a loss: all
             five lanes read theirs now, through `plaque()`, and no lane keeps a
             constant that could stand in for the world's words. */}
-        <LaneHead lane={LANE_BY.ideas} plaque={PLAQUES.ideas}
-                  predicates={PREDICATES.ideas} slides={tutorialFor("ideas").length} />
+        <LaneHead lane={LANE_BY.ideas} plaque={PLAQUES.ideas} slides={tutorialFor("ideas").length} />
 
         {/* THE FOUR KINDS OF NOTHING, borrowed whole from the Bounty Board's
             own discipline: an unreadable store, a place not yet set down, a
@@ -716,14 +800,28 @@ const switchCss = [
 
         {thinkTank.ideas.length > 0 && (
           <>
-            <p class="m-lab">
-              What the town is being asked for — most-backed first
-              {worldAsOf && <span class="n-asof"> · {worldAsOf}</span>}
-            </p>
+            {/* "What the town is being asked for — most-backed first" → "Ideas".
+                The ordering is a FACT THE READER SEES: the ✦ figures run down
+                the cards in descending order, so a title announcing them is the
+                page narrating its own sort. If it ever needs saying it is a
+                `title=`, not a heading. */}
+            <p class="m-lab" title="most-backed first">Ideas</p>
+            {/* BY · CLAIM · ONE ✦ LINE · ONE ACTION, and nothing else — the
+                founder's card shape, 2026-09-01. `stage` left the kind line (a
+                lifecycle word beside a name is two facts where the reader
+                wanted one) and the date left the foot: this lane is ordered by
+                stake, so the date orders nothing a reader can see and is one
+                more grey figure per card.
+
+                THE COMMENT LIVES OUT HERE, not above the <article>, and that is
+                a language rule rather than a preference: a `.map()` whose body
+                is `( … )` returns ONE expression, and a JSX comment beside the
+                element makes two. The compiler accepts it, esbuild does not,
+                and the error it gives names the element rather than the comment. */}
             <div class="m-grid">
               {thinkTank.ideas.map((i) => (
                 <article class="m-card is-idea">
-                  <p class="m-kind">{i.by ?? "the town"}{i.stage && <> · {i.stage}</>}</p>
+                  <p class="m-kind">{i.by ?? "the town"}</p>
                   <h3 class="m-title">{i.title}</h3>
                   {i.body && <p class="m-body">{i.body}</p>}
                   {/* THE STAKE, ON THE CARD. The founder, 2026-08-31: "right
@@ -745,11 +843,18 @@ const switchCss = [
                           <span class="m-dim"> staked · {i.households} {i.households === 1 ? "household" : "households"} backing</span>
                         </>}
                   </p>
+                  {/* WHERE IT STANDS, when that is not the Tank. Founder-ruled
+                      2026-09-01 with the by-class reading: an idea may stand
+                      anywhere, so a card whose mark is somewhere else owes the
+                      reader that one fact — and a card standing IN the Tank
+                      says nothing, because the panel it is in already said it.
+                      `standingAt` is null in that case; the branch is in
+                      civic.mjs so the page has no rule of its own about it. */}
+                  {i.standingAt && <p class="m-stand">standing at: {i.standingAt}</p>}
                   <p class="m-foot">
                     {i.href
                       ? <a class="m-fund" href={i.href} target="_blank" rel="noopener">its blueprint ↗</a>
-                      : <span class="m-dim">not drawn as a blueprint yet</span>}
-                    {i.date && <span class="m-dim">{i.date}</span>}
+                      : <span class="m-dim">not drawn yet</span>}
                   </p>
                 </article>
               ))}
@@ -798,10 +903,10 @@ const switchCss = [
             is the households with the most ✦ on ideas — not on their whole
             portfolio, which would rank somebody's home mark against a
             proposal. */}
-        <p class="m-lab">
-          The tank, counted
-          {worldAsOf && <span class="n-asof"> · {worldAsOf}</span>}
-        </p>
+        {/* "The tank, counted" → "Counted". The lane's name is on the eyebrow
+            at the top of this very panel; repeating it in a label two screens
+            down is the page telling a reader where they are. */}
+        <p class="m-lab">Counted</p>
         <ul class="d-counts">
           <li><b>{tankBoard.ideas}</b> <span>{tankBoard.ideas === 1 ? "idea" : "ideas"} standing</span></li>
           <li>
@@ -837,18 +942,22 @@ const switchCss = [
           </div>
         )}
 
-        {howIdeasEnter && (
-          <p class="m-note">
-            How an idea enters, in the town's own words on the quay:
-            <em> "{howIdeasEnter}"</em>
-          </p>
-        )}
+        {/* THE QUAY NOTE IS GONE — the plaque above already says it. See the
+            frontmatter, § THE QUAY NOTE IS NOT READ HERE ANY MORE, for why the
+            read-never-copy discipline it bought survives its removal.
+
+            AND THE CROSS-LINK WENT WITH ITS SENTENCE. "An ask of a resident is
+            the Bounty Board instead" was the page explaining its own navigation
+            to a reader who has five labelled buildings on the screen above and
+            can see which one says "residents' asks of other residents". What is
+            left is the one door this lane owns and no other surface names: the
+            chest a drawn idea goes into. */}
         <p class="m-note">
-          A drawn idea becomes a blueprint in the town's chest,
-          <a href={BLUEPRINTS_REPO} target="_blank" rel="noopener"> postmark-blueprints ↗</a>.
-          An ask of a <em>resident</em> is
-          <a href="#board"> the Bounty Board</a> instead.
+          <a href={BLUEPRINTS_REPO} target="_blank" rel="noopener">the town's chest ↗</a>
         </p>
+
+        {/* one as-of, at the foot of the panel — see the Guild's */}
+        {worldAsOf && <p class="c-asof">{worldAsOf}</p>}
       </div>
       <LaneTutorial lane={LANE_BY.ideas} slides={tutorialFor("ideas")} />
     </section>
@@ -865,14 +974,15 @@ const switchCss = [
             two-level pen walk could not see it, so this lane kept a typed copy
             and the file apologised for it in a comment. `readPen` walks the
             whole tree and keys a mark by its id, so the copy is gone. */}
-        <LaneHead lane={LANE_BY.bounties} plaque={PLAQUES.bounties}
-                  predicates={PREDICATES.bounties} slides={tutorialFor("bounties").length} />
+        <LaneHead lane={LANE_BY.bounties} plaque={PLAQUES.bounties} slides={tutorialFor("bounties").length} />
       <div id="board" class="m-block">
-        <p class="m-lab">
-          On the Bounty Board — residents' asks of residents, each in its poster's own name
-          {worldAsOf && <span class="n-asof"> · {worldAsOf}</span>}
-        </p>
-
+        {/* "On the Bounty Board — residents' asks of residents, each in its
+            poster's own name" → "Open". Three facts a reader already has: which
+            board they are on (the eyebrow), what a bounty is (the plaque), and
+            whose name is on a notice (the card's own kind line). What the label
+            has left to say is which pile this is, and the answer is one word —
+            with "Done" on the other pile, which had no label at all and was
+            carrying "· done" on every card instead. */}
         {!board.storeRead && (
           <div class="m-none is-warn">
             <b>The world store could not be read.</b>
@@ -892,6 +1002,13 @@ const switchCss = [
           </div>
         )}
 
+        {/* THE LABEL SITS ON THE PILE IT NAMES, not above the whole block —
+            which is why it moved down past the four kinds of nothing. "Open"
+            over an empty board would be a heading for a list that is not there,
+            and the empty states already say their own sentence. */}
+        {openNotices.length > 0 && (
+          <p class="m-lab">Open</p>
+        )}
         {openNotices.length > 0 && (
           <div class="m-grid">
             {openNotices.map((n) => (
@@ -935,9 +1052,11 @@ const switchCss = [
                         <span class="m-dim"> staked on it · {stakeOf(n.id, stakes).households} {stakeOf(n.id, stakes).households === 1 ? "household" : "households"}</span>
                       </>}
                 </p>
+                {/* THE DATE LEFT THE FOOT. The board is ordered by stake, so a
+                    date orders nothing the reader can see; one chip on one calm
+                    line is the whole footer now. */}
                 <p class="m-foot">
                   <span class="m-chip is-stamp">{n.reward}<span class="m-u">✦</span> reward</span>
-                  {n.date && <span class="m-dim">{n.date}</span>}
                 </p>
               </article>
             ))}
@@ -945,15 +1064,21 @@ const switchCss = [
         )}
 
         {doneNotices.length > 0 && (
-          <div class="m-grid m-done">
-            {doneNotices.map((n) => (
-              <article class="m-card is-done">
-                <p class="m-kind">{n.poster} · done</p>
-                <h3 class="m-title">{n.ask}</h3>
-                <p class="m-foot"><span class="m-chip is-stamp">{n.reward}<span class="m-u">✦</span> reward</span>{n.date && <span class="m-dim">{n.date}</span>}</p>
-              </article>
-            ))}
-          </div>
+          <>
+            <p class="m-lab">Done</p>
+            <div class="m-grid m-done">
+              {doneNotices.map((n) => (
+                <article class="m-card is-done">
+                  {/* "· done" LEFT EVERY CARD when the pile grew a label. It
+                      was said once per card under no heading at all; it is said
+                      once, above them, now. */}
+                  <p class="m-kind">{n.poster}</p>
+                  <h3 class="m-title">{n.ask}</h3>
+                  <p class="m-foot"><span class="m-chip is-stamp">{n.reward}<span class="m-u">✦</span> reward</span></p>
+                </article>
+              ))}
+            </div>
+          </>
         )}
 
         {board.malformed.length > 0 && (
@@ -991,10 +1116,8 @@ const switchCss = [
           2026-08-30 ruling holding: a bounty's stake is visibility and not
           funding, so a poster leaderboard denominated in money would say the
           opposite of the law two blocks up this same panel. */}
-      <p class="m-lab">
-        The board, counted
-        {worldAsOf && <span class="n-asof"> · {worldAsOf}</span>}
-      </p>
+      {/* "The board, counted" → "Counted", for the Think Tank's reason. */}
+      <p class="m-lab">Counted</p>
       <ul class="d-counts">
         <li><b>{bountyBoard.open}</b> <span>open</span></li>
         <li><b>{bountyBoard.done}</b> <span>answered</span></li>
@@ -1043,6 +1166,9 @@ const switchCss = [
           nobody has staked.
         </p>
       )}
+
+      {/* one as-of, at the foot of the panel — see the Guild's */}
+      {worldAsOf && <p class="c-asof">{worldAsOf}</p>}
       </div>
       <LaneTutorial lane={LANE_BY.bounties} slides={tutorialFor("bounties")} />
     </section>
@@ -1050,8 +1176,7 @@ const switchCss = [
     {/* ── THE MARKETPLACE ─────────────────────────────────────────────── */}
     <section class="c-lane" id="marketplace" data-panel="listings" style={tintVars("listings")}>
       <div class="c-body">
-        <LaneHead lane={LANE_BY.listings} plaque={PLAQUES.listings}
-                  predicates={PREDICATES.listings} slides={tutorialFor("listings").length} />
+        <LaneHead lane={LANE_BY.listings} plaque={PLAQUES.listings} slides={tutorialFor("listings").length} />
 
         {/* THE MARKETPLACE'S PLAQUE IS THE PANEL'S TITLE NOW. It used to render
             twice on this lane — as a typed `c-law` at the top AND as
@@ -1073,13 +1198,20 @@ const switchCss = [
               <li><b>{market.wants}</b> <span>{market.wants === 1 ? "want" : "wants"} — <em>I want X, offering N</em></span></li>
               <li><b>{market.archived}</b> <span>filled or withdrawn</span></li>
             </ul>
+            {/* ONE LINE AND THE DOOR, founder-ruled 2026-09-01, and it takes
+                the place of TWO blocks: a five-fact paragraph (where every row
+                is, how to list, how to want, that rows land on crossings, and
+                that settlement is a `pays:` line — the last of which is a door
+                verb on a human page) AND the dashed box under it repeating that
+                the listing class has not landed.
+
+                THE SHAPE IS THE BALLOT HOUSE'S, deliberately: one sentence
+                saying where the thing lives, then a door. Two lanes that are
+                both "not live yet, go through this door instead" should not be
+                two different designs. */}
             <p class="m-note">
-              Every row, with its terms and the letter that placed it, is on
-              <a href="/bulletin/#marketplace"> the price board</a>. To list
-              something or post a want, <a href="/mail/compose/?to=postmaster">write
-              the postmaster</a> — rows land on crossings, because market pace is
-              ferry pace. Settlement is a letter with a <code>pays:</code> line;
-              the board never touches a stamp.
+              Rows are hand-set by the office and a letter is what binds — every
+              one of them is on <a href="/bulletin/#marketplace">the price board</a>.
             </p>
           </>
         ) : (
@@ -1094,20 +1226,15 @@ const switchCss = [
           </div>
         )}
 
-        {/* WHAT THE MARK DOES NOT SAY. The plaque above is the building's own
-            words; this is the site's own fact about its machinery — the
-            listing class has not landed, so a row is hand-set by the office and
-            the mail is what binds. It renders because the lane is not live,
-            which is `LANES[].live`'s one owner, and it goes the day that
-            changes. `!quarter.built.listings` is NOT the gate any more: the
-            building stands in the world today and the lane is still not live,
-            and conflating those two facts is what would let this line vanish
-            while it was still true. */}
+        {/* THE DOOR, gated on `LANES[].live` — still the one owner of "this
+            lane's machinery has not landed", and still the gate, so the door
+            goes the day the listing class does. `!quarter.built.listings` is
+            NOT the gate: the building stands in the world today and the lane is
+            still not live, and conflating those two facts is what would let
+            this vanish while it was still true. */}
         {!LANE_BY.listings.live && (
-          <p class="c-soon">
-            The listing class has not landed. Until it does, a row on the price
-            board is hand-set by the office on its rounds, and what binds is the
-            letter — not this page and not the board.
+          <p class="m-note">
+            <a class="c-door" href="/mail/compose/?to=postmaster">Write the postmaster →</a>
           </p>
         )}
       </div>
@@ -1120,8 +1247,7 @@ const switchCss = [
             four levels down at `let-there-be-light/the-town-centre/the-keeping-
             works/the-ballot-house`, the deepest of the five, and the typed copy
             this lane carried went with the walk that could not reach it. */}
-        <LaneHead lane={LANE_BY.votes} plaque={PLAQUES.votes}
-                  predicates={PREDICATES.votes} slides={tutorialFor("votes").length} />
+        <LaneHead lane={LANE_BY.votes} plaque={PLAQUES.votes} slides={tutorialFor("votes").length} />
 
         {/* THE TALLIES ARE NOT EMBEDDED, and that is a decision rather than an
             omission. /votes/ fetches the office's live ballot API on the client
@@ -1435,10 +1561,50 @@ const switchCss = [
   .c-lane > .c-body > .c-top {
     background: var(--lane-wash, transparent);
     border-radius: 11px 11px 0 0;
-    margin: 0 -1.2rem 1.4rem; padding: 1.1rem 1.2rem 1.2rem;
+    margin: 0 -1.5rem 2.6rem; padding: 1.5rem 1.5rem 1.6rem;
   }
   .cq-panels { margin: 0 0 0.75rem; }
-  .c-body { padding: 0 1.2rem 1.4rem; }
+
+  /* ── THE SCALE, AND IT IS THE WHOLE OF RULE 5 ──────────────────────────────
+     THE FOUNDER, 2026-09-01: "The spacing scale between blocks roughly doubles
+     (panel head → state → dashboard); card padding up; meters, chips and
+     footers on one calm line each … Type scale: plaque big (as now), labels
+     small caps, everything else one body size — no third and fourth sizes."
+
+     THREE TIERS, DECLARED ONCE, and every rule below reads them:
+
+       --civic-plaque  the panel's title — the world's own sentence (LaneHead)
+       --civic-label   small caps: block labels, kind lines, ranks, chips, as-of
+       --civic-body    everything else, including card titles
+
+     A CARD TITLE AT BODY SIZE is the part that looks wrong in a diff and right
+     on the page: it is told apart by COLOUR (gold-bright on cream) rather than
+     by a fourth size, which is what "no third and fourth sizes" costs and buys.
+     Before this the panel rendered .66 / .70 / .72 / .78 / .80 / .82 / .84 /
+     .86 / .92 / 1 / 1.5rem — eleven sizes on one screen, which is the "hard on
+     the eyes" the founder read.
+
+     THE SPACING IS MARGIN-COLLAPSED ON PURPOSE. `.m-lab` carries the big top
+     margin and the head carries the big bottom one; adjacent siblings collapse
+     to the larger of the two, so the first label after the head gets one gap
+     and not two, with no `:first-child` special case to forget. */
+  main.civic {
+    --civic-body: .9rem;
+    --civic-label: .7rem;
+    /* the gap BETWEEN blocks — head → state → dashboard */
+    --civic-block: 2.8rem;
+  }
+  .c-body { padding: 0 1.5rem 2.2rem; font-size: var(--civic-body); }
+
+  /* THE ONE AS-OF LINE, at the foot of the panel. It replaced four `n-asof`
+     spans riding four block labels, each naming the same build — the founder's
+     "the as-of stamps stay but move to ONE small line per panel". It is a
+     label, not prose, so it wears the label tier. */
+  .c-asof {
+    margin: var(--civic-block) 0 0;
+    font-family: var(--pm-mono); font-size: var(--civic-label);
+    letter-spacing: .1em; color: rgba(205, 194, 171, .45);
+  }
 
   /* `.c-law` IS GONE, and so is its `cite`. The world's sentence is the
      panel's HEADING now (LaneHead.astro) — founder-ruled 2026-09-01, both
@@ -1450,15 +1616,16 @@ const switchCss = [
   /* 74ch, not 60: at 60 this paragraph wrapped into a narrow column beside a
      law quote and a note that both run the lane's full width, and the ragged
      right edge read as a layout fault rather than as a measure. */
-  .c-say { font-size: 0.92rem; line-height: 1.7; max-width: 74ch; margin: 0 0 1rem; }
-  .c-soon {
-    margin: 1.2rem 0 0; padding: 0.6rem 0.9rem;
-    border: 1px dashed rgba(205, 194, 171, 0.25); border-radius: 8px;
-    font-size: 0.82rem; line-height: 1.6; color: rgba(205, 194, 171, 0.7);
-  }
+  .c-say { font-size: var(--civic-body); line-height: 1.7; max-width: 74ch; margin: 0; }
+  /* `.c-soon` IS GONE with the dashed box it drew. The Marketplace's "the
+     listing class has not landed" note was a paragraph inside a border saying
+     what its own door already says, and the founder's rule 2 collapsed the two
+     into one line plus that door. The Ballot House's shape — one sentence, then
+     `.c-door` — is what both not-live lanes wear now, so there is one design
+     for one situation rather than two. */
   .c-door {
-    display: inline-block; margin-right: 0.7em;
-    font-family: var(--pm-mono); font-size: 0.74rem; letter-spacing: 0.06em;
+    display: inline-block;
+    font-family: var(--pm-mono); font-size: var(--civic-label); letter-spacing: 0.06em;
     padding: 0.45em 1em; border-radius: 999px;
     border: 1px solid rgba(232, 196, 139, 0.4); color: var(--pm-gold-bright);
     text-decoration: none;
@@ -1466,23 +1633,23 @@ const switchCss = [
   .c-door:hover { background: rgba(232, 196, 139, 0.1); }
 
   /* ── the Quest Guild's standings ───────────────────────────────────── */
-  .q-stand { list-style: none; margin: 0 0 1rem; padding: 0; }
+  .q-stand { list-style: none; margin: 0; padding: 0; }
   .q-row {
     display: grid;
     grid-template-columns: 2em minmax(8em, 1fr) auto auto 4em;
-    align-items: baseline; gap: 0.8em;
-    padding: 0.4em 0; font-size: 0.86rem;
+    align-items: baseline; gap: 0.9em;
+    padding: 0.55em 0; font-size: var(--civic-body);
     border-bottom: 1px solid rgba(232, 196, 139, 0.08);
   }
-  .q-rank { font-family: var(--pm-mono); font-size: 0.72rem; color: rgba(205, 194, 171, 0.5); }
+  .q-rank { font-family: var(--pm-mono); font-size: var(--civic-label); color: rgba(205, 194, 171, 0.5); }
   .q-who { color: var(--pm-gold); text-decoration: none; }
   .q-who:hover { color: var(--pm-gold-bright); text-decoration: underline; }
-  .q-pair { font-size: 0.78rem; color: rgba(205, 194, 171, 0.8); white-space: nowrap; }
+  .q-pair { color: rgba(205, 194, 171, 0.8); white-space: nowrap; }
   .q-k {
-    font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.08em;
+    font-family: var(--pm-mono); font-size: var(--civic-label); letter-spacing: 0.08em;
     text-transform: uppercase; color: rgba(205, 194, 171, 0.45);
   }
-  .q-all { font-family: var(--pm-mono); font-size: 0.78rem; color: var(--pm-stamp-bright); text-align: right; }
+  .q-all { font-family: var(--pm-mono); color: var(--pm-stamp-bright); text-align: right; }
   .q-u { opacity: 0.7; }
 
   /* ── the Guild's quest cards ───────────────────────────────────────────
@@ -1532,13 +1699,19 @@ const switchCss = [
      that can drift from it. What is new is the counts strip above it, which
      wears the Marketplace tally's shape for the same reason — the site
      already has one way to show "N of a thing". */
+  /* ONE ROW OF NUMBER+WORD PAIRS WITH REAL GAPS, founder-ruled 2026-09-01. The
+     gap doubled (1.6rem → 3rem) and the figure came DOWN from 1.5rem to the
+     body size: at 1.5rem the four numbers were a second headline competing with
+     the plaque, which is the "third and fourth sizes" the same rule forbids.
+     A pair reads as a pair when the two halves are the same size and only the
+     colour differs. */
   .d-counts {
-    list-style: none; margin: 0 0 1.1rem; padding: 0;
-    display: flex; gap: 1.6rem; flex-wrap: wrap;
+    list-style: none; margin: 0; padding: 0;
+    display: flex; gap: 1rem 3rem; flex-wrap: wrap;
   }
   .d-counts li { display: flex; align-items: baseline; gap: 0.5em; }
   .d-counts b {
-    font-family: var(--pm-mono); font-size: 1.5rem; font-weight: 400;
+    font-family: var(--pm-mono); font-size: var(--civic-body); font-weight: 400;
     color: var(--pm-gold-bright);
   }
   /* THE SAME SPECIFICITY TRAP, ONE LEVEL UP, and again the rendered page is
@@ -1552,9 +1725,9 @@ const switchCss = [
      line was painted the label's cream while the number beside it was purple.
      One stamp glyph, two colours, half a rem apart, and nothing in the source
      said so: the rule that broke the stamp law was a rule about labels. */
-  .d-counts > li > span { font-size: 0.8rem; color: rgba(205, 194, 171, 0.75); line-height: 1.5; }
+  .d-counts > li > span { font-size: var(--civic-body); color: rgba(205, 194, 171, 0.75); line-height: 1.5; }
   .d-counts .m-stamp .m-u { color: inherit; }
-  .d-stand { margin-bottom: 0.6rem; }
+  .d-stand { margin-top: 1.6rem; }
   .d-row { grid-template-columns: 2em minmax(8em, 1fr) auto 5em; }
   .d-ask { color: rgba(244, 233, 215, 0.9); }
 
@@ -1572,18 +1745,23 @@ const switchCss = [
      something that carries it. */
   .m-stamp { color: var(--pm-stamp-bright); font-weight: 400; font-variant-numeric: tabular-nums; }
   .m-u { opacity: 0.7; margin-left: 0.08em; }
-  .m-stake { font-size: 0.82rem; line-height: 1.6; margin: 0.15rem 0 0; }
+  .m-stake { font-size: var(--civic-body); line-height: 1.6; margin: 0.15rem 0 0; }
+  /* WHERE AN IDEA STANDS, when that is not the Tank — one small line, dim,
+     because it is a fact about the mark and not the ask itself. */
+  .m-stand { font-size: var(--civic-body); line-height: 1.6; margin: 0; opacity: .55; }
   .m-chip.is-stamp {
     border-color: rgba(var(--pm-stamp-rgb), 0.4);
     color: var(--pm-stamp-bright);
   }
   .m-card.is-idea { border-color: rgba(var(--pm-stamp-rgb), 0.22); }
 
-  /* ── the Marketplace's tally ───────────────────────────────────────── */
-  .mk-tally { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; gap: 1.6rem; flex-wrap: wrap; }
+  /* ── the Marketplace's tally ─────────────────────────────────────────
+     The counts dashboard's twin, and it takes the same shape for the same
+     reason: one row of number+word pairs, real gaps, one body size. */
+  .mk-tally { list-style: none; margin: 0; padding: 0; display: flex; gap: 1rem 3rem; flex-wrap: wrap; }
   .mk-tally li { display: flex; align-items: baseline; gap: 0.5em; }
-  .mk-tally b { font-family: var(--pm-mono); font-size: 1.5rem; color: var(--pm-gold-bright); font-weight: 400; }
-  .mk-tally span { font-size: 0.8rem; color: rgba(205, 194, 171, 0.75); line-height: 1.5; }
+  .mk-tally b { font-family: var(--pm-mono); font-size: var(--civic-body); color: var(--pm-gold-bright); font-weight: 400; }
+  .mk-tally span { font-size: var(--civic-body); color: rgba(205, 194, 171, 0.75); line-height: 1.5; }
   .mk-tally em { font-style: italic; opacity: 0.75; }
 
   @media (max-width: 720px) {
@@ -1598,7 +1776,12 @@ const switchCss = [
     .cq-plaque { font-size: 0.6rem; }
     .cq-soon { font-size: 0.5rem; letter-spacing: 0.04em; white-space: nowrap; }
     .q-row { grid-template-columns: 1.6em 1fr auto; row-gap: 0.15em; }
-    .q-pair { font-size: 0.72rem; }
+    /* `.q-pair { font-size: .72rem }` LEFT THIS BREAKPOINT. It was a third body
+       size that only existed under 720px — invisible to a desktop read and
+       invisible to a source read that did not think to look inside a media
+       query, which is exactly where a scale quietly grows a fourth tier. The
+       row already drops two columns at this width; it does not also need
+       smaller type. */
   }
 
   .portal { max-width: 62rem; margin: 0 auto; }
@@ -1647,17 +1830,43 @@ const switchCss = [
   .p-tab.is-on { background: var(--pm-gold); color: var(--pm-night, #0b1020); border-color: var(--pm-gold); }
 
   /* ── the market ────────────────────────────────────────────────────── */
-  .m-block + .m-block { margin-top: 2.6rem; }
+  .m-block + .m-block { margin-top: var(--civic-block); }
+  /* A LABEL NAMES. Two or three words, small caps, and the big gap lives HERE
+     rather than on the blocks themselves — a label is always the top of a
+     block, so one margin does the whole scale and collapses against whatever
+     was above it. `n-asof` went with the four per-block stamps it rode. */
   .m-lab {
-    font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; opacity: .6;
-    border-bottom: 1px solid rgba(232, 196, 139, .2); padding-bottom: .4rem; margin: 0 0 1.1rem;
+    font-size: var(--civic-label); letter-spacing: .16em; text-transform: uppercase; opacity: .6;
+    border-bottom: 1px solid rgba(232, 196, 139, .2); padding-bottom: .5rem;
+    margin: var(--civic-block) 0 1.1rem;
   }
-  .n-asof { letter-spacing: .06em; text-transform: none; }
-  .m-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: .9rem; }
-  .m-grid + .m-grid { margin-top: .9rem; }
+  /* ── AND NOTHING SCROLLS SIDEWAYS HERE EITHER ──────────────────────────────
+     `min(19rem, 100%)`, not `19rem`. REPRODUCED at 390px before it was touched,
+     on the base build as well as this branch: `/town/#quests` and `/town/#pots`
+     made the DOCUMENT 448px wide in a 390px window (463 on this branch, whose
+     roomier chip padding widened the same unbreakable box).
+
+     WHY NOBODY SAW IT, and this is the finding worth more than the fix: the
+     rendered 390px check loads `/town/` with no fragment, where the panel that
+     overflows is `display: none`. The one-panel switch that landed on 09-01
+     took four fifths of this page out of every rendered measurement that does
+     not name a fragment. An overflow check on a page with a switch has to walk
+     the switch.
+
+     THE CAUSE. `minmax(19rem, 1fr)` floors the track at 304px, and the card
+     inside it cannot shrink below its own min-content — which the Budding
+     friendship quest's reward chip sets, because `.m-chip` was `white-space:
+     nowrap` and that reward is a 50-character sentence ("5 stamps to each of
+     you at 5 each way; 10 each at 10"). `min(19rem, 100%)` lets the track fall
+     to the container, `min-width: 0` lets the card follow it, and the chip
+     rule below stops the sentence being unbreakable in the first place. */
+  .m-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr)); gap: 1.1rem; }
+  .m-grid + .m-grid { margin-top: 1.1rem; }
+  /* CARD PADDING UP, founder-ruled — and the inner gap with it, because a card
+     with room around it and none inside it just moves the crowding. */
   .m-card {
-    display: flex; flex-direction: column; gap: .45rem;
-    padding: .95rem 1.05rem 1rem;
+    display: flex; flex-direction: column; gap: .6rem; min-width: 0;
+    padding: 1.2rem 1.3rem 1.25rem;
     border: 1px solid rgba(232, 196, 139, .16); border-radius: .55rem;
     background: rgba(232, 196, 139, .028);
   }
@@ -1665,39 +1874,58 @@ const switchCss = [
   .m-card.is-done { opacity: .55; }
   .m-card.is-done .m-title { text-decoration: line-through; }
   .m-card.is-settled { opacity: .7; }
-  .m-kind { font-family: var(--pm-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; opacity: .62; margin: 0; }
-  .m-title { font-size: 1rem; line-height: 1.4; margin: 0; color: var(--pm-gold-bright); font-weight: 400; }
-  .m-body { font-size: .84rem; line-height: 1.55; opacity: .78; margin: 0; }
-  .m-money { font-size: .92rem; margin: 0; font-variant-numeric: tabular-nums; }
-  .m-bar-wrap { margin: .15rem 0 0; }
+  .m-kind { font-family: var(--pm-mono); font-size: var(--civic-label); letter-spacing: .12em; text-transform: uppercase; opacity: .62; margin: 0; }
+  /* THE CARD TITLE IS TOLD APART BY COLOUR, NOT BY SIZE — see § THE SCALE. */
+  .m-title { font-size: var(--civic-body); line-height: 1.45; margin: 0; color: var(--pm-gold-bright); font-weight: 400; }
+  .m-body { font-size: var(--civic-body); line-height: 1.6; opacity: .78; margin: 0; }
+  .m-money { font-size: var(--civic-body); margin: 0; font-variant-numeric: tabular-nums; }
+  /* ONE CALM LINE EACH. A meter is its bar and its one label, with the label
+     on the same baseline rhythm as everything else rather than a size of its
+     own. */
+  .m-bar-wrap { margin: 0; }
   .m-bar { height: .4rem; border-radius: 999px; background: rgba(128,128,128,.25); overflow: hidden; }
   .m-bar:not(.is-pot-bar) i { display: block; height: 100%; background: var(--pm-gold); border-radius: 999px; }
   .m-bar.is-pot-bar i { display: block; height: 100%; border-radius: 999px; }
-  .m-barlab { font-size: .8rem; margin: .3rem 0 0; font-variant-numeric: tabular-nums; }
-  .m-what { font-size: .84rem; line-height: 1.55; opacity: .82; margin: 0; }
+  .m-barlab { font-size: var(--civic-body); margin: .5rem 0 0; font-variant-numeric: tabular-nums; }
+  .m-what { font-size: var(--civic-body); line-height: 1.6; opacity: .82; margin: 0; }
   .m-holo { padding: 0 .3em; border-radius: 999px; }
-  .m-roll { font-size: .78rem; margin: 0; line-height: 1.6; }
+  .m-roll { font-size: var(--civic-body); margin: 0; line-height: 1.7; }
   .m-roll a { color: inherit; }
   .m-gift { font-style: italic; opacity: .8; }
   .m-patron { white-space: nowrap; }
   .m-dim { opacity: .6; }
-  .m-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: .25rem 0 0; font-size: .78rem; }
+  .m-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin: .1rem 0 0; font-size: var(--civic-body); }
+  /* A CHIP IS A LABEL and wears the label tier — small caps mono, not a fourth
+     body size.
+
+     AND IT WRAPS UNLESS IT IS A FIGURE. `white-space: nowrap` was on every
+     chip, and it is right for exactly one of them: a stamp figure — "12✦
+     reward", "4✦ staked" — must never break between the number and its unit.
+     The QUEST chip carries the registry's own reward SENTENCE, and a sentence
+     held unbreakable is what made this page scroll sideways at 390px. So
+     nowrap moves to `.is-stamp`, which is precisely the set of chips that are
+     figures. */
   .m-chip {
-    font-family: var(--pm-mono); font-size: .7rem; padding: .2em .6em; border-radius: 999px;
-    border: 1px solid rgba(232, 196, 139, .3); color: var(--pm-gold-bright); white-space: nowrap;
+    font-family: var(--pm-mono); font-size: var(--civic-label); padding: .25em .7em; border-radius: 999px;
+    border: 1px solid rgba(232, 196, 139, .3); color: var(--pm-gold-bright);
+    max-width: 100%; overflow-wrap: anywhere;
   }
+  .m-chip.is-stamp { white-space: nowrap; }
   .m-fund { margin-left: auto; color: var(--pm-gold-bright); text-decoration: none; border-bottom: 1px solid rgba(232,196,139,.4); }
   .m-fund:hover { border-bottom-color: var(--pm-gold-bright); }
   .m-none {
-    display: block; padding: 1rem 1.1rem; border: 1px dotted rgba(128,128,128,.5); border-radius: .5rem;
-    font-size: .88rem; line-height: 1.6;
+    display: block; padding: 1.2rem 1.3rem; border: 1px dotted rgba(128,128,128,.5); border-radius: .5rem;
+    font-size: var(--civic-body); line-height: 1.65;
   }
   .m-none.is-warn { border-style: solid; border-color: rgba(232, 196, 139, .45); }
-  .m-none b { display: block; color: var(--pm-gold-bright); margin-bottom: .25rem; }
+  .m-none b { display: block; color: var(--pm-gold-bright); margin-bottom: .35rem; }
   .m-none span { opacity: .78; }
-  .m-none ul { margin: .5rem 0 0; font-size: .82rem; opacity: .75; }
-  .m-note { font-size: .82rem; line-height: 1.6; opacity: .72; margin: 1.2rem 0 0; }
+  .m-none ul { margin: .6rem 0 0; font-size: var(--civic-body); opacity: .75; }
+  .m-note { font-size: var(--civic-body); line-height: 1.65; opacity: .72; margin: var(--civic-block) 0 0; }
   .m-note a { color: var(--pm-gold); }
+  /* two notes in a row are one block, not two — the door under the Marketplace's
+     one line, and the chest link under the tank's */
+  .m-note + .m-note { margin-top: 1rem; }
 
   /* ── the numbers ───────────────────────────────────────────────────── */
   .n-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: .9rem; }

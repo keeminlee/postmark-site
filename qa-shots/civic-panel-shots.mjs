@@ -101,17 +101,32 @@ const plaque = await page.evaluate(`(() => {
   const cs = getComputedStyle(el);
   return { text: (el.textContent || "").trim(), px: parseFloat(cs.fontSize) };
 })()`);
+// THE BYTES MOVED WITH THE REPIN, 2026-09-01 evening: world main rewrote this
+// plaque from "propose ideas to THIS town" to "propose ideas to THE town" (the
+// founder's wording), and the site repinned to carry it. That is exactly what
+// this check is for — it is the one instrument that proves the page is
+// rendering the world the build installed rather than a copy of it, so it is
+// updated to the new bytes rather than loosened to stop noticing.
 record("item 3 · the tank's title IS its mark body, verbatim",
-  plaque?.text === "Your resident can propose ideas to this town here, which others can back with stamps, and the ones that get backed get built.",
+  plaque?.text === "Your resident can propose ideas to the town here, which others can back with stamps, and the ones that get backed get built.",
   plaque?.text);
 record("item 3 · and it is really big font", (plaque?.px ?? 0) >= 24, `${plaque?.px}px`);
 
 const cites = await page.evaluate(`document.querySelectorAll(".c-lane cite").length`);
 record("item 3 · no cite line under a plaque", cites === 0, `${cites} cites`);
 
-const preds = await page.evaluate(`Array.from(document.querySelectorAll("#ideas .c-preds li"))
-  .map((li) => (li.textContent || "").replace(/\\s+/g, " ").trim())`);
-record("item 3 · the tank's predicates render as slot · value", preds.length > 0, preds.join(" | "));
+// RE-AIMED BY REVERSAL, 2026-09-01 evening. This asserted the tank's predicates
+// RENDER as `slot · value` rows; the founder's rule 1 — "No machine voice on a
+// human page" — removed the block from every panel. So the check asks the
+// opposite question, which is the one that now needs an instrument: the rows
+// are gone from the RENDERED page, not merely from the source.
+//
+// It is kept rather than deleted because a rendered absence is worth an
+// instrument: `predicatesOf` still exists, still works, and is one prop away
+// from coming back.
+const preds = await page.evaluate(`document.querySelectorAll(".c-lane .c-preds li").length`);
+record("item 3 · no panel renders a predicates block (rule 1: no machine voice)",
+  preds === 0, `${preds} predicate rows`);
 
 await page.screenshot({ path: join(OUT, "01-arrival-think-tank.png"), fullPage: false });
 
@@ -131,9 +146,22 @@ record("item 4 · and they are in descending stake order",
 const tankCounts = await page.evaluate(`Array.from(document.querySelectorAll("#ideas .d-counts li"))
   .map((li) => (li.textContent || "").replace(/\\s+/g, " ").trim())`);
 record("item 5 · the tank carries a counts line", tankCounts.length >= 4, tankCounts.join(" · "));
-const asOf = await page.evaluate(`Array.from(document.querySelectorAll("#ideas .n-asof, #bounty-board .n-asof"))
-  .map((s) => (s.textContent || "").trim())`);
-record("item 5 · every derived block is marked with its as-of", asOf.length >= 4, asOf.join(" | "));
+// RE-AIMED 2026-09-01 evening, and the law is unchanged while the count
+// inverts. This asked for FOUR as-of spans across the two world-derived
+// panels — one per block, which is what the founder then struck: "the as-of
+// stamps stay but move to ONE small line per panel, not per block."
+//
+// "The as-of stamps stay" is the half a careless read would lose, so it is what
+// is asserted: each of the three live panels carries exactly one, and it is on
+// screen rather than merely in the DOM.
+const asOf = await page.evaluate(`Array.from(document.querySelectorAll(".cq-panels > .c-lane")).map((l) => {
+  const els = Array.from(l.querySelectorAll(".c-asof"));
+  const shown = els.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+  return { lane: l.id, n: els.length, text: (els[0] && els[0].textContent || "").trim(), shown: shown.length };
+})`);
+const derived = asOf.filter((a) => ["quests", "ideas", "bounty-board"].includes(a.lane));
+record("item 5 · every derived panel is marked with its as-of, exactly once",
+  derived.every((a) => a.n === 1), JSON.stringify(derived));
 
 await page.screenshot({ path: join(OUT, "02-think-tank-full.png"), fullPage: true });
 

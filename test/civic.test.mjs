@@ -18,7 +18,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   LANES, DEFAULT_LANE, standing, ideas, isIdea, toIdea, questStandings, questCards, marketplace,
-  loadPlaceMarks, readPen, markFields, plaque, predicatesOf,
+  loadPlaceMarks, readPen, markFields, plaque, predicatesOf, placeName,
   markStakes, stakeOf, ideaDashboard, boardDashboard, worldPin,
   markBody, QUEST_REGISTRY, loadWorldState,
   THINK_TANK_PLACE, IDEA_CLASS, TITLE_MAX, BLUEPRINTS_REPO,
@@ -203,14 +203,123 @@ test("markBody takes the plaque and leaves the frontmatter", () => {
 
 // ── the Think Tank's ideas ───────────────────────────────────────────────────
 
-test("an idea is the idea class standing on the think tank, and both halves matter", () => {
+test("THE LAW: class says what a mark is; the Think Tank is where ideas are READ", () => {
+  // THE LAW, verbatim from the founder's 2026-09-01 ruling as the brief carries
+  // it: "class says what a mark is; the Think Tank is where ideas are read, not
+  // a container that makes them ideas."
+  //
+  // REVERSED FROM WHAT THIS FILE SAID YESTERDAY, and the reversal is the whole
+  // point rather than a loosening. The old law was "an idea is the idea class
+  // STANDING ON the think tank, and both halves matter", and its own comment
+  // said class alone "would sweep in an idea-shaped mark placed anywhere in the
+  // world" — which the founder has now ruled is not a sweep, it is the answer.
+  // Geometry was constitutive and is not; an idea left from a resident's own
+  // ground is still an ask of the town.
   const at = (o) => ({ class: IDEA_CLASS, placementParent: THINK_TANK_PLACE, ...o });
-  assert.equal(isIdea(at({ id: "a" })), true);
-  // class alone would sweep in an idea-shaped mark placed anywhere in the world
-  assert.equal(isIdea({ id: "b", class: IDEA_CLASS, placementParent: "wright/the-crossing-bench" }), false);
-  // place alone would sweep in whatever else stands on the think tank
+  assert.equal(isIdea(at({ id: "a" })), true, "an idea in the Tank is an idea");
+  assert.equal(isIdea({ id: "b", class: IDEA_CLASS, placementParent: "the-town/the-garrison" }), true,
+    "AND SO IS ONE STANDING ANYWHERE ELSE — this is the assertion the ruling reversed");
+  assert.equal(isIdea({ id: "p", class: IDEA_CLASS, kind: "predicated", parent: "wright/a-newcomers-first-hour" }), true,
+    "and a PREDICATED idea, which has no `at` at all — class alone decides (founder, 2026-09-01)");
+
+  // WHAT DID NOT CHANGE, and it is the half that stops the reversal from being
+  // a hole: the class still has to say idea. Standing on the tank does not make
+  // a bench an idea.
   assert.equal(isIdea({ id: "c", class: "thing", placementParent: THINK_TANK_PLACE }), false);
+  assert.equal(isIdea({ id: "d", class: "bounty", placementParent: THINK_TANK_PLACE }), false);
   assert.equal(isIdea(null), false);
+  assert.equal(isIdea({ id: "e" }), false, "and a mark with no class at all is not an idea");
+
+  // ── AND THE CLASS DEFINITION IS NOT AN INSTANCE OF ITSELF ──────────────────
+  // FOUND ON THE BUILT PAGE, not in the ruling: with the placement test gone,
+  // `the-town/idea` walked into the lane — `kind: "class"`, filed under
+  // `the-town/mark`, body "One thought by a resident, of the town: …". It
+  // carries `class: idea` because it IS the class. The Think Tank rendered the
+  // town's dictionary entry as a resident's proposal.
+  //
+  // The exclusion asks the mark's OWN DECLARATION (`kind`), which is the field
+  // the ruling's sentence points at, not where the mark stands.
+  assert.equal(isIdea({ id: "the-town/idea", class: IDEA_CLASS, kind: "class", parent: "the-town/mark" }), false,
+    "the class DEFINITION is not an idea — rendering it would put a proposal on the board that no resident made");
+  assert.equal(isIdea({ id: "wright/x", class: IDEA_CLASS, kind: "sited", placementParent: THINK_TANK_PLACE }), true,
+    "and a sited instance still is");
+});
+
+test("THE LAW: the Think Tank shows every idea in the world and no definition of one", () => {
+  // ASSERTED AGAINST THE SHIPPED PIN, not a fixture, because the whole class of
+  // bug this catches is a real mark nobody thought of. A fixture agrees only
+  // with the hand that wrote it.
+  const state = loadWorldState();
+  if (!state) return; // no world installed — the module's own tests cover the shape
+  const all = (state.marks ?? []).filter((m) => m?.class === IDEA_CLASS);
+  const shown = ideas(state).ideas;
+  const definitions = all.filter((m) => m.kind === "class");
+
+  assert.ok(all.length > 0, "the pinned world carries no idea marks at all — this law is reading nothing");
+  assert.equal(shown.length, all.length - definitions.length,
+    "the lane shows every idea-class mark in the world except the class definitions");
+  for (const d of definitions) {
+    assert.equal(shown.some((i) => i.id === d.id), false,
+      `the lane renders ${d.id}, which is the DEFINITION of the idea class and not an idea`);
+  }
+  assert.ok(shown.length > 0, "the lane shows nothing at all");
+
+  // ── WHAT THIS LAW CANNOT PROVE ON THIS PIN, SAID PLAINLY ───────────────────
+  // Every real idea in `569670a6` stands ON the Tank, so the by-class widening
+  // adds exactly ZERO cards here — the only mark it swept in was the class
+  // definition, which the exclusion above then removes. Under the OLD reader
+  // this file would show the same seven-minus-one rows.
+  //
+  // That means the widening's live effect is UNPROVEN BY THE PIN and is proven
+  // only by the fixture law above ("an idea says where it stands…"), which is
+  // where the off-Tank and predicated cases are actually exercised. Printing
+  // the count is how a later reader sees that for themselves rather than
+  // reading this test's title and assuming it demonstrated something.
+  const offTank = shown.filter((i) => i.standingAt !== null);
+  console.log(`    (pin: ${all.length} idea-class marks, ${definitions.length} definition(s) excluded, ${offTank.length} standing off the Tank — the widening's live effect is 0 on this pin and is proven by fixture, not here)`);
+});
+
+test("THE LAW: an idea says where it stands, unless where it stands is the Tank", () => {
+  // The founder's ruling's second half: each card gains one small line naming
+  // the mark's placement parent, and says NOTHING when that parent is the Tank
+  // — "no need to say what's redundant" (rule 4, say each thing once).
+  //
+  // THE FIXTURE CARRIES A PREDICATED IDEA ON PURPOSE, and its shape is the
+  // measured one: in `world-state.json` a predicated mark has **no `at` key at
+  // all** — absent, not null (Wright, 2026-09-01, from the store itself). So
+  // the row below omits `at` entirely rather than setting it to null, which is
+  // the difference between testing the real shape and testing a plausible one.
+  //
+  // NO GUARD WAS NEEDED, and that is worth asserting rather than assuming: this
+  // reader never reads `at` in any branch. `isIdea` asks the class, `toIdea`
+  // asks the body, and the standing-at line asks `placementParent ?? parent`.
+  // A reader with an `=== null` guard would have dropped every predicated idea
+  // silently; a reader with no guard at all cannot. The falsifier for that is
+  // this fixture: it has no `at`, and it must come back as an idea.
+  const state = {
+    marks: [
+      { id: THINK_TANK_PLACE },
+      { id: "wright/in-the-tank", class: IDEA_CLASS, placementParent: THINK_TANK_PLACE, body: "In the tank." },
+      { id: "wright/off-the-tank", class: IDEA_CLASS, placementParent: "the-town/the-garrison", body: "Off the tank." },
+      { id: "wright/predicated", class: IDEA_CLASS, kind: "predicated", parent: "wright/a-newcomers-first-hour", body: "A predicate." },
+    ],
+  };
+  const rows = ideas(state).ideas;
+  assert.equal(rows.length, 3, "all three are ideas — geometry does not gate the lane any more");
+
+  const by = Object.fromEntries(rows.map((r) => [r.id, r]));
+  assert.equal(by["wright/in-the-tank"].standingAt, null,
+    "an idea in the Tank must say nothing — the panel it is in already said it");
+  assert.equal(by["wright/off-the-tank"].standingAt, "the garrison",
+    "an idea elsewhere names where it stands, from the parent's own slug");
+  assert.equal(by["wright/predicated"].standingAt, "a newcomers first hour",
+    "and a predicated idea names the mark it is an idea OF — same line, same wording");
+
+  // AND THE NAME IS DERIVED, NEVER TYPED. `placeName` reads the slug; the
+  // household half of the id is who wrote the place down, which is not what
+  // "where does this stand" asks.
+  assert.equal(placeName("the-town/the-quest-guild"), "the quest guild");
+  assert.equal(placeName(null), null);
 });
 
 test("THE LAW: an idea's body IS the claim — a body-only mark renders, as the door writes it", () => {
@@ -259,6 +368,12 @@ test("ideas() separates the four kinds of nothing", () => {
   const noPlace = ideas({ marks: [{ id: "the-town/the-town-centre" }] });
   assert.equal(noPlace.storeRead, true);
   assert.equal(noPlace.placeExists, false, "the tank is not set down, and that is its own state");
+  // AND `placeExists` STILL MEANS THE TANK, after the by-class ruling. The Tank
+  // stopped being what makes a mark an idea; it did not stop being the place
+  // this lane is about, and "the building is not standing yet" is still a real
+  // and different state from "nobody has asked for anything".
+  assert.equal(ideas({ marks: [{ id: "x", class: IDEA_CLASS, placementParent: "the-town/the-garrison", body: "An ask." }] }).placeExists,
+    false, "an idea standing elsewhere does not conjure the Tank into the world");
 
   const upAndEmpty = ideas({ marks: [{ id: THINK_TANK_PLACE }] });
   assert.equal(upAndEmpty.placeExists, true);
@@ -1011,6 +1126,44 @@ test("THE LAW: a panel wears its own building's palette and invents no hex", () 
   for (const lane of LANES) {
     assert.ok(hub.includes(`tintVars("${lane.key}")`), `the ${lane.key} panel is not tinted`);
   }
+});
+
+test("THE LAW: the Quest Guild wears the stamps' purple, and the Ballot House the guild's orange", () => {
+  // THE FOUNDER'S REASON, 2026-09-01, verbatim: "the quest guild has the most
+  // to do with the stamps themselves" — and stamps are purple by
+  // src/styles/postmark.css's own law ("stamps are purple (law, Keemin
+  // 2026-07-29)"). So the two lanes traded accents.
+  //
+  // THE PURPLE IS READ FROM THE STYLESHEET, NOT TYPED HERE. A test that
+  // hard-coded the hex would go green on a palette that had drifted away from
+  // the town's stamp family, which is the failure the whole one-palette
+  // discipline exists to prevent — and it would be a THIRD copy of a token that
+  // already has one owner.
+  const css = readFileSync(new URL("../src/styles/postmark.css", import.meta.url), "utf8");
+  const token = (name) => {
+    const m = new RegExp(`--${name}:\\s*(#[0-9a-f]{6})`, "i").exec(css);
+    assert.ok(m, `postmark.css no longer declares --${name}`);
+    return m[1].toLowerCase();
+  };
+  const stampDark = token("pm-stamp-dark");
+
+  assert.equal(ACCENTS.quests.a.toLowerCase(), stampDark,
+    "the Quest Guild's accent must BE the stamps' own dark violet — it is the lane that mints them");
+  assert.equal(ACCENTS.votes.a.toLowerCase(), "#a4632a",
+    "and the Ballot House takes the orange the Guild was wearing");
+
+  // AND THEY REALLY SWAPPED rather than both drifting somewhere new: each one's
+  // three inks are the other's former three, as a set.
+  assert.deepEqual(Object.values(ACCENTS.votes).map((h) => h.toLowerCase()),
+    ["#a4632a", "#c9823d", "#6d4220"], "the Ballot House wears the Guild's former three inks, unchanged");
+  assert.deepEqual(Object.values(ACCENTS.quests).map((h) => h.toLowerCase()),
+    ["#65517f", "#8a72ab", "#433554"], "and the Guild the Ballot House's, unchanged — a swap, not a repaint");
+
+  // THE STAMP TOKEN ITSELF IS UNTOUCHED, which the brief names explicitly. A
+  // swap that moved the currency's own colour would be a different change
+  // wearing this one's clothes.
+  assert.equal(token("pm-stamp"), "#aa8fd8");
+  assert.equal(token("pm-stamp-bright"), "#d8c7ef");
 });
 
 test("channels() refuses anything that is not a colour", () => {
