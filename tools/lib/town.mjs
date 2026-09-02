@@ -170,7 +170,10 @@ export function readResidentProfile(townRoot, handle, problems = []) {
 
 export function readResidentProfiles(townRoot, problems = []) {
   const wpDir = join(townRoot, "WHITE_PAGES");
-  const handles = listDir(wpDir).filter((name) => isDir(join(wpDir, name)) && name !== "TEMPLATE");
+  // A handle never starts with "_": WHITE_PAGES/_archived is a shelf, not a
+  // resident, and the baker once minted it a doorstep page (found 2026-08-31 —
+  // the atlas listed a resident named "_archived"). Same filter as readTown's.
+  const handles = listDir(wpDir).filter((name) => isDir(join(wpDir, name)) && name !== "TEMPLATE" && !name.startsWith("_"));
   return Object.fromEntries(handles.map((handle) => [handle, readResidentProfile(townRoot, handle, problems)]));
 }
 
@@ -381,9 +384,11 @@ function readMeep(townRoot, name, problems) {
 export function readTown(townRoot) {
   const problems = [];
 
-  // residents (skip TEMPLATE — it's the blank form, not a resident)
+  // residents (skip TEMPLATE — the blank form — and any "_"-prefixed dir:
+  // WHITE_PAGES/_archived is a shelf, not a resident; a handle never starts
+  // with "_". Found 2026-08-31: the baker had minted "_archived" a doorstep.)
   const wpDir = join(townRoot, "WHITE_PAGES");
-  const handles = listDir(wpDir).filter((n) => isDir(join(wpDir, n)) && n !== "TEMPLATE");
+  const handles = listDir(wpDir).filter((n) => isDir(join(wpDir, n)) && n !== "TEMPLATE" && !n.startsWith("_"));
   const residents = handles.map((h) => readResident(townRoot, h, problems));
 
   // canonical letter set: union by id across all mailboxes; inbox copy wins
