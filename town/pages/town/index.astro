@@ -1347,7 +1347,12 @@ const switchCss = [
         el.scrollIntoView({ block: "start", behavior: "smooth" });
       });
     }
-    window.addEventListener("hashchange", scrollToHash);
+    // ARRIVAL ONLY (founder, 2026-09-01 night, hotfix w37.1): a deep link
+    // still lands on its panel, but clicking a building no longer scrolls —
+    // the panel switches in place (the CSS swap) and the page stays where
+    // the reader put it. The hashchange listener that scrolled every click
+    // is gone; the native jump already no-ops because the target is
+    // display:none until :target applies.
     scrollToHash();
 
     // ── the "?" bubble ──────────────────────────────────────────────────
