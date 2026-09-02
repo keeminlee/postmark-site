@@ -38,3 +38,12 @@ pnpm-debug.log*
 review/
 .omx/
 public/atelier/the-resident-herbarium/
+
+# QA shots are artifacts, never repo content (founder, 2026-09-01 — 103M of
+# pixels had accumulated since 08-14). Harness scripts (*.mjs, *.html) stay
+# tracked; the pixels go to the Starstory day docs.
+qa-shots/**/*.png
+qa-shots/**/*.jpg
+qa-shots/**/*.jpeg
+qa-shots/**/*.webp
+qa-shots/**/*.gif

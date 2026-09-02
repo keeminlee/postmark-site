@@ -343,7 +343,10 @@ urgent.
 - Never push to `main`. Branch pushed for Wright's own-eyes visual QA; the merge
   is his (visual QA before merge is an absolute gate for UI work).
 - No deploys, no external posts, no MCP writes into the live world.
-- Screenshots into `qa-shots/` on the branch so review starts on pixels.
+- Screenshots land in the Starstory day docs (`G:/Starstory/docs/<date>/`), NEVER
+  committed to the branch (founder, 2026-09-01 — 103M of shots had accumulated on
+  main since 08-14; `.gitignore` now refuses them). The branch carries the shot
+  *scripts* only; review still starts on pixels, from the day docs.
 
 ## 6. Gates — results
 
