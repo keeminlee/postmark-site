@@ -906,12 +906,17 @@ test("THE LAW: a deep link INTO a panel opens that panel, not just the lane's ow
   assert.ok(/\.c-lane\{display:block\}/.test(css.slice(0, supports)),
     "without :has() a reader must see every panel, not none");
 
-  assert.ok(src.includes('addEventListener("hashchange"'),
-    "a hash changed after load is the same deep link and gets the same treatment");
+  // INVERTED 2026-09-01 (founder, hotfix w37.1: "disable the auto scroll on
+  // click for the buildings"). A building click IS a hashchange after load, so
+  // the old assertion here — "a hash changed after load is the same deep link
+  // and gets the same treatment" — pinned the exact scroll the founder removed.
+  // The panel swap is CSS and needs no script; only ARRIVAL scrolls now.
+  assert.ok(!src.includes('addEventListener("hashchange"'),
+    "a click's hashchange must not scroll — the panel switches in place (founder, 2026-09-01)");
   // scrolling BEFORE the swap measures the old layout and lands somewhere else
-  // entirely — the same reason the fold router needed this, for the same frame
+  // entirely — still true for the one scroll that remains, the arrival's
   assert.ok(/requestAnimationFrame/.test(src),
-    "the scroll must be measured after the panel has swapped");
+    "the arrival scroll must be measured after the panel has swapped");
 });
 
 test("the hub works with the script switched off", () => {
