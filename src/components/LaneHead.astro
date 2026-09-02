@@ -1,0 +1,148 @@
+---
+// LaneHead.astro — the top of a civic-quarter panel: the eyebrow, the plaque,
+// its predicates, and the "?".
+//
+// ── WHY THIS IS A COMPONENT AND NOT FIVE COPIES ──────────────────────────────
+// The founder's 2026-09-01 ruling is that the panel's TITLE is the building's
+// plaque body, verbatim. Five hand-written headers would be five places a
+// sentence could be typed instead of read, and the whole point of the ruling is
+// that no sentence is typed. One header, taking a mark's body as a prop, makes
+// "the five cannot drift apart" structural rather than something a test has to
+// keep checking five times.
+//
+// It renders NO sentence of its own. Every word a reader sees here except the
+// lane's own name and the two chips is the world's.
+//
+// ── WHAT THE 2026-09-01 MINIMALISM RULING TOOK OUT OF THIS FILE ───────────────
+// TWO THINGS, and each for its own reason.
+//
+// 1. THE PREDICATES. `slot · value` rows — `asked-by · the town`, `pays · town
+//    mint — the law stands at the-town/quest`, `daily · household read:"quests"`
+//    — are the RECORD'S LAW-VOICE, serialized. They are true, they are read
+//    from the world, and they are still the wrong thing on a page a human
+//    reads: door verbs, mark ids and file paths belong at the doors and behind
+//    the "?" deck, which cites every one of them. The founder: "No machine
+//    voice on a human page."
+//
+//    THE READER STAYS. `predicatesOf` in civic.mjs is untouched and still
+//    tested — the office half renders the same idea, and the day a surface
+//    wants these rows it reads them rather than re-deriving them. What was
+//    removed is the RENDER, not the derivation.
+//
+// 2. THE WHO-LINE. `lane.who` — "the town's asks for its residents" — is
+//    already printed under the building the reader just clicked, six
+//    centimetres up the same screen. Say each thing once: it stays on the
+//    building (where it labels a picture) and goes from the panel (where the
+//    plaque is already the panel's sentence).
+import { MAX_SLIDES } from "@/lib/civic-tutorial.mjs";
+
+const { lane, plaque, slides = 0 } = Astro.props;
+
+// The "?" belongs only to a lane that HAS a deck. A bubble that opens an empty
+// dialog is worse than no bubble — it promises an answer and delivers a box.
+const helps = lane.live && slides > 0 && slides <= MAX_SLIDES;
+---
+<header class="c-top">
+  <p class="c-eyebrow"><span class="c-eyebrow-name">{lane.name}</span></p>
+
+  {/* COMING SOON, in the opened panel as well as on the building — the
+      founder's ruling names both surfaces. `LANES[].live` owns the fact; this
+      only renders it. */}
+  {!lane.live && <p class="c-coming-head">Coming soon</p>}
+
+  {/* THE PLAQUE, BIG. "The marks that we drafted up should be really big font
+      (like the title of that panel)" — and no cite line under it: "Don't
+      include distracting text like 'the world's own words, at
+      the-town/quest'." The provenance did not become unimportant, it became
+      MECHANICAL: the page holds no copy at all, so there is nothing for a cite
+      to defend against. */}
+  <h2 class="c-plaque">{plaque.text}</h2>
+
+  {/* AND WHEN NEITHER RECORD ANSWERED, the reader is told — because the
+      fallback above is the lane's NAME, not a plaque, and passing chrome off
+      as the world's words is the exact deception this whole mechanism was
+      built to end. */}
+  {!plaque.live && (
+    <p class="c-unread">the plaque could not be read on this build — that heading is this lane's name, not the world's words</p>
+  )}
+
+  {helps && (
+    <button type="button" class="c-help" data-tut={lane.key}
+            aria-haspopup="dialog" aria-controls={`tut-${lane.key}`}
+            aria-label={`How ${lane.name} works`}>?</button>
+  )}
+</header>
+
+<style>
+  /* The panel head is a grid so the "?" can sit in the top-right corner
+     (founder: "in the top right corner") without floating out of flow — a
+     floated button overlaps the plaque the moment the plaque wraps to two
+     lines, which every one of the five does at a phone width. */
+  .c-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    column-gap: 1rem;
+    margin: 0 0 1.4rem;
+  }
+  .c-eyebrow { grid-column: 1; margin: 0 0 .7rem; }
+  /* THE LABEL TIER, read from the page's token rather than re-declared. `.68rem`
+     stood on the Coming-soon chip and `.7rem` on the eyebrow — two values one
+     hundredth of a rem apart, which is a fourth size that nobody could ever see
+     and every reader's browser dutifully rendered. */
+  .c-eyebrow-name {
+    font-family: var(--pm-mono); font-size: var(--civic-label, .7rem); letter-spacing: .16em;
+    text-transform: uppercase; color: var(--pm-gold);
+  }
+
+  .c-coming-head {
+    grid-column: 1; margin: 0 0 .8rem;
+    font-family: var(--pm-mono); font-size: var(--civic-label, .7rem); letter-spacing: .18em;
+    text-transform: uppercase; color: var(--pm-gold-bright);
+    border: 1px dashed rgba(232, 196, 139, .45); border-radius: 999px;
+    padding: .3em .9em; justify-self: start;
+  }
+
+  /* BIG, and the founder's word for it is the spec. It is a quotation, so it is
+     set in the serif the town quotes in, and it is capped at 26ch-ish measure
+     so a 150-character plaque does not run the full 62rem as one grey ribbon. */
+  .c-plaque {
+    grid-column: 1; margin: 0;
+    font-family: var(--pm-serif); font-weight: 400;
+    font-size: clamp(1.35rem, 3.4vw, 2.05rem); line-height: 1.28;
+    color: var(--pm-gold-bright); max-width: 34ch;
+  }
+  /* ONE BODY SIZE, and this is it — the page's `--civic-body`, with the same
+     fallback everywhere so a component rendered outside the hub still lands on
+     the body size rather than on the browser's 16px. Founder, 2026-09-01:
+     "everything else one body size — no third and fourth sizes." */
+  .c-unread {
+    grid-column: 1; margin: .7rem 0 0;
+    font-size: var(--civic-body, .9rem); line-height: 1.6; color: rgba(205, 194, 171, .6);
+  }
+
+  /* THE "?" — a round button, the lane's own colour, in the corner. It reads
+     its border from the panel's `--lane-edge-open`, which is set from
+     civic-art.mjs's table, so it cannot be a colour the building is not. */
+  .c-help {
+    grid-column: 2; grid-row: 1 / span 3;
+    width: 2.1rem; height: 2.1rem; border-radius: 50%;
+    display: grid; place-items: center; cursor: pointer;
+    /* THE BODY TOKEN, not `.95rem`. The "?" is a glyph in a control and it
+       looked exempt; the rendered check disagreed and it is right — it is text
+       on the page, and .95rem beside .9rem is a third size nobody can see and
+       every browser renders. Caught by measuring, not by reading. */
+    font-family: var(--pm-mono); font-size: var(--civic-body, .9rem); line-height: 1;
+    background: transparent; color: var(--pm-gold-bright);
+    border: 1px solid var(--lane-edge-open, rgba(232, 196, 139, .34));
+    transition: background .14s ease, transform .14s ease;
+  }
+  .c-help:hover { background: var(--lane-wash-hover, rgba(232, 196, 139, .1)); transform: scale(1.06); }
+  .c-help:focus-visible { outline: 2px solid var(--pm-gold); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .c-help { transition: none; } .c-help:hover { transform: none; } }
+
+  @media (max-width: 640px) {
+    .c-plaque { font-size: 1.25rem; max-width: none; }
+    .c-help { width: 1.9rem; height: 1.9rem; }
+  }
+</style>

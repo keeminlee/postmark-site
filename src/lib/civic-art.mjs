@@ -44,13 +44,71 @@ export const INK = {
   t: "#7a5a3a",
 };
 
-const ACCENTS = {
-  quests: { a: "#a4632a", A: "#c9823d", m: "#6d4220" },
+//
+// EXPORTED, because the lane panels wear it too. The founder's ask, 2026-08-31:
+// "colour the panels similarly to their pixel art buildings." A panel tinted
+// from a hex typed into the page's stylesheet would be a second palette, free
+// to drift warm while its building stayed cold — the exact failure the shared
+// ink table above exists to prevent, one level up. So the panels read THIS
+// table and there is still one place a lane's colour is decided.
+// TWO LANES TRADED COLOURS, founder-ruled 2026-09-01: "the quest guild has the
+// most to do with the stamps themselves", and stamps are purple (postmark.css's
+// own law). So the Guild takes the purple the Ballot House was wearing and the
+// Ballot House takes the Guild's orange. Nothing else moved and no new hex was
+// invented — the two rows below are the same two rows, swapped.
+//
+// ONE SOURCE, so the swap is one edit: the sprite is inked from this table and
+// the panel is tinted from it through `tint()`, which is why neither the pixel
+// art nor the panel wash needed touching and why they cannot now disagree.
+export const ACCENTS = {
+  quests: { a: "#65517f", A: "#8a72ab", m: "#433554" },
   ideas: { a: "#4a5c8a", A: "#6d82b5", m: "#2f3c5c" },
   bounties: { a: "#7a5a3a", A: "#9c7549", m: "#513b26" },
   listings: { a: "#9c3f2e", A: "#c4553f", m: "#6a2a1f" },
-  votes: { a: "#65517f", A: "#8a72ab", m: "#433554" },
+  votes: { a: "#a4632a", A: "#c9823d", m: "#6d4220" },
 };
+
+// A hex from the table above, as the three channels a CSS rgba() needs. Kept
+// here rather than in the page because it is the only place a palette entry is
+// allowed to change shape, and because a falsifier can then check that what a
+// panel wears has the same channels as what its building is painted with.
+export function channels(hex) {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(hex ?? ""));
+  if (!m) throw new Error(`civic-art: "${hex}" is not a six-digit hex`);
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+const rgba = (hex, alpha) => `rgba(${channels(hex).join(", ")}, ${alpha})`;
+
+// A lane's tint, as the custom properties its panel wears.
+//
+// A TINT, NOT A FLOOD, and the shape is what enforces it: what comes back is a
+// colour for a 1px border and a low-alpha wash for the heading strip, and there
+// is no "panel background" in the answer at all. A lane filled with its own
+// accent stops being the site's night and becomes five differently-coloured
+// pages — the panel would win an argument the building is supposed to win.
+//
+// `A` is the LIT accent and `a` the plain one, the same distinction the sprites
+// draw with: a building's lit face is what a reader picks it out by, so the
+// border takes `A` and the wash takes `a`. THE ALPHAS ARE THE CONTRAST
+// ARGUMENT. Every value is laid over the page's own night (`rgba(14,22,42,.4)`
+// on `--pm-night`), and the text above them is unchanged gold and cream, so the
+// wash is held low enough that no lane's heading loses contrast against it —
+// the reason it is a wash on the strip and not a fill of the body.
+//
+// Nothing new is invented: every colour here is a channel-for-channel read of
+// the table above, which is exactly what the panel falsifier asserts.
+export function tint(name) {
+  const accent = ACCENTS[name];
+  if (!accent) throw new Error(`civic-art: no palette for lane "${name}"`);
+  return {
+    edge: rgba(accent.A, 0.34),      // shut: the lane's own colour, quietly
+    edgeOpen: rgba(accent.A, 0.62),  // open: the same colour, awake
+    wash: rgba(accent.a, 0.14),      // the heading strip
+    washHover: rgba(accent.a, 0.24),
+  };
+}
 
 // ── the buildings ────────────────────────────────────────────────────────────
 // 24 wide, 24 tall, ground at row 21. Read them as pictures; that is what they

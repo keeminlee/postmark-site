@@ -649,9 +649,24 @@ test("the household's funding shelf says the record in plain words, with no noun
 // Town absorbed it. The surface did not change — the same market, the same
 // pots, the same glossary entry — it changed address, so the list follows the
 // content rather than the URL it used to sit at.
+//
+// ── THE HUB LEFT THIS LIST, 2026-08-31, and both rulings are kept in sight ────
+// The 2026-08-26 rule this list serves: whichever surface says "holo" first owes
+// the reader the expansion, from the shared constant. It was written while the
+// hub and the teaching were ONE page.
+//
+// The 2026-08-31 ruling that supersedes it FOR THE HUB ONLY: the explanation has
+// one home, /stamps/, where it already stood in three fuller forms; the hub
+// keeps a pointer at most. So `town/pages/town/index.astro` is off this list
+// because it no longer teaches the word — not because the law went soft.
+//
+// The other half of that ruling is asserted, not merely assumed: the hub is
+// FORBIDDEN to render or import the holo lines, and REQUIRED to point at where
+// they live, in test/civic-hub.test.mjs § "every holo mention carries the
+// ruling's line". A surface dropped from here is a surface picked up there —
+// if it ever is not, this comment is the thing that says so.
 const HOLO_SURFACES = [
   "../town/pages/stamps/index.astro",
-  "../town/pages/town/index.astro",
   "../town/pages/numbers/index.astro",
   "../town/pages/fund/[pot].astro",
   "../town/components/Household.astro",
@@ -763,7 +778,13 @@ test("each money surface teaches it exactly once outside the glossary, in both o
   // the expansion moves between the fine print and the footer with the pot's
   // close shape — a pot whose bullets never name holo would otherwise ship a
   // page that never expands the word at all.
-  const named = [join(DIST, "stamps", "index.html"), join(DIST, "town", "index.html"), join(DIST, "numbers", "index.html")];
+  // /town/ IS NOT HERE ANY MORE, for the reason spelled out at HOLO_SURFACES
+  // above: the founder moved holo's explanation to its one home on 2026-08-31
+  // and the hub keeps a pointer. Its built page is checked from the other
+  // direction instead — exactly zero, asserted just below — because "the hub
+  // stopped teaching it" and "the hub quietly lost a paragraph" are the same
+  // number to a test that only knows how to want one.
+  const named = [join(DIST, "stamps", "index.html"), join(DIST, "numbers", "index.html")];
   const fundDir = join(DIST, "fund");
   if (existsSync(fundDir)) {
     for (const pot of readdirSync(fundDir)) named.push(join(fundDir, pot, "index.html"));
@@ -783,6 +804,37 @@ test("each money surface teaches it exactly once outside the glossary, in both o
     const n = holoTimes(outsideGlossary(readFileSync(p, "utf8")));
     assert.equal(n, 1, `${p} carries the expansion ${n} times outside the glossary, and the rule is exactly once`);
   }
+});
+
+test("the built hub teaches the expansion ZERO times, and still points at where it lives", { skip: !built }, () => {
+  // THE FOUNDER'S RULING, 2026-08-31: the holo explanation belongs on /stamps/,
+  // "its one home" — the hub leaves "a one-line pointer at most, or nothing."
+  //
+  // ASKED AS AN EXACT COUNT, not as "less than two", because the failure this
+  // guards is a restoration: somebody re-adds the paragraph, or an import comes
+  // back "just in case", and the page teaches a word it was ruled out of
+  // teaching. The pointer half is asserted with it so this cannot be satisfied
+  // by the hub simply going silent about holo — a page that shows "✧" in its
+  // pot roll and never says where to learn the word is the state the pointer
+  // exists to prevent.
+  const hub = readFileSync(join(DIST, "town", "index.html"), "utf8");
+  const n = holoTimes(outsideGlossary(hub));
+  assert.equal(n, 0, `the built hub teaches the expansion ${n} times — /stamps/ is its one home`);
+  // RE-AIMED 2026-09-01 EVENING, on the built page, for the same reason its
+  // twin in civic-hub.test.mjs was: the pointer's TEXT changed shape when the
+  // founder ruled that "what must survive survives as a link whose text is a
+  // question". This matched `>holo<` — the word alone inside the anchor — which
+  // was the spelling of the shortened paragraph he then struck. It is now
+  // `>What's holo?<`.
+  //
+  // The law has not moved an inch: the built hub must carry a LINK to the
+  // teaching with the word in its text, so a reader who meets "✧" in the pot
+  // roll can find out what it is. Asked of the BUILT page rather than the
+  // source, which is the whole reason this copy of the law exists beside the
+  // source-side one — a pointer that a build silently drops is a pointer that
+  // reads correct in a diff and is not on the page.
+  assert.match(hub, /href="\/stamps\/#\w+"[^>]*>[^<]*holo[^<]*</i,
+    "the hub must still point a reader at where holo is explained");
 });
 
 

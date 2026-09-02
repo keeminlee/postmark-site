@@ -36,9 +36,58 @@ test("the fixture matches the documented grammar", () => {
   assert.equal(r.malformed.length, 0, "every fixture notice must be readable — the fixture is the grammar's live check");
   assert.equal(r.notices.length, 3);
   assert.equal(r.boardExists, true);
-  // open before done, then most-backed first
+  // open before done, then most-STAKED first — founder-ruled 2026-09-01, "open
+  // notices ordered by ✦ staked desc, then date". Re-aimed from `backed` (the
+  // ledger weight, escrow plus the breadth bonus) to `escrow`, because the
+  // lane displays the escrow and a lane ordered by a number it does not show
+  // cannot be read. See board.mjs § WHY escrow AND NOT backed.
   assert.deepEqual(r.notices.map((n) => n.status), ["open", "open", "done"]);
-  assert.ok(r.notices[0].backed >= r.notices[1].backed);
+  assert.ok(r.notices[0].escrow >= r.notices[1].escrow,
+    "the board must order by the ✦ it renders, not by a weight it does not");
+  // AND THE TWO ARE GENUINELY DIFFERENT NUMBERS in the fixture, so this is not
+  // the same assertion under another name: the map notice carries 30 in escrow
+  // and a ledger weight of 35.
+  const map = r.notices.find((n) => n.id.endsWith("bounty-a-map-of-the-quay"));
+  assert.notEqual(map.escrow, map.backed, "the fixture's escrow and weight must differ for this to test anything");
+});
+
+test("THE LAW: the board orders by the ✦ it renders, not by the weight behind it", () => {
+  // FOUND BY ITS OWN CAN-FAIL FLIP, and the finding is worth more than the fix.
+  //
+  // The assertion above was re-aimed from `backed` to `escrow` and went green,
+  // and the flip that reverted the sort ALSO went green — because the shared
+  // FIXTURE happens to rank the same way under both numbers (30 > 7 in escrow,
+  // 35 > 7 in weight). A test whose data cannot tell two orderings apart is a
+  // test of neither, and it passed while the code did the wrong thing.
+  //
+  // So this one carries data where the two orders DISAGREE. Under escrow the
+  // small-weight/big-stake notice leads; under ledger_weight the other does.
+  // Nothing else about the board changes; only which number decides.
+  const opposed = {
+    marks: [
+      { id: BOARD_PLACE, by: "the-town", date: "2026-08-01" },
+      {
+        id: "a/broad-and-shallow", class: "bounty", placementParent: BOARD_PLACE,
+        by: "a", date: "2026-08-02", status: "open", ask: "Backed by many, staked by few.",
+        reward: 1, stamps: 5, ledger_weight: 100,
+      },
+      {
+        id: "b/narrow-and-deep", class: "bounty", placementParent: BOARD_PLACE,
+        by: "b", date: "2026-08-01", status: "open", ask: "Staked heavily by one house.",
+        reward: 1, stamps: 50, ledger_weight: 10,
+      },
+    ],
+  };
+  const order = notices(opposed).notices.map((n) => n.id);
+  assert.deepEqual(order, ["b/narrow-and-deep", "a/broad-and-shallow"],
+    "the board must lead with the most ✦ STAKED — the number its cards show");
+
+  // AND THE FLIP, RUN RIGHT HERE rather than asserted about: sorting the same
+  // two by ledger_weight gives the opposite order, which is what makes the
+  // assertion above capable of failing.
+  const byWeight = [...notices(opposed).notices].sort((x, y) => y.backed - x.backed).map((n) => n.id);
+  assert.deepEqual(byWeight, ["a/broad-and-shallow", "b/narrow-and-deep"],
+    "the two orderings must genuinely differ on this data, or nothing above is being tested");
 });
 
 test("civic notices get a progress bar; resident notices do not", () => {
