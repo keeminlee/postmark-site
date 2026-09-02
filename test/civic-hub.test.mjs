@@ -917,6 +917,17 @@ test("THE LAW: a deep link INTO a panel opens that panel, not just the lane's ow
   // entirely — still true for the one scroll that remains, the arrival's
   assert.ok(/requestAnimationFrame/.test(src),
     "the arrival scroll must be measured after the panel has swapped");
+  // w37.2 (founder, 2026-09-02): removing the listener was not enough — the
+  // BROWSER's own anchor jump remained (the :target swap gives the target a
+  // box in the same style pass). The click pins the scroll: fragment by hand,
+  // scroll restored in the same task. This asserts the pin exists AND that
+  // :target stays the switch (location.hash, never pushState — :target
+  // ignores pushState).
+  const pin = src.indexOf('a[href^="#"]');
+  assert.ok(pin > -1, "the in-page anchor click must be intercepted (w37.2 — the native jump scrolls too)");
+  const pinBlock = src.slice(pin, pin + 600);
+  assert.ok(/location\.hash\s*=/.test(pinBlock), "the interceptor must set location.hash — :target ignores pushState");
+  assert.ok(/scrollTo\(x,\s*y\)/.test(pinBlock), "and pin the scroll back in the same task");
 });
 
 test("the hub works with the script switched off", () => {
@@ -948,8 +959,16 @@ test("the hub works with the script switched off", () => {
   assert.ok(script.length > 0, "the enhancement script is gone");
   assert.equal(/a\[data-lane\]/.test(script), false,
     "the script intercepts the buildings again — the anchor is the mechanism");
-  assert.equal(/preventDefault/.test(script), false,
-    "the script cancels a navigation — a fragment IS the switch, so cancelling it breaks the switch");
+  // AMENDED 2026-09-02 (founder, w37.2: no scroll on building clicks). The old
+  // letter forbade preventDefault outright — but killing the browser's anchor
+  // jump REQUIRES cancelling the navigation, so the law is now its spirit:
+  // the script may cancel the navigation ONLY by performing the fragment
+  // itself in the same act. The switch survives; the jump does not. A
+  // preventDefault with no location.hash beside it is still the old defect.
+  if (/preventDefault/.test(script)) {
+    assert.ok(/location\.hash\s*=/.test(script),
+      "a script that cancels a navigation must perform the fragment itself — the fragment IS the switch");
+  }
   assert.equal(/\.style\.display|classList\.(add|remove|toggle)\(["']is-on/.test(script), false,
     "the script shows or hides a panel — that is CSS's job and only CSS's");
 });
