@@ -1355,6 +1355,27 @@ const switchCss = [
     // display:none until :target applies.
     scrollToHash();
 
+    // ── THE CLICK DOES NOT SCROLL (founder, 2026-09-02 — w37.2) ─────────
+    // w37.1 removed the script's corrective scroll, but the BROWSER's own
+    // anchor jump remained: the :target swap makes the panel visible in the
+    // same style pass, so the native jump finds a box after all (the old
+    // comment said exactly this and w37.1 mis-read it as a no-op). The
+    // anchor's whole job here is the fragment — so do the fragment by hand
+    // and pin the scroll in the same task: no painted movement. pushState
+    // stays rejected (:target ignores it); location.hash keeps :target true.
+    // Script off = ordinary anchors, with the browser's jump — the floor
+    // stands, unmoved.
+    main.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a || !main.contains(a)) return;
+      var id = decodeURIComponent((a.getAttribute("href") || "").slice(1));
+      if (!id || !document.getElementById(id)) return;
+      e.preventDefault();
+      var x = window.scrollX, y = window.scrollY;
+      location.hash = id;
+      window.scrollTo(x, y);
+    });
+
     // ── the "?" bubble ──────────────────────────────────────────────────
     // One handler for every deck. `step` shows exactly one slide and moves the
     // dots and the two buttons with it, so there is one place that knows which
