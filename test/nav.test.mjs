@@ -115,14 +115,10 @@ test("every chip, at every depth, resolves to a route that exists", () => {
   }
 });
 
-test("a held entry is still a real route — the hold is on the seat, never on the page", () => {
-  const held = allEntries().filter((e) => e.held);
-  assert.ok(held.length, "no held entry left to check — delete this test with the last one");
-  for (const e of held) {
-    assert.ok(pageFileFor(e.href), `${e.key} is held AND unreachable, which is just missing`);
-    assert.ok((e.held ?? "").trim().length >= 20, `${e.key} is held with no reason on file`);
-  }
-});
+// (The "a held entry is still a real route" test stood here while The Numbers
+// was the last held seat; it asked to be deleted with the last one, and the
+// numbers chip hung 2026-09-03 when the S4 hold's own condition was met. If a
+// seat is ever held again, bring it back: held ⇒ page exists ∧ reason ≥ 20 chars.)
 
 // ── rule 2: a page per read ──────────────────────────────────────────────────
 
@@ -385,9 +381,9 @@ test("THE TOWN KEEPS THE FOUNDER'S OWN LIST, and the meeps is back in it", () =>
   //                                              — the founder, 2026-08-25
   //
   // His list, in his order, and the meeps appended where he appended it. The
-  // Numbers is the one entry not in that sentence and it is not in the row
-  // either — it is held, with its reason on file, and the assertion below is
-  // over what a reader actually SEES.
+  // Numbers is the one entry not in that sentence: it was HELD (empty until the
+  // S4 emission, 2026-08-21) and joined the row 2026-09-03 when the page read
+  // live dials — the assertion below is over what a reader actually SEES.
   const town = RAIL.find((s) => s.key === "town");
   // THE BOUNTY BOARD joined the row 2026-08-26 at the founder's word ("we need
   // the Bounty Board in The Town -- still no direct link there") -- a deep link
@@ -402,10 +398,10 @@ test("THE TOWN KEEPS THE FOUNDER'S OWN LIST, and the meeps is back in it", () =>
   // His 2026-08-25 list is still underneath: ferry's daily, the bulletin, the
   // works, and the meeps he appended. What changed is what wraps it.
   assert.deepEqual(chipsFor("town").chips.map((c) => c.key),
-    ["town", "daily", "bulletin", "works", "meeps"],
+    ["town", "daily", "bulletin", "works", "meeps", "numbers"],
     `The Town's row reads: ${chipsFor("town").chips.map((c) => c.label).join(" · ")}`);
-  assert.equal(town.members.some((m) => m.key === "numbers" && m.held), true,
-    "the S4 hold left the structure — the chip must still be there, waiting, with its reason");
+  assert.equal(town.members.some((m) => m.key === "numbers" && !m.held), true,
+    "the S4 hold is over — the numbers chip hangs, unheld, at the end of the founder's list");
 
   // THE MEEPS RETURNED, and its page answers to its own name again. It had been
   // struck from the residents row hours earlier and borrowed `residents` while
@@ -545,8 +541,8 @@ test("the section row a page draws never shows a held chip, and never appears wh
   // renders its family and hides what is held
   assert.ok(town.chips.some((m) => m.key === "town"), "the quarter is missing from its own row");
   assert.ok(town.chips.some((m) => m.key === "works"), "The Works is missing from the row it was demoted into");
-  assert.equal(town.chips.some((m) => m.key === "numbers"), false, "the S4 hold leaked onto the row");
-  // the held page still draws its section's row when a reader lands on it
+  assert.equal(town.chips.some((m) => m.key === "numbers"), true, "the numbers chip fell off the row after its hold was lifted (2026-09-03)");
+  // a page that WAS held still draws its section's row when a reader lands on it
   assert.equal(chipsFor("numbers").of.key, "town");
   // and so does the hidden one — /town/ is out of the row, not out of the town
   assert.equal(chipsFor("town").of.key, "town");
@@ -755,7 +751,7 @@ test("/town/ IS NOT A DASHBOARD — no cards restating the chips, no wall of cou
 
   // THE DIALS. Four counts assembled from whatever the extracts happened to
   // carry, sitting where the page's body should be. The town's own numbers live
-  // at /numbers/, held until S4.
+  // at /numbers/ (held until the S4 emission; on the rail since 2026-09-03).
   assert.equal(/t-stats|t-dials|t-stat-note/.test(src), false,
     "the aggregate-numbers dashboard is back on /town/");
   assert.equal(/from "@\/data\/postmark\/stats\.json"|from "@\/data\/postmark\/economy\.json"/.test(src), false,
@@ -865,7 +861,7 @@ test("LITTLE ICONS FOR THE TOWN'S CHIPS — decoration, never the name", () => {
   // them. The claim is unchanged — every chip keeps its WORDS, and the icon is
   // decoration beside the label rather than a replacement for it.
   assert.deepEqual(row.map((c) => c.label),
-    ["the civic quarter", "ferry’s daily", "the bulletin", "the works", "the meeps"]);
+    ["the civic quarter", "ferry’s daily", "the bulletin", "the works", "the meeps", "the numbers"]);
 
   // AND THEY ARE HIDDEN FROM A SCREEN READER, because a decorative glyph read
   // aloud beside its own label says the chip twice in two vocabularies.
