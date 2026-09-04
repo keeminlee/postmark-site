@@ -88,6 +88,12 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
   const positions = mint.foldPotPositions(entries);
   const { receipts, settled } = mint.foldPotReceipts(entries);
   const closedEpochs = mint.foldClosedEpochs(entries);
+  // ref → the holo row that answered for it (the close's own receipt of a receipt)
+  const settledBy = new Map();
+  for (const e of entries) {
+    const c = mint.classifyEntry(e.canonical);
+    if (c.kind === "holo" && c.ref) settledBy.set(c.ref, c);
+  }
 
   // TREASURY DOLLARS FUND NOTHING, so they are not what a pot's bar measures.
   // ECONOMY-DIALS.json law_side.keeping._exclusions, quoted: "treasury dollars
@@ -104,6 +110,13 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
   // the shelf can say what was funded without the site holding a second copy of
   // the pot list."
   const titleOf = new Map(potFiles.map((p) => [String(p?.pot ?? ""), String(p?.title ?? "")]));
+  // THE DEED PURGE (the founder, 2026-08-26, town commit 4485be975): "pot-receipt
+  // remains the only money row, the close's payer lines say holo, and the
+  // record-of-dollars concept lives as plain prose." There is no patron-deed row
+  // any more and never will be, so this list is empty by law; it is still
+  // emitted because deeds.json's reader contract is deferred to POS-61 (see
+  // test/funding.test.mjs § "no noun standing in for it"). What a CLOSED epoch
+  // folds from now is below: the receipts the close answered for.
   const deeds = [];
   for (const e of entries) {
     const c = mint.classifyEntry(e.canonical);
@@ -187,18 +200,25 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
     // A CLOSED EPOCH's numbers come from the close's own rows, never from the
     // pot file's `received_usd` — the pot file says so itself: "display only,
     // refreshed by tools/epoch-close.mjs --receipt — the ledger's pot-receipt
-    // rows are authoritative".
+    // rows are authoritative". Since the deed purge the close's own rows are the
+    // HOLO rows: one per receipt the close answered for, `n` the holo it minted
+    // (0 for a treasury/outside/rho-capped dollar — "the zero row is what
+    // settles a receipt"), carrying the receipt's `ref`. So the roll is the
+    // receipts whose ref a holo row of this pot+epoch names, and the holo beside
+    // each patron is what that row minted. A receipt with no holo row is still
+    // open and belongs to the open row below.
     for (const epoch of [...myClosed].sort()) {
       const roll = new Map();
       let received = 0;
-      for (const d of deeds) {
-        if (d.pot !== pot || d.epoch !== epoch) continue;
-        if (!funding(d.patron)) continue;
-        received += d.usd;
-        const held = roll.get(d.patron) ?? { patron: d.patron, usd: 0, holo: 0 };
-        held.usd += d.usd;
-        held.holo += d.holo;
-        roll.set(d.patron, held);
+      for (const r of receipts) {
+        const h = settledBy.get(r.ref);
+        if (!h || h.pot !== pot || h.epoch !== epoch) continue;
+        if (!funding(r.from)) continue;
+        received += r.usd;
+        const held = roll.get(r.from) ?? { patron: r.from, usd: 0, holo: 0 };
+        held.usd += r.usd;
+        held.holo += h.n;
+        roll.set(r.from, held);
       }
       potRows.push({
         ...base,

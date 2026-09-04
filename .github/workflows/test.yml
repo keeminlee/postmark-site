@@ -18,4 +18,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # THE TOWN CHECKOUT (2026-09-04). test/extract-seam.test.mjs runs its
+      # funding-seam controls against a live Town and SKIPS without one — so this
+      # job stayed green for nine days (08-26 → 09-04) while the same suite was red
+      # on every box that had a Town, and the Worldkeeper withdrew S56's site pin
+      # on it. The Town is public; a shallow clone into the path the test already
+      # looks at (".postmark-checkout", sync-atlas.yml's own name) makes the 600
+      # controls run here on every push.
+      - name: Check the Town out beside the site (the funding seam's other half)
+        run: git clone --depth 1 https://github.com/postmark-town/postmark.git .postmark-checkout
       - run: npm test

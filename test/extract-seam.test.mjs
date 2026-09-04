@@ -148,8 +148,14 @@ test("the donation box's targetless shape reads — and only because it is uncap
 // ── zero receipts is zero, never blank ───────────────────────────────────────
 
 test("a pot nobody has fed shows zero, and an empty roll — not an absence", { skip: !haveTown }, async () => {
+  // A HAND-BUILT LEDGER, on purpose. This test used to read the live town's ledger
+  // and assert zero — true on 2026-08-21, false from 2026-08-30 when keith's
+  // $5 Stripe receipt landed in keeping-ec2, and red on the keeper's box for nine
+  // days while CI (which had no Town checkout) stayed green. A test that reads a
+  // live file may only assert what that file's own numbers say (below); the
+  // "nobody fed" case is a fixture.
   const mint = await loadMint();
-  const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
+  const entries = mint.parseStampLedger("");
   const file = mint.potFile(TOWN, "keeping-ec2");
   const seam = seamFromTown({ mint, entries, potFiles: [file], dial: DIAL, asOf: "2026-08-21" });
   const row = seam.pots[0];
@@ -171,51 +177,69 @@ test("the pot file's own received_usd never overrides the ledger's", { skip: !ha
   // authoritative". A stale display number reaching a page would be the site
   // reporting money that the sealed record does not have.
   const mint = await loadMint();
-  const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
+  const entries = mint.parseStampLedger("");
   const lying = { ...mint.potFile(TOWN, "keeping-ec2"), received_usd: 999 };
   const seam = seamFromTown({ mint, entries, potFiles: [lying], dial: DIAL, asOf: "2026-08-21" });
   assert.equal(seam.pots[0].received_usd, 0, "the fold wins over the pot file's display copy");
 });
 
-// ── deeds and the town's numbers ─────────────────────────────────────────────
+test("the LIVE ledger's receipts show in the open row — exactly the ledger's own sum, never a number written on the day the test was", { skip: !haveTown }, async () => {
+  const mint = await loadMint();
+  const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
+  const file = mint.potFile(TOWN, "keeping-ec2");
+  const { receipts, settled } = mint.foldPotReceipts(entries);
+  const open = receipts.filter((r) => r.pot === "keeping-ec2" && !settled.has(r.ref) && r.from !== DIAL.treasury);
+  const expected = open.reduce((a, r) => a + r.usd, 0);
+  const seam = seamFromTown({ mint, entries, potFiles: [file], dial: DIAL, asOf: new Date().toISOString().slice(0, 10) });
+  const row = seam.pots.find((p) => p.status !== "closed");
+  assert.equal(row.received_usd, expected, "the open row is the ledger's own open receipts, summed");
+  assert.equal(row.patrons.reduce((a, p) => a + p.usd, 0), expected, "and the roll adds up to the same dollars");
+  for (const r of open) assert.ok(row.patrons.some((p) => p.patron === r.from), `${r.from} is on the roll`);
+});
 
-test("the deed rows are the ledger's, verbatim, and read back whole", { skip: !haveTown }, async () => {
-  // A hand-built ledger in the town's OWN grammar (patronDeedLine builds the
-  // line, so this cannot drift from the row shape stamp-verify replays).
+// ── the close's own rows and the town's numbers ─────────────────────────────
+//
+// THE LAW (the founder, 2026-08-26, town commit 4485be975 "the deed purge"):
+// "pot-receipt remains the only money row, the close's payer lines say holo, and
+// the record-of-dollars concept lives as plain prose" — and "the zero row is
+// what settles a receipt". `patronDeedLine` was deleted outright that day; the
+// two tests here used to build deed rows with it and stayed red on every box
+// that had a Town checkout from 08-26 to 09-04.
+
+test("a closed epoch's roll is the receipts the close answered for, with the holo the close minted — a zero-holo receipt counts whole", { skip: !haveTown }, async () => {
   const mint = await loadMint();
   const raw = [
     mint.potReceiptLine({ date: "2026-08-30", pot: "keeping-ec2", rail: "usdc", usd: 60, from: "wright", ref: "usdc:0xAA" }),
-    mint.patronDeedLine({ date: "2026-08-31", pot: "keeping-ec2", patron: "wright", usd: 60, epoch: "2026-08", ref: "usdc:0xAA", holo: 8 }),
-    mint.patronDeedLine({ date: "2026-08-12", pot: TREASURY_POT, patron: "wright", usd: 25, epoch: "2026-08", ref: "usdc:0xBB", holo: 0 }),
+    mint.potReceiptLine({ date: "2026-08-12", pot: TREASURY_POT, rail: "usdc", usd: 25, from: "wright", ref: "usdc:0xBB" }),
+    mint.keepingBurnLine({ date: "2026-08-31", pot: "keeping-ec2", n: 40, epoch: "2026-08", handle: "alden" }),
+    mint.holoMintLine({ date: "2026-08-31", handle: "wright", n: 8, pot: "keeping-ec2", epoch: "2026-08", ref: "usdc:0xAA" }),
+    mint.holoMintLine({ date: "2026-08-31", handle: "wright", n: 0, pot: TREASURY_POT, epoch: "2026-08", ref: "usdc:0xBB" }),
   ];
   const entries = mint.parseStampLedger(raw.join("\n"));
   const file = mint.potFile(TOWN, "keeping-ec2");
   const seam = seamFromTown({ mint, entries, potFiles: [file], dial: DIAL, asOf: "2026-08-31" });
 
-  assert.equal(seam.deeds.length, 2);
-  for (const d of seam.deeds) assert.equal(deedReads(d), true, `the reader must accept ${JSON.stringify(d)}`);
-
-  const paid = seam.deeds.find((d) => d.pot === "keeping-ec2");
-  assert.equal(paid.usd, 60);
-  assert.equal(paid.holo, 8);
-  assert.equal(paid.title, file.title, "the ONE joined field: the pot's own title");
-  assert.equal(toDeed(paid).what, file.title);
-
-  // a zero-holo treasury deed is a whole deed, not a lesser one
-  const direct = seam.deeds.find((d) => d.pot === TREASURY_POT);
-  assert.equal(direct.holo, 0);
-  assert.equal(toDeed(direct).what, "the town, direct");
+  assert.deepEqual(seam.deeds, [], "no deed row exists any more — the purge, by law");
+  const closed = seam.pots.find((p) => p.pot === "keeping-ec2" && p.status === "closed");
+  assert.ok(closed, "the closed epoch gets its own row");
+  assert.equal(closed.received_usd, 60, "the receipt the close answered for");
+  assert.deepEqual(closed.patrons, [{ patron: "wright", usd: 60, holo: 8 }], "the patron, the dollars, the holo the close minted");
+  // the treasury receipt was settled by a ZERO holo row: consumed, minting nothing, and
+  // never a pot's bar — the treasury pot has no row in this seam at all
+  assert.equal(seam.pots.some((p) => p.pot === TREASURY_POT), false);
+  const { settled } = mint.foldPotReceipts(entries);
+  assert.ok(settled.has("usdc:0xBB"), "the zero row is what settles a receipt");
 });
 
-test("a closed epoch's row is folded from the close, and the roll is its deeds", { skip: !haveTown }, async () => {
+test("a closed epoch's row is folded from the close, and the roll is its receipts", { skip: !haveTown }, async () => {
   const mint = await loadMint();
   const raw = [
     mint.potReceiptLine({ date: "2026-08-30", pot: "keeping-ec2", rail: "usdc", usd: 90, from: "wright", ref: "usdc:0xAA" }),
     mint.potReceiptLine({ date: "2026-08-30", pot: "keeping-ec2", rail: "stripe", usd: 60, from: "rei", ref: "stripe:pi_X" }),
     mint.keepingBurnLine({ date: "2026-08-31", pot: "keeping-ec2", n: 40, epoch: "2026-08", handle: "alden" }),
     mint.keepingMintLine({ date: "2026-08-31", handle: "alden", n: 20, pot: "keeping-ec2", epoch: "2026-08" }),
-    mint.patronDeedLine({ date: "2026-08-31", pot: "keeping-ec2", patron: "wright", usd: 90, epoch: "2026-08", ref: "usdc:0xAA", holo: 12 }),
-    mint.patronDeedLine({ date: "2026-08-31", pot: "keeping-ec2", patron: "rei", usd: 60, epoch: "2026-08", ref: "stripe:pi_X", holo: 8 }),
+    mint.holoMintLine({ date: "2026-08-31", handle: "wright", n: 12, pot: "keeping-ec2", epoch: "2026-08", ref: "usdc:0xAA" }),
+    mint.holoMintLine({ date: "2026-08-31", handle: "rei", n: 8, pot: "keeping-ec2", epoch: "2026-08", ref: "stripe:pi_X" }),
   ];
   const entries = mint.parseStampLedger(raw.join("\n"));
   const seam = seamFromTown({ mint, entries, potFiles: [mint.potFile(TOWN, "keeping-ec2")], dial: DIAL, asOf: "2026-08-31" });
@@ -223,7 +247,7 @@ test("a closed epoch's row is folded from the close, and the roll is its deeds",
   const closed = seam.pots.find((p) => p.epoch === "2026-08");
   assert.ok(closed, "the closed epoch gets its own row");
   assert.equal(closed.status, "closed", "a closed epoch reads closed however the pot file reads");
-  assert.equal(closed.received_usd, 150, "the deeds' dollars, summed");
+  assert.equal(closed.received_usd, 150, "the receipts' dollars, summed");
   assert.equal(closed.staked, 0, "a close leaves no escrow behind");
   assert.deepEqual(closed.patrons.map((p) => [p.patron, p.usd, p.holo]),
     [["wright", 90, 12], ["rei", 60, 8]], "the roll, richest first, with the holo the close minted");
@@ -231,7 +255,7 @@ test("a closed epoch's row is folded from the close, and the roll is its deeds",
   // and the pot keeps asking: the open row is the month AFTER the one it closed
   const open = seam.pots.find((p) => p.epoch !== "2026-08");
   assert.equal(open.epoch, "2026-09", "one epoch, one close — the next ask is the next month");
-  assert.equal(open.received_usd, 0, "the closed month's receipts were consumed by its deeds");
+  assert.equal(open.received_usd, 0, "the closed month's receipts were consumed by its holo rows");
 });
 
 test("treasury dollars fund nothing, so they never fill a pot's bar", { skip: !haveTown }, async () => {
