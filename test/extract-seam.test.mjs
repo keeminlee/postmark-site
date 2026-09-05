@@ -388,18 +388,30 @@ test("an early-posted pot's epoch rounds FORWARD to its own first close", { skip
   const entries = mint.parseStampLedger(readFileSync(join(TOWN, "WHITE_PAGES", "stamp-ledger.md"), "utf8"));
   const base = mint.potFile(TOWN, "keeping-ec2");
 
-  const early = { ...base, first_close: "2026-09-30" };
+  // The floor sits a year past anything the LIVE ledger can have closed or
+  // received, so the assertion holds on any day this control runs. The first
+  // shape of this test pinned the calendar ("2026-09" with asOf 2026-08-25) and
+  // went red on the keeper's S58 gate the first week of September: the real
+  // ledger had a September receipt and a closed August, so the clock-derived
+  // fallback was already "2026-09" and the flip below could no longer tell the
+  // field from the clock. A control over live data may not assume the month.
+  const FLOOR = "2027-08-31";
+  const early = { ...base, first_close: FLOOR };
   const seam = seamFromTown({ mint, entries, potFiles: [early], dial: DIAL, asOf: "2026-08-25" });
   const open = seam.pots.find((p) => p.status !== "closed");
-  assert.equal(open.epoch, "2026-09", "posted in August, but the first month closes in September");
-  assert.equal(open.first_close, "2026-09-30", "and the field itself is carried, not just consumed");
+  assert.equal(open.epoch, monthOf(FLOOR), "posted in August, but the first month closes at the floor");
+  assert.equal(open.first_close, FLOOR, "and the field itself is carried, not just consumed");
 
-  // THE CAN-FAIL FLIP. Drop the field and the epoch falls back to the posting
-  // month — which proves the assertion above reads first_close and not the clock.
+  // THE CAN-FAIL FLIP. Drop the field and the epoch falls back to what the
+  // ledger and the clock derive on their own — strictly EARLIER than the floor,
+  // which proves the assertion above reads first_close and not the clock. The
+  // derived month is the tool's to compute from the live ledger; this control
+  // asserts the relation, never the calendar.
   const withoutIt = { ...base, first_close: undefined };
   const fallback = seamFromTown({ mint, entries, potFiles: [withoutIt], dial: DIAL, asOf: "2026-08-25" });
-  assert.equal(fallback.pots.find((p) => p.status !== "closed").epoch, "2026-08",
-    "with no first_close the derivation is the clock's, exactly as before");
+  const derived = fallback.pots.find((p) => p.status !== "closed").epoch;
+  assert.ok(derived < monthOf(FLOOR), `with no first_close the derivation is the ledger's and the clock's (${derived}), below the floor`);
+  assert.match(derived, /^\d{4}-\d{2}$/, "and it is a month");
 });
 
 test("first_close is a FLOOR, never an override — it can only round forward", { skip: !haveTown }, async () => {
