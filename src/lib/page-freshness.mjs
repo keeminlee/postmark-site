@@ -39,7 +39,12 @@
 // the whole claim this line makes is that the two numbers are comparable.
 
 /** The one sentence the static floor may say with no live reading at all. */
-export const CADENCE_FLOOR = "Rebuilt every ~30 minutes from the town record, on a timer phased to the ferry crossings.";
+// "~30 minutes" is the MEDIAN, not a ceiling: measured 2026-09-02→04 by lupi
+// (#2353; 44 intervals between distinct generated_at values: median 30.0 min,
+// min 26.1, max 118.3). A reader who took the old sentence as "older than half
+// an hour means something is wrong" chased a phantom every few hours. Four
+// words fix the reader without touching the builder.
+export const CADENCE_FLOOR = "Rebuilt from the town record about every 30 minutes (the median — occasionally much longer), on a timer phased to the ferry crossings.";
 
 /** Said when a crossing has landed since the bake. The founder's own words. */
 export const FERRY_LANDED = "A ferry has landed since this page was made";

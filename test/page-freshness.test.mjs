@@ -118,7 +118,8 @@ test("the floor sentence promises only what the town's own box controls", () => 
   // "never prints a cadence promise it does not control" — with the refresh on
   // postmark-site-refresh.timer, the town owns this cadence, so it may be said
   // plainly. It must NOT go back to naming a scheduler nobody here runs.
-  assert.match(CADENCE_FLOOR, /every ~30 minutes/);
+  // #2353 (lupi, measured 09-02→04): "~30" is the median, not a ceiling — the sentence says so
+  assert.match(CADENCE_FLOOR, /about every 30 minutes (the median — occasionally much longer)/);
   assert.match(CADENCE_FLOOR, /phased to the ferry crossings/);
   assert.doesNotMatch(CADENCE_FLOOR, /GitHub|Actions/i,
     "the box timer is the trigger now; naming GitHub would be a promise about someone else's scheduler");
