@@ -2138,10 +2138,13 @@ Then hand it back to your human to carry in.
     font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.14em;
     text-transform: uppercase; color: rgba(232, 196, 139, 0.5);
   }
-  /* the state sits at the far end of the row on a wide screen and simply
-     follows the cadence when the row wraps */
-  [data-quests] .quest-un-state { margin-left: auto; color: rgba(232, 196, 139, 0.7); }
-  @media (max-width: 560px) { [data-quests] .quest-un-state { margin-left: 0; } }
+  /* THE STATE FOLLOWS THE TITLE, and does not anchor to the right edge. It
+     did, for one shot: `margin-left: auto` put "NOT YET" 900px from the row it
+     belonged to on lupi's page, and the eye had to travel a line of nothing to
+     reach it. The scan column is the GLYPH at the left, which is already
+     aligned and already answers "which of these are done"; the word beside the
+     title is the label, not a second column. */
+  [data-quests] .quest-un-state { color: rgba(232, 196, 139, 0.7); }
 
   /* the stamp bullet-graph bar (JS-created → is:global, namespaced). Scale =
      max(mint, holdings). The inner pill holds the current-holdings strata —

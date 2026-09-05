@@ -104,6 +104,32 @@ try {
       // the quoted line, so the report can carry it verbatim rather than a count
       const line = String(text).split("\n").find((l) => /\bnull\b/.test(l));
       if (line) console.log(`      first null line: ${JSON.stringify(line)}`);
+
+      // THE SEAT SWITCH, on the one page that has seats to switch. The second
+      // null lived HERE and not in the first paint — `slot.hand.textContent =
+      // " · " + handle + "'s hand " + q.progress` runs again on every tab, so a
+      // board that is clean on arrival can be dirtied by a click. And the
+      // uncounted block is the HOUSE's: it must be byte-identical across every
+      // seat, because the quests are the household's, not the member's.
+      const tabs = await page.$$("[data-house-tab]");
+      if (tabs.length > 1) {
+        const blockOf = `(() => { const el = document.querySelector("[data-quest-uncounted]"); return el ? el.innerText : "__NO_BLOCK__"; })()`;
+        const first = await page.evaluate(blockOf);
+        let dirty = 0, moved = 0;
+        for (const tab of tabs) {
+          await tab.click();
+          await page.waitForTimeout(400);
+          const seat = String(await page.evaluate(BOARD_TEXT));
+          if (/\bnull\b|\bundefined\b/.test(seat)) dirty++;
+          if (await page.evaluate(blockOf) !== first) moved++;
+        }
+        record(
+          `${handle} @ ${width} — every seat, and the house's block does not repaint`,
+          dirty === 0 && moved === 0,
+          `${tabs.length} seat(s); ${dirty} printed a null after a click; ${moved} changed the uncounted block`,
+        );
+        await page.screenshot({ path: join(OUT, `${stem}-lastseat.png`), fullPage: false });
+      }
       await page.close();
     }
   }
