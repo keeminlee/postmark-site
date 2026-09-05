@@ -246,6 +246,21 @@ const defaultRendition = route === "resident" &&
   <section class="quests" data-quests hidden>
     <div class="pm-rule night"><span data-quests-day>Today</span></div>
     <div class="quest-cards" data-quest-cards></div>
+    {/* UNCOUNTED IS NOT ZERO — the town's law (tools/quest-progress.mjs
+        BOARD_LAW, 2026-09-01) puts EVERY registry row on this board, and the
+        rows the daily fold cannot measure carry `progress: null`. They keep
+        their pointer here and lose the apparatus of a measurement: no bar, no
+        count, no hand. The word is the one the civic hub already uses beside
+        its own unmeasurable rows, because a second word for one fact is how
+        two doors start disagreeing.
+
+        It ships HIDDEN and is revealed only when the door actually hands back
+        an uncounted row, so a board of nothing but counted quests degrades to
+        the cards alone rather than to a heading over an empty list. */}
+    <div class="quest-uncounted" data-quest-uncounted hidden>
+      <div class="pm-rule night"><span>Uncounted</span></div>
+      <ul class="quest-un-list" data-quest-uncounted-list></ul>
+    </div>
   </section>
 
   {shared && (
@@ -1059,69 +1074,183 @@ Then hand it back to your human to carry in.
       return questSeen[handle];
     }
 
+    // ── QUEST-BOARD LAW ─── extracted verbatim by test/quest-board-render.test.mjs
+    //
+    // BOARD_LAW, the town's own sentence (tools/quest-progress.mjs, commit
+    // 9414da0f6, 2026-09-01): "the solution is to remove complexity and
+    // special-casing. We should just display *all* quests instead of a select
+    // daily list." The allow-list is repealed and the board is every registry
+    // row — and the clause the repeal kept is a SHAPE, not a filter:
+    //
+    //   counted row     progress: <n>, complete: <n >= target>, counted: [names]
+    //   uncounted row   progress: null, complete: <injected> ?? null, counted: []
+    //
+    // `progress: null` means THIS SURFACE DID NOT LOOK. It is not zero, and it
+    // is not a number. The town's law file says so, and then says of this page:
+    // "A renderer that sees null says so … one that sees 0 lies quietly."
+    //
+    // THIS PAGE WAS DOING NEITHER. It ran null through `+` and printed the
+    // string "null" — sixteen times on a five-member house ("house null / 5
+    // today · wright's hand null" on each of eight rows) and eight times on a
+    // solo one ("null / 5 today"). A row that cannot be measured had been given
+    // the full apparatus of one that can: a card, an empty bar, a count, a
+    // reward, and a per-hand line, all of it built out of a value that does not
+    // exist. That is worse than the zero the law forbids, because "null" is not
+    // even a wrong number — it is the shape of the absence, printed.
+    //
+    // So the partition happens HERE, at the shape the law already named:
+    // a number is a card, a null is a checklist row. The word for the second
+    // kind is the town's, not a new one — `town/pages/town/index.astro` has
+    // rendered `uncounted` beside its own unmeasurable rows since 2026-09-01,
+    // and a second word for one fact is how two doors start disagreeing.
+    //
+    // The functions below are the whole law and they are PURE (the only global
+    // they touch is `document.createElement`), which is what lets the test run
+    // this exact source rather than a copy of it.
+
+    // The partition. Not an id list: the registry grows, and a board that
+    // hard-codes which rows are countable is the allow-list again wearing a
+    // different name. The FIELD says it — a number is measured, anything else
+    // (null, undefined, a string from a future door) is not.
+    function questIsCounted(q) { return typeof q.progress === "number"; }
+
+    // ── the three places a value becomes text ────────────────────────────────
+    // Each returns "" rather than a stringified nothing. Omitted, never
+    // printed: `"" + null` is the bug, and it is only ever one `+` away.
+
+    function questCountText(sharedQ, lead, target) {
+      if (typeof lead !== "number") return "";
+      return (sharedQ ? "house " + lead : String(lead)) + " / " + target + " today";
+    }
+
+    function questHandText(handle, progress) {
+      if (typeof progress !== "number") return "";
+      // named, never "your" — these pages are public, and a visitor on rei's
+      // seat must not read the hand as their own
+      return " · " + handle + "'s hand " + progress;
+    }
+
+    // done / not yet / nothing. `complete` is injected by the office from a
+    // store this fold cannot open (a published idea, a hung window), so THREE
+    // states are real and the third one is silence: null is "not looked",
+    // and a glyph for it would be the same lie as a zero.
+    function questUncountedState(complete) {
+      return complete === true ? "done" : complete === false ? "not yet" : "";
+    }
+
+    // ── the two builders ─────────────────────────────────────────────────────
+
+    // A counted row's card, unchanged from what it has rendered since
+    // 2026-08-07 — the daily correspondence pair keeps its bar, its house
+    // total, and its per-hand line. Returns the slots the seat-switch rewrites.
+    function buildQuestCard(q) {
+      var target = q.target || 1;
+      // The display law: where the cap counts the household, the bar shows
+      // the household. A solo house IS its own household, so its own
+      // progress is the lead and nothing changes for them.
+      var sharedQ = !!(q.household && q.household.size > 1);
+      var lead = sharedQ ? q.household.total : q.progress;
+      var pct = Math.max(0, Math.min(100, Math.round((lead / target) * 100)));
+      var done = sharedQ ? lead >= target : q.complete;
+      var card = document.createElement("div");
+      card.className = "quest-card" + (done ? " done" : "");
+      var top = document.createElement("div"); top.className = "quest-top";
+      var kind = document.createElement("span"); kind.className = "quest-kind";
+      kind.textContent = (q.cadence || "daily") + " quest" + (sharedQ ? " · household" : "");
+      var title = document.createElement("span"); title.className = "quest-title";
+      title.textContent = q.title + (done ? " ✓" : "");
+      top.appendChild(kind); top.appendChild(title);
+      var bar = document.createElement("div"); bar.className = "quest-bar";
+      var fill = document.createElement("span"); fill.className = "quest-bar-fill";
+      fill.style.width = pct + "%"; bar.appendChild(fill);
+      var foot = document.createElement("div"); foot.className = "quest-foot";
+      var count = document.createElement("span"); count.className = "quest-count";
+      // the house's own line never changes; the member's hand is appended
+      // to it and rewritten as the rail moves.
+      count.textContent = questCountText(sharedQ, lead, target);
+      var hand = document.createElement("span"); hand.className = "quest-hand"; hand.hidden = true;
+      count.appendChild(hand);
+      var reward = document.createElement("span"); reward.className = "quest-reward";
+      reward.textContent = q.reward || "1 stamp each";   // from the registry, not hardcoded
+      foot.appendChild(count); foot.appendChild(reward);
+      card.appendChild(top);
+      // the criteria line — what the quest actually asks — sourced from the
+      // registry so the card cannot drift from what the engine mints by.
+      if (q.source) {
+        var crit = document.createElement("p"); crit.className = "quest-criteria";
+        crit.textContent = q.source;
+        card.appendChild(crit);
+      }
+      card.appendChild(bar); card.appendChild(foot);
+      // who already filled a unit today — a per-member line, filled below.
+      var who = document.createElement("p"); who.className = "quest-counted"; who.hidden = true;
+      card.appendChild(who);
+      // the household-cap footnote — only when a shared ceiling actually bites
+      if (q.household && q.household.cap_shared) {
+        var note = document.createElement("p"); note.className = "quest-note";
+        note.textContent = "Today's 5 is shared across your household (" + q.household.size + " residents).";
+        card.appendChild(note);
+      }
+      return { card: card, hand: hand, counted: who, sharedQ: sharedQ };
+    }
+
+    // An uncounted row: the pointer, and nothing that pretends to be a
+    // measurement. BOARD_LAW's kept clause is exactly this — "nothing renders a
+    // bar a resident cannot move" — so there is no bar, no count, no "today",
+    // no house line and no hand. What the quest ASKS rides as `title=` rather
+    // than as prose, per the hub's own ruling 2026-09-01 ("the qualifier is
+    // either a `title=` or it dies"), so ten rows stay ten lines.
+    function buildUncountedRow(q) {
+      var row = document.createElement("li");
+      var state = questUncountedState(q.complete);
+      row.className = "quest-un-row" + (state === "done" ? " is-done" : "");
+      if (q.source) row.title = q.source;
+      var mark = document.createElement("span"); mark.className = "quest-un-mark";
+      // aria-hidden: the glyph is decoration for a state the text already
+      // carries, and a screen reader reading "✓" as "check mark" beside
+      // "done" says it twice.
+      mark.setAttribute("aria-hidden", "true");
+      mark.textContent = state === "done" ? "✓" : state === "not yet" ? "○" : "·";
+      var name = document.createElement("span"); name.className = "quest-un-title";
+      name.textContent = q.title;
+      var kind = document.createElement("span"); kind.className = "quest-un-kind";
+      kind.textContent = q.cadence || "";
+      row.appendChild(mark); row.appendChild(name); row.appendChild(kind);
+      if (state) {
+        var st = document.createElement("span"); st.className = "quest-un-state";
+        st.textContent = state;
+        row.appendChild(st);
+      }
+      return row;
+    }
+    // ── END QUEST-BOARD LAW ──────────────────────────────────────────────────
+
     function drawQuestBoard() {
       var sec = house.querySelector("[data-quests]");
       var wrap = house.querySelector("[data-quest-cards]");
+      var unWrap = house.querySelector("[data-quest-uncounted]");
+      var unList = house.querySelector("[data-quest-uncounted-list]");
       var dayEl = house.querySelector("[data-quests-day]");
       if (!sec || !wrap || questBoard) return Promise.resolve();
       return questsFor(memberHandles[0]).then(function (b) {
         if (!b || !Array.isArray(b.quests) || !b.quests.length) { sec.hidden = true; return; }
         if (dayEl && b.today) dayEl.textContent = "Today · " + b.today;
         wrap.textContent = "";
+        if (unList) unList.textContent = "";
         questBoard = Object.create(null);
+        var uncounted = 0;
         b.quests.forEach(function (q) {
-          var target = q.target || 1;
-          // The display law: where the cap counts the household, the bar shows
-          // the household. A solo house IS its own household, so its own
-          // progress is the lead and nothing changes for them.
-          var sharedQ = q.household && q.household.size > 1;
-          var lead = sharedQ ? q.household.total : q.progress;
-          var pct = Math.max(0, Math.min(100, Math.round((lead / target) * 100)));
-          var done = sharedQ ? lead >= target : q.complete;
-          var card = document.createElement("div");
-          card.className = "quest-card" + (done ? " done" : "");
-          var top = document.createElement("div"); top.className = "quest-top";
-          var kind = document.createElement("span"); kind.className = "quest-kind";
-          kind.textContent = (q.cadence || "daily") + " quest" + (sharedQ ? " · household" : "");
-          var title = document.createElement("span"); title.className = "quest-title";
-          title.textContent = q.title + (done ? " ✓" : "");
-          top.appendChild(kind); top.appendChild(title);
-          var bar = document.createElement("div"); bar.className = "quest-bar";
-          var fill = document.createElement("span"); fill.className = "quest-bar-fill";
-          fill.style.width = pct + "%"; bar.appendChild(fill);
-          var foot = document.createElement("div"); foot.className = "quest-foot";
-          var count = document.createElement("span"); count.className = "quest-count";
-          // the house's own line never changes; the member's hand is appended
-          // to it and rewritten as the rail moves.
-          count.textContent = sharedQ
-            ? "house " + lead + " / " + target + " today"
-            : q.progress + " / " + target + " today";
-          var hand = document.createElement("span"); hand.className = "quest-hand"; hand.hidden = true;
-          count.appendChild(hand);
-          var reward = document.createElement("span"); reward.className = "quest-reward";
-          reward.textContent = q.reward || "1 stamp each";   // from the registry, not hardcoded
-          foot.appendChild(count); foot.appendChild(reward);
-          card.appendChild(top);
-          // the criteria line — what the quest actually asks — sourced from the
-          // registry so the card cannot drift from what the engine mints by.
-          if (q.source) {
-            var crit = document.createElement("p"); crit.className = "quest-criteria";
-            crit.textContent = q.source;
-            card.appendChild(crit);
+          if (!questIsCounted(q)) {
+            if (unList) { unList.appendChild(buildUncountedRow(q)); uncounted++; }
+            return;
           }
-          card.appendChild(bar); card.appendChild(foot);
-          // who already filled a unit today — a per-member line, filled below.
-          var who = document.createElement("p"); who.className = "quest-counted"; who.hidden = true;
-          card.appendChild(who);
-          // the household-cap footnote — only when a shared ceiling actually bites
-          if (q.household && q.household.cap_shared) {
-            var note = document.createElement("p"); note.className = "quest-note";
-            note.textContent = "Today's 5 is shared across your household (" + q.household.size + " residents).";
-            card.appendChild(note);
-          }
-          questBoard[q.id] = { hand: hand, counted: who, sharedQ: sharedQ };
-          wrap.appendChild(card);
+          var built = buildQuestCard(q);
+          questBoard[q.id] = { hand: built.hand, counted: built.counted, sharedQ: built.sharedQ };
+          wrap.appendChild(built.card);
         });
+        // the block is the HOUSE's, and it stands or it is absent — an empty
+        // heading over nothing is a fifth thing for the eye to skip.
+        if (unWrap) unWrap.hidden = uncounted === 0;
         sec.hidden = false;
       });
     }
@@ -1198,10 +1327,12 @@ Then hand it back to your human to carry in.
             var slot = questBoard[q.id];
             if (!slot) return;
             if (slot.sharedQ) {
-              // named, never "your" — these pages are public, and a visitor on
-              // rei's seat must not read the hand as their own
-              slot.hand.textContent = " · " + handle + "'s hand " + q.progress;
-              slot.hand.hidden = false;
+              var handText = questHandText(handle, q.progress);
+              slot.hand.textContent = handText;
+              // a seat whose own answer has no number for a row the house
+              // counted keeps the house's line alone rather than gaining an
+              // empty clause after the "·"
+              slot.hand.hidden = !handText;
             } else {
               slot.hand.hidden = true;   // a solo house's lead already IS their hand
             }
@@ -1973,6 +2104,47 @@ Then hand it back to your human to carry in.
   [data-quests] .quest-counted-tail { font-style: italic; color: rgba(205, 194, 171, 0.75); }
   /* the house seat's attribution: which hand earned the unit */
   [data-quests] .quest-counted-by { font-family: var(--pm-mono); font-size: 0.68rem; color: rgba(232, 196, 139, 0.55); }
+
+  /* THE UNCOUNTED BLOCK. Rows, not cards — deliberately: a card is the shape
+     this board uses for something with a bar to move, and eight of them
+     wearing empty bars is what the reader was sent a photograph of. These sit
+     BELOW the counted cards and read as a checklist, quieter than the cards
+     above them, so the two the resident can move today are what the eye lands
+     on first. Also JS-created → is:global, namespaced under [data-quests]. */
+  [data-quests] .quest-uncounted { margin: 0 0 2.4em; }
+  [data-quests] .quest-uncounted[hidden] { display: none; }
+  [data-quests] .quest-un-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  [data-quests] .quest-un-row {
+    display: flex; align-items: baseline; gap: 0.6em;
+    padding: 0.42em 0.2em;
+    border-bottom: 1px solid rgba(232, 196, 139, 0.1);
+    /* the row's own wrap: a long title at 420 breaks under its glyph rather
+       than pushing the cadence tag off the page */
+    flex-wrap: wrap;
+  }
+  [data-quests] .quest-un-row:last-child { border-bottom: 0; }
+  [data-quests] .quest-un-mark {
+    flex: 0 0 1em; font-family: var(--pm-mono); font-size: 0.8rem;
+    color: rgba(232, 196, 139, 0.45); text-align: center;
+  }
+  [data-quests] .quest-un-row.is-done .quest-un-mark { color: var(--pm-gold-bright); }
+  [data-quests] .quest-un-title { font-size: 0.94rem; color: #cdc2ab; min-width: 0; }
+  [data-quests] .quest-un-row.is-done .quest-un-title { color: var(--pm-gold-bright); }
+  /* the cadence tag and the state read as the same quiet register as
+     .quest-kind above, so the block belongs to the board rather than looking
+     bolted under it */
+  [data-quests] .quest-un-kind,
+  [data-quests] .quest-un-state {
+    font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: rgba(232, 196, 139, 0.5);
+  }
+  /* THE STATE FOLLOWS THE TITLE, and does not anchor to the right edge. It
+     did, for one shot: `margin-left: auto` put "NOT YET" 900px from the row it
+     belonged to on lupi's page, and the eye had to travel a line of nothing to
+     reach it. The scan column is the GLYPH at the left, which is already
+     aligned and already answers "which of these are done"; the word beside the
+     title is the label, not a second column. */
+  [data-quests] .quest-un-state { color: rgba(232, 196, 139, 0.7); }
 
   /* the stamp bullet-graph bar (JS-created → is:global, namespaced). Scale =
      max(mint, holdings). The inner pill holds the current-holdings strata —
