@@ -201,19 +201,17 @@ said otherwise would have sent the next reader looking in the wrong file.
 **Tests.** Full suite `npm test`: 204 tests, 190 pass, 0 fail, 14 skipped. The
 skips are pre-existing in the funding/economy suites and untouched here.
 
-## ⚑ Nothing runs these tests but a person
+## The tests have a pulse — and it does not gate yet
 
-Worth knowing before trusting the fifteen falsifiers: **this repo has no test
-CI.** `.github/workflows/` holds exactly two files, `deploy.yml` and
-`sync-atlas.yml`, and neither runs `npm test` — deploy goes straight from
-`npm ci` to `npm run build`. There is no `pull_request` trigger anywhere in the
-repo, so a PR that breaks `test/world-pin.test.mjs` goes red nowhere.
-
-That is a gap in the repo, not in this change, and it is left alone on purpose:
-adding a test gate touches every branch in flight and is a decision above a
-lane's pay grade. But it means the guardrails above are only as live as the last
-person who typed `npm test`, and a falsifier nobody runs cannot fail. Flagging
-it where the next reader of this mechanism will see it.
+When this mechanism landed (2026-08-25) the repo had **no test CI**: nothing
+ran `npm test` but a person, and "a falsifier nobody runs cannot fail" was the
+flag left here. The same day's POS-55 review answered it: `.github/workflows/
+test.yml` runs `npm ci && npm test` on every push to `main` and `train/**` and
+on every `pull_request`. What is still true: the check is **non-required by
+design** — it reports, it does not block a merge. Making it required is a
+repo-settings act and the founder's call once it has run green on real traffic
+for a while. This section retires when that switch is flipped (or the workflow
+is removed).
 
 ## How to check it worked, on a live run
 

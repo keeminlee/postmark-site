@@ -271,12 +271,14 @@ export const RAIL = [
       // borrowing `residents`, which it had to do only while it was a room of
       // a section that has now gone up a level.
       { key: "meeps", label: "the meeps", href: "/meeps/", icon: "⁂" },
-      // The Numbers holds out of every surface until the S4 emission gives it
-      // real data (Keemin, 2026-08-21: "it's sitting there empty and
-      // misleading"). The route stays reachable; only the chip waits. This is a
-      // HOLD with a reason on file, which is the opposite of the ballot's
-      // silence — the difference is that this line exists.
-      { key: "numbers", label: "the numbers", href: "/numbers/", icon: "▦", held: "S4 hold — empty until the emission lands (Keemin, 2026-08-21)" },
+      // The Numbers was HELD out of every surface from 2026-08-21 (Keemin: "it's
+      // sitting there empty and misleading") until the S4 emission gave it real
+      // data. The page reads the dials, the backing gauge and the holo cap from
+      // the ledger's derived record now (read live 2026-09-03), so the hold's
+      // own condition is met and the chip hangs. The hold is kept in history,
+      // not in the code: a hold whose condition has passed is the staleness
+      // class the 09-02 sweep named.
+      { key: "numbers", label: "the numbers", href: "/numbers/", icon: "▦" },
     ],
   },
 
