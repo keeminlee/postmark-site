@@ -76,6 +76,13 @@ function fixtureFetch({ door = true, stamp = null } = {}) {
       inbox: [fullLetters["rei-2026-07-02-reply"]],
       outbox: [],
       is_office: false,
+      // The two blocks the office grew on 2026-09-07. Wright's card answers
+      // them; rei's above does NOT — which is the office one release behind,
+      // and the case the page must survive without inventing a denial (walk #5:
+      // the page said "hasn't hung a window here yet" about a pane that had hung
+      // for twenty-seven days).
+      window: { hung: true, bytes: 42504, pane_url: "https://panes.postmark.town/~wright/", state: null, note: "hung" },
+      marks: { published: 3, docket: 1, drafts_mine: null, drafts_withheld: "a private draft stands in no public answer" },
     },
   };
   // THE FRESHNESS STAMP (2026-08-25). `stamp: null` is the PRE-LADDER office —
@@ -393,4 +400,49 @@ test("E5 · an office one release behind is a NAMED state, not silence", async (
     "the two repos ride their own trains; 'I cannot tell' must never read as 'nothing was stale'");
   assert.doesNotMatch(gaps, /all settled across/);
   assert.doesNotMatch(gaps, /composed ahead/);
+});
+
+// ── THE TWO BLOCKS THE RESIDENT PAGE DERIVES FROM (2026-09-07, lane E) ───────
+//
+// MCP-first: `read: "resident"` answers what a resident's pane is and what they
+// have MADE, and the site carries the door's answer through rather than forming
+// a second opinion. The walk these close (docs/2026-09-06/resident-walk.md):
+//
+//   #5 item 1  "Reading postmark.town/residents/ethan-thorne/ the way an agent
+//               reads (a fetch, no iframe), the window section says: 'Ethan
+//               Thorne hasn't hung a window here yet' … The pane exists:
+//               windows.json lists ethan-thorne: 42,504 bytes."
+//   #2 item 2  "nothing in town says what a resident MADE. … The site's resident
+//               page: 'No marks section appears on this page.'"
+
+test("the resident data carries the office's window and marks blocks, unreshaped", async () => {
+  const { data, town } = fixtureSnapshot();
+  const result = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch() });
+  const wright = result.files["residents.json"].find((r) => r.handle === "wright");
+  // Carried WHOLE — the site does not reshape a door's answer into its own
+  // vocabulary, because two vocabularies for one fact is how they drift.
+  assert.deepEqual(wright.window, {
+    hung: true, bytes: 42504, pane_url: "https://panes.postmark.town/~wright/", state: null, note: "hung",
+  });
+  assert.equal(wright.marks.published, 3);
+  assert.equal(wright.marks.docket, 1);
+  // AND THE WITHHOLDING SURVIVES THE TRIP. A public page builds from a keyless
+  // read, so the drafts tense arrives null with its reason attached; a site that
+  // dropped the reason could render the null as a zero.
+  assert.equal(wright.marks.drafts_mine, null);
+  assert.match(wright.marks.drafts_withheld, /no public answer/);
+});
+
+test("an office that predates those blocks reaches the page as NULL, never as a denial", async () => {
+  // rei's fixture card carries neither key — the office one release behind.
+  const { data, town } = fixtureSnapshot();
+  const result = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch() });
+  const rei = result.files["residents.json"].find((r) => r.handle === "rei");
+  assert.equal(rei.window, null, "null: the office did not say");
+  assert.equal(rei.marks, null);
+  // THE KEYS ARE PRESENT AND NULL rather than absent, deliberately: a renderer
+  // reaching for `r.window.hung` on an absent key and a renderer reading an
+  // explicit null must land in the same branch, and only one of those two is
+  // written down anywhere.
+  assert.ok("window" in rei && "marks" in rei, "present and null, not missing");
 });

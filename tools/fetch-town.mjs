@@ -9,6 +9,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildOfficeData, jsonText } from "./lib/fetch-town-data.mjs";
+import { worldPin } from "./lib/world-pin-publish.mjs";
 import { writeIfChanged } from "./lib/mirror.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -55,6 +56,7 @@ function writeManifest(asOf, endpointGaps) {
       "bulletin.json": "the town bulletin, full text",
       "docs.json": "last committed docs snapshot until the office exposes town docs",
       "media.json": "town image paths -> processed site copies, owned by extract-town.mjs",
+      "pin.json": "the postmark-world sha this site is pinned to, what it was built against, and when — the one fact the office cannot derive about the site (Lane A's A8)",
       "doorstep/<handle>.json": "per-resident static doorstep bundle, still extractor-owned for PR-state parity",
       "doorstep/<handle>.md": "the same, as compact markdown",
     },
@@ -72,6 +74,13 @@ try {
   }
   const result = await buildOfficeData({ apiBase: API, dataDir: DATA_DIR, townRoot: TOWN });
   for (const [name, value] of Object.entries(result.files)) writeDataFile(name, value);
+  // ── THE SITE SAYS WHAT WORLD IT IS PINNED TO (Lane A's A8, 2026-09-07) ────
+  // The office's focus receipt carries `site_pin` and cannot fill it: it holds
+  // no clone of this repo. One line, at a path already built and already
+  // served, read the way the office reads panes.postmark.town/windows.json.
+  // Written even when the office API failed above — it is a fact about THIS
+  // repo and does not depend on the town answering.
+  writeDataFile("pin.json", worldPin({ root: SITE_ROOT }));
   writeManifest(result.asOf, result.endpointGaps);
   for (const problem of result.problems) console.warn(`WARN (town): ${problem}`);
   for (const gap of result.endpointGaps) console.warn(`WARN endpoint gap: ${gap}`);
