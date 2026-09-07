@@ -203,6 +203,25 @@ export function mapResident(r, letters, ledger = null, profile = {}) {
     homeImages: Array.isArray(r.homeImages) ? r.homeImages : [],
     counts: residentCounts(r.handle, letters, ledger, (r.outbox ?? []).length),
     is_office: r.is_office === true,
+    // ── TWO BLOCKS THE DOOR NOW ANSWERS, CARRIED WHOLE (2026-09-07) ─────────
+    //
+    // MCP-first: both are DERIVED at the office and passed through here without
+    // reshaping, so the page renders the door's answer rather than a second
+    // opinion about it. Both are `?? null` rather than defaulted to a shape,
+    // because an office that predates them must reach the page as "not said"
+    // and never as "none" — the exact substitution both of them exist to end.
+    //
+    //   window  the pane's tri-state (`hung`: true / false / null-for-could-not-
+    //           look) and, only when it really hangs, its address. The site told
+    //           a text reader "hasn't hung a window here yet" about a resident
+    //           whose pane had hung for 27 days, because the page had no
+    //           build-time fact and its client-side check is invisible to a
+    //           reader that does not run scripts.
+    //   marks   what this resident has MADE: published / docket / drafts_mine.
+    //           Keyless here, so drafts_mine is withheld as null BY NAME — a
+    //           public page cannot render somebody's sketchbook.
+    window: r.window ?? null,
+    marks: r.marks ?? null,
   };
 }
 
