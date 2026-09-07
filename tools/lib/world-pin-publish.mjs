@@ -43,8 +43,16 @@ export function shaFromSpec(spec) {
  * office cannot answer the resident's question from here — and it must never
  * be dressed up as a sha.
  */
-export function worldPin({ root = ".", readJson = (p) => JSON.parse(readFileSync(p, "utf8")), builtAt = new Date().toISOString() } = {}) {
+export function worldPin({ root = ".", readJson = (p) => JSON.parse(readFileSync(p, "utf8")),
+  builtAt = new Date().toISOString(), env = process.env } = {}) {
   const notes = [];
+  // `code_ref` from the SAME source build.json takes it (build-stamp.mjs §
+  // gather: `env.BUILD_CODE_REF`), so the two stamps cannot disagree about which
+  // ref built this site. Null off the deploy lane, which is honest: a local
+  // build has no release ref and inventing one would make a dev artifact look
+  // like a shipped one.
+  const codeRef = env.BUILD_CODE_REF ?? null;
+  if (!codeRef) notes.push("code_ref is null — BUILD_CODE_REF is set by the deploy lane, so this file was written outside it");
   let spec = null, pinned = null;
   try {
     const pkg = readJson(join(root, "package.json"));
@@ -74,6 +82,7 @@ export function worldPin({ root = ".", readJson = (p) => JSON.parse(readFileSync
     world_pin: pinned,
     world_installed: installed,
     world_spec: spec,
+    code_ref: codeRef,
     built_at: builtAt,
     ...(notes.length ? { notes } : {}),
   };

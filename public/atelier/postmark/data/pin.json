@@ -1,0 +1,12 @@
+{
+ "what": "the postmark-world this site is pinned to. The office cannot derive this — it holds no clone of the site — so the site says it, and a reader comparing this against the world's own head can tell a stale site from a stale world.",
+ "world_pin": "ecc63613a063ca2e3da262c6306c34b72ae3b9f8",
+ "world_installed": null,
+ "world_spec": "github:keeminlee/postmark-world#ecc63613a063ca2e3da262c6306c34b72ae3b9f8",
+ "code_ref": null,
+ "built_at": "2026-09-07T09:42:01.858Z",
+ "notes": [
+  "code_ref is null — BUILD_CODE_REF is set by the deploy lane, so this file was written outside it",
+  "the installed postmark-world records no commit of its own (npm drops _resolved/gitHead on a git install), so `world_pin` is what this repo asks for rather than proof of what was compiled"
+ ]
+}

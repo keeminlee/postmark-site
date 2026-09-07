@@ -82,3 +82,19 @@ test("a dependency that names a branch is called out as a moving target", () => 
   assert.equal(p.world_pin, null, "a branch is not a pin, and null says so");
   assert.match(p.notes.join(" "), /pinned to a moving target/);
 });
+
+test("code_ref comes from the SAME env var build.json takes it from, and is null off the deploy lane", () => {
+  // build-stamp.mjs § gather reads `env.BUILD_CODE_REF`; so does this. Two
+  // stamps on one page must not disagree about which ref built the site.
+  const files = {
+    "node_modules/postmark-world/package.json": {},
+    "package.json": { dependencies: { "postmark-world": `github:keeminlee/postmark-world#${SHA}` } },
+  };
+  const shipped = worldPin({ readJson: reader(files), env: { BUILD_CODE_REF: "release/2026-w37.4" } });
+  assert.equal(shipped.code_ref, "release/2026-w37.4");
+  assert.doesNotMatch(shipped.notes.join(" "), /outside it/, "a deploy-lane build says nothing about being outside one");
+
+  const local = worldPin({ readJson: reader(files), env: {} });
+  assert.equal(local.code_ref, null, "null, never invented — a dev artifact must not look shipped");
+  assert.match(local.notes.join(" "), /written outside it/);
+});
