@@ -35,6 +35,22 @@ export function shaFromSpec(spec) {
 }
 
 /**
+ * The sha a lockfile's `resolved` URL ends in.
+ *
+ * Deliberately looser than `shaFromSpec` about the PREFIX and exactly as strict
+ * about the sha: npm writes `git+ssh://…`, `git+https://…` or plain `https://…`
+ * depending on how the dependency was added, and pinning this to one of those
+ * spellings would make the field go quiet the next time somebody re-adds it a
+ * different way — the same never-speaks failure this function exists to fix.
+ * A `resolved` naming a registry tarball has no sha and answers null, which is
+ * a real state: the lockfile was written for a non-git source.
+ */
+export function shaFromResolved(resolved) {
+  const m = /#([0-9a-f]{7,40})$/i.exec(String(resolved ?? "").trim());
+  return m ? m[1].toLowerCase() : null;
+}
+
+/**
  * What this site is pinned to, and what it was actually built against.
  *
  * Every read is guarded independently: a site that cannot read its own
@@ -61,18 +77,47 @@ export function worldPin({ root = ".", readJson = (p) => JSON.parse(readFileSync
     if (spec && !pinned) notes.push(`the postmark-world dependency is "${spec}", which names no sha — this site is pinned to a moving target`);
   } catch (e) { notes.push(`package.json could not be read (${String(e?.message ?? e).slice(0, 120)})`); }
 
-  // THREE STATES, NOT TWO, and the falsifier below holds them apart: the
-  // package is absent, or it is present and records which commit it came from,
-  // or it is present and records nothing. The third is the ORDINARY case here —
-  // npm's git installs drop `_resolved`/`gitHead` on reinstall — and the first
-  // draft of this file reported it as "could not be read", which is the same
-  // false-negative this whole lane is about, committed by the fix for it.
+  // ── THE LOCKFILE IS WHERE THE RESOLVED SHA ACTUALLY LIVES ─────────────────
+  //
+  // ⚠ AND THE FIRST DRAFT COULD NEVER HAVE FOUND IT. It looked only in
+  // `node_modules/postmark-world/package.json` for `_resolved` / `gitHead`,
+  // which npm DROPS on a git install — so `world_installed` was null on every
+  // ordinary install and the two-field design could not detect the one
+  // disagreement it exists for. A field that can never speak is worse than an
+  // absent one: it reports "I could not tell" forever while looking like a
+  // check. Caught by the fresh reviewer, 2026-09-07 (repair 1).
+  //
+  // `package-lock.json` records it and always has:
+  //   packages["node_modules/postmark-world"].resolved
+  //     = "git+ssh://git@github.com/keeminlee/postmark-world.git#<sha>"
+  //
+  // THE LOCKFILE IS ALSO THE RIGHT SOURCE, not merely the working one: it is
+  // what `npm ci` installs from on the deploy lane, so it is the sha the build
+  // actually compiled against — which is exactly what this field claims to be.
+  // The installed package is kept as a FALLBACK for the case where a build ran
+  // from a tree with no lockfile at all.
+  //
+  // Three states, held apart by their own falsifiers: recorded, present but
+  // silent, or unreadable. The middle one must not be reported as the last —
+  // that was the first draft's other defect, and it is the same false negative
+  // this whole lane is about, committed by the fix for it.
   let installed = null;
+  let from = null;
   try {
-    const dep = readJson(join(root, "node_modules", "postmark-world", "package.json"));
-    installed = shaFromSpec(dep?._resolved ?? "") ?? (typeof dep?.gitHead === "string" ? dep.gitHead.toLowerCase() : null);
-    if (!installed) notes.push("the installed postmark-world records no commit of its own (npm drops _resolved/gitHead on a git install), so `world_pin` is what this repo asks for rather than proof of what was compiled");
-  } catch { notes.push("the installed postmark-world could not be read at all — `world_pin` is what this repo asks for, not proof of what was compiled"); }
+    const lock = readJson(join(root, "package-lock.json"));
+    const entry = lock?.packages?.["node_modules/postmark-world"];
+    installed = shaFromResolved(entry?.resolved);
+    if (installed) from = "package-lock.json";
+    else if (entry) notes.push("package-lock.json holds postmark-world but its `resolved` names no sha — the lockfile was written for a non-git source");
+  } catch { notes.push("package-lock.json could not be read"); }
+  if (!installed) {
+    try {
+      const dep = readJson(join(root, "node_modules", "postmark-world", "package.json"));
+      installed = shaFromSpec(dep?._resolved ?? "") ?? (typeof dep?.gitHead === "string" ? dep.gitHead.toLowerCase() : null);
+      if (installed) from = "node_modules";
+      else notes.push("the installed postmark-world records no commit of its own (npm drops _resolved/gitHead on a git install), and the lockfile did not answer either");
+    } catch { notes.push("the installed postmark-world could not be read at all"); }
+  }
 
   if (pinned && installed && pinned !== installed)
     notes.push(`the spec asks for ${pinned.slice(0, 12)} and the installed copy is ${installed.slice(0, 12)} — the build compiled against the installed one`);
@@ -81,6 +126,10 @@ export function worldPin({ root = ".", readJson = (p) => JSON.parse(readFileSync
     what: "the postmark-world this site is pinned to. The office cannot derive this — it holds no clone of the site — so the site says it, and a reader comparing this against the world's own head can tell a stale site from a stale world.",
     world_pin: pinned,
     world_installed: installed,
+    // WHERE that sha came from, because the two sources are not equally strong:
+    // the lockfile is what `npm ci` installs from on the deploy lane, and the
+    // installed package is a fallback for a tree with no lockfile.
+    world_installed_from: from,
     world_spec: spec,
     code_ref: codeRef,
     built_at: builtAt,

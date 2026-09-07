@@ -13,7 +13,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { worldPin, shaFromSpec } from "../tools/lib/world-pin-publish.mjs";
+import { worldPin, shaFromSpec, shaFromResolved } from "../tools/lib/world-pin-publish.mjs";
 
 const SHA = "ecc63613a063ca2e3da262c6306c34b72ae3b9f8";
 const SEP = String.fromCharCode(92); // a backslash, spelled so no quoting layer can eat it
@@ -32,36 +32,81 @@ test("the spec's sha is the pin, and anything that is not a pinned sha is refuse
   assert.equal(shaFromSpec(undefined), null);
 });
 
-test("the ordinary build publishes the sha and says when", () => {
+test("the ordinary build reads the resolved sha out of the LOCKFILE, and says where it came from", () => {
+  // THE REPAIR (fresh reviewer, 2026-09-07): the first draft looked only in
+  // node_modules/postmark-world/package.json for `_resolved`/`gitHead`, which
+  // npm DROPS on a git install — so this field was null on every ordinary
+  // install and could never detect the disagreement it exists for. The lockfile
+  // records it and always has.
   const p = worldPin({
     builtAt: "2026-09-07T09:00:00.000Z",
     readJson: reader({
+      "package-lock.json": { packages: { "node_modules/postmark-world": { resolved: `git+ssh://git@github.com/keeminlee/postmark-world.git#${SHA}` } } },
       "node_modules/postmark-world/package.json": { name: "postmark-world" },
       "package.json": { dependencies: { "postmark-world": `github:keeminlee/postmark-world#${SHA}` } },
     }),
   });
   assert.equal(p.world_pin, SHA);
+  assert.equal(p.world_installed, SHA, "the field speaks — this is what the first draft could never do");
+  assert.equal(p.world_installed_from, "package-lock.json");
   assert.equal(p.built_at, "2026-09-07T09:00:00.000Z");
-  // THE THIRD STATE, and it is the ordinary one: npm drops _resolved/gitHead on
-  // a git install, so the installed copy records no commit. That is not an
-  // unreadable package, and the note must not say it is — reporting a present
-  // thing as unreadable is the same false negative this whole lane is about.
-  assert.equal(p.world_installed, null);
-  assert.match(p.notes.join(" "), /records no commit of its own/);
-  assert.doesNotMatch(p.notes.join(" "), /could not be read at all/);
+  assert.ok(!(p.notes ?? []).some((n) => /records no commit of its own/.test(n)),
+    "and the old apology is gone — a field that now speaks must stop explaining why it cannot");
 });
 
-test("a spec and an installed copy that DISAGREE are both named, never averaged", () => {
-  const other = "0000000000000000000000000000000000000000";
+test("A PIN AND A LOCK THAT DISAGREE: both are named and the note fires — the case the field exists for", () => {
+  // The conductor's proof, exactly: package.json pins A, the lockfile resolves
+  // B. This is the rebuild lane's real shape — resolve-world-pin.mjs moves the
+  // spec before the install — and it is what a single number could not express.
+  const B = "1111111111111111111111111111111111111111";
   const p = worldPin({
     readJson: reader({
-      "node_modules/postmark-world/package.json": { _resolved: `github:keeminlee/postmark-world#${other}` },
+      "package-lock.json": { packages: { "node_modules/postmark-world": { resolved: `git+https://github.com/keeminlee/postmark-world.git#${B}` } } },
+      "node_modules/postmark-world/package.json": {},
       "package.json": { dependencies: { "postmark-world": `github:keeminlee/postmark-world#${SHA}` } },
     }),
   });
   assert.equal(p.world_pin, SHA, "what the repo asks for");
-  assert.equal(p.world_installed, other, "and what it actually compiled against");
+  assert.equal(p.world_installed, B, "and what npm ci would actually install");
   assert.match(p.notes.join(" "), /the build compiled against the installed one/);
+});
+
+test("the lockfile's URL scheme does not decide whether the field can speak", () => {
+  // npm writes git+ssh, git+https or plain https depending on how the dep was
+  // added. Pinning the reader to one of those would make the field go quiet the
+  // next time somebody re-added it another way — the same never-speaks failure.
+  for (const url of [
+    `git+ssh://git@github.com/keeminlee/postmark-world.git#${SHA}`,
+    `git+https://github.com/keeminlee/postmark-world.git#${SHA}`,
+    `https://github.com/keeminlee/postmark-world.git#${SHA}`,
+  ]) assert.equal(shaFromResolved(url), SHA, url);
+  // A registry tarball has no sha, and null there is a real state.
+  assert.equal(shaFromResolved("https://registry.npmjs.org/x/-/x-1.0.0.tgz"), null);
+  assert.equal(shaFromResolved(undefined), null);
+});
+
+test("no lockfile falls back to the installed package, and says which source answered", () => {
+  const p = worldPin({
+    readJson: reader({
+      "node_modules/postmark-world/package.json": { _resolved: `github:keeminlee/postmark-world#${SHA}` },
+      "package.json": { dependencies: { "postmark-world": `github:keeminlee/postmark-world#${SHA}` } },
+    }),
+  });
+  assert.equal(p.world_installed, SHA);
+  assert.equal(p.world_installed_from, "node_modules", "the weaker source, named as such");
+  assert.match(p.notes.join(" "), /package-lock.json could not be read/);
+});
+
+test("neither source can answer: null with reasons, never an invented sha", () => {
+  const p = worldPin({
+    readJson: reader({
+      "node_modules/postmark-world/package.json": { name: "postmark-world" },
+      "package.json": { dependencies: { "postmark-world": `github:keeminlee/postmark-world#${SHA}` } },
+    }),
+  });
+  assert.equal(p.world_installed, null);
+  assert.equal(p.world_installed_from, null);
+  assert.match(p.notes.join(" "), /the lockfile did not answer either/);
 });
 
 test("an unreadable package.json publishes nulls with a reason — never an invented sha", () => {
