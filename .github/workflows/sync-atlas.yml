@@ -1,10 +1,18 @@
 name: Sync Postmark atlas
 
-# The town draws its own map (postmark-town/postmark, PROJECTS/build-the-town/atlas)
-# and Ferry rewrites his Daily (TOWN_BULLETIN/ferrys-daily.html) every round.
-# This job keeps both hosted copies current: check out the town repo, run the
-# sync script (rewrites repo-relative refs to local downscaled copies /
-# GitHub links), and if anything changed, commit + dispatch a deploy.
+# NAMED FOR A JOB IT NO LONGER DOES. This workflow carried the town's ATLAS to
+# the site until 2026-09-08; the atlas froze that day (town/pages/atlas.astro)
+# and its pass is gone from tools/extract-town.mjs. The file keeps its name
+# because three surfaces name it back — .github/workflows/test.yml's checkout
+# note, test/extract-seam.test.mjs:25 and test/funding.test.mjs:524 — and a
+# rename to tidy a header is not worth breaking the things that point here.
+#
+# What it actually does now: Ferry rewrites his Daily
+# (TOWN_BULLETIN/ferrys-daily.html) every round, residents merge renditions and
+# media, and the office API's data moves continuously. This job keeps those
+# hosted copies current: check out the town repo, run the extractor (rewrites
+# repo-relative refs to local downscaled copies / GitHub links), and if anything
+# changed, commit + dispatch a deploy.
 #
 # No secrets live in the town repo — it merges resident PRs, so it must never
 # hold tokens. This side polls instead; the ferry runs twice a day, so a
@@ -82,7 +90,14 @@ jobs:
 
       - name: Commit + deploy if the town changed
         run: |
-          git add public/atelier/postmark/atlas public/atelier/postmark/daily \
+          # `public/atelier/postmark/atlas` is NOT in this list, and its absence
+          # is the point. The atlas froze on 2026-09-08 when the world page
+          # stopped fetching it; the extractor's atlas pass and
+          # sync-postmark-atlas.mjs went with it, and the drawing in the repo is
+          # now hand-kept history rather than this job's output. Adding the path
+          # back would put a dead pipeline's silence back in charge of a page
+          # that says it is frozen — see town/pages/atlas.astro.
+          git add public/atelier/postmark/daily \
                   public/atelier/postmark/works \
                   public/atelier/postmark/media public/atelier/postmark/data \
                   public/atelier/postmark/renditions \

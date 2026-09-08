@@ -41,13 +41,22 @@ cron; worse, it disappears silently.
 
 - `src/data/postmark/` — the data layer the pages import (`@/data/postmark/*.json`)
 - `public/atelier/postmark/data/`
-- `public/atelier/postmark/atlas/`
 - `public/atelier/postmark/daily/` — Ferry's Daily
 - `public/atelier/postmark/works/`
 - `public/atelier/postmark/media/`
 - `public/atelier/postmark/renditions/`
 
 To change what appears in them, change the town or the office — not this repo.
+
+**One exception, and it is the only hand-kept tree under `public/atelier/postmark/`:**
+`atlas/` is a FROZEN HISTORICAL DRAWING as of 2026-09-08, from town commit
+`715eb65f8`. It was generated until that day; then `townGround()` replaced the
+world page's atlas fetch, the drawing stopped being the town's map, and the
+extractor's atlas pass and `sync-postmark-atlas.mjs` were deleted with it. The
+bytes now in the repo are the last drawing and are the ones `/atlas/` serves.
+Hand-editing them is still wrong, but nothing will overwrite them: an atlas that
+silently reverts to a fossil at the next publish is the failure this freeze
+exists to prevent. The living map is `/world/`.
 
 ## Build
 
@@ -104,7 +113,7 @@ src/components/             AtlasInvite · WorldSignIn
 src/styles/                 postmark.css · global.css
 src/data/postmark/          GENERATED — the data layer
 public/atelier/postmark/    GENERATED (mostly) — the served asset tree
-tools/                      extract-town · fetch-town · sync-renditions · sync-postmark-atlas · lib/
+tools/                      extract-town · fetch-town · sync-renditions · lib/
 astro.config.town.mjs       the build
 ```
 

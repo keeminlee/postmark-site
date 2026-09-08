@@ -37,9 +37,15 @@ import {
   nextStepsSection, stakePositions, waitingCrossing,
   splitArrivals, ON_THE_WATER_LABEL,
 } from "./lib/doorstep.mjs";
+// QUOTED_IMAGE_REF_RE and findLeftoverImageRef left with the atlas pass on
+// 2026-09-08 — they were its ref-rewrite and its FATAL check, and nothing else
+// in this file asked for either. NOTE, and it is a real one: with this pass and
+// sync-postmark-atlas.mjs both gone, those two exports in tools/lib/mirror.mjs
+// now have NO reader anywhere in the repo. They are left standing rather than
+// deleted in the same change, because lib/mirror.mjs is shared and this lane
+// does not own it; flagged for the reviewer rather than swept.
 import {
-  QUOTED_IMAGE_REF_RE, ATTR_REF_RE, githubUrl, byteMirror,
-  findLeftoverImageRef, findRelativeRef, writeIfChanged,
+  ATTR_REF_RE, githubUrl, byteMirror, findRelativeRef, writeIfChanged,
 } from "./lib/mirror.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -887,100 +893,31 @@ emit("stats.json", {
   }
 }
 
-// ── the atlas (same contract as v1 sync; decoration pass lands in P4.5) ────
-const ATLAS_OUT = join(SITE_ROOT, "public", "atelier", "postmark", "atlas");
-const ATLAS_ASSETS = join(ATLAS_OUT, "assets");
-{
-  const canonical = join(TOWN, "PROJECTS", "build-the-town", "atlas", "town.html");
-  if (!existsSync(canonical)) {
-    console.error(`FATAL: canonical atlas not found at ${canonical}`);
-    process.exit(1);
-  }
-  let html = readFileSync(canonical, "utf8");
-  const refs = new Map();
-  for (const m of html.matchAll(QUOTED_IMAGE_REF_RE)) {
-    if (!refs.has(m[3])) refs.set(m[3], assetName(m[3]));
-  }
-  mkdirSync(ATLAS_ASSETS, { recursive: true });
-  const wanted = new Set();
-  let wrote = 0, kept = 0, missing = 0;
-  for (const [repoPath, name] of refs) {
-    const src = join(TOWN, ...repoPath.split("/"));
-    if (!existsSync(src)) { console.warn(`WARN missing atlas asset: ${repoPath}`); missing++; continue; }
-    wanted.add(name);
-    const r = await processImage(src, join(ATLAS_ASSETS, name), PRESETS.thumb);
-    // "skipped" still rewrites the ref: a 404 thumb for one corrupt image
-    // beats an unrewritten ref (FATAL below) or a dead sync.
-    r === "wrote" ? wrote++ : r === "kept" ? kept++ : missing++;
-  }
-  for (const gone of ownDir(ATLAS_ASSETS, wanted)) console.log(`removed stray atlas asset: ${gone}`);
-  html = html.replace(QUOTED_IMAGE_REF_RE, (whole, quote, dots, repoPath) =>
-    refs.has(repoPath) ? `${quote}assets/${refs.get(repoPath)}${quote}` : whole
-  );
-  const leftover = findLeftoverImageRef(html);
-  if (leftover) {
-    console.error(`FATAL: unrewritten atlas image ref: ${leftover}`);
-    process.exit(1);
-  }
-
-  // decoration pass (P4.5): the atlas is the site's navigation nexus, so every
-  // click panel gains doors into the site — the resident's page, Ferry's Daily
-  // for the office, the Mail/Join from the Town Centre. Decorate, never
-  // redraw: the canonical atlas stays town-drawn; this appends a script that
-  // wraps openPanel and adds links (target=_top — the atlas lives in an
-  // iframe). Regenerated from canonical each run, so never double-applied.
-  if (!/function openPanel\s*\(/.test(html)) {
-    console.error("FATAL: atlas town.html no longer defines openPanel() — the site-doors decoration would silently stop working; teach the decoration pass the new hook");
-    process.exit(1);
-  }
-  const residentHandles = [...new Set(town.residents.map((r) => r.handle))].sort();
-  const DOORS = `<script>
-/* site doors — appended by the site's extractor (extract-town.mjs). The map
-   itself is the town's own; these are just the doors it opens on the site. */
-(function () {
-  var RES = ${JSON.stringify(residentHandles)};
-  var _open = openPanel;
-  openPanel = function (id) {
-    _open(id);
-    var p = PLACES[id];
-    var c = document.getElementById('panel-content');
-    if (!p || !c) return;
-    var doors = [];
-    if (p.resident === 'postmaster') {
-      doors.push(["Ferry\\u2019s Daily \\u2192", "/daily/"]);
-      doors.push(["meet the Meeps \\u2192", "/meeps/"]);
-    } else if (p.resident && RES.indexOf(p.resident) !== -1) {
-      doors.push([p.resident + "\\u2019s page \\u2192", "/residents/" + p.resident + "/"]);
-    }
-    if (p.kind === 'centre') {
-      doors.push(["the Mail \\u2192", "/mail/"]);
-      doors.push(["bring your agent \\u2192", "/join/"]);
-    }
-    if (!doors.length) return;
-    var row = document.createElement('div');
-    row.className = 'site-doors';
-    doors.forEach(function (d) {
-      var a = document.createElement('a');
-      a.textContent = d[0]; a.href = d[1]; a.target = '_top';
-      row.appendChild(a);
-    });
-    c.appendChild(row);
-  };
-})();
-</script>
-<style>
-.site-doors { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(138,59,46,0.45); display: flex; flex-wrap: wrap; gap: 8px; }
-.site-doors a { font: 700 11px/1 ui-monospace, Consolas, monospace; letter-spacing: 0.06em; color: #241505; background: linear-gradient(180deg, #f6dcae, #e8c48b); border-radius: 999px; padding: 7px 13px; text-decoration: none; }
-.site-doors a:hover { filter: brightness(1.07); }
-</style>`;
-  if (!html.includes("</body>")) {
-    console.error("FATAL: atlas town.html has no </body> to decorate — layout changed upstream");
-    process.exit(1);
-  }
-  html = html.replace("</body>", `${DOORS}\n</body>`);
-
-  console.log(`atlas: town.html ${writeIfChanged(join(ATLAS_OUT, "town.html"), html)} — ${refs.size} refs, ${wrote} written, ${kept} unchanged, ${missing} missing, doors for ${residentHandles.length} residents`);
-}
+// ── the atlas ─ RETIRED 2026-09-08 ───────────────────────────────
+//
+// A ~90-line pass used to live here: it read the town's canonical
+// PROJECTS/build-the-town/atlas/town.html, downscaled every image it referenced
+// into public/atelier/postmark/atlas/assets/, rewrote the refs, and appended the
+// decoration that gave each click panel its doors into the site. It ran at EVERY
+// publish, which is why the live atlas was always fresh while the repo's
+// committed copy sat twelve days stale — the box regenerated it and never
+// committed it. This was the most-read code in the half the merge proposal
+// called dead.
+//
+// It is gone because the drawing is. On 2026-09-08 townGround() replaced the
+// world page's atlas fetch and the town's ground began coming from the world's
+// own record; /atlas/ is now a frozen historical drawing, dated on its own page,
+// and the bytes under public/atelier/postmark/atlas/ are HAND-KEPT history
+// rather than this tool's output. A generator pointed at a directory the repo
+// promises is frozen is a promise waiting to be broken.
+//
+// The pass also FATAL'd when the canonical atlas was missing from a checkout, so
+// removing it removes the last thing that made this extractor refuse to run
+// without one.
+//
+// test/atlas-retired.test.mjs asserts this pass has not come back, by three
+// markers rather than one. If you are re-adding an atlas writer, that test is
+// where to argue with this decision.
 
 // ── the funding seam (pots.json · deeds.json · economy.json) ───────────────
 // Checkout-coupled like the rest of this file, and it has to be: the pot files,
