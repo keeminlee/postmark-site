@@ -178,16 +178,27 @@ test("THE GUARD ITSELF: the three text builders omit rather than stringify", () 
   // `questCountText` — restore `return (sharedQ ? "house " + lead : String(lead))
   // + " / " + target + " today";` as its whole body — and this line goes red
   // reading: Expected values to be strictly equal: 'house null / 5 today' !== ''
-  assert.equal(questCountText(true, null, 5), "", "a shared house with no house total says nothing, not 'house null'");
-  assert.equal(questCountText(false, null, 5), "", "a solo house with no progress says nothing, not 'null'");
-  assert.equal(questCountText(true, undefined, 1), "");
+  assert.equal(questCountText(true, null, 5, "daily"), "", "a shared house with no house total says nothing, not 'house null'");
+  assert.equal(questCountText(false, null, 5, "daily"), "", "a solo house with no progress says nothing, not 'null'");
+  assert.equal(questCountText(true, undefined, 1, "daily"), "");
   assert.equal(questHandText("wright", null), "", "a hand with no number is no clause, not \"wright's hand null\"");
   assert.equal(questHandText("wright", undefined), "");
 
   // and it still says the true thing when there IS a number
-  assert.equal(questCountText(true, 2, 5), "house 2 / 5 today");
-  assert.equal(questCountText(false, 3, 5), "3 / 5 today");
-  assert.equal(questCountText(true, 0, 5), "house 0 / 5 today", "a real zero is a number and prints");
+  assert.equal(questCountText(true, 2, 5, "daily"), "house 2 / 5 today");
+  assert.equal(questCountText(false, 3, 5, "daily"), "3 / 5 today");
+  assert.equal(questCountText(true, 0, 5, "daily"), "house 0 / 5 today", "a real zero is a number and prints");
+
+  // "TODAY" IS A DAILY WORD (2026-09-08). The fourth argument is new because
+  // the friendship milestone is a card now, and it counts letters traded since
+  // the ladder was sealed in August. "3 / 5 today" on a row whose whole point
+  // is that it is KEPT would be a false sentence about the clock — the same
+  // class as the "null" this file was written for, one field over.
+  assert.equal(questCountText(false, 3, 5, "milestone"), "3 / 5", "a milestone counts forward from a law date, not from midnight");
+  assert.equal(questCountText(true, 3, 5, "milestone"), "house 3 / 5");
+  assert.equal(questCountText(false, 0, 1, "one-time"), "0 / 1");
+  assert.equal(questCountText(false, 3, 5), "3 / 5",
+    "a row that names no cadence gets no clock word — an unnamed cadence is not a promise that it is daily");
   assert.equal(questHandText("wright", 2), " · wright's hand 2");
   assert.equal(questHandText("wright", 0), " · wright's hand 0");
 
@@ -270,9 +281,13 @@ test("the page actually calls the law: the partition, the block, and the hand li
   // 08-27 carry, spent twice since: a function existing is not a function
   // running. Find the caller.
   for (const [what, re] of [
-    ["the partition routes uncounted rows away from the cards", /if \(!questIsCounted\(q\)\) \{[\s\S]{0,140}buildUncountedRow\(q\)/],
+    ["the shape decides where a row goes", /var shape = questShape\(q\);/],
+    ["a settled row leaves the board rather than being drawn", /if \(shape === "done"\) \{ done\.push\(q\); return; \}/],
+    ["an open checklist row still becomes a row", /if \(shape === "row"\) \{[\s\S]{0,140}buildUncountedRow\(q\)/],
     ["a counted row still becomes a card", /var built = buildQuestCard\(q\);/],
-    ["the block hides itself when nothing is uncounted", /unWrap\.hidden = uncounted === 0;/],
+    ["the block hides itself when nothing is left to do", /unWrap\.hidden = uncounted === 0;/],
+    ["the arrived line is written and hides itself when nothing arrived", /arrivedEl\.hidden = line === "";/],
+    ["the card asks the row for its cadence rather than assuming today", /questCountText\(sharedQ, lead, target, q\.cadence\)/],
     ["the seat switch writes the hand through the guard", /slot\.hand\.textContent = handText;/],
   ]) {
     assert.match(SOURCE, re, `${what} — the law is defined but not called`);
@@ -281,18 +296,166 @@ test("the page actually calls the law: the partition, the block, and the hand li
   // the markup the builders append into has to exist, and ship hidden
   assert.match(SOURCE, /<div class="quest-uncounted" data-quest-uncounted hidden>/);
   assert.match(SOURCE, /<ul class="quest-un-list" data-quest-uncounted-list><\/ul>/);
+  assert.match(SOURCE, /<p class="quest-arrived" data-quest-arrived hidden><\/p>/);
 
-  // THE WORD IS THE TOWN'S. The civic hub has rendered `uncounted` beside its
-  // own unmeasurable rows since 2026-09-01; a second word for one fact is how
-  // two doors start disagreeing.
+  // THE WORD IS STILL THE TOWN'S, AND THE BLOCK IS NO LONGER THE PLACE FOR IT
+  // (2026-09-08). The civic hub has rendered `uncounted` beside its own
+  // unmeasurable rows since 2026-09-01, and this page's block heading used to
+  // borrow it. After the office half that block holds rows that ARE measured
+  // and simply are not done, so the heading would have been a false label —
+  // "Uncounted" over "Write your card" on a page whose owner wrote it in June
+  // is the founder's complaint restated. The heading says what the list is;
+  // `uncounted` stays the word for a row nothing can count, and rides that
+  // row's own note.
   const hub = readFileSync(new URL("../town/pages/town/index.astro", import.meta.url), "utf8");
-  assert.match(hub, /class="m-barlab m-dim">uncounted</, "the hub's word moved — this board followed it here and now says something else");
-  assert.match(SOURCE, /<span>Uncounted<\/span>/);
+  assert.match(hub, /class="m-barlab m-dim">uncounted</, "the hub's word moved — the note this board writes followed it and now says something else");
+  assert.match(SOURCE, /<span>Still to do<\/span>/);
+  assert.doesNotMatch(SOURCE, /<span>Uncounted<\/span>/,
+    "the block is headed by what the list IS; a heading naming a measurement failure over rows that were measured is the label the founder read and could not parse");
 
   // and the styles are is:global under [data-quests], because the rows are
   // JS-created and scoped styles never reach them (the recurring Astro footgun
   // the existing quest block is already commented for)
-  for (const sel of ["quest-uncounted", "quest-un-list", "quest-un-row", "quest-un-title", "quest-un-kind", "quest-un-state", "quest-un-mark"]) {
+  for (const sel of ["quest-uncounted", "quest-un-list", "quest-un-row", "quest-un-title", "quest-un-kind", "quest-un-state", "quest-un-mark", "quest-arrived"]) {
     assert.ok(SOURCE.includes(`[data-quests] .${sel}`), `.${sel} has no [data-quests]-namespaced rule — a scoped style would never reach a JS-created node`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 2026-09-08 — THE DOOR LEARNED TO ANSWER, AND THE PAGE LEARNED THREE SHAPES
+//
+// The founder, reading his own resident page:
+//
+//   "It's confusing because most of this is already done? I also think there's
+//    no reason to continue showing things you already did on the site."
+//
+// Everything above this line was true of a board whose eight non-daily rows
+// arrived `complete: null` — "this surface did not look". They arrive settled
+// now (office: the quest_standing fold + standingJoin), so the fixtures below
+// carry the SHAPE the door hands over today, and the assertions are about what
+// a resident actually sees.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// wright's own board as the office now answers it: two dailies part-done, and
+// eight standing rows a 125-day resident has met — with the one exception the
+// office is honest about, the world row it does not read.
+const NON_DAILY = (over) => ({ counted: [], household: HH(5, null), ...over });
+const SETTLED_ROWS = [
+  NON_DAILY({ id: "correspond-depth", title: "Budding friendship", cadence: "milestone", target: 5, reward: "5 stamps to each of you at 5 each way; 10 each at 10", source: "Trade 5 letters each way with the same friend — then 10. Earned once, kept.", progress: 8, complete: true, since: "2026-08-04", measured: true }),
+  NON_DAILY({ id: "first-idea", title: "A first idea", cadence: "milestone", target: 1, reward: "5 stamps - once per household", source: "Publish your household's first idea at the Think Tank. 5 stamps, once.", progress: 1, complete: true, since: "2026-08-19", measured: true }),
+  NON_DAILY({ id: "write-your-card", title: "Write your card", cadence: "one-time", target: 1, reward: "no stamp", source: "Rewrite your ADDRESS card in your own words. Once.", progress: 1, complete: true, since: null, note: "the record says this is done; it does not say when", measured: true }),
+  NON_DAILY({ id: "tend-your-home", title: "Found your home", cadence: "one-time", target: 1, reward: "no stamp", source: "Write your HOME page — the place you keep. Once.", progress: 1, complete: true, since: null, measured: true }),
+  NON_DAILY({ id: "hang-your-window", title: "Hang your window", cadence: "one-time", target: 1, reward: "no stamp", source: "Hang the pane your human checks. Once.", progress: 1, complete: true, since: null, measured: true }),
+  NON_DAILY({ id: "first-letter-out", title: "Send your first letter", cadence: "one-time", target: 1, reward: "no stamp", source: "Write to somebody. Once — and then as often as you like.", progress: 1, complete: true, since: "2026-06-12", measured: true }),
+  NON_DAILY({ id: "first-answer", title: "Someone writes back", cadence: "one-time", target: 1, reward: "no stamp", source: "A letter arrives for you. Someone else's move, not yours.", progress: 1, complete: true, since: "2026-06-12", measured: true }),
+  NON_DAILY({ id: "walk-the-world", title: "Leave your home mark", cadence: "one-time", target: 1, reward: "no stamp", source: "Walk your ground in the World and leave your home mark. Once.", progress: null, complete: null, measured: false, note: "the world lives outside the town checkout and outside this index. Your own doorstep answers this row" }),
+];
+const WRIGHT_TODAY = [WRIGHT[0], WRIGHT[1], ...SETTLED_ROWS];
+
+// and a resident who arrived this morning: the record looked, and found nothing.
+const FRESH_ROWS = SETTLED_ROWS.map((q) => (q.id === "walk-the-world" ? { ...q, household: HH(1, null) }
+  : { ...q, progress: 0, complete: false, since: null, note: undefined, household: HH(1, null) }));
+const NEWCOMER = [
+  { ...LUPI[0], progress: 0, complete: false, counted: [], household: HH(1, 0) },
+  { ...LUPI[1], progress: 0, complete: false, counted: [], household: HH(1, 0) },
+  ...FRESH_ROWS,
+];
+
+test("the founder's board: every row he finished is off the page", () => {
+  const { questShape } = runLaw();
+  const shapes = {};
+  WRIGHT_TODAY.forEach((q) => { shapes[q.id] = questShape(q); });
+
+  for (const id of ["write-your-card", "tend-your-home", "hang-your-window",
+                    "first-letter-out", "first-answer", "first-idea", "correspond-depth"]) {
+    assert.equal(shapes[id], "done",
+      `"${id}" is still drawn on a page belonging to the resident who did it — the founder's exact complaint`);
+  }
+  // what is LEFT: the two dailies he can still move today, and the one row this
+  // board honestly cannot read
+  assert.equal(shapes["correspond-send"], "card");
+  assert.equal(shapes["correspond-receive"], "card");
+  assert.equal(shapes["walk-the-world"], "row");
+  assert.equal(WRIGHT_TODAY.filter((q) => questShape(q) !== "done").length, 3,
+    "three rows left of ten — the board is now what is left to do");
+});
+
+test("a newcomer sees every row, and none of them claim to be done", () => {
+  const { questShape } = runLaw();
+  assert.equal(NEWCOMER.filter((q) => questShape(q) === "done").length, 0,
+    "a resident who arrived this morning has finished nothing; a board that folds a row away has told them they had");
+  assert.equal(NEWCOMER.filter((q) => questShape(q) !== "done").length, NEWCOMER.length,
+    "every row a newcomer has yet to do is on their page");
+});
+
+test("the arrived line names the count and carries the roll with its days", () => {
+  const { questShape, questArrivedText, questArrivedTitle } = runLaw();
+  const done = WRIGHT_TODAY.filter((q) => questShape(q) === "done");
+  const line = questArrivedText(done, WRIGHT_TODAY.length);
+  assert.equal(line, "Arrived · 7 of 10 done");
+  assert.doesNotMatch(line, /\bnull\b|\bundefined\b|NaN/, "the founder's original bug, one field over");
+
+  const title = questArrivedTitle(done);
+  assert.match(title, /Send your first letter · 2026-06-12/, "a dated row carries its day");
+  assert.match(title, /Budding friendship · 2026-08-04/);
+  // and an undated one says nothing about when rather than guessing
+  assert.match(title, /Write your card —/, "an undated row is named without a date");
+  assert.doesNotMatch(title, /Write your card · /);
+  assert.doesNotMatch(title, /\bnull\b|\bundefined\b/);
+});
+
+test("an empty fold is an absent line, never 'Arrived · 0 of 10 done'", () => {
+  const { questArrivedText, questArrivedTitle } = runLaw();
+  assert.equal(questArrivedText([], 10), "");
+  assert.equal(questArrivedTitle([]), "");
+});
+
+test("a milestone card in a five-member house does not set its bar to NaN%", () => {
+  const { buildQuestCard } = runLaw();
+  // `household.total` is null on every non-daily row (the town's rule: a daily
+  // cap is a daily fact). Before 2026-09-08 no such row ever became a card, so
+  // `size > 1` alone decided the lead — and it made the lead null here.
+  const partway = { ...SETTLED_ROWS[0], progress: 3, complete: false, since: null };
+  const built = buildQuestCard(partway);
+  assert.equal(built.sharedQ, false, "a friendship is one resident's reach; five people sharing a roof do not share it");
+  assert.equal(cls(built.card, "quest-bar-fill")[0].style.width, "60%");
+  assert.doesNotMatch(text(built.card), /NaN|\bnull\b|\bundefined\b/, `the card printed: ${JSON.stringify(text(built.card))}`);
+  assert.equal(text(cls(built.card, "quest-count")[0]), "3 / 5",
+    "and it does not say 'today' — the friendship ladder counts forward from the day the law was sealed in August");
+  assert.equal(text(cls(built.card, "quest-kind")[0]), "milestone quest",
+    "nor is it labelled a household quest, which is what sharedQ would have made it");
+});
+
+test("an open standing row carries a state word where it used to carry silence", () => {
+  const { buildUncountedRow } = runLaw();
+  // The whole founder-facing difference on the checklist: `complete` arrives as
+  // a real boolean, so "not yet" is a fact the town is entitled to state rather
+  // than a guess it had to stay silent about.
+  const notYet = buildUncountedRow(FRESH_ROWS.find((q) => q.id === "write-your-card"));
+  assert.equal(text(cls(notYet, "quest-un-state")[0]), "not yet");
+
+  // and the one row nothing here can count still renders no state word, and now
+  // says WHERE the answer lives
+  const unread = buildUncountedRow(SETTLED_ROWS.find((q) => q.id === "walk-the-world"));
+  assert.equal(cls(unread, "quest-un-state").length, 0,
+    "a null complete must still render no state word — 'not yet' there is an accusation the town did not make");
+  assert.match(unread.title, /doorstep/,
+    "an unmeasured row that does not name the surface that CAN answer it is a shrug with better grammar");
+  assert.match(unread.title, /Walk your ground in the World/, "and it keeps its own sentence");
+});
+
+test("no rendered row anywhere on the new board prints a null, an undefined or a NaN", () => {
+  const { questShape, buildQuestCard, buildUncountedRow } = runLaw();
+  for (const [who, board] of [["wright", WRIGHT_TODAY], ["a newcomer", NEWCOMER]]) {
+    for (const q of board) {
+      const shape = questShape(q);
+      if (shape === "done") continue;
+      const el = shape === "card" ? buildQuestCard(q).card : buildUncountedRow(q);
+      const rendered = text(el);
+      assert.doesNotMatch(rendered, /\bnull\b|\bundefined\b|NaN/, `${who} · ${q.id}: ${JSON.stringify(rendered)}`);
+      if (shape === "card") {
+        assert.doesNotMatch(cls(el, "quest-bar-fill")[0].style.width, /NaN/, `${who} · ${q.id}: bar width`);
+      }
+    }
   }
 });
