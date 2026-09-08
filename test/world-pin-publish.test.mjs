@@ -143,3 +143,34 @@ test("code_ref comes from the SAME env var build.json takes it from, and is null
   assert.equal(local.code_ref, null, "null, never invented — a dev artifact must not look shipped");
   assert.match(local.notes.join(" "), /written outside it/);
 });
+
+test("THE CHANNEL SAYS WHETHER THE PIN IS A BLESSING, because a sha alone cannot", () => {
+  // A reader asking "is this the world the town blessed?" cannot answer it from
+  // forty hex characters — they would have to resolve the world's settlement
+  // tags, and the office holds no clone to do it with. deploy.yml's two lanes
+  // ARE that distinction: the release lane resolves the newest settlement tag
+  // and installs it; the snapshot lane runs no resolver and installs whatever
+  // the branch's lockfile pins. So the lane is the answer, and it is published.
+  const files = {
+    "node_modules/postmark-world/package.json": {},
+    "package.json": { dependencies: { "postmark-world": `github:keeminlee/postmark-world#${SHA}` } },
+  };
+  const dev = worldPin({ readJson: reader(files), env: { PUBLIC_CHANNEL: "snapshot", BUILD_CODE_REF: "jetto/atlas-build" } });
+  assert.equal(dev.channel, "snapshot");
+  assert.match(dev.notes.join(" "), /SNAPSHOT BUILD/,
+    "a dev pin says out loud that it is not a blessed world");
+  assert.match(dev.notes.join(" "), /not a blessed world/);
+
+  const prod = worldPin({ readJson: reader(files), env: { PUBLIC_CHANNEL: "release", BUILD_CODE_REF: "release/2026-w37.4" } });
+  assert.equal(prod.channel, "release");
+  assert.doesNotMatch(prod.notes.join(" "), /SNAPSHOT BUILD/,
+    "and a release pin does not carry the dev warning");
+
+  // off the deploy lane, and on a value neither lane produces: null with a
+  // reason, never a guess — the same rule code_ref follows
+  for (const env of [{}, { PUBLIC_CHANNEL: "" }, { PUBLIC_CHANNEL: "prod" }]) {
+    const p = worldPin({ readJson: reader(files), env });
+    assert.equal(p.channel, null, JSON.stringify(env));
+    assert.match(p.notes.join(" "), /whether the pin is a blessing or a branch build/);
+  }
+});

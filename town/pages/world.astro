@@ -12,9 +12,18 @@
 // into this repo's tracked tree.
 //
 // Degrades as a static island with no server: the viewer fetches world-state +
-// skeleton same-origin (/WORLD) first, then raw.githubusercontent; reads the atlas
-// same-origin (/atlas/town.html); signed-in acts feature-detect off without the
-// office token/door.
+// skeleton same-origin (/WORLD) first, then raw.githubusercontent; signed-in acts
+// feature-detect off without the office token/door.
+//
+// IT NO LONGER READS THE ATLAS AT ALL (founder, 2026-09-08: "no more atlas
+// background, all world visuals are from the world"). This comment used to end
+// "reads the atlas same-origin (/atlas/town.html)", and that stopped being true
+// the day `townGround()` replaced the fetch: the town's ground is now drawn from
+// the world's own record — the regions' and the water's `points:` rings, the
+// skeleton's light and its terrain features. Corrected here rather than carried
+// to Lane 4 as false prose about the very surface Lane 4 exists to retire.
+// (`/atlas/` and the front door's AtlasInvite panel are still atlas readers, and
+// are Lane 4's; this page is not one of them any more.)
 import rawHtml from 'postmark-world/spectator/index.html?raw';
 import WorldSignIn from '@/components/WorldSignIn.astro';
 import WorldTourHold from '@/components/WorldTourHold.astro';

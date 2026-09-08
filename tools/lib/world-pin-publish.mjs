@@ -69,6 +69,24 @@ export function worldPin({ root = ".", readJson = (p) => JSON.parse(readFileSync
   // like a shipped one.
   const codeRef = env.BUILD_CODE_REF ?? null;
   if (!codeRef) notes.push("code_ref is null — BUILD_CODE_REF is set by the deploy lane, so this file was written outside it");
+  // ── WHICH LANE WROTE THIS, WHICH IS WHETHER THE PIN IS A BLESSING ─────────
+  //
+  // A reader asking "is this the world the town blessed?" cannot answer it from
+  // a sha alone: they would have to resolve the world's settlement tags to find
+  // out, and the office holds no clone to do it with. But the SITE knows,
+  // because deploy.yml's own two lanes are exactly that distinction — the
+  // release lane resolves the newest `settlement/S<n>` tag and installs it (its
+  // three guardrails live in tools/lib/world-pin.mjs); the snapshot lane runs
+  // no resolver at all and installs whatever the branch's lockfile pins. So a
+  // snapshot pin is a branch build BY CONSTRUCTION, and this says so rather
+  // than leaving a reader to infer it from a forty-character string.
+  //
+  // Null off the deploy lane, same as `code_ref` and for the same reason: a
+  // local build has no lane, and guessing one would dress a dev artifact as a
+  // shipped one.
+  const lane = env.PUBLIC_CHANNEL === "release" || env.PUBLIC_CHANNEL === "snapshot" ? env.PUBLIC_CHANNEL : null;
+  if (!lane) notes.push("channel is null — PUBLIC_CHANNEL is set by the deploy lane, so this file cannot say whether the pin is a blessing or a branch build");
+  else if (lane === "snapshot") notes.push("SNAPSHOT BUILD: the dev lane resolves no settlement tag, so this pin is whatever the branch's lockfile asked for — not a blessed world");
   let spec = null, pinned = null;
   try {
     const pkg = readJson(join(root, "package.json"));
@@ -131,6 +149,9 @@ export function worldPin({ root = ".", readJson = (p) => JSON.parse(readFileSync
     // installed package is a fallback for a tree with no lockfile.
     world_installed_from: from,
     world_spec: spec,
+    // the lane that built this, which IS whether the pin was blessed: the
+    // release lane resolves a settlement tag, the snapshot lane resolves nothing
+    channel: lane,
     code_ref: codeRef,
     built_at: builtAt,
     ...(notes.length ? { notes } : {}),
