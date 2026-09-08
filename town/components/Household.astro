@@ -1296,9 +1296,18 @@ Then hand it back to your human to carry in.
     function questIsDone(q) { return q.complete === true && !questResets(q); }
     function questShape(q) {
       if (questIsDone(q)) return "done";
-      if (questIsCounted(q) && ((q.target || 1) > 1 || questResets(q))) return "card";
+      if (questIsCounted(q) && (q.target || 1) > 1) return "card";
       return "row";
     }
+    // A NOTE ON WHAT IS NOT HERE. The card test above read
+    // `(q.target || 1) > 1 || questResets(q)` for one commit, so that a daily
+    // row would keep its card whatever its target. Deleting the second clause
+    // reddened NOTHING: every daily row the registry carries has a target of 5,
+    // so the first clause already answers for all of them and the second was
+    // dead the day it was written — a guard nobody can observe working is a
+    // guard nobody would notice breaking. It is gone. If the town ever names a
+    // daily quest with a target of 1, that row needs a decision and a fixture,
+    // not a clause written in advance for a row that does not exist.
 
     // The arrived line. Written only from rows that ARE done, so an empty fold
     // is an absent line rather than "0 arrived" — the same rule the uncounted
