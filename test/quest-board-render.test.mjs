@@ -523,6 +523,51 @@ test("an open standing row carries a state word where it used to carry silence",
   assert.match(unread.title, /Walk your ground in the World/, "and it keeps its own sentence");
 });
 
+// ── the day rule: "Today · [object Object]", live on every resident page ─────
+
+test("the day rule shows the DAY, and keeps the which-midnight disclosure reachable", () => {
+  const { applyDay, questDayText, questDayTitle } = runLaw();
+  // The office answers `today` as the disclosure object. The page concatenated
+  // it into a string, so every resident page read "Today · [object Object]" —
+  // one element above the block this lane rewrote, on the same page whose words
+  // the founder could not parse.
+  const today = {
+    day: "2026-09-08", clock: "America/New_York", clock_source: "the town's default",
+    note: '"today" is the town\'s own day in America/New_York, not your clock and not the server\'s',
+  };
+  const doc = makeDocument();
+  const el = doc.createElement("span");
+  const out = applyDay(el, today);
+  assert.equal(out, el, "it returns the element it wrote — a discarded answer cannot pass unnoticed");
+  assert.equal(text(el), "Today · 2026-09-08");
+  assert.doesNotMatch(text(el), /\[object Object\]/, "the bug itself");
+  assert.match(el.title, /not your clock/, "the disclosure is not thrown away; it moves where a reader can find it");
+  assert.match(el.title, /America\/New_York/);
+
+  // an older door that answers a bare string still works
+  assert.equal(questDayText("2026-09-08"), "Today · 2026-09-08");
+  assert.equal(questDayTitle("2026-09-08"), "");
+  // and nothing at all leaves the rule's own default text alone rather than
+  // blanking it
+  const untouched = doc.createElement("span");
+  untouched.textContent = "Today";
+  applyDay(untouched, null);
+  assert.equal(text(untouched), "Today");
+  assert.equal(applyDay(null, today), null);
+});
+
+test("no shape of `today` the door can send renders as [object Object]", () => {
+  const { questDayText } = runLaw();
+  for (const shape of [
+    { day: "2026-09-08", clock: "America/New_York" },
+    "2026-09-08",
+    { clock: "America/New_York" },   // a day-less object: say nothing, never "[object Object]"
+    {}, null, undefined,
+  ]) {
+    assert.doesNotMatch(questDayText(shape), /\[object Object\]/, `today = ${JSON.stringify(shape)}`);
+  }
+});
+
 test("no rendered row anywhere on the new board prints a null, an undefined or a NaN", () => {
   const { questShape, buildQuestCard, buildUncountedRow } = runLaw();
   for (const [who, board] of [["wright", WRIGHT_TODAY], ["a newcomer", NEWCOMER]]) {
@@ -537,4 +582,56 @@ test("no rendered row anywhere on the new board prints a null, an undefined or a
       }
     }
   }
+});
+
+// ── the built page ───────────────────────────────────────────────────────────
+//
+// The vm above proves the writers are right and the regexes prove they are
+// called; neither can see what Astro actually ships, so these read the artefact.
+//
+// ⚑ AND ONE HONEST LIMIT, because I nearly recorded this test as catching more
+// than it does. The quest board is drawn CLIENT-SIDE: the shipped HTML carries
+// `<span data-quests-day>Today</span>` and the script that fills it, never the
+// filled text. So "[object Object]" could never have appeared in the built
+// bytes for the day-rule bug — that string only ever existed in a browser. The
+// scan below is a real guard against a SERVER-rendered concatenation, and it is
+// worth keeping for that, but it is NOT the falsifier for the bug it was added
+// beside. That falsifier is `questDayText` in the vm, which does red.
+
+import { existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
+const DIST = new URL("../dist-town/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+const built = existsSync(DIST);
+
+test("no built resident page contains the string [object Object]", { skip: !built }, () => {
+  const dir = join(DIST, "residents");
+  const handles = existsSync(dir) ? readdirSync(dir).slice(0, 40) : [];
+  assert.ok(handles.length > 0, "no built resident pages to read — the build did not produce them");
+  const guilty = [];
+  for (const h of handles) {
+    const p = join(dir, h, "index.html");
+    if (!existsSync(p)) continue;
+    if (readFileSync(p, "utf8").includes("[object Object]")) guilty.push(h);
+  }
+  assert.deepEqual(guilty, [],
+    "an object was concatenated into the page's text. This is the day rule's bug, and it is invisible to every other check in this file.");
+});
+
+test("the built page carries the day rule's fix and the arrived line's delivery", { skip: !built }, () => {
+  const p = join(DIST, "residents", "wright", "index.html");
+  assert.ok(existsSync(p), "wright's page was not built");
+  const html = readFileSync(p, "utf8");
+  for (const [what, needle] of [
+    ["the day writer", "function applyDay(el, today)"],
+    ["the day rule's call", "applyDay(dayEl, b.today);"],
+    ["the arrived writer", "function applyArrived(el, done, keptTotal)"],
+    ["the arrived call", "applyArrived(arrivedEl, done, keptTotal);"],
+    ["the kept denominator", "return !questResets(q);"],
+    ["the finished-daily rule", "q.complete === true && !questResets(q)"],
+    ["the block heading", "Still to do"],
+  ]) {
+    assert.ok(html.includes(needle), `${what} is not in the shipped page: ${needle}`);
+  }
+  assert.equal(html.includes(">Uncounted<"), false, "the old heading still ships");
 });

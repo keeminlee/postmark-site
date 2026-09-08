@@ -1331,6 +1331,36 @@ Then hand it back to your human to carry in.
       }).join(" — ");
     }
 
+    // ⚑ THE DAY RULE READ "Today · [object Object]" ON EVERY RESIDENT PAGE.
+    //
+    // The office answers `today` as the which-midnight disclosure — `{ day,
+    // clock, clock_source, note }` — and this page concatenated the object into
+    // a string. It was live on the base as well as this branch, one element
+    // above the block this lane rewrote, on the same page whose words the
+    // founder could not parse. It was invisible to this suite for exactly the
+    // reason the arrived line was: nothing drives `drawQuestBoard`. Same root,
+    // same fix — a function that writes the element and returns it.
+    //
+    // The DAY is what the rule shows; the disclosure is not thrown away, it
+    // moves to the `title=` where a reader who wonders which midnight can find
+    // it. An older door that still answers a bare string keeps working.
+    function questDayText(today) {
+      if (!today) return "";
+      var day = typeof today === "string" ? today : today.day;
+      return day ? "Today · " + day : "";
+    }
+    function questDayTitle(today) {
+      if (!today || typeof today === "string") return "";
+      return [today.note, today.clock ? "clock: " + today.clock : ""].filter(Boolean).join(" — ");
+    }
+    function applyDay(el, today) {
+      if (!el) return null;
+      var t = questDayText(today);
+      if (t) el.textContent = t;
+      el.title = questDayTitle(today);
+      return el;
+    }
+
     // ⚑ THE DELIVERY, FACTORED SO A TEST CAN WATCH IT. Flip 9 was a regex over
     // the caller, and the reviewer showed exactly what that buys: keep every
     // matched source line, throw the answer away —
@@ -1493,7 +1523,7 @@ Then hand it back to your human to carry in.
       if (!sec || !wrap || questBoard) return Promise.resolve();
       return questsFor(memberHandles[0]).then(function (b) {
         if (!b || !Array.isArray(b.quests) || !b.quests.length) { sec.hidden = true; return; }
-        if (dayEl && b.today) dayEl.textContent = "Today · " + b.today;
+        applyDay(dayEl, b.today);
         wrap.textContent = "";
         if (unList) unList.textContent = "";
         questBoard = Object.create(null);
