@@ -1331,15 +1331,22 @@ Then hand it back to your human to carry in.
       }).join(" — ");
     }
 
-    // ⚑ THE DAY RULE READ "Today · [object Object]" ON EVERY RESIDENT PAGE.
+    // ⚑ THE DAY RULE PRINTED A STRINGIFIED OBJECT ON EVERY RESIDENT PAGE.
     //
     // The office answers `today` as the which-midnight disclosure — `{ day,
     // clock, clock_source, note }` — and this page concatenated the object into
-    // a string. It was live on the base as well as this branch, one element
-    // above the block this lane rewrote, on the same page whose words the
-    // founder could not parse. It was invisible to this suite for exactly the
-    // reason the arrived line was: nothing drives `drawQuestBoard`. Same root,
-    // same fix — a function that writes the element and returns it.
+    // a string, so the rule read "Today" followed by JavaScript's default text
+    // for a plain object. It was live on the base as well as this branch, one
+    // element above the block this lane rewrote, on the same page whose words
+    // the founder could not parse. It was invisible to this suite for exactly
+    // the reason the arrived line was: nothing drives `drawQuestBoard`. Same
+    // root, same fix — a function that writes the element and returns it.
+    //
+    // (The offending literal is deliberately NOT written out here: this script
+    // ships inside every resident page, and `test/quest-board-render.test.mjs`
+    // scans the built bytes for it. Quoting the string in a comment reddened
+    // that guard on 133 pages — which is the guard working, on the only kind of
+    // occurrence it can actually see.)
     //
     // The DAY is what the rule shows; the disclosure is not thrown away, it
     // moves to the `title=` where a reader who wonders which midnight can find
