@@ -1344,9 +1344,10 @@ Then hand it back to your human to carry in.
     //
     // (The offending literal is deliberately NOT written out here: this script
     // ships inside every resident page, and `test/quest-board-render.test.mjs`
-    // scans the built bytes for it. Quoting the string in a comment reddened
-    // that guard on 133 pages — which is the guard working, on the only kind of
-    // occurrence it can actually see.)
+    // scans the built page TEXT for it (script regions stripped, since script
+    // contents are never page text). An earlier version scanned raw bytes and
+    // reddened on this very comment on 133 pages — a false positive it could
+    // not tell from the bug; the scan was fixed, not the comment.)
     //
     // The DAY is what the rule shows; the disclosure is not thrown away, it
     // moves to the `title=` where a reader who wonders which midnight can find

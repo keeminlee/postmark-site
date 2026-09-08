@@ -597,6 +597,16 @@ test("no rendered row anywhere on the new board prints a null, an undefined or a
 // scan below is a real guard against a SERVER-rendered concatenation, and it is
 // worth keeping for that, but it is NOT the falsifier for the bug it was added
 // beside. That falsifier is `questDayText` in the vm, which does red.
+//
+// ⚑ AND WHAT THE SCAN READS (the reviewer's repair, 2026-09-08). Raw bytes
+// cannot tell a literal in a <script> from a literal in page text — a comment
+// that documents the bug and the bug itself return the same answer, so the
+// first thing this scan ever caught was the comment explaining it, on 133
+// pages, and the tempting fix was to reword the comment, which buys a green and
+// no guard (the rule becomes "never type these fifteen characters in
+// Household.astro"). Script contents are never page text; strip them, then
+// search. The flip that proves it: put the literal in the page's text → red;
+// put it in a script comment → green.
 
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -612,10 +622,22 @@ test("no built resident page contains the string [object Object]", { skip: !buil
   for (const h of handles) {
     const p = join(dir, h, "index.html");
     if (!existsSync(p)) continue;
-    if (readFileSync(p, "utf8").includes("[object Object]")) guilty.push(h);
+    if (pageText(readFileSync(p, "utf8")).includes("[object Object]")) guilty.push(h);
   }
   assert.deepEqual(guilty, [],
-    "an object was concatenated into the page's text. This is the day rule's bug, and it is invisible to every other check in this file.");
+    "an object was concatenated into the page's TEXT (script regions stripped). This is the day rule's bug, and it is invisible to every other check in this file.");
+});
+
+/** The page as a reader sees it: every <script>…</script> region removed, because script contents are never page text. */
+function pageText(html) {
+  return html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+}
+
+test("the scan reads page text, not script bytes — a script literal is not the bug, a text literal is", () => {
+  const inScript = "<html><body><span>Today</span><script>/* renders as [object Object] when concatenated */</script></body></html>";
+  const inText = "<html><body><span>Today · [object Object]</span></body></html>";
+  assert.equal(pageText(inScript).includes("[object Object]"), false, "a literal inside a script is not page text");
+  assert.equal(pageText(inText).includes("[object Object]"), true, "a literal in the page's text is the bug");
 });
 
 test("the built page carries the day rule's fix and the arrived line's delivery", { skip: !built }, () => {
