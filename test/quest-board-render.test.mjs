@@ -286,7 +286,11 @@ test("the page actually calls the law: the partition, the block, and the hand li
     ["an open checklist row still becomes a row", /if \(shape === "row"\) \{[\s\S]{0,140}buildUncountedRow\(q\)/],
     ["a counted row still becomes a card", /var built = buildQuestCard\(q\);/],
     ["the block hides itself when nothing is left to do", /unWrap\.hidden = uncounted === 0;/],
-    ["the arrived line is written and hides itself when nothing arrived", /arrivedEl\.hidden = line === "";/],
+    // The arrived line's DELIVERY is asserted on the element in its own test
+    // above (repair 3), which is the check a discarded answer cannot survive.
+    // This regex only has to find the call; the behaviour is watched elsewhere.
+    ["the arrived line is applied to the page", /applyArrived\(arrivedEl, done, keptTotal\);/],
+    ["the arrived denominator counts only rows that are KEPT", /var keptTotal = b\.quests\.filter\(function \(q\) \{ return !questResets\(q\); \}\)\.length;/],
     ["the card asks the row for its cadence rather than assuming today", /questCountText\(sharedQ, lead, target, q\.cadence\)/],
     ["the seat switch writes the hand through the guard", /slot\.hand\.textContent = handText;/],
   ]) {
@@ -361,6 +365,41 @@ const NEWCOMER = [
   ...FRESH_ROWS,
 ];
 
+// ── repair 6: a finished DAILY row is not an arrival ─────────────────────────
+
+test("a daily quest finished at 5 of 5 STAYS A CARD — it is not an arrival", () => {
+  const { questShape } = runLaw();
+  // `boardForHandle` sets `complete: progress >= target` on the daily pair, so
+  // at 5 of 5 the first cut called them done and folded them away: a resident
+  // who finished both quests saw a board with NO CARDS AT ALL and their day's
+  // work filed undated in a line called Arrived, beside a card written in June
+  // — and then watched them come back at midnight. No fixture carried a
+  // completed daily, so nothing was watching.
+  const finished = { ...WRIGHT[0], progress: 5, complete: true, household: HH(5, 5) };
+  assert.equal(questShape(finished), "card",
+    "the completed state, with its bar full and its stamp, is the one thing the resident earned the right to see today");
+  const other = { ...WRIGHT[1], progress: 5, complete: true, household: HH(5, 5) };
+  assert.equal(questShape(other), "card");
+});
+
+test("the arrived roll holds no daily row, and its denominator is the kept rows", () => {
+  const { questShape, questArrivedText } = runLaw();
+  const board = [
+    { ...WRIGHT[0], progress: 5, complete: true, household: HH(5, 5) },
+    { ...WRIGHT[1], progress: 5, complete: true, household: HH(5, 5) },
+    ...SETTLED_ROWS,
+  ];
+  const done = board.filter((q) => questShape(q) === "done");
+  assert.equal(done.some((q) => q.cadence === "daily"), false,
+    "Arrived is a permanent word — it means you got here. A row that resets at midnight cannot be in it.");
+  const kept = board.filter((q) => q.cadence !== "daily").length;
+  assert.equal(kept, 8, "eight rows are kept once met: six arrivals and two milestones");
+  assert.equal(questArrivedText(done, kept), "Arrived · 7 of 8 done",
+    "and the denominator counts only those — 'of 10' was a total nobody could ever stand at, because two of the ten reset");
+  // and both dailies are still on the board as cards
+  assert.equal(board.filter((q) => questShape(q) === "card").length, 2);
+});
+
 test("the founder's board: every row he finished is off the page", () => {
   const { questShape } = runLaw();
   const shapes = {};
@@ -388,11 +427,43 @@ test("a newcomer sees every row, and none of them claim to be done", () => {
     "every row a newcomer has yet to do is on their page");
 });
 
+test("the arrived line's DELIVERY to the page is watched, not just its text", () => {
+  // Repair 3. Flip 9 was a regex over the caller, and the reviewer showed what
+  // that buys: keep every matched source line and throw the answer away —
+  //   arrivedEl.textContent = ""; arrivedEl.title = ""; arrivedEl.hidden = true;
+  // — and the suite stayed 13/13 green. A board that computes the line and
+  // never shows it shipped clean. So the writing is a function that returns the
+  // element it wrote, and this asserts on the element.
+  const { questShape, applyArrived } = runLaw();
+  const doc = makeDocument();
+  const el = doc.createElement("p");
+  const done = WRIGHT_TODAY.filter((q) => questShape(q) === "done");
+  const kept = WRIGHT_TODAY.filter((q) => q.cadence !== "daily").length;
+
+  const out = applyArrived(el, done, kept);
+  assert.equal(out, el, "it returns the element it wrote, so a caller cannot discard the answer unnoticed");
+  assert.equal(text(el), "Arrived · 7 of 8 done", "the TEXT is on the element, not merely computed");
+  assert.match(el.title, /Send your first letter · 2026-06-12/, "and the roll is on it too");
+  assert.equal(el.hidden, false, "and it is visible");
+
+  // the other end: an empty fold writes an empty, hidden element — never
+  // "Arrived · 0 of 8 done"
+  const empty = doc.createElement("p");
+  applyArrived(empty, [], kept);
+  assert.equal(text(empty), "");
+  assert.equal(empty.hidden, true);
+  assert.equal(empty.title, "");
+
+  // and a missing element is survivable, not a throw
+  assert.equal(applyArrived(null, done, kept), null);
+});
+
 test("the arrived line names the count and carries the roll with its days", () => {
   const { questShape, questArrivedText, questArrivedTitle } = runLaw();
   const done = WRIGHT_TODAY.filter((q) => questShape(q) === "done");
-  const line = questArrivedText(done, WRIGHT_TODAY.length);
-  assert.equal(line, "Arrived · 7 of 10 done");
+  const kept = WRIGHT_TODAY.filter((q) => q.cadence !== "daily").length;
+  const line = questArrivedText(done, kept);
+  assert.equal(line, "Arrived · 7 of 8 done");
   assert.doesNotMatch(line, /\bnull\b|\bundefined\b|NaN/, "the founder's original bug, one field over");
 
   const title = questArrivedTitle(done);
@@ -410,15 +481,23 @@ test("an empty fold is an absent line, never 'Arrived · 0 of 10 done'", () => {
   assert.equal(questArrivedTitle([]), "");
 });
 
-test("a milestone card in a five-member house does not set its bar to NaN%", () => {
+test("a milestone card in a five-member house reads its own reach, not the empty house total", () => {
   const { buildQuestCard } = runLaw();
   // `household.total` is null on every non-daily row (the town's rule: a daily
   // cap is a daily fact). Before 2026-09-08 no such row ever became a card, so
   // `size > 1` alone decided the lead — and it made the lead null here.
+  //
+  // ⚑ THE SYMPTOM, CORRECTED (reviewer's repair 2). The first report said the
+  // bar width came out "NaN%". It does not: `null / 5` is 0 in JavaScript, so
+  // the flipped predicate renders "0%" — an empty bar, no count line, and the
+  // word "household" on a milestone that is one person's. NaN would need
+  // `household.total` to be undefined, which `boardForHandle` never writes. The
+  // guard is right either way; the recorded symptom now matches the run.
   const partway = { ...SETTLED_ROWS[0], progress: 3, complete: false, since: null };
   const built = buildQuestCard(partway);
   assert.equal(built.sharedQ, false, "a friendship is one resident's reach; five people sharing a roof do not share it");
-  assert.equal(cls(built.card, "quest-bar-fill")[0].style.width, "60%");
+  assert.equal(cls(built.card, "quest-bar-fill")[0].style.width, "60%",
+    "with the guard: three each way of five. Remove `typeof q.household.total === \"number\"` and this reads \"0%\" — an empty bar on a resident who is more than halfway");
   assert.doesNotMatch(text(built.card), /NaN|\bnull\b|\bundefined\b/, `the card printed: ${JSON.stringify(text(built.card))}`);
   assert.equal(text(cls(built.card, "quest-count")[0]), "3 / 5",
     "and it does not say 'today' — the friendship ladder counts forward from the day the law was sealed in August");

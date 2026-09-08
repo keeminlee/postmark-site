@@ -795,7 +795,8 @@ Then hand it back to your human to carry in.
 
            SERVER-RENDERED PROSE, AND THE WALK IS WHY. Its item 4 the same day:
            the quest board's whole visible text to a reader that does not run
-           scripts was "Today Uncounted", because the cards are drawn
+           scripts was "Today Uncounted" (the second word is "Still to do" since
+           2026-09-08; the point is unchanged), because the cards are drawn
            client-side. A second client-only section here would have added a
            heading with nothing under it for most of this town's residents. So
            every number below is in the HTML.
@@ -1277,19 +1278,40 @@ Then hand it back to your human to carry in.
     // accumulate and a checkbox is for a thing you either did or did not. The
     // registry's own `target` says which, and it is read off the row rather
     // than off a list of ids, for the same reason `questIsCounted` is.
-    function questIsDone(q) { return q.complete === true; }
+    // ⚑ A FINISHED DAILY ROW IS NOT "ARRIVED" — the reviewer's repair 6, and the
+    // one a resident would have hit today. `boardForHandle` sets `complete:
+    // progress >= target` on the daily pair, so at 5 of 5 the first cut called
+    // them done and folded them away: a resident who finished both quests saw a
+    // board with NO CARDS AT ALL and their day's work filed undated in a line
+    // called Arrived, beside a card written in June — and then watched them come
+    // back at midnight. The completed state, with its "5 / 5 today ✓" and its
+    // stamp, is the one thing they earned the right to see.
+    //
+    // "Arrived" is a permanent word: it means you got here. Only a row that is
+    // KEPT can be in it. The cadence says which, and it rides the row from the
+    // registry, so this is not the allow-list coming back — a future cadence
+    // that resets would be handled by naming it here, and a future kept one
+    // needs no change at all.
+    function questResets(q) { return q.cadence === "daily"; }
+    function questIsDone(q) { return q.complete === true && !questResets(q); }
     function questShape(q) {
       if (questIsDone(q)) return "done";
-      if (questIsCounted(q) && (q.target || 1) > 1) return "card";
+      if (questIsCounted(q) && ((q.target || 1) > 1 || questResets(q))) return "card";
       return "row";
     }
 
     // The arrived line. Written only from rows that ARE done, so an empty fold
     // is an absent line rather than "0 arrived" — the same rule the uncounted
     // block already keeps for itself.
-    function questArrivedText(done, total) {
+    //
+    // THE DENOMINATOR IS THE KEPT ROWS, not the whole board. It used to be
+    // `b.quests.length`, which counted the two daily errands into a total
+    // nobody can ever stand at: a resident with everything kept and both bars
+    // full still read "8 of 10 done" one minute and "6 of 10" the next. Arrived
+    // counts arrivals.
+    function questArrivedText(done, keptTotal) {
       if (!done.length) return "";
-      return "Arrived · " + done.length + " of " + total + " done";
+      return "Arrived · " + done.length + " of " + keptTotal + " done";
     }
     // and what rides the title=: each row, with the day it was met where the
     // record dates it. A row the record settles but does not date says nothing
@@ -1298,6 +1320,26 @@ Then hand it back to your human to carry in.
       return done.map(function (q) {
         return q.title + (q.since ? " · " + q.since : "");
       }).join(" — ");
+    }
+
+    // ⚑ THE DELIVERY, FACTORED SO A TEST CAN WATCH IT. Flip 9 was a regex over
+    // the caller, and the reviewer showed exactly what that buys: keep every
+    // matched source line, throw the answer away —
+    //
+    //     arrivedEl.textContent = ""; arrivedEl.title = ""; arrivedEl.hidden = true;
+    //
+    // — and the site suite stayed 13/13 green. A board that computes the line
+    // and never shows it shipped clean. The DISCARD question again, and this
+    // time somebody else had to ask it for me. So the writing is a function
+    // that returns the element it wrote, asserted the way `buildQuestCard`
+    // already is; the caller does nothing a test cannot see the end of.
+    function applyArrived(el, done, keptTotal) {
+      if (!el) return null;
+      var line = questArrivedText(done, keptTotal);
+      el.textContent = line;
+      el.title = questArrivedTitle(done);
+      el.hidden = line === "";
+      return el;
     }
 
     // ── the three places a value becomes text ────────────────────────────────
@@ -1448,6 +1490,9 @@ Then hand it back to your human to carry in.
         questBoard = Object.create(null);
         var uncounted = 0;
         var done = [];
+        // the denominator Arrived counts against: the rows that are KEPT once
+        // met. A daily errand is not one of them.
+        var keptTotal = b.quests.filter(function (q) { return !questResets(q); }).length;
         b.quests.forEach(function (q) {
           var shape = questShape(q);
           // A settled row leaves the board. It is not hidden — it is folded
@@ -1465,12 +1510,7 @@ Then hand it back to your human to carry in.
         // the block is the HOUSE's, and it stands or it is absent — an empty
         // heading over nothing is a fifth thing for the eye to skip.
         if (unWrap) unWrap.hidden = uncounted === 0;
-        if (arrivedEl) {
-          var line = questArrivedText(done, b.quests.length);
-          arrivedEl.textContent = line;
-          arrivedEl.title = questArrivedTitle(done);
-          arrivedEl.hidden = line === "";
-        }
+        applyArrived(arrivedEl, done, keptTotal);
         sec.hidden = false;
       });
     }
