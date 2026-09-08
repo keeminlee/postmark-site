@@ -5,9 +5,6 @@
 //   public/atelier/postmark/media/**    — processed images (homes, attachments),
 //                                         card + full sizes, extractor-owned
 //   src/data/postmark/media.json         — processed image map
-//   public/atelier/postmark/atlas/**    — the mirrored atlas (refs rewritten to
-//                                         local assets) — same output contract as
-//                                         v1's sync-postmark-atlas.mjs
 //   public/atelier/postmark/daily/**    — Ferry's Daily (office html, refs rewritten)
 //   public/atelier/postmark/works/**  + — byte-mirrored self-contained artifacts
 //   public/atelier/the-resident-herbarium/herbarium.html
@@ -18,8 +15,11 @@
 // src/data/postmark/*.json files from the checkout. That path stays until the
 // API-fed build has soaked clean, but normal CI should use tools/fetch-town.mjs.
 //
+// The atlas is NOT in that list any more — see the tombstone below where its
+// pass used to be. It froze 2026-09-08 and its bytes are hand-kept history now.
+//
 // Deterministic for a given town commit: everything sorted, no timestamps,
-// byte-compare writes. Fail-loud: unrewritten atlas refs exit 1.
+// byte-compare writes.
 //
 // Usage: node tools/extract-town.mjs --town <path-to-postmark-checkout>
 //        node tools/extract-town.mjs --town <path-to-postmark-checkout> --legacy-data
