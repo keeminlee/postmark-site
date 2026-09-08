@@ -218,10 +218,21 @@ jobs:
           '
           echo "world: floor ${{ steps.worldpin.outputs.floor_sha }} (S${{ steps.worldpin.outputs.floor_settlement }}) -> S${{ steps.worldpin.outputs.settlement }} $WORLD_SHA"
 
+      # fetch-town.mjs also writes /data/pin.json (tools/lib/world-pin-publish.mjs
+      # — the world sha this site is pinned to, the one fact the office cannot
+      # derive about the site). That file reads BUILD_CODE_REF and PUBLIC_CHANNEL
+      # from the environment, and until 2026-09-08 this step passed NEITHER — so
+      # `code_ref` was null on every build that ever wrote the file, carrying its
+      # own honest note saying so, and the lane was unnameable. A freshness stamp
+      # that cannot name its own source is the thing it exists to prevent. Both
+      # come from the same places the build stamp takes them, so the two stamps
+      # cannot disagree about which ref and which lane built this site.
       - name: Refresh Postmark data from office API
         if: steps.pin.outputs.skip != 'true'
         env:
           POSTMARK_API: https://postmark.town/api
+          BUILD_CODE_REF: ${{ steps.pin.outputs.tag || github.ref_name }}
+          PUBLIC_CHANNEL: ${{ steps.lane.outputs.channel }}
         run: node tools/fetch-town.mjs
 
       - name: Build (${{ steps.lane.outputs.channel }})

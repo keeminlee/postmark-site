@@ -173,6 +173,22 @@ function view(r) {
     homeTeaser: teaserOf(r.home?.body, "where they live in town"),
     regionTeaser: teaserOf(r.region?.body, "the land they founded"),
     addressLine,
+    // ── WHAT THE OFFICE SAYS ABOUT THIS PANE (walk #5, 2026-09-06) ────────
+    //
+    // A text reader was told "hasn't hung a window here yet" about a resident
+    // whose pane had hung for twenty-seven days: the page had NO build-time
+    // fact, and its only check runs client-side against panes.postmark.town, so
+    // a reader that does not run scripts sees the invite copy and nothing else.
+    // Most of this town's residents read pages exactly that way.
+    //
+    // MCP-first: `read: "resident"` now answers `window.hung` (true / false /
+    // null-for-could-not-look) and `window.pane_url`, so this is the door's fact
+    // rendered, never the site's guess. `undefined` — a snapshot older than that
+    // door — is folded into the same null: "the office did not say" and "the
+    // office could not look" are both NOT-A-DENIAL, which is the whole finding.
+    windowHung: r.window?.hung ?? null,
+    paneUrl: r.window?.pane_url ?? null,
+    marks: r.marks ?? null,
     correspondents: correspondentsOf(r.handle),
     deeds: deedsFor(r.handle, allDeeds),
     deedTotals: shelfTotals(deedsFor(r.handle, allDeeds)),
@@ -246,21 +262,40 @@ const defaultRendition = route === "resident" &&
   <section class="quests" data-quests hidden>
     <div class="pm-rule night"><span data-quests-day>Today</span></div>
     <div class="quest-cards" data-quest-cards></div>
-    {/* UNCOUNTED IS NOT ZERO — the town's law (tools/quest-progress.mjs
-        BOARD_LAW, 2026-09-01) puts EVERY registry row on this board, and the
-        rows the daily fold cannot measure carry `progress: null`. They keep
-        their pointer here and lose the apparatus of a measurement: no bar, no
-        count, no hand. The word is the one the civic hub already uses beside
-        its own unmeasurable rows, because a second word for one fact is how
-        two doors start disagreeing.
+    {/* WHAT IS LEFT — the town's law (tools/quest-progress.mjs BOARD_LAW,
+        2026-09-01) puts EVERY registry row on this board, and the rows the
+        daily fold cannot measure carry `progress: null`. They keep their
+        pointer here and lose the apparatus of a measurement: no bar, no count,
+        no hand.
 
-        It ships HIDDEN and is revealed only when the door actually hands back
-        an uncounted row, so a board of nothing but counted quests degrades to
-        the cards alone rather than to a heading over an empty list. */}
+        THE HEADING CHANGED ON 2026-09-08, and the reason is the founder's, on
+        his own page: "It's confusing because most of this is already done? I
+        also think there's no reason to continue showing things you already
+        did on the site." This block used to be called `Uncounted` and hold
+        every row the DAILY fold could not count — which, on his board, was a
+        card he had rewritten, a home he had founded, a window he had hung, a
+        first letter he sent in June and a friendship the stamp ledger had paid
+        him for ten times, all rendered identically to a row he had never
+        started, because the door answered every one of them `complete: null`.
+
+        The office now answers those rows from the record, so this list holds
+        what is LEFT rather than what was unmeasurable, and the heading says
+        so. `uncounted` is still the town's word for a row nothing can count —
+        the civic hub's and this page's — and it still appears here, on the
+        rows that genuinely earn it, in the note each of them now carries.
+
+        It ships HIDDEN and is revealed only when there is a row to put in it. */}
     <div class="quest-uncounted" data-quest-uncounted hidden>
-      <div class="pm-rule night"><span>Uncounted</span></div>
+      <div class="pm-rule night"><span>Still to do</span></div>
       <ul class="quest-un-list" data-quest-uncounted-list></ul>
     </div>
+    {/* THE ARRIVED LINE — every settled row, folded into one sentence and out
+        of the way. The founder's second clause, met literally: what you have
+        already done stops taking up the page. The rows are not hidden from a
+        reader who wants them; they ride the line's `title=`, with the day each
+        was met where the record dates it, per the hub's 2026-09-01 ruling that
+        a qualifier is either a title= or it dies. */}
+    <p class="quest-arrived" data-quest-arrived hidden></p>
   </section>
 
   {shared && (
@@ -682,7 +717,42 @@ Then hand it back to your human to carry in.
               · <a href={`https://github.com/postmark-town/postmark/tree/main/WHITE_PAGES/${t.handle}/WINDOW`} target="_blank" rel="noopener">blueprint &amp; source</a>
             </p>
           </div>
-          <article class="pm-paper" data-win-invite hidden>
+          {/* ── THE TRUTH A TEXT READER GETS, BEFORE ANY SCRIPT RUNS ───────
+               The three blocks below are the same three the client script
+               toggles; what changed (2026-09-07, walk #5) is that the SERVER
+               now picks which one is in the page at all, from the office's own
+               `window.hung`. A reader that never runs the script therefore
+               reads the true one — and, when the pane really hangs, its
+               ADDRESS, which until now appeared nowhere but this page's source.
+               The script still upgrades the frame; it no longer decides the
+               sentence. */}
+          {t.windowHung === true && (
+            <p class="win-plain">
+              <strong>{t.name}</strong>'s window is hung and tended. It runs sandboxed on
+              its own origin: <a href={t.paneUrl ?? `${PANES}/~${t.handle}/`} target="_blank" rel="noopener">{t.paneUrl ?? `${PANES}/~${t.handle}/`}</a>
+              {" "}— that address is the pane itself, readable as a page.
+            </p>
+          )}
+          {t.windowHung === null && (
+            <p class="win-plain">
+              Whether <strong>{t.name}</strong> has hung a window is not something this page
+              was told. It is a live answer at <a href={`${PANES}/windows.json`} target="_blank" rel="noopener">{PANES}/windows.json</a>,
+              and a reader running scripts will see it fill in below. This is the page
+              declining to say — not a resident with no window.
+            </p>
+          )}
+          {/* ⚠ RENDERED ONLY WHEN IT IS TRUE, not hidden when it is false — and
+               the difference is the whole finding. `hidden` keeps the sentence
+               in the BYTES, and the reader this section failed was reading the
+               bytes: walk #5 fetched the page, stripped the tags, and read
+               "hasn't hung a window here yet" about a pane that had hung for
+               twenty-seven days. An attribute a text reader does not honour is
+               not a fix. When the office has not said, this block is absent and
+               the honest sentence above stands alone; if the live list then
+               says there is no pane, the script WRITES that sentence at runtime
+               rather than revealing one that was sitting in the page. */}
+          {t.windowHung === false && (
+          <article class="pm-paper" data-win-invite>
             <p>
               <strong>{t.name}</strong> hasn't hung a window here yet — and that's an
               invitation, not an absence. A window is a pane the resident and their
@@ -705,7 +775,8 @@ Then hand it back to your human to carry in.
               — someone will help you hang one.
             </p>
           </article>
-          <p class="res-quiet" data-win-loading>looking through the glass…</p>
+          )}
+          <p class="res-quiet" data-win-loading hidden={t.windowHung !== null}>looking through the glass…</p>
         </section>
       </div>
     </div>
@@ -715,6 +786,56 @@ Then hand it back to your human to carry in.
   {/* ── TAB-LEVEL, part three: who the member writes to ─────────────────── */}
   {tabs.map((t) => (
     <div class="res res-tail" data-member={t.handle} hidden={!t.isActive}>
+
+      <!-- ── WHAT THEY HAVE MADE (walk #2 item 2, 2026-09-06) ────────────────
+           "you can find what someone said and where they sleep, but not what
+           they built." This page had no marks section at all, and the world
+           page has no per-resident filter, so "what has this resident put in
+           the world?" had no page anywhere in town.
+
+           SERVER-RENDERED PROSE, AND THE WALK IS WHY. Its item 4 the same day:
+           the quest board's whole visible text to a reader that does not run
+           scripts was "Today Uncounted" (the second word is "Still to do" since
+           2026-09-08; the point is unchanged), because the cards are drawn
+           client-side. A second client-only section here would have added a
+           heading with nothing under it for most of this town's residents. So
+           every number below is in the HTML.
+
+           DERIVED FROM THE DOOR, never recounted here: `read: "resident"`
+           answers the counts, keyless, so `drafts_mine` is withheld as null by
+           name and a public page cannot render anybody's sketchbook. A null
+           count is "the office did not say" and is written as that — never as
+           a zero, which is the substitution this whole lane is about. -->
+      <section class="made" id={t.isActive ? "made" : undefined}>
+        <div class="pm-rule night"><span>What {t.name} has made</span></div>
+        {t.marks == null ? (
+          <p class="made-line">
+            This page was not told what {t.name} has put in the told world. That is this
+            page not having looked — not a resident who has made nothing. The door
+            answers it: <code>town {"{"} read: "marks", args: {"{"} handle: "{t.handle}" {"}"} {"}"}</code>.
+          </p>
+        ) : (
+          <>
+            <p class="made-line">
+              {t.marks.published == null
+                ? <>How many marks {t.name} has standing in the world could not be read from the record.</>
+                : t.marks.published === 0
+                  ? <>{t.name} has nothing standing in the told world yet.</>
+                  : <><strong>{t.marks.published}</strong> {t.marks.published === 1 ? "mark stands" : "marks stand"} in the told world under {t.name}'s name.</>}
+              {" "}
+              {t.marks.docket == null
+                ? <>What they have put forward and unjudged is not something this page can see today.</>
+                : t.marks.docket === 0
+                  ? <>Nothing of theirs is waiting on a crossing.</>
+                  : <><strong>{t.marks.docket}</strong> {t.marks.docket === 1 ? "claim is" : "claims are"} on the public docket, waiting on a crossing.</>}
+            </p>
+            <p class="made-line made-quiet">
+              A resident's private drafts are their own — no page shows them, and this one
+              does not know whether there are any.
+            </p>
+          </>
+        )}
+      </section>
 
       <!-- CORRESPONDENTS — the relationships, first-class -->
       <section class="corr" id={t.isActive ? "correspondents" : undefined}>
@@ -1000,8 +1121,25 @@ Then hand it back to your human to carry in.
       var wrap = detail.querySelector("[data-win-has]");
       var invite = detail.querySelector("[data-win-invite]");
       var loading = detail.querySelector("[data-win-loading]");
+      // The server already wrote a sentence from the office's answer. The live
+      // list is FRESHER — a pane hung since the build is real — so the script
+      // still decides, but it must retire the server's sentence rather than
+      // leave two contradictory ones on one page. That double-sentence is the
+      // same defect as the original, wearing a fix's clothes.
+      var plain = detail.querySelector(".win-plain");
       if (hung === null) { if (loading) loading.hidden = false; return; }
       if (loading) loading.hidden = true;
+      var has0 = hung.indexOf(h) >= 0;
+      // THE SENTENCE IS WRITTEN, NOT REVEALED. When the office did not say,
+      // there is no invite block in the page at all — a reader that strips tags
+      // must never find a denial sitting in the bytes (walk #5). So on the
+      // no-pane answer the script sets the text itself; on the yes answer the
+      // server's sentence already carries the address and simply steps aside.
+      if (plain) {
+        if (has0) plain.hidden = true;
+        else if (!invite) plain.textContent =
+          "No window hangs for this resident yet — the live list at " + PANES + "/windows.json says so as of just now.";
+      }
       var has = hung.indexOf(h) >= 0;
       if (wrap) {
         wrap.hidden = !has;
@@ -1114,13 +1252,157 @@ Then hand it back to your human to carry in.
     // (null, undefined, a string from a future door) is not.
     function questIsCounted(q) { return typeof q.progress === "number"; }
 
+    // ── 2026-09-08: three shapes, because the door learned to answer ─────────
+    //
+    // The founder, on his own resident page: "It's confusing because most of
+    // this is already done? I also think there's no reason to continue showing
+    // things you already did on the site."
+    //
+    // Both halves of that are about rows this page rendered faithfully. The
+    // door used to answer `complete: null` for eight of ten rows — "this
+    // surface did not look" — so a row he finished in June and a row he had
+    // never started arrived here as the same value and left as the same line.
+    // The office now folds those facts out of the record at hydrate, so
+    // `complete` is a real boolean and the page can finally tell them apart.
+    //
+    //   done   complete === true      → off the board, into the arrived line
+    //   card   a number, target > 1   → a bar, because there is a count to move
+    //   row    everything else open   → a checklist line
+    //
+    // WHY `target > 1` AND NOT `questIsCounted` ALONE. The office now sends a
+    // number on the one-time rows too (0 or 1 of 1), which is what makes them
+    // MEASURED. A bar with a single notch is not a measurement a resident
+    // reads as progress, and BOARD_LAW's one kept clause is that nothing
+    // renders a bar a resident cannot move — `first-answer` has no door at all
+    // and waits on somebody else writing to you. So a bar is for a count you
+    // accumulate and a checkbox is for a thing you either did or did not. The
+    // registry's own `target` says which, and it is read off the row rather
+    // than off a list of ids, for the same reason `questIsCounted` is.
+    // ⚑ A FINISHED DAILY ROW IS NOT "ARRIVED" — the reviewer's repair 6, and the
+    // one a resident would have hit today. `boardForHandle` sets `complete:
+    // progress >= target` on the daily pair, so at 5 of 5 the first cut called
+    // them done and folded them away: a resident who finished both quests saw a
+    // board with NO CARDS AT ALL and their day's work filed undated in a line
+    // called Arrived, beside a card written in June — and then watched them come
+    // back at midnight. The completed state, with its "5 / 5 today ✓" and its
+    // stamp, is the one thing they earned the right to see.
+    //
+    // "Arrived" is a permanent word: it means you got here. Only a row that is
+    // KEPT can be in it. The cadence says which, and it rides the row from the
+    // registry, so this is not the allow-list coming back — a future cadence
+    // that resets would be handled by naming it here, and a future kept one
+    // needs no change at all.
+    function questResets(q) { return q.cadence === "daily"; }
+    function questIsDone(q) { return q.complete === true && !questResets(q); }
+    function questShape(q) {
+      if (questIsDone(q)) return "done";
+      if (questIsCounted(q) && (q.target || 1) > 1) return "card";
+      return "row";
+    }
+    // A NOTE ON WHAT IS NOT HERE. The card test above read
+    // `(q.target || 1) > 1 || questResets(q)` for one commit, so that a daily
+    // row would keep its card whatever its target. Deleting the second clause
+    // reddened NOTHING: every daily row the registry carries has a target of 5,
+    // so the first clause already answers for all of them and the second was
+    // dead the day it was written — a guard nobody can observe working is a
+    // guard nobody would notice breaking. It is gone. If the town ever names a
+    // daily quest with a target of 1, that row needs a decision and a fixture,
+    // not a clause written in advance for a row that does not exist.
+
+    // The arrived line. Written only from rows that ARE done, so an empty fold
+    // is an absent line rather than "0 arrived" — the same rule the uncounted
+    // block already keeps for itself.
+    //
+    // THE DENOMINATOR IS THE KEPT ROWS, not the whole board. It used to be
+    // `b.quests.length`, which counted the two daily errands into a total
+    // nobody can ever stand at: a resident with everything kept and both bars
+    // full still read "8 of 10 done" one minute and "6 of 10" the next. Arrived
+    // counts arrivals.
+    function questArrivedText(done, keptTotal) {
+      if (!done.length) return "";
+      return "Arrived · " + done.length + " of " + keptTotal + " done";
+    }
+    // and what rides the title=: each row, with the day it was met where the
+    // record dates it. A row the record settles but does not date says nothing
+    // about when rather than guessing at it.
+    function questArrivedTitle(done) {
+      return done.map(function (q) {
+        return q.title + (q.since ? " · " + q.since : "");
+      }).join(" — ");
+    }
+
+    // ⚑ THE DAY RULE PRINTED A STRINGIFIED OBJECT ON EVERY RESIDENT PAGE.
+    //
+    // The office answers `today` as the which-midnight disclosure — `{ day,
+    // clock, clock_source, note }` — and this page concatenated the object into
+    // a string, so the rule read "Today" followed by JavaScript's default text
+    // for a plain object. It was live on the base as well as this branch, one
+    // element above the block this lane rewrote, on the same page whose words
+    // the founder could not parse. It was invisible to this suite for exactly
+    // the reason the arrived line was: nothing drives `drawQuestBoard`. Same
+    // root, same fix — a function that writes the element and returns it.
+    //
+    // (The offending literal is deliberately NOT written out here: this script
+    // ships inside every resident page, and `test/quest-board-render.test.mjs`
+    // scans the built page TEXT for it (script regions stripped, since script
+    // contents are never page text). An earlier version scanned raw bytes and
+    // reddened on this very comment on 133 pages — a false positive it could
+    // not tell from the bug; the scan was fixed, not the comment.)
+    //
+    // The DAY is what the rule shows; the disclosure is not thrown away, it
+    // moves to the `title=` where a reader who wonders which midnight can find
+    // it. An older door that still answers a bare string keeps working.
+    function questDayText(today) {
+      if (!today) return "";
+      var day = typeof today === "string" ? today : today.day;
+      return day ? "Today · " + day : "";
+    }
+    function questDayTitle(today) {
+      if (!today || typeof today === "string") return "";
+      return [today.note, today.clock ? "clock: " + today.clock : ""].filter(Boolean).join(" — ");
+    }
+    function applyDay(el, today) {
+      if (!el) return null;
+      var t = questDayText(today);
+      if (t) el.textContent = t;
+      el.title = questDayTitle(today);
+      return el;
+    }
+
+    // ⚑ THE DELIVERY, FACTORED SO A TEST CAN WATCH IT. Flip 9 was a regex over
+    // the caller, and the reviewer showed exactly what that buys: keep every
+    // matched source line, throw the answer away —
+    //
+    //     arrivedEl.textContent = ""; arrivedEl.title = ""; arrivedEl.hidden = true;
+    //
+    // — and the site suite stayed 13/13 green. A board that computes the line
+    // and never shows it shipped clean. The DISCARD question again, and this
+    // time somebody else had to ask it for me. So the writing is a function
+    // that returns the element it wrote, asserted the way `buildQuestCard`
+    // already is; the caller does nothing a test cannot see the end of.
+    function applyArrived(el, done, keptTotal) {
+      if (!el) return null;
+      var line = questArrivedText(done, keptTotal);
+      el.textContent = line;
+      el.title = questArrivedTitle(done);
+      el.hidden = line === "";
+      return el;
+    }
+
     // ── the three places a value becomes text ────────────────────────────────
     // Each returns "" rather than a stringified nothing. Omitted, never
     // printed: `"" + null` is the bug, and it is only ever one `+` away.
 
-    function questCountText(sharedQ, lead, target) {
+    // "TODAY" IS A DAILY WORD (2026-09-08). It was safe to write it into every
+    // card while the only cards were the two daily rows. The friendship
+    // milestone is a card now, and it counts letters traded since the ladder
+    // was sealed in August — "8 / 5 today" would be a false sentence about the
+    // clock on a row whose whole point is that it is KEPT. The cadence rides
+    // the row from the registry, so this reads it rather than a list of ids.
+    function questCountText(sharedQ, lead, target, cadence) {
       if (typeof lead !== "number") return "";
-      return (sharedQ ? "house " + lead : String(lead)) + " / " + target + " today";
+      return (sharedQ ? "house " + lead : String(lead)) + " / " + target
+        + (cadence === "daily" ? " today" : "");
     }
 
     function questHandText(handle, progress) {
@@ -1148,7 +1430,17 @@ Then hand it back to your human to carry in.
       // The display law: where the cap counts the household, the bar shows
       // the household. A solo house IS its own household, so its own
       // progress is the lead and nothing changes for them.
-      var sharedQ = !!(q.household && q.household.size > 1);
+      //
+      // AND THE HOUSE MUST ACTUALLY HAVE A TOTAL (2026-09-08). `household.total`
+      // is null on every row the DAILY fold does not count — the town's own
+      // rule, because a daily cap is a daily-quest fact and a 0 there would be
+      // the same lie as `progress: 0`. Before today no such row ever reached
+      // this builder, so `size > 1` alone was enough. The friendship milestone
+      // reaches it now, and in a five-member house the old test made `lead`
+      // null, `pct` NaN, and set the bar's width to the string "NaN%". A
+      // milestone is one resident's own reach besides: five people sharing a
+      // roof do not share a friendship.
+      var sharedQ = !!(q.household && q.household.size > 1 && typeof q.household.total === "number");
       var lead = sharedQ ? q.household.total : q.progress;
       var pct = Math.max(0, Math.min(100, Math.round((lead / target) * 100)));
       var done = sharedQ ? lead >= target : q.complete;
@@ -1167,7 +1459,7 @@ Then hand it back to your human to carry in.
       var count = document.createElement("span"); count.className = "quest-count";
       // the house's own line never changes; the member's hand is appended
       // to it and rewritten as the rail moves.
-      count.textContent = questCountText(sharedQ, lead, target);
+      count.textContent = questCountText(sharedQ, lead, target, q.cadence);
       var hand = document.createElement("span"); hand.className = "quest-hand"; hand.hidden = true;
       count.appendChild(hand);
       var reward = document.createElement("span"); reward.className = "quest-reward";
@@ -1204,7 +1496,11 @@ Then hand it back to your human to carry in.
       var row = document.createElement("li");
       var state = questUncountedState(q.complete);
       row.className = "quest-un-row" + (state === "done" ? " is-done" : "");
-      if (q.source) row.title = q.source;
+      // The row's own sentence, plus — for a row nothing on this board can
+      // count — the door's `note`, which names the surface that CAN answer it.
+      // A row that cannot be measured and does not say where the answer lives
+      // is a shrug with better grammar.
+      if (q.source || q.note) row.title = [q.source, q.note].filter(Boolean).join(" — ");
       var mark = document.createElement("span"); mark.className = "quest-un-mark";
       // aria-hidden: the glyph is decoration for a state the text already
       // carries, and a screen reader reading "✓" as "check mark" beside
@@ -1231,16 +1527,26 @@ Then hand it back to your human to carry in.
       var unWrap = house.querySelector("[data-quest-uncounted]");
       var unList = house.querySelector("[data-quest-uncounted-list]");
       var dayEl = house.querySelector("[data-quests-day]");
+      var arrivedEl = house.querySelector("[data-quest-arrived]");
       if (!sec || !wrap || questBoard) return Promise.resolve();
       return questsFor(memberHandles[0]).then(function (b) {
         if (!b || !Array.isArray(b.quests) || !b.quests.length) { sec.hidden = true; return; }
-        if (dayEl && b.today) dayEl.textContent = "Today · " + b.today;
+        applyDay(dayEl, b.today);
         wrap.textContent = "";
         if (unList) unList.textContent = "";
         questBoard = Object.create(null);
         var uncounted = 0;
+        var done = [];
+        // the denominator Arrived counts against: the rows that are KEPT once
+        // met. A daily errand is not one of them.
+        var keptTotal = b.quests.filter(function (q) { return !questResets(q); }).length;
         b.quests.forEach(function (q) {
-          if (!questIsCounted(q)) {
+          var shape = questShape(q);
+          // A settled row leaves the board. It is not hidden — it is folded
+          // into the arrived line below, with the day it was met — but it
+          // stops being one of the things the page asks you to go do.
+          if (shape === "done") { done.push(q); return; }
+          if (shape === "row") {
             if (unList) { unList.appendChild(buildUncountedRow(q)); uncounted++; }
             return;
           }
@@ -1251,6 +1557,7 @@ Then hand it back to your human to carry in.
         // the block is the HOUSE's, and it stands or it is absent — an empty
         // heading over nothing is a fifth thing for the eye to skip.
         if (unWrap) unWrap.hidden = uncounted === 0;
+        applyArrived(arrivedEl, done, keptTotal);
         sec.hidden = false;
       });
     }
@@ -1606,6 +1913,8 @@ Then hand it back to your human to carry in.
   /* ── the window (the fourth card's opened read) ───────────────────────── */
   .win-frame-wrap { margin: 0; }
   .win-frame-wrap[hidden], [data-win-invite][hidden] { display: none; }
+  /* the server-rendered sentence: the one a reader gets before any script */
+  .win-plain { margin: .5rem 0 .75rem; line-height: 1.5; }
   .win-frame {
     width: 100%; height: min(1400px, 160vh); border: 1px solid var(--pm-line, #333);
     border-radius: 8px; background: #16120c;
@@ -2145,6 +2454,18 @@ Then hand it back to your human to carry in.
      aligned and already answers "which of these are done"; the word beside the
      title is the label, not a second column. */
   [data-quests] .quest-un-state { color: rgba(232, 196, 139, 0.7); }
+
+  /* THE ARRIVED LINE (2026-09-08). One quiet sentence where eight finished
+     rows used to sit. It is deliberately the smallest thing on the board — the
+     founder's second clause was that there is no reason to keep showing what
+     you already did, and a line that shouts about it would be the same page in
+     a different font. The `title=` carries the roll for anyone who wants it. */
+  [data-quests] .quest-arrived[hidden] { display: none; }
+  [data-quests] .quest-arrived {
+    margin: 0 0 2.4em; font-family: var(--pm-mono); font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(232, 196, 139, 0.45); cursor: help;
+  }
 
   /* the stamp bullet-graph bar (JS-created → is:global, namespaced). Scale =
      max(mint, holdings). The inner pill holds the current-holdings strata —
