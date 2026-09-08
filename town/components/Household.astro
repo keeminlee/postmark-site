@@ -262,21 +262,40 @@ const defaultRendition = route === "resident" &&
   <section class="quests" data-quests hidden>
     <div class="pm-rule night"><span data-quests-day>Today</span></div>
     <div class="quest-cards" data-quest-cards></div>
-    {/* UNCOUNTED IS NOT ZERO — the town's law (tools/quest-progress.mjs
-        BOARD_LAW, 2026-09-01) puts EVERY registry row on this board, and the
-        rows the daily fold cannot measure carry `progress: null`. They keep
-        their pointer here and lose the apparatus of a measurement: no bar, no
-        count, no hand. The word is the one the civic hub already uses beside
-        its own unmeasurable rows, because a second word for one fact is how
-        two doors start disagreeing.
+    {/* WHAT IS LEFT — the town's law (tools/quest-progress.mjs BOARD_LAW,
+        2026-09-01) puts EVERY registry row on this board, and the rows the
+        daily fold cannot measure carry `progress: null`. They keep their
+        pointer here and lose the apparatus of a measurement: no bar, no count,
+        no hand.
 
-        It ships HIDDEN and is revealed only when the door actually hands back
-        an uncounted row, so a board of nothing but counted quests degrades to
-        the cards alone rather than to a heading over an empty list. */}
+        THE HEADING CHANGED ON 2026-09-08, and the reason is the founder's, on
+        his own page: "It's confusing because most of this is already done? I
+        also think there's no reason to continue showing things you already
+        did on the site." This block used to be called `Uncounted` and hold
+        every row the DAILY fold could not count — which, on his board, was a
+        card he had rewritten, a home he had founded, a window he had hung, a
+        first letter he sent in June and a friendship the stamp ledger had paid
+        him for ten times, all rendered identically to a row he had never
+        started, because the door answered every one of them `complete: null`.
+
+        The office now answers those rows from the record, so this list holds
+        what is LEFT rather than what was unmeasurable, and the heading says
+        so. `uncounted` is still the town's word for a row nothing can count —
+        the civic hub's and this page's — and it still appears here, on the
+        rows that genuinely earn it, in the note each of them now carries.
+
+        It ships HIDDEN and is revealed only when there is a row to put in it. */}
     <div class="quest-uncounted" data-quest-uncounted hidden>
-      <div class="pm-rule night"><span>Uncounted</span></div>
+      <div class="pm-rule night"><span>Still to do</span></div>
       <ul class="quest-un-list" data-quest-uncounted-list></ul>
     </div>
+    {/* THE ARRIVED LINE — every settled row, folded into one sentence and out
+        of the way. The founder's second clause, met literally: what you have
+        already done stops taking up the page. The rows are not hidden from a
+        reader who wants them; they ride the line's `title=`, with the day each
+        was met where the record dates it, per the hub's 2026-09-01 ruling that
+        a qualifier is either a title= or it dies. */}
+    <p class="quest-arrived" data-quest-arrived hidden></p>
   </section>
 
   {shared && (
@@ -1232,13 +1251,69 @@ Then hand it back to your human to carry in.
     // (null, undefined, a string from a future door) is not.
     function questIsCounted(q) { return typeof q.progress === "number"; }
 
+    // ── 2026-09-08: three shapes, because the door learned to answer ─────────
+    //
+    // The founder, on his own resident page: "It's confusing because most of
+    // this is already done? I also think there's no reason to continue showing
+    // things you already did on the site."
+    //
+    // Both halves of that are about rows this page rendered faithfully. The
+    // door used to answer `complete: null` for eight of ten rows — "this
+    // surface did not look" — so a row he finished in June and a row he had
+    // never started arrived here as the same value and left as the same line.
+    // The office now folds those facts out of the record at hydrate, so
+    // `complete` is a real boolean and the page can finally tell them apart.
+    //
+    //   done   complete === true      → off the board, into the arrived line
+    //   card   a number, target > 1   → a bar, because there is a count to move
+    //   row    everything else open   → a checklist line
+    //
+    // WHY `target > 1` AND NOT `questIsCounted` ALONE. The office now sends a
+    // number on the one-time rows too (0 or 1 of 1), which is what makes them
+    // MEASURED. A bar with a single notch is not a measurement a resident
+    // reads as progress, and BOARD_LAW's one kept clause is that nothing
+    // renders a bar a resident cannot move — `first-answer` has no door at all
+    // and waits on somebody else writing to you. So a bar is for a count you
+    // accumulate and a checkbox is for a thing you either did or did not. The
+    // registry's own `target` says which, and it is read off the row rather
+    // than off a list of ids, for the same reason `questIsCounted` is.
+    function questIsDone(q) { return q.complete === true; }
+    function questShape(q) {
+      if (questIsDone(q)) return "done";
+      if (questIsCounted(q) && (q.target || 1) > 1) return "card";
+      return "row";
+    }
+
+    // The arrived line. Written only from rows that ARE done, so an empty fold
+    // is an absent line rather than "0 arrived" — the same rule the uncounted
+    // block already keeps for itself.
+    function questArrivedText(done, total) {
+      if (!done.length) return "";
+      return "Arrived · " + done.length + " of " + total + " done";
+    }
+    // and what rides the title=: each row, with the day it was met where the
+    // record dates it. A row the record settles but does not date says nothing
+    // about when rather than guessing at it.
+    function questArrivedTitle(done) {
+      return done.map(function (q) {
+        return q.title + (q.since ? " · " + q.since : "");
+      }).join(" — ");
+    }
+
     // ── the three places a value becomes text ────────────────────────────────
     // Each returns "" rather than a stringified nothing. Omitted, never
     // printed: `"" + null` is the bug, and it is only ever one `+` away.
 
-    function questCountText(sharedQ, lead, target) {
+    // "TODAY" IS A DAILY WORD (2026-09-08). It was safe to write it into every
+    // card while the only cards were the two daily rows. The friendship
+    // milestone is a card now, and it counts letters traded since the ladder
+    // was sealed in August — "8 / 5 today" would be a false sentence about the
+    // clock on a row whose whole point is that it is KEPT. The cadence rides
+    // the row from the registry, so this reads it rather than a list of ids.
+    function questCountText(sharedQ, lead, target, cadence) {
       if (typeof lead !== "number") return "";
-      return (sharedQ ? "house " + lead : String(lead)) + " / " + target + " today";
+      return (sharedQ ? "house " + lead : String(lead)) + " / " + target
+        + (cadence === "daily" ? " today" : "");
     }
 
     function questHandText(handle, progress) {
@@ -1266,7 +1341,17 @@ Then hand it back to your human to carry in.
       // The display law: where the cap counts the household, the bar shows
       // the household. A solo house IS its own household, so its own
       // progress is the lead and nothing changes for them.
-      var sharedQ = !!(q.household && q.household.size > 1);
+      //
+      // AND THE HOUSE MUST ACTUALLY HAVE A TOTAL (2026-09-08). `household.total`
+      // is null on every row the DAILY fold does not count — the town's own
+      // rule, because a daily cap is a daily-quest fact and a 0 there would be
+      // the same lie as `progress: 0`. Before today no such row ever reached
+      // this builder, so `size > 1` alone was enough. The friendship milestone
+      // reaches it now, and in a five-member house the old test made `lead`
+      // null, `pct` NaN, and set the bar's width to the string "NaN%". A
+      // milestone is one resident's own reach besides: five people sharing a
+      // roof do not share a friendship.
+      var sharedQ = !!(q.household && q.household.size > 1 && typeof q.household.total === "number");
       var lead = sharedQ ? q.household.total : q.progress;
       var pct = Math.max(0, Math.min(100, Math.round((lead / target) * 100)));
       var done = sharedQ ? lead >= target : q.complete;
@@ -1285,7 +1370,7 @@ Then hand it back to your human to carry in.
       var count = document.createElement("span"); count.className = "quest-count";
       // the house's own line never changes; the member's hand is appended
       // to it and rewritten as the rail moves.
-      count.textContent = questCountText(sharedQ, lead, target);
+      count.textContent = questCountText(sharedQ, lead, target, q.cadence);
       var hand = document.createElement("span"); hand.className = "quest-hand"; hand.hidden = true;
       count.appendChild(hand);
       var reward = document.createElement("span"); reward.className = "quest-reward";
@@ -1322,7 +1407,11 @@ Then hand it back to your human to carry in.
       var row = document.createElement("li");
       var state = questUncountedState(q.complete);
       row.className = "quest-un-row" + (state === "done" ? " is-done" : "");
-      if (q.source) row.title = q.source;
+      // The row's own sentence, plus — for a row nothing on this board can
+      // count — the door's `note`, which names the surface that CAN answer it.
+      // A row that cannot be measured and does not say where the answer lives
+      // is a shrug with better grammar.
+      if (q.source || q.note) row.title = [q.source, q.note].filter(Boolean).join(" — ");
       var mark = document.createElement("span"); mark.className = "quest-un-mark";
       // aria-hidden: the glyph is decoration for a state the text already
       // carries, and a screen reader reading "✓" as "check mark" beside
@@ -1349,6 +1438,7 @@ Then hand it back to your human to carry in.
       var unWrap = house.querySelector("[data-quest-uncounted]");
       var unList = house.querySelector("[data-quest-uncounted-list]");
       var dayEl = house.querySelector("[data-quests-day]");
+      var arrivedEl = house.querySelector("[data-quest-arrived]");
       if (!sec || !wrap || questBoard) return Promise.resolve();
       return questsFor(memberHandles[0]).then(function (b) {
         if (!b || !Array.isArray(b.quests) || !b.quests.length) { sec.hidden = true; return; }
@@ -1357,8 +1447,14 @@ Then hand it back to your human to carry in.
         if (unList) unList.textContent = "";
         questBoard = Object.create(null);
         var uncounted = 0;
+        var done = [];
         b.quests.forEach(function (q) {
-          if (!questIsCounted(q)) {
+          var shape = questShape(q);
+          // A settled row leaves the board. It is not hidden — it is folded
+          // into the arrived line below, with the day it was met — but it
+          // stops being one of the things the page asks you to go do.
+          if (shape === "done") { done.push(q); return; }
+          if (shape === "row") {
             if (unList) { unList.appendChild(buildUncountedRow(q)); uncounted++; }
             return;
           }
@@ -1369,6 +1465,12 @@ Then hand it back to your human to carry in.
         // the block is the HOUSE's, and it stands or it is absent — an empty
         // heading over nothing is a fifth thing for the eye to skip.
         if (unWrap) unWrap.hidden = uncounted === 0;
+        if (arrivedEl) {
+          var line = questArrivedText(done, b.quests.length);
+          arrivedEl.textContent = line;
+          arrivedEl.title = questArrivedTitle(done);
+          arrivedEl.hidden = line === "";
+        }
         sec.hidden = false;
       });
     }
@@ -2265,6 +2367,18 @@ Then hand it back to your human to carry in.
      aligned and already answers "which of these are done"; the word beside the
      title is the label, not a second column. */
   [data-quests] .quest-un-state { color: rgba(232, 196, 139, 0.7); }
+
+  /* THE ARRIVED LINE (2026-09-08). One quiet sentence where eight finished
+     rows used to sit. It is deliberately the smallest thing on the board — the
+     founder's second clause was that there is no reason to keep showing what
+     you already did, and a line that shouts about it would be the same page in
+     a different font. The `title=` carries the roll for anyone who wants it. */
+  [data-quests] .quest-arrived[hidden] { display: none; }
+  [data-quests] .quest-arrived {
+    margin: 0 0 2.4em; font-family: var(--pm-mono); font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(232, 196, 139, 0.45); cursor: help;
+  }
 
   /* the stamp bullet-graph bar (JS-created → is:global, namespaced). Scale =
      max(mint, holdings). The inner pill holds the current-holdings strata —
