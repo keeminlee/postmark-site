@@ -27,4 +27,21 @@ jobs:
       # controls run here on every push.
       - name: Check the Town out beside the site (the funding seam's other half)
         run: git clone --depth 1 https://github.com/postmark-town/postmark.git .postmark-checkout
+      # THE BUILT PAGES (2026-09-08). The comment directly above records this
+      # exact class the last time it bit: a falsifier that SKIPS in CI is a
+      # falsifier nobody runs, and this job stayed green for nine days on one.
+      # It was still true of a second family — EIGHT tests across
+      # test/funding.test.mjs, test/quest-board-render.test.mjs and
+      # test/atlas-retired.test.mjs read `dist-town/**` and skip when it is
+      # absent, and nothing here ever built it. Among them: "no built resident
+      # page contains the string [object Object]", which is the very bug the
+      # 09-05 quest-board lane shipped a fix for, and the atlas page's own
+      # retirement banner.
+      #
+      # The build is the long pole in this job by a wide margin, which is the
+      # honest reason it was never here. It is still cheaper than the class it
+      # closes: a page can lose its banner, or grow an [object Object], and
+      # every probe written to catch that will report success.
+      - name: Build the town site, so the built-page falsifiers RUN rather than skip
+        run: npm run build
       - run: npm test

@@ -199,6 +199,35 @@ test("the banner scan reads page text, not script bytes", () => {
   assert.equal(pageText(inText).includes("This drawing is no longer kept"), true);
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FALSIFIER 4 — the built-page probe above can actually RUN where it matters.
+//
+// Test 3 skips when `dist-town/` is absent, and until 2026-09-08 CI never built
+// it: `.github/workflows/test.yml` ran `npm ci`, cloned the Town, and went
+// straight to `npm test`. EIGHT tests in this repo read shipped bytes and skip
+// for that reason — this file's, plus seven in `test/funding.test.mjs` and
+// `test/quest-board-render.test.mjs`. A falsifier nobody runs cannot fail, and
+// the comment directly above that CI step records the last time this exact
+// class cost the repo nine green days on a red suite.
+//
+// So the arm that keeps test 3 honest is not in test 3. It is here, and it
+// watches the workflow: a build step, before the test step, in the job that
+// runs the suite.
+// ─────────────────────────────────────────────────────────────────────────────
+test("FALSIFIER: CI builds the site before it runs the suite, so the built-page probes are not skips", () => {
+  const wf = read(".github/workflows/test.yml");
+  const lines = wf.split(/\r?\n/);
+  const buildAt = lines.findIndex((l) => /^\s*(-\s*)?run:\s*npm run build\s*$/.test(l));
+  const testAt = lines.findIndex((l) => /^\s*-\s*run:\s*npm test\s*$/.test(l));
+  assert.ok(buildAt > -1,
+    "test.yml has no `npm run build` step — every built-page falsifier in this repo silently skips in CI, "
+    + "including the one that reads /atlas/'s retirement banner");
+  assert.ok(testAt > -1, "test.yml no longer runs `npm test` — that is a different bug");
+  assert.ok(buildAt < testAt,
+    `the build must come BEFORE the suite (build at line ${buildAt + 1}, suite at ${testAt + 1}); `
+    + "a build afterwards is a build the tests never saw");
+});
+
 test("the page source and this test agree about the freeze's two facts", () => {
   // The stamp is hand-written on both sides because the job that could have
   // computed it is deleted. Two hand-written copies drift; this is the check
