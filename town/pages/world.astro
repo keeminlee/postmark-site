@@ -28,6 +28,9 @@ import rawHtml from 'postmark-world/spectator/index.html?raw';
 import WorldSignIn from '@/components/WorldSignIn.astro';
 import WorldTourHold from '@/components/WorldTourHold.astro';
 import WorldCockpit from '@/components/WorldCockpit.astro';
+// the rail's decisions, as TEXT — inlined into <head> below (see RAIL), so the
+// page runs the very file the falsifiers import
+import railSource from '@/lib/world-api-rail.mjs?raw';
 
 // Early identity bridge: adopt the site's OAuth session into the viewer's Bearer
 // slot (localStorage['pm_key']) BEFORE the viewer boots, so a signed-in visitor's
@@ -75,8 +78,51 @@ const BRIDGE = `<script>(function(){try{var t=JSON.parse(localStorage.getItem("p
 const LANDING = `<script>(function(){try{var k="pm_world_painting_only";` +
   `if(localStorage.getItem(k)===null)localStorage.setItem(k,"0");}catch(e){}})();</script>`;
 
+// THE WORLD PAGE READS THE OFFICE API, NEVER A GIT PHOTOGRAPH (Keemin,
+// 2026-09-09: "I'll trust that the site ingests just the MCP and API instead of
+// Git. That's the one hard constraint that I need."). The viewer already asks
+// the office first (/api/world/state, /api/world/skeleton) — but its second
+// source for each is the npm pin's staged copy of the world repo, read SILENTLY
+// when the office does not answer, and /seeding/manifest.json (the legacy home
+// set) is read from that photograph every time. This wraps `window.fetch` with
+// the decisions in src/lib/world-api-rail.mjs — the SAME text, inlined, so the
+// falsifiers in test/world-api-rail.test.mjs exercise what the page runs, not a
+// twin — and writes a receipt into the page's own chrome: which door answered,
+// the office's own as-of stamps, how many marks and how many parcels carry an
+// image; or, when the office is down, that nothing older is drawn.
+//
+// Runs inline in <head>, ahead of the viewer module, because the viewer's boot
+// fetches on its first tick; the replay lens (below, in the body) installs
+// after this and wraps it, so an armed past crossing is handled there and never
+// reaches these decisions — the rail governs the living world only.
+const RAIL = `<script>(function(){${railSource.replace(/^export /gm, "")}
+var real=window.fetch.bind(window),answers=[],refused=[],officeFailure=null,strip=null;
+function show(){var r=railReceipt({answers:answers,refused:refused});
+  if(!strip){if(!document.body){document.addEventListener("DOMContentLoaded",show);return;}
+    strip=document.createElement("p");strip.id="pm-world-rail";strip.className="pm-world-rail";document.body.appendChild(strip);}
+  strip.textContent=r.text;strip.dataset.ok=r.ok?"yes":"no";strip.hidden=false;}
+function note(a){answers=answers.filter(function(x){return x.door!==a.door;}).concat([a]);
+  if(!a.ok)officeFailure={door:a.door,status:a.status};else if(officeFailure&&officeFailure.door===a.door)officeFailure=null;show();}
+window.fetch=function(input,init){
+  var url=typeof input==="string"?input:(input&&input.url)||"",p=null;
+  try{var u=new URL(url,location.href);if(u.origin===location.origin)p=u.pathname;}catch(e){p=null;}
+  var armed=!!(window.__pmWorldReplay&&window.__pmWorldReplay.frame);
+  var d=p?railDecision(p,{armed:armed,officeFailure:officeFailure}):{kind:"pass"};
+  if(d.kind==="pass")return real(input,init);
+  if(d.kind==="refuse"){if(refused.indexOf(d.record)<0)refused.push(d.record);show();
+    return Promise.resolve(new Response(JSON.stringify(d.body),{status:d.status,headers:{"content-type":"application/json"}}));}
+  return real(input,init).then(function(r){
+    var headers={};try{r.headers.forEach(function(v,k){headers[k]=v;});}catch(e){}
+    var isState=d.door===OFFICE_SERVED["/WORLD/world-state.json"];
+    var done=function(json){note(officeAnswer(d.door,{ok:r.ok,status:r.status,headers:headers,json:json}));};
+    if(r.ok&&isState)r.clone().json().then(done,function(){done(null);});else done(null);
+    return r;
+  },function(e){note(officeAnswer(d.door,{ok:false,status:"network error"}));throw e;});
+};
+show();})();</script>`;
+
 const html = rawHtml.replace(/<head>/i,
-  `<head>\n<meta name="robots" content="noindex,nofollow">\n${BRIDGE}\n${LANDING}`);
+  `<head>\n<meta name="robots" content="noindex,nofollow">\n${BRIDGE}\n${LANDING}\n${RAIL}`);
 ---
 <Fragment set:html={html} />
 <WorldSignIn />
@@ -439,6 +485,18 @@ const html = rawHtml.replace(/<head>/i,
 </script>
 
 <style is:global>
+  /* the data-rail receipt (src/lib/world-api-rail.mjs): which door the world
+     came from, or that the office did not answer — small, bottom-left, out of
+     the map's way; amber when the office is down so the absence is seen */
+  .pm-world-rail {
+    position: fixed; left: 12px; bottom: 10px; z-index: 8000; margin: 0;
+    max-width: min(46rem, calc(100vw - 24px));
+    font-family: var(--pm-mono, ui-monospace, monospace); font-size: 0.66rem; line-height: 1.35;
+    letter-spacing: 0.03em; color: rgba(232, 226, 210, 0.78);
+    padding: 0.35em 0.7em; border-radius: 6px;
+    background: rgba(13, 20, 38, 0.72); border: 1px solid rgba(232, 226, 210, 0.18);
+  }
+  .pm-world-rail[data-ok="no"] { color: #f0c98a; border-color: rgba(240, 201, 138, 0.6); background: rgba(56, 30, 8, 0.86); }
   .pm-tt {
     position: fixed; right: 14px; bottom: 14px; z-index: 8000;
     font-family: var(--pm-mono, ui-monospace, monospace);

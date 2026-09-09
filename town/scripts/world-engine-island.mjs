@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 import { houseName } from "../../src/lib/houses.mjs";
 import { REPLAY_DIR, replayFiles } from "./replay-record.mjs";
 import { recordsToStage, stagingComplaints, stagingFailure } from "../../tools/lib/world-staging.mjs";
+import { OFFICE_SERVED, NO_OFFICE_DOOR } from "../../src/lib/world-api-rail.mjs";
 
 const META_PATH = "/world-engine/residents-meta.json";
 
@@ -198,19 +199,33 @@ function stage(pkg, dest, projectRoot) {
   return files;
 }
 
-function emitWorldPreloads(dest, files) {
-  const page = join(dest, "world", "index.html");
-  if (!existsSync(page)) {
-    console.warn("[world-engine-island] built world page missing — preload chain was not emitted.");
-    return 0;
-  }
+// THE PAGE MAY NOT PRELOAD WHAT IT REFUSES TO READ (2026-09-09). The world page's
+// data rail (src/lib/world-api-rail.mjs) answers /WORLD/world-state.json,
+// /WORLD/skeleton.json and /seeding/manifest.json from the office API or not at
+// all — and a `<link rel=preload as=fetch>` for those same paths made the browser
+// download the git photograph anyway, before the viewer ever asked. One source
+// for the exclusion: the rail's own record lists, never a second copy typed here.
+const RAIL_REFUSED = new Set([...Object.keys(OFFICE_SERVED), ...Object.keys(NO_OFFICE_DOOR)]);
+
+/** The preload hints the world page gets, as paths — pure, so the exclusion can be falsified. */
+export function worldPreloadPaths(files) {
   const modulePaths = files
     .filter((file) => extname(file.publicPath) === ".mjs")
     .map((file) => file.publicPath);
   const fetchPaths = [
     ...files.filter((file) => extname(file.publicPath) === ".json").map((file) => file.publicPath),
     "/atlas/town.html",
-  ];
+  ].filter((p) => !RAIL_REFUSED.has(p));
+  return { modulePaths, fetchPaths };
+}
+
+function emitWorldPreloads(dest, files) {
+  const page = join(dest, "world", "index.html");
+  if (!existsSync(page)) {
+    console.warn("[world-engine-island] built world page missing — preload chain was not emitted.");
+    return 0;
+  }
+  const { modulePaths, fetchPaths } = worldPreloadPaths(files);
   const hints = [
     ...modulePaths.map((href) => `<link rel="modulepreload" href="${href}">`),
     ...fetchPaths.map((href) => `<link rel="preload" as="fetch" href="${href}" crossorigin>`),
