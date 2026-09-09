@@ -55,9 +55,40 @@
 //        BUILD_CROSSING         that moment in ferry crossings, asked of the
 //                               office (GET /api/ -> crossing.number). Never
 //                               derived here: one clock, and it is the office's.
+//        BUILD_WORLD_REF        the settlement tag the world was advanced to,
+//                               when the lane knows it (settlement/S63); empty
+//                               or unset otherwise. NEVER the sha — see below.
+//
+// ── THE FOURTH FIELD: WHICH WORLD (2026-09-08) ──────────────────────────────
+//
+// The /world/ page is a passthrough of the pinned postmark-world package: its
+// viewer and record are STAGED from node_modules at /world-engine/** and
+// /WORLD/**, not bundled. So "which site is live" (code_sha) does not answer
+// "which world is live", and on 2026-09-08 that question took a night to
+// answer by hand: prod's ground flipped from the atlas painting to the
+// record-drawn townGround() (w37.5, world 91536f76) and back (w37.6, S63
+// 256db2fe), while /build.json said only "release/2026-w37.6" both before and
+// after, and /data/pin.json — written by the EXTRACT tree from site main's
+// lockfile — named a floor the build tree had already advanced past on the
+// afternoon's w37.4 builds ("world: advancing to settlement S63"). Neither
+// stamp could say what /world-engine/spectator/viewer.mjs actually was; the
+// answer had to be md5'd off the wire and matched against the world repo.
+//
+// `world_sha` is read from THIS tree's package-lock.json — the tree the
+// stamper runs in, which on both lanes is the build tree after the world-pin
+// resolver has installed (and, on advance, re-locked) the world — so it is the
+// sha the page was compiled against, never the floor another tree carries. Not
+// from the environment: a sha handed in by a shell is a claim, the lockfile is
+// the receipt. `world_ref` IS taken from the environment because only the lane
+// knows whether the sha is a blessed tag's commit; it is a name, not a claim
+// about bytes, and it is null whenever the lane did not say.
+//
+// Reader: a human or the site-sentinel at https://postmark.town/build.json,
+// comparing `world_sha` against the world repo's settlement tags — the check
+// that was done by hand that night.
 
-import { writeFileSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
+import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
@@ -71,7 +102,7 @@ export const SCHEMA = 1;
  * wrong is worse than one that admits it cannot say, because the watcher
  * downstream believes it.
  */
-export function composeStamp({ channel, codeSha, codeRef, townDataSha, townSha, crossing, builtAt }) {
+export function composeStamp({ channel, codeSha, codeRef, townDataSha, townSha, crossing, builtAt, world = null, worldRef = null }) {
   const notes = [];
   const lane = channel === "release" || channel === "snapshot" ? channel : null;
   if (!lane) notes.push("PUBLIC_CHANNEL was not release or snapshot, so the lane is unknown");
@@ -127,6 +158,16 @@ export function composeStamp({ channel, codeSha, codeRef, townDataSha, townSha, 
     if (cross === null) notes.push("no crossing number for this build — the office was not reachable when it was made, so the page cannot say which ferry crossing it reflects");
   }
 
+  // ── THE WORLD, ON BOTH LANES ──────────────────────────────────────────────
+  //
+  // Unlike the town fields this is noted on the snapshot lane too: dev serves
+  // a world from its lockfile exactly as prod does, so a snapshot stamp that
+  // cannot name it is degraded, not working-as-designed.
+  const worldSha = /^[0-9a-f]{7,40}$/i.test(String(world?.sha ?? "")) ? String(world.sha).toLowerCase() : null;
+  const worldFrom = worldSha ? (world?.from ?? null) : null;
+  if (!worldSha) notes.push(`this build did not report which postmark-world it compiled${world?.note ? ` (${world.note})` : ""} — the world served at /world/ cannot be told from another world's by this stamp`);
+  const ref = String(worldRef ?? "").trim();
+
   return {
     schema: SCHEMA,
     channel: lane,
@@ -137,6 +178,12 @@ export function composeStamp({ channel, codeSha, codeRef, townDataSha, townSha, 
     town_data_from: dataFrom,
     town_sha: town,
     crossing: cross,
+    // The postmark-world this build compiled the /world/ page from, read from
+    // the build tree's own lockfile; and the settlement tag's name for it when
+    // the lane advanced to one (null is "the lane did not say", never a guess).
+    world_sha: worldSha,
+    world_from: worldFrom,
+    world_ref: ref || null,
     // Said on every stamp, not only when the two differ. The whole reason this
     // file exists is that one number could not hold both tenses, and a reader
     // meeting the stamp for the first time should meet that fact here.
@@ -145,8 +192,36 @@ export function composeStamp({ channel, codeSha, codeRef, townDataSha, townSha, 
   };
 }
 
+/**
+ * Which postmark-world the tree at `root` compiled, from its own receipts.
+ *
+ * package-lock.json first: it is what `npm ci` installs from, and the
+ * world-pin resolver's advance re-locks it, so its `resolved` names the sha
+ * the page was built against. The installed package's own package.json is the
+ * fallback for a tree with no lockfile (npm drops `_resolved`/`gitHead` on a
+ * git install, so it usually cannot answer — tools/lib/world-pin-publish.mjs
+ * learned that the hard way, repair 1). Every failure is a null plus a reason.
+ */
+export function readWorldSha({ root = process.cwd(), read = (p) => readFileSync(p, "utf8") } = {}) {
+  const sha = (s) => { const m = /#([0-9a-f]{7,40})$/i.exec(String(s ?? "")); return m ? m[1].toLowerCase() : null; };
+  let lockNote = null;
+  try {
+    const lock = JSON.parse(read(join(root, "package-lock.json")));
+    const entry = lock?.packages?.["node_modules/postmark-world"];
+    const got = sha(entry?.resolved);
+    if (got) return { sha: got, from: "package-lock.json", note: null };
+    lockNote = entry ? "package-lock.json holds postmark-world but its `resolved` names no sha" : "package-lock.json has no postmark-world entry";
+  } catch { lockNote = "package-lock.json could not be read"; }
+  try {
+    const dep = JSON.parse(read(join(root, "node_modules", "postmark-world", "package.json")));
+    const got = sha(dep?._resolved) ?? (/^[0-9a-f]{7,40}$/i.test(String(dep?.gitHead ?? "")) ? String(dep.gitHead).toLowerCase() : null);
+    if (got) return { sha: got, from: "node_modules", note: null };
+    return { sha: null, from: null, note: `${lockNote}, and the installed package records no commit of its own` };
+  } catch { return { sha: null, from: null, note: `${lockNote}, and the installed package could not be read` }; }
+}
+
 /** Read what the build knows, tolerating every failure as a null-plus-note. */
-export function gather({ env = process.env, exec = execFileSync, now = () => new Date() } = {}) {
+export function gather({ env = process.env, exec = execFileSync, now = () => new Date(), root = process.cwd(), read } = {}) {
   let codeSha = null;
   try { codeSha = String(exec("git", ["rev-parse", "HEAD"], { encoding: "utf8" })).trim() || null; } catch { codeSha = null; }
   // BUILD_CROSSING arrives as a string from the environment and must survive
@@ -164,6 +239,8 @@ export function gather({ env = process.env, exec = execFileSync, now = () => new
     townSha: env.BUILD_TOWN_SHA ?? null,
     crossing: /^\d+$/.test(rawCrossing) ? Number(rawCrossing) : null,
     builtAt: now().toISOString(),
+    world: readWorldSha(read ? { root, read } : { root }),
+    worldRef: env.BUILD_WORLD_REF ?? null,
   });
 }
 
@@ -173,7 +250,7 @@ export function main(argv = process.argv, deps = {}) {
   const stamp = gather(deps);
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, JSON.stringify(stamp, null, 2) + "\n");
-  console.log(`build-stamp: ${out} — ${stamp.channel ?? "unknown lane"}, code ${String(stamp.code_sha).slice(0, 8)} (${stamp.code_ref ?? "?"}), town data ${String(stamp.town_data_sha).slice(0, 8)}`);
+  console.log(`build-stamp: ${out} — ${stamp.channel ?? "unknown lane"}, code ${String(stamp.code_sha).slice(0, 8)} (${stamp.code_ref ?? "?"}), town data ${String(stamp.town_data_sha).slice(0, 8)}, world ${String(stamp.world_sha).slice(0, 8)} (${stamp.world_ref ?? "no tag named"})`);
   for (const n of stamp.notes) console.log(`  note: ${n}`);
   return stamp;
 }

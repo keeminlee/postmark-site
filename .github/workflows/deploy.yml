@@ -275,6 +275,11 @@ jobs:
           PUBLIC_CHANNEL: ${{ steps.lane.outputs.channel }}
           BUILD_CODE_REF: ${{ steps.pin.outputs.tag || github.ref_name }}
           BUILD_TOWN_DATA_SHA: ${{ steps.overlay.outputs.town_data_sha }}
+          # The settlement tag's NAME when the resolver advanced to one; empty on
+          # hold (the floor is a sha, not necessarily a tag) and on the snapshot
+          # lane (no resolver). The stamper reads the world SHA itself from this
+          # tree's package-lock.json — the receipt, not a claim passed by hand.
+          BUILD_WORLD_REF: ${{ steps.worldpin.outputs.decision == 'advance' && format('settlement/S{0}', steps.worldpin.outputs.settlement) || '' }}
         run: |
           if [ -f tools/build-stamp.mjs ]; then
             node tools/build-stamp.mjs --out dist-town/build.json

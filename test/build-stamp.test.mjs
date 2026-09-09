@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { composeStamp, gather, main, SCHEMA } from "../tools/build-stamp.mjs";
+import { composeStamp, gather, main, readWorldSha, SCHEMA } from "../tools/build-stamp.mjs";
 
 const AT = "2026-08-25T23:00:00.000Z";
+// A complete build names its world. Fixtures that assert "no notes" carry this.
+const WORLD = { sha: "256db2fe02b4c786f4f6182629d896c38cd2b442", from: "package-lock.json", note: null };
 
 test("the release lane stamps two shas on two different clocks", () => {
   // Prod builds CODE from the newest release/* tag and overlays town DATA from
@@ -20,6 +22,7 @@ test("the release lane stamps two shas on two different clocks", () => {
     townSha: "cccccccccccccccc",
     crossing: 149,
     builtAt: AT,
+    world: WORLD,
   });
   assert.equal(s.schema, SCHEMA);
   assert.equal(s.channel, "release");
@@ -33,7 +36,7 @@ test("the release lane stamps two shas on two different clocks", () => {
 test("the snapshot lane says the two shas share one commit rather than leaving a reader to guess", () => {
   // Dev has no tag pin and no overlay, so code and data genuinely are the same
   // commit. Equal fields must not be readable as "verified in sync".
-  const s = composeStamp({ channel: "snapshot", codeSha: "cccccccc", codeRef: "main", townDataSha: null, builtAt: AT });
+  const s = composeStamp({ channel: "snapshot", codeSha: "cccccccc", codeRef: "main", townDataSha: null, builtAt: AT, world: WORLD });
   assert.equal(s.town_data_sha, "cccccccc");
   assert.match(s.town_data_from, /the checkout itself/);
   assert.deepEqual(s.notes, [], "a snapshot build with no overlay is complete, not degraded");
@@ -102,7 +105,7 @@ test("gather reads HEAD, not github.sha, and survives a git that will not answer
 test("the stamp names the TOWN record it read and the crossing it reflects", () => {
   const s = composeStamp({
     channel: "release", codeSha: "a".repeat(40), codeRef: "release/2026-w35.1",
-    townDataSha: "b".repeat(40), townSha: "c".repeat(40), crossing: 149, builtAt: AT,
+    townDataSha: "b".repeat(40), townSha: "c".repeat(40), crossing: 149, builtAt: AT, world: WORLD,
   });
   assert.equal(s.town_sha, "c".repeat(40));
   assert.equal(s.crossing, 149);
@@ -174,4 +177,94 @@ test("main writes valid JSON the sentinel can parse, at the path it was given", 
   assert.equal(parsed.town_data_sha, "b".repeat(40));
   assert.ok(parsed.why_two.length > 40, "the stamp explains its own two-tense shape to whoever meets it first");
   assert.ok(logged.some((l) => /build-stamp:/.test(l)));
+});
+
+// ── which WORLD this build compiled ──────────────────────────────────────────
+//
+// 2026-09-08: prod's /world/ ground flipped from the atlas painting to the
+// record-drawn townGround() and back across three releases, and no stamp on the
+// live site could say which postmark-world was serving at /world-engine/**.
+// /data/pin.json is written by the EXTRACT tree from site main's lockfile —
+// the FLOOR — while the build tree had advanced to a newer settlement, so it
+// named a world the page was not running. The field the night was missing is
+// the build tree's own lockfile, read from the build tree.
+
+const LOCK = (sha) => JSON.stringify({ packages: { "node_modules/postmark-world": { version: "0.1.0", resolved: `git+ssh://git@github.com/keeminlee/postmark-world.git#${sha}` } } });
+const S63 = "256db2fe02b4c786f4f6182629d896c38cd2b442";
+const TRAIN = "91536f7600000000000000000000000000000000";
+
+test("world_sha is read from the tree the stamper runs in — the BUILD tree, never the extract tree's floor", () => {
+  const main = mkdtempSync(join(tmpdir(), "build-stamp-main-"));   // the extract tree: site main, the floor
+  const build = mkdtempSync(join(tmpdir(), "build-stamp-build-")); // the build tree, advanced by the resolver
+  writeFileSync(join(main, "package-lock.json"), LOCK("ecc63613a063ca2e3da262c6306c34b72ae3b9f8"));
+  writeFileSync(join(build, "package-lock.json"), LOCK(S63));
+  const env = { PUBLIC_CHANNEL: "release", BUILD_CODE_REF: "release/2026-w37.6", BUILD_TOWN_DATA_SHA: "b", BUILD_TOWN_SHA: "c".repeat(40), BUILD_CROSSING: "178" };
+  const s = gather({ env, exec: () => "a".repeat(40) + "\n", now: () => new Date(AT), root: build });
+  assert.equal(s.world_sha, S63);
+  assert.equal(s.world_from, "package-lock.json");
+  assert.deepEqual(s.notes, [], "a build that names its world is complete");
+  // pointed at the extract tree it would name the floor — which is exactly the wrong answer pin.json gives
+  assert.equal(gather({ env, exec: () => "a".repeat(40) + "\n", now: () => new Date(AT), root: main }).world_sha, "ecc63613a063ca2e3da262c6306c34b72ae3b9f8");
+});
+
+test("THE FALSIFIER: flip the lockfile's resolved sha and the stamp follows — it reads the receipt, not a memory or the spec", () => {
+  const root = mkdtempSync(join(tmpdir(), "build-stamp-flip-"));
+  // package.json still names the floor (the keeper's ceremony bumps it on site
+  // main); the lockfile is what the resolver's advance re-locked. The stamp
+  // must name the LOCK's sha — the compiled one — and never the spec's.
+  writeFileSync(join(root, "package.json"), JSON.stringify({ dependencies: { "postmark-world": `github:keeminlee/postmark-world#${S63}` } }));
+  writeFileSync(join(root, "package-lock.json"), LOCK(S63));
+  const read = () => gather({ env: { PUBLIC_CHANNEL: "release", BUILD_CODE_REF: "r", BUILD_TOWN_DATA_SHA: "b", BUILD_TOWN_SHA: "c".repeat(40), BUILD_CROSSING: "1" }, exec: () => "a".repeat(40) + "\n", now: () => new Date(AT), root });
+  assert.equal(read().world_sha, S63);
+  writeFileSync(join(root, "package-lock.json"), LOCK(TRAIN));
+  assert.equal(read().world_sha, TRAIN, "the lockfile moved and the stamp did not — it would be reporting a world it did not compile");
+  assert.notEqual(read().world_sha, S63, "package.json's pin must not leak into world_sha: that is the floor, and the floor is the lie this field exists to stop");
+  // a lockfile whose resolved names no sha is UNKNOWN plus a reason, never the spec's sha
+  writeFileSync(join(root, "package-lock.json"), JSON.stringify({ packages: { "node_modules/postmark-world": { version: "0.1.0", resolved: "https://registry.npmjs.org/postmark-world/-/postmark-world-0.1.0.tgz" } } }));
+  const silent = read();
+  assert.equal(silent.world_sha, null);
+  assert.equal(silent.world_from, null);
+  assert.ok(silent.notes.some((n) => /did not report which postmark-world/.test(n) && /names no sha/.test(n)), silent.notes.join(" | "));
+});
+
+test("readWorldSha falls back to the installed package only when the lockfile cannot answer, and says which source spoke", () => {
+  const root = mkdtempSync(join(tmpdir(), "build-stamp-nolock-"));
+  mkdirSync(join(root, "node_modules", "postmark-world"), { recursive: true });
+  writeFileSync(join(root, "node_modules", "postmark-world", "package.json"), JSON.stringify({ name: "postmark-world", gitHead: S63.toUpperCase() }));
+  const w = readWorldSha({ root });
+  assert.deepEqual(w, { sha: S63, from: "node_modules", note: null }, "gitHead is normalised to lowercase so it compares against git output");
+  // …and a tree with neither is a null with BOTH reasons, so a reader knows two doors were tried
+  const bare = readWorldSha({ root: mkdtempSync(join(tmpdir(), "build-stamp-bare-")) });
+  assert.equal(bare.sha, null);
+  assert.match(bare.note, /package-lock\.json could not be read, and the installed package could not be read/);
+});
+
+test("world_ref is the lane's name for the world, or null — never derived from the sha", () => {
+  const base = { channel: "release", codeSha: "a", codeRef: "r", townDataSha: "b", townSha: "c".repeat(40), crossing: 1, builtAt: AT, world: WORLD };
+  assert.equal(composeStamp({ ...base, worldRef: "settlement/S63" }).world_ref, "settlement/S63");
+  for (const empty of ["", "   ", null, undefined]) assert.equal(composeStamp({ ...base, worldRef: empty }).world_ref, null, `BUILD_WORLD_REF=${JSON.stringify(empty)} is "the lane did not say"`);
+  // and a hold on the floor (the box script passes an empty ref) leaves the sha standing on its own
+  const held = composeStamp({ ...base, worldRef: "" });
+  assert.equal(held.world_sha, WORLD.sha);
+  assert.deepEqual(held.notes, [], "an unnamed tag is not a degraded build; an unknown sha is");
+});
+
+test("main writes world_sha and world_ref into the JSON the sentinel reads", () => {
+  const root = mkdtempSync(join(tmpdir(), "build-stamp-world-main-"));
+  writeFileSync(join(root, "package-lock.json"), LOCK(S63));
+  const out = join(root, "dist-town", "build.json");
+  const realLog = console.log; const logged = [];
+  console.log = (m) => logged.push(String(m));
+  try {
+    main(["node", "build-stamp.mjs", "--out", out], {
+      env: { PUBLIC_CHANNEL: "release", BUILD_CODE_REF: "release/2026-w37.6", BUILD_TOWN_DATA_SHA: "b".repeat(40), BUILD_TOWN_SHA: "c".repeat(40), BUILD_CROSSING: "178", BUILD_WORLD_REF: "settlement/S63" },
+      exec: () => "a".repeat(40) + "\n", now: () => new Date(AT), root,
+    });
+  } finally { console.log = realLog; }
+  const parsed = JSON.parse(readFileSync(out, "utf8"));
+  assert.equal(parsed.world_sha, S63);
+  assert.equal(parsed.world_from, "package-lock.json");
+  assert.equal(parsed.world_ref, "settlement/S63");
+  assert.deepEqual(parsed.notes, []);
+  assert.ok(logged.some((l) => /world 256db2fe \(settlement\/S63\)/.test(l)), "the console line names the world too, so a box journal answers the question without curl");
 });
