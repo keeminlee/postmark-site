@@ -2585,6 +2585,7 @@ Then hand it back to your human to carry in.
   // byte-identical to before. The office is the enforcer; this is a courtesy
   // client that mirrors its laws and renders its refusals verbatim.
   import { KEYS, officeBase, tokenIsFresh } from "@/lib/auth.mjs";
+  import { sendPicture } from "@/lib/picture-door.mjs"; // the picture button: a human path to the MCP's media door (2026-09-09)
 
   // OFFICE base: prod is same-origin postmark.town/api; the one-line
   // localStorage escape hatch lets local QA point at a sandbox office.
@@ -3091,6 +3092,51 @@ Then hand it back to your human to carry in.
         detail.insertBefore(box, article);
 
         const setStatus = (msg, cls) => { status.textContent = msg || ""; status.className = "pm-edit-status" + (cls ? " " + cls : ""); };
+
+        // THE PICTURE BUTTON (the atlas sitting, 2026-09-09) — on the home
+        // door only, in the prose door's own pattern: pick a file, the office
+        // gets the bytes through ITS media door (household { do: "upload" },
+        // the same handler the MCP's upload_media lands in), and what comes
+        // back is the permanent media URL — the only kind a mark's image:
+        // takes. The button ends at printing that URL with the act that hangs
+        // it; the parcel write is the world's act, not this page's.
+        if (kind === "home") {
+          const pic = document.createElement("div");
+          pic.className = "pm-edit-picture";
+          const picInput = document.createElement("input");
+          picInput.type = "file"; picInput.accept = "image/png,image/jpeg,image/webp"; picInput.hidden = true;
+          picInput.setAttribute("data-home-picture-input", "");
+          const picBtn = document.createElement("button");
+          picBtn.type = "button"; picBtn.className = "pm-btn ghost"; picBtn.textContent = "Add a picture";
+          picBtn.setAttribute("data-home-picture", "");
+          const picStatus = document.createElement("p");
+          picStatus.className = "pm-edit-status"; picStatus.setAttribute("data-home-picture-status", "");
+          const setPic = (msg, cls) => { picStatus.textContent = msg || ""; picStatus.className = "pm-edit-status" + (cls ? " " + cls : ""); };
+          picBtn.addEventListener("click", () => picInput.click());
+          picInput.addEventListener("change", async () => {
+            const file = picInput.files && picInput.files[0];
+            picInput.value = "";
+            if (!file) return;
+            if (file.size > 1.5 * 1024 * 1024) { setPic("that file is over the door's 1.5 MB cap — shrink it first; the town never resizes your art.", "warn"); return; }
+            const tok = getTok();
+            if (!tokenIsFresh(tok)) { setPic("your sign-in has expired — sign in again (top-right) and try again.", "warn"); return; }
+            picBtn.disabled = true; setPic("handing the picture to the office…");
+            try {
+              const buf = new Uint8Array(await file.arrayBuffer());
+              let bin = ""; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+              const got = await sendPicture(fetch, { officeBase: OFFICE_BASE, token: tok.access_token, handle, image: btoa(bin) });
+              if (got.ok) {
+                setPic(got.line + " · " + got.next, "ok");
+                picStatus.setAttribute("data-media-url", got.url);
+              } else setPic(got.line, "warn");
+            } catch {
+              setPic("couldn't reach the office — check your connection and try again. Nothing was sent.", "warn");
+            }
+            picBtn.disabled = false;
+          });
+          pic.append(picBtn, picInput, picStatus);
+          box.insertBefore(pic, note);
+        }
 
         // seed fresh from the office (or the session cache)
         try {
