@@ -489,7 +489,8 @@ const html = rawHtml.replace(/<head>/i,
      came from, or that the office did not answer — small, bottom-left, out of
      the map's way; amber when the office is down so the absence is seen */
   .pm-world-rail {
-    position: fixed; left: 12px; bottom: 10px; z-index: 8000; margin: 0;
+    /* above the time-travel pill, which sits in the same corner on this page */
+    position: fixed; left: 12px; bottom: 48px; z-index: 8000; margin: 0;
     max-width: min(46rem, calc(100vw - 24px));
     font-family: var(--pm-mono, ui-monospace, monospace); font-size: 0.66rem; line-height: 1.35;
     letter-spacing: 0.03em; color: rgba(232, 226, 210, 0.78);
