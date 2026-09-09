@@ -9,7 +9,7 @@
 // yesterday's page with a sentence on it.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { railDecision, officeAnswer, railReceipt, OFFICE_SERVED, NO_OFFICE_DOOR } from "../src/lib/world-api-rail.mjs";
+import { railDecision, officeAnswer, railReceipt, OFFICE_SERVED, NO_OFFICE_DOOR, WORLD_RAW_HOST } from "../src/lib/world-api-rail.mjs";
 
 test("the git photograph of the world is REFUSED on the living page, and the refusal names the office door", () => {
   for (const [record, office] of Object.entries(OFFICE_SERVED)) {
@@ -38,6 +38,19 @@ test("a record with no office door is refused and its absence is NAMED, not fill
     assert.match(d.body.defect, /no office door serves it/);
     assert.equal(d.body.hint, NO_OFFICE_DOOR[record]);
   }
+});
+
+test("the world repo's raw tip on github is REFUSED too — the pinned viewer walks there when a same-origin record is refused (measured 2026-09-09)", () => {
+  for (const p of ["/keeminlee/postmark-world/main/seeding/manifest.json", "/keeminlee/postmark-world/main/WORLD/world-state.json", "/keeminlee/postmark-world/main/WORLD/walk-ledger.md"]) {
+    const d = railDecision({ sameOrigin: false, host: WORLD_RAW_HOST, pathname: p });
+    assert.equal(d.kind, "refuse", p);
+    assert.match(d.body.defect, /tags only, never main tip/);
+  }
+  // other hosts, and other repos on that host, are not the rail's business
+  assert.deepEqual(railDecision({ sameOrigin: false, host: "media.postmark.town", pathname: "/media/x/y.png" }), { kind: "pass" });
+  assert.deepEqual(railDecision({ sameOrigin: false, host: WORLD_RAW_HOST, pathname: "/someone-else/repo/main/x.json" }), { kind: "pass" });
+  // and armed, the replay lens reads its pinned sha there on purpose
+  assert.deepEqual(railDecision({ sameOrigin: false, host: WORLD_RAW_HOST, pathname: "/keeminlee/postmark-world/3199a6fe/WORLD/world-state.json" }, { armed: true }), { kind: "pass" });
 });
 
 test("everything else passes untouched — the rail governs three records, not the page", () => {

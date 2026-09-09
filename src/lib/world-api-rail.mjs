@@ -44,7 +44,19 @@ export const NO_OFFICE_DOOR = Object.freeze({
 /** The office doors whose answers the receipt reports on. */
 export const OFFICE_DOORS = Object.freeze(Object.values(OFFICE_SERVED));
 
-const SAME_ORIGIN = "same-origin";
+/**
+ * THE WORLD REPO'S RAW HOST — the other git photograph. Measured on the built
+ * page 2026-09-09: the viewer the site pins (`postmark-world#de75ec85`, 08-26)
+ * predates tools/record-sources.mjs's rule that "no chain … may name the world's
+ * main tip", so when a same-origin record is refused it walks on to
+ * raw.githubusercontent.com/keeminlee/postmark-world/main/… — the world's
+ * UNBLESSED MAIN TIP, cross-origin, which no same-origin rule ever sees. The
+ * founder's 08-25 guardrail, verbatim: "tags only, never main tip." So the rail
+ * refuses that host for the world repo outright while the living world is shown;
+ * the replay lens (armed) reads a pinned sha there on purpose and passes.
+ */
+export const WORLD_RAW_HOST = "raw.githubusercontent.com";
+export const WORLD_RAW_PREFIX = "/keeminlee/postmark-world/";
 
 /**
  * One decision for one request.
@@ -53,11 +65,27 @@ const SAME_ORIGIN = "same-origin";
  *   { kind: "office", door }                           — an office door: let it through, and REPORT on the answer
  *   { kind: "refuse", record, office, status, body }   — answer this from the rail, never from the network
  *
- * `armed` is the replay lens: while a past crossing is held, nothing here applies.
+ * `target` is a same-origin pathname (string) or `{ sameOrigin, host, pathname }`
+ * for any request; `armed` is the replay lens: while a past crossing is held,
+ * nothing here applies.
  */
-export function railDecision(pathname, { armed = false, officeFailure = null } = {}) {
-  const p = String(pathname ?? "");
+export function railDecision(target, { armed = false, officeFailure = null } = {}) {
   if (armed) return { kind: "pass" };
+  const t = typeof target === "string" ? { sameOrigin: true, host: null, pathname: target } : (target ?? {});
+  const p = String(t.pathname ?? "");
+  if (!t.sameOrigin) {
+    if (t.host === WORLD_RAW_HOST && p.startsWith(WORLD_RAW_PREFIX)) {
+      return {
+        kind: "refuse", record: `https://${WORLD_RAW_HOST}${p}`, office: null, status: 503,
+        body: {
+          error: "refused",
+          defect: `${p} on ${WORLD_RAW_HOST} is not read on this page — the world repo's raw tip is a git photograph, and "tags only, never main tip" (founder, 2026-08-25)`,
+          hint: "this page reads the office API and only that; a past crossing (?crossing=N) reads its pinned sha here on purpose",
+        },
+      };
+    }
+    return { kind: "pass" };
+  }
   if (OFFICE_DOORS.includes(p)) return { kind: "office", door: p };
   if (Object.hasOwn(OFFICE_SERVED, p)) {
     const office = OFFICE_SERVED[p];

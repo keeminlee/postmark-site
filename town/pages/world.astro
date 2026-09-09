@@ -104,10 +104,10 @@ function show(){var r=railReceipt({answers:answers,refused:refused});
 function note(a){answers=answers.filter(function(x){return x.door!==a.door;}).concat([a]);
   if(!a.ok)officeFailure={door:a.door,status:a.status};else if(officeFailure&&officeFailure.door===a.door)officeFailure=null;show();}
 window.fetch=function(input,init){
-  var url=typeof input==="string"?input:(input&&input.url)||"",p=null;
-  try{var u=new URL(url,location.href);if(u.origin===location.origin)p=u.pathname;}catch(e){p=null;}
+  var url=typeof input==="string"?input:(input&&input.url)||"",t=null;
+  try{var u=new URL(url,location.href);t={sameOrigin:u.origin===location.origin,host:u.host,pathname:u.pathname};}catch(e){t=null;}
   var armed=!!(window.__pmWorldReplay&&window.__pmWorldReplay.frame);
-  var d=p?railDecision(p,{armed:armed,officeFailure:officeFailure}):{kind:"pass"};
+  var d=t?railDecision(t,{armed:armed,officeFailure:officeFailure}):{kind:"pass"};
   if(d.kind==="pass")return real(input,init);
   if(d.kind==="refuse"){if(refused.indexOf(d.record)<0)refused.push(d.record);show();
     return Promise.resolve(new Response(JSON.stringify(d.body),{status:d.status,headers:{"content-type":"application/json"}}));}
