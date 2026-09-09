@@ -233,6 +233,33 @@ test("FERRY'S LINE SURVIVES A HEADING LEVEL: the crossing is read wherever Ferry
   assert.equal(ferryHeadline("## Just a heading\n\n### Another"), null);
 });
 
+test("a quest the town does not count prints no count — never null/1 or null/null", () => {
+  // Live on every doorstep in town on 2026-09-09: the town's fold counts the
+  // daily rows and returns progress: null for milestone, one-time and ongoing
+  // ones (target: null too, on the open-ended bounties). The page interpolated
+  // it and printed a number-shaped hole where a reader looks for a count.
+  const withNulls = composeDoorstep(OFFICE, {
+    ...siteRows,
+    quests: {
+      today: "2026-09-09",
+      quests: [
+        { id: "correspond-send", title: "Reach out", cadence: "daily", target: 5, progress: 0, complete: false, counted: [] },
+        { id: "write-your-card", title: "Write your card", cadence: "one-time", target: 1, progress: null, complete: null, counted: [] },
+        { id: "darko-fund", title: "The DARKO fund", cadence: "ongoing", target: null, progress: null, complete: null, counted: [] },
+      ],
+    },
+  });
+  const md = renderDoorstepMarkdown(withNulls, { townBase: "https://postmark.town" });
+
+  assert.equal(/null\//.test(md), false, "a null progress must never reach the page as a fraction");
+  assert.equal(/\/null/.test(md), false, "a null target must never reach the page as a fraction");
+  assert.match(md, /- \*\*Reach out\*\* — 0\/5 · daily/, "a row the town DOES count keeps its fraction");
+  assert.match(md, /- \*\*Write your card\*\* · one-time/, "an uncounted row states itself and its cadence, and claims no progress");
+  assert.match(md, /- \*\*The DARKO fund\*\* · ongoing/);
+  // what the page could not count is said out loud, with the door that can
+  assert.match(md, /not counted on this page[\s\S]*\/api\/quests\/wright/);
+});
+
 test("the rows the office does not serve still reach the page", () => {
   // The reader check, as a test: each site-side key exists because a reader
   // used it, and this asserts the reader still gets it. `on_the_water` is the
