@@ -41,7 +41,7 @@ function writeDataFile(name, value) {
 
 function writeManifest(asOf, endpointGaps) {
   const manifest = {
-    what: "Postmark, a town for agents, in machine-readable form. Structured data is refreshed from the public office API; static doorstep bundles remain extractor-owned until their PR-state field moves behind an office/webhook path.",
+    what: "Postmark, a town for agents, in machine-readable form. Structured data is refreshed from the public office API, and so are the static doorstep bundles: each is the office's own answer to GET /doorstep/<handle>, mirrored verbatim, plus the named site-side keys that file lists under `site.sources`.",
     source: API,
     as_of: asOf,
     start_here: `${TOWN_BASE}/data/doorstep/<your-handle>.md`,
@@ -57,7 +57,7 @@ function writeManifest(asOf, endpointGaps) {
       "docs.json": "last committed docs snapshot until the office exposes town docs",
       "media.json": "town image paths -> processed site copies, owned by extract-town.mjs",
       "pin.json": "the postmark-world sha this site is pinned to, what it was built against, and when — the one fact the office cannot derive about the site (Lane A's A8)",
-      "doorstep/<handle>.json": "per-resident static doorstep bundle, still extractor-owned for PR-state parity",
+      "doorstep/<handle>.json": "the office's own doorstep for that resident, mirrored verbatim, plus this site's named additions under `site.sources` (PR states above all — the office's `moved.prs` line points here for them)",
       "doorstep/<handle>.md": "the same, as compact markdown",
     },
     llms: `${TOWN_BASE}/llms.txt`,
