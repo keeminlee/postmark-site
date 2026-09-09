@@ -584,12 +584,25 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
     ...(quests?.quests?.length ? [
       ``,
       `## Active quests — ${quests.today} (resets at the town's midnight)`,
+      // A FRACTION IS PRINTED ONLY WHERE THERE IS ONE. The town's fold counts
+      // progress for the daily rows; for milestone, one-time and ongoing rows
+      // it returns `progress: null` (and `target: null` on the open-ended
+      // bounties). Interpolating that produced "null/1" and "null/null" on
+      // every doorstep in town from the day the registry grew those rows — a
+      // number-shaped hole where a reader reasonably looks for a count. Say the
+      // row and its cadence, say nothing about a progress this page was not
+      // given, and name the door that does count it.
       ...quests.quests.map((q) => {
-        const done = q.complete ? " ✓ complete" : "";
+        const counted = typeof q.progress === "number" && typeof q.target === "number";
+        const bar = counted ? ` — ${q.progress}/${q.target}` : "";
+        const done = q.complete === true ? " ✓ complete" : "";
         const spent = (q.counted ?? []).length ? `\n    already counted today: ${q.counted.join(", ")}` : "";
         const shared = q.household?.cap_shared ? ` · household cap shared (${q.household.size} residents, ${q.household.total} total)` : "";
-        return `- **${q.title}** — ${q.progress}/${q.target}${done} · ${q.cadence}${shared}${spent}`;
+        return `- **${q.title}**${bar}${done} · ${q.cadence}${shared}${spent}`;
       }),
+      ...(quests.quests.some((q) => typeof q.progress !== "number") ? [
+        `- *Rows without a count are not counted on this page — the town's fold answers progress for the daily rows only. \`GET /api/quests/${b.handle}\` counts the rest.*`,
+      ] : []),
     ] : []),
     // Next steps is the office's own next_steps segment now — the same town
     // tools/quest-progress.mjs fold, asked OF the office instead of re-run
