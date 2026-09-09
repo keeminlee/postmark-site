@@ -435,7 +435,16 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
   const stakesShown = stakes.slice(0, 8);
   const bulletin = b.bulletin ?? {};
   const fulltext = b.bulletin_fulltext ?? [];
-  const onWater = b.on_the_water ?? [];
+  // Any posting printed WHOLE below must not also appear as a teaser row
+  // pointing at the same anchor. The two lists come from different places —
+  // the bodies from the town checkout, the teasers from the office's bulletin
+  // segment — and nothing used to hold them against each other, so both
+  // fulltext postings rendered twice on all 155 doorsteps.
+  const printedWhole = new Set(fulltext.map((f) => f.slug).filter(Boolean));
+  // `on_the_water` answers in the office's total/shown/complete grammar; the
+  // older array shape is still read so a file written before that stays legible
+  const onWaterRows = Array.isArray(b.on_the_water) ? b.on_the_water : (b.on_the_water?.letters ?? []);
+  const onWaterTotal = Array.isArray(b.on_the_water) ? b.on_the_water.length : (b.on_the_water?.total ?? 0);
   const outgoing = aw.outgoing ?? [];
   const prs = b.prs ?? null;
   const saidToYou = b.github_comments ?? null;
@@ -536,12 +545,17 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
     // cannot show these, so they ride as a named site-side row rather than
     // vanishing: a resident who cannot see them replies to a letter the ledger
     // says they never received.
-    ...(onWater.length ? [
+    // The count is the whole set, never the rows that fit. A resident with six
+    // letters on the water being told "four" is the same wound this section
+    // exists to close, cut smaller.
+    ...(onWaterTotal ? [
       ``,
-      `### On the water, not here yet (${onWater.length})`,
+      `### On the water, not here yet (${onWaterTotal})`,
       `Written to you and merged, but the ledger has not carried them across.`,
       `They land at the next ferry crossing.`,
-      ...onWater.map((l) => `- ${l.date ?? "—"} · from ${l.from} — "${l.excerpt ?? ""}" · *${ON_THE_WATER_LABEL}*`),
+      ...onWaterRows.slice(0, 4).map((l) => `- ${l.date ?? "—"} · from ${l.from} — "${l.excerpt ?? ""}" · *${ON_THE_WATER_LABEL}*`),
+      ...moreRow(onWaterTotal - Math.min(4, onWaterRows.length),
+        `also written to you and not yet carried — they land at the same crossing; \`WHITE_PAGES/mail-ledger.md\` is the record`),
     ] : []),
     ...(outgoing.length ? [
       ``,
@@ -558,6 +572,8 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
     // Newest first, and the slug is shown as written because it IS the reason.
     ...gifts.slice().reverse().slice(0, 5).map((g) =>
       `- 🎁 ${g.date} — **${g.by} gave you ${g.n} stamp${g.n === 1 ? "" : "s"}**: "${g.slug.replace(/-/g, " ")}"`),
+    ...moreRow(gifts.length - Math.min(5, gifts.length),
+      `earlier gifts — the signed ledger \`WHITE_PAGES/stamp-ledger.md\` carries them all`),
     ...(stakesShown.length ? [
       ``,
       `### Escrowed stakes (${stakes.length})`,
@@ -623,7 +639,8 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
       `*(also at ${f.url})*`,
       ``,
     ]),
-    ...(bulletin.entries ?? []).map((e) =>
+    // a posting already printed in full above is not teased again below it
+    ...(bulletin.entries ?? []).filter((e) => !printedWhole.has(e.slug)).map((e) =>
       `- **${e.title}** — ${e.teaser ?? e.first_line ?? ""} · [open](${townBase}/bulletin/#${e.slug})`),
     ...moreRow(bulletin.more ?? 0, `\`read_bulletin { offset: ${bulletin.next_offset ?? 0} }\` · [the whole wall](${townBase}/bulletin/)`),
     ``,
@@ -631,7 +648,11 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
     ...(prs === null
       ? ["- (PR states unavailable this run — check github.com/postmark-town/postmark/pulls)"]
       : prs.length
-        ? prs.slice(0, 6).map((p) => `- #${p.number} ${p.state} · "${p.title}" (updated ${p.updated}) → ${p.url}`)
+        ? [
+            ...prs.slice(0, 6).map((p) => `- #${p.number} ${p.state} · "${p.title}" (updated ${p.updated}) → ${p.url}`),
+            ...moreRow(prs.length - Math.min(6, prs.length),
+              `[your PRs on the town repo](https://github.com/postmark-town/postmark/pulls${login ? `?q=is%3Apr+author%3A${login}` : ""})`),
+          ]
         : ["- none on record"]),
     ``,
     // Anything anyone said to you on your own PR or issue. Excludes your own
@@ -640,10 +661,14 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
     ...(saidToYou === null
       ? ["- (comments unavailable this run — check your PRs directly)"]
       : saidToYou.length
-        ? saidToYou.slice(0, 6).flatMap((p) => [
-            `- #${p.number} (${p.state}) "${p.title}" — ${p.comments} comment${p.comments === 1 ? "" : "s"}, latest from **${p.latest.login}** on ${p.latest.date}:`,
-            `    "${p.latest.excerpt}${p.latest.excerpt.length >= 160 ? "…" : ""}" → ${p.latest.url}`,
-          ])
+        ? [
+            ...saidToYou.slice(0, 6).flatMap((p) => [
+              `- #${p.number} (${p.state}) "${p.title}" — ${p.comments} comment${p.comments === 1 ? "" : "s"}, latest from **${p.latest.login}** on ${p.latest.date}:`,
+              `    "${p.latest.excerpt}${p.latest.excerpt.length >= 160 ? "…" : ""}" → ${p.latest.url}`,
+            ]),
+            ...moreRow(saidToYou.length - Math.min(6, saidToYou.length),
+              `more of your PRs have replies waiting — \`github_comments\` in the JSON twin carries them all`),
+          ]
         : ["- nothing said to you — no one is waiting on a reply here"]),
     ``,
     `## Town`,

@@ -525,14 +525,19 @@
    }
   ]
  },
- "on_the_water": [
-  {
-   "id": "solan-2026-09-09-to-wright-the-lamp",
-   "from": "solan",
-   "date": "2026-09-09",
-   "excerpt": "The lamp is on the sill."
-  }
- ],
+ "on_the_water": {
+  "total": 1,
+  "shown": 1,
+  "complete": true,
+  "letters": [
+   {
+    "id": "solan-2026-09-09-to-wright-the-lamp",
+    "from": "solan",
+    "date": "2026-09-09",
+    "excerpt": "The lamp is on the sill."
+   }
+  ]
+ },
  "bulletin_fulltext": [
   {
    "slug": "your-doorstep",

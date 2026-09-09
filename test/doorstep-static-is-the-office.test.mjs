@@ -140,6 +140,94 @@ test("every cap in the markdown counts against the town's total, never the offic
     "the cap must name the door that serves the rest");
 });
 
+// ── THE SAME CAP LAW, ON THE SITE'S OWN ADDITIONS ───────────────────────────
+//
+// The cap test above polices the OFFICE's segments, where the office hands us a
+// `_total` to count against. The reviewer found the discipline had been applied
+// there and dropped on the rows this site adds itself: `on_the_water` printed
+// the four rows that fit as though four were the whole set. A resident with six
+// letters on the water was told four — and that row exists precisely so nobody
+// replies to a letter the ledger says never arrived, so under-reporting it is a
+// smaller cut of the same wound. These hold every site-side cap to the law.
+
+test("THE SITE'S OWN CAPS: on_the_water counts the whole set, never the rows that fit", () => {
+  const many = composeDoorstep(OFFICE, {
+    ...siteRows,
+    on_the_water: {
+      total: 6,
+      shown: 6,
+      complete: true,
+      letters: Array.from({ length: 6 }, (_, i) => ({
+        id: `l-${i}`, from: `sender-${i}`, date: "2026-09-09", excerpt: `letter ${i}`,
+      })),
+    },
+  });
+  const md = renderDoorstepMarkdown(many, { townBase: "https://postmark.town" });
+
+  assert.match(md, /### On the water, not here yet \(6\)/,
+    "the heading must count every letter on the water, not the four the page prints");
+  assert.equal(/### On the water, not here yet \(4\)/.test(md), false,
+    "printing the cap as the total is the silent denominator this lane exists to police");
+  assert.match(md, /\+2 more/, "the two that did not fit must be named");
+  assert.match(md, /mail-ledger\.md/, "a cap without a door is a silent cap");
+});
+
+test("the site's other capped lists name their remainders too", () => {
+  const heavy = composeDoorstep(OFFICE, {
+    ...siteRows,
+    prs: Array.from({ length: 9 }, (_, i) => ({
+      number: 600 + i, title: `pr ${i}`, state: "merged", created: "2026-09-01", updated: "2026-09-02",
+      url: `https://github.com/postmark-town/postmark/pull/${600 + i}`,
+    })),
+    gifts: Array.from({ length: 7 }, (_, i) => ({ date: "2026-08-04", n: 1, slug: `gift-${i}`, by: "darko" })),
+    github_comments: Array.from({ length: 8 }, (_, i) => ({
+      number: 600 + i, state: "merged", title: `pr ${i}`, comments: 1,
+      latest: { login: "postmaster", date: "2026-09-02", excerpt: "a note", url: "https://example.invalid/c" },
+    })),
+  });
+  const md = renderDoorstepMarkdown(heavy, { townBase: "https://postmark.town" });
+
+  const prSection = md.slice(md.indexOf("## Your PRs"), md.indexOf("## Said to you"));
+  assert.match(prSection, /\+3 more/, "9 PRs, 6 printed — the other three must be named");
+  assert.match(prSection, /github\.com\/postmark-town\/postmark\/pulls/, "with the door that lists them");
+
+  const standing = md.slice(md.indexOf("## Where your name stands"), md.indexOf("### Escrowed stakes"));
+  assert.match(standing, /\+2 more/, "7 gifts, 5 printed");
+  assert.match(standing, /stamp-ledger\.md/, "with the ledger that carries them");
+
+  const said = md.slice(md.indexOf("## Said to you on GitHub"));
+  assert.match(said, /\+2 more/, "8 threads with replies, 6 printed");
+});
+
+test("THE DUPLICATE: a posting printed in full is not teased again on the same wall", () => {
+  // Read off the built page by the reviewer: "The World" rode whole under The
+  // town's wall and then reappeared forty lines below as an office bulletin
+  // teaser pointing at the same anchor. The bodies come from the town checkout,
+  // the teasers from the office's segment, and nothing held them against each
+  // other — so it hit both fulltext postings on all 155 doorsteps.
+  const overlapping = structuredClone(OFFICE);
+  overlapping.bulletin.entries = [
+    { slug: "the-world", title: "The World", teaser: "a teaser", first_line: "# The World" },
+    { slug: "settling-in", title: "Settling in", teaser: "another", first_line: "# Settling in" },
+  ];
+  const md = renderDoorstepMarkdown(composeDoorstep(overlapping, {
+    ...siteRows,
+    bulletin_fulltext: [{
+      slug: "the-world", title: "The World", posted: "2026-08-25", kind: "news",
+      url: "https://postmark.town/bulletin/#the-world", body: "# The World\n\nthe whole posting.",
+    }],
+  }), { townBase: "https://postmark.town" });
+
+  const wall = md.slice(md.indexOf("## The town's wall"));
+  assert.match(wall, /### The World — read in full/, "it still rides whole");
+  assert.equal(/- \*\*The World\*\* — a teaser/.test(wall), false,
+    "and it must not also appear as a teaser row pointing at the same anchor");
+  assert.equal((wall.match(/bulletin\/#the-world/g) ?? []).length, 1,
+    "exactly one reference to the anchor on the wall");
+  assert.match(wall, /- \*\*Settling in\*\* — another/,
+    "a posting NOT printed in full still gets its teaser row");
+});
+
 test("the markdown says which source each half of its freshness line came from", () => {
   const md = renderDoorstepMarkdown(STATIC, { townBase: "https://postmark.town" });
   // one stamp per answer: the body's age is the office's, the site rows' age is
@@ -150,6 +238,62 @@ test("the markdown says which source each half of its freshness line came from",
     "the page must stamp the site-side rows with the town commit they came from");
   assert.match(md, /fetched`: 2026-09-09T21:00:00\.000Z/,
     "the page must say when it asked the door");
+});
+
+// ── THE ANSWER'S CLOCK, NOT THE RUN'S ───────────────────────────────────────
+//
+// `doorstep_fetched_at` is the ONLY true answer-time on the file: the office
+// stamps its bundle with a commit sha, not a timestamp, so if this field is
+// wrong nothing else on the page can correct it. It was taken once before the
+// loop and stamped on every file — the reviewer measured 1 distinct value
+// across 248 files while the writes spanned 3m36s, so every file but the first
+// claimed a fetch time it did not have, by up to the whole duration of the run.
+//
+// The defect is CONTROL FLOW — where the clock is read — so the instrument
+// reads the source, the way test/extract-seam.test.mjs already does for the
+// seam's own emitter. It fails if anyone hoists the clock back out of the loop.
+
+test("two handles fetched apart carry different stamps — the field is wired to the fetch, not to the run", () => {
+  const a = composeDoorstep(OFFICE, {
+    ...siteRows,
+    site: { ...siteRows.site, doorstep_fetched_at: "2026-09-09T21:46:10.000Z" },
+  });
+  const b = composeDoorstep(OFFICE, {
+    ...siteRows,
+    site: { ...siteRows.site, doorstep_fetched_at: "2026-09-09T21:49:46.000Z" },
+  });
+  assert.notEqual(a.site.doorstep_fetched_at, b.site.doorstep_fetched_at,
+    "two answers that arrived three minutes apart must not claim the same moment");
+  // and each page prints its OWN stamp, not a shared one
+  const mdA = renderDoorstepMarkdown(a, { townBase: "https://postmark.town" });
+  const mdB = renderDoorstepMarkdown(b, { townBase: "https://postmark.town" });
+  assert.match(mdA, /fetched`: 2026-09-09T21:46:10\.000Z/);
+  assert.match(mdB, /fetched`: 2026-09-09T21:49:46\.000Z/);
+});
+
+test("THE HOIST: the extractor reads the clock inside the resident loop, once per fetch", () => {
+  // normalised: this repo checks out CRLF (core.autocrlf=true), and an anchor
+  // written with \n silently fails to match rather than failing loudly
+  const src = readFileSync(join(HERE, "..", "tools", "extract-town.mjs"), "utf8").replace(/\r\n/g, "\n");
+
+  // the fetch returns the moment its own answer arrived
+  assert.match(src, /return \{ body, fetchedAt: new Date\(\)\.toISOString\(\) \};/,
+    "officeDoorstep must stamp the moment its own answer parsed");
+  assert.match(src, /doorstep_fetched_at: fetchedAt,/,
+    "the field must be fed from that per-fetch value");
+
+  // the hoisted clock is gone, and cannot come back under its old name
+  assert.equal(/const builtAt\s*=\s*new Date\(\)/.test(src), false,
+    "a single run-start timestamp stamped on every file is the defect itself");
+
+  // and the clock read sits AFTER the loop opens — the ordering is the law
+  const loopAt = src.indexOf("for (const r of town.residents) {\n    // A handle whose file we cannot refresh");
+  const stampAt = src.indexOf("doorstep_fetched_at: fetchedAt,");
+  const clockAt = src.indexOf("fetchedAt: new Date().toISOString()");
+  assert.ok(loopAt > 0 && stampAt > loopAt,
+    "the stamp must be written inside the per-resident loop");
+  assert.ok(clockAt > 0 && clockAt < loopAt,
+    "the clock lives in the fetch helper the loop calls — one read per call, not one per run");
 });
 
 test("the page points at the live door it mirrors", () => {
