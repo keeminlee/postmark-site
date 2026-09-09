@@ -209,16 +209,27 @@ export function stakePositions(ledgerText, handle) {
 
 /** Read Ferry's first ### line into its structural crossing/headline parts. */
 export function ferryHeadline(markdown) {
-  const heading = /^###\s+(.+?)\s*$/m.exec(String(markdown ?? ""))?.[1]?.trim();
-  if (!heading) return null;
-  const readable = heading.replace(/^[^\p{L}\p{N}]*/u, "");
-  const crossing = /\bCrossing\s+(\d+)\b/i.exec(readable);
-  if (!crossing) return null;
-  const headline = readable.slice(crossing.index + crossing[0].length).replace(/^\s*[·—:|-]\s*/, "").trim();
-  return {
-    crossing: Number(crossing[1]),
-    headline: headline || null,
-  };
+  // ANY HEADING LEVEL, and the first one that actually names a crossing.
+  // This used to insist on `###` and on that heading being the first in the
+  // file. Ferry's Daily moved its crossing line to `## ⛴ **Crossing N · …**`
+  // and the match silently stopped: from that day every doorstep in town
+  // printed the generic "one page from the office" fallback instead of the
+  // crossing, with the data sitting right there in the file. Nothing went red,
+  // because nothing was reading the line. A matcher pinned to a heading LEVEL
+  // is pinned to a formatting choice its author never agreed to keep — so this
+  // one asks only for the word it actually needs.
+  const text = String(markdown ?? "");
+  for (const m of text.matchAll(/^#{1,6}\s+(.+?)\s*$/gm)) {
+    // strip leading ornament (emoji, bold openers) and any bold wrapper — the
+    // trailing `**` used to ride onto the page as "· no bounces**"
+    const readable = m[1].replace(/^[^\p{L}\p{N}]*/u, "").replace(/\*+\s*$/, "").trim();
+    const crossing = /\bCrossing\s+(\d+)\b/i.exec(readable);
+    if (!crossing) continue;
+    const headline = readable.slice(crossing.index + crossing[0].length)
+      .replace(/^\s*[·—:|-]\s*/, "").replace(/\*+/g, "").trim();
+    return { crossing: Number(crossing[1]), headline: headline || null };
+  }
+  return null;
 }
 
 export function budgetItems(items, limit) {
@@ -481,20 +492,42 @@ export function renderDoorstepMarkdown(bundle, { townBase, titleOf = (k) => k } 
     ...moreRow(threadsHidden, `\`household { read: "mail", view: "awaiting", handle: "${b.handle}" }\` walks them all`),
     ``,
     `### Your word is out (${wordOutTotal})`,
+    // WHEN THE OFFICE'S PAGE HOLDS NONE OF THESE, SAY THE ONE TRUE THING AND
+    // STOP. The office orders its conversations page next_actor:"you" first, so
+    // a resident with more than a page of threads awaiting THEM gets no
+    // last_word_yours row on page one at all. Printing an empty list and then
+    // "+122 more" beneath it is two sentences that argue with each other, and
+    // neither tells the reader anything. One line does: the count, why it owes
+    // nobody anything, and the door that walks it.
     ...(wordOutShown.length
-      ? wordOutShown.map((c) => `- ${(c.others ?? []).join(", ") || "—"} · **${titleOf(c.conversation)}** · [thread](${townBase}/mail/${c.conversation}/) · ${ageLabel(ageInDays(c.latest_event?.date ?? null, asOfDate))}`)
-      : ["- nothing on this page rests with your word — a finished conversation owes nobody anything"]),
-    ...moreRow(Math.max(0, wordOutTotal - wordOutShown.length),
-      `these rest with your last word and owe nobody anything · \`household { read: "mail", view: "awaiting" }\` walks them`),
+      ? [
+          ...wordOutShown.map((c) => `- ${(c.others ?? []).join(", ") || "—"} · **${titleOf(c.conversation)}** · [thread](${townBase}/mail/${c.conversation}/) · ${ageLabel(ageInDays(c.latest_event?.date ?? null, asOfDate))}`),
+          ...moreRow(Math.max(0, wordOutTotal - wordOutShown.length),
+            `these rest with your last word and owe nobody anything · \`household { read: "mail", view: "awaiting" }\` walks them`),
+        ]
+      : wordOutTotal
+        ? [`- *${wordOutTotal} thread${wordOutTotal === 1 ? "" : "s"} rest with your last word — a finished conversation owes nobody anything · \`household { read: "mail", view: "awaiting", handle: "${b.handle}" }\` walks them*`]
+        : ["- nothing riding the tide — the next word is yours to start"]),
     ...(b.mail?.letters?.length ? [
       ``,
       `### Arrived lately`,
-      // the office's mail page is DELIVERED mail, newest first; the threads
-      // already listed above are not repeated here
+      // The office's mail page is DELIVERED mail, newest first. Every thread
+      // the office told us is awaiting a word from you is excluded — all of
+      // them, not just the seven printed above, or the same conversation shows
+      // up twice on one page wearing two different hats.
+      //
+      // A LETTER WITH NO THREAD KEY GETS THE MAIL INDEX, NEVER `/mail//`. The
+      // office's rows carry `thread: null` for a letter that starts no
+      // conversation, and interpolating that straight into the path shipped a
+      // dead link to every resident who had one.
       ...(() => {
-        const listed = new Set(threadsShown.map((t) => t.thread_of));
+        const listed = new Set((aw.threads ?? []).map((t) => t.thread_of));
         return (b.mail.letters ?? []).filter((l) => !listed.has(l.thread)).slice(0, 4)
-          .map((l) => `- ${l.date ?? "—"} · from ${l.from} — "${l.first_line ?? ""}" → ${townBase}/mail/${l.thread ?? ""}/`);
+          .map((l) => {
+            const url = l.thread ? `${townBase}/mail/${l.thread}/` : `${townBase}/mail/`;
+            const quote = l.first_line ? ` — "${l.first_line}"` : "";
+            return `- ${l.date ?? "—"} · from ${l.from}${quote} → ${url}`;
+          });
       })(),
     ] : []),
     // PUBLICATION IS NOT ARRIVAL. Letters written to you and merged into the

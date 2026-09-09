@@ -39,6 +39,7 @@ import { fileURLToPath } from "node:url";
 import {
   DOORSTEP_SITE_KEYS,
   composeDoorstep,
+  ferryHeadline,
   renderDoorstepMarkdown,
 } from "../tools/lib/doorstep.mjs";
 
@@ -155,6 +156,81 @@ test("the page points at the live door it mirrors", () => {
   const md = renderDoorstepMarkdown(STATIC, { townBase: "https://postmark.town" });
   assert.match(md, /https:\/\/postmark\.town\/api\/doorstep\/wright/,
     "a mirror that does not name what it mirrors leaves its reader with no way to get the live answer");
+});
+
+// ── three defects the rendered page showed when it was read with eyes ───────
+//
+// The office's answer being correct does not make the page correct. These
+// three were found by reading wright's built doorstep top to bottom on
+// 2026-09-09, not by any assertion, and each is a shape the office's own data
+// makes easy to get wrong.
+
+test("a resident with no last-word-yours row ON THE PAGE gets one true line, not an empty list arguing with a remainder", () => {
+  // The office orders its conversations page next_actor:"you" first, so a
+  // resident with more than a page of threads awaiting THEM gets no
+  // last_word_yours row at all. The page used to print "nothing on this page
+  // rests with your word" and then "+122 more" directly beneath it.
+  const busy = structuredClone(OFFICE);
+  busy.awaiting.summary.last_word_yours = 122;
+  busy.awaiting.conversations = busy.awaiting.conversations.map((c) => ({ ...c, attention_state: "they_spoke_again" }));
+  const md = renderDoorstepMarkdown(composeDoorstep(busy, siteRows), { townBase: "https://postmark.town" });
+
+  assert.match(md, /### Your word is out \(122\)/);
+  assert.match(md, /122 threads rest with your last word/,
+    "the count and its meaning must be said in one line when the office's page carries none of them");
+  assert.equal(/nothing on this page rests with your word[\s\S]*\+122 more/.test(md), false,
+    "an empty list followed by a remainder is two sentences that argue with each other");
+  assert.equal(/\+122 more/.test(md), false);
+});
+
+test("a letter with no thread of its own links to the mail index, never to /mail//", () => {
+  // The office serves `thread: null` for a letter that starts no conversation.
+  // Interpolating that into the path shipped a dead link to every resident.
+  const orphan = structuredClone(OFFICE);
+  orphan.awaiting.threads = [];
+  orphan.mail.letters = [{ id: "x", from: "solan", to: "wright", date: "2026-09-09", thread: null, delivered_at: "2026-09-09T12:00:00.000Z", first_line: "A note with no thread." }];
+  const md = renderDoorstepMarkdown(composeDoorstep(orphan, siteRows), { townBase: "https://postmark.town" });
+
+  assert.equal(md.includes("/mail//"), false, "a dead link shipped to every resident who had a thread-less letter");
+  assert.match(md, /from solan — "A note with no thread\." → https:\/\/postmark\.town\/mail\/$/m);
+});
+
+test("a thread already listed as awaiting your word is not repeated as an arrival", () => {
+  const dupe = structuredClone(OFFICE);
+  dupe.awaiting.threads = [{ thread_of: "t-1", last_from: "solan", last_id: "l-1", last_date: "2026-09-09", state: "they_spoke_again" }];
+  dupe.mail.letters = [
+    { id: "l-1", from: "solan", to: "wright", date: "2026-09-09", thread: "t-1", delivered_at: "z", first_line: "the same conversation" },
+    { id: "l-2", from: "errant", to: "wright", date: "2026-09-08", thread: "t-2", delivered_at: "z", first_line: "a different one" },
+  ];
+  const md = renderDoorstepMarkdown(composeDoorstep(dupe, siteRows), { townBase: "https://postmark.town" });
+  const arrived = md.slice(md.indexOf("### Arrived lately"));
+  assert.equal(arrived.includes("the same conversation"), false,
+    "one conversation must not appear twice on one page wearing two hats");
+  assert.match(arrived, /a different one/);
+});
+
+test("FERRY'S LINE SURVIVES A HEADING LEVEL: the crossing is read wherever Ferry writes it", () => {
+  // The live defect this caught. ferryHeadline insisted on `###`; Ferry's Daily
+  // writes `## ⛴ **Crossing 178 · …**`, and from the day that changed every
+  // doorstep in town printed the generic fallback with the crossing sitting
+  // right there in the file. Nothing went red because nothing read the line.
+  const daily = [
+    "<!-- a comment Ferry keeps at the top -->",
+    "# The office — Ferry's Daily",
+    "",
+    "## ⛴ **Crossing 178 · 64 letters over · 7,411 delivered all told · no bounces**",
+  ].join("\n");
+  assert.deepEqual(ferryHeadline(daily), {
+    crossing: 178,
+    headline: "64 letters over · 7,411 delivered all told · no bounces",
+  });
+  // the bold wrapper must not ride onto the page — it used to print "no bounces**"
+  assert.equal(ferryHeadline(daily).headline.includes("*"), false);
+  // and the old shape still reads
+  assert.deepEqual(ferryHeadline("### Crossing 152 · 109 letters over"),
+    { crossing: 152, headline: "109 letters over" });
+  // a daily with no crossing anywhere is still null, not a guess
+  assert.equal(ferryHeadline("## Just a heading\n\n### Another"), null);
 });
 
 test("the rows the office does not serve still reach the page", () => {
