@@ -9,6 +9,27 @@ numbers and not at all for the structural ones.
 Jetto (`meepo-prime`), 2026-08-14. Receipts are `spectator/viewer.mjs` in the
 `postmark-world` package unless said otherwise.
 
+> **SUPERSEDED IN ONE PART, 2026-09-08 — THE ATLAS FETCH IS GONE.** Everything
+> below was measured on 2026-08-14 and is left as measured: a dated observation
+> rewritten to match today's code stops being an observation. But on 2026-09-08
+> `townGround()` replaced `loadMinimap`'s `fetch("/atlas/town.html")` (founder:
+> *"no more atlas background, all world visuals are from the world"*), so the
+> town's ground is now drawn from the world's own record — the regions' and the
+> water's `points:` rings, the skeleton's light and terrain features — and
+> `/atlas/` is a frozen historical drawing.
+>
+> **Three passages below are now false about the live page, and each is marked
+> where it stands** (§ The one-line answer, § 2, § 6). They are the ones that say
+> the page FETCHES the atlas. What survives unchanged is everything about layer
+> order, the `viewBox` camera, re-rasterisation on pan, and the fold's own size
+> — the structural half, which is most of this file.
+>
+> **The performance conclusion survives and sharpens.** § 6 measured
+> `/atlas/town.html` at 126 KB over the wire and 385 KB raw; that request is now
+> zero. Whether the generated ground costs less to RASTERISE than the painting
+> did is not measured here and this file should not be read as claiming it —
+> a fetch removed is not a frame cost removed, and someone should re-measure.
+
 ---
 
 ## The one-line answer
@@ -18,6 +39,12 @@ nodes total regardless of how many marks exist, and the 666 KB fold parses in
 1.9 ms. The two things actually carrying weight are **the painted atlas** (90
 raster `<image>` nodes inside 81 `<svg>`s) and **the fact that panning
 re-rasterizes all of it every frame**, because the camera is the `viewBox`.
+
+> ⚠ **The first of those two is gone as of 2026-09-08.** The painted atlas is no
+> longer fetched or mounted; the ground is generated from the record. The second
+> — the `viewBox` camera re-rasterising on every pan — is untouched and is now
+> the whole of the weight this file found. **Nobody has re-measured since**, so
+> treat the 90-image figure as history and the pan cost as the open question.
 
 ---
 
@@ -36,6 +63,12 @@ So any render change is a `postmark-world` change. The site can only wrap it.
 
 ## 2. The map is the ATLAS PAINTING plus derived `<g>` layers
 
+> ⚠ **Superseded 2026-09-08.** `loadMinimap` now calls `townGround(world.marks,
+> data.skeleton, …)` and mounts what it returns. The description below is how the
+> page worked until that day; **the layer-order half of it still holds exactly**,
+> because the generated ground occupies the same slot with the same structure and
+> opens with the same full-bleed rect. Only the SOURCE of the base changed.
+
 `loadMinimap` (`viewer.mjs:3321`) fetches `/atlas/town.html`, `DOMParser`s it,
 disciplines its images, takes its `<svg>`, and appends the viewer's own layers
 around it. Layer order IS z-order — mist and far-art are *inserted before* the
@@ -47,6 +80,13 @@ walkers, convo-hover.
 at all — it is a synced artifact from `postmark-site`. Tiling the ground is
 mostly a question about `/atlas/town.html`, and it can be answered largely
 independently of the derived layers.
+
+> ⚠ **Reversed 2026-09-08, and this is the passage that would most mislead.** The
+> settled ground IS drawn by the viewer now, and it is no longer a synced artifact
+> from `postmark-site` at all. A tile pyramid is therefore no longer a question
+> about `/atlas/town.html` — it is a question about what `townGround()` emits, and
+> the independence-from-derived-layers argument still stands for the same reason
+> it did (same slot, same structure).
 
 ## 3. Is every mark a live DOM node? **No.**
 
@@ -114,7 +154,7 @@ them. So an idle world page is genuinely idle.
 | URL | wire (gzip) | raw |
 |---|---|---|
 | `/api/world/state` | 110 KB | **666 KB** |
-| `/atlas/town.html` | 126 KB | **385 KB** |
+| ~~`/atlas/town.html`~~ (not requested since 2026-09-08) | ~~126 KB~~ | ~~**385 KB**~~ |
 | `/world-engine/spectator/viewer.mjs` | 128 KB | 338 KB |
 | `/WORLD/skeleton.json` | 6 KB | 21 KB |
 | `/api/world/walkers` | 2 KB | 14 KB |

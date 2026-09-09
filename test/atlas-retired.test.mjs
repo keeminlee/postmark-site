@@ -228,6 +228,136 @@ test("FALSIFIER: CI builds the site before it runs the suite, so the built-page 
     + "a build afterwards is a build the tests never saw");
 });
 
+// -----------------------------------------------------------------------------
+// FALSIFIER 5 - NO OTHER SURFACE STILL TELLS A READER THE ATLAS IS LIVING.
+//
+// The reviewer's repairs 9 and 10, generalised, because two instances of one
+// thing is a class. `/atlas/` grew a banner saying it stopped; `works/` went on
+// calling it a "living map" that "Grows as the mail does", and RENDER-NOTES.md
+// went on describing a fetch the world had removed. A READER MEETS THE INDEX
+// BEFORE THE PAGE, so an index contradicting the thing it indexes wins the
+// argument - and neither surface was reachable from the diff that retired the
+// atlas, which is why they survived it.
+//
+// THIS READS THE SHIPPED BYTES, NOT THE SOURCE, and that is the whole design.
+// My first version scanned .astro sources and reddened on TWO OF MY OWN
+// RETIREMENT COMMENTS - the ones that quote the retired sentence in order to
+// record what it used to say. A guard that cannot tell an assertion from a
+// quotation bans writing down what changed, which is the opposite of the
+// discipline it is enforcing. The distinction it could not make in source is
+// free in the build: a comment never ships. What a reader is told is exactly
+// what lands in dist-town, script regions stripped.
+//
+// Markdown in the repo is scanned separately and directly, because those files
+// have no build and no comment syntax to confuse - a claim in RENDER-NOTES.md
+// is read as written.
+// -----------------------------------------------------------------------------
+
+// Each of these is an ASSERTION that the drawing is current, and each is
+// specific enough that it can mean nothing else.
+const LIVING_CLAIMS = [
+  "Grows as the mail does",
+  "It redraws as the mail moves",
+  "blueprint for the walkable town coming next",
+];
+
+// "living map" is NOT in that list, and the two versions of this arm that tried
+// to put it there are the lesson.
+//
+// Banned outright, it reddened on `conversations/`, `replay/` and the frozen
+// page itself - none of them wrong. The site's NAV carries "the living map" as
+// the label for `/world/`, which is exactly what the World now is and exactly
+// what this retirement wants said.
+//
+// Banned NEAR the atlas, within 300 characters, it reddened on the same pages
+// for a better-hidden reason: the nav also carries a link to `/atlas/`, so the
+// two strings sit inside one window on EVERY page that renders a nav. The
+// proximity rule was measuring the furniture, not the claim.
+//
+// A window I keep shrinking until the reds go away is a number tuned to today's
+// markup, so there is no window. The phrase is checked in the one place it was
+// actually wrong - the Atlas card on `/works/` - by reading that card's own
+// source field, below.
+const ATLAS_CARD_KIND = 'kind: "living map"';
+
+// Mail, conversations and resident pages are ARCHIVES OF RESIDENTS' OWN WORDS.
+// Two letters use the phrase, written when it was true, and a guard reddening on
+// them would be asking the town to edit what residents said to keep an index
+// tidy. Their words are theirs. Excluded on purpose, and named so nobody quietly
+// widens the scan back over them.
+const RESIDENT_ARCHIVES = ["mail", "conversations", "residents", "households", "window"];
+
+test("FALSIFIER: no SHIPPED page of the site's own still advertises the atlas as living",
+  { skip: built ? false : "no dist-town/ - run `npm run build` first" }, () => {
+    const pages = walk(DIST, "index.html").filter((f) => {
+      const rel = f.slice(DIST.length).replace(/\\/g, "/").replace(/^\/+/, "");
+      return !RESIDENT_ARCHIVES.includes(rel.split("/")[0]);
+    });
+    assert.ok(pages.length > 20,
+      `only ${pages.length} of the site's own built pages found - the walk is not reaching dist-town`);
+
+    const guilty = [];
+    for (const f of pages) {
+      const text = pageText(readFileSync(f, "utf8"));
+      for (const claim of LIVING_CLAIMS) {
+        if (text.includes(claim)) guilty.push(`${f.slice(DIST.length)} :: ${claim}`);
+      }
+    }
+    assert.deepEqual(guilty, [],
+      `a page the site itself writes still tells the reader the atlas is current, over a page whose `
+      + `banner says it stopped on ${FROZEN_AT}. The reader meets the index first and believes it.`);
+  });
+
+test("FALSIFIER: the works index files the atlas as a historical drawing, not a living map", () => {
+  // Read as SOURCE and by the field's own code form. The card is a data literal,
+  // so `kind: "living map"` is unambiguous - and it does not match the retirement
+  // comment two lines above it, which quotes the words in order to retire them.
+  // That is the same quotation-vs-assertion trap falsifier 1 documents, met here
+  // by matching code rather than prose.
+  const works = read("town/pages/works/index.astro");
+  assert.ok(works.includes("The Postmark Atlas"), "the works index no longer lists the atlas at all");
+  assert.ok(!works.includes(ATLAS_CARD_KIND),
+    `the works index still files the atlas under ${ATLAS_CARD_KIND} while /atlas/ says it stopped on ${FROZEN_AT}`);
+  assert.ok(works.includes('kind: "historical drawing"'),
+    "the atlas card lost its kind entirely - it should say what it now IS, not merely stop saying what it was");
+  // NOT checked here: "Grows as the mail does". That sentence appears in this
+  // file twice - once as the retired claim and once inside the comment that
+  // records retiring it - and a source scan cannot tell them apart. It is the
+  // third time this arm walked into the quotation-vs-assertion trap while
+  // documenting it, so it stops trying: the shipped-page arm above reads what
+  // a reader is told, where comments do not exist, and catches it properly.
+});
+
+test("FALSIFIER: no repo document still describes the atlas fetch as current", () => {
+  // RENDER-NOTES.md is a DATED observation and is deliberately left as measured
+  // - rewriting a 2026-08-14 measurement to match today's code stops it being an
+  // observation. What it may not do is describe the fetch without saying it is
+  // gone. So the test is not "the sentence is absent"; it is "every place the
+  // fetch is described carries its supersession".
+  const notes = read("RENDER-NOTES.md");
+  assert.ok(notes.includes("fetches `/atlas/town.html`"),
+    "RENDER-NOTES.md no longer records the fetch at all - the history was deleted rather than stamped, "
+    + "which loses the measurement this file exists to keep");
+  assert.ok(notes.includes("SUPERSEDED IN ONE PART, 2026-09-08 — THE ATLAS FETCH IS GONE"),
+    "RENDER-NOTES.md describes the atlas fetch with no supersession stamp - a dated document that reads "
+    + "as current is worse than one that is simply old");
+  assert.ok(notes.includes("townGround()"),
+    "the stamp does not name what replaced the fetch, so a reader cannot follow it anywhere");
+
+  // And the claims themselves are absent from every .md a reader browses.
+  const docs = ["README.md", "RENDER-NOTES.md", "TUTORIALS.md", "WORLD-PIN.md"]
+    .filter((f) => existsSync(join(ROOT, f)));
+  const guilty = [];
+  for (const f of docs) {
+    const text = read(f);
+    for (const claim of LIVING_CLAIMS) {
+      if (claim === "living map" && text.includes("living map is")) continue;
+      if (text.includes(claim)) guilty.push(`${f} :: ${claim}`);
+    }
+  }
+  assert.deepEqual(guilty, [], "a repo document still advertises the atlas as living");
+});
+
 test("the page source and this test agree about the freeze's two facts", () => {
   // The stamp is hand-written on both sides because the job that could have
   // computed it is deleted. Two hand-written copies drift; this is the check

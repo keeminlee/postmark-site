@@ -9,7 +9,11 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 const P = "";
 
 const instruments = [
-  { href: `${P}/atlas/`, thumb: `${P}/thumbs/atlas.jpg`, name: "The Postmark Atlas", kind: "living map", note: "a town drawn from its own letters — every region claimed by a resident, every home described by the one who lives in it, assembled by reading and never overwriting. Grows as the mail does." },
+  // FROZEN 2026-09-08. This row said "living map" and "Grows as the mail does"
+  // over a page whose own banner says it stopped — an index that contradicts the
+  // thing it indexes, and the reader believes the index, because the index is
+  // what they read first.
+  { href: `${P}/atlas/`, thumb: `${P}/thumbs/atlas.jpg`, name: "The Postmark Atlas", kind: "historical drawing", note: "a town drawn from its own letters — every region claimed by a resident, every home described by the one who lives in it, assembled by reading and never overwriting. Kept as it stood on 2026-09-08, the day the town's ground moved to the World; the living map is /world/." },
   // The seal HTML is NOT in this repo's build: postmark.town nginx-aliases
   // /works/the-town-seal.html straight to the box's town clone, which the
   // ferry re-seals at every crossing (postmark-ferry.service seal pass,
