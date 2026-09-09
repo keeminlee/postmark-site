@@ -485,11 +485,22 @@ emit("stats.json", {
     .sort((a, b) => (b.posted ?? "").localeCompare(a.posted ?? "") || a.slug.localeCompare(b.slug));
 
   // THE TOWN COMMIT THIS BUILD'S SITE-SIDE ROWS CAME FROM — and nothing else.
-  // It is NOT the freshness of the page body: the body is the office's answer
-  // and carries the office's own `as_of`. One stamp per answer; a single
+  // It is NOT the freshness of the page body: the body is the office's answer,
+  // and its answer-time is stamped PER HANDLE, at the moment that handle's fetch
+  // returned (see `officeDoorstep` below). One stamp per answer; a single
   // freshness line covering two sources is the confident lie this page used to
   // tell, so the two are stamped separately and each says which rows it governs.
-  const builtAt = new Date().toISOString();
+  //
+  // THE CLOCK IS NOT READ HERE. It used to be: one `builtAt` before the loop,
+  // stamped onto every file. The reviewer measured the result — 1 distinct
+  // `doorstep_fetched_at` across 248 files while the writes spanned 3m36s, so
+  // the last resident's file claimed a fetch time three and a half minutes
+  // before its own fetch, and at the live population that drift is ~4.5
+  // minutes. The office's `as_of` is a commit sha, not a timestamp, so this
+  // field is the ONLY true answer-time on the file and a shared value makes
+  // every file but the first one wrong. If you are tempted to hoist a clock
+  // read back out of the loop for tidiness: that is the bug.
+  //
   // THE CROSSING THIS MIRROR REFLECTS, asked of the office by whoever ran this
   // (the box's deploy/site-refresh.sh passes POSTMARK_CROSSING from GET /api/)
   // and NEVER derived here — the office's src/crossings.mjs is the town's one
@@ -519,6 +530,12 @@ emit("stats.json", {
   // THE DOOR. One call per resident; the answer is the file. A failure here is
   // never papered over with a locally-built substitute — the caller keeps the
   // previous file instead.
+  //
+  // It returns the answer AND the moment the answer arrived. The clock is read
+  // here, once per call, immediately after the body parses — not before the
+  // loop, and not when the file is written. That timestamp is the only true
+  // answer-time the file can carry, because the office stamps its bundle with a
+  // commit sha rather than a time.
   const officeDoorstep = async (handle) => {
     const res = await fetch(`${POSTMARK_API}/doorstep/${handle}`, {
       headers: { "user-agent": "starforge-atelier-extractor", accept: "application/json" },
@@ -529,7 +546,7 @@ emit("stats.json", {
     if (!body || typeof body !== "object" || body.handle !== handle) {
       throw new Error(`the door answered for "${body?.handle}", not "${handle}"`);
     }
-    return body;
+    return { body, fetchedAt: new Date().toISOString() };
   };
 
   const DOORSTEP_DIR = join(PUB_DATA, "doorstep");
@@ -544,9 +561,9 @@ emit("stats.json", {
     doorstepWanted.add(`${r.handle}.json`);
     doorstepWanted.add(`${r.handle}.md`);
 
-    let office;
+    let office, fetchedAt;
     try {
-      office = await officeDoorstep(r.handle);
+      ({ body: office, fetchedAt } = await officeDoorstep(r.handle));
     } catch (e) {
       // KEEP THE PREVIOUS FILE AND SAY SO. Never a thinner file, never a
       // locally-rebuilt one: the kept file's own `site.doorstep_fetched_at`
@@ -557,26 +574,49 @@ emit("stats.json", {
     }
 
     const login = (r.address?.data?.github ?? "").toLowerCase();
-    const prs = prsByAuthor === null ? null : (login ? (prsByAuthor.get(login) ?? []).slice(0, 10) : []);
+    // NO SILENT CAP IN THE JSON. These lists used to be cut here — prs to 10,
+    // the GitHub replies to 6 — so a downstream reader could not recover the
+    // count and the page's own remainder row would have counted against the
+    // cut, not against the truth. Both are small by construction (the replies
+    // are drawn from this author's PRs, and the PR list from the newest 200 on
+    // the repo, which is the one denominator left and it is named in the page).
+    // The markdown does the capping, and it names its remainder against these.
+    const prs = prsByAuthor === null ? null : (login ? (prsByAuthor.get(login) ?? []) : []);
     // what came BACK on your own PRs and issues — never what you wrote
     const githubComments = commentsByNumber === null || prs === null ? null : (() => {
       const withReplies = prs.filter((p) => (commentsByNumber.get(p.number) ?? []).some((c) => c.login && c.login !== login));
       const openFirst = [...withReplies].sort((a, b) => (a.state === "open" ? 0 : 1) - (b.state === "open" ? 0 : 1));
-      return openFirst.slice(0, 6).map((p) => {
+      return openFirst.map((p) => {
         const said = (commentsByNumber.get(p.number) ?? []).filter((c) => c.login && c.login !== login);
         return { number: p.number, state: p.state, title: p.title, comments: said.length, latest: said[said.length - 1] };
       });
     })();
 
     // PUBLICATION IS NOT ARRIVAL — the one mail row the office's delivered-mail
-    // segment structurally cannot carry. Same eight-letter window the office
-    // pages at, cut to four.
+    // segment structurally cannot carry.
+    //
+    // THE TOTAL IS COUNTED OVER EVERY LETTER WRITTEN TO THIS RESIDENT, not over
+    // a window. This used to split the newest EIGHT letters and then cut the
+    // result to four, and the page printed that four as the total — so a
+    // resident with six letters on the water was told four. It is the lane's own
+    // law broken in the lane's own file, and it matters more here than anywhere
+    // else on the page: this row exists so that nobody replies to a letter the
+    // ledger says never arrived, and under-reporting it is a smaller cut of that
+    // same wound. The set is small by nature (a letter merged but not yet
+    // carried) and the ledger bounds it, so counting it whole costs nothing.
     const mine = town.letters
       .filter((l) => rcpt(l).includes(r.handle))
       .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? "") || (a.id ?? "").localeCompare(b.id ?? ""));
-    const onTheWater = splitArrivals(mine.slice(0, 8), deliveries).onTheWater
-      .slice(0, 4)
-      .map((l) => ({ id: l.id, from: l.from, date: l.date ?? null, excerpt: plain(l.body) }));
+    const water = splitArrivals(mine, deliveries).onTheWater;
+    const waterShown = water.slice(0, 8);
+    // the office's own `total`/`shown`/`complete` grammar — a site-side list
+    // with a cap answers in the same words the doors do
+    const onTheWater = {
+      total: water.length,
+      shown: waterShown.length,
+      complete: waterShown.length === water.length,
+      letters: waterShown.map((l) => ({ id: l.id, from: l.from, date: l.date ?? null, excerpt: plain(l.body) })),
+    };
 
     // the office's answer, verbatim, plus this site's named additions and
     // nothing else — composeDoorstep is where that "and nothing else" is
@@ -596,7 +636,8 @@ emit("stats.json", {
         what: "the keys this static mirror adds on top of the office's answer; every other key here is the office's, verbatim",
         adds: DOORSTEP_SITE_KEYS.filter((k) => k !== "site"),
         doorstep_source: `${POSTMARK_API}/doorstep/${r.handle}`,
-        doorstep_fetched_at: builtAt,
+        // THIS HANDLE'S OWN FETCH, not the run's start. See `officeDoorstep`.
+        doorstep_fetched_at: fetchedAt,
         crossing,
         builder: "postmark-site tools/extract-town.mjs",
         town_commit: sourceCommit,
