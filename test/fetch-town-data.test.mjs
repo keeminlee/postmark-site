@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 
-import { apiGet, buildOfficeData, jsonText } from "../tools/lib/fetch-town-data.mjs";
+import { apiGet, buildOfficeData, fetchResidentRoll, jsonText } from "../tools/lib/fetch-town-data.mjs";
 
 function writeJson(dir, name, value) {
   mkdirSync(dir, { recursive: true });
@@ -27,7 +27,7 @@ function writeJson(dir, name, value) {
  * fixture that 404'd would exercise the error path and leave the real
  * capability detection — no bodies, therefore no door — completely untested.
  */
-function fixtureFetch({ door = true, stamp = null } = {}) {
+function fixtureFetch({ door = true, stamp = null, roster = "array" } = {}) {
   const fullLetters = {
     "wright-2026-07-01-hello": {
       id: "wright-2026-07-01-hello",
@@ -128,9 +128,43 @@ function fixtureFetch({ door = true, stamp = null } = {}) {
     ["/letters/wright-2026-07-01-hello", fullLetters["wright-2026-07-01-hello"]],
   ]);
 
+  // THE ROSTER DOOR, IN ITS TWO SHAPES (2026-09-10).
+  //
+  //   roster: "array"  the pre-2026-09-10 office — a bare array of every
+  //                    resident, with `?limit=` READ BY NOTHING. That is the
+  //                    shape the routes table above already serves, and the
+  //                    reason it is the default: every other test in this file
+  //                    keeps exercising the old door for free.
+  //   roster: "paged"  the envelope its MCP twin has served since August:
+  //                    { total, shown, complete, next_offset, residents }.
+  //
+  // Same rule as the letter door's two flavours one screen up: an old office
+  // does not 404 the new call, it answers it with the WRONG SHAPE. The paged
+  // flavour honours limit/offset for real so the walk is a walk and not one
+  // call wearing an envelope.
+  const rollRows = routes.get("/residents");
+  const pagedRoster = (search) => {
+    const p = new URLSearchParams(search);
+    const limit = Math.min(Math.max(Number(p.get("limit")) || 50, 1), 200);
+    const offset = Math.max(Number(p.get("offset")) || 0, 0);
+    const page = rollRows.slice(offset, offset + limit);
+    const next = offset + page.length;
+    const complete = next >= rollRows.length;
+    return { total: rollRows.length, town_total: rollRows.length, shown: page.length,
+      limit, offset, complete, ...(complete ? {} : { next_offset: next }), residents: page };
+  };
+
   return async (url) => {
     const u = new URL(url);
     const key = `${u.pathname}${u.search}`;
+    if (roster === "paged" && u.pathname === "/residents") {
+      const page = pagedRoster(u.search);
+      return {
+        ok: true, status: 200, statusText: "OK",
+        headers: { get: (name) => name.toLowerCase() === "x-postmark-as-of" ? "abc123" : null },
+        json: async () => JSON.parse(JSON.stringify(page)),
+      };
+    }
     const body = routes.get(key) ?? routes.get(u.pathname);
     if (!body) return { ok: false, status: 404, statusText: "Not Found", headers: { get: () => null }, json: async () => ({}) };
     return {
@@ -445,4 +479,65 @@ test("an office that predates those blocks reaches the page as NULL, never as a 
   // explicit null must land in the same branch, and only one of those two is
   // written down anywhere.
   assert.ok("window" in rei && "marks" in rei, "present and null, not missing");
+});
+
+// ── THE ROSTER DOOR'S TWO SHAPES (2026-09-10, office 10x row 3) ─────────────
+//
+// `GET /residents` served a bare array of every resident and ignored `?limit=`
+// entirely — 28 KB today, 291 KB at ten times the town. The office now serves
+// the envelope its MCP twin has served since August, so this fetch has to walk
+// pages; and because either repo may ship first, it has to keep reading the old
+// shape too. Same seam, same reasons, as the bulk letter door above.
+
+test("the roll builds identically from the paged door and from the bare array", async () => {
+  const a = fixtureSnapshot();
+  const b = fixtureSnapshot();
+  const old = await buildOfficeData({ apiBase: "https://example.test", dataDir: a.data, townRoot: a.town, fetchImpl: fixtureFetch() });
+  const paged = await buildOfficeData({ apiBase: "https://example.test", dataDir: b.data, townRoot: b.town, fetchImpl: fixtureFetch({ roster: "paged" }) });
+  assert.equal(jsonText(paged.files["residents.json"]), jsonText(old.files["residents.json"]),
+    "the door's shape changed what the site publishes — it must only change how the site asks");
+});
+
+test("the walk is a walk: a page smaller than the roll still yields every resident", async () => {
+  // limit=1 against a two-resident town, so the loop must go round twice. A
+  // fetch that took the first page and stopped publishes a town with residents
+  // silently missing, which is the one failure this route must not have.
+  const { roll, paged, total } = await fetchResidentRoll({
+    apiBase: "https://example.test", fetchImpl: fixtureFetch({ roster: "paged" }), limit: 1,
+  });
+  assert.equal(paged, true);
+  assert.equal(total, 2);
+  assert.deepEqual(roll.map((r) => r.handle), ["rei", "wright"]);
+});
+
+test("the old door is still read, and says so rather than being guessed at", async () => {
+  const { roll, paged } = await fetchResidentRoll({
+    apiBase: "https://example.test", fetchImpl: fixtureFetch(), limit: 1,
+  });
+  assert.equal(paged, false, "a bare array must not be walked as if it were pages");
+  assert.deepEqual(roll.map((r) => r.handle), ["rei", "wright"]);
+
+  // and the build log names which route it used — a deploy that silently
+  // stopped paging is then visible in the log rather than only in a page count
+  const { data, town } = fixtureSnapshot();
+  const result = await buildOfficeData({ apiBase: "https://example.test", dataDir: data, townRoot: town, fetchImpl: fixtureFetch({ roster: "paged" }) });
+  assert.match(result.endpointGaps.join("\n"), /roll read from the paged roster door/);
+});
+
+test("a roll that walks short of the door's own total refuses the build", async () => {
+  // THE PROBE THAT CAN FAIL. A truncated roll is invisible in the output — the
+  // files are well formed, just missing people — so it has to be caught where
+  // the count is still in hand. A door that overstates `total` and a walk that
+  // ends early are the same defect to this build.
+  const honest = fixtureFetch({ roster: "paged" });
+  const lying = async (url) => {
+    const res = await honest(url);
+    if (!new URL(url).pathname.startsWith("/residents") || new URL(url).pathname.length > "/residents".length) return res;
+    const body = await res.json();
+    return { ...res, json: async () => ({ ...body, total: body.total + 5 }) };
+  };
+  await assert.rejects(
+    fetchResidentRoll({ apiBase: "https://example.test", fetchImpl: lying }),
+    /walked 2 of 7 residents/,
+  );
 });
