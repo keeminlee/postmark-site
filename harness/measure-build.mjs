@@ -22,8 +22,16 @@ function walk(dir, acc = []) {
 }
 
 const t0 = Date.now();
+// maxBuffer, and why it is not the default. Astro prints one line per emitted
+// page. At 1x that is 3,375 lines and fits; at 8x it is ~27,000 lines, and
+// spawnSync's 1 MB default SIGTERMs the child the moment the buffer fills — a
+// build that was working is reported as a build that died, with status null and
+// an empty stderr, which reads exactly like the real out-of-memory failure this
+// harness is here to find. Measured the wrong way once (2026-09-09, an 8x build
+// killed at 205 s and ~10,000 files) before the cause was found.
 const r = spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "build"], {
   cwd: TREE, encoding: "utf8", shell: process.platform === "win32",
+  maxBuffer: 512 * 1024 * 1024,
   env: { ...process.env, NODE_OPTIONS: process.env.NODE_OPTIONS ?? "--max-old-space-size=8192" },
 });
 const wall_ms = Date.now() - t0;
@@ -48,7 +56,11 @@ const doorstep_bytes = doorstep.reduce((s, f) => s + f.bytes, 0);
 
 const out = {
   label: LABEL, tree: TREE, stamped: new Date().toISOString(),
-  build_ok: ok, exit: r.status, wall_ms,
+  // status null means a signal, not an exit code — say which, and carry
+  // spawnSync's own error, so "the build died" is never an unexplained null
+  build_ok: ok, exit: r.status, signal: r.signal ?? null,
+  spawn_error: r.error ? String(r.error.message) : null,
+  wall_ms,
   emitted_files: files.length, total_bytes,
   html_pages: files.filter((f) => f.path.endsWith(".html")).length,
   largest, routes,
