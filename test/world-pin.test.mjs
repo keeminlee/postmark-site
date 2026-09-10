@@ -15,7 +15,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  HOLD_AT_SETTLEMENT,
   decideWorldPin,
   floorPinFrom,
   newestSettlement,
@@ -102,7 +101,6 @@ test("monotonic by settlement number: S100 outranks S9, because the number is co
     floorSha: FLOOR,
     lsRemote: () => listing({ settlements: [[9, sha("1"), sha("2")], [100, sha("3"), sha("6")], [45, S45_TAG, S45_COMMIT]] }),
     floorSettlementOf: floorAtS44,
-    holdAt: null, // guardrail 2 is about numeric order; the founder's hold is tested on its own below
   });
   assert.equal(out.settlement, 100);
   assert.notEqual(out.settlement, 9, "a lexical max would have rolled the pin back to S9");
@@ -216,32 +214,4 @@ test("the resolver holds when the pin file's floor is unusable", () => {
   const out = decideWorldPin({ floorSha: "not-a-sha", lsRemote: () => listing(), floorSettlementOf: floorAtS44 });
   assert.equal(out.decision, "hold");
   assert.equal(out.reason, "no-floor-sha");
-});
-
-// ── THE HOLD — "the site's world pin moves on prod only after the atlas sitting" (Keemin, 2026-09-10) ──
-
-test("the hold: a newest tag ABOVE the founder's hold is not a candidate; the floor stands (S64 shipped the viewer onto prod, 2026-09-10)", () => {
-  const out = decideWorldPin({ floorSha: FLOOR, lsRemote: () => listing(), floorSettlementOf: floorAtS44, holdAt: 44 });
-  assert.equal(out.decision, "hold");
-  assert.equal(out.sha, FLOOR);
-  assert.match(out.reason, /^held-at-S44: newest S45 is above the founder's hold/);
-});
-
-test("the hold: the same listing with the hold raised to the newest settlement advances — the hold is data, not a stuck pin", () => {
-  // The flip. If the hold refused regardless of its value, raising it in the
-  // sitting's PR would change nothing and prod would never move again.
-  const out = decideWorldPin({ floorSha: FLOOR, lsRemote: () => listing(), floorSettlementOf: floorAtS44, holdAt: 45 });
-  assert.equal(out.decision, "advance");
-  assert.equal(out.settlement, 45);
-  assert.equal(out.sha, S45_COMMIT);
-});
-
-test("the hold: with no hold at all the resolver behaves as before (advance to the newest)", () => {
-  const out = decideWorldPin({ floorSha: FLOOR, lsRemote: () => listing(), floorSettlementOf: floorAtS44, holdAt: null });
-  assert.equal(out.decision, "advance");
-  assert.equal(out.settlement, 45);
-});
-
-test("the hold today is LIFTED (Keemin, 2026-09-10: keep S64) — null follows the keeper's newest tag; a number here would hold prod at it", () => {
-  assert.equal(HOLD_AT_SETTLEMENT, null);
 });
