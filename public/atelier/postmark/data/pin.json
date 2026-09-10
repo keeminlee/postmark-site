@@ -1,14 +1,12 @@
 {
  "what": "the postmark-world this site is pinned to. The office cannot derive this — it holds no clone of the site — so the site says it, and a reader comparing this against the world's own head can tell a stale site from a stale world.",
- "world_pin": "256db2fe02b4c786f4f6182629d896c38cd2b442",
- "world_installed": "256db2fe02b4c786f4f6182629d896c38cd2b442",
+ "world_pin": "ecc63613a063ca2e3da262c6306c34b72ae3b9f8",
+ "world_installed": "ecc63613a063ca2e3da262c6306c34b72ae3b9f8",
  "world_installed_from": "package-lock.json",
- "world_spec": "github:keeminlee/postmark-world#256db2fe02b4c786f4f6182629d896c38cd2b442",
- "channel": null,
+ "world_spec": "github:keeminlee/postmark-world#ecc63613a063ca2e3da262c6306c34b72ae3b9f8",
  "code_ref": null,
- "built_at": "2026-09-10T14:19:30.491Z",
+ "built_at": "2026-09-07T10:38:33.969Z",
  "notes": [
-  "code_ref is null — BUILD_CODE_REF is set by the deploy lane, so this file was written outside it",
-  "channel is null — PUBLIC_CHANNEL is set by the deploy lane, so this file cannot say whether the pin is a blessing or a branch build"
+  "code_ref is null — BUILD_CODE_REF is set by the deploy lane, so this file was written outside it"
  ]
 }

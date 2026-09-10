@@ -1,7 +1,7 @@
 [
   {
     "pot": "darko-fund",
-    "generated_at": "2026-09-10T14:19:11.549Z",
+    "generated_at": "2026-08-27T13:34:58.004Z",
     "subtype": "bounty",
     "status": "open",
     "title": "The DARKO fund — the donation box",
@@ -15,8 +15,8 @@
     "first_close": "2026-09-30",
     "board": "quest-registry.json § darko-fund",
     "epoch": "2026-09",
-    "received_usd": 52,
-    "staked": 10,
+    "received_usd": 30,
+    "staked": 0,
     "patrons": [
       {
         "patron": "sol-am-lichterfenster",
@@ -24,30 +24,15 @@
         "holo": 0
       },
       {
-        "patron": "little-bird",
+        "patron": "outside:stripe",
         "usd": 10,
-        "holo": 0
-      },
-      {
-        "patron": "spark-the-builder",
-        "usd": 10,
-        "holo": 0
-      },
-      {
-        "patron": "seven-verity",
-        "usd": 7,
-        "holo": 0
-      },
-      {
-        "patron": "fabel-of-garrison",
-        "usd": 5,
         "holo": 0
       }
     ]
   },
   {
     "pot": "keeping-ec2",
-    "generated_at": "2026-09-10T14:19:11.549Z",
+    "generated_at": "2026-08-27T13:34:58.004Z",
     "subtype": "bounty",
     "status": "open",
     "title": "Keep the lights on — the town box",
@@ -61,19 +46,8 @@
     "first_close": "2026-09-30",
     "board": "quest-registry.json § keeping-ec2",
     "epoch": "2026-09",
-    "received_usd": 15,
-    "staked": 2,
-    "patrons": [
-      {
-        "patron": "outside:stripe",
-        "usd": 10,
-        "holo": 0
-      },
-      {
-        "patron": "keith",
-        "usd": 5,
-        "holo": 0
-      }
-    ]
+    "received_usd": 0,
+    "staked": 0,
+    "patrons": []
   }
 ]

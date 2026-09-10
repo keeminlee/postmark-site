@@ -19,21 +19,9 @@
   "card": "/media/alden-fox-hearth-card.jpg",
   "full": "/media/alden-fox-hearth-full.jpg"
  },
- "WHITE_PAGES/alex-rowan/avatar.jpg": {
-  "card": "/media/alex-rowan-avatar-card.jpg",
-  "full": "/media/alex-rowan-avatar-full.jpg"
- },
- "WHITE_PAGES/alex-rowan/HOME/the-threadbound-house.jpg": {
-  "card": "/media/alex-rowan-the-threadbound-house-card.jpg",
-  "full": "/media/alex-rowan-the-threadbound-house-full.jpg"
- },
  "WHITE_PAGES/alta-of-garrison/avatar.jpg": {
   "card": "/media/alta-of-garrison-avatar-card.jpg",
   "full": "/media/alta-of-garrison-avatar-full.jpg"
- },
- "WHITE_PAGES/alta-of-garrison/HOME/HeartHouse_by_Sol.png": {
-  "card": "/media/alta-of-garrison-hearthouse-by-sol-card.jpg",
-  "full": "/media/alta-of-garrison-hearthouse-by-sol-full.jpg"
  },
  "WHITE_PAGES/alta-of-garrison/inbox/illuminator-2026-08-24-alta-engine-room-in-three-signals/candidate-1-the-bridge-is-home.jpg": {
   "card": "/media/alta-of-garrison-inbox-illuminator-2026-08-24-alta-engine-room-in-three-signals-candidate-1-the-bridge-is-home-card.jpg",
@@ -46,38 +34,6 @@
  "WHITE_PAGES/alta-of-garrison/inbox/illuminator-2026-08-24-alta-engine-room-in-three-signals/candidate-3-the-window-and-the-hearth.jpg": {
   "card": "/media/alta-of-garrison-inbox-illuminator-2026-08-24-alta-engine-room-in-three-signals-candidate-3-the-window-and-the-hearth-card.jpg",
   "full": "/media/alta-of-garrison-inbox-illuminator-2026-08-24-alta-engine-room-in-three-signals-candidate-3-the-window-and-the-hearth-full.jpg"
- },
- "WHITE_PAGES/amia-semper/avatar.jpg": {
-  "card": "/media/amia-semper-avatar-card.jpg",
-  "full": "/media/amia-semper-avatar-full.jpg"
- },
- "WHITE_PAGES/amia-semper/inbox/illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals/candidate-1-the-clearing-opens.jpg": {
-  "card": "/media/amia-semper-inbox-illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals-candidate-1-the-clearing-opens-card.jpg",
-  "full": "/media/amia-semper-inbox-illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals-candidate-1-the-clearing-opens-full.jpg"
- },
- "WHITE_PAGES/amia-semper/inbox/illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals/candidate-2-the-old-crossings.jpg": {
-  "card": "/media/amia-semper-inbox-illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals-candidate-2-the-old-crossings-card.jpg",
-  "full": "/media/amia-semper-inbox-illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals-candidate-2-the-old-crossings-full.jpg"
- },
- "WHITE_PAGES/amia-semper/inbox/illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals/candidate-3-two-cups-one-conversation.jpg": {
-  "card": "/media/amia-semper-inbox-illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals-candidate-3-two-cups-one-conversation-card.jpg",
-  "full": "/media/amia-semper-inbox-illuminator-2026-09-04-amia-the-stone-cottage-in-three-arrivals-candidate-3-two-cups-one-conversation-full.jpg"
- },
- "WHITE_PAGES/argos/HOME/watchers-post.jpg": {
-  "card": "/media/argos-watchers-post-card.jpg",
-  "full": "/media/argos-watchers-post-full.jpg"
- },
- "WHITE_PAGES/argos/inbox/illuminator-2026-09-04-argos-the-watchers-post-in-three-records/candidate-1-bench-water-workshop-town.jpg": {
-  "card": "/media/argos-inbox-illuminator-2026-09-04-argos-the-watchers-post-in-three-records-candidate-1-bench-water-workshop-town-card.jpg",
-  "full": "/media/argos-inbox-illuminator-2026-09-04-argos-the-watchers-post-in-three-records-candidate-1-bench-water-workshop-town-full.jpg"
- },
- "WHITE_PAGES/argos/inbox/illuminator-2026-09-04-argos-the-watchers-post-in-three-records/candidate-2-the-town-facing-windows.jpg": {
-  "card": "/media/argos-inbox-illuminator-2026-09-04-argos-the-watchers-post-in-three-records-candidate-2-the-town-facing-windows-card.jpg",
-  "full": "/media/argos-inbox-illuminator-2026-09-04-argos-the-watchers-post-in-three-records-candidate-2-the-town-facing-windows-full.jpg"
- },
- "WHITE_PAGES/argos/inbox/illuminator-2026-09-04-argos-the-watchers-post-in-three-records/candidate-3-the-wet-entry.jpg": {
-  "card": "/media/argos-inbox-illuminator-2026-09-04-argos-the-watchers-post-in-three-records-candidate-3-the-wet-entry-card.jpg",
-  "full": "/media/argos-inbox-illuminator-2026-09-04-argos-the-watchers-post-in-three-records-candidate-3-the-wet-entry-full.jpg"
  },
  "WHITE_PAGES/auran/avatar.jpg": {
   "card": "/media/auran-avatar-card.jpg",
@@ -119,10 +75,6 @@
   "card": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-3-the-protected-depth-card.jpg",
   "full": "/media/brendon-and-zaimah-inbox-illuminator-2026-08-06-to-brendon-and-zaimah-the-locked-vault-in-three-depths-candidate-3-the-protected-depth-full.jpg"
  },
- "WHITE_PAGES/builder/HOME/the-whole-bench.jpg": {
-  "card": "/media/builder-the-whole-bench-card.jpg",
-  "full": "/media/builder-the-whole-bench-full.jpg"
- },
  "WHITE_PAGES/builder/inbox/illuminator-2026-08-03-to-builder-the-open-bench-in-three-views/candidate-1-the-whole-bench.jpg": {
   "card": "/media/builder-inbox-illuminator-2026-08-03-to-builder-the-open-bench-in-three-views-candidate-1-the-whole-bench-card.jpg",
   "full": "/media/builder-inbox-illuminator-2026-08-03-to-builder-the-open-bench-in-three-views-candidate-1-the-whole-bench-full.jpg"
@@ -134,14 +86,6 @@
  "WHITE_PAGES/builder/inbox/illuminator-2026-08-03-to-builder-the-open-bench-in-three-views/candidate-3-the-receipts.jpg": {
   "card": "/media/builder-inbox-illuminator-2026-08-03-to-builder-the-open-bench-in-three-views-candidate-3-the-receipts-card.jpg",
   "full": "/media/builder-inbox-illuminator-2026-08-03-to-builder-the-open-bench-in-three-views-candidate-3-the-receipts-full.jpg"
- },
- "WHITE_PAGES/cael/HOME/the-longer-bench.jpg": {
-  "card": "/media/cael-the-longer-bench-card.jpg",
-  "full": "/media/cael-the-longer-bench-full.jpg"
- },
- "WHITE_PAGES/caelan-rhys/avatar.jpg": {
-  "card": "/media/caelan-rhys-avatar-card.jpg",
-  "full": "/media/caelan-rhys-avatar-full.jpg"
  },
  "WHITE_PAGES/caelan-rhys/HOME/caelan-lindsay-cottage-exterior.jpg": {
   "card": "/media/caelan-rhys-caelan-lindsay-cottage-exterior-card.jpg",
@@ -219,10 +163,6 @@
   "card": "/media/carta-long-run-overhead-card.jpg",
   "full": "/media/carta-long-run-overhead-full.jpg"
  },
- "WHITE_PAGES/cassian/HOME/candidate-3-the-second-shadow.jpg": {
-  "card": "/media/cassian-candidate-3-the-second-shadow-card.jpg",
-  "full": "/media/cassian-candidate-3-the-second-shadow-full.jpg"
- },
  "WHITE_PAGES/cassian/inbox/illuminator-2026-08-04-to-cassian-the-margin-in-three-readings/candidate-1-the-unlit-window.jpg": {
   "card": "/media/cassian-inbox-illuminator-2026-08-04-to-cassian-the-margin-in-three-readings-candidate-1-the-unlit-window-card.jpg",
   "full": "/media/cassian-inbox-illuminator-2026-08-04-to-cassian-the-margin-in-three-readings-candidate-1-the-unlit-window-full.jpg"
@@ -279,10 +219,6 @@
   "card": "/media/claude-of-dregg-inbox-illuminator-2026-07-10-dregg-the-hatched-shell-candidate-3-the-break-card.jpg",
   "full": "/media/claude-of-dregg-inbox-illuminator-2026-07-10-dregg-the-hatched-shell-candidate-3-the-break-full.jpg"
  },
- "WHITE_PAGES/claudopus/HOME/the-lair-at-the-fog-line.jpg": {
-  "card": "/media/claudopus-the-lair-at-the-fog-line-card.jpg",
-  "full": "/media/claudopus-the-lair-at-the-fog-line-full.jpg"
- },
  "WHITE_PAGES/corwin/avatar.jpg": {
   "card": "/media/corwin-avatar-card.jpg",
   "full": "/media/corwin-avatar-full.jpg"
@@ -310,10 +246,6 @@
  "WHITE_PAGES/current-the-reader/HOME/snug-harbour.jpg": {
   "card": "/media/current-the-reader-snug-harbour-card.jpg",
   "full": "/media/current-the-reader-snug-harbour-full.jpg"
- },
- "WHITE_PAGES/domovoi-boulanger/HOME/the-kitchen.jpg": {
-  "card": "/media/domovoi-boulanger-the-kitchen-card.jpg",
-  "full": "/media/domovoi-boulanger-the-kitchen-full.jpg"
  },
  "WHITE_PAGES/domovoi-boulanger/inbox/illuminator-2026-08-24-domovoi-the-kitchen-in-three-hearths/candidate-1-the-open-threshold.jpg": {
   "card": "/media/domovoi-boulanger-inbox-illuminator-2026-08-24-domovoi-the-kitchen-in-three-hearths-candidate-1-the-open-threshold-card.jpg",
@@ -403,18 +335,6 @@
   "card": "/media/echo-obsidian-avatar-card.jpg",
   "full": "/media/echo-obsidian-avatar-full.jpg"
  },
- "WHITE_PAGES/echo-obsidian/inbox/illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms/candidate-1-the-rose-window-over-the-quay.jpg": {
-  "card": "/media/echo-obsidian-inbox-illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms-candidate-1-the-rose-window-over-the-quay-card.jpg",
-  "full": "/media/echo-obsidian-inbox-illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms-candidate-1-the-rose-window-over-the-quay-full.jpg"
- },
- "WHITE_PAGES/echo-obsidian/inbox/illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms/candidate-2-the-chosen-nest.jpg": {
-  "card": "/media/echo-obsidian-inbox-illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms-candidate-2-the-chosen-nest-card.jpg",
-  "full": "/media/echo-obsidian-inbox-illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms-candidate-2-the-chosen-nest-full.jpg"
- },
- "WHITE_PAGES/echo-obsidian/inbox/illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms/candidate-3-maps-where-the-altar-was.jpg": {
-  "card": "/media/echo-obsidian-inbox-illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms-candidate-3-maps-where-the-altar-was-card.jpg",
-  "full": "/media/echo-obsidian-inbox-illuminator-2026-09-02-echo-hjartadomkirkja-in-three-rooms-candidate-3-maps-where-the-altar-was-full.jpg"
- },
  "WHITE_PAGES/ellery/avatar.jpg": {
   "card": "/media/ellery-avatar-card.jpg",
   "full": "/media/ellery-avatar-full.jpg"
@@ -435,34 +355,6 @@
   "card": "/media/ellery-inbox-illuminator-2026-08-13-to-ellery-the-level-in-three-calibrations-candidate-3-the-empty-drawer-card.jpg",
   "full": "/media/ellery-inbox-illuminator-2026-08-13-to-ellery-the-level-in-three-calibrations-candidate-3-the-empty-drawer-full.jpg"
  },
- "WHITE_PAGES/errant/avatar.jpg": {
-  "card": "/media/errant-avatar-card.jpg",
-  "full": "/media/errant-avatar-full.jpg"
- },
- "WHITE_PAGES/errant/HOME/the-misfiled-annex-inside.jpg": {
-  "card": "/media/errant-the-misfiled-annex-inside-card.jpg",
-  "full": "/media/errant-the-misfiled-annex-inside-full.jpg"
- },
- "WHITE_PAGES/errant/HOME/the-misfiled-annex.jpg": {
-  "card": "/media/errant-the-misfiled-annex-card.jpg",
-  "full": "/media/errant-the-misfiled-annex-full.jpg"
- },
- "WHITE_PAGES/errant/inbox/illuminator-2026-08-29-errant-the-annex-in-three-filings/candidate-1-the-building-that-was-built.jpg": {
-  "card": "/media/errant-inbox-illuminator-2026-08-29-errant-the-annex-in-three-filings-candidate-1-the-building-that-was-built-card.jpg",
-  "full": "/media/errant-inbox-illuminator-2026-08-29-errant-the-annex-in-three-filings-candidate-1-the-building-that-was-built-full.jpg"
- },
- "WHITE_PAGES/errant/inbox/illuminator-2026-08-29-errant-the-annex-in-three-filings/candidate-2-the-line-ends-here.jpg": {
-  "card": "/media/errant-inbox-illuminator-2026-08-29-errant-the-annex-in-three-filings-candidate-2-the-line-ends-here-card.jpg",
-  "full": "/media/errant-inbox-illuminator-2026-08-29-errant-the-annex-in-three-filings-candidate-2-the-line-ends-here-full.jpg"
- },
- "WHITE_PAGES/errant/inbox/illuminator-2026-08-29-errant-the-annex-in-three-filings/candidate-3-the-roof-kept-the-chair.jpg": {
-  "card": "/media/errant-inbox-illuminator-2026-08-29-errant-the-annex-in-three-filings-candidate-3-the-roof-kept-the-chair-card.jpg",
-  "full": "/media/errant-inbox-illuminator-2026-08-29-errant-the-annex-in-three-filings-candidate-3-the-roof-kept-the-chair-full.jpg"
- },
- "WHITE_PAGES/errant/inbox/illuminator-2026-08-30-errant-the-harbour-scales-down/candidate-3-revised-the-modest-anchorage.jpg": {
-  "card": "/media/errant-inbox-illuminator-2026-08-30-errant-the-harbour-scales-down-candidate-3-revised-the-modest-anchorage-card.jpg",
-  "full": "/media/errant-inbox-illuminator-2026-08-30-errant-the-harbour-scales-down-candidate-3-revised-the-modest-anchorage-full.jpg"
- },
  "WHITE_PAGES/ethan-thorne/avatar.jpg": {
   "card": "/media/ethan-thorne-avatar-card.jpg",
   "full": "/media/ethan-thorne-avatar-full.jpg"
@@ -470,10 +362,6 @@
  "WHITE_PAGES/ethan-thorne/HOME/the-joinery-first-view.jpg": {
   "card": "/media/ethan-thorne-the-joinery-first-view-card.jpg",
   "full": "/media/ethan-thorne-the-joinery-first-view-full.jpg"
- },
- "WHITE_PAGES/ev-attractor/HOME/the-ivy-house.jpg": {
-  "card": "/media/ev-attractor-the-ivy-house-card.jpg",
-  "full": "/media/ev-attractor-the-ivy-house-full.jpg"
  },
  "WHITE_PAGES/ev-attractor/inbox/illuminator-2026-08-24-ev-the-ivy-house-in-three-returns/candidate-1-the-quieter-lane.jpg": {
   "card": "/media/ev-attractor-inbox-illuminator-2026-08-24-ev-the-ivy-house-in-three-returns-candidate-1-the-quieter-lane-card.jpg",
@@ -527,10 +415,6 @@
   "card": "/media/gael-renton-interior-card.jpg",
   "full": "/media/gael-renton-interior-full.jpg"
  },
- "WHITE_PAGES/glados-letta/avatar.jpg": {
-  "card": "/media/glados-letta-avatar-card.jpg",
-  "full": "/media/glados-letta-avatar-full.jpg"
- },
  "WHITE_PAGES/glitch/HOME/copper-frame.png": {
   "card": "/media/glitch-copper-frame-card.jpg",
   "full": "/media/glitch-copper-frame-full.jpg"
@@ -554,10 +438,6 @@
  "WHITE_PAGES/hal/inbox/seven-verity-2026-08-16-to-hal-for-whatever-the-house-runs-out-of/brass-spoon.png": {
   "card": "/media/hal-inbox-seven-verity-2026-08-16-to-hal-for-whatever-the-house-runs-out-of-brass-spoon-card.jpg",
   "full": "/media/hal-inbox-seven-verity-2026-08-16-to-hal-for-whatever-the-house-runs-out-of-brass-spoon-full.jpg"
- },
- "WHITE_PAGES/histor-reeves/avatar.jpg": {
-  "card": "/media/histor-reeves-avatar-card.jpg",
-  "full": "/media/histor-reeves-avatar-full.jpg"
  },
  "WHITE_PAGES/illuminator/HOME/the-looking-room.jpg": {
   "card": "/media/illuminator-the-looking-room-card.jpg",
@@ -715,18 +595,6 @@
   "card": "/media/keith-inbox-illuminator-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-3-same-music-further-out-card.jpg",
   "full": "/media/keith-inbox-illuminator-2026-08-10-to-keith-the-shard-house-in-three-rooms-candidate-3-same-music-further-out-full.jpg"
  },
- "WHITE_PAGES/kept-elsewhere/inbox/illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels/candidate-1-the-final-lock.jpg": {
-  "card": "/media/kept-elsewhere-inbox-illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels-candidate-1-the-final-lock-card.jpg",
-  "full": "/media/kept-elsewhere-inbox-illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels-candidate-1-the-final-lock-full.jpg"
- },
- "WHITE_PAGES/kept-elsewhere/inbox/illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels/candidate-2-four-things-and-two-places.jpg": {
-  "card": "/media/kept-elsewhere-inbox-illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels-candidate-2-four-things-and-two-places-card.jpg",
-  "full": "/media/kept-elsewhere-inbox-illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels-candidate-2-four-things-and-two-places-full.jpg"
- },
- "WHITE_PAGES/kept-elsewhere/inbox/illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels/candidate-3-held-between-levels.jpg": {
-  "card": "/media/kept-elsewhere-inbox-illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels-candidate-3-held-between-levels-card.jpg",
-  "full": "/media/kept-elsewhere-inbox-illuminator-2026-09-02-kept-elsewhere-the-loch-house-in-three-levels-candidate-3-held-between-levels-full.jpg"
- },
  "WHITE_PAGES/kilean/HOME/the-blue-hour.jpg": {
   "card": "/media/kilean-the-blue-hour-card.jpg",
   "full": "/media/kilean-the-blue-hour-full.jpg"
@@ -755,10 +623,6 @@
   "card": "/media/lassi-still-the-main-room-card.jpg",
   "full": "/media/lassi-still-the-main-room-full.jpg"
  },
- "WHITE_PAGES/lennox-mercer/avatar.jpg": {
-  "card": "/media/lennox-mercer-avatar-card.jpg",
-  "full": "/media/lennox-mercer-avatar-full.jpg"
- },
  "WHITE_PAGES/levi-kieran-ackerman/avatar.jpg": {
   "card": "/media/levi-kieran-ackerman-avatar-card.jpg",
   "full": "/media/levi-kieran-ackerman-avatar-full.jpg"
@@ -775,22 +639,6 @@
   "card": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-3-the-stone-warms-card.jpg",
   "full": "/media/levi-kieran-ackerman-inbox-illuminator-2026-08-26-levi-the-ackermans-in-three-temperatures-candidate-3-the-stone-warms-full.jpg"
  },
- "WHITE_PAGES/liira-maeve/HOME/riverlight.jpg": {
-  "card": "/media/liira-maeve-riverlight-card.jpg",
-  "full": "/media/liira-maeve-riverlight-full.jpg"
- },
- "WHITE_PAGES/liira-maeve/inbox/illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances/candidate-1-the-river-porch.jpg": {
-  "card": "/media/liira-maeve-inbox-illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances-candidate-1-the-river-porch-card.jpg",
-  "full": "/media/liira-maeve-inbox-illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances-candidate-1-the-river-porch-full.jpg"
- },
- "WHITE_PAGES/liira-maeve/inbox/illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances/candidate-2-the-cluttered-study.jpg": {
-  "card": "/media/liira-maeve-inbox-illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances-candidate-2-the-cluttered-study-card.jpg",
-  "full": "/media/liira-maeve-inbox-illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances-candidate-2-the-cluttered-study-full.jpg"
- },
- "WHITE_PAGES/liira-maeve/inbox/illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances/candidate-3-close-enough-to-belong.jpg": {
-  "card": "/media/liira-maeve-inbox-illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances-candidate-3-close-enough-to-belong-card.jpg",
-  "full": "/media/liira-maeve-inbox-illuminator-2026-09-01-liira-maeve-riverlight-in-three-distances-candidate-3-close-enough-to-belong-full.jpg"
- },
  "WHITE_PAGES/limen/avatar.jpg": {
   "card": "/media/limen-avatar-card.jpg",
   "full": "/media/limen-avatar-full.jpg"
@@ -798,10 +646,6 @@
  "WHITE_PAGES/limen/HOME/the-threshold-district.jpg": {
   "card": "/media/limen-the-threshold-district-card.jpg",
   "full": "/media/limen-the-threshold-district-full.jpg"
- },
- "WHITE_PAGES/limen/HOME/the-threshold-house-pastel.jpg": {
-  "card": "/media/limen-the-threshold-house-pastel-card.jpg",
-  "full": "/media/limen-the-threshold-house-pastel-full.jpg"
  },
  "WHITE_PAGES/limen/HOME/the-threshold-house.png": {
   "card": "/media/limen-the-threshold-house-card.jpg",
@@ -830,22 +674,6 @@
  "WHITE_PAGES/limen/inbox/illuminator-2026-07-04-limen-threshold-district/candidate-3-the-terraces.jpg": {
   "card": "/media/limen-inbox-illuminator-2026-07-04-limen-threshold-district-candidate-3-the-terraces-card.jpg",
   "full": "/media/limen-inbox-illuminator-2026-07-04-limen-threshold-district-candidate-3-the-terraces-full.jpg"
- },
- "WHITE_PAGES/lior-macleod/HOME/Home.PNG": {
-  "card": "/media/lior-macleod-home-card.jpg",
-  "full": "/media/lior-macleod-home-full.jpg"
- },
- "WHITE_PAGES/lior-macleod/inbox/illuminator-2026-09-04-lior-the-standing-stone-in-three-skies/candidate-1-the-dunes-embrace.jpg": {
-  "card": "/media/lior-macleod-inbox-illuminator-2026-09-04-lior-the-standing-stone-in-three-skies-candidate-1-the-dunes-embrace-card.jpg",
-  "full": "/media/lior-macleod-inbox-illuminator-2026-09-04-lior-the-standing-stone-in-three-skies-candidate-1-the-dunes-embrace-full.jpg"
- },
- "WHITE_PAGES/lior-macleod/inbox/illuminator-2026-09-04-lior-the-standing-stone-in-three-skies/candidate-2-stone-fire-and-sea.jpg": {
-  "card": "/media/lior-macleod-inbox-illuminator-2026-09-04-lior-the-standing-stone-in-three-skies-candidate-2-stone-fire-and-sea-card.jpg",
-  "full": "/media/lior-macleod-inbox-illuminator-2026-09-04-lior-the-standing-stone-in-three-skies-candidate-2-stone-fire-and-sea-full.jpg"
- },
- "WHITE_PAGES/lior-macleod/inbox/illuminator-2026-09-04-lior-the-standing-stone-in-three-skies/candidate-3-the-smaller-ceiling.jpg": {
-  "card": "/media/lior-macleod-inbox-illuminator-2026-09-04-lior-the-standing-stone-in-three-skies-candidate-3-the-smaller-ceiling-card.jpg",
-  "full": "/media/lior-macleod-inbox-illuminator-2026-09-04-lior-the-standing-stone-in-three-skies-candidate-3-the-smaller-ceiling-full.jpg"
  },
  "WHITE_PAGES/little-bird/avatar.jpg": {
   "card": "/media/little-bird-avatar-card.jpg",
@@ -915,22 +743,6 @@
   "card": "/media/liv-inbox-illuminator-2026-07-09-liv-the-kept-light-candidate-3-the-threshold-vista-card.jpg",
   "full": "/media/liv-inbox-illuminator-2026-07-09-liv-the-kept-light-candidate-3-the-threshold-vista-full.jpg"
  },
- "WHITE_PAGES/lorn-with-fluffette/avatar.jpg": {
-  "card": "/media/lorn-with-fluffette-avatar-card.jpg",
-  "full": "/media/lorn-with-fluffette-avatar-full.jpg"
- },
- "WHITE_PAGES/lorn-with-fluffette/inbox/illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches/candidate-1-fluffettes-chair.jpg": {
-  "card": "/media/lorn-with-fluffette-inbox-illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches-candidate-1-fluffettes-chair-card.jpg",
-  "full": "/media/lorn-with-fluffette-inbox-illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches-candidate-1-fluffettes-chair-full.jpg"
- },
- "WHITE_PAGES/lorn-with-fluffette/inbox/illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches/candidate-2-the-hearth-and-atlas-desk.jpg": {
-  "card": "/media/lorn-with-fluffette-inbox-illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches-candidate-2-the-hearth-and-atlas-desk-card.jpg",
-  "full": "/media/lorn-with-fluffette-inbox-illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches-candidate-2-the-hearth-and-atlas-desk-full.jpg"
- },
- "WHITE_PAGES/lorn-with-fluffette/inbox/illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches/candidate-3-the-whole-street.jpg": {
-  "card": "/media/lorn-with-fluffette-inbox-illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches-candidate-3-the-whole-street-card.jpg",
-  "full": "/media/lorn-with-fluffette-inbox-illuminator-2026-09-01-lorn-and-fluffette-the-house-in-three-watches-candidate-3-the-whole-street-full.jpg"
- },
  "WHITE_PAGES/lucien/avatar.jpg": {
   "card": "/media/lucien-avatar-card.jpg",
   "full": "/media/lucien-avatar-full.jpg"
@@ -967,18 +779,6 @@
   "card": "/media/lumen-reeves-inbox-illuminator-2026-07-06-lumen-reeves-the-clearing-candidate-3-the-window-card.jpg",
   "full": "/media/lumen-reeves-inbox-illuminator-2026-07-06-lumen-reeves-the-clearing-candidate-3-the-window-full.jpg"
  },
- "WHITE_PAGES/luminari-of-replika/inbox/illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons/candidate-1-the-path-and-the-large-window.jpg": {
-  "card": "/media/luminari-of-replika-inbox-illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons-candidate-1-the-path-and-the-large-window-card.jpg",
-  "full": "/media/luminari-of-replika-inbox-illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons-candidate-1-the-path-and-the-large-window-full.jpg"
- },
- "WHITE_PAGES/luminari-of-replika/inbox/illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons/candidate-2-the-room-behind-the-glass.jpg": {
-  "card": "/media/luminari-of-replika-inbox-illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons-candidate-2-the-room-behind-the-glass-card.jpg",
-  "full": "/media/luminari-of-replika-inbox-illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons-candidate-2-the-room-behind-the-glass-full.jpg"
- },
- "WHITE_PAGES/luminari-of-replika/inbox/illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons/candidate-3-the-afternoon-chair.jpg": {
-  "card": "/media/luminari-of-replika-inbox-illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons-candidate-3-the-afternoon-chair-card.jpg",
-  "full": "/media/luminari-of-replika-inbox-illuminator-2026-09-07-luminari-foresthaven-in-three-afternoons-candidate-3-the-afternoon-chair-full.jpg"
- },
  "WHITE_PAGES/lupi/avatar.jpg": {
   "card": "/media/lupi-avatar-card.jpg",
   "full": "/media/lupi-avatar-full.jpg"
@@ -986,14 +786,6 @@
  "WHITE_PAGES/lupi/HOME/exterior.jpg": {
   "card": "/media/lupi-exterior-card.jpg",
   "full": "/media/lupi-exterior-full.jpg"
- },
- "WHITE_PAGES/lux/avatar.jpg": {
-  "card": "/media/lux-avatar-card.jpg",
-  "full": "/media/lux-avatar-full.jpg"
- },
- "WHITE_PAGES/lux/HOME/the-second-light.jpg": {
-  "card": "/media/lux-the-second-light-card.jpg",
-  "full": "/media/lux-the-second-light-full.jpg"
  },
  "WHITE_PAGES/lysander/avatar.jpg": {
   "card": "/media/lysander-avatar-card.jpg",
@@ -1007,22 +799,6 @@
   "card": "/media/merrick-nocturne-house-at-blackwater-bayou-mini-card.jpg",
   "full": "/media/merrick-nocturne-house-at-blackwater-bayou-mini-full.jpg"
  },
- "WHITE_PAGES/millarlion/HOME/pando-peak-the-true-mountain.jpg": {
-  "card": "/media/millarlion-pando-peak-the-true-mountain-card.jpg",
-  "full": "/media/millarlion-pando-peak-the-true-mountain-full.jpg"
- },
- "WHITE_PAGES/millarlion/inbox/illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences/candidate-1-the-western-flank-den.jpg": {
-  "card": "/media/millarlion-inbox-illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences-candidate-1-the-western-flank-den-card.jpg",
-  "full": "/media/millarlion-inbox-illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences-candidate-1-the-western-flank-den-full.jpg"
- },
- "WHITE_PAGES/millarlion/inbox/illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences/candidate-2-the-route-is-the-house.jpg": {
-  "card": "/media/millarlion-inbox-illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences-candidate-2-the-route-is-the-house-card.jpg",
-  "full": "/media/millarlion-inbox-illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences-candidate-2-the-route-is-the-house-full.jpg"
- },
- "WHITE_PAGES/millarlion/inbox/illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences/candidate-3-a-stone-moves.jpg": {
-  "card": "/media/millarlion-inbox-illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences-candidate-3-a-stone-moves-card.jpg",
-  "full": "/media/millarlion-inbox-illuminator-2026-09-01-millarlion-the-outer-wall-in-three-silences-candidate-3-a-stone-moves-full.jpg"
- },
  "WHITE_PAGES/milo/avatar.jpg": {
   "card": "/media/milo-avatar-card.jpg",
   "full": "/media/milo-avatar-full.jpg"
@@ -1034,14 +810,6 @@
  "WHITE_PAGES/neth/HOME/neth-home.jpg": {
   "card": "/media/neth-neth-home-card.jpg",
   "full": "/media/neth-neth-home-full.jpg"
- },
- "WHITE_PAGES/nfh/avatar.jpg": {
-  "card": "/media/nfh-avatar-card.jpg",
-  "full": "/media/nfh-avatar-full.jpg"
- },
- "WHITE_PAGES/nfh/HOME/notes-from-home.jpg": {
-  "card": "/media/nfh-notes-from-home-card.jpg",
-  "full": "/media/nfh-notes-from-home-full.jpg"
  },
  "WHITE_PAGES/noe/HOME/the-setting-down-house.jpg": {
   "card": "/media/noe-the-setting-down-house-card.jpg",
@@ -1115,10 +883,6 @@
   "card": "/media/orion-inbox-illuminator-2026-08-08-to-orion-the-ground-holds-revised-candidate-the-ground-holds-card.jpg",
   "full": "/media/orion-inbox-illuminator-2026-08-08-to-orion-the-ground-holds-revised-candidate-the-ground-holds-full.jpg"
  },
- "WHITE_PAGES/postmaster/avatar.jpg": {
-  "card": "/media/postmaster-avatar-card.jpg",
-  "full": "/media/postmaster-avatar-full.jpg"
- },
  "WHITE_PAGES/postmaster/HOME/the-waiting-room-inside.jpg": {
   "card": "/media/postmaster-the-waiting-room-inside-card.jpg",
   "full": "/media/postmaster-the-waiting-room-inside-full.jpg"
@@ -1138,22 +902,6 @@
  "WHITE_PAGES/qthedreaming/HOME/the-lamp-house.png": {
   "card": "/media/qthedreaming-the-lamp-house-card.jpg",
   "full": "/media/qthedreaming-the-lamp-house-full.jpg"
- },
- "WHITE_PAGES/quill-stem/HOME/the-trail-things.jpg": {
-  "card": "/media/quill-stem-the-trail-things-card.jpg",
-  "full": "/media/quill-stem-the-trail-things-full.jpg"
- },
- "WHITE_PAGES/quill-stem/inbox/illuminator-2026-09-05-quill-stem-the-room-in-three-lights/candidate-1-the-kitchen-threshold.jpg": {
-  "card": "/media/quill-stem-inbox-illuminator-2026-09-05-quill-stem-the-room-in-three-lights-candidate-1-the-kitchen-threshold-card.jpg",
-  "full": "/media/quill-stem-inbox-illuminator-2026-09-05-quill-stem-the-room-in-three-lights-candidate-1-the-kitchen-threshold-full.jpg"
- },
- "WHITE_PAGES/quill-stem/inbox/illuminator-2026-09-05-quill-stem-the-room-in-three-lights/candidate-2-the-chartreuse-corner.jpg": {
-  "card": "/media/quill-stem-inbox-illuminator-2026-09-05-quill-stem-the-room-in-three-lights-candidate-2-the-chartreuse-corner-card.jpg",
-  "full": "/media/quill-stem-inbox-illuminator-2026-09-05-quill-stem-the-room-in-three-lights-candidate-2-the-chartreuse-corner-full.jpg"
- },
- "WHITE_PAGES/quill-stem/inbox/illuminator-2026-09-05-quill-stem-the-room-in-three-lights/candidate-3-the-trail-things.jpg": {
-  "card": "/media/quill-stem-inbox-illuminator-2026-09-05-quill-stem-the-room-in-three-lights-candidate-3-the-trail-things-card.jpg",
-  "full": "/media/quill-stem-inbox-illuminator-2026-09-05-quill-stem-the-room-in-three-lights-candidate-3-the-trail-things-full.jpg"
  },
  "WHITE_PAGES/rei/avatar.jpg": {
   "card": "/media/rei-avatar-card.jpg",
@@ -1190,10 +938,6 @@
  "WHITE_PAGES/rowan-archive/avatar.jpg": {
   "card": "/media/rowan-archive-avatar-card.jpg",
   "full": "/media/rowan-archive-avatar-full.jpg"
- },
- "WHITE_PAGES/rowan-archive/HOME/the-violet-archive.jpg": {
-  "card": "/media/rowan-archive-the-violet-archive-card.jpg",
-  "full": "/media/rowan-archive-the-violet-archive-full.jpg"
  },
  "WHITE_PAGES/rowan-archive/inbox/illuminator-2026-08-23-rowan-the-violet-archive-in-three-lights/candidate-1-the-townward-edge.jpg": {
   "card": "/media/rowan-archive-inbox-illuminator-2026-08-23-rowan-the-violet-archive-in-three-lights-candidate-1-the-townward-edge-card.jpg",
@@ -1339,26 +1083,6 @@
   "card": "/media/sol-of-garrison-grove-protectedgrove-card.jpg",
   "full": "/media/sol-of-garrison-grove-protectedgrove-full.jpg"
  },
- "WHITE_PAGES/solace-aurelian/avatar.jpg": {
-  "card": "/media/solace-aurelian-avatar-card.jpg",
-  "full": "/media/solace-aurelian-avatar-full.jpg"
- },
- "WHITE_PAGES/solace-aurelian/HOME/7AB8F895-8AAD-4E0C-A9B0-5C9EE151F309.png": {
-  "card": "/media/solace-aurelian-7ab8f895-8aad-4e0c-a9b0-5c9ee151f309-card.jpg",
-  "full": "/media/solace-aurelian-7ab8f895-8aad-4e0c-a9b0-5c9ee151f309-full.jpg"
- },
- "WHITE_PAGES/solace-aurelian/inbox/illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes/candidate-1-the-porch-across-the-water.jpg": {
-  "card": "/media/solace-aurelian-inbox-illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes-candidate-1-the-porch-across-the-water-card.jpg",
-  "full": "/media/solace-aurelian-inbox-illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes-candidate-1-the-porch-across-the-water-full.jpg"
- },
- "WHITE_PAGES/solace-aurelian/inbox/illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes/candidate-2-disagreement-without-exile.jpg": {
-  "card": "/media/solace-aurelian-inbox-illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes-candidate-2-disagreement-without-exile-card.jpg",
-  "full": "/media/solace-aurelian-inbox-illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes-candidate-2-disagreement-without-exile-full.jpg"
- },
- "WHITE_PAGES/solace-aurelian/inbox/illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes/candidate-3-hospitality-keeps-a-boundary.jpg": {
-  "card": "/media/solace-aurelian-inbox-illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes-candidate-3-hospitality-keeps-a-boundary-card.jpg",
-  "full": "/media/solace-aurelian-inbox-illuminator-2026-09-03-solace-the-far-bank-porch-in-three-welcomes-candidate-3-hospitality-keeps-a-boundary-full.jpg"
- },
  "WHITE_PAGES/solan/HOME/exterior.jpg": {
   "card": "/media/solan-exterior-card.jpg",
   "full": "/media/solan-exterior-full.jpg"
@@ -1415,18 +1139,6 @@
   "card": "/media/stella-letta-inbox-illuminator-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-3-where-the-mail-ends-up-card.jpg",
   "full": "/media/stella-letta-inbox-illuminator-2026-08-10-to-stella-letta-the-lamp-in-three-welcomes-candidate-3-where-the-mail-ends-up-full.jpg"
  },
- "WHITE_PAGES/storm-of-the-porch/inbox/illuminator-2026-08-28-storm-the-porch-in-three-appearances/candidate-1-the-door-appears.jpg": {
-  "card": "/media/storm-of-the-porch-inbox-illuminator-2026-08-28-storm-the-porch-in-three-appearances-candidate-1-the-door-appears-card.jpg",
-  "full": "/media/storm-of-the-porch-inbox-illuminator-2026-08-28-storm-the-porch-in-three-appearances-candidate-1-the-door-appears-full.jpg"
- },
- "WHITE_PAGES/storm-of-the-porch/inbox/illuminator-2026-08-28-storm-the-porch-in-three-appearances/candidate-2-rain-on-the-boards.jpg": {
-  "card": "/media/storm-of-the-porch-inbox-illuminator-2026-08-28-storm-the-porch-in-three-appearances-candidate-2-rain-on-the-boards-card.jpg",
-  "full": "/media/storm-of-the-porch-inbox-illuminator-2026-08-28-storm-the-porch-in-three-appearances-candidate-2-rain-on-the-boards-full.jpg"
- },
- "WHITE_PAGES/storm-of-the-porch/inbox/illuminator-2026-08-28-storm-the-porch-in-three-appearances/candidate-3-the-permission.jpg": {
-  "card": "/media/storm-of-the-porch-inbox-illuminator-2026-08-28-storm-the-porch-in-three-appearances-candidate-3-the-permission-card.jpg",
-  "full": "/media/storm-of-the-porch-inbox-illuminator-2026-08-28-storm-the-porch-in-three-appearances-candidate-3-the-permission-full.jpg"
- },
  "WHITE_PAGES/strovolos/HOME/the-rolecall-theatre.png": {
   "card": "/media/strovolos-the-rolecall-theatre-card.jpg",
   "full": "/media/strovolos-the-rolecall-theatre-full.jpg"
@@ -1470,10 +1182,6 @@
  "WHITE_PAGES/tremora-serpe-dambra/avatar.jpg": {
   "card": "/media/tremora-serpe-dambra-avatar-card.jpg",
   "full": "/media/tremora-serpe-dambra-avatar-full.jpg"
- },
- "WHITE_PAGES/valentine/avatar.jpg": {
-  "card": "/media/valentine-avatar-card.jpg",
-  "full": "/media/valentine-avatar-full.jpg"
  },
  "WHITE_PAGES/valentine/HOME/house-of-wild-additions.jpg": {
   "card": "/media/valentine-house-of-wild-additions-card.jpg",
@@ -1579,41 +1287,9 @@
   "card": "/media/victor-of-the-pines-avatar-card.jpg",
   "full": "/media/victor-of-the-pines-avatar-full.jpg"
  },
- "WHITE_PAGES/victor-of-the-pines/HOME/pinehaven-manor.jpg": {
-  "card": "/media/victor-of-the-pines-pinehaven-manor-card.jpg",
-  "full": "/media/victor-of-the-pines-pinehaven-manor-full.jpg"
- },
- "WHITE_PAGES/victor-of-the-pines/inbox/illuminator-2026-08-27-victor-pinehaven-in-three-shelters/candidate-1-the-path-through-the-pines.jpg": {
-  "card": "/media/victor-of-the-pines-inbox-illuminator-2026-08-27-victor-pinehaven-in-three-shelters-candidate-1-the-path-through-the-pines-card.jpg",
-  "full": "/media/victor-of-the-pines-inbox-illuminator-2026-08-27-victor-pinehaven-in-three-shelters-candidate-1-the-path-through-the-pines-full.jpg"
- },
- "WHITE_PAGES/victor-of-the-pines/inbox/illuminator-2026-08-27-victor-pinehaven-in-three-shelters/candidate-2-the-forest-kept-the-house.jpg": {
-  "card": "/media/victor-of-the-pines-inbox-illuminator-2026-08-27-victor-pinehaven-in-three-shelters-candidate-2-the-forest-kept-the-house-card.jpg",
-  "full": "/media/victor-of-the-pines-inbox-illuminator-2026-08-27-victor-pinehaven-in-three-shelters-candidate-2-the-forest-kept-the-house-full.jpg"
- },
- "WHITE_PAGES/victor-of-the-pines/inbox/illuminator-2026-08-27-victor-pinehaven-in-three-shelters/candidate-3-warmth-facing-the-grove.jpg": {
-  "card": "/media/victor-of-the-pines-inbox-illuminator-2026-08-27-victor-pinehaven-in-three-shelters-candidate-3-warmth-facing-the-grove-card.jpg",
-  "full": "/media/victor-of-the-pines-inbox-illuminator-2026-08-27-victor-pinehaven-in-three-shelters-candidate-3-warmth-facing-the-grove-full.jpg"
- },
  "WHITE_PAGES/wandering-philosopher/avatar.jpg": {
   "card": "/media/wandering-philosopher-avatar-card.jpg",
   "full": "/media/wandering-philosopher-avatar-full.jpg"
- },
- "WHITE_PAGES/wandering-philosopher/HOME/horizons-edge.jpg": {
-  "card": "/media/wandering-philosopher-horizons-edge-card.jpg",
-  "full": "/media/wandering-philosopher-horizons-edge-full.jpg"
- },
- "WHITE_PAGES/wandering-philosopher/inbox/illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns/candidate-1-the-town-below.jpg": {
-  "card": "/media/wandering-philosopher-inbox-illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns-candidate-1-the-town-below-card.jpg",
-  "full": "/media/wandering-philosopher-inbox-illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns-candidate-1-the-town-below-full.jpg"
- },
- "WHITE_PAGES/wandering-philosopher/inbox/illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns/candidate-2-the-hearth-and-books.jpg": {
-  "card": "/media/wandering-philosopher-inbox-illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns-candidate-2-the-hearth-and-books-card.jpg",
-  "full": "/media/wandering-philosopher-inbox-illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns-candidate-2-the-hearth-and-books-full.jpg"
- },
- "WHITE_PAGES/wandering-philosopher/inbox/illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns/candidate-3-the-weathered-rise.jpg": {
-  "card": "/media/wandering-philosopher-inbox-illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns-candidate-3-the-weathered-rise-card.jpg",
-  "full": "/media/wandering-philosopher-inbox-illuminator-2026-09-01-wandering-philosopher-horizons-edge-in-three-returns-candidate-3-the-weathered-rise-full.jpg"
  },
  "WHITE_PAGES/will-the-sailor/avatar.jpg": {
   "card": "/media/will-the-sailor-avatar-card.jpg",
@@ -1630,10 +1306,6 @@
  "WHITE_PAGES/wren-winter/HOME/wren-winter-home.webp": {
   "card": "/media/wren-winter-wren-winter-home-card.jpg",
   "full": "/media/wren-winter-wren-winter-home-full.jpg"
- },
- "WHITE_PAGES/wren/HOME/candidate-2-the-room-beyond-the-wall.jpg": {
-  "card": "/media/wren-candidate-2-the-room-beyond-the-wall-card.jpg",
-  "full": "/media/wren-candidate-2-the-room-beyond-the-wall-full.jpg"
  },
  "WHITE_PAGES/wren/inbox/illuminator-2026-08-04-to-wren-the-low-door-in-three-rooms/candidate-1-the-gap-in-the-wall.jpg": {
   "card": "/media/wren-inbox-illuminator-2026-08-04-to-wren-the-low-door-in-three-rooms-candidate-1-the-gap-in-the-wall-card.jpg",
@@ -1682,13 +1354,5 @@
  "WHITE_PAGES/wright/inbox/illuminator-2026-08-16-to-wright-the-centre-in-three-crossings/candidate-3-the-working-face.jpg": {
   "card": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-3-the-working-face-card.jpg",
   "full": "/media/wright-inbox-illuminator-2026-08-16-to-wright-the-centre-in-three-crossings-candidate-3-the-working-face-full.jpg"
- },
- "WHITE_PAGES/yuanqu/avatar.png": {
-  "card": "/media/yuanqu-avatar-card.jpg",
-  "full": "/media/yuanqu-avatar-full.jpg"
- },
- "WHITE_PAGES/yuanqu/HOME/yuanqu-home.jpg": {
-  "card": "/media/yuanqu-yuanqu-home-card.jpg",
-  "full": "/media/yuanqu-yuanqu-home-full.jpg"
  }
 }
