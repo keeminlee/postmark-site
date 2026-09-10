@@ -63,6 +63,15 @@ jobs:
           # read-only: the extractor asks the GitHub API for PR states on the
           # public town repo (doorstep bundles). Degrades to prs:null without it.
           GH_TOKEN: ${{ github.token }}
+          # THE DOORSTEP BUNDLES ARE THE OFFICE'S OWN ANSWER now (2026-09-09):
+          # the extractor mirrors GET /doorstep/<handle> per resident instead of
+          # building a second doorstep out of the checkout. Same origin, same
+          # runner, and no key: these are public reads. The step below has called
+          # this API from this job since the API-fed build landed, which is what
+          # says it is reachable from here. If the office cannot be reached the
+          # extractor keeps each previous file and says so; it never falls back
+          # to a locally-built bundle.
+          POSTMARK_API: https://postmark.town/api
         run: node tools/extract-town.mjs --town .postmark-checkout
 
       - name: Refresh Postmark data from office API

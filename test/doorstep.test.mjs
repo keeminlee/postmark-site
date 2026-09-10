@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  WAITING_CROSSING_STATUS,
   budgetItems,
   deriveThreadMailState,
   excerptOf,
@@ -10,7 +9,6 @@ import {
   formatRemainder,
   freshnessFields,
   stakePositions,
-  waitingCrossing,
   splitArrivals,
   ON_THE_WATER_LABEL,
 } from "../tools/lib/doorstep.mjs";
@@ -143,14 +141,12 @@ test("one latest-letter fold makes awaiting_you and awaiting_reply consistent", 
   assert.equal(new Set([...state.awaiting_you, ...state.awaiting_reply].map((item) => item.thread)).size, 3);
 });
 
-test("waiting crossing uses Ferry's lifecycle-true name", () => {
-  const waiting = waitingCrossing([
-    { id: "a", to: "ellery", toList: ["ellery"], date: "2026-07-31" },
-  ]);
-  assert.equal(waiting.count, 1);
-  assert.equal(waiting.status, "merged, waiting for the crossing — next: Ferry.");
-  assert.equal(waiting.status, WAITING_CROSSING_STATUS);
-});
+// The "waiting crossing uses Ferry's lifecycle-true name" test retired with
+// `waitingCrossing` itself on 2026-09-09: the office's `awaiting.outgoing` now
+// carries each queued letter with the office's own state word, so there is no
+// second site-side wording left to hold honest. The falsifier that replaced it
+// is test/doorstep-static-is-the-office.test.mjs, which asserts the whole
+// segment arrives from the office untouched.
 
 test("budget caps and remainder formatting stay honest", () => {
   const budget = budgetItems([1, 2, 3, 4, 5], 3);

@@ -46,6 +46,25 @@ const PIN_SPEC = /^github:([^/#]+)\/([^#]+)#([0-9a-f]{40})$/;
 
 const SHA = /^[0-9a-f]{40}$/;
 
+/**
+ * THE HOLD (Keemin, 2026-09-10 10:3x EDT — "we accidentally prematurely shipped
+ * the site changes to the World page again … still seeing the background-less
+ * version on prod"). The founder's standing rule: THE SITE'S WORLD PIN MOVES ON
+ * PROD ONLY AFTER THE ATLAS SITTING. Settlement S64 (2026-09-10 02:23 EDT)
+ * carried world main's new viewer (spectator/viewer.mjs, the town ground drawn
+ * from marks), and this resolver advanced prod onto it at the 06:40Z rebuild
+ * because the newest tag was strictly newer than the floor — exactly what
+ * guardrail 2 exists to do, and exactly what the rule forbids until the World
+ * page ships. So the rule is data here: the rebuild never resolves ABOVE this
+ * settlement. Raise it (or set it to null) in the same PR that ships the site's
+ * World page; that PR is the atlas sitting's word, not a rebuild's.
+ */
+// LIFTED 2026-09-10 12:0x EDT (Keemin: "yeah let's just keep s64"): the flat
+// ground on prod is the direction he ruled on 09-08, and the World 2.0 page is
+// the fix, not a rollback. The hold stays as a mechanism (a number here holds),
+// and null means "follow the keeper's newest tag", the standing behaviour.
+export const HOLD_AT_SETTLEMENT = null;
+
 export const WORLD_PACKAGE = "postmark-world";
 export const WORLD_REMOTE = "https://github.com/keeminlee/postmark-world.git";
 
@@ -126,7 +145,7 @@ export function newestSettlement(tags) {
  * @returns {{ decision: "advance"|"hold", sha: string, settlement: number|null,
  *             floorSha: string, floorSettlement: number|null, reason: string }}
  */
-export function decideWorldPin({ floorSha, lsRemote, floorSettlementOf }) {
+export function decideWorldPin({ floorSha, lsRemote, floorSettlementOf, holdAt = HOLD_AT_SETTLEMENT }) {
   const hold = (reason, floorSettlement = null) => ({
     decision: "hold",
     sha: floorSha,
@@ -158,6 +177,27 @@ export function decideWorldPin({ floorSha, lsRemote, floorSettlementOf }) {
   }
   if (!Number.isInteger(floorSettlement) || floorSettlement < 0) {
     return hold("floor-settlement-unresolved: not a settlement number");
+  }
+
+  // THE HOLD — the founder's rule as data (see HOLD_AT_SETTLEMENT). The newest
+  // tag the rebuild may install is the highest settlement at or below the hold;
+  // a newer tag is not a candidate, however green its blessing.
+  if (Number.isInteger(holdAt) && holdAt > 0 && newest.settlement > holdAt) {
+    let capped = null;
+    for (const [settlement, tagSha] of tags) {
+      if (settlement <= holdAt && (capped === null || settlement > capped.settlement)) capped = { settlement, sha: tagSha };
+    }
+    if (!capped || !SHA.test(capped.sha) || capped.settlement <= floorSettlement) {
+      return hold(`held-at-S${holdAt}: newest S${newest.settlement} is above the founder's hold; the floor S${floorSettlement} stands`, floorSettlement);
+    }
+    return {
+      decision: "advance",
+      sha: capped.sha,
+      settlement: capped.settlement,
+      floorSha,
+      floorSettlement,
+      reason: `newest-under-hold: S${floorSettlement} -> S${capped.settlement} (S${newest.settlement} held above S${holdAt})`,
+    };
   }
 
   // GUARDRAIL 2 — strictly newer, or the floor stands. Equal settlement is a
