@@ -59,7 +59,11 @@ const SHA = /^[0-9a-f]{40}$/;
  * settlement. Raise it (or set it to null) in the same PR that ships the site's
  * World page; that PR is the atlas sitting's word, not a rebuild's.
  */
-export const HOLD_AT_SETTLEMENT = 63;
+// LIFTED 2026-09-10 12:0x EDT (Keemin: "yeah let's just keep s64"): the flat
+// ground on prod is the direction he ruled on 09-08, and the World 2.0 page is
+// the fix, not a rollback. The hold stays as a mechanism (a number here holds),
+// and null means "follow the keeper's newest tag", the standing behaviour.
+export const HOLD_AT_SETTLEMENT = null;
 
 export const WORLD_PACKAGE = "postmark-world";
 export const WORLD_REMOTE = "https://github.com/keeminlee/postmark-world.git";

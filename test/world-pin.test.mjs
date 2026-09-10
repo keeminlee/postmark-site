@@ -242,6 +242,6 @@ test("the hold: with no hold at all the resolver behaves as before (advance to t
   assert.equal(out.settlement, 45);
 });
 
-test("the hold today is S63 — the settlement prod showed the painted atlas at; raise it only in the PR that ships the World page", () => {
-  assert.equal(HOLD_AT_SETTLEMENT, 63);
+test("the hold today is LIFTED (Keemin, 2026-09-10: keep S64) — null follows the keeper's newest tag; a number here would hold prod at it", () => {
+  assert.equal(HOLD_AT_SETTLEMENT, null);
 });
