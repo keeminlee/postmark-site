@@ -38,7 +38,7 @@ import { emitSeam } from "./extract-seam.mjs";
 import { threadTitle } from "./lib/ids.mjs";
 import { PRESETS, assetName, processImage, ownDir } from "./lib/images.mjs";
 import {
-  excerptOf, ferryHeadline, stakePositions, splitArrivals,
+  excerptOf, ferryHeadline, stakePositions, splitArrivals, isBounceNotice,
   composeDoorstep, renderDoorstepMarkdown, DOORSTEP_SITE_KEYS,
 } from "./lib/doorstep.mjs";
 import {
@@ -607,7 +607,20 @@ emit("stats.json", {
     const mine = town.letters
       .filter((l) => rcpt(l).includes(r.handle))
       .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? "") || (a.id ?? "").localeCompare(b.id ?? ""));
-    const water = splitArrivals(mine, deliveries).onTheWater;
+    // A BOUNCE IS NOT A LETTER ON THE WATER. It is the notice that a letter
+    // arrived nowhere — already delivered as news, owing nothing, spent the
+    // moment its sender fixes the address. The ledger never carries one across,
+    // so the split calls it "not yet delivered" and it lands under "They land at
+    // the next ferry crossing", which is false for every bounce ever written.
+    //
+    // This surfaced the moment the count above was widened from the newest
+    // eight letters to all of them: the window had been hiding these, and the
+    // reviewer found 11 of 25 residents with a bounce in the section and 10
+    // whose section was nothing else — including the exact notice the founder's
+    // ruling was written about (postmaster-bounce-2026-06-16-to-domovoi-welcome,
+    // back on wright's page). The ruling is quoted at `isBounceNotice` in
+    // tools/lib/doorstep.mjs, which is the one place the test reads it from.
+    const water = splitArrivals(mine, deliveries).onTheWater.filter((l) => !isBounceNotice(l));
     const waterShown = water.slice(0, 8);
     // the office's own `total`/`shown`/`complete` grammar — a site-side list
     // with a cap answers in the same words the doors do

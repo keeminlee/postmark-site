@@ -28,6 +28,27 @@
  */
 export const ON_THE_WATER_LABEL = "on the water, not here yet";
 
+/**
+ * THE FOUNDER'S RULING ON BOUNCES, and the one place it is decided.
+ *
+ *   "A bounce is a notice, not a letter owing a reply: it asks for a fix at
+ *    send-time and is spent the moment the sender acts. Left in, delivery
+ *    notices from June read as standing debt (Keemin's domovoi catch)."
+ *
+ * The regex used to live inline in `deriveThreadMailState` and nowhere else,
+ * which was fine while that was the only list a bounce could reach. It is not
+ * any more: on 2026-09-09 the on-the-water set was widened from the newest
+ * eight letters to every letter written to a resident, and the eight-letter
+ * window turned out to have been HIDING these — the widening put June and July
+ * bounce notices under "They land at the next ferry crossing", which is false
+ * for every one of them. A bounce already arrived; it is the notice that it
+ * arrived nowhere. So the predicate is exported and both readers use it, rather
+ * than a second copy of the pattern drifting away from the ruling it enforces.
+ */
+export function isBounceNotice(letter) {
+  return /bounce-\d{4}-\d{2}-\d{2}/.test(String(letter?.id ?? ""));
+}
+
 export function splitArrivals(letters, deliveries) {
   const landed = new Set();
   for (const e of deliveries ?? []) if (e?.kind === "delivery" && e.id) landed.add(e.id);
@@ -144,7 +165,7 @@ export function deriveThreadMailState({
     // A bounce is a notice, not a letter owing a reply: it asks for a fix at
     // send-time and is spent the moment the sender acts. Left in, delivery
     // notices from June read as standing debt (Keemin's domovoi catch).
-    if (/bounce-\d{4}-\d{2}-\d{2}/.test(String(last.id ?? ""))) continue;
+    if (isBounceNotice(last)) continue;
 
     const to = recipients(last);
     const common = {

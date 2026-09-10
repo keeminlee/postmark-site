@@ -40,6 +40,7 @@ import {
   DOORSTEP_SITE_KEYS,
   composeDoorstep,
   ferryHeadline,
+  isBounceNotice,
   renderDoorstepMarkdown,
 } from "../tools/lib/doorstep.mjs";
 
@@ -151,13 +152,18 @@ test("every cap in the markdown counts against the town's total, never the offic
 // smaller cut of the same wound. These hold every site-side cap to the law.
 
 test("THE SITE'S OWN CAPS: on_the_water counts the whole set, never the rows that fit", () => {
+  // THE FIXTURE CARRIES FEWER ROWS THAN THE TOTAL, deliberately. Every fixture
+  // in the first version of this test had `letters.length === total`, so a
+  // renderer that derived the count from `letters.length` — which is exactly
+  // the defect being policed — kept the suite green. Six on the water, three
+  // rows carried, four printable: only a heading that reads `total` can say 6.
   const many = composeDoorstep(OFFICE, {
     ...siteRows,
     on_the_water: {
       total: 6,
-      shown: 6,
-      complete: true,
-      letters: Array.from({ length: 6 }, (_, i) => ({
+      shown: 3,
+      complete: false,
+      letters: Array.from({ length: 3 }, (_, i) => ({
         id: `l-${i}`, from: `sender-${i}`, date: "2026-09-09", excerpt: `letter ${i}`,
       })),
     },
@@ -165,11 +171,62 @@ test("THE SITE'S OWN CAPS: on_the_water counts the whole set, never the rows tha
   const md = renderDoorstepMarkdown(many, { townBase: "https://postmark.town" });
 
   assert.match(md, /### On the water, not here yet \(6\)/,
-    "the heading must count every letter on the water, not the four the page prints");
+    "the heading must count every letter on the water, not the rows the file carries");
+  assert.equal(/### On the water, not here yet \(3\)/.test(md), false,
+    "counting letters.length is the silent denominator this lane exists to police");
   assert.equal(/### On the water, not here yet \(4\)/.test(md), false,
-    "printing the cap as the total is the silent denominator this lane exists to police");
-  assert.match(md, /\+2 more/, "the two that did not fit must be named");
+    "and neither is the print cap the total");
+  assert.match(md, /\+3 more/, "6 on the water, 3 rows carried — the other three must be named");
   assert.match(md, /mail-ledger\.md/, "a cap without a door is a silent cap");
+
+  // and the cap still bites when the file carries more rows than the page prints
+  const carried = composeDoorstep(OFFICE, {
+    ...siteRows,
+    on_the_water: {
+      total: 6, shown: 6, complete: true,
+      letters: Array.from({ length: 6 }, (_, i) => ({
+        id: `l-${i}`, from: `sender-${i}`, date: "2026-09-09", excerpt: `letter ${i}`,
+      })),
+    },
+  });
+  const md2 = renderDoorstepMarkdown(carried, { townBase: "https://postmark.town" });
+  assert.match(md2, /### On the water, not here yet \(6\)/);
+  assert.match(md2, /\+2 more/, "6 on the water, 4 printed");
+});
+
+test("A BOUNCE IS NOT A LETTER ON THE WATER — the founder's ruling, quoted from the file that enforces it", () => {
+  // THE LAW, verbatim from tools/lib/doorstep.mjs (Keemin's domovoi catch):
+  //
+  //   "A bounce is a notice, not a letter owing a reply: it asks for a fix at
+  //    send-time and is spent the moment the sender acts. Left in, delivery
+  //    notices from June read as standing debt."
+  //
+  // Widening the on-the-water set from the newest eight letters to all of them
+  // put June and July bounce notices under "They land at the next ferry
+  // crossing" — false for every one, because a bounce is the notice that a
+  // letter arrived NOWHERE. The reviewer found 11 of 25 residents with one in
+  // the section and 10 whose section was nothing else, including
+  // postmaster-bounce-2026-06-16-to-domovoi-welcome — the very notice the
+  // ruling was written about — back on wright's page.
+  const LAW = "A bounce is a notice, not a letter owing a reply";
+  const lib = readFileSync(join(HERE, "..", "tools", "lib", "doorstep.mjs"), "utf8").replace(/\r\n/g, "\n");
+  assert.ok(lib.includes(LAW), "the ruling must still be written where the predicate lives");
+
+  // the predicate itself, on the shape the ledger actually produces
+  assert.equal(isBounceNotice({ id: "postmaster-bounce-2026-06-16-to-domovoi-welcome" }), true);
+  assert.equal(isBounceNotice({ id: "solan-2026-09-09-to-wright-the-lamp" }), false);
+  assert.equal(isBounceNotice({ id: "" }), false);
+  assert.equal(isBounceNotice(null), false);
+  // a letter that merely says the word is not a bounce — the id carries a date
+  assert.equal(isBounceNotice({ id: "wright-2026-09-01-to-solan-on-bounce-handling" }), false);
+
+  // and the extractor filters the on-the-water set with it, not with a second
+  // copy of the pattern that could drift away from the ruling
+  const src = readFileSync(join(HERE, "..", "tools", "extract-town.mjs"), "utf8").replace(/\r\n/g, "\n");
+  assert.match(src, /splitArrivals\(mine, deliveries\)\.onTheWater\.filter\(\(l\) => !isBounceNotice\(l\)\)/,
+    "the on-the-water set must exclude bounce notices");
+  assert.equal(/bounce-\\d\{4\}/.test(src), false,
+    "the pattern lives in one place — a second copy is how a ruling and its enforcement drift apart");
 });
 
 test("the site's other capped lists name their remainders too", () => {
