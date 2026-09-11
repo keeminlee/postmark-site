@@ -23,6 +23,32 @@ import { recordsToStage, stagingComplaints, stagingFailure } from "../../tools/l
 
 const META_PATH = "/world-engine/residents-meta.json";
 
+// ── THE DISPLAY PIN (founder, 2026-09-10 21:0x EDT: "revert the DISPLAY to
+// include the old atlas html again while keeping the DATA at the most recent
+// settlement") ────────────────────────────────────────────────────────────
+//
+// The world package carries two things: the RECORD (WORLD/*.json — the data)
+// and the VIEWER (spectator/viewer.mjs — the display). The pin resolver moves
+// the whole package to the keeper's newest settlement tag, so a viewer change
+// that lands in the world repo reaches prod with the next settlement whether or
+// not anyone meant it to — which is how S64 (2026-09-10) put a viewer on prod
+// that draws the town's ground from the record instead of the atlas drawing.
+//
+// This directory splits the two: a file under town/world-engine-display/
+// REPLACES the package's file of the same name at staging time, so the display
+// is the vendored copy while the record stays whatever the resolver pinned.
+// Today it holds ONE file, spectator/viewer.mjs as it was at settlement S63
+// (world 256db2fe) — the last viewer that reads /atlas/town.html as the ground.
+// Its engine imports (../tools/*.mjs) are served from the pinned package and
+// were checked to exist there.
+//
+// TO LIFT THE PIN: delete the directory. Nothing else reads it.
+const DISPLAY_PIN_DIR = ["town", "world-engine-display"];
+function displayPinned(projectRoot, ...rel) {
+  const p = join(projectRoot, ...DISPLAY_PIN_DIR, ...rel);
+  return existsSync(p) ? p : null;
+}
+
 const MIME = { ".mjs": "text/javascript; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8" };
 
 // ── which record files get staged, and why it is no longer a list ───────────
@@ -59,9 +85,10 @@ function readSources(dir, base, out = []) {
 /** every reader whose same-origin record demands this build must satisfy */
 function recordReaders(pkg, projectRoot) {
   const readers = [];
-  const viewer = join(pkg, "spectator", "viewer.mjs");
-  // the package's own viewer FIRST — it is the module both habitats run, and it
-  // is its unmet demand that caused the leak
+  // the viewer that will actually be SERVED — the display pin's copy when one is
+  // vendored, the package's otherwise — FIRST: it is the module both habitats
+  // run, and it is its unmet demand that caused the leak
+  const viewer = displayPinned(projectRoot, "spectator", "viewer.mjs") ?? join(pkg, "spectator", "viewer.mjs");
   if (existsSync(viewer)) readers.push({ name: "postmark-world/spectator/viewer.mjs", text: readFileSync(viewer, "utf8") });
   for (const dir of SOURCE_DIRS) {
     const abs = join(projectRoot, dir);
@@ -151,8 +178,10 @@ function stagingWalk(pkg, projectRoot) {
   // on 2026-07-28 bit spectator/ on 2026-08-29: act-as.mjs (the viewer's second
   // spectator module ever) 404'd in the built site and the boot hung at module
   // resolution with a green build behind it. One rule for both dirs now.
+  // The display pin (see DISPLAY_PIN_DIR): a vendored spectator file replaces the
+  // package's at the same public path. The engine and the record are untouched.
   for (const f of readdirSync(join(pkg, "spectator")).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")))
-    files.push({ source: join(pkg, "spectator", f), publicPath: `/world-engine/spectator/${f}` });
+    files.push({ source: displayPinned(projectRoot, "spectator", f) ?? join(pkg, "spectator", f), publicPath: `/world-engine/spectator/${f}` });
   // Every non-test engine module — a NAMED list here was the drift: a new module
   // the viewer imports (mark-class.mjs, 2026-07-28) 404'd in prod while dev,
   // serving straight from node_modules, never noticed. The browser only imports
