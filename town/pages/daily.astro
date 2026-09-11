@@ -157,6 +157,28 @@ const cards = [...bulletin]
   <script>
     import { railSpy } from "@/lib/rail.mjs";
     railSpy();
+    // site#1: links inside the Daily used to navigate the iframe itself and
+    // strand/crash the in-window view. The office HTML is synced verbatim from
+    // the town repo, so the retarget lives here at the consumer: once the
+    // same-origin frame loads, every non-anchor link opens a fresh tab.
+    (function () {
+      const frame = document.querySelector(".daily-shell iframe");
+      if (!frame) return;
+      const retarget = () => {
+        try {
+          const doc = frame.contentDocument;
+          if (!doc) return;
+          for (const a of doc.querySelectorAll("a[href]")) {
+            const href = a.getAttribute("href") || "";
+            if (href.startsWith("#")) continue;
+            a.target = "_blank";
+            a.rel = "noopener";
+          }
+        } catch { /* same-origin by construction; nothing to do if not */ }
+      };
+      frame.addEventListener("load", retarget);
+      retarget();
+    })();
     (function () {
       const overlay = document.querySelector("[data-board-overlay]");
       const store = document.querySelector("[data-board-store]");
