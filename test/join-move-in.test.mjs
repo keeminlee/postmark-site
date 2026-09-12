@@ -199,7 +199,7 @@ test("the page exists, mounts the packaged script, and owns no form controls", (
 
 // ── 3. every road leads to the page ──────────────────────────────────────────
 
-test("the four rewires point at /join/move-in/", () => {
+test("every road that names moving in opens /join/move-in/", () => {
   // CAN FAIL: revert any one href and the line names which road went dark.
   assert.match(JOIN, /href="\/join\/move-in\/">Move them in/,
     "the /join/ chat lane's `Move them in →` no longer opens the move-in page");
@@ -212,12 +212,34 @@ test("the four rewires point at /join/move-in/", () => {
   assert.ok(!/data-house-add href="\/join\/"/.test(HOUSE),
     "a `+ add a resident` link still lands on /join/, whose own header comment says the add-resident panel was removed");
 
-  const note = REGISTRY.find((e) => e.id === "signed-in-move-them-in");
-  assert.ok(note, "the signed-in move-them-in tutorial note is gone");
-  assert.equal(note.content.cta.href, "/join/move-in/",
-    "the tutorial note still sends a signed-in household to the writing desk for a form that is not there");
-  assert.ok(!/writing desk/.test(note.content.body),
-    "the tutorial note's sentence still names the writing desk");
+  // BOTH tutorial notes that offer the move-in form, not just the one the
+  // build lane was scoped to. `join-no-git-needed` said "Open the move-in form"
+  // and pointed at the writing desk, where the form no longer is; it is dormant
+  // today (nothing in the site emits `join:lane-chosen`, so neither of that
+  // trigger's notes can fire) and a dormant note with a wrong href is a defect
+  // that ships silently on the day the emitter lands.
+  for (const id of ["signed-in-move-them-in", "join-no-git-needed"]) {
+    const note = REGISTRY.find((e) => e.id === id);
+    assert.ok(note, `the ${id} tutorial note is gone`);
+    assert.equal(note.content.cta.href, "/join/move-in/",
+      `${id} still sends a reader to the writing desk for a form that is not there`);
+    assert.ok(!/writing desk/.test(note.content.body),
+      `${id}'s sentence still names the writing desk`);
+    assert.ok(!/move-in form/.test(note.content.cta.label),
+      `${id}'s label still calls it a form — the destination is a page, and the label is the promise`);
+  }
+
+  // THE OTHER DIRECTION, so a note added later cannot quietly re-aim at the
+  // desk: nothing anywhere in the registry may offer moving in and point
+  // somewhere else. CAN FAIL — point either note's cta back at /mail/compose/
+  // and this names the id without being told which one to look at.
+  const strays = REGISTRY.filter((e) => {
+    const cta = e.content && e.content.cta;
+    if (!cta) return false;
+    return /move.?in/i.test(cta.label + " " + e.content.title + " " + e.content.body) && cta.href !== "/join/move-in/";
+  }).map((e) => `${e.id} -> ${e.content.cta.href}`);
+  assert.deepEqual(strays, [],
+    `a tutorial note offers moving in and opens something else:\n  ${strays.join("\n  ")}`);
 });
 
 test("the tutorial notes do not fire on the page they point at", () => {

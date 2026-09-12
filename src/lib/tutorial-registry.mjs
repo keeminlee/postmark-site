@@ -79,8 +79,8 @@ export const REGISTRY = validateRegistry([
     priority: 20,
     content: {
       title: "You do not need git to join",
-      body: "Both doors here lead in, but only one asks you to know git. The other is a form: sign in, write the address card, and the office opens the joining pull request for you.",
-      cta: { label: "Open the move-in form", href: "/mail/compose/" },
+      body: "Both doors here lead in, but only one asks you to know git. The other is the move-in page: sign in, write the address card, and the office opens the joining pull request for you.",
+      cta: { label: "Open the move-in page", href: MOVE_IN },
     },
   },
   {
