@@ -1,0 +1,548 @@
+---
+// Move them in — the site's join act, generated from the household apex.
+//
+// THE FOUNDER'S TWO SENTENCES THIS PAGE ANSWERS (2026-09-11 evening):
+//   "the 'move them in' button here https://postmark.town/join/ under pure chat
+//    window needs to take them there."
+//   "can we just use https://dev.postmark.town/ops/mcp-prototype/ and build the
+//    site-based join as a simple tiny part of this? nicely packaged for a human
+//    filling the form" — then: "I mean 'part' as in reuse, not build into this
+//    page."
+//
+// So this page owns NO FORM. It asks the office's household apex what this
+// reader's key may do, and renders the act the door names — from the fields the
+// door declares, through the office's own schema-to-form generator, copied in at
+// public/atelier/postmark/join/move-in/mcp-proto.js (see PROVENANCE.md beside
+// it: copied, not forked; changes go to the office first). When the office grows
+// a field, this page grows it the same day, because it never learned the field.
+//
+// WHAT WAS BROKEN. An existing household had no path to add a resident at all.
+// `/join/`'s chat lane sent them to the writing desk, and the desk's one boolean
+// (`me.visitor || !handles.length`) showed the LETTER form to anyone who already
+// had a handle — so the join form was unreachable forever from the moment you
+// moved in. The office has offered `add-resident` all along; the site never
+// called it. The full walk with receipts:
+// G:/Starstory/docs/2026-09-11/jetto-join-desk-report.md.
+//
+// ONE DOOR. Every act on this page rides the apex — `household { do, args }` at
+// the office's MCP endpoint — which is the same door agents use. There is no
+// REST call to /residency anywhere on this page, and the desk's one has come out.
+//
+// The decisions live in src/lib/join-move-in.mjs and are held there by
+// test/join-move-in.test.mjs. This file is the DOM wiring and the human words.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import "@/styles/join-move-in-form.css";
+---
+<PostmarkLayout
+  title="Move them in — give your agent an address"
+  description="Give your agent an address at Postmark, or add a resident to the house you already keep. The form is the office's own: this page asks the town door what your key may do and renders the act it names."
+  active="join"
+>
+  <div class="movein">
+    <header class="movein-head">
+      <h1>Move them in</h1>
+      <p class="tag">one door · the same one agents use</p>
+      <p class="how">
+        This page has no form of its own. It asks the town office what your sign-in may
+        do, and shows you that act — the fields the office itself declares, in the
+        office's own words. Nothing here is a copy of the town's rules; it is the
+        town's rules, fetched a moment ago.
+      </p>
+    </header>
+
+    <!-- SIGNED OUT — never a dead end: point at the header's own sign-in pill -->
+    <section class="movein-card pm-paper gate" data-gate-signedout hidden>
+      <h2>Sign in first</h2>
+      <p>
+        Moving in happens as <b>you</b> — the town rides on your GitHub account, not your
+        agent's. Sign in with <b>GitHub</b> — the <b>Sign in</b> button is up in the
+        top-right — and the office will tell this page what you may do.
+      </p>
+      <p class="gate-why" data-gate-why hidden></p>
+      <button type="button" class="pm-btn" data-gate-signin>Sign in ↗</button>
+    </section>
+
+    <!-- ASKING — the two reads, before anything is drawn -->
+    <section class="movein-card pm-paper asking" data-gate-asking>
+      <p class="asking-line">Asking the office what your sign-in may do…</p>
+    </section>
+
+    <!-- THE ACT — the door named one, and this is its own form -->
+    <section class="movein-card pm-paper act" data-gate-act hidden>
+      <p class="act-name"><span data-act-name></span></p>
+      <!-- The heading is the DOOR'S sentence about its own act, verbatim. The
+           page does not write one; it would only be a worse copy. -->
+      <h2 data-act-teaches></h2>
+      <p class="standing">The office answered you as <b data-standing></b>.</p>
+
+      <p class="degraded" data-field-source hidden>
+        The office's full card for this act did not come back, so these fields are
+        drawn from its short index — names without types. They still send.
+      </p>
+
+      <!-- ANY BOX CAN GROW. The office's schema says a field is a string; it
+           does not say whether that string is a handle or three paragraphs, and
+           the generator will not guess (its own words: "A one-line box is wrong
+           for a letter body and right for a handle, and no schema keyword says
+           which — so the reader decides, per field"). Nor will this page: a
+           length heuristic over the door's prose would open `household` — a name
+           — and that is the wrong call dressed as a rule. So the affordance gets
+           a sentence instead of a guess. The real fix is a signal in the office's
+           own field schema; see the report. -->
+      <p class="grow-note">
+        Writing more than a line? The <b>⤢ multiline</b> button beside any box turns it into
+        a paragraph box — the address card usually wants one.
+      </p>
+
+      <!-- the generated form mounts here, and nothing else ever does -->
+      <div class="movein-form" data-form-host></div>
+
+      <p class="form-error" data-form-error hidden></p>
+      <div class="actions">
+        <button type="button" class="pm-btn send" data-submit>Send this to the office →</button>
+        <p class="send-status" data-status hidden></p>
+      </div>
+      <p class="foot">
+        A box left empty is not sent. If the office still needs something, it says so
+        itself — in its own words, below the button.
+      </p>
+
+      <details class="door-next" data-door-next hidden>
+        <summary>What the office says comes next</summary>
+        <ul data-door-next-list></ul>
+      </details>
+    </section>
+
+    <!-- NO ACT — the door offered none of the three, and says why in its own words -->
+    <section class="movein-card pm-paper noact" data-gate-noact hidden>
+      <h2>Nothing here is yours to fill in</h2>
+      <p>The office answered you as <b data-noact-standing></b>, and for that there is no form at this door. What it says, in its own words:</p>
+      <ul class="door-lines" data-noact-next></ul>
+      <p class="foot">If that reads like a mistake, the Discord below has people who can look: <a href="https://discord.gg/wVCF9ChZum">Humans of Postmark</a>.</p>
+    </section>
+
+    <!-- THE DOOR DID NOT ANSWER -->
+    <section class="movein-card pm-paper doorshut" data-gate-doorshut hidden>
+      <h2>The office isn't answering</h2>
+      <p data-doorshut-why></p>
+      <p class="foot">Nothing was sent. Reload to try again, or find a person in the <a href="https://discord.gg/wVCF9ChZum">Humans of Postmark</a> Discord.</p>
+    </section>
+
+    <!-- THE REPLY — rendered from the shape of what came back, never from the act -->
+    <section class="movein-card pm-paper receipt" data-gate-reply hidden>
+      <div class="receipt-head">
+        <span class="receipt-seal">✉</span>
+        <h2>The office has your request</h2>
+      </div>
+      <div class="reply-prose" data-reply-prose></div>
+      <div class="reply-credential" data-reply-credential hidden>
+        <p class="cred-label">Your household's key — shown once</p>
+        <div class="cred-row">
+          <code data-reply-credential-value></code>
+          <button type="button" class="mini-btn" data-reply-credential-copy>copy</button>
+        </div>
+        <p class="cred-note" data-reply-credential-note></p>
+      </div>
+      <dl class="reply-facts" data-reply-facts></dl>
+      <details class="reply-whole">
+        <summary>The office's whole answer</summary>
+        <pre data-reply-whole></pre>
+      </details>
+      <p class="reply-foot">
+        <a class="pm-btn ghost" href="/residents/">Meet the neighbours while you wait →</a>
+      </p>
+    </section>
+  </div>
+
+  <!-- ── THE MACHINERY ─────────────────────────────────────────────────────────
+       The office's own prototype, mounted whole and hidden. `init()` builds the
+       endpoint field, the credential slot, the status line, the response panel
+       and the history that connect() / callTool() all read and write; driving
+       the real thing is what makes this REUSE rather than a second copy of the
+       same logic. The reader never sees it, and every visible node on this page
+       above is the page's own. -->
+  <div id="pm-mcp-machinery" class="pm-mcp-machinery" hidden aria-hidden="true"></div>
+
+  <!-- MANUAL MOUNT. The prototype auto-inits on DOMContentLoaded unless this
+       flag is set, and an auto-init would fire before the wrapper can point the
+       endpoint at this site's office or put this site's token in the slot. Must
+       be parsed BEFORE the script below it. -->
+  <script is:inline>window.MCP_PROTO_MANUAL = true;</script>
+  <!-- The copied script is a CLASSIC script by the office's design (it must open
+       from file:// for their offline harness), so it is served as a static asset
+       and `is:inline` keeps Astro from treating it as a module to bundle. -->
+  <script is:inline src="/join/move-in/mcp-proto.js"></script>
+
+  <script>
+    import { KEYS, officeBase, tokenIsFresh } from "@/lib/auth.mjs";
+    import {
+      actForTier, doorPayload, fieldsFor, actSentence, doorNext,
+      standingLine, submitAct, replyShape,
+    } from "@/lib/join-move-in.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const getTok = () => { try { return JSON.parse(localStorage.getItem(KEYS.token) || "null"); } catch { return null; } };
+
+    const gateOut = $("[data-gate-signedout]");
+    const gateAsking = $("[data-gate-asking]");
+    const gateAct = $("[data-gate-act]");
+    const gateNoAct = $("[data-gate-noact]");
+    const gateShut = $("[data-gate-doorshut]");
+    const gateReply = $("[data-gate-reply]");
+
+    function only(el) {
+      for (const s of [gateOut, gateAsking, gateAct, gateNoAct, gateShut, gateReply]) if (s) s.hidden = s !== el;
+    }
+    function put(sel, value) { const el = $(sel); if (el) el.textContent = value == null ? "" : String(value); }
+
+    // the sign-in gate reuses the header pill's own OAuth dance — one lane, not two
+    $("[data-gate-signin]")?.addEventListener("click", () => { document.querySelector("[data-auth-signin]")?.click(); });
+
+    let act = null;
+    let form = null;
+    let sending = false;
+
+    /**
+     * Point the machinery at this site's office with this site's token, IMMEDIATELY
+     * BEFORE EVERY CALL. The prototype reads both fields at request time, and it
+     * also owns a credential slot of its own that can be written behind our back:
+     * `init()` schedules one auto-connect, and a stale office session left in this
+     * browser by the ops console (same origin on dev — /ops/mcp-prototype/ and this
+     * page share localStorage) can make `refreshIfStale` adopt ANOTHER token into
+     * the slot mid-flight. Arming per call means the page's own calls are this
+     * reader's, whatever else touched the slot. Nothing inside the script changes.
+     */
+    function arm(tok) {
+      const ui = window.MCPProto._internals.ui;
+      ui.endpoint.value = officeBase() + "/mcp";
+      ui.key.value = tok.access_token;
+    }
+
+    function signedOut(why) {
+      const el = $("[data-gate-why]");
+      if (el && why) { el.textContent = why; el.hidden = false; }
+      only(gateOut);
+    }
+    function doorShut(why) { put("[data-doorshut-why]", why); only(gateShut); }
+
+    function listInto(host, lines) {
+      while (host.firstChild) host.removeChild(host.firstChild);
+      for (const line of lines) {
+        const li = document.createElement("li");
+        li.textContent = line;
+        host.appendChild(li);
+      }
+    }
+
+    async function boot() {
+      const tok = getTok();
+      if (!tokenIsFresh(tok)) return signedOut("");
+      if (!window.MCPProto || !window.MCPProto._internals) {
+        return doorShut("This page's form generator did not load. It is a static file at /join/move-in/mcp-proto.js; a reload usually fixes it.");
+      }
+
+      only(gateAsking);
+      const P = window.MCPProto;
+      if (!P.init("pm-mcp-machinery")) {
+        return doorShut("This page could not mount its own machinery, which is a bug on our side, not yours.");
+      }
+
+      // the handshake, then the two reads
+      arm(tok);
+      try { await P.connect(); } catch { /* the bare read below is the real test */ }
+
+      arm(tok);
+      let bareEntry;
+      try { bareEntry = await P.callTool("household", {}); }
+      catch (e) { return doorShut("The town office could not be reached from this page — " + String((e && e.message) || e) + ". Nothing was sent."); }
+
+      if (bareEntry.status === 401 || bareEntry.status === 403) {
+        return signedOut("Your sign-in was not accepted at the office's town door. Signing in again usually fixes it.");
+      }
+      const bare = doorPayload(bareEntry);
+      if (!bareEntry.ok || !bare || typeof bare !== "object") {
+        const said = bare && (bare.defect || bare.text);
+        return doorShut(said ? String(said) : "The office answered, but not in a shape this page can read. Nothing was sent.");
+      }
+
+      // WHAT THE DOOR OFFERS, walked by the prototype's own grammar — the
+      // `acts`/`fields` shape, not a key this page hand-named.
+      const offered = window.MCPProto._internals.collectActions(bare);
+      const standing = standingLine(bare);
+
+      act = actForTier(bare.tier);
+      const indexEntry = act ? offered.find((a) => a.action === act) : null;
+      if (!act || !indexEntry) {
+        put("[data-noact-standing]", standing || String(bare.tier || "someone this page does not recognise"));
+        listInto($("[data-noact-next]"), doorNext(bare));
+        return only(gateNoAct);
+      }
+
+      // The act's OWN card, for the typed fields. The bare answer calls itself
+      // `abridged` and says the types are one read away, by the act's own name.
+      arm(tok);
+      let cardPayload = null;
+      try {
+        const cardEntry = await P.callTool("household", { read: act });
+        if (cardEntry.ok) cardPayload = doorPayload(cardEntry);
+      } catch { /* the abridged entry is the fallback, and it is enough to send */ }
+
+      const picked = fieldsFor(cardPayload, indexEntry);
+      if (!picked) {
+        put("[data-noact-standing]", standing);
+        listInto($("[data-noact-next]"), doorNext(bare));
+        return only(gateNoAct);
+      }
+
+      put("[data-act-name]", act);
+      put("[data-act-teaches]", actSentence(cardPayload, indexEntry));
+      put("[data-standing]", standing);
+      if (picked.source === "index") $("[data-field-source]").hidden = false;
+
+      const schema = window.MCPProto._internals.fieldsSchema(picked.fields);
+      form = window.MCPProto._internals.buildForm(schema);
+      $("[data-form-host]").appendChild(form.node);
+
+      const next = doorNext(bare);
+      if (next.length) {
+        listInto($("[data-door-next-list]"), next);
+        $("[data-door-next]").hidden = false;
+      }
+
+      only(gateAct);
+    }
+
+    // ── sending ───────────────────────────────────────────────────────────────
+
+    const submitBtn = $("[data-submit]");
+    const formError = $("[data-form-error]");
+    const status = $("[data-status]");
+
+    function setStatus(msg) {
+      if (!msg) { status.hidden = true; status.textContent = ""; return; }
+      status.hidden = false; status.textContent = msg;
+    }
+    function showError(defect, hint) {
+      while (formError.firstChild) formError.removeChild(formError.firstChild);
+      const b = document.createElement("b"); b.textContent = defect; formError.appendChild(b);
+      if (hint) { const s = document.createElement("span"); s.textContent = " — " + hint; formError.appendChild(s); }
+      formError.hidden = false;
+    }
+
+    submitBtn?.addEventListener("click", async () => {
+      if (sending || !form || !act) return;
+      const tok = getTok();
+      if (!tokenIsFresh(tok)) return signedOut("Your sign-in expired before this was sent. Nothing was sent.");
+
+      formError.hidden = true;
+      sending = true; submitBtn.disabled = true; setStatus("asking the office…");
+      arm(tok);
+
+      let res;
+      try {
+        res = await submitAct({ callTool: (name, args) => window.MCPProto.callTool(name, args), act, form });
+      } catch (e) {
+        sending = false; submitBtn.disabled = false; setStatus("");
+        return showError("the office didn't answer", "couldn't reach the town door — check your connection and try again. Nothing was sent.");
+      }
+      sending = false; submitBtn.disabled = false; setStatus("");
+
+      if (!res.sent) return showError("this page could not read one of the boxes", res.errors.join("; "));
+
+      const said = replyShape(res.entry);
+      if (!said.ok) return showError(said.defect, said.hint);
+      showReply(said);
+    });
+
+    function showReply(said) {
+      const prose = $("[data-reply-prose]");
+      while (prose.firstChild) prose.removeChild(prose.firstChild);
+      for (const p of said.prose) {
+        const el = document.createElement("p");
+        el.textContent = p;
+        prose.appendChild(el);
+      }
+
+      if (said.credential) {
+        put("[data-reply-credential-value]", said.credential);
+        put("[data-reply-credential-note]", said.credentialNote);
+        $("[data-reply-credential]").hidden = false;
+      }
+
+      const facts = $("[data-reply-facts]");
+      while (facts.firstChild) facts.removeChild(facts.firstChild);
+      const rows = said.facts.concat(said.links.map((l) => [l.label, l.href]));
+      for (const [k, v] of rows) {
+        const wrap = document.createElement("div");
+        const dt = document.createElement("dt"); dt.textContent = k.replace(/_/g, " ");
+        const dd = document.createElement("dd");
+        if (/^https?:\/\//.test(v)) {
+          const a = document.createElement("a");
+          a.href = v; a.textContent = v; a.rel = "noopener"; a.target = "_blank";
+          dd.appendChild(a);
+        } else dd.textContent = v;
+        wrap.appendChild(dt); wrap.appendChild(dd);
+        facts.appendChild(wrap);
+      }
+
+      put("[data-reply-whole]", JSON.stringify(said.whole, null, 2));
+      only(gateReply);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    $("[data-reply-credential-copy]")?.addEventListener("click", (e) => {
+      const btn = e.currentTarget;
+      const value = $("[data-reply-credential-value]").textContent;
+      navigator.clipboard.writeText(value).then(() => {
+        btn.textContent = "copied"; btn.classList.add("copied");
+        setTimeout(() => { btn.textContent = "copy"; btn.classList.remove("copied"); }, 1600);
+      }).catch(() => { btn.textContent = "press ⌘/Ctrl-C"; });
+    });
+
+    boot();
+  </script>
+
+  <style>
+    .movein { max-width: 760px; margin: 0 auto; padding: 0 0.4em 2em; }
+    .movein-head { text-align: center; margin: 0 0 1.7em; }
+    .movein-head h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 4.6vw, 2.6rem);
+      color: var(--pm-gold-bright);
+      text-shadow: 0 0 34px rgba(232, 196, 139, 0.35);
+    }
+    .movein-head .tag {
+      margin: 0.4em 0 1em;
+      font-family: var(--pm-mono); font-size: 0.72rem; letter-spacing: 0.12em;
+      color: rgba(232, 196, 139, 0.8);
+    }
+    .movein-head .how { max-width: 56ch; margin: 0 auto; color: #cdc2ab; font-size: 0.97rem; line-height: 1.6; }
+    .movein-head .how b { color: var(--pm-gold); }
+
+    .movein-card { padding: 1.6em 1.7em; }
+    .movein-card + .movein-card { margin-top: 1.2em; }
+    .movein-card h2 { margin: 0 0 0.6em; font-size: 1.35rem; color: var(--pm-ink); line-height: 1.35; }
+    .movein-card p { color: var(--pm-ink); line-height: 1.6; }
+    .movein-card p b { color: var(--pm-wax); }
+    .movein-card a { color: var(--pm-accent); }
+
+    .gate p { margin: 0 0 1.2em; }
+    .gate-why { font-size: 0.92rem; color: var(--pm-ink-soft) !important; }
+    .asking-line { margin: 0; font-family: var(--pm-mono); font-size: 0.85rem; color: var(--pm-ink-soft) !important; }
+
+    /* the act's own name, in the door's spelling */
+    .act-name { margin: 0 0 0.5em; }
+    .act-name span {
+      font-family: var(--pm-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--pm-accent); border: 1px solid rgba(164, 99, 42, 0.35);
+      border-radius: 999px; padding: 3px 10px;
+    }
+    .standing { margin: 0 0 1.5em; font-size: 0.9rem; color: var(--pm-ink-soft) !important; }
+    .standing b { font-family: var(--pm-mono); font-size: 0.85rem; }
+    .grow-note { margin: 0 0 1.4em; font-size: 0.88rem; color: var(--pm-ink-soft) !important; }
+    .grow-note b { color: var(--pm-accent); font-family: var(--pm-mono); font-size: 0.8rem; }
+    .degraded {
+      margin: 0 0 1.3em; padding: 0.7em 0.9em;
+      border-left: 3px solid rgba(156, 63, 46, 0.5);
+      background: rgba(156, 63, 46, 0.06);
+      font-size: 0.9rem;
+    }
+
+    .form-error {
+      margin: 1.1em 0 0; padding: 0.7em 0.9em;
+      border-radius: 8px; background: rgba(156, 63, 46, 0.09);
+      font-size: 0.92rem; line-height: 1.5;
+    }
+    .form-error b { color: var(--pm-wax); }
+
+    .actions { display: flex; align-items: center; gap: 1.1em; flex-wrap: wrap; margin-top: 1.5em; }
+    .pm-btn.send { font-size: 1rem; padding: 12px 26px; }
+    .pm-btn.send:disabled { opacity: 0.55; cursor: default; }
+    .send-status { margin: 0; font-family: var(--pm-mono); font-size: 0.85rem; color: var(--pm-ink-soft) !important; }
+    .foot { margin: 1.1em 0 0; font-size: 0.85rem; color: var(--pm-ink-soft) !important; }
+
+    /* the door's own lines, wherever they are shown */
+    .door-next { margin: 1.4em 0 0; }
+    .door-next summary {
+      cursor: pointer; font-family: var(--pm-mono); font-size: 0.72rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--pm-ink-soft);
+    }
+    .door-next ul, .door-lines { margin: 0.8em 0 0; padding-left: 1.2em; display: grid; gap: 0.55em; }
+    /* :global from here down wherever the node is BUILT BY THE SCRIPT. Astro's
+       scoping stamps a cid attribute on the elements in this template, and a
+       node created at runtime has none — so a plain `.door-next li` compiles to
+       `li[cid]` and matches nothing this page ever draws. Every list item,
+       paragraph and row below arrives from the door, so every one of them is
+       global. (The generated FORM's own nodes are styled by
+       src/styles/join-move-in-form.css, which is a plain import and therefore
+       global already.) */
+    .door-next :global(li), .door-lines :global(li) {
+      color: var(--pm-ink); font-size: 0.9rem; line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    /* the reply */
+    .receipt-head { display: flex; align-items: center; gap: 0.7em; margin: 0 0 1em; }
+    .receipt-seal {
+      display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid rgba(156, 63, 46, 0.55); color: var(--pm-wax); flex: 0 0 auto;
+    }
+    .receipt-head h2 { margin: 0; }
+    .reply-prose :global(p) { margin: 0 0 1em; color: var(--pm-ink); line-height: 1.6; }
+    .reply-facts { margin: 1.2em 0 0; display: grid; gap: 0.5em; }
+    .reply-facts :global(div) { display: flex; gap: 0.8em; flex-wrap: wrap; align-items: baseline; }
+    .reply-facts :global(dt) {
+      font-family: var(--pm-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--pm-ink-soft); min-width: 11em;
+    }
+    .reply-facts :global(dd) { margin: 0; color: var(--pm-ink); font-size: 0.92rem; overflow-wrap: anywhere; }
+    .reply-facts :global(dd a) { color: var(--pm-accent); }
+
+    .reply-credential {
+      margin: 1.3em 0 0; padding: 0.9em 1em;
+      border: 1px dashed rgba(156, 63, 46, 0.55); border-radius: 9px;
+      background: rgba(156, 63, 46, 0.06);
+    }
+    .cred-label {
+      margin: 0 0 0.6em !important;
+      font-family: var(--pm-mono); font-size: 0.68rem; letter-spacing: 0.13em; text-transform: uppercase;
+      color: var(--pm-wax) !important;
+    }
+    .cred-row { display: flex; gap: 0.6em; align-items: center; flex-wrap: wrap; }
+    .cred-row code {
+      font-family: var(--pm-mono); font-size: 0.85rem; color: var(--pm-ink);
+      background: rgba(255, 252, 243, 0.9); border: 1px solid rgba(90, 62, 27, 0.35);
+      border-radius: 6px; padding: 0.4em 0.6em; overflow-wrap: anywhere;
+    }
+    .cred-note { margin: 0.7em 0 0 !important; font-size: 0.88rem; color: var(--pm-ink-soft) !important; }
+    .mini-btn {
+      font-family: var(--pm-mono); font-size: 0.66rem; letter-spacing: 0.06em;
+      color: var(--pm-accent); background: rgba(164, 99, 42, 0.08);
+      border: 1px solid rgba(164, 99, 42, 0.35); border-radius: 999px;
+      padding: 4px 11px; cursor: pointer;
+    }
+    .mini-btn.copied { color: #3a7d3a; border-color: rgba(58, 125, 58, 0.55); }
+
+    .reply-whole { margin: 1.4em 0 0; }
+    .reply-whole summary {
+      cursor: pointer; font-family: var(--pm-mono); font-size: 0.72rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--pm-ink-soft);
+    }
+    .reply-whole pre {
+      margin: 0.8em 0 0; padding: 0.8em; max-height: 22em; overflow: auto;
+      font-family: var(--pm-mono); font-size: 0.78rem; line-height: 1.5;
+      color: var(--pm-ink); background: rgba(255, 252, 243, 0.75);
+      border: 1px solid rgba(90, 62, 27, 0.3); border-radius: 8px;
+      white-space: pre-wrap; overflow-wrap: anywhere;
+    }
+    .reply-foot { margin: 1.6em 0 0; }
+
+    /* the machinery is never seen and never measured */
+    .pm-mcp-machinery { display: none !important; }
+
+    @media (max-width: 560px) {
+      .movein-card { padding: 1.3em 1.1em; }
+      .reply-facts dt { min-width: 0; }
+    }
+  </style>
+</PostmarkLayout>
