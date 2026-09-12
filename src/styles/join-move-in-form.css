@@ -1,0 +1,144 @@
+/* ── mcp-proto-form.css — the generated form, in the town's paper ────────────
+ *
+ * A RESTYLE, NOT A COPY. The selectors here are the ones
+ * `mcp-proto.js`'s buildForm/buildField emit — `.form`, `.field`, `.field.raw`,
+ * `.lab`, `.ty`, `.req`, `.hint`, `.subform`, `.subhead`, and the controls
+ * inside them. Only the selector list is taken from the office's
+ * ops/mcp-prototype/mcp-proto.css; every value is the town's own, because the
+ * prototype's chrome is the OPS look (gold on night) and this form stands on
+ * paper. If a selector list drifts, fix it HERE — the copied script is never
+ * edited, and this stylesheet is the site's own file.
+ *
+ * Everything is scoped under `.movein-form`, which is the only place the
+ * generated node is mounted. The hidden machinery root gets none of it.
+ *
+ * The tokens come from src/styles/postmark.css, spelled literally rather than
+ * by var() alone in the fallbacks, because this file is served from /public and
+ * loads before nothing in particular.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+.movein-form .form {
+  display: grid;
+  gap: 1.15em;
+}
+
+.movein-form .field {
+  display: grid;
+  gap: 0.4em;
+}
+
+/* the label row: the field's own name, its type, and REQUIRED where the door
+   said so — the name is the door's word and is left exactly as it came. */
+.movein-form .field .lab {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  flex-wrap: wrap;
+  font-family: var(--pm-mono, ui-monospace, Consolas, monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--pm-ink-soft, #6d5c44);
+}
+.movein-form .field .lab .ty {
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  color: rgba(109, 92, 68, 0.72);
+  text-transform: none;
+}
+.movein-form .field .lab .req {
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  color: var(--pm-wax, #9c3f2e);
+}
+.movein-form .field .lab .grow { margin-left: auto; }
+
+/* the door's own description of the field, rendered whole — it is the only
+   instruction on this page that was not written by the page. */
+.movein-form .field .hint {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--pm-ink-soft, #6d5c44);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 60ch;
+}
+
+.movein-form input,
+.movein-form select,
+.movein-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--pm-ink, #2e2417);
+  background: rgba(255, 252, 243, 0.9);
+  border: 1px solid rgba(90, 62, 27, 0.4);
+  border-radius: 8px;
+  padding: 0.55em 0.7em;
+  color-scheme: light;
+}
+.movein-form input::placeholder,
+.movein-form textarea::placeholder { color: rgba(58, 42, 20, 0.42); }
+.movein-form input:focus,
+.movein-form select:focus,
+.movein-form textarea:focus { outline: none; border-color: rgba(90, 62, 27, 0.78); }
+.movein-form textarea { resize: vertical; min-height: 7em; }
+.movein-form .field.raw > div > textarea {
+  font-family: var(--pm-mono, ui-monospace, Consolas, monospace);
+  font-size: 0.86rem;
+  min-height: 5em;
+}
+
+/* the generator's own small buttons — the ⤢ multiline toggle is the only one
+   that reaches this page, and it reads as a quiet aside beside the label. */
+.movein-form button {
+  font-family: var(--pm-mono, ui-monospace, Consolas, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--pm-accent, #a4632a);
+  background: rgba(164, 99, 42, 0.07);
+  border: 1px solid rgba(164, 99, 42, 0.32);
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.movein-form button:hover {
+  color: var(--pm-wax, #9c3f2e);
+  border-color: rgba(156, 63, 46, 0.55);
+  background: rgba(164, 99, 42, 0.13);
+}
+.movein-form button:disabled { opacity: 0.45; cursor: default; }
+
+/* a sub-form over a raw field. Unreachable from this page's own flow today —
+   nothing here calls setSub — but the generator can mount one, and an
+   unstyled one on paper would be a gold-on-night box in the middle of a
+   letter. */
+.movein-form .subform {
+  border: 1px dashed rgba(90, 62, 27, 0.45);
+  border-radius: 8px;
+  padding: 0.8em 0.9em;
+  background: rgba(90, 62, 27, 0.04);
+  display: grid;
+  gap: 0.9em;
+}
+.movein-form .subform .subhead {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--pm-mono, ui-monospace, Consolas, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--pm-ink-soft, #6d5c44);
+}
+.movein-form .subform .subhead .grow { margin-left: auto; }
+
+@media (max-width: 520px) {
+  .movein-form .field .lab { font-size: 0.68rem; letter-spacing: 0.1em; }
+  .movein-form input,
+  .movein-form select,
+  .movein-form textarea { font-size: 16px; } /* iOS: anything under 16px zooms on focus */
+}
