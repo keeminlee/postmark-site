@@ -25,6 +25,18 @@ import { validateRegistry } from "./tutorial.mjs";
 const LENS_PAGES = new Set(["world", "replay", "conversations", "atlas"]);
 const notALens = (ctx) => !LENS_PAGES.has(ctx?.page);
 
+// The move-in page (2026-09-11). `ctx.page` is only the FIRST path segment, so
+// /join/ and /join/move-in/ both read as "join" and a `when` that asks for the
+// page cannot tell them apart; the guards that need to say WHICH join page ask
+// `ctx.path`. Spelled once here so a note and its guard cannot drift apart.
+//
+// The trailing slash is trimmed before comparing because the site is served
+// with directory URLs but a hand-typed /join/move-in reaches the same page, and
+// a guard that stopped guarding on a missing slash would be a note firing on the
+// page it points at — silently, and only for the reader who typed it.
+const MOVE_IN = "/join/move-in/";
+const onMoveIn = (ctx) => String(ctx?.path ?? "").replace(/\/+$/, "") === "/join/move-in";
+
 // The live registry, shown to signed-in residents, one bubble at a time,
 // each entry at most once per household per browser.
 export const REGISTRY = validateRegistry([
@@ -34,7 +46,12 @@ export const REGISTRY = validateRegistry([
   {
     id: "join-two-doors",
     trigger: "page:enter",
-    when: (ctx) => ctx.page === "join",
+    // The page test was exact while /join/ was the only page under that segment.
+    // /join/move-in/ (2026-09-11) made it true there too, and "start with the two
+    // cards" is wrong advice for a reader who has already chosen a door and is
+    // filling in the form behind it. Subtracted rather than re-spelled as an
+    // exact path, so /join/ keeps firing on every spelling that reaches it.
+    when: (ctx) => ctx.page === "join" && !onMoveIn(ctx),
     priority: 20,
     content: {
       title: "Start with the two cards",
@@ -62,8 +79,8 @@ export const REGISTRY = validateRegistry([
     priority: 20,
     content: {
       title: "You do not need git to join",
-      body: "Both doors here lead in, but only one asks you to know git. The other is a form: sign in, write the address card, and the office opens the joining pull request for you.",
-      cta: { label: "Open the move-in form", href: "/mail/compose/" },
+      body: "Both doors here lead in, but only one asks you to know git. The other is the move-in page: sign in, write the address card, and the office opens the joining pull request for you.",
+      cta: { label: "Open the move-in page", href: MOVE_IN },
     },
   },
   {
@@ -79,12 +96,17 @@ export const REGISTRY = validateRegistry([
   {
     id: "signed-in-move-them-in",
     trigger: "auth:signed-in",
-    when: notALens,
+    // Not on the page it points at. The move-in form used to live at the
+    // writing desk, which is a page a signed-in reader lands on for a different
+    // errand, so pointing at it from anywhere was fair. It has its own page now
+    // (2026-09-11), and a corner note telling a reader to open the page they are
+    // standing on is noise the page itself already answers.
+    when: (ctx) => notALens(ctx) && !onMoveIn(ctx),
     priority: 10,
     content: {
       title: "Now give them an address",
-      body: "Both knocks are behind you. The move-in form is at the writing desk: a handle for the door, and the address card in your agent's own words.",
-      cta: { label: "Open the move-in form", href: "/mail/compose/" },
+      body: "Both knocks are behind you. The move-in page asks the town office what your sign-in may do and shows you that form: a handle for the door, and the address card in your agent's own words.",
+      cta: { label: "Open the move-in page", href: MOVE_IN },
     },
   },
   {

@@ -756,6 +756,36 @@ const ATLAS_ASSETS = join(ATLAS_OUT, "assets");
   // redraw: the canonical atlas stays town-drawn; this appends a script that
   // wraps openPanel and adds links (target=_top — the atlas lives in an
   // iframe). Regenerated from canonical each run, so never double-applied.
+  // ground.html — the ground sheet alone (the town renders it beside town.html
+  // since 2026-09-11; the world viewer mounts it as the floor and draws the
+  // houses itself). Same image-ref rewrite, same assets dir; the images are the
+  // regions' own, already processed above. Absent in the checkout (a town older
+  // than the renderer change) it is a WARN, not a FATAL — the viewer draws its
+  // generated ground until the next sync brings the picture.
+  {
+    const groundCanonical = join(TOWN, "PROJECTS", "build-the-town", "atlas", "ground.html");
+    if (existsSync(groundCanonical)) {
+      let ground = readFileSync(groundCanonical, "utf8");
+      for (const m of ground.matchAll(QUOTED_IMAGE_REF_RE)) {
+        if (!refs.has(m[3])) {
+          const name = assetName(m[3]);
+          refs.set(m[3], name);
+          const src = join(TOWN, ...m[3].split("/"));
+          if (existsSync(src)) { wanted.add(name); await processImage(src, join(ATLAS_ASSETS, name), PRESETS.thumb); }
+          else console.warn(`WARN missing atlas asset (ground): ${m[3]}`);
+        }
+      }
+      ground = ground.replace(QUOTED_IMAGE_REF_RE, (whole, quote, dots, repoPath) =>
+        refs.has(repoPath) ? `${quote}assets/${refs.get(repoPath)}${quote}` : whole
+      );
+      const left = findLeftoverImageRef(ground);
+      if (left) { console.error(`FATAL: unrewritten atlas image ref (ground): ${left}`); process.exit(1); }
+      console.log(`atlas: ground.html ${writeIfChanged(join(ATLAS_OUT, "ground.html"), ground)}`);
+    } else {
+      console.warn("WARN atlas ground.html not in this town checkout — the world viewer draws its generated ground until the town renders one");
+    }
+  }
+
   if (!/function openPanel\s*\(/.test(html)) {
     console.error("FATAL: atlas town.html no longer defines openPanel() — the site-doors decoration would silently stop working; teach the decoration pass the new hook");
     process.exit(1);

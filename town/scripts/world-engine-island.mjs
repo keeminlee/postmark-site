@@ -227,30 +227,54 @@ function stage(pkg, dest, projectRoot) {
   return files;
 }
 
+// THE REPLAY FRAMES ARE NOT HINTED, and this is the one exception the blanket
+// rules below carry. Every crossing's frame is a staged .json, so "hint every
+// staged .json" quietly meant one preload per crossing that has ever happened —
+// a list that grows by two a day and is never revisited. Measured on prod
+// 2026-09-12: 68 links, 810 KB gzipped pulled down on EVERY /world/ load, more
+// than the fold (/WORLD/world-state.json) itself, for a surface almost no
+// reader opens; the largest single frame was 109 KB.
+//
+// Nothing was ever waiting on that warm cache. The page fetches
+// /world-engine/replay/<n>.json when a crossing is actually chosen and
+// /world-engine/replay/index.json when the time-travel panel is actually
+// opened — both live, through its own captured `real` fetch, and neither reads
+// a preload entry or a readiness signal (town/pages/world.astro). So the hints
+// only ever paid on a `?crossing=` arrival, and were pure cost on every other
+// load. Removed on Keemin's ruling, 2026-09-12: "let's not preload replays."
+const hintedFetch = (publicPath) =>
+  extname(publicPath) === ".json" && !publicPath.startsWith(`${REPLAY_DIR}/`);
+
+/** The world page's hint chain, as tags, in emitted order. Pure and exported so
+ *  the rule above can be falsified without standing up a build. */
+export function worldPreloadHints(files) {
+  const modulePaths = files
+    .filter((file) => extname(file.publicPath) === ".mjs")
+    .map((file) => file.publicPath);
+  const fetchPaths = [
+    ...files.filter((file) => hintedFetch(file.publicPath)).map((file) => file.publicPath),
+    "/atlas/town.html",
+  ];
+  return [
+    ...modulePaths.map((href) => `<link rel="modulepreload" href="${href}">`),
+    ...fetchPaths.map((href) => `<link rel="preload" as="fetch" href="${href}" crossorigin>`),
+  ];
+}
+
 function emitWorldPreloads(dest, files) {
   const page = join(dest, "world", "index.html");
   if (!existsSync(page)) {
     console.warn("[world-engine-island] built world page missing — preload chain was not emitted.");
     return 0;
   }
-  const modulePaths = files
-    .filter((file) => extname(file.publicPath) === ".mjs")
-    .map((file) => file.publicPath);
-  const fetchPaths = [
-    ...files.filter((file) => extname(file.publicPath) === ".json").map((file) => file.publicPath),
-    "/atlas/town.html",
-  ];
-  const hints = [
-    ...modulePaths.map((href) => `<link rel="modulepreload" href="${href}">`),
-    ...fetchPaths.map((href) => `<link rel="preload" as="fetch" href="${href}" crossorigin>`),
-  ].join("\n");
+  const hints = worldPreloadHints(files);
   const html = readFileSync(page, "utf8");
   if (!/<\/head>/i.test(html)) {
     console.warn("[world-engine-island] built world page has no </head> — preload chain was not emitted.");
     return 0;
   }
-  writeFileSync(page, html.replace(/<\/head>/i, `${hints}\n</head>`));
-  return modulePaths.length + fetchPaths.length;
+  writeFileSync(page, html.replace(/<\/head>/i, `${hints.join("\n")}\n</head>`));
+  return hints.length;
 }
 
 export default function worldEngineIsland() {

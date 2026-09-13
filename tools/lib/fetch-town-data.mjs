@@ -140,6 +140,48 @@ export async function fetchLetterCorpus({ apiBase, fetchImpl, retries, limit = 2
   return { letters: dedupeLetters(letters) };
 }
 
+/**
+ * THE TOWN ROLL, FROM EITHER SHAPE OF THE ROSTER DOOR (2026-09-10).
+ *
+ * `GET /residents` served a BARE ARRAY of every resident and ignored `?limit=`
+ * entirely — 28 KB today, 291 KB at ten times the town, measured on the 10x
+ * load lane. The office now serves the same envelope its MCP twin has served
+ * since August: `{ total, shown, complete, next_offset, residents }`, limit
+ * clamped to 200.
+ *
+ * That means this fetch has to walk pages, and it means the OLD shape would
+ * have thrown here (`ensureArray` on an object) — a loud failure, and still a
+ * failure. So this reads either shape, exactly as `fetchLetterCorpus` above
+ * capability-detects the bulk letter door, and for the same reason: either repo
+ * may ship first, and a site build must not be the thing that decides.
+ *
+ * ⚑ A TRUNCATED ROLL IS THE ONE OUTCOME THAT MUST NOT PASS QUIETLY. Every
+ * resident page on the site is built from a handle in this list, so a walk that
+ * stopped early would publish a town with residents silently missing and no
+ * error anywhere. When the door names a `total`, the assembled roll is checked
+ * against it and the build refuses if they disagree.
+ */
+export async function fetchResidentRoll({ apiBase, fetchImpl, retries, limit = 200 } = {}) {
+  const roll = [];
+  let total = null;
+  for (let offset = 0; ; offset += limit) {
+    const { body } = await apiGet(`/residents?limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries });
+    // The pre-2026-09-10 office: one array, the whole roll, the limit ignored.
+    if (Array.isArray(body)) return { roll: ensureArray(body, "/residents"), paged: false, total: body.length };
+    const batch = ensureArray(body?.residents, "/residents.residents");
+    if (offset === 0 && Number.isInteger(body.total)) total = body.total;
+    roll.push(...batch);
+    // Paged on the page's own length rather than on `complete`, the same idiom
+    // fetchLetterCorpus uses — and with the same reason to distrust a flag this
+    // loop may be reading from a door that does not have it.
+    if (batch.length < limit) break;
+  }
+  if (total !== null && roll.length !== total) {
+    throw new Error(`/residents: walked ${roll.length} of ${total} residents — a partial roll would publish a town with pages missing`);
+  }
+  return { roll, paged: true, total: total ?? roll.length };
+}
+
 /** Newest-first union by id; the inbox copy wins over an outbox one. */
 function dedupeLetters(rows) {
   const byId = new Map();
@@ -291,14 +333,21 @@ export async function buildOfficeData({
   const endpointGaps = [];
   const problems = [];
 
-  const [{ body: town, asOf }, residentListRes, metricsRes, bulletinListRes] = await Promise.all([
+  const [{ body: town, asOf }, rollRes, metricsRes, bulletinListRes] = await Promise.all([
     apiGet("/town", { apiBase, fetchImpl, retries }),
-    apiGet("/residents", { apiBase, fetchImpl, retries }),
+    fetchResidentRoll({ apiBase, fetchImpl, retries }),
     apiGet("/metrics/mail", { apiBase, fetchImpl, retries }),
     apiGet("/bulletin", { apiBase, fetchImpl, retries }),
   ]);
 
-  const residentHandles = ensureArray(residentListRes.body, "/residents").map((r) => r.handle).sort();
+  const residentHandles = rollRes.roll.map((r) => r.handle).sort();
+  // WHICH ROUTE BUILT THE ROLL, in the build log — the same discipline the
+  // letter corpus keeps below. A deploy that silently stopped paging is then
+  // visible in the log rather than only in a resident-page count nobody is
+  // watching.
+  endpointGaps.push(rollRes.paged
+    ? `roll read from the paged roster door (/residents?limit=&offset=): ${residentHandles.length} residents in ${Math.ceil(residentHandles.length / 200) || 1} page(s)`
+    : `roll read from the pre-2026-09-10 roster door, which served the whole town in one bare array: ${residentHandles.length} residents`);
   const fullResidents = await Promise.all(residentHandles.map(async (handle) =>
     (await apiGet(`/residents/${encodeURIComponent(handle)}`, { apiBase, fetchImpl, retries })).body
   ));
