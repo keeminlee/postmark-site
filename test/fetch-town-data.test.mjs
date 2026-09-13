@@ -5,7 +5,8 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 
-import { apiGet, buildOfficeData, fetchResidentRoll, jsonText } from "../tools/lib/fetch-town-data.mjs";
+import { apiGet, buildOfficeData, fetchResidentRoll, jsonText, mapLimit, RESIDENT_CARD_LANES } from "../tools/lib/fetch-town-data.mjs";
+import { readFileSync } from "node:fs";
 
 function writeJson(dir, name, value) {
   mkdirSync(dir, { recursive: true });
@@ -541,3 +542,66 @@ test("a roll that walks short of the door's own total refuses the build", async 
     /walked 2 of 7 residents/,
   );
 });
+
+// ── THE ROLL THAT FROZE AT 134 (postmark#2730, 2026-09-13) ─────────────────
+//
+// The office's keyless bucket is a burst of 240 refilling at 120 a minute per
+// caller. The build asked for every resident card in one instant, the tail was
+// refused with 429, apiGet retried 250 ms later into the same empty bucket, and
+// the build kept the committed snapshot — for eighteen days, while the town
+// grew from 134 to 166. Two rules close it: wait what the office says, and ask
+// a few at a time.
+
+test("apiGet WAITS what a 429's retry-after says, instead of retrying into the same empty bucket", async () => {
+  let calls = 0;
+  const fake = async () => {
+    calls++;
+    if (calls === 1) return { ok: false, status: 429, statusText: "Too Many Requests", headers: { get: (k) => (k === "retry-after" ? "1" : null) }, json: async () => ({ error: "rate" }) };
+    return { ok: true, status: 200, statusText: "OK", headers: { get: () => null }, json: async () => ({ fine: true }) };
+  };
+  const t0 = Date.now();
+  const r = await apiGet("/residents/x", { apiBase: "https://example.test", fetchImpl: fake, retries: 3 });
+  const waited = Date.now() - t0;
+  assert.deepEqual(r.body, { fine: true }, "the second attempt is answered");
+  assert.equal(calls, 2, "one refusal, one answer");
+  assert.ok(waited >= 900, `it waited the office's second before asking again (${waited} ms)`);
+  // ⚑ THE FLIP: drop the 429 branch in apiGet → the retry comes after 250 ms and
+  //   `waited` reads ~250; this assertion reds.
+});
+
+test("apiGet caps a retry-after it will not wait for", async () => {
+  let calls = 0;
+  const fake = async () => {
+    calls++;
+    if (calls === 1) return { ok: false, status: 429, statusText: "Too Many Requests", headers: { get: (k) => (k === "retry-after" ? "3600" : null) }, json: async () => ({}) };
+    return { ok: true, status: 200, statusText: "OK", headers: { get: () => null }, json: async () => ({}) };
+  };
+  const t0 = Date.now();
+  await apiGet("/x", { apiBase: "https://example.test", fetchImpl: fake, retries: 2, maxRetryAfterMs: 50 });
+  assert.ok(Date.now() - t0 < 1000, "an hour-long retry-after is capped, not obeyed");
+});
+
+test("mapLimit keeps at most N in flight and preserves order", async () => {
+  let inFlight = 0, maxInFlight = 0;
+  const items = Array.from({ length: 40 }, (_, i) => i);
+  const out = await mapLimit(items, 6, async (i) => {
+    inFlight++; maxInFlight = Math.max(maxInFlight, inFlight);
+    await new Promise((r) => setTimeout(r, 2 + (i % 3)));
+    inFlight--;
+    return i * 2;
+  });
+  assert.deepEqual(out, items.map((i) => i * 2), "order preserved");
+  assert.ok(maxInFlight <= 6, `never more than six at once (${maxInFlight})`);
+  assert.ok(maxInFlight >= 2, `and it does run in parallel (${maxInFlight})`);
+});
+
+test("the resident cards are walked through mapLimit, not Promise.all — a source pin, labelled as one", () => {
+  // buildOfficeData's fixture roster is three residents, which cannot exhaust
+  // anything; the behaviour is proven on mapLimit above and this pins the call
+  // site to it. Flip: put `Promise.all(residentHandles.map(` back → reds.
+  const src = readFileSync(new URL("../tools/lib/fetch-town-data.mjs", import.meta.url), "utf8");
+  assert.match(src, /mapLimit\(residentHandles, RESIDENT_CARD_LANES, async \(handle\) =>/, "the cards go through mapLimit");
+  assert.doesNotMatch(src, /Promise\.all\(residentHandles\.map\(/, "and not through Promise.all");
+  assert.ok(RESIDENT_CARD_LANES >= 2 && RESIDENT_CARD_LANES <= 12, `a handful of lanes, not one and not the whole roll (${RESIDENT_CARD_LANES})`);
+});
+
