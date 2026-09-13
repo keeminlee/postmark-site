@@ -1,225 +1,158 @@
-# The world pin follows the blessing — deploy note (POS-55)
+# The world pin, and who publishes prod
 
-**Branch:** `wright/pos-55-pin-follows-blessing`
-**Written:** 2026-08-25, before merge, by Jetto (`meepo-prime`) on Wright's tasking.
-**Ships via:** the site train + the founder's Approve. Nothing here is performed
-on the box, and nothing here needs to be.
+Two things a reader comes here for, and they are different things. The first is
+what the site's world pin is and how it moves. The second is who actually
+publishes `postmark.town` and out of which trees — which is not the GitHub
+deploy lane, and has not been since 2026-08-30.
 
 ---
 
-## Box-side install steps required: NONE
+## One — the pin
 
-This is the first thing to know, and it is a finding rather than an assumption.
+**The pin is a world commit, and the site carries two of them.**
 
-*(Dated finding, 2026-08-25 — superseded 08-27/08-30: the content schedules
-retired to the box's `postmark-site-refresh.timer`, and the release-lane rsync
-was removed; the box now builds AND publishes prod itself. The paragraphs
-below describe the Actions-era lane and are kept as the record of it.)*
+- **The floor** is frozen in `package.json` → `dependencies.postmark-world`, a
+  40-hex `github:keeminlee/postmark-world#<sha>`. The keeper bumps it on site
+  main at each blessing. It is READ by everything here and written by nobody
+  here.
+- **The resolved pin** is what the rebuild actually installs on top of the
+  floor: the commit of the keeper's newest `settlement/S<n>` tag, resolved
+  fresh at rebuild time from the world repo's own refs.
 
-The scheduled rebuild lane **was GitHub Actions**, not a systemd timer on the
-box: `.github/workflows/deploy.yml` carried `schedule: cron "*/30 * * * *"`, and
-the box's only part in the lane was receiving the `rsync` at the end of the job.
-Read live on `meepo-ec2` (2026-08-25 14:02 UTC, read-only), the twenty-five
-timers installed there contain no site-rebuild unit. The one whose name invites
-the mistake — `postmark-dev-freshen.timer`, every ten minutes — runs
-`/srv/postmark-office-dev/postmark-dev-freshen.sh`, which re-mirrors the **office
-dev clone**; its own unit description says so ("dev clones re-mirror the record;
-local rehearsal acts are wiped"). It never builds the site.
+**How it advances, in one sentence:** the pin becomes the keeper's newest
+`settlement/S<n>` tag when that settlement is strictly above the floor's, and
+otherwise the floor stands.
 
-So: merge the branch, let the train cut a release tag, and the mechanism is
-installed. There is no `systemctl daemon-reload`, no unit to copy into
-`G:/postmark/office/deploy/`, and no box file to edit.
+There is no hold, no schedule, no allow-list, and no second opinion. A blessing
+reaches prod because the keeper cut a tag for it.
 
-## What the gap was worth, measured 2026-08-25
+### The three guardrails
 
-Not an abstraction. Between the frozen floor `272ed4bb` and `settlement/S45`
-(`016813ad`) the world repo moved **64 commits, 13,387 insertions across 101
-files** — and the site stages a specific subset of those from the pin, so the
-subset is what prod was missing:
+Founder-ruled 2026-08-25 (POS-55). The wording below is the ruling's; the code
+is `tools/lib/world-pin.mjs` and each guardrail is falsified in BOTH directions
+in `test/world-pin.test.mjs` — the case that must advance and the case that must
+refuse, because a fallback that fires on every input is not a fallback.
 
-- `WORLD/world-state.json`, staged verbatim to `/WORLD/world-state.json`:
-  **7,859 lines changed.** This is the world the browser reads.
-- `WORLD/settlement-publications.json` (+40) — which marks the keeper has
-  blessed. Prod was serving an older answer to "what is published".
-- every non-test `tools/*.mjs`, staged to `/world-engine/tools/`: `geometry.mjs`
-  (+99), `settlement-sweep.mjs` (+417), and two new modules the engine did not
-  have at the floor, `region-outsiders.mjs` and `region-rings-gen.mjs`.
+1. **"Tags only, never main tip."** The candidate set is exactly
+   `refs/tags/settlement/S<n>`. `git ls-remote` is called deliberately WITHOUT
+   `--tags`, so the listing really does contain `refs/heads/main` and the thing
+   that throws it away is code you can test rather than a flag someone can
+   quietly drop. Annotated tags advertise twice — the tag object, then the
+   peeled `^{}` commit — and a pin means the commit, so the peeled sha wins.
+2. **"Monotonic by settlement number — the pin never rolls backwards."** The
+   number is parsed as an integer and compared numerically; a lexical sort is
+   the same bug in a different coat, answering `S9` over `S45`. Strictly newer,
+   or the floor stands: equal is a refusal on purpose, because the floor is
+   usually a commit *downstream* of its own tag, and replacing it with the tag
+   would be a rollback wearing an equals sign.
+3. **"On any tag-resolution failure, fall back to the release's frozen pin
+   file."** Ordering carries this one rather than a code path — `npm ci`
+   installs the floor FIRST and the advance is an overlay on top of it — and
+   the resolver exits 0 on every failure. A rebuild that cannot resolve a
+   settlement is not broken; it ships exactly what every release before it
+   shipped.
 
-Precisely: `spectator/viewer.mjs` itself is **unchanged** across that range. The
-viewer was not stale; the world it drew and the engine modules it imported were.
+### Where the floor's settlement number comes from
 
-## What changed
+The floor is usually **not** a settlement tag, so it cannot be looked up by sha.
+`floorSettlementOf` in `tools/resolve-world-pin.mjs` clones the world repo
+`--filter=blob:none --no-checkout` and walks settlement tags downward until one
+is an ancestor of the floor. `postmark-world` is public, so this needs no
+secret. Measured 2026-08-25 at 2.6s against an 11 MiB repo; worth re-measuring
+if the world ever gets large.
+
+### The files
 
 | File | What it is |
 |---|---|
 | `tools/lib/world-pin.mjs` | the decision law — pure, no I/O, both world-touching seams injected |
-| `tools/resolve-world-pin.mjs` | the CLI — supplies `git ls-remote` and the ancestry walk, writes `$GITHUB_OUTPUT` |
+| `tools/resolve-world-pin.mjs` | the CLI — supplies `git ls-remote` and the ancestry walk, prints JSON, writes `$GITHUB_OUTPUT` |
 | `test/world-pin.test.mjs` | fifteen falsifiers, each named for the guardrail it asserts |
-| `.github/workflows/deploy.yml` | three steps in the release lane |
 
-The world pin **file** — `package.json` → `postmark-world` — is not touched by
-any of this. It is read, never written. The keeper's ceremony (bump it on site
-main at each blessing) continues exactly as it did, and it is what keeps the
-fallback floor fresh.
+### Two flags, left open on purpose
 
-## The three tenses, named
-
-The release lane now assembles a build from three sources moving at three
-speeds. They were always three; two of them were unlabelled.
-
-1. **Code, at release pace.** `git checkout "$TAG"` — the founder-approved
-   `release/*` tag. Unchanged.
-2. **Town data, at crossing pace.** `git checkout origin/main -- public/atelier/postmark src/data/postmark`.
-   Shipped 2026-08-24 as commit `9133da117`; this note's mechanism is its
-   sibling, deliberately.
-3. **The world, at blessing pace.** Resolved from the world repo's newest
-   `settlement/S<n>` tag at rebuild time. New.
-
-There is a fourth, and it is worth saying out loud because it looks like a
-violation of the first: **the deploy machinery itself travels with the lane, not
-with the release.** On a `schedule` trigger, Actions reads `deploy.yml` from the
-default branch — but the job then checks out the release tag, so the workflow
-from main is calling scripts from the tag. A step
-(`Take the world-pin resolver from main`) restores `tools/resolve-world-pin.mjs`
-and `tools/lib/world-pin.mjs` from `origin/main` for exactly this reason. Without
-it, main's workflow would invoke a file the standing tag has never heard of.
-
-## The three guardrails, and where each one lives
-
-Quoted as the POS-55 brief states them (founder-ruled 2026-08-25); the wording
-below is the brief's, not a paraphrase of it. Each is falsified in both
-directions in `test/world-pin.test.mjs`.
-
-**"tags only, never main tip."** The candidate set is exactly
-`refs/tags/settlement/S<n>`. `git ls-remote` is deliberately called **without**
-`--tags`, so the listing genuinely contains `refs/heads/main` and the filter that
-throws it away is code we can test rather than a flag someone could quietly drop.
-Annotated tags advertise twice — the tag object and the peeled `^{}` commit — and
-the peeled commit is what a pin means, so it always wins.
-
-**"monotonic by settlement number — the pin never rolls backwards."** The
-settlement number is parsed as an integer and compared numerically. The bronze
-class here is *"release tags can roll the world pin backwards"*; a lexical sort is
-the same bug in a different coat, answering `S9` over `S45`. The resolved
-settlement must be **strictly** newer than the floor's — equal is a hold, because
-the floor is usually a commit *downstream* of its own tag (the live one,
-`272ed4bb`, sits after `settlement/S44`), and replacing it with the tag itself
-would be a rollback wearing an equals sign.
-
-**"on any tag-resolution failure, fall back to the release's frozen pin file."**
-Ordering carries this one rather than a code path: `npm ci` installs the floor
-**first**, and the advance is an overlay on top of it. The resolver exits 0 on
-every failure. A rebuild that cannot resolve a settlement is not a broken
-rebuild — it is a rebuild that ships exactly what every release before this one
-shipped.
-
-## Where the floor's settlement number comes from
-
-The floor pin is usually **not** a settlement tag, so it cannot be looked up by
-sha. `floorSettlementOf` clones the world repo `--filter=blob:none --no-checkout`
-and walks settlement tags downward until one is an ancestor of the floor. Measured
-end to end on 2026-08-25: **2.6 seconds**, against a repo that is 11 MiB packed
-with 1036 commits. Forty-eight runs a day, so call it two minutes of runner time
-and half a gigabyte of GitHub-to-GitHub transfer per day — inside the noise of a
-thirty-minute cron, and worth re-measuring if the world repo ever gets large. If
-the server refuses a partial clone the resolver retries without the filter: the
-slow road, not a closed one.
-
-`postmark-world` is public, so this is an anonymous clone needing no secret.
-
-## Bootstrap: the mechanism is dormant until a tag carries it
-
-The resolver step is guarded by `[ -f tools/resolve-world-pin.mjs ]` and the
-restore step by `||`. Until this branch merges and a release tag exists that
-contains it, both no-op and the pin holds at the floor. That is the correct
-degraded state and it is the one prod is in right now.
-
-## Named risks, accepted in place
-
-- **A tag-era template against a blessing-era world.** The same shape as the
-  town-data overlay's accepted risk, one layer out: site code frozen at the
-  release tag renders a world resolved after it. World shape changes rarely and
-  deliberately, and the viewer already degrades rather than throws on a
-  pre-bump package (`town/scripts/world-engine-island.mjs:93`). If this ever
-  bites, the answer is the same two-tense site the overlay note points at.
-- **The verify is a hard fail.** If `npm install` claims success and the lock
-  resolves a different sha, the job exits non-zero and **nothing is rsynced** —
-  prod keeps serving the previous build and the next half-hour retries. A build
-  that silently ships the wrong world is worse than a build that does not ship.
 - **Monotonic by NUMBER, not by ancestry — a fourth guardrail deliberately not
-  written.** The ruling named three, and this implements three. But there is a
-  case the settlement number alone does not cover: if the keeper ever pins the
-  floor to a world commit that is **not an ancestor of the next settlement tag**
-  — a hotfix off main, say — then advancing to S<n+1> silently drops it. The
-  clone that computes the floor's settlement number could answer this in the
-  same walk (`merge-base --is-ancestor floor chosen`), so it is cheap to add.
-  It is not added because the cure has its own disease: a floor that is
-  permanently off-main would make the mechanism permanently inert, and inert
-  looks exactly like working. Flagging, not deciding — this is the founder's
-  call, and it only becomes live the first time a world hotfix does not go
-  through main.
+  written.** If the keeper ever pins the floor to a world commit that is not an
+  ancestor of the next settlement tag — a hotfix off main — advancing silently
+  drops it. The ancestry walk could answer this in the same clone
+  (`merge-base --is-ancestor floor chosen`), so it is cheap. It is unwritten
+  because the cure has its own disease: a floor permanently off-main would make
+  the mechanism permanently inert, and inert looks exactly like working. This
+  becomes live the first time a world hotfix does not go through main.
+- **A tag-era template against a blessing-era world.** Site code frozen at the
+  release tag renders a world resolved after it. World shape changes rarely and
+  deliberately, and the viewer degrades rather than throws on a pre-bump package
+  (`town/scripts/world-engine-island.mjs`).
 
-- **Release-lane only.** Dev (`train/**` → snapshot) still builds the pin the
-  branch carries, which is what makes dev the preview of the *next* blessing's
-  code. Whether dev should also follow the blessing is a real question and is
-  left open on purpose, not decided by omission.
+---
 
-## Proven end to end before merge, 2026-08-25
+## Two — who publishes prod, and from what
 
-The mechanism was run against the real repos in a worktree, not reasoned about.
+**The box publishes prod.** `postmark-site-refresh.timer` on `meepo-ec2` fires
+at **:10 and :40** — phase-aligned just after the ferry crossings — and
+`site-refresh.sh` builds and publishes in one pass. GitHub Actions builds the
+release tag to prove it, and stops (founder-ruled 2026-08-27, completed
+2026-08-30: one writer owns prod). The dev lane still rsyncs, because
+`dev.postmark.town` has no box publisher.
 
-**The resolver, live.** `node tools/resolve-world-pin.mjs` → `advance`, floor S44
-(`272ed4bb`) to S45 (`016813ad`), in 2.4s. Three more legs, same command against
-the same live repo: a floor pinned at S45's own commit holds with
-`already-at-newest`; a floor at the world's root commit advances from S0; a bad
-remote holds at the floor and **exits 0**. Parsing the real 193-ref listing yields
-45 settlement tags, S1 through S45 with no gaps, and the world's main tip
-(`258af3d6`, which is ahead of S45) is *not* among the candidates — guardrail 1
-doing real work, because without it prod would pin unblessed main.
+A prod build is assembled from **four sources moving at four speeds**:
 
-**The install step, verbatim from the YAML.** `npm install` reported
-`changed 1 package` — the world and nothing else — and the verify block, extracted
-from the parsed workflow and run as-is, printed `world pinned at 016813ad…`. Run
-against a mismatched sha the same block exits 1 with the mismatch, so the check
-is not decorative.
-
-**The build, both sides.** Green at the floor and green at S45 (exit 0, 3096
-pages each). What moved between them:
-
-| staged artifact | floor `272ed4bb` | S45 `016813ad` |
+| Source | Where it comes from | Pace |
 |---|---|---|
-| `WORLD/world-state.json` | 625,867 bytes | **677,506 bytes** |
-| `world-engine/tools/geometry.mjs` | 12,077 bytes | **17,167 bytes** |
-| `world-engine/tools/region-outsiders.mjs` | absent | **present** |
-| engine modules staged | 45 | **47** |
-| files staged by the island | 80 | **85** |
-| `world-engine/spectator/viewer.mjs` | 492,717 bytes | 492,717 — **identical** |
+| **Code** | the newest `release/*` tag (`--sort=-creatordate`) | a founder Approve |
+| **Town data** | site main — `public/atelier/postmark`, `src/data/postmark`, `public/renditions` | every crossing |
+| **Deploy machinery** | site main — `tools/resolve-world-pin.mjs`, `tools/lib/world-pin.mjs`, `tools/build-stamp.mjs`, checked out over the tag | every tick |
+| **The world** | the keeper's newest `settlement/S<n>` tag, resolved at rebuild time | every blessing |
 
-That last row is the one to keep: the viewer never was stale, and a note that
-said otherwise would have sent the next reader looking in the wrong file.
+The third row is the one that surprises people and the one to remember: **the
+site's `tools/` are live on prod the moment they reach main.** A build tree
+sitting at a release tag may predate them entirely, so the box checks those
+three files out of main over the tag — the same move `deploy.yml` makes, for the
+same reason. Changing this file's mechanism on main is therefore a prod change,
+not a queued one.
 
-**Tests.** Full suite `npm test`: 204 tests, 190 pass, 0 fail, 14 skipped. The
-skips are pre-existing in the funding/economy suites and untouched here.
+The build lands in `/srv/postmark-site-refresh/releases/<utc-stamp>-<town-sha8>/`
+(the last few are kept, older ones swept) and is
+published by an atomic symlink swap (`ln -sfn` to a temp name, then `mv -Tf`) at
+`/var/www/postmark-town-site`, which nginx serves. Never an in-place rsync, so
+there is no window where prod is half a build.
 
-## The tests have a pulse — and it does not gate yet
+### The receipts
 
-When this mechanism landed (2026-08-25) the repo had **no test CI**: nothing
-ran `npm test` but a person, and "a falsifier nobody runs cannot fail" was the
-flag left here. The same day's POS-55 review answered it: `.github/workflows/
-test.yml` runs `npm ci && npm test` on every push to `main` and `train/**` and
-on every `pull_request`. What is still true: the check is **non-required by
-design** — it reports, it does not block a merge. Making it required is a
-repo-settings act and the founder's call once it has run green on real traffic
-for a while. This section retires when that switch is flipped (or the workflow
-is removed).
+Three, and they answer different questions:
 
-## How to check it worked, on a live run
+- **`/srv/postmark-harbor/site-refresh.json`** — the box's status board: when
+  the last tick ran, its town sha, site main sha, release tag, what it
+  published, and why it went quiet if it did.
+- **`/var/www/postmark-town-site/build.json`** — what the build itself claims:
+  the world sha it was compiled against, the town sha, the crossing. Served
+  publicly at **`https://postmark.town/build.json`**, so this one needs no box
+  access to read.
+- **The resolver, run anywhere** — `node tools/resolve-world-pin.mjs` prints the
+  same decision the box's build will make, from the same public refs.
 
-The job summary carries one line per run:
+A hold prints the reason it held. Silence from all three means the tick did not
+run — check the timer, not the resolver.
 
-> world pin: **advance** to settlement **S45** (016813ad), from floor S44 (272ed4bb)
+### One flag on the publish side
 
-and the `Install the blessed world` step logs `world pinned at <sha>` only after
-reading the sha back out of `package-lock.json`. A hold prints the reason it
-held. Silence from both means the step did not run — check the lane condition,
-not the resolver.
+The box skips the world install when the lockfile is unchanged, so a resolver
+decision of `hold` does not reinstall the floor over whatever is already in the
+build tree. Found 2026-09-10; the fix is on the office branch
+`wright/site-refresh-hold-installs-the-floor`, awaiting review.
+
+---
+
+## History
+
+**2026-09-09/10 — the settlement hold, added and removed.** Settlement S64
+carried the world's new viewer onto prod at a scheduled rebuild, and a
+`HOLD_AT_SETTLEMENT` constant was added here to cap the pin at S63 while that
+was diagnosed. Keemin kept S64 the next morning and the constant went to `null`;
+this branch removes the mechanism, since a null hold and no hold are the same
+resolver. The record is in the site's git history (`5f0ed579a`, `af50cc5ef`).
+
+*The 2026-08-25 deploy note this file used to be — the Actions-era rebuild lane,
+the measured size of the gap it closed, the bootstrap state prod was in before
+the mechanism shipped — is in the history at `af50cc5ef:WORLD-PIN.md`. All of it
+describes a lane that no longer publishes prod.*
