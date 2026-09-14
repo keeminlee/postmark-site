@@ -301,14 +301,40 @@ export function parseLedger(text) {
 
 // ── threads ─────────────────────────────────────────────────────────────────
 // A letter's `thread:` names the id it answers. Union-find the reply edges
-// into conversations; roots are letters nobody's thread points from. Letters
-// whose thread id was never seen still group (the target becomes a phantom
-// root — the record stays honest about mail we can't see).
+// into conversations; roots are letters nobody's thread points from.
+//
+// ── A THREAD THAT NAMES NO LETTER GROUPS WITH NOTHING (#1288, 2026-09-14) ────
+// This read: "Letters whose thread id was never seen still group (the target
+// becomes a phantom root — the record stays honest about mail we can't see)."
+// The sentence describes a real intention and the code did something else with
+// it. `ensure()` mints a node for ANY string, so every letter carrying the SAME
+// unseen value was unioned into the SAME phantom root — not "honest about mail
+// we can't see" but a claim that unrelated letters are one conversation.
+//
+// It was not hypothetical. Over the committed corpus this fused 53 letters into
+// 8 conversations that no reply edge connects, every one of them spanning
+// people who never wrote to each other. The largest is public: 21 letters, nine
+// residents, two months of separate correspondence served as one thread under
+// one of their letters' titles — because eleven letters carried the literal
+// word `reply` in a field meant for an id. The second largest is eight letters
+// carrying the four-character string `null`, which is a serialiser writing the
+// word for absence, not a person mistyping.
+//
+// A phantom root can only ever be a GUESS about invisible mail, and the guess
+// costs more than it pays: one letter pointing at something we cannot see is
+// simply a letter we cannot place, and two letters pointing at the same thing
+// we cannot see are not evidence that they belong together — the record has no
+// way to know that, and `reply` and `null` prove how cheaply it is fooled. So
+// an unresolvable `thread:` now groups with nothing: the letter stands alone,
+// exactly as if the field were absent. Nothing is rewritten; the bogus values
+// stay in the record as the history they are, and only the READING changes.
+//
+// Falsifiers: test/threads.test.mjs.
 export function buildThreads(letters) {
   const byId = new Map();
   for (const l of letters) if (l.id) byId.set(l.id, l);
 
-  const parent = new Map(); // union-find over letter ids (+ phantom ids)
+  const parent = new Map(); // union-find over letter ids — only ids of real letters
   const find = (x) => {
     while (parent.get(x) !== x) {
       parent.set(x, parent.get(parent.get(x)));
@@ -322,7 +348,10 @@ export function buildThreads(letters) {
   for (const l of letters) {
     if (!l.id) continue;
     ensure(l.id);
-    if (l.thread) union(l.id, l.thread);
+    // THE ONE GUARD. `byId.has` is the whole of it: an edge exists only when the
+    // letter it names exists. Without it, `union` reaches `ensure` and a bogus
+    // string becomes a node that every letter carrying it joins.
+    if (l.thread && byId.has(l.thread)) union(l.id, l.thread);
   }
 
   const groups = new Map();
