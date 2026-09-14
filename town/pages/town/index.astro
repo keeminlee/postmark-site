@@ -61,7 +61,8 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 // pots block's holo paragraph, which moved to /stamps/ on 2026-08-31 — and an
 // import kept "just in case" is how a retyped copy of a ruling's sentence finds
 // its way back onto a page that is no longer supposed to carry one.
-import { livePots, loadPots, POT_FIXTURE, potGist, patronLabel } from "@/lib/funding.mjs";
+import { livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
+import PotCards from "@/components/PotCards.astro";
 import { loadWorldState, notices, FIXTURE, BOARD_PLACE, ASK_MAX } from "@/lib/board.mjs";
 // `predicatesOf` and `HOW_IDEAS_ENTER_PLACE` are NOT imported here any more —
 // the 2026-09-01 minimalism ruling took both renders off the page (§ rule 1 and
@@ -95,7 +96,6 @@ const ECON = "https://github.com/postmark-town/postmark-blueprints/blob/main/doc
 // The card's roll caps at three names — the fourth donation spilled the card
 // (founder, 2026-08-29 night). The pot's own /fund/<pot>/ page is the full
 // roll, so "and N more" links there rather than truncating anyone away.
-const PATRONS_SHOWN = 3;
 
 // the live half — the same two readers, unchanged
 const wantFixture = import.meta.env.DEV &&
@@ -523,137 +523,11 @@ const switchCss = [
             thing on one screen. */}
         <p class="m-lab">Pots</p>
 
-        {potBoard.pots.length === 0 ? (
-          <div class="m-none">
-            <b>No pot is open.</b>
-            <span>The town is not asking for money today. Opening a pot is the founder's word, never a merge.</span>
-          </div>
-        ) : (
-          <div class="m-grid">
-            {potBoard.pots.map((p) => (
-              <article class:list={["m-card", "is-pot", p.status !== "open" && "is-settled"]}>
-                {/* The epoch is the pot's OWN first_close when it has one, not
-                    the month the pot happened to be posted in — the pot file
-                    settles it: "Surfaces render the epoch from this field, not
-                    from the posting date." Naming the close beside the epoch is
-                    what stops a September label on an August page reading as a
-                    mistake. */}
-                {/* ONE FACT ON THE KIND LINE, founder-ruled 2026-09-01. This
-                    read `pot · 2026-09 · monthly · first close: end of
-                    September` — four facts, of which "pot" is said by the card
-                    it is on, "2026-09" is said again by the close date beside
-                    it, and "monthly" is a contract term. The close date is the
-                    one a reader deciding whether to give actually needs; the
-                    rest is on /fund/<pot>/, which the card already links.
-                    The epoch is the fallback for a pot with no posted close —
-                    a kind line saying nothing would be worse than one fact. */}
-                <p class="m-kind">{p.firstCloseLabel ? <>closes {p.firstCloseLabel}</> : p.epoch}</p>
-                <h3 class="m-title">{p.title}</h3>
-
-                {/* WHAT THIS POT IS — before any number touches the reader.
-                    The founder's card law (2026-08-26): "THE MAIN PAGE CARDS
-                    EXPLAIN WHAT THE THING IS"; how it closes and what a dollar
-                    mints moved to the pot's own fund page and the Rules. The
-                    sentence is the pot file's own first sentence, via potGist —
-                    quoted, never invented. */}
-                {potGist(p.source) && <p class="m-what">{potGist(p.source)}</p>}
-
-                {/* THE MONEY LINE.
-                    An ELASTIC pot gets a bar like an epoch pot's, but it
-                    measures something different: progress toward the CLOSE
-                    FLOOR, not toward a target. Past the floor the bar reads
-                    full and the roll keeps climbing beside it — the floor gates
-                    the ceremony, never the door ("intake refuses nothing"), so
-                    a bar that looked done would say the opposite of the law.
-                    A pot that is targetless AND floorless is short of nothing
-                    and gets no bar at all — D5's uncapped exception. */}
-                {p.close === "elastic" && p.minCloseUsd != null ? (
-                  <div class="m-bar-wrap">
-                    <div class="m-bar is-pot-bar" role="img"
-                         aria-label={`${usd(p.received)} in the roll, against a ${usd(p.minCloseUsd)} close floor`}>
-                      {p.received > 0 && (
-                        <i class="pm-holo-ink"
-                           style={`width:${Math.max(2, pct(Math.min(1, p.received / p.minCloseUsd)))}%`}></i>
-                      )}
-                    </div>
-                    <p class="m-barlab">
-                      {p.received >= p.minCloseUsd
-                        ? <><b>{usd(p.received)}</b> in the roll — closes at month's end,{" "}
-                          <span class="m-dim">no cap</span></>
-                        : <><b>{usd(p.received)}</b> in the roll — a close runs once it holds {usd(p.minCloseUsd)}
-                          <span class="m-dim"> · and it keeps taking past that</span></>}
-                    </p>
-                  </div>
-                ) : p.target == null ? (
-                  <p class="m-money">
-                    {p.close === "elastic"
-                      ? <><b>{usd(p.received)}</b> given so far this roll
-                          <span class="m-dim"> · rolls on until it is worth closing</span></>
-                      : p.close === "none"
-                      ? <><b>{usd(p.received)}</b> given <span class="m-dim">· a standing box, no target</span></>
-                      : <><b>{usd(p.received)}</b> given <span class="m-dim">· no posted target</span></>}
-                  </p>
-                ) : (
-                  <div class="m-bar-wrap">
-                    <div class="m-bar is-pot-bar" role="img" aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
-                      {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
-                    </div>
-                    <p class="m-barlab">
-                      <b>{usd(p.received)}</b> of {usd(p.target)}
-                      {p.received === 0 && <span class="m-dim"> · open, unfed</span>}
-                      {p.received > p.target && <span class="m-dim"> · over-fed</span>}
-                    </p>
-                  </div>
-                )}
-
-                {/* WHERE THE MECHANICS WENT. The card used to carry a
-                    "character line" (how the pot closes, keyed on the pot
-                    file's own close word — the Hal finding, 2026-08-25) and a
-                    per-dollar estimate. Both moved to the pot's own fund page
-                    on the founder's card law (2026-08-26): a reader on the
-                    market is deciding WHETHER they care, not settling contract
-                    terms. The close word itself still shows here — the
-                    m-kind line names the first close, and the Rules teach the
-                    rest. Nothing was unsaid; it was re-shelved. */}
-                <p class="m-roll">
-                  {/* EVERY PATRON, AND THE UNATTACHED ONES TOLD APART. This
-                      roll linked every payer to /residents/<payer>/ — which for
-                      an unattached gift is a DEAD LINK presenting a payment the
-                      office could not attach to a hand as though it were a
-                      resident. darko-fund's witnessed $10 sits under
-                      `outside:stripe` and shipped exactly that. patronLabel is
-                      the one shape-rule (funding.mjs); it links a hand and
-                      names a gift. */}
-                  {/* The separator lives BETWEEN the nowrap spans, not inside
-                      them — inside, the whole roll is one unbreakable run and
-                      spills the card (the fourth donation proved it). Nowrap
-                      still keeps each name with its dollars. */}
-                  {p.patrons.length > 0
-                    ? <>{p.patrons.slice(0, PATRONS_SHOWN).map((c, i) => { const who = patronLabel(c.patron); return (
-                        <>{i > 0 && " · "}<span class="m-patron">{who.href ? <a href={who.href}>{who.label}</a> : <span class="m-gift">{who.label}</span>} <span class="m-dim">{usd(c.usd)}</span>{c.holo > 0 && <> <span class="pm-holo-ink m-holo">✧{c.holo}</span></>}</span></>
-                      ); })}{p.patrons.length > PATRONS_SHOWN && <> · <span class="m-patron m-dim">and <a href={`/fund/${p.pot}/`}>{p.patrons.length - PATRONS_SHOWN} more</a></span></>}</>
-                    : <span class="m-dim">the roll is open — nobody has fed this pot yet</span>}
-                </p>
-
-                <p class="m-foot">
-                  <span class="m-chip is-stamp">{p.staked}<span class="m-u">✦</span> staked</span>
-                  {/* the LABEL, not the routing handle — see beneficiaryLabel
-                      in funding.mjs for the founder's ruling behind it */}
-                  <span class="m-dim">{p.beneficiaryLabel ? <>for {p.beneficiaryLabel}</> : <em>no beneficiary named yet</em>}</span>
-                  {p.status === "open" && <a class="m-fund" href={`/fund/${p.pot}/`}>Fund →</a>}
-                </p>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {potBoard.malformed.length > 0 && (
-          <div class="m-none is-warn">
-            <b>{potBoard.malformed.length} pot{potBoard.malformed.length === 1 ? "" : "s"} could not be read.</b>
-            <span>Dropped rather than rendered half-built — money least of all should appear half-said.</span>
-            <ul>{potBoard.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}</ul>
-          </div>
-        )}
+        {/* THE CARDS ARE ONE COMPONENT (postmark#2810, 2026-09-14): the same
+            file renders them here and on /stamps/, so the two pages can never
+            say two things about a pot. What a card says is unchanged — see
+            src/components/PotCards.astro for the card law it carries. */}
+        <PotCards potBoard={potBoard} />
 
         {/* THE HOLO EXPLANATION MOVED TO ITS ONE HOME, founder-ruled
             2026-08-31. It stood here under the 2026-08-26 placement rule —
