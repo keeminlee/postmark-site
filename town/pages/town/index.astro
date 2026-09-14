@@ -720,17 +720,36 @@ const switchCss = [
               lives, and where earning is taught. Every clause was true and the
               whole paragraph was a footnote about the machinery under a table
               the reader can simply read. The one thing it owed them is where
-              the rest of the standing is, and that is a link. */}
-          <p class="m-note"><a href="/bulletin/#quests">the full board</a></p>
+              the rest of the standing is, and that is a link.
+
+              AND THE LINK POINTED AT NOTHING (#2506, fixed 2026-09-14). It read
+              `/bulletin/#quests`. The bulletin carries no `quests` anchor — its
+              whole rendered page has exactly one id, `board-modal-title`, and
+              its notices are cards keyed by `data-card`, not ids — so this sent
+              a reader to the top of another page with nothing to scroll to.
+              The full board is on THIS page, in this lane: the Quests grid
+              above these standings, under `id="quests"`. The link now names it.
+              The falsifier is test/anchor-links.test.mjs. */}
+          <p class="m-note"><a href="/town/#quests">the full board</a></p>
         </>
       ) : (
         <div class="m-none">
           <b>The quest mirror could not be read.</b>
+          {/* THE SAME DEAD ANCHOR, AND A DIFFERENT DESTINATION (#2506, 2026-09-14).
+              This link also read `/bulletin/#quests`, and the sweep proposed both
+              become `/town/#quests`. That is right for the link above and WRONG
+              here, because the two links do not name the same thing. Above, "the
+              full board" is this page's own Quests grid. Here, "the mirror
+              itself" is the bulletin's Quest Board — the SOURCE this block just
+              said it could not read. Sending the reader to `/town/#quests` would
+              send them to the lane they are standing in, to the block that just
+              told them it is empty. So this one keeps its page and drops the
+              fragment the bulletin never had. */}
           <span>
             These standings render from the bulletin's own Quest Board, which
             this build did not find in a shape it could read — a build-input
             problem, not a town with no questers. Nothing has been invented to
-            fill the gap; <a href="/bulletin/#quests">the mirror itself</a> is
+            fill the gap; <a href="/bulletin/">the mirror itself</a> is
             the thing to read.
           </span>
         </div>
