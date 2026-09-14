@@ -414,9 +414,19 @@ test("the founder's board: every row he finished is off the page", () => {
   // board honestly cannot read
   assert.equal(shapes["correspond-send"], "card");
   assert.equal(shapes["correspond-receive"], "card");
-  assert.equal(shapes["walk-the-world"], "row");
+  // ⚑ THIS LINE READ `"row"` UNTIL #2773, AND THAT WAS THE DEFECT PINNED AS LAW.
+  // "the one row this board honestly cannot read" was already the right
+  // sentence; `row` was the wrong shape for it, because `row` IS the Still-to-do
+  // list. So this file asserted, in the founder's own fixture, that his page
+  // should file *Leave your home mark* under things he had yet to do — which is
+  // precisely what he then reported seeing. Re-aimed, not deleted: the law it
+  // meant to state is unchanged and now has a shape that says it.
+  assert.equal(shapes["walk-the-world"], "not-read",
+    "a row the door answered `complete: null` is not an unfinished step — it is a row this surface did not read");
   assert.equal(WRIGHT_TODAY.filter((q) => questShape(q) !== "done").length, 3,
     "three rows left of ten — the board is now what is left to do");
+  assert.equal(WRIGHT_TODAY.filter((q) => questShape(q) === "row").length, 0,
+    "nothing is under Still to do on the founder's board — the two dailies are cards and the world row is not read here");
 });
 
 test("a newcomer sees every row, and none of them claim to be done", () => {
@@ -425,6 +435,104 @@ test("a newcomer sees every row, and none of them claim to be done", () => {
     "a resident who arrived this morning has finished nothing; a board that folds a row away has told them they had");
   assert.equal(NEWCOMER.filter((q) => questShape(q) !== "done").length, NEWCOMER.length,
     "every row a newcomer has yet to do is on their page");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 2026-09-14 — "NOT READ" IS NOT "NOT DONE" (#2773)
+//
+// Reported by the founder on his own page: it "still claims you have yet to
+// complete things that you definitely have." Under Still to do was *Leave your
+// home mark*, for a resident whose home mark had stood in the World for weeks.
+// The office answers that row `complete: null` — "this surface did not look" —
+// and this page filed everything that was not `complete: true` under Still to
+// do, so a row nobody read looked exactly like a row nobody did.
+//
+// The town had already ruled it, in words, and this panel had never learned it
+// (tools/onboarding.test.mjs, verbatim): "an unknown row is never rendered as
+// an unfinished step — telling a placed resident to go get placed is the #1864
+// defect."
+// ═══════════════════════════════════════════════════════════════════════════
+
+// One board, one unread row, and nothing else that could be confused for it:
+// a card the resident can move, an open row that is genuinely not yet done, a
+// settled row, and the null. Its own fixture, so no live shape can drift under it.
+const UNREAD_NOTE = "your ground in the World is kept somewhere this page cannot see";
+const ONE_UNREAD = [
+  { id: "correspond-send", title: "Reach out", cadence: "daily", target: 5, source: "Send a letter to 5 different residents.", progress: 2, complete: false, counted: [], household: HH(1, 2) },
+  { id: "first-letter-out", title: "Send your first letter", cadence: "one-time", target: 1, source: "Write to somebody. Once.", progress: 0, complete: false, counted: [], household: HH(1, null) },
+  { id: "tend-your-home", title: "Found your home", cadence: "one-time", target: 1, source: "Write your HOME page. Once.", progress: 1, complete: true, counted: [], household: HH(1, null) },
+  { id: "walk-the-world", title: "Leave your home mark", cadence: "one-time", target: 1, source: "Walk your ground in the World and leave your home mark. Once.", progress: null, complete: null, counted: [], household: HH(1, null), note: UNREAD_NOTE },
+];
+
+test("a `complete: null` row is NOT under Still to do — it is under Not read here, with the door's note", () => {
+  const { questShape, buildUncountedRow, buildNotReadRow } = runLaw();
+
+  // THE PARTITION. Exactly one row goes to each list, and the null is not the
+  // one in Still to do — which is the whole sentence of the brief.
+  const byShape = (s) => ONE_UNREAD.filter((q) => questShape(q) === s).map((q) => q.id);
+  assert.deepEqual(byShape("row"), ["first-letter-out"],
+    "Still to do holds only the row the resident genuinely has not done");
+  assert.deepEqual(byShape("not-read"), ["walk-the-world"],
+    "the row the door answered `complete: null` belongs to its own heading");
+  assert.deepEqual(byShape("card"), ["correspond-send"]);
+  assert.deepEqual(byShape("done"), ["tend-your-home"]);
+
+  // THE ROW ITSELF carries the note as text a reader can read, not as a tooltip.
+  const row = buildNotReadRow(ONE_UNREAD[3]);
+  const rendered = text(row);
+  assert.match(rendered, /Leave your home mark/, "the not-read row lost its title");
+  assert.ok(rendered.includes(UNREAD_NOTE),
+    `the door's note is not on the row a resident reads: ${JSON.stringify(rendered)}`);
+  assert.equal(cls(row, "quest-nr-note").length, 1, "the note has no element of its own");
+
+  // AND IT MAKES NO CLAIM ABOUT THE RESIDENT. No glyph, no state word — the two
+  // things every other row on this board uses to say what you have and have not
+  // done. `not yet` on a row nobody read is the defect in one phrase.
+  assert.doesNotMatch(rendered, /not yet|✓|○/,
+    "a row the door did not read is wearing a state word or a glyph, which is a claim nobody measured");
+  assert.equal(cls(row, "quest-un-state").length, 0, "a not-read row must not borrow the Still-to-do state span");
+
+  // THE OTHER DIRECTION, or the fix is just a rename: the genuinely-open row
+  // still goes to Still to do and still says `not yet`.
+  assert.match(text(buildUncountedRow(ONE_UNREAD[1])), /not yet/,
+    "an open row that the door DID read must still say so — this fix must not silence `complete: false`");
+});
+
+test("an unread row with no note is not rendered at all, under either heading", () => {
+  // "…or is omitted when the door gave no note." A heading over a row that says
+  // neither what you did nor where to find out is the shrug this block exists
+  // to stop being — and it is worse than the old behaviour, because it would be
+  // a NEW heading saying nothing.
+  const { questShape } = runLaw();
+  const noteless = { ...ONE_UNREAD[3], note: undefined };
+  assert.equal(questShape(noteless), "omit",
+    "an unread row with nothing to say about where the answer lives must not be drawn");
+  assert.equal(questShape({ ...noteless, note: "" }), "omit", "an empty note is no note");
+  assert.equal(questShape({ ...ONE_UNREAD[3], complete: undefined }), "not-read",
+    "a door that omits `complete` has not looked either — `undefined` is the same absence as `null`");
+});
+
+test("the page routes the three lists, and the Not-read block ships hidden and hides itself", () => {
+  // The seam, the same way the block above is watched: the vm proves the law,
+  // only the source can say it is REACHED. A function nothing calls is the
+  // 08-27 carry, and this file has spent it twice.
+  for (const [what, re] of [
+    ["a noteless unread row is dropped before any list", /if \(shape === "omit"\) return;/],
+    ["an unread row goes to the not-read list", /if \(shape === "not-read"\) \{[\s\S]{0,140}buildNotReadRow\(q\)/],
+    ["the not-read block hides itself when nothing landed in it", /nrWrap\.hidden = notRead === 0;/],
+    ["the not-read list is emptied before a redraw, like the other one", /if \(nrList\) nrList\.textContent = "";/],
+  ]) {
+    assert.match(SOURCE, re, `${what} — the law is defined but not called`);
+  }
+
+  assert.match(SOURCE, /<div class="quest-notread" data-quest-notread hidden>/);
+  assert.match(SOURCE, /<ul class="quest-nr-list" data-quest-notread-list><\/ul>/);
+  assert.match(SOURCE, /<span>Not read here<\/span>/);
+
+  for (const sel of ["quest-notread", "quest-nr-list", "quest-nr-row", "quest-nr-title", "quest-nr-kind", "quest-nr-note"]) {
+    assert.ok(SOURCE.includes(`[data-quests] .${sel}`),
+      `.${sel} has no [data-quests]-namespaced rule — a scoped style would never reach a JS-created node`);
+  }
 });
 
 test("the arrived line's DELIVERY to the page is watched, not just its text", () => {
@@ -569,12 +677,19 @@ test("no shape of `today` the door can send renders as [object Object]", () => {
 });
 
 test("no rendered row anywhere on the new board prints a null, an undefined or a NaN", () => {
-  const { questShape, buildQuestCard, buildUncountedRow } = runLaw();
-  for (const [who, board] of [["wright", WRIGHT_TODAY], ["a newcomer", NEWCOMER]]) {
+  const { questShape, buildQuestCard, buildUncountedRow, buildNotReadRow } = runLaw();
+  for (const [who, board] of [["wright", WRIGHT_TODAY], ["a newcomer", NEWCOMER], ["one unread row", ONE_UNREAD]]) {
     for (const q of board) {
       const shape = questShape(q);
-      if (shape === "done") continue;
-      const el = shape === "card" ? buildQuestCard(q).card : buildUncountedRow(q);
+      // ⚑ EACH SHAPE THROUGH ITS OWN BUILDER (#2773). This read
+      // `shape === "card" ? … : buildUncountedRow(q)`, which after the new
+      // partition would have kept sending the world row through the Still-to-do
+      // builder — a check that still passes while measuring a row the page no
+      // longer draws that way. `omit` is drawn by nobody and has nothing to scan.
+      if (shape === "done" || shape === "omit") continue;
+      const el = shape === "card" ? buildQuestCard(q).card
+        : shape === "not-read" ? buildNotReadRow(q)
+        : buildUncountedRow(q);
       const rendered = text(el);
       assert.doesNotMatch(rendered, /\bnull\b|\bundefined\b|NaN/, `${who} · ${q.id}: ${JSON.stringify(rendered)}`);
       if (shape === "card") {

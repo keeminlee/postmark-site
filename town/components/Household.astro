@@ -289,6 +289,34 @@ const defaultRendition = route === "resident" &&
       <div class="pm-rule night"><span>Still to do</span></div>
       <ul class="quest-un-list" data-quest-uncounted-list></ul>
     </div>
+    {/* ── NOT READ HERE (#2773, 2026-09-14) ────────────────────────────────────
+        Reported by the founder on his own page: it "still claims you have yet
+        to complete things that you definitely have." Under Still to do was
+        *Leave your home mark*, for a resident whose home mark had stood in the
+        World for weeks. The office answers that one row `complete: null` — "the
+        world lives outside the town checkout and outside this index" — and this
+        page filed every row that was not `complete: true` under Still to do. So
+        a row THE DOOR DID NOT READ looked exactly like a row the resident had
+        not done, and the page told a placed resident to go get placed.
+
+        The town already ruled this in words, and this panel had simply never
+        learned it — tools/onboarding.test.mjs, verbatim: "an unknown row is
+        never rendered as an unfinished step — telling a placed resident to go
+        get placed is the #1864 defect."
+
+        SO THE THIRD STATE GETS ITS OWN HEADING instead of borrowing the second
+        one's. Not read here says exactly what happened: this surface did not
+        look, and the row carries the door's own note naming the surface that
+        can answer it. A row the door did not read AND said nothing about is not
+        rendered at all — a heading over "we don't know and we won't say where
+        to find out" is the shrug this block exists to stop being.
+
+        Ships HIDDEN, like the block above, and is revealed only when a row
+        lands in it. */}
+    <div class="quest-notread" data-quest-notread hidden>
+      <div class="pm-rule night"><span>Not read here</span></div>
+      <ul class="quest-nr-list" data-quest-notread-list></ul>
+    </div>
     {/* THE ARRIVED LINE — every settled row, folded into one sentence and out
         of the way. The founder's second clause, met literally: what you have
         already done stops taking up the page. The rows are not hidden from a
@@ -1294,9 +1322,28 @@ Then hand it back to your human to carry in.
     // needs no change at all.
     function questResets(q) { return q.cadence === "daily"; }
     function questIsDone(q) { return q.complete === true && !questResets(q); }
+    // ⚑ A ROW THE DOOR DID NOT READ IS NOT A ROW YOU HAVE NOT DONE (#2773).
+    // `complete: null` is the door's third answer and it means "this surface
+    // did not look" — never "not yet". Filing it with the open rows is how the
+    // founder's page came to tell him to go leave a home mark that had stood in
+    // the World for weeks, and it is the town's own #1864 defect wearing this
+    // page's clothes (tools/onboarding.test.mjs: "an unknown row is never
+    // rendered as an unfinished step").
+    //
+    // `== null` on purpose, both absences at once: a door that omits the field
+    // has not looked either, and an `undefined` slipping into the Still-to-do
+    // list would be the same lie by a narrower gate.
+    //
+    // THE NOTE IS THE PRICE OF THE HEADING. A row that says where the answer
+    // lives earns a line under Not read here; a row that says nothing is not
+    // rendered — a heading over "we don't know, and we won't say where to look"
+    // is a shrug with better grammar, and this page already has that sentence
+    // written about the note it declines to invent.
+    function questUnread(q) { return q.complete == null; }
     function questShape(q) {
       if (questIsDone(q)) return "done";
       if (questIsCounted(q) && (q.target || 1) > 1) return "card";
+      if (questUnread(q)) return q.note ? "not-read" : "omit";
       return "row";
     }
     // A NOTE ON WHAT IS NOT HERE. The card test above read
@@ -1519,6 +1566,36 @@ Then hand it back to your human to carry in.
       }
       return row;
     }
+
+    // A NOT-READ ROW (#2773): the row, and the door's own sentence about why
+    // this page cannot answer it. Three deliberate differences from the row
+    // above, each of them the point of the block:
+    //
+    //   · NO GLYPH AND NO STATE WORD. `·`, `○` and `✓` are all claims about
+    //     the resident. There is nothing to claim: the surface did not look.
+    //     An empty state renders no state span at all — which is the existing
+    //     law here, that a glyph for null "would be the same lie as a zero".
+    //   · THE NOTE IS VISIBLE PROSE, not a `title=`. Everywhere else on this
+    //     board the qualifier is a tooltip, because ten rows should stay ten
+    //     lines. Here the note is not a qualifier — it is the ONLY thing the
+    //     line has to say, and a tooltip is not readable on a phone, which is
+    //     where the founder read this page.
+    //   · IT IS NEVER BUILT WITHOUT ONE. `questShape` omits a noteless unread
+    //     row before it gets here, so this builder is only ever handed a row
+    //     that has somewhere to send the reader.
+    function buildNotReadRow(q) {
+      var row = document.createElement("li");
+      row.className = "quest-nr-row";
+      if (q.source) row.title = q.source;
+      var name = document.createElement("span"); name.className = "quest-nr-title";
+      name.textContent = q.title;
+      var kind = document.createElement("span"); kind.className = "quest-nr-kind";
+      kind.textContent = q.cadence || "";
+      var note = document.createElement("span"); note.className = "quest-nr-note";
+      note.textContent = q.note || "";
+      row.appendChild(name); row.appendChild(kind); row.appendChild(note);
+      return row;
+    }
     // ── END QUEST-BOARD LAW ──────────────────────────────────────────────────
 
     function drawQuestBoard() {
@@ -1526,6 +1603,8 @@ Then hand it back to your human to carry in.
       var wrap = house.querySelector("[data-quest-cards]");
       var unWrap = house.querySelector("[data-quest-uncounted]");
       var unList = house.querySelector("[data-quest-uncounted-list]");
+      var nrWrap = house.querySelector("[data-quest-notread]");
+      var nrList = house.querySelector("[data-quest-notread-list]");
       var dayEl = house.querySelector("[data-quests-day]");
       var arrivedEl = house.querySelector("[data-quest-arrived]");
       if (!sec || !wrap || questBoard) return Promise.resolve();
@@ -1534,8 +1613,10 @@ Then hand it back to your human to carry in.
         applyDay(dayEl, b.today);
         wrap.textContent = "";
         if (unList) unList.textContent = "";
+        if (nrList) nrList.textContent = "";
         questBoard = Object.create(null);
         var uncounted = 0;
+        var notRead = 0;
         var done = [];
         // the denominator Arrived counts against: the rows that are KEPT once
         // met. A daily errand is not one of them.
@@ -1546,6 +1627,15 @@ Then hand it back to your human to carry in.
           // into the arrived line below, with the day it was met — but it
           // stops being one of the things the page asks you to go do.
           if (shape === "done") { done.push(q); return; }
+          // A row the door did not read leaves the Still-to-do list entirely
+          // (#2773) — it goes under its own heading with the door's note, and a
+          // noteless one is not drawn at all. `omit` returns here and appends
+          // nowhere, which is the whole of "or is omitted".
+          if (shape === "omit") return;
+          if (shape === "not-read") {
+            if (nrList) { nrList.appendChild(buildNotReadRow(q)); notRead++; }
+            return;
+          }
           if (shape === "row") {
             if (unList) { unList.appendChild(buildUncountedRow(q)); uncounted++; }
             return;
@@ -1557,6 +1647,7 @@ Then hand it back to your human to carry in.
         // the block is the HOUSE's, and it stands or it is absent — an empty
         // heading over nothing is a fifth thing for the eye to skip.
         if (unWrap) unWrap.hidden = uncounted === 0;
+        if (nrWrap) nrWrap.hidden = notRead === 0;
         applyArrived(arrivedEl, done, keptTotal);
         sec.hidden = false;
       });
@@ -2454,6 +2545,36 @@ Then hand it back to your human to carry in.
      aligned and already answers "which of these are done"; the word beside the
      title is the label, not a second column. */
   [data-quests] .quest-un-state { color: rgba(232, 196, 139, 0.7); }
+
+  /* NOT READ HERE (#2773). The same register as the block above — this is not
+     a warning and must not look like one — with two differences that carry the
+     block's meaning. There is no glyph column, because every glyph on this
+     board is a claim about the resident and this block makes none. And the note
+     is a visible line rather than a `title=`: it is the only thing the row has
+     to say, and a tooltip cannot be read on the phone the founder read this
+     page on. JS-created nodes, so is:global and namespaced under [data-quests]
+     like everything else here. */
+  [data-quests] .quest-notread { margin: 0 0 2.4em; }
+  [data-quests] .quest-notread[hidden] { display: none; }
+  [data-quests] .quest-nr-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  [data-quests] .quest-nr-row {
+    display: flex; align-items: baseline; gap: 0.6em;
+    padding: 0.42em 0.2em;
+    border-bottom: 1px solid rgba(232, 196, 139, 0.1);
+    flex-wrap: wrap;
+  }
+  [data-quests] .quest-nr-row:last-child { border-bottom: 0; }
+  [data-quests] .quest-nr-title { font-size: 0.94rem; color: #cdc2ab; min-width: 0; }
+  [data-quests] .quest-nr-kind {
+    font-family: var(--pm-mono); font-size: 0.62rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: rgba(232, 196, 139, 0.5);
+  }
+  /* the note takes the whole next line rather than trailing the title: it is a
+     sentence, and a sentence wrapped into a gap between two tags is unreadable */
+  [data-quests] .quest-nr-note {
+    flex: 1 0 100%; font-size: 0.82rem; line-height: 1.5;
+    color: rgba(232, 196, 139, 0.6);
+  }
 
   /* THE ARRIVED LINE (2026-09-08). One quiet sentence where eight finished
      rows used to sit. It is deliberately the smallest thing on the board — the
