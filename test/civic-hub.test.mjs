@@ -1394,9 +1394,24 @@ test("RULE 2: explain by link, never inline — and what survives is a question"
   // reader loses the answer — it means they have to click for it. A law that
   // only forbade the prose would go green on a page that simply dropped the
   // destination.
+  //
+  // ONE DOOR WAS RE-AIMED, NOT RETIRED (#2506, 2026-09-14). "The full quest
+  // board" read `/bulletin/#quests` here because that is what the page said.
+  // The bulletin has no `quests` anchor and never had one — its whole rendered
+  // page carries a single id, `board-modal-title` — so the door opened onto the
+  // top of another page. The law this line protects is that the door EXISTS;
+  // the address it protects is wherever the board actually is, which is this
+  // page's own Quests grid at `id="quests"`. Re-aimed, per this file's own
+  // precedent: what still names real law gets re-aimed, not dropped. The
+  // general watcher is test/anchor-links.test.mjs, which is why this line can
+  // never again pin an address with nothing behind it and stay green.
+  //
+  // `/bulletin/#marketplace` below is NOT re-aimed and is dead by the same
+  // mechanism. It is declared in that file's KNOWN_OPEN with the reason:
+  // where the price rows should land is a content call, not a typo.
   for (const [what, href] of [
     ["where holo is explained", "/stamps/#seam"],
-    ["the full quest board", "/bulletin/#quests"],
+    ["the full quest board", "/town/#quests"],
     ["the price board", "/bulletin/#marketplace"],
     ["the postmaster, who hand-sets a listing", "/mail/compose/?to=postmaster"],
   ]) {
