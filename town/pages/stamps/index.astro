@@ -34,6 +34,8 @@
 // A bare /stamps/ stays put: it is a real page again, not a doorway.
 import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 import { loadEconomy, readEconomy, HOLO_LINE, HOLO_NAME_LINE } from "@/lib/funding.mjs";
+import { livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
+import PotCards from "@/components/PotCards.astro";
 import { QUEST_REGISTRY } from "@/lib/civic.mjs";
 
 const TOWN = "https://github.com/postmark-town/postmark/blob/main";
@@ -118,7 +120,15 @@ const RULE_IDS = ["what","earning","staking","seam","minterest","ownership","faq
 // #market was the portal's Market tab, whose two blocks are now the Bounty
 // Board lane and the pots inside the Quest Guild; it lands on the board.
 const HUB = "/town/";
-const LANE_FRAGMENTS = { board: "board", pots: "pots", market: "board" };
+// THE POTS, HERE AGAIN (postmark#2810, founder-ruled 2026-09-14): the same
+// live read the Guild makes, rendered by the same component, so a resident
+// who learned the pots on this page still finds them on this page.
+const wantFixture = import.meta.env.DEV &&
+  (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
+const potBoard = livePots(wantFixture ? POT_FIXTURE : loadPots());
+// `pots` left this map 2026-09-14: the cards are on this page again, so
+// /stamps/#pots lands HERE, as it did before the move.
+const LANE_FRAGMENTS = { board: "board", market: "board" };
 ---
 <PostmarkLayout
   title="Stamps — Postmark"
@@ -159,6 +169,13 @@ const LANE_FRAGMENTS = { board: "board", pots: "pots", market: "board" };
         welcome, asks nothing of you, and needs none of this page.
       </p>
     </header>
+
+    {/* ── THE POTS, WHERE THEY STOOD BEFORE THE MOVE (postmark#2810) ── */}
+    <div id="pots" class="m-block">
+      <p class="m-lab">Pots</p>
+      <p class="m-what">The town's pots — the same board the <a href="/town/#pots">Quest Guild</a> carries, here again because this is where the town first showed them. A gift lands on a pot's own page; a stake is placed from your doorstep.</p>
+      <PotCards potBoard={potBoard} />
+    </div>
 
     <!-- ── THE TEACHING, FIRST ──────────────────────────────────────────── -->
         <div class="m-block">

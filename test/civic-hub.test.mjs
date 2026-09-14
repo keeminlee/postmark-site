@@ -117,6 +117,13 @@ const teachBody = flat(teachRaw);
 // `src` keeps its name for the many hub laws that read it; the teaching's
 // equivalents read `teachSrc`.
 const src = hubSrc;
+// THE POT CARDS MOVED INTO ONE COMPONENT (postmark#2810, 2026-09-14): the Guild
+// and /stamps/ both render src/components/PotCards.astro, so every check that
+// reads a CARD reads it there. The hub keeps the block, its label and its id.
+const CARDS_PATH = "../src/components/PotCards.astro";
+const cardsSrc = read(CARDS_PATH);
+const cardsRaw = prose(cardsSrc);
+const cardsBody = flat(cardsRaw);
 
 // The Rules panel's nine accordions, in teaching order. The router keys on this
 // same list, which is why a renamed one has to break something loudly.
@@ -841,14 +848,16 @@ test("the teaching LEADS with the questions, and the dials sit under them", () =
   assert.ok(firstFold < dials, "the dials open the page — the questions must come first");
 });
 
-test("the lanes did NOT come with the teaching", () => {
+test("the board lane did NOT come with the teaching; the pots did, by the founder's word", () => {
   // The absorption's whole point. A copy of the board or the pots here would be
   // the split the quarter closed, and it would be a second surface that looks
   // like the board.
   assert.equal(/<div id="board"/.test(teachRaw), false, "the board is a lane, not a teaching block");
-  assert.equal(/<div id="pots"/.test(teachRaw), false, "the pots are the Guild's now");
-  assert.equal(/loadPots|livePots|notices\(/.test(teachSrc), false,
-    "the teaching still reads a lane's derivation");
+  // THE ONE RULED EXCEPTION (founder, 2026-09-14, postmark#2810): the pot cards
+  // are on the teaching page again, as a COPY — the same component the Guild
+  // renders, from the same live read. The board stays a lane of the Guild.
+  assert.equal(/<div id="pots"/.test(teachRaw), true, "the pots are on /stamps/ again, by the founder's word");
+  assert.equal(/notices\(/.test(teachSrc), false, "the teaching still does not read the board's derivation");
 });
 
 test("every accordion starts shut", () => {
@@ -989,7 +998,7 @@ test("the four kinds of nothing survived into the cards", () => {
   ]) {
     assert.ok(body.includes(needle), `the portal lost the branch for ${what}`);
   }
-  assert.ok(body.includes("No pot is open"), "and a town asking for no money says so");
+  assert.ok(cardsBody.includes("No pot is open"), "and a town asking for no money says so");
 });
 
 test("the card says WHAT the pot is; the close mechanics live on its fund page", () => {
@@ -1003,8 +1012,7 @@ test("the card says WHAT the pot is; the close mechanics live on its fund page",
   // 2026-08-25: every promise keys on the WORD the town said, never the
   // boolean) survives the move — asserted below against the fund page, where
   // the sentences now live.
-  const pots = raw.slice(raw.indexOf('<div id="pots"'));
-  const section = pots.slice(0, pots.indexOf("\n    </section>"));
+  const section = cardsRaw; // the component IS the pots section (postmark#2810)
   const sBody = flat(section);
 
   // the card answers WHAT IS THIS, from the record
@@ -1043,9 +1051,10 @@ test("the floor is read from the pot file, never written into the page", () => {
   //   "the ceremony's floor, never the door's: intake refuses nothing — the
   //    floor gates only whether a month's close RUNS. Owner of the number: this
   //    file; every surface reads it."
-  assert.ok(src.includes("p.minCloseUsd"), "the portal reads the emitted floor");
-  assert.equal(/\$5\b/.test(body), false, "and never writes the number down");
-  assert.ok(body.includes("rolls on until it is worth closing"),
+  assert.ok(cardsSrc.includes("p.minCloseUsd"), "the card reads the emitted floor");
+  assert.equal(/\$5\b/.test(cardsBody), false, "and never writes the number down");
+  assert.equal(/\$5\b/.test(body), false, "…nor does the hub around it");
+  assert.ok(cardsBody.includes("rolls on until it is worth closing"),
     "an emission with no floor says the shape and declines to name a number it was not given");
 });
 
@@ -1059,11 +1068,11 @@ test("a pot card shows the town's name, not the founder's handle", () => {
   // raw.includes("p.beneficiaryLabel") — which the explanatory COMMENT above
   // the markup satisfied all by itself, so the card could have printed the raw
   // handle with the probe still green. Caught by its own can-fail flip.
-  assert.ok(/\{p\.beneficiaryLabel \? <>for \{p\.beneficiaryLabel\}<\/>/.test(raw),
+  assert.ok(/\{p\.beneficiaryLabel \? <>for \{p\.beneficiaryLabel\}<\/>/.test(cardsRaw),
     "the card must render the LABEL on both sides of the branch");
-  assert.equal(/\{p\.beneficiary[^L]/.test(raw), false,
+  assert.equal(/\{p\.beneficiary[^L]/.test(cardsRaw), false,
     "and never the routing handle");
-  assert.equal(new RegExp(`for ${FOUNDER_ACCOUNT}\\b`).test(body), false,
+  assert.equal(new RegExp(`for ${FOUNDER_ACCOUNT}\\b`).test(body + cardsBody), false,
     "the founder's handle must not be typed into the markup either");
 });
 
@@ -1072,8 +1081,8 @@ test("the portal links each open pot's money moment and carries none of it", () 
   // town/pages/fund/[pot].astro's header: "The address publishes ONLY beside a
   // pot (the money moment carries the disclosure, per §10's second consent
   // gate) — never bare on a page."
-  assert.ok(src.includes('href={`/fund/${p.pot}/`}'), "each pot links its own money moment");
-  assert.ok(src.includes('p.status === "open" &&'),
+  assert.ok(cardsSrc.includes('href={`/fund/${p.pot}/`}'), "each pot links its own money moment");
+  assert.ok(cardsSrc.includes('p.status === "open" &&'),
     "and only an open pot — a draft or closed pot has no page that can take a dollar");
   assert.equal(/0x[0-9a-fA-F]{40}/.test(src), false, "no intake address on the portal");
   assert.equal(/qrSvg|<form/.test(src), false, "and no QR and no witness form");
@@ -1225,8 +1234,8 @@ test("/stamps/ still answers, and partitions the fragments it was asked for", ()
 
   // LANE ids forward, carrying the fragment, by the mechanics the forwarder
   // used — because a redirects map matches PATHS and never sees a fragment.
-  assert.match(teach, /const LANE_FRAGMENTS = \{ board: "board", pots: "pots", market: "board" \}/,
-    "the lane partition must name its three fragments in one place");
+  assert.match(teach, /const LANE_FRAGMENTS = \{ board: "board", market: "board" \}/,
+    "the lane partition names the two fragments that still forward — #pots lands HERE since 2026-09-14 (postmark#2810)");
   assert.ok(/location\.replace\(HUB \+ "#"/.test(teach), "a lane id must forward WITH its fragment");
   assert.ok(/location\.replace/.test(teach) && !/location\.assign/.test(teach),
     "replace, not assign — Back must not bounce the reader through the hop again");
@@ -1260,8 +1269,7 @@ test("an elastic pot gets a bar against its floor, and the bar says the roll kee
   //    floor gates only whether a month's close RUNS."
   // A bar that filled and stopped would say the opposite: that the pot is done
   // taking. So past the floor it reads full AND the total keeps climbing.
-  const pots = raw.slice(raw.indexOf('<div id="pots"'));
-  const section = pots.slice(0, pots.indexOf("\n    </section>"));
+  const section = cardsRaw; // the component IS the pots section (postmark#2810)
 
   assert.ok(section.includes('p.close === "elastic" && p.minCloseUsd != null'),
     "the elastic bar branch must require a floor to measure against");
@@ -1470,7 +1478,7 @@ test("RULE 4: say each thing once", () => {
   // THE POT'S KIND LINE IS ONE FACT. It read `pot · 2026-09 · monthly · first
   // close: end of September` — four, of which "pot" is said by the card, the
   // epoch is said again by the close date, and the cadence is a contract term.
-  const kind = /<p class="m-kind">\{p\.[\s\S]*?<\/p>/.exec(raw);
+  const kind = /<p class="m-kind">\{p\.[\s\S]*?<\/p>/.exec(cardsRaw);
   assert.ok(kind, "the pot card lost its kind line");
   assert.equal(/·/.test(kind[0]), false,
     `the pot's kind line carries more than one fact: ${flat(kind[0])}`);
