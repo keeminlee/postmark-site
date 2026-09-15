@@ -5,6 +5,8 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { buildThreads, parseFrontmatter, readResidentProfiles } from "./town.mjs";
 
+export const RESIDENT_CARD_LANES = 6;
+
 export const DATA_FILES = [
   "letters.json",
   "residents.json",
@@ -37,15 +39,27 @@ function normApiBase(apiBase) {
   return apiBase.replace(/\/+$/, "");
 }
 
-export async function apiGet(path, { apiBase, fetchImpl = fetch, retries = 3, timeoutMs = 15000 } = {}) {
+export async function apiGet(path, { apiBase, fetchImpl = fetch, retries = 3, timeoutMs = 15000, maxRetryAfterMs = 60_000 } = {}) {
   const base = normApiBase(apiBase);
   let lastError = null;
   for (let attempt = 1; attempt <= retries; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
+    let waitMs = 250 * attempt;
     try {
       const res = await fetchImpl(`${base}${path}`, { signal: controller.signal });
       clearTimeout(timer);
+      if (res.status === 429) {
+        // THE OFFICE SAID WHEN (2026-09-13). Its bouncer answers a 429 with
+        // `retry-after` in whole seconds — the time until one token refills for
+        // this caller. Before this the retry came 250 ms later, three times,
+        // and every one of them met the same empty bucket; the build then kept
+        // the committed roll, which is how thirty residents lost their front
+        // doors for eighteen days (postmark#2730). Wait what it said, capped.
+        const ra = Number(res.headers?.get?.("retry-after"));
+        waitMs = Number.isFinite(ra) && ra > 0 ? Math.min(ra * 1000, maxRetryAfterMs) : Math.max(waitMs, 1000);
+        throw new Error(`${res.status} ${res.statusText}`.trim());
+      }
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`.trim());
       return {
         body: await res.json(),
@@ -54,10 +68,27 @@ export async function apiGet(path, { apiBase, fetchImpl = fetch, retries = 3, ti
     } catch (error) {
       clearTimeout(timer);
       lastError = error;
-      if (attempt < retries) await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+      if (attempt < retries) await new Promise((resolve) => setTimeout(resolve, waitMs));
     }
   }
   throw new Error(`GET ${path} failed after ${retries} attempts: ${lastError?.message ?? lastError}`);
+}
+
+/** map, at most `limit` in flight at once, order preserved. The office's keyless
+ *  bucket is a burst of 240 refilling at 120 a minute per caller; a roll of 165
+ *  cards asked all at once spends the burst before the letters and doorsteps
+ *  get their turn, and the tail is refused. A few at a time never touches it. */
+export async function mapLimit(items, limit, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  const lanes = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, async () => {
+    while (next < items.length) {
+      const i = next++;
+      out[i] = await fn(items[i], i);
+    }
+  });
+  await Promise.all(lanes);
+  return out;
 }
 
 export async function fetchAllLetterIds({ apiBase, fetchImpl, retries, limit = 200 }) {
@@ -348,9 +379,13 @@ export async function buildOfficeData({
   endpointGaps.push(rollRes.paged
     ? `roll read from the paged roster door (/residents?limit=&offset=): ${residentHandles.length} residents in ${Math.ceil(residentHandles.length / 200) || 1} page(s)`
     : `roll read from the pre-2026-09-10 roster door, which served the whole town in one bare array: ${residentHandles.length} residents`);
-  const fullResidents = await Promise.all(residentHandles.map(async (handle) =>
+  // A FEW AT A TIME, NOT ALL AT ONCE (2026-09-13, postmark#2730). `Promise.all`
+  // over the whole roll asked the office for every card in the same instant;
+  // past ~240 the keyless bucket refused the rest, the build kept the committed
+  // snapshot, and the /residents/ directory froze at 134 while the town grew.
+  const fullResidents = await mapLimit(residentHandles, RESIDENT_CARD_LANES, async (handle) =>
     (await apiGet(`/residents/${encodeURIComponent(handle)}`, { apiBase, fetchImpl, retries })).body
-  ));
+  );
 
   // ── THE LETTER CORPUS: the bulk door first, the resident cards as fallback ──
   //

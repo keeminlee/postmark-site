@@ -5,7 +5,7 @@
 // reads need no key. On API failure this script keeps the committed snapshot in
 // place and exits 0, so CI can still build the last-good static town.
 
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildOfficeData, fetchBlueprints, jsonText } from "./lib/fetch-town-data.mjs";
@@ -98,6 +98,26 @@ try {
   console.log(`fetch-town: done from ${API} as-of ${result.asOf ?? "unknown"}`);
 } catch (error) {
   console.warn(`WARN fetch-town: office API unavailable; keeping committed data snapshot (${error.message})`);
+  // THE SNAPSHOT SAYS HOW SHORT IT IS (2026-09-13, postmark#2730). A kept
+  // snapshot is a town with pages missing, and for eighteen days nothing said
+  // how many. With a checkout beside us the count is one readdir away: the
+  // white pages are the roll's own keeper, and a snapshot shorter than them is
+  // shouted by name so the round that reads this log sees the doors, not a warning.
+  try {
+    const kept = JSON.parse(readFileSync(join(DATA_DIR, "residents.json"), "utf8"));
+    const keptN = Array.isArray(kept) ? kept.length : 0;
+    if (TOWN && existsSync(join(TOWN, "WHITE_PAGES"))) {
+      const households = readdirSync(join(TOWN, "WHITE_PAGES"), { withFileTypes: true })
+        .filter((d) => d.isDirectory() && d.name !== "TEMPLATE" && !d.name.startsWith("_")).length;
+      if (keptN < households) {
+        console.warn(`WARN fetch-town: SNAPSHOT SHORT — residents.json keeps ${keptN} rows; the checkout has ${households} households; ${households - keptN} doors are missing from /residents/ until the office answers`);
+      }
+    } else {
+      console.warn(`WARN fetch-town: snapshot keeps ${keptN} residents; no checkout to measure it against`);
+    }
+  } catch (e) {
+    console.warn(`WARN fetch-town: could not measure the kept snapshot (${e.message})`);
+  }
   console.warn("WARN fetch-town: build may proceed from src/data/postmark/*.json");
   process.exit(0);
 }
