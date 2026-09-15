@@ -518,3 +518,42 @@ export async function buildOfficeData({
 export function parseMaybeFrontmatter(text) {
   return parseFrontmatter(text);
 }
+
+// ── THE DRAWING CHEST (POS-97, 2026-09-15) ───────────────────────────────────
+// postmark-town/postmark-blueprints holds one directory per drawn work, and
+// each work's proposal.md cites the idea it grew from (`idea: <by>/<slug>`) and
+// carries its stage on the Idea Lifecycle (`status: drawn up`). The Think
+// Tank's "drawn" is a join against THAT citation — the chest names the idea;
+// the idea mark never names the chest (INDEX.md; the lifecycle doc § 2).
+//
+// One trees call names every proposal.md; each is then read raw. Public repo,
+// no key. Any failure throws, and the caller keeps the committed snapshot the
+// way it does for every other data file.
+export const BLUEPRINTS_REPO_SLUG = "postmark-town/postmark-blueprints";
+export async function fetchBlueprints({ fetchImpl = fetch, repo = BLUEPRINTS_REPO_SLUG, branch = "main", timeoutMs = 15000 } = {}) {
+  const get = async (url, as) => {
+    const res = await fetchImpl(url, { signal: AbortSignal.timeout(timeoutMs), headers: { accept: as === "json" ? "application/vnd.github+json" : "text/plain" } });
+    if (!res.ok) throw new Error(`${url} answered ${res.status}`);
+    return as === "json" ? res.json() : res.text();
+  };
+  const tree = await get(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`, "json");
+  const paths = (Array.isArray(tree?.tree) ? tree.tree : [])
+    .map((t) => t?.path)
+    .filter((p) => typeof p === "string" && /^BLUEPRINTS\/[^/]+\/proposal\.md$/.test(p))
+    .sort();
+  const works = [];
+  for (const path of paths) {
+    const { data } = parseFrontmatter(await get(`https://raw.githubusercontent.com/${repo}/${branch}/${path}`, "text"));
+    const dir = path.split("/")[1];
+    works.push({
+      dir,
+      title: String(data.title ?? dir),
+      idea: data.idea ? String(data.idea) : null,
+      status: data.status ? String(data.status) : null,
+      posted: data.posted ? String(data.posted) : null,
+      proposed_by: data.proposed_by ? String(data.proposed_by) : null,
+      href: `https://github.com/${repo}/blob/${branch}/${path}`,
+    });
+  }
+  return { fetched_at: new Date().toISOString(), repo, branch, works };
+}

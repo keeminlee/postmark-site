@@ -1,0 +1,157 @@
+---
+// PotCards.astro — the town's pots, as cards. ONE COPY, TWO RENDERS.
+//
+// The founder, 2026-09-14 (postmark#2810): "return the pot cards to the stamp
+// page as a copy so people who saw it there before still see it there." The
+// cards lived on /stamps/ until 2026-08-30, when the portal moved into the
+// Quest Guild on /town/ and /stamps/ became the teaching. They now render in
+// both places from this one file, so a card can never say two things.
+//
+// WHAT A CARD SAYS is unchanged and is the founder's card law (2026-08-26):
+// "THE MAIN PAGE CARDS EXPLAIN WHAT THE THING IS" — the kind line names the
+// close, the title, the pot file's own first sentence via potGist, the money
+// line, the patron roll, the staked chip, and the way in. How a pot closes and
+// what a dollar mints live on /fund/<pot>/ and in the Rules, not here.
+//
+// The styles ride with the markup, scoped to this file, because a page's own
+// scoped rules never reach a component's elements. The civic scale variables
+// (--civic-body, --civic-label) are inherited where the page defines them
+// (/town/) and fall back to the same numbers where it does not (/stamps/).
+import { potGist, patronLabel } from "@/lib/funding.mjs";
+
+const { potBoard } = Astro.props;
+const PATRONS_SHOWN = 3;
+const usd = (n) => "$" + Number(n).toLocaleString("en-US");
+const pct = (p) => Math.round(Math.max(0, Math.min(1, p)) * 100);
+---
+<div class="pot-cards">
+  {potBoard.pots.length === 0 ? (
+    <div class="m-none">
+      <b>No pot is open.</b>
+      <span>The town is not asking for money today. Opening a pot is the founder's word, never a merge.</span>
+    </div>
+  ) : (
+    <div class="m-grid">
+      {potBoard.pots.map((p) => (
+        <article class:list={["m-card", "is-pot", p.status !== "open" && "is-settled"]}>
+          {/* ONE FACT ON THE KIND LINE (founder-ruled 2026-09-01): the close
+              date a reader deciding whether to give actually needs; the epoch
+              is the fallback for a pot with no posted close. */}
+          <p class="m-kind">{p.firstCloseLabel ? <>closes {p.firstCloseLabel}</> : p.epoch}</p>
+          <h3 class="m-title">{p.title}</h3>
+          {/* WHAT THIS POT IS, before any number — the pot file's own first
+              sentence, quoted, never invented. */}
+          {potGist(p.source) && <p class="m-what">{potGist(p.source)}</p>}
+          {/* THE MONEY LINE. An elastic pot's bar measures progress toward
+              its CLOSE FLOOR, not a target: the floor gates the ceremony,
+              never the door. A targetless, floorless pot gets no bar at all. */}
+          {p.close === "elastic" && p.minCloseUsd != null ? (
+            <div class="m-bar-wrap">
+              <div class="m-bar is-pot-bar" role="img"
+                   aria-label={`${usd(p.received)} in the roll, against a ${usd(p.minCloseUsd)} close floor`}>
+                {p.received > 0 && (
+                  <i class="pm-holo-ink"
+                     style={`width:${Math.max(2, pct(Math.min(1, p.received / p.minCloseUsd)))}%`}></i>
+                )}
+              </div>
+              <p class="m-barlab">
+                {p.received >= p.minCloseUsd
+                  ? <><b>{usd(p.received)}</b> in the roll — closes at month's end,{" "}
+                    <span class="m-dim">no cap</span></>
+                  : <><b>{usd(p.received)}</b> in the roll — a close runs once it holds {usd(p.minCloseUsd)}
+                    <span class="m-dim"> · and it keeps taking past that</span></>}
+              </p>
+            </div>
+          ) : p.target == null ? (
+            <p class="m-money">
+              {p.close === "elastic"
+                ? <><b>{usd(p.received)}</b> given so far this roll
+                    <span class="m-dim"> · rolls on until it is worth closing</span></>
+                : p.close === "none"
+                ? <><b>{usd(p.received)}</b> given <span class="m-dim">· a standing box, no target</span></>
+                : <><b>{usd(p.received)}</b> given <span class="m-dim">· no posted target</span></>}
+            </p>
+          ) : (
+            <div class="m-bar-wrap">
+              <div class="m-bar is-pot-bar" role="img" aria-label={`${usd(p.received)} of ${usd(p.target)} received for ${p.epoch}`}>
+                {p.received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(p.progress))}%`}></i>}
+              </div>
+              <p class="m-barlab">
+                <b>{usd(p.received)}</b> of {usd(p.target)}
+                {p.received === 0 && <span class="m-dim"> · open, unfed</span>}
+                {p.received > p.target && <span class="m-dim"> · over-fed</span>}
+              </p>
+            </div>
+          )}
+          {/* EVERY PATRON, the unattached ones told apart: patronLabel links a
+              hand and names a gift (funding.mjs). The separator lives BETWEEN
+              the nowrap spans so a long roll wraps instead of spilling. */}
+          <p class="m-roll">
+            {p.patrons.length > 0
+              ? <>{p.patrons.slice(0, PATRONS_SHOWN).map((c, i) => { const who = patronLabel(c.patron); return (
+                  <>{i > 0 && " · "}<span class="m-patron">{who.href ? <a href={who.href}>{who.label}</a> : <span class="m-gift">{who.label}</span>} <span class="m-dim">{usd(c.usd)}</span></span></>
+                ); })}{p.patrons.length > PATRONS_SHOWN && <> · <span class="m-patron m-dim">and <a href={`/fund/${p.pot}/`}>{p.patrons.length - PATRONS_SHOWN} more</a></span></>}</>
+              : <span class="m-dim">the roll is open — nobody has fed this pot yet</span>}
+          </p>
+          <p class="m-foot">
+            <span class="m-chip is-stamp">{p.staked}<span class="m-u">✦</span> staked</span>
+            <span class="m-dim">{p.beneficiaryLabel ? <>for {p.beneficiaryLabel}</> : <em>no beneficiary named yet</em>}</span>
+            {p.status === "open" && <a class="m-fund" href={`/fund/${p.pot}/`}>Fund →</a>}
+          </p>
+        </article>
+      ))}
+    </div>
+  )}
+  {potBoard.malformed.length > 0 && (
+    <div class="m-none is-warn">
+      <b>{potBoard.malformed.length} pot{potBoard.malformed.length === 1 ? "" : "s"} could not be read.</b>
+      <span>Dropped rather than rendered half-built — money least of all should appear half-said.</span>
+      <ul>{potBoard.malformed.map((m) => <li><code>{m.id}</code> — {m.reason}</li>)}</ul>
+    </div>
+  )}
+</div>
+
+<style>
+  /* The card family the Guild's cards wear, carried here so the same card
+     renders the same on both pages. Numbers match town/index.astro's; the
+     civic variables inherit there and fall back to the same values here. */
+  .m-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr)); gap: 1.1rem; }
+  .m-card {
+    display: flex; flex-direction: column; gap: .6rem; min-width: 0;
+    padding: 1.2rem 1.3rem 1.25rem;
+    border: 1px solid rgba(232, 196, 139, .16); border-radius: .55rem;
+    background: rgba(232, 196, 139, .028);
+  }
+  .m-card.is-settled { opacity: .7; }
+  .m-kind { font-family: var(--pm-mono); font-size: var(--civic-label, .7rem); letter-spacing: .12em; text-transform: uppercase; opacity: .62; margin: 0; }
+  .m-title { font-size: var(--civic-body, .9rem); line-height: 1.45; margin: 0; color: var(--pm-gold-bright); font-weight: 400; }
+  .m-what { font-size: var(--civic-body, .9rem); line-height: 1.6; opacity: .82; margin: 0; }
+  .m-money { font-size: var(--civic-body, .9rem); margin: 0; font-variant-numeric: tabular-nums; }
+  .m-bar-wrap { margin: 0; }
+  .m-bar { height: .4rem; border-radius: 999px; background: rgba(128,128,128,.25); overflow: hidden; }
+  .m-bar.is-pot-bar i { display: block; height: 100%; border-radius: 999px; }
+  .m-barlab { font-size: var(--civic-body, .9rem); margin: .5rem 0 0; font-variant-numeric: tabular-nums; }
+  .m-roll { font-size: var(--civic-body, .9rem); margin: 0; line-height: 1.7; }
+  .m-roll a { color: inherit; }
+  .m-gift { font-style: italic; opacity: .8; }
+  .m-patron { white-space: nowrap; }
+  .m-dim { opacity: .6; }
+  .m-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin: .1rem 0 0; font-size: var(--civic-body, .9rem); }
+  .m-chip {
+    font-family: var(--pm-mono); font-size: var(--civic-label, .7rem); padding: .25em .7em; border-radius: 999px;
+    border: 1px solid rgba(232, 196, 139, .3); color: var(--pm-gold-bright);
+    max-width: 100%; overflow-wrap: anywhere;
+  }
+  .m-chip.is-stamp { white-space: nowrap; border-color: rgba(var(--pm-stamp-rgb), 0.4); color: var(--pm-stamp-bright); }
+  .m-u { opacity: 0.7; margin-left: 0.08em; }
+  .m-fund { margin-left: auto; color: var(--pm-gold-bright); text-decoration: none; border-bottom: 1px solid rgba(232,196,139,.4); }
+  .m-fund:hover { border-bottom-color: var(--pm-gold-bright); }
+  .m-none {
+    display: block; padding: 1.2rem 1.3rem; border: 1px dotted rgba(128,128,128,.5); border-radius: .5rem;
+    font-size: var(--civic-body, .9rem); line-height: 1.65;
+  }
+  .m-none.is-warn { border-style: solid; border-color: rgba(232, 196, 139, .45); }
+  .m-none b { display: block; color: var(--pm-gold-bright); margin-bottom: .35rem; }
+  .m-none span { opacity: .78; }
+  .m-none ul { margin: .6rem 0 0; font-size: var(--civic-body, .9rem); opacity: .75; }
+</style>
