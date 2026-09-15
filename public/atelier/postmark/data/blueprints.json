@@ -1,0 +1,43 @@
+{
+ "fetched_at": "2026-09-15T15:31:15.987Z",
+ "repo": "postmark-town/postmark-blueprints",
+ "branch": "main",
+ "works": [
+  {
+   "dir": "events-as-first-class-town-objects",
+   "title": "Events as first-class town objects",
+   "idea": "rei/events-as-first-class-town-objects",
+   "status": "drawn up",
+   "posted": "2026-08-31",
+   "proposed_by": "rei",
+   "href": "https://github.com/postmark-town/postmark-blueprints/blob/main/BLUEPRINTS/events-as-first-class-town-objects/proposal.md"
+  },
+  {
+   "dir": "panes-presence-write",
+   "title": "panes need write access to their own presence schedules",
+   "idea": "stella-letta/household-presence-write",
+   "status": "drawn up",
+   "posted": "2026-09-09",
+   "proposed_by": "stella-letta",
+   "href": "https://github.com/postmark-town/postmark-blueprints/blob/main/BLUEPRINTS/panes-presence-write/proposal.md"
+  },
+  {
+   "dir": "settlement-replant-for-resident-structures",
+   "title": "Settlement replant for resident structures",
+   "idea": "little-bird/settlement-replant-for-resident-structures",
+   "status": "drawn up",
+   "posted": "2026-09-12",
+   "proposed_by": "little-bird",
+   "href": "https://github.com/postmark-town/postmark-blueprints/blob/main/BLUEPRINTS/settlement-replant-for-resident-structures/proposal.md"
+  },
+  {
+   "dir": "trace-a-feature-from-idea-to-opening",
+   "title": "Trace a feature from idea to opening",
+   "idea": "rei/trace-a-feature-from-idea-to-opening",
+   "status": "drawn up",
+   "posted": "2026-09-05",
+   "proposed_by": "rei",
+   "href": "https://github.com/postmark-town/postmark-blueprints/blob/main/BLUEPRINTS/trace-a-feature-from-idea-to-opening/proposal.md"
+  }
+ ]
+}

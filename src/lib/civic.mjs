@@ -25,6 +25,8 @@ import { dirname, join } from "node:path";
 import { loadWorldState, BOARD_PLACE } from "./board.mjs";
 import { floorPinFrom } from "../../tools/lib/world-pin.mjs";
 
+import { readFileSync as readDataFile } from "node:fs";
+import { join as joinPath } from "node:path";
 export { loadWorldState, BOARD_PLACE };
 
 // ── WHEN THIS WORLD WAS READ ─────────────────────────────────────────────────
@@ -536,6 +538,59 @@ export const TITLE_MAX = 150;
 // The blueprints chest — where a drawn idea becomes a proposal.
 export const BLUEPRINTS_REPO = "https://github.com/postmark-town/postmark-blueprints";
 
+// ── THE IDEA LIFECYCLE'S ROAD, in the chest's own order ─────────────────────
+// (postmark-blueprints README § The Idea Lifecycle; the lifecycle doc.) The
+// words are the chest's `status:` words, lower-cased. A stage word the chest
+// has not taught this list yet still groups — under its own word, after these.
+export const STAGES = ["proposed", "drawn up", "subscribed", "declared", "ground broken", "topped out", "passed inspection", "open"];
+export function stageOf(word) {
+  const w = String(word ?? "").trim().toLowerCase().replace(/[\s_-]+/g, " ");
+  return w || "proposed";
+}
+
+// The chest as this build fetched it (tools/fetch-town.mjs → blueprints.json),
+// read the way funding.mjs reads its emissions: the module's own neighbourhood
+// first (node --test), then the project root the astro build runs from. A
+// chest this build could not read is `null`, and every idea is then proposed —
+// the same fail-soft the page keeps for an unreadable escrow ledger.
+export function loadBlueprints({ path = null } = {}) {
+  const candidates = path
+    ? [path]
+    : [new URL("../data/postmark/blueprints.json", import.meta.url),
+       joinPath(process.cwd(), "src", "data", "postmark", "blueprints.json")];
+  for (const c of candidates) {
+    try { return JSON.parse(readDataFile(c, "utf8")); } catch { /* try the next */ }
+  }
+  return null;
+}
+
+// idea mark id → the work that cites it. THE CHEST CITES THE IDEA (INDEX.md:
+// "a directory citing its idea (`idea: <by>/<slug>`)"), so this is the only
+// direction the join can run.
+export function blueprintIndex(chest) {
+  const index = new Map();
+  for (const w of Array.isArray(chest?.works) ? chest.works : []) if (w?.idea) index.set(String(w.idea), w);
+  return index;
+}
+
+// The lane split by stage, in the road's order, one group per stage that has
+// ideas and none for a stage that has none (Keemin, 2026-09-15: "split the
+// ideas into lifecycle stage visually on the site, if ideas in that stage
+// exist"). Inside a group the rows keep the order they arrived in — the
+// stamp-backed order `ideas()` sorted them into.
+export function byStage(rows) {
+  const groups = new Map();
+  for (const i of Array.isArray(rows) ? rows : []) {
+    const s = stageOf(i?.stage);
+    if (!groups.has(s)) groups.set(s, []);
+    groups.get(s).push(i);
+  }
+  const rank = (s) => { const k = STAGES.indexOf(s); return k === -1 ? STAGES.length : k; };
+  return [...groups.entries()]
+    .sort((a, b) => rank(a[0]) - rank(b[0]) || a[0].localeCompare(b[0]))
+    .map(([stage, ideas]) => ({ stage, ideas }));
+}
+
 // ── AN IDEA MAY STAND ANYWHERE ───────────────────────────────────────────────
 // FOUNDER-RULED 2026-09-01, and it is a change of ontology rather than of
 // filter: **class says what a mark is; the Think Tank is where ideas are read,
@@ -603,7 +658,7 @@ export function placeName(id) {
   return slug ? slug.replace(/-/g, " ") : null;
 }
 
-export function toIdea(mark) {
+export function toIdea(mark, { chest = null } = {}) {
   // THE BODY IS THE CLAIM. LOGOS/classes.md § idea: "the resident publishes with
   // their own hand in the Think Tank; one call, no git, THE BODY IS THE CLAIM" —
   // and the town door's post card says the same (body ≤150 chars, placement
@@ -617,18 +672,31 @@ export function toIdea(mark) {
   if (title.length > TITLE_MAX) {
     return { ok: false, id: mark.id, reason: `claim is ${title.length} chars (max ${TITLE_MAX})` };
   }
-  // A blueprint slug is the idea's half of the chest. It is optional: an idea
-  // may stand in the world before anyone has drawn it, which is the whole point
-  // of a first breath.
-  const slug = String(mark.blueprint ?? "").trim() || null;
+  // THE CHEST CITES THE IDEA, not the other way round (the chest's own law,
+  // INDEX.md: "a directory citing its idea (`idea: <by>/<slug>`)"; the
+  // lifecycle doc § 2). This reader asked the IDEA mark for a `blueprint:`
+  // slug, which nothing writes, so every drawn idea in town read "not drawn
+  // yet" — four works in the chest, twenty-two cards saying nobody had drawn
+  // anything (Keemin, 2026-09-15, POS-97). The join runs the only way it can:
+  // the mark's id against the chest's `idea:` field. A `blueprint:` field on
+  // the mark, should any hand ever write one, still counts. Optional either
+  // way: an idea may stand in the world before anyone has drawn it, which is
+  // the whole point of a first breath.
+  const work = chest?.get?.(mark.id) ?? null;
+  const ownSlug = String(mark.blueprint ?? "").trim() || null;
+  const slug = work ? work.dir : ownSlug;
+  // THE STAGE IS THE CHEST'S WORD for a drawn idea (INDEX.md: "the work's own
+  // proposal.md is the truth"); an undrawn idea is proposed, whatever a hand
+  // may have typed on the mark.
+  const stage = work ? stageOf(work.status ?? "drawn up") : ownSlug ? "drawn up" : "proposed";
   return {
     ok: true,
     id: mark.id,
     title,
     slug,
-    href: slug ? `${BLUEPRINTS_REPO}/blob/main/BLUEPRINTS/${slug}` : null,
+    href: work ? work.href : slug ? `${BLUEPRINTS_REPO}/blob/main/BLUEPRINTS/${slug}` : null,
     by: mark.by ?? mark.household ?? null,
-    stage: String(mark.stage ?? "").trim() || null,
+    stage,
     date: String(mark.date ?? "").slice(0, 10) || null,
     // THE CLAIM IS SHOWN ONCE. With the body being the claim (the hotfix above),
     // an idea written the way the door writes it — no title field at all — made
@@ -670,11 +738,11 @@ export function toIdea(mark) {
 // change: `placementParent ?? parent` is the mark it is an idea OF, and that is
 // the same question "where does this stand" asks of a sited one. Same line,
 // same wording, by construction rather than by a second branch.
-export function ideas(state, { place = THINK_TANK_PLACE, places = null, stakes = null } = {}) {
+export function ideas(state, { place = THINK_TANK_PLACE, places = null, stakes = null, chest = null } = {}) {
   const marks = Array.isArray(state?.marks) ? state.marks : [];
   const ok = [], malformed = [];
   for (const m of marks.filter(isIdea)) {
-    const i = toIdea(m);
+    const i = toIdea(m, { chest });
     const parent = m.placementParent ?? m.parent ?? null;
     const standingAt = parent && parent !== place ? placeName(parent) : null;
     if (i.ok) ok.push({ ...i, standingAt, ...stakeOf(i.id, stakes) }); else malformed.push(i);

@@ -8,7 +8,7 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildOfficeData, jsonText } from "./lib/fetch-town-data.mjs";
+import { buildOfficeData, fetchBlueprints, jsonText } from "./lib/fetch-town-data.mjs";
 import { worldPin } from "./lib/world-pin-publish.mjs";
 import { writeIfChanged } from "./lib/mirror.mjs";
 
@@ -55,6 +55,7 @@ function writeManifest(asOf, endpointGaps) {
       "meeps.json": "the town's working Meeps, checkout-coupled when a town checkout is supplied",
       "bulletin.json": "the town bulletin, full text",
       "docs.json": "last committed docs snapshot until the office exposes town docs",
+      "blueprints.json": "the drawing chest (postmark-town/postmark-blueprints, BLUEPRINTS/*/proposal.md frontmatter): each drawn work, the idea mark it cites, and its stage on the Idea Lifecycle",
       "media.json": "town image paths -> processed site copies, owned by extract-town.mjs",
       "pin.json": "the postmark-world sha this site is pinned to, what it was built against, and when — the one fact the office cannot derive about the site (Lane A's A8)",
       "doorstep/<handle>.json": "the office's own doorstep for that resident, mirrored verbatim, plus this site's named additions under `site.sources` (PR states above all — the office's `moved.prs` line points here for them)",
@@ -74,6 +75,16 @@ try {
   }
   const result = await buildOfficeData({ apiBase: API, dataDir: DATA_DIR, townRoot: TOWN });
   for (const [name, value] of Object.entries(result.files)) writeDataFile(name, value);
+  // ── THE DRAWING CHEST (POS-97, 2026-09-15) ────────────────────────────────
+  // The Think Tank's "drawn" is a join against the chest's own citation (the
+  // `idea:` line in each work's proposal.md), so the chest is read here beside
+  // the office's data and lands as one more snapshot file. Fail-soft like the
+  // rest: a chest that cannot be read keeps the committed blueprints.json.
+  try {
+    writeDataFile("blueprints.json", await fetchBlueprints());
+  } catch (error) {
+    console.warn(`WARN fetch-town: the blueprints chest could not be read; keeping the committed snapshot (${error.message})`);
+  }
   // ── THE SITE SAYS WHAT WORLD IT IS PINNED TO (Lane A's A8, 2026-09-07) ────
   // The office's focus receipt carries `site_pin` and cannot fill it: it holds
   // no clone of this repo. One line, at a path already built and already

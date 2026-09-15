@@ -68,7 +68,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { FOUNDER_ACCOUNT } from "../src/lib/funding.mjs";
 import { allEntries } from "../src/lib/nav.mjs";
-import { DEFAULT_LANE } from "../src/lib/civic.mjs";
+import { DEFAULT_LANE, STAGES } from "../src/lib/civic.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 
@@ -1438,6 +1438,13 @@ test("RULE 3: labels name, they don't narrate", () => {
     .map((m) => flat(m[1]).trim());
   assert.ok(labels.length >= 6, `only ${labels.length} labels found — the selector has drifted off the page`);
   for (const label of labels) {
+    // THE ONE EXPRESSION A LABEL MAY RENDER (2026-09-15, POS-97): the stage
+    // word of the Idea Lifecycle, from the chest's own vocabulary — a name of
+    // two or three words, nouns ("proposed", "drawn up", "passed inspection"),
+    // never a figure. The group's count went to title=, exactly as the rule
+    // says a qualifier does. Pinned to this one spelling so no second
+    // expression rides in under it; the vocabulary itself is asserted below.
+    if (label === "{g.stage}") continue;
     const words = label.split(/\s+/).filter(Boolean);
     assert.ok(words.length <= 3,
       `the label "${label}" is ${words.length} words — two or three, nouns`);
@@ -1447,6 +1454,11 @@ test("RULE 3: labels name, they don't narrate", () => {
     // exactly what the as-of spans and the completions count were
     assert.equal(/[{}]/.test(label), false,
       `the label "${label}" renders a value — a label names, it does not report`);
+  }
+  // the stage vocabulary the one allowed expression can print, measured by the
+  // same rule: two or three words, no qualifier
+  for (const s of STAGES) {
+    assert.ok(s.split(/\s+/).length <= 3 && !/[—·:]/.test(s), `the stage word "${s}" would break this rule as a label`);
   }
 
   // THE SIX HE NAMED, by the clause that made each one a sentence. Kept beside
