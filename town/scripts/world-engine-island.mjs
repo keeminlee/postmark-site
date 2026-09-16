@@ -20,6 +20,10 @@ import { fileURLToPath } from "node:url";
 import { houseName } from "../../src/lib/houses.mjs";
 import { REPLAY_DIR, replayFiles } from "./replay-record.mjs";
 import { recordsToStage, stagingComplaints, stagingFailure } from "../../tools/lib/world-staging.mjs";
+import {
+  importClosure, moduleEntryPaths, noEntryFailure, preloadTags,
+  sameOriginDemands, unstagedModuleFailure,
+} from "../../tools/lib/world-preload.mjs";
 
 const META_PATH = "/world-engine/residents-meta.json";
 
@@ -94,6 +98,18 @@ function recordReaders(pkg, projectRoot) {
     const abs = join(projectRoot, dir);
     if (existsSync(abs)) readSources(abs, projectRoot, readers);
   }
+  return readers;
+}
+
+/** the readers above, plus the spectator SHELL this town serves verbatim
+ *  (world.astro emits `postmark-world/spectator/index.html` raw), which is where
+ *  the browser is told which module to import. Hints only: the shell names no
+ *  record, so the staging demand is unchanged by its presence or absence. */
+function hintReaders(pkg, projectRoot) {
+  const readers = recordReaders(pkg, projectRoot);
+  const shell = join(pkg, "spectator", "index.html");
+  if (existsSync(shell))
+    readers.unshift({ name: "postmark-world/spectator/index.html", text: readFileSync(shell, "utf8") });
   return readers;
 }
 
@@ -227,13 +243,12 @@ function stage(pkg, dest, projectRoot) {
   return files;
 }
 
-// THE REPLAY FRAMES ARE NOT HINTED, and this is the one exception the blanket
-// rules below carry. Every crossing's frame is a staged .json, so "hint every
-// staged .json" quietly meant one preload per crossing that has ever happened —
-// a list that grows by two a day and is never revisited. Measured on prod
-// 2026-09-12: 68 links, 810 KB gzipped pulled down on EVERY /world/ load, more
-// than the fold (/WORLD/world-state.json) itself, for a surface almost no
-// reader opens; the largest single frame was 109 KB.
+// THE REPLAY FRAMES ARE NOT HINTED, and it is the one exclusion the derived
+// rules cannot reach. Every crossing's frame is a staged .json and the replay
+// INDEX is named as a literal by the page, so a rule that reads demand off the
+// source would hint it. Measured on prod 2026-09-12: 68 links, 810 KB gzipped
+// pulled down on EVERY /world/ load, more than the fold itself, for a surface
+// almost no reader opens; the largest single frame was 109 KB.
 //
 // Nothing was ever waiting on that warm cache. The page fetches
 // /world-engine/replay/<n>.json when a crossing is actually chosen and
@@ -242,32 +257,57 @@ function stage(pkg, dest, projectRoot) {
 // a preload entry or a readiness signal (town/pages/world.astro). So the hints
 // only ever paid on a `?crossing=` arrival, and were pure cost on every other
 // load. Removed on Keemin's ruling, 2026-09-12: "let's not preload replays."
-const hintedFetch = (publicPath) =>
-  extname(publicPath) === ".json" && !publicPath.startsWith(`${REPLAY_DIR}/`);
+const isReplayFrame = (publicPath) => publicPath.startsWith(`${REPLAY_DIR}/`);
 
-/** The world page's hint chain, as tags, in emitted order. Pure and exported so
- *  the rule above can be falsified without standing up a build. */
-export function worldPreloadHints(files) {
-  const modulePaths = files
-    .filter((file) => extname(file.publicPath) === ".mjs")
-    .map((file) => file.publicPath);
-  const fetchPaths = [
-    ...files.filter((file) => hintedFetch(file.publicPath)).map((file) => file.publicPath),
-    "/atlas/town.html",
-  ];
-  return [
-    ...modulePaths.map((href) => `<link rel="modulepreload" href="${href}">`),
-    ...fetchPaths.map((href) => `<link rel="preload" as="fetch" href="${href}" crossorigin>`),
-  ];
+/**
+ * THE WORLD PAGE'S HINT CHAIN, as tags, in emitted order.
+ *
+ * Until 2026-09-16 this hinted the STAGING WALK: every staged .mjs and every
+ * staged .json, plus /atlas/town.html by hand. Staging answers "what must this
+ * origin be able to serve"; a hint answers "what will the browser ask for in a
+ * moment". Answering the second with the first cost every reader about 2.2 MB
+ * per load that nothing read — 41 engine modules the viewer never imports, the
+ * 0.93 MB fold it reads from the office instead, a 0.45 MB atlas drawing it
+ * stopped reading, a 0.07 MB publications file nothing reads at all. The
+ * browser said so on every load, four "preloaded but not used" warnings deep.
+ *
+ * Both halves are DERIVED now, and `tools/lib/world-preload.mjs` carries the
+ * reasoning. Pure: `sources` (the readers' text) and `readModule` (a staged
+ * module's text) are the only seams that touch a disk, so the chain can be
+ * falsified without standing up a build.
+ */
+export function worldPreloadHints(files, { sources, readModule }) {
+  const entries = moduleEntryPaths(sources).map((entry) => entry.path);
+  if (!entries.length) throw noEntryFailure();
+  const staged = new Set(files.map((file) => file.publicPath));
+  const { closure, unstaged } = importClosure({
+    entries,
+    readModule: (publicPath) => (staged.has(publicPath) ? readModule(publicPath) : null),
+  });
+  // a module the browser WILL import that this build did not stage is a 404 at
+  // import time behind a green build — the failure this file has now had twice
+  if (unstaged.length) throw unstagedModuleFailure(unstaged);
+  const records = sameOriginDemands(sources)
+    .map((demand) => demand.path)
+    .filter((path) => !isReplayFrame(path));
+  return preloadTags({ files, modules: closure, records });
 }
 
-function emitWorldPreloads(dest, files) {
+function emitWorldPreloads(dest, files, pkg, projectRoot) {
   const page = join(dest, "world", "index.html");
   if (!existsSync(page)) {
     console.warn("[world-engine-island] built world page missing — preload chain was not emitted.");
     return 0;
   }
-  const hints = worldPreloadHints(files);
+  // the staged module's own text, by public path — the closure walk's one seam
+  const sourceOf = new Map(files.filter((file) => file.source).map((file) => [file.publicPath, file.source]));
+  const hints = worldPreloadHints(files, {
+    sources: hintReaders(pkg, projectRoot),
+    readModule: (publicPath) => {
+      const source = sourceOf.get(publicPath);
+      return source ? readFileSync(source, "utf8") : null;
+    },
+  });
   const html = readFileSync(page, "utf8");
   if (!/<\/head>/i.test(html)) {
     console.warn("[world-engine-island] built world page has no </head> — preload chain was not emitted.");
@@ -343,7 +383,7 @@ export default function worldEngineIsland() {
         const dest = fileURLToPath(dir);
         const files = stage(pkg, dest, projectRoot);
         if (files.length) {
-          const hintCount = emitWorldPreloads(dest, files);
+          const hintCount = emitWorldPreloads(dest, files, pkg, projectRoot);
           console.log(`[world-engine-island] staged ${files.length} files and emitted ${hintCount} world preloads → dist/`);
         }
       },
