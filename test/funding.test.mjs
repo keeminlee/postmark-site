@@ -184,13 +184,41 @@ test("the holo cap is the law's formula, not a stored number", () => {
   // So this test asserts the FORMULA and reads ρ from the dial. A hard-coded cap
   // here would be a second dial, and it would go red on a lawful ballot instead
   // of on a bug — which is the failure this whole alignment pass exists to fix.
+  //
+  // AMENDED 2026-09-17, and the base is what moved. This asserted
+  // `floor(ρ × primaryMint)` under the words "ρ × what the town has minted" —
+  // true while holo sat outside the mint. The founder: "funding minted stamps
+  // contribute to the max stamps you can get from another fund. it compounds by
+  // design." So the base is the ALL-SOURCES mint, which `readEconomy` now
+  // returns as `capBase` beside the cap it produced — a cap nobody can check is
+  // not a cap. The formula-not-a-constant discipline is unchanged: ρ and every
+  // term still come off the fixture.
   const e = readEconomy(ECONOMY_FIXTURE);
-  assert.equal(e.holoCap, Math.floor(e.rho * e.primaryMint), "ρ × what the town has minted");
+  assert.equal(e.capBase, e.primaryMint + e.holoIssued,
+    "the base is primary + holo (keeping mint is retired and reads 0) — leaving holo out is the repealed law");
+  assert.equal(e.holoCap, Math.floor(e.rho * e.capBase), "ρ × the town's mint from every source");
+  assert.notEqual(e.holoCap, Math.floor(e.rho * e.primaryMint),
+    "and the old narrower base is a different number here, so this assertion can actually fail");
   assert.equal(e.overCap, false);
-  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.holoCap + 1 }).overCap, true);
+  // ⚠ AND THE OVER-CAP PROBE HAD TO MOVE, which is a fact about the gauge and
+  // not about this test. It used to set `holo_issued = holoCap + 1` and expect
+  // `overCap`. That cannot work now: holo is inside its own base, so nudging
+  // holo up raises the cap with it. The town-wide condition solves to
+  // holo > ρ/(1−ρ) × primary, and at the launch dial ρ = 0.5 that is exactly
+  // holo > primary — i.e. "money's share of the town may not pass ρ", which is
+  // the constitutional sentence stated exactly ("money can come to own up to
+  // half of Postmark; it can never own more"). The OLD base capped money's share
+  // at ρ/(1+ρ) = 0.333, stricter than the constitution ever claimed. So the
+  // compounding base reads the ceiling MORE truly, not less.
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.holoCap + 1 }).overCap, false,
+    "one past the cap no longer trips it — the cap moved up with the input, and a probe that cannot fire is worth saying out loud");
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.primaryMint + 1 }).overCap, true,
+    "what DOES trip it at ρ = 0.5: holo past primary mint, which is money past half the town");
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.primaryMint }).overCap, false,
+    "and exactly half is lawful — the ceiling is inclusive, as the founder's word has it");
   // and the cap MOVES with the dial — the proof it is derived, not stored
   const halved = readEconomy({ ...ECONOMY_FIXTURE, rho: e.rho / 2 });
-  assert.equal(halved.holoCap, Math.floor((e.rho / 2) * e.primaryMint));
+  assert.equal(halved.holoCap, Math.floor((e.rho / 2) * e.capBase));
   assert.notEqual(halved.holoCap, e.holoCap, "a stored cap would not have moved");
 });
 
