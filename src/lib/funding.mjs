@@ -1,6 +1,9 @@
 // funding.mjs — the funding seam's reader: pots, deeds, and the town's numbers.
 //
-// Real dollars keep the town's lights on without ever buying judgment. The
+// Real dollars keep the town's lights on, and what they buy is bounded by an
+// amount rather than by a verb: since 2026-09-17 the stamps a gift mints do
+// everything a stamp does — they stake, they vote, they pay — and rho caps
+// money's share of a household. The
 // ledger lane (branch seam/ledger-legs) owns the law; this file owns the
 // READING of it, once, so the pages stay presentation.
 //

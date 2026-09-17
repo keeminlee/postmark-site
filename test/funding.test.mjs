@@ -16,7 +16,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import {
   DEEDS_FIXTURE,
   FOUNDER_ACCOUNT,
@@ -848,6 +848,22 @@ test("no built page teaches the expansion twice in flowing prose", { skip: !buil
 // were found at all.
 //
 // HOW TO FLIP IT RED: put "soulbound" back anywhere a built page renders.
+// WIDENED 2026-09-17 (the founder, verbatim): "holo does anything a normal
+// stamp can; staking vs voting is a nondistiction." The first ruling of the day
+// repealed non-spendable; this one repealed the voice half, and the voice
+// sentences were on DIFFERENT pages from the spendable ones -- the fund page's
+// money-moment disclosure, its fine-print law bullet, the stamps page's seam
+// pull quote and its ECONOMY.md quote block. The list below is the union, and
+// that is the point: one sweep per ruling leaves the other ruling's pages
+// standing.
+//
+// NOT ON THIS LIST, DELIBERATELY: "join the judgment". The town's own
+// JOINING.md still carries "Money can join the ownership; it can never join the
+// judgment", and /stamps/ quotes it inside a blockquote WITH ITS CITATION. The
+// quote is faithful to its source, so a probe that reddened on it would be
+// asking this repo to fork a quote rather than asking the town to amend the
+// line. The phrase joins this list the day JOINING.md is amended, and this
+// paragraph is the standing note of that gap.
 const REPEALED = [
   "soulbound",                  // the word itself, on any surface
   "never spent as postage",     // HOLO_NAME_LINE's old closing clause
@@ -855,6 +871,13 @@ const REPEALED = [
   "no verbs",                   // the numbers footer
   "a memory, never money",      // the stamps page's seam card
   "excluded from every tally",  // the glossary entry
+  "never voice",                // the money-moment disclosure, on every fund page
+  "does not vote",              // any surface that withholds the ballot
+  "referred to the founder",    // the citation sweep's own referral language
+  "equity cannot vote",         // the ECONOMY.md quote block on /stamps/
+  "buys no say",                // the fund pages' law line and the hub footer
+  "never the judgment",         // the fine print's folk-law bullet
+  "a vote, or a say",           // the seam section's opening paragraph
 ];
 
 test("NOT ONE built page still teaches the repealed law", { skip: !built }, () => {
@@ -879,6 +902,30 @@ test("and the ruling's own rule IS on the pages that teach the word", { skip: !b
     assert.match(html, /liquid like any stamp/,
       `/${rel[0]}/ teaches holo and must carry the ruling's rule`);
   }
+});
+
+test("and the VOICE half is on the pages too, not merely absent", { skip: !built }, () => {
+  // The same discipline for the second ruling of 2026-09-17 ("holo does anything
+  // a normal stamp can; staking vs voting is a nondistiction"). Deleting the
+  // repealed sentences satisfies the sweep above by saying NOTHING, which is the
+  // failure mode that sweep was written to avoid in the first place. So: the
+  // money moment must state the vote AND the bound, because a patron told their
+  // stamps vote and not told their share is capped has been told half the truth.
+  // Path-separator-agnostic on purpose: everyBuiltPage() joins with the
+  // platform's separator, and a regex written with one of them reads zero pages
+  // on the other — a filter that returns nothing passes every for-loop after it
+  // in silence. The length assertion below is what makes that impossible.
+  const fundPages = everyBuiltPage()
+    .map((p) => ({ p, rel: p.slice(DIST.length).split(sep).join("/") }))
+    .filter((x) => /^fund\/[^/]+\/index\.html$/.test(x.rel));
+  assert.ok(fundPages.length > 0, "this law is reading nothing — no built fund page found");
+  for (const { p, rel } of fundPages) {
+    const html = readFileSync(p, "utf8");
+    assert.match(html, /including vote/, `/${rel} is a money moment and must say the stamps vote`);
+    assert.match(html, /is capped/, `/${rel} states the vote and must state the bound in the same breath`);
+  }
+  const stamps = readFileSync(join(DIST, "stamps", "index.html"), "utf8");
+  assert.match(stamps, /cap on money/, "the Rules name what bounds money, now that no verb does");
 });
 
 test("the glossary's holo entry says what the name is short for", { skip: !built }, () => {
