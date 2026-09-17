@@ -717,11 +717,19 @@ test("THE DEADLINE, not the count, is what ends a refusal", async () => {
   const now = () => clock;
   const sleep = (ms) => { clock += ms; return Promise.resolve(); };
   const gate = createRateGate({ now, sleep, budgetMs: 20_000 });
-  const fetchImpl = async () => ({
-    ok: false, status: 429, statusText: "Too Many Requests",
-    headers: { get: (k) => (k === "retry-after" ? "1" : null) },
-    json: async () => ({}),
-  });
+  // The request itself costs 5 ms of the virtual clock. Without that, this test
+  // reaches its deadline ONLY through the gate's own park -- so a flip that
+  // breaks the park makes this test hang instead of fail, and a test that hangs
+  // is not a falsifier. The clock must advance for the same reason a real one
+  // does: a request takes time whether or not anything waits for it.
+  const fetchImpl = async () => {
+    clock += 5;
+    return {
+      ok: false, status: 429, statusText: "Too Many Requests",
+      headers: { get: (k) => (k === "retry-after" ? "1" : null) },
+      json: async () => ({}),
+    };
+  };
   await assert.rejects(
     () => apiGet("/residents/spar", { apiBase: "https://example.test", fetchImpl, retries: 3, gate }),
     /refused: the run's 20000 ms fetch budget is spent after \d+ refusal/,
@@ -733,7 +741,7 @@ test("a NON-429 failure still keeps its three tries, gate or no gate", async () 
   let clock = 0;
   const gate = createRateGate({ now: () => clock, sleep: (ms) => { clock += ms; return Promise.resolve(); }, budgetMs: 180_000 });
   let calls = 0;
-  const fetchImpl = async () => { calls += 1; throw new Error("socket hang up"); };
+  const fetchImpl = async () => { calls += 1; clock += 5; throw new Error("socket hang up"); };
   await assert.rejects(
     () => apiGet("/town", { apiBase: "https://example.test", fetchImpl, retries: 3, gate }),
     /failed after 3 attempts/,
