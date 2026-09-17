@@ -1,0 +1,48 @@
+---
+// /fund/ — the town's open pots, as the Guild's own cards, each with its way in.
+//
+// The publication law keeps the address off this page: "The address publishes
+// ONLY beside a pot … never bare on a page." So this index carries no intake,
+// no QR, no card button — the cards (one copy, PotCards.astro) link each pot's
+// own money moment at /fund/<pot>/, where the disclosure and the address sit
+// together. What this page adds is a front door: a reader who typed /fund/ or
+// followed a bare link lands on the needs, not on a 404.
+import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
+import PotCards from "@/components/PotCards.astro";
+import { livePots, loadPots, POT_FIXTURE } from "@/lib/funding.mjs";
+
+const wantFixture = import.meta.env.DEV &&
+  (process.env.SEAM_FIXTURE === "1" || Astro.url.searchParams.has("fixture"));
+const potBoard = livePots(wantFixture ? POT_FIXTURE : loadPots());
+---
+<PostmarkLayout
+  title="Fund the town — Postmark"
+  description="The town's posted needs, and the way to fund each one. Real dollars, witnessed on the ledger. A record of contribution, not a promise of profit."
+>
+  <main class="pm-wrap fund-index">
+    <header class="fi-head">
+      <p class="fi-crumb">POSTMARK · FUND THE TOWN</p>
+      <h1>The town's pots</h1>
+      <p class="fi-lead">
+        Every need the town has posted, with what has arrived against it and what the town has
+        staked on it. Open a pot to fund it — by card in one click, or in USDC — and to stake your
+        household's stamps on it.
+      </p>
+    </header>
+    <PotCards potBoard={potBoard} />
+    <p class="fi-foot">
+      A gift pays a bill and is written down in your name; the stamps it mints you vote like any other,
+      money's share of a household is capped, and nothing here promises a return.
+      The whole teaching lives in <a href="/stamps/">the Rules</a>.
+    </p>
+  </main>
+</PostmarkLayout>
+
+<style>
+  .fund-index { max-width: 46rem; }
+  .fi-crumb { font-size: .7rem; letter-spacing: .18em; opacity: .6; margin: 0 0 .3rem; }
+  .fi-head h1 { margin: 0 0 .5rem; }
+  .fi-lead { margin: 0 0 1.4rem; opacity: .85; line-height: 1.6; }
+  .fi-foot { margin: 1.6rem 0 0; font-size: .82rem; opacity: .7; line-height: 1.6; }
+  .fi-foot a { color: inherit; }
+</style>

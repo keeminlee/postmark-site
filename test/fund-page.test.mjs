@@ -95,10 +95,20 @@ test("every disclosure the money moment owes is on the page, verbatim", () => {
   // Keemin's word (seam night): every holo surface carries the caption.
   assert.ok(PAGE.includes("HOLO_LINE"), "the caption is the shared constant, never retyped");
   assert.equal(HOLO_LINE, "a record of contribution, not a promise of profit");
-  // the scope-extension's second sentence, exact
-  assert.match(PAGE, /This buys ownership and memory, never voice, and converts to real value only if the town someday does\./);
-  // the folk-law
-  assert.match(PAGE, /money can join the ownership, never the judgment/);
+  // The scope-extension's second sentence, exact. AMENDED 2026-09-17 at the
+  // founder's ruling ("holo does anything a normal stamp can; staking vs voting
+  // is a nondistiction"). It read "This buys ownership and memory, never voice,
+  // and converts to real value only if the town someday does." — the repealed
+  // law, in bold, at the money moment. The office ships the twin sentence
+  // (postmark-office src/funding.mjs § WHAT_THIS_BUYS) and they move together.
+  assert.match(PAGE, /This buys stamps that do everything a stamp does, including vote, plus ownership and memory; money's share of your household is capped, and it converts to real value only if the town someday does\./);
+  // and the bound is named in the same breath as the verb, which is the half a
+  // patron cannot be left to infer
+  assert.match(PAGE, /money's share of your household is capped/);
+  // the folk-law, amended with it: the exclusion moved from a verb to an amount
+  assert.match(PAGE, /Funding buys <em>a bounded say<\/em>/);
+  assert.equal(/money can join the ownership, never the judgment/.test(PAGE), false,
+    "the repealed folk-law must not survive on the money moment");
   // the irreversibility warning — the one a patron most needs before they send
   assert.match(PAGE, /not recoverable by the town/);
   assert.match(PAGE, /best effort only, never a promise/);
@@ -112,19 +122,29 @@ test("the consent line sits ABOVE the address, and the full terms below it", () 
   // the reader who clicked "Fund" wants what-this-is, then how-to-pay -- the
   // deep terms are theirs to open, not a wall before the money moment. What
   // survives the reshape is the gate's ORDER: one honest sentence -- written
-  // down in your name, no say, no promised return -- precedes the first
-  // copyable character,
+  // down in your name, what the stamps do, what bounds them, no promised return
+  // -- precedes the first copyable character,
   // and the full disclosures still live on this page, behind one click.
+  //
+  // AMENDED 2026-09-17: the honest sentence used to say the gift bought "no
+  // say". It now says the stamps stake, vote and pay, and that money's share of
+  // a household is capped. The ORDER this test exists for is untouched; only
+  // the sentence inside it moved.
   const law = PAGE.indexOf('class="f-law-line"');
   const addr = PAGE.indexOf('<code class="f-code"');
   const fine = PAGE.indexOf('id="fineprint"');
   assert.ok(law > 0 && addr > 0 && fine > 0);
   assert.ok(law < addr, "the consent line must precede the address in the document");
   assert.ok(fine > addr, "the fine print hangs below the money moment");
-  assert.ok(PAGE.indexOf("This buys ownership and memory", fine) > fine,
+  assert.ok(PAGE.indexOf("This buys stamps that do everything a stamp does", fine) > fine,
     "the full what-this-buys sentence lives in the fine print, verbatim");
   const consent = PAGE.slice(law, PAGE.indexOf("</section>", law));
-  assert.ok(consent.includes("no say"), "the consent line says it buys no say");
+  assert.ok(consent.includes("stake, vote and pay"),
+    "the consent line says what the stamps a gift mints actually do");
+  assert.ok(consent.includes("is capped"),
+    "and names the bound in the same breath — the verb without the amount is half the truth");
+  assert.equal(consent.includes("no say"), false,
+    "the repealed promise must not stand above the address");
   assert.ok(consent.includes("#fineprint"), "and points at the full terms");
 });
 
@@ -232,4 +252,23 @@ test('"never closes" is a claim the page may only make when the town said it', (
     "four arms: elastic, closes, said-never, and has-not-said");
   assert.ok(block.indexOf("This one never closes") < block.indexOf("is not in the town's record yet"),
     "and the humble arm is the LAST one — the fallthrough is the honest case, never the claim");
+});
+
+test("the stake island reads the act's answer inside the household door's envelope (postmark#2880)", () => {
+  // THE LAW THIS ASSERTS — postmark-office src/household-apex.mjs, the apex's
+  // last line: `return result?.error ? { ...result, ...done } : { ...done, result }`.
+  // A successful act's answer (applied, balance_after, reason, mode) rides
+  // INSIDE `result`; a bounce rides flat. The first cut of this island read the
+  // success fields at the top level, printed "nothing staked" over a stake that
+  // had landed (wright → stake:pot/darko-fund · 200, twice, 2026-09-17 07:45Z),
+  // and the founder staked twice. This pins the unwrap and the two reads.
+  const island = PAGE.slice(PAGE.indexOf("var box = document.querySelector(\"[data-stake]\")"));
+  assert.ok(island.length > 0, "the stake island is on the page");
+  assert.ok(island.includes('var a = j.result && typeof j.result === "object" ? j.result : j;'),
+    "the act's answer is read from result when the door wraps it, and from the top level when it does not");
+  for (const field of ["applied", "balance_after", "reason", "mode"])
+    assert.ok(island.includes("a." + field), `${field} is read off the unwrapped answer`);
+  assert.equal(island.includes("Number(j.applied"), false, "and never off the envelope");
+  // a bounce stays flat, and is read before any unwrap
+  assert.ok(island.indexOf("j.error") < island.indexOf("var a = j.result"), "the refusal is judged on the envelope, before the unwrap");
 });

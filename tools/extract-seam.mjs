@@ -304,13 +304,33 @@ export function seamFromTown({ mint, entries, potFiles, dial, asOf }) {
       // row exists in the grammar, this fold must subtract it or the backing
       // gauge starts overstating.
       treasury_usd: receipts.reduce((a, r) => a + r.usd, 0),
-      // Earned primary mint, ✦, town-wide — foldMintCount, exactly the field's
-      // name. NOTE for the reader's owner: R12 sets the ρ BASE wider than this
-      // ("holo cap base = earned primary mint + keeping mint"), so `keeping_mint`
-      // rides along below. readEconomy's holoCap is ρ × primary_mint_earned
-      // today; the two agree while keeping mint is 0, and diverge the first time
-      // a pot closes.
-      primary_mint_earned: sum(mint.foldMintCount(entries)),
+      // Earned primary mint, ✦, town-wide.
+      //
+      // ⚠ AMENDED 2026-09-17, AND THE FIELD'S NAME IS THE WHOLE PROBLEM. This
+      // read `sum(mint.foldMintCount(entries))` — which WAS "exactly the field's
+      // name" while holo sat outside the mint count. The founder repealed
+      // non-spendability ("non-spendable is repealed; the stamps are like any
+      // other, but are holo to signify the special source"), so after the town's
+      // close PR merges (postmark-town/postmark#2886) `foldMintCount` COUNTS
+      // HOLO and this field would silently start reporting primary + holo under
+      // a name that promises primary alone. That town PR adds `foldPrimaryMint`
+      // for exactly this reader.
+      //
+      // GUARDED, so this file is correct on both sides of that merge: take
+      // `foldPrimaryMint` when the checkout has it, `foldMintCount` when it does
+      // not. Before the merge they are the same number (an arrow-free holo row
+      // is invisible to `foldMintCount`); after it, only the guarded call is the
+      // field's own meaning.
+      //
+      // AND THE EMISSION SAYS WHICH FOLD ANSWERED. Without that, `readEconomy`
+      // cannot know whether `primary_mint_earned` already carries holo, and the
+      // one case where it does — a checkout past the merge that somehow lacks
+      // the new export — is exactly where adding `holo_issued` to the cap base
+      // would count holo TWICE. A fallback that can silently double a number is
+      // the defect this sweep spent the day finding elsewhere; one field of
+      // provenance retires it here.
+      primary_mint_earned: sum((mint.foldPrimaryMint ?? mint.foldMintCount)(entries)),
+      primary_mint_fold: mint.foldPrimaryMint ? "foldPrimaryMint" : "foldMintCount",
       keeping_mint: sum(mint.foldKeepingMint(entries)),
       holo_issued: sum(mint.foldHolo(entries)),
     };

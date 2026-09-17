@@ -5,7 +5,8 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 
-import { apiGet, buildOfficeData, fetchResidentRoll, jsonText } from "../tools/lib/fetch-town-data.mjs";
+import { apiGet, buildOfficeData, createRateGate, DEFAULT_FETCH_TOWN_DEADLINE_MS, fetchResidentRoll, fetchTownDeadlineMs, jsonText, mapLimit, RESIDENT_CARD_LANES, shortFetchPlan } from "../tools/lib/fetch-town-data.mjs";
+import { readFileSync } from "node:fs";
 
 function writeJson(dir, name, value) {
   mkdirSync(dir, { recursive: true });
@@ -540,4 +541,259 @@ test("a roll that walks short of the door's own total refuses the build", async 
     fetchResidentRoll({ apiBase: "https://example.test", fetchImpl: lying }),
     /walked 2 of 7 residents/,
   );
+});
+
+// ── THE ROLL THAT FROZE AT 134 (postmark#2730, 2026-09-13) ─────────────────
+//
+// The office's keyless bucket is a burst of 240 refilling at 120 a minute per
+// caller. The build asked for every resident card in one instant, the tail was
+// refused with 429, apiGet retried 250 ms later into the same empty bucket, and
+// the build kept the committed snapshot — for eighteen days, while the town
+// grew from 134 to 166. Two rules close it: wait what the office says, and ask
+// a few at a time.
+
+test("apiGet WAITS what a 429's retry-after says, instead of retrying into the same empty bucket", async () => {
+  let calls = 0;
+  const fake = async () => {
+    calls++;
+    if (calls === 1) return { ok: false, status: 429, statusText: "Too Many Requests", headers: { get: (k) => (k === "retry-after" ? "1" : null) }, json: async () => ({ error: "rate" }) };
+    return { ok: true, status: 200, statusText: "OK", headers: { get: () => null }, json: async () => ({ fine: true }) };
+  };
+  const t0 = Date.now();
+  const r = await apiGet("/residents/x", { apiBase: "https://example.test", fetchImpl: fake, retries: 3 });
+  const waited = Date.now() - t0;
+  assert.deepEqual(r.body, { fine: true }, "the second attempt is answered");
+  assert.equal(calls, 2, "one refusal, one answer");
+  assert.ok(waited >= 900, `it waited the office's second before asking again (${waited} ms)`);
+  // ⚑ THE FLIP: drop the 429 branch in apiGet → the retry comes after 250 ms and
+  //   `waited` reads ~250; this assertion reds.
+});
+
+test("apiGet caps a retry-after it will not wait for", async () => {
+  let calls = 0;
+  const fake = async () => {
+    calls++;
+    if (calls === 1) return { ok: false, status: 429, statusText: "Too Many Requests", headers: { get: (k) => (k === "retry-after" ? "3600" : null) }, json: async () => ({}) };
+    return { ok: true, status: 200, statusText: "OK", headers: { get: () => null }, json: async () => ({}) };
+  };
+  const t0 = Date.now();
+  await apiGet("/x", { apiBase: "https://example.test", fetchImpl: fake, retries: 2, maxRetryAfterMs: 50 });
+  assert.ok(Date.now() - t0 < 1000, "an hour-long retry-after is capped, not obeyed");
+});
+
+test("mapLimit keeps at most N in flight and preserves order", async () => {
+  let inFlight = 0, maxInFlight = 0;
+  const items = Array.from({ length: 40 }, (_, i) => i);
+  const out = await mapLimit(items, 6, async (i) => {
+    inFlight++; maxInFlight = Math.max(maxInFlight, inFlight);
+    await new Promise((r) => setTimeout(r, 2 + (i % 3)));
+    inFlight--;
+    return i * 2;
+  });
+  assert.deepEqual(out, items.map((i) => i * 2), "order preserved");
+  assert.ok(maxInFlight <= 6, `never more than six at once (${maxInFlight})`);
+  assert.ok(maxInFlight >= 2, `and it does run in parallel (${maxInFlight})`);
+});
+
+test("the resident cards are walked through mapLimit, not Promise.all — a source pin, labelled as one", () => {
+  // buildOfficeData's fixture roster is three residents, which cannot exhaust
+  // anything; the behaviour is proven on mapLimit above and this pins the call
+  // site to it. Flip: put `Promise.all(residentHandles.map(` back → reds.
+  const src = readFileSync(new URL("../tools/lib/fetch-town-data.mjs", import.meta.url), "utf8");
+  assert.match(src, /mapLimit\(residentHandles, RESIDENT_CARD_LANES, async \(handle\) =>/, "the cards go through mapLimit");
+  assert.doesNotMatch(src, /Promise\.all\(residentHandles\.map\(/, "and not through Promise.all");
+  assert.ok(RESIDENT_CARD_LANES >= 2 && RESIDENT_CARD_LANES <= 12, `a handful of lanes, not one and not the whole roll (${RESIDENT_CARD_LANES})`);
+});
+
+// ---------------------------------------------------------------------------
+// THE BUDGET IS TIME, AND IT IS SHARED (2026-09-17, postmark#2884)
+//
+// The instance: the 08:10Z refresh gave up on the resident roll in FIFTEEN
+// SECONDS (08:11:23 -> 08:11:38) and published a 134-row town from a three-week
+// -old snapshot. Six lanes, three attempts each, all of them meeting the same
+// full queue. What refused was nginx's `postmark_keyless` zone -- rate 120r/m,
+// burst 240, keyed on the caller's address -- and the office's own bouncer
+// logged nothing, which is how we know which one it was.
+//
+// THE BOUNCER BELOW IS THE REAL ARITHMETIC, not a mock that returns 429 on cue:
+// it is `src/bouncer.mjs`'s TokenBucket, its numbers (240 burst, 120 a minute)
+// and its retry-after formula, run over a VIRTUAL CLOCK so a two-minute drain
+// costs the suite no wall time. Driving the fake to the REAL failure before the
+// gate exists is the point: the flip arm below is today's code, and it must go
+// red.
+// ---------------------------------------------------------------------------
+
+/** src/bouncer.mjs's keyless tier, verbatim arithmetic, over an injected clock. */
+function fakeKeylessBouncer({ burst = 240, perMinute = 120, tokens = burst, now }) {
+  const state = { tokens, at: now() };
+  return function take() {
+    const at = now();
+    state.tokens = Math.min(burst, state.tokens + (at - state.at) * perMinute / 60_000);
+    state.at = at;
+    if (state.tokens >= 1) {
+      state.tokens -= 1;
+      return 0;                                   // admitted
+    }
+    // the office's own line: Math.max(1, Math.ceil((1 - tokens) * 60 / perMinute))
+    return Math.max(1, Math.ceil((1 - state.tokens) * 60 / perMinute));
+  };
+}
+
+/** A 200-card roll through the real mapLimit, against that bouncer. */
+async function rollAgainstBouncer({ gated, cards = 200, preDrainedTo = 20, budgetMs = DEFAULT_FETCH_TOWN_DEADLINE_MS }) {
+  let clock = 0;
+  const now = () => clock;
+  const sleep = (ms) => { clock += ms; return Promise.resolve(); };
+  const take = fakeKeylessBouncer({ tokens: preDrainedTo, now });
+  const gate = gated ? createRateGate({ now, sleep, budgetMs }) : null;
+
+  const issuedWhileParked = [];
+  let served = 0;
+  let refused = 0;
+  const fetchImpl = async (url) => {
+    if (gate) {
+      const { parkedUntil } = gate.stats();
+      if (now() < parkedUntil) issuedWhileParked.push(url);
+    }
+    clock += 5;                                   // a card is not free
+    const retryAfter = take();
+    if (retryAfter) {
+      refused += 1;
+      return {
+        ok: false, status: 429, statusText: "Too Many Requests",
+        headers: { get: (k) => (k === "retry-after" ? String(retryAfter) : null) },
+        json: async () => ({ error: "rate", retry_after_s: retryAfter }),
+      };
+    }
+    served += 1;
+    return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ handle: url }) };
+  };
+
+  const handles = Array.from({ length: cards }, (_, i) => `r${String(i).padStart(3, "0")}`);
+  const results = await mapLimit(handles, RESIDENT_CARD_LANES, async (handle) => {
+    try {
+      // maxRetryAfterMs is 1 in BOTH arms so the flip's waits cost the suite
+      // no real seconds. It is the only thing set here besides `gate`: one
+      // variable moves between the two arms, and it is the gate.
+      await apiGet(`/residents/${handle}`, { apiBase: "https://example.test", fetchImpl, retries: 3, maxRetryAfterMs: 1, gate });
+      return { handle, ok: true };
+    } catch (error) {
+      return { handle, ok: false, message: error.message };
+    }
+  });
+
+  return { results, served, refused, clock, issuedWhileParked, failures: results.filter((r) => !r.ok) };
+}
+
+test("THE GATE: a 200-card roll into a nearly-empty keyless queue completes, with zero cards lost", async () => {
+  const run = await rollAgainstBouncer({ gated: true });
+  assert.equal(run.failures.length, 0, `every card must land; lost ${run.failures.length}`);
+  assert.equal(run.served, 200, "two hundred cards, two hundred 200s");
+  assert.ok(run.refused > 0, "the premise: this roll IS refused on the way through, or the test proves nothing");
+  assert.ok(run.clock < DEFAULT_FETCH_TOWN_DEADLINE_MS,
+    `the roll must finish inside the run budget (took ${run.clock} ms of the ${DEFAULT_FETCH_TOWN_DEADLINE_MS} ms budget)`);
+  // ONE REFUSAL PARKS EVERY LANE, and the proof of it is a COUNT, not a
+  // silence. The first cut asserted only `issuedWhileParked === []`, and the
+  // flip that removes the park left that GREEN -- with nothing ever parked,
+  // "nothing was issued while parked" is vacuously true. A probe that cannot
+  // fail is not a probe.
+  //
+  // What the shared park is actually FOR, measured on this same roll: with it,
+  // 33 refused requests; with the park removed, 17 800. Both runs deliver all
+  // 200 cards, because the budget is spent in time either way -- so the thing
+  // at stake was never the cards, it was 540x the refused traffic against a
+  // door every other resident is also knocking on. That is the number to hold.
+  assert.ok(run.refused < 200,
+    `the shared park must keep refusals to roughly one per card: ${run.refused} (measured 33 with the park, 17 800 without it)`);
+  assert.deepEqual(run.issuedWhileParked, [],
+    "and while a park IS running, no lane may issue through it (this one cannot catch a MISSING park -- the count above is what does)");
+});
+
+test("\u269a THE FLIP: the same roll with the gate removed loses the tail", async () => {
+  const run = await rollAgainstBouncer({ gated: false });
+  assert.ok(run.failures.length > 0,
+    "with three attempts and no shared deadline the tail MUST fail \u2014 if this passes, the gate above proves nothing");
+  // and it fails the way the box failed: the head of the roll is fine, the tail
+  // is refused, which is exactly a 134-row residents.json behind a 182-household
+  // town.
+  assert.ok(run.results[0].ok, "the head of the roll still lands \u2014 the burst covers it");
+  assert.match(run.failures.at(-1).message, /failed after 3 attempts/, "and it gives up on a COUNT");
+});
+
+test("THE DEADLINE, not the count, is what ends a refusal", async () => {
+  // A queue that never refills. Under the old code this dies with "failed after
+  // 3 attempts" in milliseconds; under the gate it spends the whole budget and
+  // says which budget it spent.
+  let clock = 0;
+  const now = () => clock;
+  const sleep = (ms) => { clock += ms; return Promise.resolve(); };
+  const gate = createRateGate({ now, sleep, budgetMs: 20_000 });
+  // The request itself costs 5 ms of the virtual clock. Without that, this test
+  // reaches its deadline ONLY through the gate's own park -- so a flip that
+  // breaks the park makes this test hang instead of fail, and a test that hangs
+  // is not a falsifier. The clock must advance for the same reason a real one
+  // does: a request takes time whether or not anything waits for it.
+  const fetchImpl = async () => {
+    clock += 5;
+    return {
+      ok: false, status: 429, statusText: "Too Many Requests",
+      headers: { get: (k) => (k === "retry-after" ? "1" : null) },
+      json: async () => ({}),
+    };
+  };
+  await assert.rejects(
+    () => apiGet("/residents/spar", { apiBase: "https://example.test", fetchImpl, retries: 3, gate }),
+    /refused: the run's 20000 ms fetch budget is spent after \d+ refusal/,
+  );
+  assert.ok(clock >= 20_000, `it must actually wait out the budget, not the count (waited ${clock} ms)`);
+});
+
+test("a NON-429 failure still keeps its three tries, gate or no gate", async () => {
+  let clock = 0;
+  const gate = createRateGate({ now: () => clock, sleep: (ms) => { clock += ms; return Promise.resolve(); }, budgetMs: 180_000 });
+  let calls = 0;
+  const fetchImpl = async () => { calls += 1; clock += 5; throw new Error("socket hang up"); };
+  await assert.rejects(
+    () => apiGet("/town", { apiBase: "https://example.test", fetchImpl, retries: 3, gate }),
+    /failed after 3 attempts/,
+  );
+  assert.equal(calls, 3, "a dead upstream is not a budget \u2014 three tries, then say so");
+});
+
+test("the run budget is env-driven, and a nonsense budget is refused rather than defaulted", () => {
+  assert.equal(fetchTownDeadlineMs({}), DEFAULT_FETCH_TOWN_DEADLINE_MS);
+  assert.equal(fetchTownDeadlineMs({ FETCH_TOWN_DEADLINE_MS: "" }), DEFAULT_FETCH_TOWN_DEADLINE_MS);
+  assert.equal(fetchTownDeadlineMs({ FETCH_TOWN_DEADLINE_MS: "5000" }), 5000);
+  assert.throws(() => fetchTownDeadlineMs({ FETCH_TOWN_DEADLINE_MS: "0" }), /positive number of milliseconds/);
+  assert.throws(() => fetchTownDeadlineMs({ FETCH_TOWN_DEADLINE_MS: "soon" }), /positive number of milliseconds/);
+});
+
+// ---------------------------------------------------------------------------
+// ON THE BOX, SHORT IS FAILED
+// ---------------------------------------------------------------------------
+
+test("a short fetch REFUSES on the release channel and stays fail-soft everywhere else", () => {
+  const release = shortFetchPlan({ channel: "release" });
+  assert.equal(release.exitCode, 1, "the box's refresh must see a non-zero exit, which is what deploy/site-refresh.sh L427-428 dies on");
+  assert.equal(release.refuse, true);
+  assert.match(release.line, /REFUSING to build from the committed snapshot on the release channel/);
+  assert.doesNotMatch(release.line, /build may proceed/, "that sentence is FALSE on the release channel and must not be printed there");
+
+  for (const channel of [null, undefined, "snapshot", "dev", ""]) {
+    const plan = shortFetchPlan({ channel });
+    assert.equal(plan.exitCode, 0, `off the release channel a kept snapshot is the design (channel: ${String(channel)})`);
+    assert.equal(plan.refuse, false);
+    assert.match(plan.line, /build may proceed from src\/data\/postmark\/\*\.json/, "the line CI has always printed is kept verbatim");
+  }
+  assert.equal(shortFetchPlan().exitCode, 0, "no channel at all is not the release channel");
+});
+
+test("the script asks shortFetchPlan rather than exiting 0 by hand \u2014 a source pin, labelled as one", () => {
+  const src = readFileSync(new URL("../tools/fetch-town.mjs", import.meta.url), "utf8");
+  assert.match(src, /shortFetchPlan\(\{ channel: process\.env\.PUBLIC_CHANNEL \?\? null \}\)/, "the channel comes from the environment the box sets");
+  assert.match(src, /process\.exit\(plan\.exitCode\)/, "and the exit is the plan's, not a literal 0");
+  assert.doesNotMatch(src, /process\.exit\(0\);/, "no unconditional exit 0 may survive in the catch");
+  // the two measurement lines the journal readers use are untouched
+  assert.match(src, /WARN fetch-town: office API unavailable; keeping committed data snapshot/);
+  assert.match(src, /WARN fetch-town: SNAPSHOT SHORT \u2014 residents\.json keeps/);
 });

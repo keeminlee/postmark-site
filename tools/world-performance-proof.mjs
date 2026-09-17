@@ -201,11 +201,15 @@ const builtHtml = readFileSync(join(DIST, "world", "index.html"), "utf8");
 const modulePreloads = [...builtHtml.matchAll(/<link rel="modulepreload" href="([^"]+)">/g)].map((match) => match[1]);
 const fetchPreloads = [...builtHtml.matchAll(/<link rel="preload" as="fetch" href="([^"]+)" crossorigin>/g)].map((match) => match[1]);
 const stagedModules = stagedModulePaths(join(DIST, "world-engine"));
+// POS-85 (2026-09-16): the head hints the viewer's import closure and the
+// records read from THIS ORIGIN at boot, not the staging walk. The fold and the
+// skeleton are read office-first and /atlas/town.html is not read at all, so
+// none of the three is hinted any more — asserting their presence would fail a
+// page that is now correct. What is still required is what the boot still asks
+// this origin for. `tools/lib/world-preload.mjs` carries the rule.
 const requiredFetches = [
-  "/WORLD/world-state.json",
-  "/WORLD/skeleton.json",
   "/seeding/manifest.json",
-  "/atlas/town.html",
+  "/world-engine/residents-meta.json",
 ];
 
 const beforeFixture = await startFixture("before");
@@ -225,8 +229,11 @@ try {
 }
 
 if (!modulePreloads.includes("/world-engine/spectator/viewer.mjs")) throw new Error("viewer modulepreload missing");
-if (stagedModules.length !== modulePreloads.length || !stagedModules.every((path) => modulePreloads.includes(path))) {
-  throw new Error("modulepreload/staged module drift");
+// POS-85: the hints are the CLOSURE, so the two sets are no longer equal —
+// every hinted module must be staged (a hint for an unstaged module is a 404),
+// but a staged module the browser never imports is deliberately unhinted.
+if (!modulePreloads.every((path) => stagedModules.includes(path))) {
+  throw new Error("modulepreload names a module this build did not stage");
 }
 if (!requiredFetches.every((path) => fetchPreloads.includes(path))) throw new Error("one or more fetch preloads missing");
 if (before.recordStatus !== 404 || after.recordStatus !== 200) throw new Error("world record before/after status gate failed");

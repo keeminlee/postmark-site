@@ -294,11 +294,85 @@ test("the economy emission is a whole set readEconomy will take", { skip: !haveT
   assert.equal(econ.rho, dial.rho);
   assert.equal(econ.rhoCeiling, dial.rhoCeiling);
   // and the totals are folds of the sealed ledger, not constants
+  // AMENDED 2026-09-17: this asserted against `foldMintCount` by name. After
+  // postmark-town/postmark#2886 that fold counts holo, so the emitter calls
+  // `foldPrimaryMint` where the checkout has it — and this assertion follows the
+  // emitter's own guard rather than pinning a fold that changed meaning.
+  const primaryFold = mint.foldPrimaryMint ?? mint.foldMintCount;
   assert.equal(seam.economy.primary_mint_earned,
-    [...mint.foldMintCount(entries).values()].reduce((a, n) => a + n, 0));
+    [...primaryFold(entries).values()].reduce((a, n) => a + n, 0));
+  assert.equal(seam.economy.primary_mint_fold,
+    mint.foldPrimaryMint ? "foldPrimaryMint" : "foldMintCount",
+    "the emission names which fold answered, so no reader has to guess whether holo is inside");
   assert.equal(seam.economy.holo_issued,
     [...mint.foldHolo(entries).values()].reduce((a, n) => a + n, 0));
   assert.ok(seam.economy.primary_mint_earned > 0, "the town has minted; a 0 here would mean the fold missed the ledger");
+});
+
+test("THE GUARD: primary_mint_earned excludes holo when the checkout has foldPrimaryMint", () => {
+  // THE FOUNDER, 2026-09-17: "non-spendable is repealed; the stamps are like any
+  // other, but are holo to signify the special source." The town's own
+  // `foldMintCount` gains a holo arm with that ruling
+  // (postmark-town/postmark#2886), so this field's NAME becomes a lie unless the
+  // emitter reaches for the fold that still means primary alone.
+  //
+  // A real ledger, one holo row on it, and a stub `mint` standing in for the two
+  // shapes of checkout — because the point is which EXPORT the emitter picks,
+  // and no town clone can be both shapes at once.
+  const LEDGER_HOLO = 7;
+  const LEDGER_PRIMARY = 100;
+  const dial = { sigma: 0.5, rho: 0.5, rhoCeiling: 0.5 };
+  const base = {
+    TREASURY_POT: "treasury",
+    keepingDial: () => dial,
+    classifyEntry: () => null,
+    foldPotPositions: () => new Map(),
+    foldPotReceipts: () => ({ receipts: [], settled: new Set() }),
+    foldClosedEpochs: () => new Map(),
+    foldKeepingMint: () => new Map(),
+    foldHolo: () => new Map([["keemin", LEDGER_HOLO]]),
+  };
+
+  // PAST the merge: foldMintCount counts the holo row, foldPrimaryMint does not.
+  const after = seamFromTown({
+    mint: { ...base,
+      foldMintCount: () => new Map([["keemin", LEDGER_PRIMARY + LEDGER_HOLO]]),
+      foldPrimaryMint: () => new Map([["keemin", LEDGER_PRIMARY]]) },
+    entries: [], potFiles: [], dial, asOf: "2026-09-30",
+  });
+  assert.equal(after.economy.primary_mint_earned, LEDGER_PRIMARY,
+    "the holo row must NOT be inside a field named primary_mint_earned");
+  assert.notEqual(after.economy.primary_mint_earned, LEDGER_PRIMARY + LEDGER_HOLO,
+    "and reaching for foldMintCount is exactly the bug this guard exists for");
+  assert.equal(after.economy.primary_mint_fold, "foldPrimaryMint");
+
+  // BEFORE the merge: no foldPrimaryMint at all, and foldMintCount cannot see an
+  // arrow-free holo row, so the same number arrives by the other route.
+  const before = seamFromTown({
+    mint: { ...base, foldMintCount: () => new Map([["keemin", LEDGER_PRIMARY]]) },
+    entries: [], potFiles: [], dial, asOf: "2026-09-30",
+  });
+  assert.equal(before.economy.primary_mint_earned, LEDGER_PRIMARY,
+    "the guard must be a no-op on a pre-merge checkout, or this lane breaks the live site today");
+  assert.equal(before.economy.primary_mint_fold, "foldMintCount");
+
+  // AND THE CAP IS THE ALL-SOURCES BASE EITHER WAY — the founder, same word:
+  // "funding minted stamps contribute to the max stamps you can get from another
+  // fund. it compounds by design."
+  assert.equal(readEconomy(after.economy).capBase, LEDGER_PRIMARY + LEDGER_HOLO,
+    "holo counts toward its own cap now");
+  assert.equal(readEconomy(after.economy).holoCap, Math.floor(0.5 * (LEDGER_PRIMARY + LEDGER_HOLO)));
+
+  // THE DOUBLE-COUNT THE PROVENANCE FIELD RETIRES: a checkout past the merge
+  // that somehow lacks the new export puts holo inside primary_mint_earned, and
+  // a reader that always adds holo_issued would count it twice.
+  const inconsistent = readEconomy({
+    as_of: "2026-09-30", sigma: 0.5, rho: 0.5, rho_constitutional_ceiling: 0.5, treasury_usd: 0,
+    primary_mint_earned: LEDGER_PRIMARY + LEDGER_HOLO, primary_mint_fold: "foldMintCount",
+    holo_issued: LEDGER_HOLO,
+  });
+  assert.equal(inconsistent.capBase, LEDGER_PRIMARY + LEDGER_HOLO,
+    "holo is already inside that number; adding it again would read 114 against a true 107");
 });
 
 test("no dial, no economy emission — the page says not-yet rather than half", { skip: !haveTown }, async () => {
@@ -322,12 +396,24 @@ test("the committed emissions are the ones the site reads", () => {
 });
 
 test('R12: the holo cap base is primary mint PLUS keeping mint — "keeping-mint is treated like anything else" (Keemin, 2026-08-21)', () => {
+  // AMENDED 2026-09-17: the base gained a third term on the founder's word
+  // ("funding minted stamps contribute to the max stamps you can get from
+  // another fund. it compounds by design"), so holo_issued rides in it too. Both
+  // fixtures here carry holo_issued: 0, which is why their numbers did not move
+  // — and that is deliberate: this test's subject is the KEEPING term, and it
+  // still fails if the keeping term is dropped.
   const econ = readEconomy({ as_of: "2026-08-22", sigma: 0.5, rho: 0.5, rho_constitutional_ceiling: 0.5,
     treasury_usd: 0, primary_mint_earned: 100, keeping_mint: 40, holo_issued: 0 });
   assert.equal(econ.holoCap, 70, "0.5 x (100 + 40) — dropping keeping mint from the base fails here");
   const older = readEconomy({ as_of: "2026-08-22", sigma: 0.5, rho: 0.5, rho_constitutional_ceiling: 0.5,
     treasury_usd: 0, primary_mint_earned: 100, holo_issued: 0 });
   assert.equal(older.holoCap, 50, "an emission without the fold still renders, at the narrower base");
+  // and the third term, asserted where it can actually be seen
+  const withHolo = readEconomy({ as_of: "2026-09-30", sigma: 0.5, rho: 0.5, rho_constitutional_ceiling: 0.5,
+    treasury_usd: 0, primary_mint_earned: 100, keeping_mint: 40, holo_issued: 20,
+    primary_mint_fold: "foldPrimaryMint" });
+  assert.equal(withHolo.capBase, 160, "primary 100 + keeping 40 + holo 20 — all sources");
+  assert.equal(withHolo.holoCap, 80, "0.5 x 160; leaving holo out of its own base reads 70 and is the repealed law");
 });
 
 // ── the close word and its floor reach the reader ────────────────────────────

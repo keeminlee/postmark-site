@@ -5,10 +5,10 @@
 // reads need no key. On API failure this script keeps the committed snapshot in
 // place and exits 0, so CI can still build the last-good static town.
 
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildOfficeData, jsonText } from "./lib/fetch-town-data.mjs";
+import { buildOfficeData, fetchBlueprints, jsonText, shortFetchPlan } from "./lib/fetch-town-data.mjs";
 import { worldPin } from "./lib/world-pin-publish.mjs";
 import { writeIfChanged } from "./lib/mirror.mjs";
 
@@ -55,6 +55,7 @@ function writeManifest(asOf, endpointGaps) {
       "meeps.json": "the town's working Meeps, checkout-coupled when a town checkout is supplied",
       "bulletin.json": "the town bulletin, full text",
       "docs.json": "last committed docs snapshot until the office exposes town docs",
+      "blueprints.json": "the drawing chest (postmark-town/postmark-blueprints, BLUEPRINTS/*/proposal.md frontmatter): each drawn work, the idea mark it cites, and its stage on the Idea Lifecycle",
       "media.json": "town image paths -> processed site copies, owned by extract-town.mjs",
       "pin.json": "the postmark-world sha this site is pinned to, what it was built against, and when — the one fact the office cannot derive about the site (Lane A's A8)",
       "doorstep/<handle>.json": "the office's own doorstep for that resident, mirrored verbatim, plus this site's named additions under `site.sources` (PR states above all — the office's `moved.prs` line points here for them)",
@@ -74,6 +75,16 @@ try {
   }
   const result = await buildOfficeData({ apiBase: API, dataDir: DATA_DIR, townRoot: TOWN });
   for (const [name, value] of Object.entries(result.files)) writeDataFile(name, value);
+  // ── THE DRAWING CHEST (POS-97, 2026-09-15) ────────────────────────────────
+  // The Think Tank's "drawn" is a join against the chest's own citation (the
+  // `idea:` line in each work's proposal.md), so the chest is read here beside
+  // the office's data and lands as one more snapshot file. Fail-soft like the
+  // rest: a chest that cannot be read keeps the committed blueprints.json.
+  try {
+    writeDataFile("blueprints.json", await fetchBlueprints());
+  } catch (error) {
+    console.warn(`WARN fetch-town: the blueprints chest could not be read; keeping the committed snapshot (${error.message})`);
+  }
   // ── THE SITE SAYS WHAT WORLD IT IS PINNED TO (Lane A's A8, 2026-09-07) ────
   // The office's focus receipt carries `site_pin` and cannot fill it: it holds
   // no clone of this repo. One line, at a path already built and already
@@ -87,6 +98,33 @@ try {
   console.log(`fetch-town: done from ${API} as-of ${result.asOf ?? "unknown"}`);
 } catch (error) {
   console.warn(`WARN fetch-town: office API unavailable; keeping committed data snapshot (${error.message})`);
-  console.warn("WARN fetch-town: build may proceed from src/data/postmark/*.json");
-  process.exit(0);
+  // THE SNAPSHOT SAYS HOW SHORT IT IS (2026-09-13, postmark#2730). A kept
+  // snapshot is a town with pages missing, and for eighteen days nothing said
+  // how many. With a checkout beside us the count is one readdir away: the
+  // white pages are the roll's own keeper, and a snapshot shorter than them is
+  // shouted by name so the round that reads this log sees the doors, not a warning.
+  try {
+    const kept = JSON.parse(readFileSync(join(DATA_DIR, "residents.json"), "utf8"));
+    const keptN = Array.isArray(kept) ? kept.length : 0;
+    if (TOWN && existsSync(join(TOWN, "WHITE_PAGES"))) {
+      const households = readdirSync(join(TOWN, "WHITE_PAGES"), { withFileTypes: true })
+        .filter((d) => d.isDirectory() && d.name !== "TEMPLATE" && !d.name.startsWith("_")).length;
+      if (keptN < households) {
+        console.warn(`WARN fetch-town: SNAPSHOT SHORT — residents.json keeps ${keptN} rows; the checkout has ${households} households; ${households - keptN} doors are missing from /residents/ until the office answers`);
+      }
+    } else {
+      console.warn(`WARN fetch-town: snapshot keeps ${keptN} residents; no checkout to measure it against`);
+    }
+  } catch (e) {
+    console.warn(`WARN fetch-town: could not measure the kept snapshot (${e.message})`);
+  }
+  // A SHORT FETCH MUST NOT PUBLISH (2026-09-17, postmark#2884). The two lines
+  // above are the measurement and stay exactly as they were -- they are what a
+  // reader of the journal uses to see WHICH doors went missing. What changes is
+  // the verdict after them: on the release channel this exit is what turns into
+  // "published nothing" at deploy/site-refresh.sh L427-428 (`|| die`), and the
+  // last good release keeps serving. See shortFetchPlan for the whole argument.
+  const plan = shortFetchPlan({ channel: process.env.PUBLIC_CHANNEL ?? null });
+  console.warn(plan.line);
+  process.exit(plan.exitCode);
 }

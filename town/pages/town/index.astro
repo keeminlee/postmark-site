@@ -74,6 +74,7 @@ import {
   readPen, loadPlaceMarks, plaque, markStakes, stakeOf,
   ideaDashboard, boardDashboard, worldPin,
   BLUEPRINTS_REPO, THINK_TANK_PLACE,
+  loadBlueprints, blueprintIndex, byStage,
 } from "@/lib/civic.mjs";
 import { paint, tint, SPRITE_W, SPRITE_H } from "@/lib/civic-art.mjs";
 import { tutorialFor } from "@/lib/civic-tutorial.mjs";
@@ -156,7 +157,12 @@ const quarter = standing(worldState, placeMarks);
 // not the fold's totals, and for the cross-check that makes it trustworthy.
 const stakes = markStakes(worldState);
 
-const thinkTank = ideas(worldState, { places: placeMarks, stakes });
+// THE CHEST CITES THE IDEA (POS-97, 2026-09-15): "drawn" is a join against the
+// blueprints chest this build fetched, never a field on the idea mark. A chest
+// this build could not read leaves every idea proposed, and says nothing false.
+const chest = blueprintIndex(loadBlueprints());
+const thinkTank = ideas(worldState, { places: placeMarks, stakes, chest });
+const tankStages = byStage(thinkTank.ideas);
 const quests = questStandings(bulletin);
 const questRows = questCards(quests);
 const market = marketplace(bulletin);
@@ -698,7 +704,12 @@ const switchCss = [
                 the cards in descending order, so a title announcing them is the
                 page narrating its own sort. If it ever needs saying it is a
                 `title=`, not a heading. */}
-            <p class="m-lab" title="most-backed first">Ideas</p>
+            {/* THE LABEL IS THE STAGE NOW — one per rung of the Idea Lifecycle
+                that has ideas on it, in the road's order, and none for an
+                empty rung (Keemin, 2026-09-15, POS-97: "split the ideas into
+                lifecycle stage visually on the site, if ideas in that stage
+                exist"). `byStage` in civic.mjs owns the order and the split;
+                the page has no rule of its own about either. */}
             {/* BY · CLAIM · ONE ✦ LINE · ONE ACTION, and nothing else — the
                 founder's card shape, 2026-09-01. `stage` left the kind line (a
                 lifecycle word beside a name is two facts where the reader
@@ -711,8 +722,11 @@ const switchCss = [
                 is `( … )` returns ONE expression, and a JSX comment beside the
                 element makes two. The compiler accepts it, esbuild does not,
                 and the error it gives names the element rather than the comment. */}
-            <div class="m-grid">
-              {thinkTank.ideas.map((i) => (
+            {tankStages.map((g) => (
+              <div class="m-stage">
+                <p class="m-lab" title={`${g.ideas.length} ${g.ideas.length === 1 ? "idea" : "ideas"} · most-backed first`}>{g.stage}</p>
+                <div class="m-grid">
+                  {g.ideas.map((i) => (
                 <article class="m-card is-idea">
                   <p class="m-kind">{i.by ?? "the town"}</p>
                   <h3 class="m-title">{i.title}</h3>
@@ -744,14 +758,20 @@ const switchCss = [
                       `standingAt` is null in that case; the branch is in
                       civic.mjs so the page has no rule of its own about it. */}
                   {i.standingAt && <p class="m-stand">standing at: {i.standingAt}</p>}
-                  <p class="m-foot">
-                    {i.href
-                      ? <a class="m-fund" href={i.href} target="_blank" rel="noopener">its blueprint ↗</a>
-                      : <span class="m-dim">not drawn yet</span>}
-                  </p>
+                  {/* THE FOOT IS THE LINK INTO THE CHEST, and only that. "not
+                      drawn yet" left with the split: the group's label already
+                      says "proposed", and a card repeating it was the page
+                      saying one thing twice (rule 4). */}
+                  {i.href && (
+                    <p class="m-foot">
+                      <a class="m-fund" href={i.href} target="_blank" rel="noopener">its blueprint ↗</a>
+                    </p>
+                  )}
                 </article>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </>
         )}
 

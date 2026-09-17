@@ -68,7 +68,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { FOUNDER_ACCOUNT } from "../src/lib/funding.mjs";
 import { allEntries } from "../src/lib/nav.mjs";
-import { DEFAULT_LANE } from "../src/lib/civic.mjs";
+import { DEFAULT_LANE, STAGES } from "../src/lib/civic.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 
@@ -150,10 +150,19 @@ const LANE_KEYS = ["quests", "ideas", "bounties", "listings", "votes"];
 
 // ── the two content laws ─────────────────────────────────────────────────────
 
-test("the tri-law appears in the law's own words", () => {
+test("the return law appears in the law's own words", () => {
+  // THE LAW THIS ASSERTS — ECONOMY-DIALS.json § law_side.keeping._what, the
+  // rule in one breath (amended 2026-09-14). The tri-law it replaced ("voice
+  // returns · public-good rewards mint fresh · currency conversion burns",
+  // LOGOS/the-derivation.md § 9) is the pre-amendment law: nothing burns now,
+  // and a page that still quoted it would be teaching a rule the town repealed.
   assert.ok(
-    teachBody.includes("voice returns · public-good rewards mint fresh · currency conversion burns"),
-    "the tri-law must be quoted verbatim from LOGOS/the-derivation.md § 9",
+    teachBody.includes("it comes home whole at the close. What the stakes do is size the reward."),
+    "the return law must be quoted verbatim from ECONOMY-DIALS.json § law_side.keeping",
+  );
+  assert.equal(
+    teachBody.includes("currency conversion burns"), false,
+    "the repealed tri-law must not be taught as law",
   );
 });
 
@@ -1298,7 +1307,7 @@ test("the estimate renders only where a close could run, and never as a promise"
   assert.ok(fbody.includes("it moves as both move"), "and that it is not fixed");
   assert.ok(fund.includes("{HOLO_LINE}"), "and the page carries the ruling's line");
   // the number comes from the reader, not from the page
-  assert.ok(/const estimate = holoPerDollar\(pot, econ\)/.test(fund),
+  assert.ok(/const estimate = mintPerDollar\(pot\)/.test(fund),
     "the math lives in funding.mjs and the page only calls it");
   assert.equal(/per \$1[^<]*0\.\d/.test(fbody), false, "no estimate is typed into the markup");
 });
@@ -1438,6 +1447,13 @@ test("RULE 3: labels name, they don't narrate", () => {
     .map((m) => flat(m[1]).trim());
   assert.ok(labels.length >= 6, `only ${labels.length} labels found — the selector has drifted off the page`);
   for (const label of labels) {
+    // THE ONE EXPRESSION A LABEL MAY RENDER (2026-09-15, POS-97): the stage
+    // word of the Idea Lifecycle, from the chest's own vocabulary — a name of
+    // two or three words, nouns ("proposed", "drawn up", "passed inspection"),
+    // never a figure. The group's count went to title=, exactly as the rule
+    // says a qualifier does. Pinned to this one spelling so no second
+    // expression rides in under it; the vocabulary itself is asserted below.
+    if (label === "{g.stage}") continue;
     const words = label.split(/\s+/).filter(Boolean);
     assert.ok(words.length <= 3,
       `the label "${label}" is ${words.length} words — two or three, nouns`);
@@ -1447,6 +1463,11 @@ test("RULE 3: labels name, they don't narrate", () => {
     // exactly what the as-of spans and the completions count were
     assert.equal(/[{}]/.test(label), false,
       `the label "${label}" renders a value — a label names, it does not report`);
+  }
+  // the stage vocabulary the one allowed expression can print, measured by the
+  // same rule: two or three words, no qualifier
+  for (const s of STAGES) {
+    assert.ok(s.split(/\s+/).length <= 3 && !/[—·:]/.test(s), `the stage word "${s}" would break this rule as a label`);
   }
 
   // THE SIX HE NAMED, by the clause that made each one a sentence. Kept beside

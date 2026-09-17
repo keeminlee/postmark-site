@@ -94,6 +94,47 @@ const row = rowFor(active, { ownChips });
       <a class="pm-townmark" href={`${P}/`} aria-label="Postmark — the town">
         <span class="seal">✉</span> Postmark
       </a>
+      {/* THE TOWN SAYS WHEN IT IS DEGRADED (2026-09-17, postmark#2884). The
+          founder watched postmark.town serve a 134-resident town for five
+          minutes behind a fourteen-green sentinel board and asked for exactly
+          this: "make it obvious on the site too (like an alert icon that you can
+          hover to find out more)."
+
+          HIDDEN BY DEFAULT AND HIDDEN BY ABSENCE. The glyph is revealed only by
+          the script below, only when the sentinel's published board carries a
+          probe the sentinel itself calls bad. No board (dev, a local build, a
+          404) and an all-green board are the SAME outcome as no markup at all —
+          the wax seal is not a decoration to be dimmed, it is a thing that is
+          either there or not. Chrome is the town's own: wax for the glyph, paper
+          for the popover, the same wax-pip panel the notification bell uses. */}
+      <div class="pm-alert" data-pm-alert data-pm-alert-origin={P} hidden>
+        <button
+          type="button"
+          class="pm-alert-glyph"
+          data-pm-alert-glyph
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-label="The town's pages are degraded — read what the sentinel says"
+        >
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4.4 20.8 19.4H3.2Z" />
+            <path d="M12 10.1v3.9" />
+            <path d="M12 16.7h.01" />
+          </svg>
+        </button>
+        <div class="pm-alert-pop" data-pm-alert-pop hidden role="dialog" aria-label="What the sentinel says">
+          {/* No verdict chip here: the board's own `headline` below opens with
+              the worst verdict ("DOWN . 1 down, 1 stale, 6 green"), and each row
+              carries its own. Three printings of the same word is a busier
+              popover that says no more. */}
+          <div class="pm-alert-head">
+            <span class="pm-alert-heading">The sentinel</span>
+          </div>
+          <p class="pm-alert-headline" data-pm-alert-headline></p>
+          <ul class="pm-alert-body" data-pm-alert-body></ul>
+          <p class="pm-alert-foot" data-pm-alert-foot></p>
+        </div>
+      </div>
       <nav class="pm-townnav-links" aria-label="Postmark town navigation">
         {/* ONE SEAT, ONE FACE, ALL THE WAY ACROSS. The Join seat used to be two
             — the signed-out door and a signed-in "Your House" pointing at the
@@ -427,6 +468,99 @@ const row = rowFor(active, { ownChips });
   </script>
 
   <script>
+    // ── THE SENTINEL'S GLYPH (2026-09-17, postmark#2884) ─────────────────
+    //
+    // One same-origin read of the watchman's published board, and the decision
+    // is not made here: `@/lib/sentinel-alert.mjs` owns it so it can be
+    // falsified without a browser. This half owns the fetch and the popover.
+    //
+    // THE BOARD IS PUBLISHED, and that was checked rather than assumed. The
+    // office's `deploy/nginx-sentinel.conf.snippet` still calls itself
+    // "PROPOSED, NOT INSTALLED"; the live vhost disagrees —
+    // /etc/nginx/sites-enabled/postmark-town:276 carries the block, and
+    // `curl -sI https://postmark.town/ops/sentinel.json` answers 200
+    // application/json with `Cache-Control: no-cache` and an open CORS header.
+    // The repo copy is the stale half.
+    //
+    // THE ORIGIN ARRIVES AS AN ATTRIBUTE, and this is not a style choice. An
+    // Astro client script is a BROWSER module: the frontmatter's `P` does not
+    // exist in it, and interpolating it here compiled to a live `P is not
+    // defined` that every pin in test/sentinel-alert.test.mjs passed over --
+    // the strings were all present and the glyph never appeared. The rendered
+    // check is what found it. `data-pm-alert-origin` is empty on the town
+    // itself and the town's origin on the harbor's mirrored vhost, so the
+    // glyph always reads the TOWN's board rather than whatever host is serving
+    // the page.
+    //
+    // FAILING SILENT IS THE CONTRACT, not a convenience: a header that throws
+    // over a missing ops file is a worse outage than the one it reports. Every
+    // failure path lands on console.debug and nothing else.
+    (async function () {
+      const wrap = document.querySelector("[data-pm-alert]");
+      if (!wrap) return;
+      try {
+        const { parseBoard, alertFromBoard } = await import("@/lib/sentinel-alert.mjs");
+        const origin = wrap.dataset.pmAlertOrigin || "";
+        const res = await fetch(origin + "/ops/sentinel.json", { cache: "no-store" });
+        if (!res || !res.ok) { console.debug("pm-alert: no sentinel board (" + (res && res.status) + ")"); return; }
+        const view = alertFromBoard(parseBoard(await res.text()));
+        if (!view.show) return;
+
+        const glyph = wrap.querySelector("[data-pm-alert-glyph]");
+        const pop = wrap.querySelector("[data-pm-alert-pop]");
+        const headEl = wrap.querySelector("[data-pm-alert-headline]");
+        const bodyEl = wrap.querySelector("[data-pm-alert-body]");
+        const footEl = wrap.querySelector("[data-pm-alert-foot]");
+
+        // textContent throughout: every string here was written by a probe's
+        // reason or by a refresh report's detail, and neither is markup.
+        headEl.textContent = view.headline || "";
+        bodyEl.textContent = "";
+        for (const row of view.rows) {
+          const li = document.createElement("li");
+          li.className = "pm-alert-row";
+          const v = document.createElement("span");
+          v.className = "pm-alert-verdict";
+          v.textContent = row.verdict;
+          const t = document.createElement("span");
+          t.className = "pm-alert-text";
+          const strong = document.createElement("b");
+          strong.textContent = row.label;
+          t.appendChild(strong);
+          const tail = [row.detail || row.reason, row.age ? "for " + row.age : null]
+            .filter(Boolean).join(" · ");
+          if (tail) t.appendChild(document.createTextNode(" — " + tail));
+          li.appendChild(v);
+          li.appendChild(t);
+          bodyEl.appendChild(li);
+        }
+        footEl.textContent = view.rebake;
+
+        let open = false;
+        const set = (next) => {
+          open = next;
+          pop.hidden = !open;
+          wrap.classList.toggle("open", open);
+          glyph.setAttribute("aria-expanded", open ? "true" : "false");
+        };
+        // HOVER, FOCUS **AND** TAP. A hover-only affordance is invisible on a
+        // phone, which is where the founder saw the short town. The pointer
+        // guard is what keeps the two from fighting: a touch fires
+        // pointerenter too, and without the mouse test the tap would open on
+        // enter and close on click in the same gesture.
+        glyph.addEventListener("click", () => set(!open));
+        wrap.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") set(true); });
+        wrap.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") set(false); });
+        wrap.addEventListener("focusin", () => set(true));
+        wrap.addEventListener("focusout", () => { if (!wrap.contains(document.activeElement)) set(false); });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape" && open) { set(false); glyph.blur(); } });
+
+        wrap.hidden = false;
+      } catch (error) {
+        console.debug("pm-alert: stood down (" + (error && error.message) + ")");
+      }
+    })();
+
     // The notification bell — a shoulder-tap for signed-in humans, computed
     // entirely from the site's own baked data + the office /me. No push, no
     // polling, no server work: the events are already in the town's data and
@@ -872,6 +1006,74 @@ const row = rowFor(active, { ownChips });
   .prompt-copy:hover { background: rgba(232, 196, 139, 0.2); color: #f6dcae; }
   .prompt-copy.copied { color: #9be29b; border-color: rgba(155, 226, 155, 0.5); }
 
+  /* the sentinel's glyph — wax, because it is the town's own seal saying so */
+  .pm-alert { position: relative; display: inline-flex; align-items: center; margin-left: 0.15em; }
+  .pm-alert[hidden] { display: none; }
+
+  .pm-alert-glyph {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; padding: 0; cursor: pointer;
+    color: #e0846b; background: rgba(156, 63, 46, 0.16);
+    border: 1px solid rgba(224, 132, 107, 0.45); border-radius: 999px;
+    transition: color 0.12s, border-color 0.12s, background 0.12s;
+  }
+  .pm-alert-glyph:hover { color: #f0a58e; border-color: rgba(240, 165, 142, 0.75); background: rgba(156, 63, 46, 0.26); }
+  .pm-alert.open .pm-alert-glyph { color: #f0a58e; border-color: rgba(240, 165, 142, 0.85); background: rgba(156, 63, 46, 0.3); }
+  .pm-alert-glyph:focus-visible { outline: 2px solid rgba(240, 165, 142, 0.8); outline-offset: 2px; }
+  /* A slow breath, never a blink: the reader has to be able to read the page
+     it is sitting on. Off entirely for anyone who asked for less motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .pm-alert-glyph { animation: pm-alert-breathe 2.8s ease-in-out infinite; }
+    @keyframes pm-alert-breathe {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(224, 132, 107, 0.34); }
+      55% { box-shadow: 0 0 0 5px rgba(224, 132, 107, 0); }
+    }
+  }
+
+  .pm-alert-pop {
+    position: absolute; top: calc(100% + 9px); left: 0; z-index: 61;
+    width: min(348px, 92vw);
+    background: var(--pm-paper); color: var(--pm-ink);
+    border: 1px solid var(--pm-line); border-radius: 10px;
+    box-shadow: 0 14px 38px rgba(4, 7, 14, 0.5), 0 2px 8px rgba(4, 7, 14, 0.35);
+    padding: 0 0 0.75em;
+  }
+  .pm-alert-pop[hidden] { display: none; }
+  .pm-alert-pop::before {
+    content: ""; position: absolute; top: -6px; left: 9px; width: 11px; height: 11px;
+    background: var(--pm-paper-deep); border-left: 1px solid var(--pm-line); border-top: 1px solid var(--pm-line);
+    transform: rotate(45deg);
+  }
+  .pm-alert-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 0.6em;
+    padding: 0.6em 0.85em; border-bottom: 1px solid var(--pm-line);
+    background: var(--pm-paper-deep); border-radius: 9px 9px 0 0;
+  }
+  .pm-alert-heading {
+    font: 700 0.62rem/1 var(--pm-mono); letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--pm-ink-soft);
+  }
+  .pm-alert-headline {
+    margin: 0.7em 0.9em 0.2em; font: 0.8rem/1.45 var(--pm-serif); color: var(--pm-ink-soft);
+  }
+  .pm-alert-body { margin: 0.35em 0 0; padding: 0; list-style: none; }
+  .pm-alert-row {
+    display: flex; gap: 0.5em; align-items: baseline;
+    padding: 0.5em 0.9em; border-top: 1px solid var(--pm-line);
+    font-family: var(--pm-serif); font-size: 0.85rem; line-height: 1.42;
+  }
+  .pm-alert-verdict {
+    flex: 0 0 auto; font: 700 0.58rem/1.6 var(--pm-mono); letter-spacing: 0.1em;
+    color: var(--pm-paper); background: var(--pm-wax);
+    border-radius: 3px; padding: 0.1em 0.38em;
+  }
+  .pm-alert-text { color: var(--pm-ink); }
+  .pm-alert-text b { color: var(--pm-wax); font-weight: 700; }
+  .pm-alert-foot {
+    margin: 0.7em 0.9em 0; padding-top: 0.55em; border-top: 1px solid var(--pm-line);
+    font: 0.7rem/1.4 var(--pm-mono); color: var(--pm-ink-soft);
+  }
+
   .pm-notif { position: relative; display: inline-flex; align-items: center; }
   .pm-notif[hidden] { display: none; }
 
@@ -1003,6 +1205,12 @@ const row = rowFor(active, { ownChips });
   /* phones: the panel becomes a fixed viewport sheet (positioned by the island
      from the bell's real spot), so the wax-seal pip no longer aligns — drop it. */
   @media (max-width: 640px) {
+    /* Anchored to the VIEWPORT, not to the glyph: the glyph sits a third of the
+       way across a narrow header, so a panel hung off it is either clipped at
+       one edge or flush against it. Fixed with an 8px gutter on both sides is
+       the only spelling that cannot run off. */
+    .pm-alert-pop { position: fixed; top: 56px; left: 8px; right: 8px; width: auto; }
+    .pm-alert-pop::before { display: none; }
     .pm-notif-panel::before { display: none; }
     .pm-notif-body { max-height: min(56vh, 340px); }
     .pm-tut { right: 10px; bottom: 58px; }

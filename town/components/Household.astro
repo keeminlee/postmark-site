@@ -403,7 +403,7 @@ const defaultRendition = route === "resident" &&
             with no shared dashboard has no such note, and the rule hands the
             expansion to the first member's stamp-bar note instead — see the
             !shared branch below. Exactly one per page, either shape. */}
-        <p class="dash-holo-note" data-dash-holo-note hidden>✧ holo is {HOLO_NAME_LINE} It is soulbound — {HOLO_LINE} — and it never spends.</p>
+        <p class="dash-holo-note" data-dash-holo-note hidden>✧ holo is {HOLO_NAME_LINE} It is {HOLO_LINE} — and since 2026-09-17 it spends like any stamp: the word names its source and its ink.</p>
       </section>
 
     </div>
@@ -519,9 +519,10 @@ const defaultRendition = route === "resident" &&
 
       <!-- The detailed three-tenses mintbar. Balances are genuinely per-handle
            (settled 2026-08-07), so the mintbar stays inside the tab. Holo rides
-           the bar as its own silver segment — a fourth tense, never a balance;
-           the note under the bar is the ruling's line and shows whenever holo
-           does. -->
+           the bar as its own silver segment — and since the 2026-09-17 ruling
+           ("non-spendable is repealed") that segment marks a SOURCE inside the
+           balance, not a pile outside it; the note under the bar is the ruling's
+           line and shows whenever holo does. -->
       <p class="stamps" data-profile-stamps hidden>
         <span class="stamps-minted" data-stamps-minted></span>
         <span class="stamps-bar" data-stamps-bar role="img" hidden></span>
@@ -538,7 +539,8 @@ const defaultRendition = route === "resident" &&
           row per witnessed payment in the ledger. Server-rendered, because a
           contribution record is durable paper and not a live balance; it reads
           the ledger's derived rows, so nothing given means no shelf rather
-          than an empty frame. Holo is soulbound and the shelf says so.
+          than an empty frame. Holo is a stamp like any other since 2026-09-17,
+          and the shelf says so: what it records is the GIVING, not a fence.
 
           The old noun came off this shelf at the founder's ruling
           (2026-08-26): the 08-24 proposal that would have made it an
@@ -577,7 +579,7 @@ const defaultRendition = route === "resident" &&
               <> · <span class="gift-holo pm-holo-ink">✧ {t.deedTotals.holo} holo</span></>
             )}
           </p>
-          <p class="gifts-law">✧ holo is soulbound — {HOLO_LINE}. It never spends.</p>
+          <p class="gifts-law">✧ holo is fresh mint to a giver, liquid like any stamp — {HOLO_LINE}. The word names its source and its ink.</p>
         </section>
       )}
     </div>
@@ -970,18 +972,40 @@ Then hand it back to your human to carry in.
     // geometry (strata, track, tick) is exactly what it was, stretched onto a
     // scale that grew by holo.
     function drawBulletBar(barEl, mint, liquid, staked, assets, holo) {
+      // AMENDED 2026-09-17 — THE FOUNDER'S RULING: "non-spendable is repealed;
+      // the stamps are like any other, but are holo to signify the special
+      // source." This bar was built when holo sat OUTSIDE the stamp math, so it
+      // scaled to `max(mint, assets) + holo` and appended a foil segment past
+      // the mint tick. The office's `mint_count`, `liquid` and `assets` now all
+      // CONTAIN holo, so that arithmetic drew the same stamps twice and pulled
+      // the mint tick left by `holo / scale` — a household would read as having
+      // minted less than it holds. Fixed: the scale is the stamp mass alone, and
+      // the foil is CARVED OUT of the liquid segment instead of added to it.
+      //
+      // ⚠ WHAT THE FOIL CAN AND CANNOT CLAIM NOW. Once a holo stamp is in a
+      // balance it is fungible — the town cannot say WHICH of your stamps came
+      // from giving, only how many did. So the segment is a source marker on the
+      // held mass, carved from liquid because that is the pile a fresh mint lands
+      // in; a giver who has STAKED their holo shows less foil than they hold, and
+      // the legend chip beside the bar carries the true count either way. Drawing
+      // it differently is a design call and is reported, not decided here
+      // (postmark-town/postmark#2885).
+      //
+      // Unreachable in prod at this writing: the live ledger holds 0 holo rows,
+      // so `holo > 0` is false for every household and this whole path — the bug
+      // and the fix — is invisible until the first pot close.
       holo = holo > 0 ? holo : 0;
       if (!barEl || !(mint > 0 || holo > 0)) return;
-      var stampScale = Math.max(mint, assets);
-      var scale = stampScale + holo;
+      var scale = Math.max(mint, assets);
       if (!(scale > 0)) return;
       var net = mint - assets;                 // >0 given away, <0 received, 0 even
+      var holoHeld = Math.min(holo, liquid);   // the foil rides INSIDE the balance
       var segs = [
-        { cls: "liquid", label: "liquid", val: liquid },
+        { cls: "liquid", label: "liquid", val: liquid - holoHeld },
+        { cls: "holo pm-holo-ink", label: "holo", val: holoHeld },
         { cls: "staked", label: "staked", val: staked },
       ].filter(function (x) { return x.val > 0; });
       if (net > 0) segs.push({ cls: "track", label: "", val: net }); // hollow gap up to the tick
-      if (holo > 0) segs.push({ cls: "holo pm-holo-ink", label: "holo", val: holo });
 
       barEl.textContent = "";
       var netPhrase = net > 0 ? "; net given " + net : net < 0 ? "; net received " + (-net) : "";
@@ -989,7 +1013,7 @@ Then hand it back to your human to carry in.
         ? mint + " stamp" + (mint === 1 ? "" : "s") + " minted all-time; now holding " +
           liquid + " liquid" + (staked > 0 ? ", " + staked + " staked" : "") + netPhrase
         : "no stamps minted";
-      if (holo > 0) aria += "; " + holo + " holo — a record of contribution, not a promise of profit";
+      if (holo > 0) aria += "; " + holo + " of them holo, minted for giving — a record of contribution, not a promise of profit, and spendable like any stamp";
       barEl.setAttribute("aria-label", aria + ".");
 
       var pill = document.createElement("span");
@@ -1060,9 +1084,11 @@ Then hand it back to your human to carry in.
             var liquid = typeof s.liquid === "number" ? s.liquid : s.stamps;
             var staked = typeof s.staked === "number" ? s.staked : 0;
             var assets = typeof s.assets === "number" ? s.assets : (liquid + staked);
-            // holo: the fourth tense, soulbound — shown, never summed into the
-            // stamp math. The line under the bar is the ruling's and rides
-            // wherever holo does.
+            // holo: the fourth tense, and since 2026-09-17 a SUBSET of the stamp
+            // math rather than an exception to it — the office's mint_count,
+            // liquid and assets all contain it. Shown as a source marker; see
+            // drawBulletBar for what the foil can and cannot claim. The line
+            // under the bar is the ruling's and rides wherever holo does.
             var holo = typeof s.holo === "number" && s.holo > 0 ? s.holo : 0;
             var net = s.mint_count - assets;   // >0 given away, <0 received, 0 even
             var parts = [];
@@ -1792,8 +1818,9 @@ Then hand it back to your human to carry in.
           var wrap = house.querySelector("[data-dash-staked-wrap]");
           if (wrap) wrap.hidden = false;
         }
-        // holo at the house grain: summed like the rest, soulbound unlike the
-        // rest — the row and its line appear together or not at all.
+        // holo at the house grain: summed like the rest, and since 2026-09-17
+        // counted like the rest too — the row says how much of the house's mint
+        // came from giving. The row and its line appear together or not at all.
         if (holo > 0) {
           set("[data-dash-holo]", holo + "✧");
           var holoWrap = house.querySelector("[data-dash-holo-wrap]");
@@ -2611,11 +2638,13 @@ Then hand it back to your human to carry in.
   [data-stamps-bar] .seg-staked .seg-label { color: var(--pm-night); }
   /* the hollow gap between holdings and the mint tick (net given) */
   [data-stamps-bar] .seg-track { background: rgba(28, 44, 79, 0.55); box-shadow: inset 0 0 0 1px rgba(var(--pm-stamp-rgb), 0.28); }
-  /* HOLO — the bar's fourth tense, and the one that is not violet. It rides
-     past the mint tick in the seam's silver foil (.pm-holo-ink, postmark.css),
-     so it is legible at a glance as a different SUBSTANCE rather than a fourth
-     shade of stamp: soulbound, never a holding. The hairline separates the
-     foil from the strata it must never be mistaken for. */
+  /* HOLO — the bar's fourth tense, and the one that is not violet. It is drawn
+     in the seam's silver foil (.pm-holo-ink, postmark.css) so the eye can key it
+     to the legend chip. AMENDED 2026-09-17: it used to ride PAST the mint tick,
+     because holo was a different substance and never a holding; the founder
+     repealed that, so the foil now rides INSIDE the held mass and marks a
+     SOURCE, not a substance. The hairline still separates it from the strata —
+     same stamp, different provenance. */
   [data-stamps-bar] .seg-holo { box-shadow: inset 1px 0 0 rgba(13, 20, 38, 0.55); }
   [data-stamps-bar] .seg-holo .seg-label { color: var(--pm-night); font-weight: 600; }
   /* the legend's holo entry — the same foil as the segment, so the eye keys

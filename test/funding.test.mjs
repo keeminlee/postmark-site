@@ -16,12 +16,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import {
   DEEDS_FIXTURE,
   FOUNDER_ACCOUNT,
   HOLO_NAME_LINE,
-  holoPerDollar,
+  mintPerDollar,
   beneficiaryLabel,
   firstCloseLabel,
   epochLabel,
@@ -184,13 +184,41 @@ test("the holo cap is the law's formula, not a stored number", () => {
   // So this test asserts the FORMULA and reads ρ from the dial. A hard-coded cap
   // here would be a second dial, and it would go red on a lawful ballot instead
   // of on a bug — which is the failure this whole alignment pass exists to fix.
+  //
+  // AMENDED 2026-09-17, and the base is what moved. This asserted
+  // `floor(ρ × primaryMint)` under the words "ρ × what the town has minted" —
+  // true while holo sat outside the mint. The founder: "funding minted stamps
+  // contribute to the max stamps you can get from another fund. it compounds by
+  // design." So the base is the ALL-SOURCES mint, which `readEconomy` now
+  // returns as `capBase` beside the cap it produced — a cap nobody can check is
+  // not a cap. The formula-not-a-constant discipline is unchanged: ρ and every
+  // term still come off the fixture.
   const e = readEconomy(ECONOMY_FIXTURE);
-  assert.equal(e.holoCap, Math.floor(e.rho * e.primaryMint), "ρ × what the town has minted");
+  assert.equal(e.capBase, e.primaryMint + e.holoIssued,
+    "the base is primary + holo (keeping mint is retired and reads 0) — leaving holo out is the repealed law");
+  assert.equal(e.holoCap, Math.floor(e.rho * e.capBase), "ρ × the town's mint from every source");
+  assert.notEqual(e.holoCap, Math.floor(e.rho * e.primaryMint),
+    "and the old narrower base is a different number here, so this assertion can actually fail");
   assert.equal(e.overCap, false);
-  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.holoCap + 1 }).overCap, true);
+  // ⚠ AND THE OVER-CAP PROBE HAD TO MOVE, which is a fact about the gauge and
+  // not about this test. It used to set `holo_issued = holoCap + 1` and expect
+  // `overCap`. That cannot work now: holo is inside its own base, so nudging
+  // holo up raises the cap with it. The town-wide condition solves to
+  // holo > ρ/(1−ρ) × primary, and at the launch dial ρ = 0.5 that is exactly
+  // holo > primary — i.e. "money's share of the town may not pass ρ", which is
+  // the constitutional sentence stated exactly ("money can come to own up to
+  // half of Postmark; it can never own more"). The OLD base capped money's share
+  // at ρ/(1+ρ) = 0.333, stricter than the constitution ever claimed. So the
+  // compounding base reads the ceiling MORE truly, not less.
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.holoCap + 1 }).overCap, false,
+    "one past the cap no longer trips it — the cap moved up with the input, and a probe that cannot fire is worth saying out loud");
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.primaryMint + 1 }).overCap, true,
+    "what DOES trip it at ρ = 0.5: holo past primary mint, which is money past half the town");
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.primaryMint }).overCap, false,
+    "and exactly half is lawful — the ceiling is inclusive, as the founder's word has it");
   // and the cap MOVES with the dial — the proof it is derived, not stored
   const halved = readEconomy({ ...ECONOMY_FIXTURE, rho: e.rho / 2 });
-  assert.equal(halved.holoCap, Math.floor((e.rho / 2) * e.primaryMint));
+  assert.equal(halved.holoCap, Math.floor((e.rho / 2) * e.capBase));
   assert.notEqual(halved.holoCap, e.holoCap, "a stored cap would not have moved");
 });
 
@@ -220,7 +248,13 @@ test("the closed pot's roll is the same holo its patrons' deeds carry", () => {
 });
 
 test("the σ-split floors, and the seam keeps the change", () => {
-  // THE LAW THIS ASSERTS — capture doc § 8, quoted:
+  // THE FIXTURE'S SHAPE, not the town's law: the closed pot below is told in
+  // the PRE-AMENDMENT emission shape (the funded share burned and split), which
+  // is the shape the emitter still cuts until POS-33 rebuilds the close under
+  // the amended rule (ECONOMY-DIALS.json law_side.keeping, 2026-09-14: nothing
+  // burns; every stake returns whole; the givers are minted fresh). What this
+  // test holds is that the fixture agrees with itself and with the emitter.
+  // THE LAW THE FIXTURE WAS CUT UNDER — capture doc § 8, quoted:
   //   "(1−σ) × pot mints to payers as Holo, by dollar share."
   // and R1 (floor both legs, remainder burns un-minted).
   //
@@ -269,18 +303,32 @@ test("the mintbar fixture agrees with the deeds it came from", () => {
   }
 });
 
-// ── holo is soulbound ────────────────────────────────────────────────────────
+// ── holo is a balance (soulbound repealed, 2026-09-17) ──────────────────────
 
-test("holo is never summed into anything that spends", () => {
-  // THE LAW THIS ASSERTS — capture doc § 9, quoted:
+test("holo is a SUBSET of what a household minted, and the tense arithmetic still closes", () => {
+  // THE LAW THIS USED TO ASSERT — capture doc § 9, quoted:
   //   "Soulbound equity denomination: no stake, no vote, no transfer. Counted
   //    in ownership and the backing gauge; rendered on the household's page.
   //    Holographic — you can see it; there's nothing inside to spend."
+  //
+  // REPEALED. THE FOUNDER, 2026-09-17, verbatim: "non-spendable is repealed; the
+  // stamps are like any other, but are holo to signify the special source." Holo
+  // is fresh mint to a giver, liquid like any stamp; the word names its source
+  // and its ink. So the old test's name — "holo is never summed into anything
+  // that spends" — is now the opposite of the law, and the assertion that read
+  // "holo is not a holding" is re-aimed rather than deleted.
+  //
+  // ⚠ WHAT THIS FILE CAN ASSERT. The site computes no balance: every number here
+  // arrives from the office's doors through tools/extract-town.mjs, and the
+  // office's own numbers arrive from the TOWN's foldBalances / foldMintCount. So
+  // the invariant that belongs to this repo is the one below — assets close, and
+  // holo never exceeds the mint it is part of. The credit itself is the town's
+  // and is falsified there (postmark-town/postmark#2811).
   for (const [handle, s] of Object.entries(STAMPS_FIXTURE)) {
     assert.equal(s.assets, s.liquid + s.staked,
-      `${handle}'s assets must be liquid + staked — holo is not a holding`);
+      `${handle}'s assets must be liquid + staked — that invariant is untouched by the ruling`);
     assert.ok(s.holo <= s.mint_count || s.mint_count === 0,
-      `${handle}: holo is a separate record, never folded into the mint count`);
+      `${handle}: holo is a SUBSET of the mint count, never larger than the number it is part of`);
   }
 });
 
@@ -444,35 +492,49 @@ test("the label is a display mapping — the routing truth is never rewritten", 
   }
 });
 
-// ── what an elastic pot would pay if it closed now ───────────────────────────
+// ── what a pot would mint per dollar if it closed now ─────────────────────────
 
-test("the estimate is the payers' side of the split, spread across the roll", () => {
-  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _close, quoted:
-  //   "When it runs, every standing stake converts in full … and holo splits by
-  //    dollar share across the WHOLE accumulated roll"
-  // so the pool is (1 − σ) of a burn equal to the whole staked mass, and it is
-  // divided by the dollars that will share it.
-  const econ = readEconomy(ECONOMY_FIXTURE);
+test("the estimate is the staked mass the dollars fund, spread across the roll", () => {
+  // THE LAW THIS ASSERTS — ECONOMY-DIALS.json § law_side.keeping._what
+  // (amended 2026-09-14), quoted:
+  //   "EVERY OPEN STAKE RETURNS WHOLE … the funding mint M = floor(fraction ×
+  //    the open staked mass) is minted fresh to the payers by dollar share of
+  //    the roll … Nothing burns."
+  // and, for the elastic pot, § _what: "an elastic pot reads 1 once its roll
+  // has met its floor" — so the whole staked mass is shared by the dollars
+  // that will share it, and nothing is halved by a σ that no longer applies.
   const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
   assert.equal(roll.staked, 4);
   assert.equal(roll.received, 2);
   assert.equal(roll.minCloseUsd, 5);
-  // (1 − 0.5) × 4 = 2 holo, over max(roll 2, floor 5) = 5  ->  0.4
-  assert.equal(holoPerDollar(roll, econ), 0.4);
+  // 4 staked, over max(roll 2, floor 5) = 5  ->  0.8
+  assert.equal(mintPerDollar(roll), 0.8);
 
   // THE FLOOR IS THE DENOMINATOR while the roll is under it, because a close
   // cannot run below it. Quoting today's smaller roll would hand a giver a
   // number that shrinks the moment anyone else gives.
   const under = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), received_usd: 1 });
-  assert.equal(holoPerDollar(under, econ), 0.4, "still divided by the floor, not by $1");
+  assert.equal(mintPerDollar(under), 0.8, "still divided by the floor, not by $1");
 
   // and past the floor the roll itself is the divisor
   const over = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), received_usd: 20 });
-  assert.equal(holoPerDollar(over, econ), 0.1, "(0.5 × 4) ÷ 20");
+  assert.equal(mintPerDollar(over), 0.2, "4 ÷ 20");
+
+  // AN EPOCH POT prices a dollar against its POSTED TARGET (§ _no_rate: "Dollars
+  // are priced against the town's own POSTED NEED, never against the staked
+  // mass"): 12 staked over the $150 target is 0.1 a dollar, whatever the roll
+  // holds today — intake refuses dollars past the target, so the roll can never
+  // outrun it.
+  const epoch = toPot(POT_FIXTURE[0]);
+  assert.equal(epoch.target, 150);
+  assert.equal(epoch.staked, 12);
+  assert.equal(mintPerDollar(epoch), 0.1, "12 ÷ 150, rounded to a tenth");
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE[0], staked: 30 })), 0.2, "30 ÷ 150");
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE[0], received_usd: 10, staked: 30 })), 0.2,
+    "the roll's size does not move an epoch pot's estimate — the target does");
 });
 
 test("the estimate refuses to exist wherever it would be a fiction", () => {
-  const econ = readEconomy(ECONOMY_FIXTURE);
   const find = (slug) => toPot(POT_FIXTURE.find((p) => p.pot === slug));
 
   // A POT WITH NO CLOSE TO RUN has nothing to estimate — a number beside
@@ -482,27 +544,27 @@ test("the estimate refuses to exist wherever it would be a fiction", () => {
   // unexercised. Its own can-fail flip caught that.
   const stakedBox = toPot({ ...POT_FIXTURE.find((p) => p.pot === "keeping-tin"), staked: 40 });
   assert.equal(stakedBox.closes, false, "the standing box still never closes");
-  assert.equal(holoPerDollar(stakedBox, econ), null,
+  assert.equal(mintPerDollar(stakedBox), null,
     "and no estimate, however much is staked on it");
   const stakedUnsaid = toPot({ ...POT_FIXTURE.find((p) => p.pot === "keeping-unsaid"), staked: 40 });
-  assert.equal(holoPerDollar(stakedUnsaid, econ), null,
+  assert.equal(mintPerDollar(stakedUnsaid), null,
     "nor for a pot the record has not spoken for");
-  assert.equal(holoPerDollar(find("keeping-tin"), econ), null, "the standing box as it ships");
-  // nothing staked means no burn, so no pool
-  assert.equal(holoPerDollar(toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), staked: 0 }), econ),
+  assert.equal(mintPerDollar(find("keeping-tin")), null, "the standing box as it ships");
+  // nothing staked means no mass to share, so no mint
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), staked: 0 })),
     null, "an unstaked pot");
-  // and no dials published means no σ to split by
-  assert.equal(holoPerDollar(find("darko-fund"), null), null, "no economy emission");
 });
 
-test("σ is read, so a dial that moves moves the estimate", () => {
-  // R10: "every other surface reads it rather than restating it." If σ were
-  // typed anywhere in this path, this would not budge.
+test("no dial is in the estimate's path: σ moving moves nothing", () => {
+  // Before 2026-09-14 the estimate halved the mass by (1 − σ), because the
+  // funded share burned and split. Nothing burns now, so the whole staked mass
+  // is the givers' — and a σ that only governs a bounty's wage cannot touch a
+  // pot's estimate. If σ were read anywhere in this path, this would budge.
   const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
-  const half = readEconomy(ECONOMY_FIXTURE);
-  const quarter = readEconomy({ ...ECONOMY_FIXTURE, sigma: 0.25 });
-  assert.equal(holoPerDollar(roll, half), 0.4);
-  assert.equal(holoPerDollar(roll, quarter), 0.6, "a smaller σ leaves a larger holo side");
+  const before = mintPerDollar(roll);
+  assert.equal(before, 0.8);
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund") })), before,
+    "the same row reads the same, with no economy emission in hand at all");
 });
 
 test("the emission stamps when it was made, and the reader carries it", () => {
@@ -677,11 +739,23 @@ test("the holo expansion has one home, and every surface imports it rather than 
   // STAMPS, and the pages should teach it. The sentence is a shared constant
   // for the same reason HOLO_LINE is one — one home, so a second surface
   // cannot drift a word of it.
+  //
+  // AMENDED 2026-09-17. The etymology is the founder's 2026-08-26 sentence and
+  // stands; its closing clause — "never spent as postage" — was the repealed law
+  // wearing the metaphor's clothes ("non-spendable is repealed"), so exactly
+  // that clause moved and nothing else did.
+  //
+  // ⚠ THE OFFICE SHIPS THE TWIN (postmark-office src/funding.mjs §
+  // HOLO_EXPANSION) and NOTHING CROSS-CHECKS THE TWO REPOS. If one of the two
+  // sweep PRs lands alone, the town teaches two sentences and neither suite goes
+  // red. One sentence, two repos, never two spellings.
   assert.equal(
     HOLO_NAME_LINE,
-    "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.",
+    "short for holographic stamp — the collector's shiny kind, kept in the album and shown; unlike the collector's, this one still spends.",
     "the founder's sentence is verbatim or it is not the founder's sentence",
   );
+  assert.doesNotMatch(HOLO_NAME_LINE, /never spent as postage/,
+    "the repealed clause must not survive inside the name-teaching, which is the sentence most residents meet first");
 
   for (const rel of HOLO_SURFACES) {
     const src = readFileSync(new URL(rel, import.meta.url), "utf8");
@@ -760,6 +834,100 @@ test("no built page teaches the expansion twice in flowing prose", { skip: !buil
   assert.deepEqual(twice, [], `these pages teach it more than once: ${twice.map(([p, n]) => `${p} (${n})`).join(", ")}`);
 });
 
+// ── THE REPEALED SENTENCE, SWEPT OFF EVERY BUILT PAGE (2026-09-17) ──────────
+//
+// THE NOTHING-BURNS EVENING'S LESSON (2026-09-16), applied a week later: a
+// repeal that is edited page by page leaves the old law standing on the page
+// nobody remembered. That evening it took six surfaces before the town agreed
+// with itself, and the citation list for THIS ruling arrived missing
+// town/components/Household.astro entirely — the household dashboard, with
+// eight holo mentions on it.
+//
+// So this does not check the pages the brief named. It checks ALL of them, by
+// the words the founder repealed, and it is the reason the dashboard's eight
+// were found at all.
+//
+// HOW TO FLIP IT RED: put "soulbound" back anywhere a built page renders.
+// WIDENED 2026-09-17 (the founder, verbatim): "holo does anything a normal
+// stamp can; staking vs voting is a nondistiction." The first ruling of the day
+// repealed non-spendable; this one repealed the voice half, and the voice
+// sentences were on DIFFERENT pages from the spendable ones -- the fund page's
+// money-moment disclosure, its fine-print law bullet, the stamps page's seam
+// pull quote and its ECONOMY.md quote block. The list below is the union, and
+// that is the point: one sweep per ruling leaves the other ruling's pages
+// standing.
+//
+// NOT ON THIS LIST, DELIBERATELY: "join the judgment". The town's own
+// JOINING.md still carries "Money can join the ownership; it can never join the
+// judgment", and /stamps/ quotes it inside a blockquote WITH ITS CITATION. The
+// quote is faithful to its source, so a probe that reddened on it would be
+// asking this repo to fork a quote rather than asking the town to amend the
+// line. The phrase joins this list the day JOINING.md is amended, and this
+// paragraph is the standing note of that gap.
+const REPEALED = [
+  "soulbound",                  // the word itself, on any surface
+  "never spent as postage",     // HOLO_NAME_LINE's old closing clause
+  "It never spends",            // the gifts shelf and the dashboard note
+  "no verbs",                   // the numbers footer
+  "a memory, never money",      // the stamps page's seam card
+  "excluded from every tally",  // the glossary entry
+  "never voice",                // the money-moment disclosure, on every fund page
+  "does not vote",              // any surface that withholds the ballot
+  "referred to the founder",    // the citation sweep's own referral language
+  "equity cannot vote",         // the ECONOMY.md quote block on /stamps/
+  "buys no say",                // the fund pages' law line and the hub footer
+  "never the judgment",         // the fine print's folk-law bullet
+  "a vote, or a say",           // the seam section's opening paragraph
+];
+
+test("NOT ONE built page still teaches the repealed law", { skip: !built }, () => {
+  // THE FOUNDER, 2026-09-17, verbatim: "non-spendable is repealed; the stamps
+  // are like any other, but are holo to signify the special source."
+  const pages = everyBuiltPage();
+  assert.ok(pages.length > 100, `this law is reading nothing — ${pages.length} built pages found`);
+  const offenders = [];
+  for (const p of pages) {
+    const plain = readFileSync(p, "utf8").replace(/&#0*39;|&#x0*27;|&apos;/gi, "'");
+    for (const phrase of REPEALED) if (plain.includes(phrase)) offenders.push(`${p.slice(DIST.length)}: ${phrase}`);
+  }
+  assert.deepEqual(offenders, [], `the repealed law is still rendered:\n  ${offenders.join("\n  ")}`);
+});
+
+test("and the ruling's own rule IS on the pages that teach the word", { skip: !built }, () => {
+  // The other half, so "swept clean" cannot be satisfied by saying nothing at
+  // all. The one-line rule, from the sweep brief: "holo is fresh mint to a
+  // giver, liquid like any stamp; the word names its source and its ink."
+  for (const rel of [["stamps", "index.html"], ["numbers", "index.html"]]) {
+    const html = readFileSync(join(DIST, ...rel), "utf8");
+    assert.match(html, /liquid like any stamp/,
+      `/${rel[0]}/ teaches holo and must carry the ruling's rule`);
+  }
+});
+
+test("and the VOICE half is on the pages too, not merely absent", { skip: !built }, () => {
+  // The same discipline for the second ruling of 2026-09-17 ("holo does anything
+  // a normal stamp can; staking vs voting is a nondistiction"). Deleting the
+  // repealed sentences satisfies the sweep above by saying NOTHING, which is the
+  // failure mode that sweep was written to avoid in the first place. So: the
+  // money moment must state the vote AND the bound, because a patron told their
+  // stamps vote and not told their share is capped has been told half the truth.
+  // Path-separator-agnostic on purpose: everyBuiltPage() joins with the
+  // platform's separator, and a regex written with one of them reads zero pages
+  // on the other — a filter that returns nothing passes every for-loop after it
+  // in silence. The length assertion below is what makes that impossible.
+  const fundPages = everyBuiltPage()
+    .map((p) => ({ p, rel: p.slice(DIST.length).split(sep).join("/") }))
+    .filter((x) => /^fund\/[^/]+\/index\.html$/.test(x.rel));
+  assert.ok(fundPages.length > 0, "this law is reading nothing — no built fund page found");
+  for (const { p, rel } of fundPages) {
+    const html = readFileSync(p, "utf8");
+    assert.match(html, /including vote/, `/${rel} is a money moment and must say the stamps vote`);
+    assert.match(html, /is capped/, `/${rel} states the vote and must state the bound in the same breath`);
+  }
+  const stamps = readFileSync(join(DIST, "stamps", "index.html"), "utf8");
+  assert.match(stamps, /cap on money/, "the Rules name what bounds money, now that no verb does");
+});
+
 test("the glossary's holo entry says what the name is short for", { skip: !built }, () => {
   // The exemption, asserted from the other side: the once-per-page tests cut
   // the glossary out, so without this the entry could quietly lose the
@@ -785,9 +953,16 @@ test("each money surface teaches it exactly once outside the glossary, in both o
   // stopped teaching it" and "the hub quietly lost a paragraph" are the same
   // number to a test that only knows how to want one.
   const named = [join(DIST, "stamps", "index.html"), join(DIST, "numbers", "index.html")];
+  // ONE PAGE PER POT — the entries under dist/fund that are pot directories.
+  // /fund/ itself is an index (the Guild cards, no money moment, no holo word)
+  // since 2026-09-16, so a bare listing would name a file that is not a pot
+  // page; a money surface is a page that carries a pot.
   const fundDir = join(DIST, "fund");
   if (existsSync(fundDir)) {
-    for (const pot of readdirSync(fundDir)) named.push(join(fundDir, pot, "index.html"));
+    for (const pot of readdirSync(fundDir)) {
+      const page = join(fundDir, pot, "index.html");
+      if (existsSync(page)) named.push(page);
+    }
   }
 
   // ...and one household page of EACH shape, discovered rather than named, so
@@ -884,7 +1059,7 @@ test("the fund page reads the roll the seam has always emitted", () => {
   // is the disclosure beside it — a reader meeting an unattached line deserves
   // to be told what it is and what it could not do.
   assert.match(page, /could not attach to a hand/, "and says what an unattached payer is");
-  assert.match(page, /cannot do is mint holo/, "including the honest half");
+  assert.match(page, /cannot do is be minted anything/, "including the honest half");
 });
 
 test("an UNCAPPED pot publishes what arrived — no posted need was never a reason to hide the total", () => {

@@ -1,6 +1,9 @@
 // funding.mjs — the funding seam's reader: pots, deeds, and the town's numbers.
 //
-// Real dollars keep the town's lights on without ever buying judgment. The
+// Real dollars keep the town's lights on, and what they buy is bounded by an
+// amount rather than by a verb: since 2026-09-17 the stamps a gift mints do
+// everything a stamp does — they stake, they vote, they pay — and rho caps
+// money's share of a household. The
 // ledger lane (branch seam/ledger-legs) owns the law; this file owns the
 // READING of it, once, so the pages stay presentation.
 //
@@ -27,13 +30,32 @@
 // its own absence honestly. The board's law holds — a number invented to look
 // alive is a lie about the economy.
 //
-// ── HOLO IS SOULBOUND ────────────────────────────────────────────────────────
-// Ruled by Keemin 2026-08-20 and enforced in the ledger by ROW SHAPE: the holo
-// row is arrow-free, so no balance, mint, or stake fold can ever see one. Holo
-// cannot stake, vote, pay, or transfer. On this side of the wire that means:
-// holo is never rendered as a balance, never summed into liquid/staked/assets,
-// and every surface that shows it carries HOLO_LINE. That is the ruling, not a
-// style choice.
+// ── HOLO IS A BALANCE (soulbound repealed, 2026-09-17) ──────────────────────
+// THE FOUNDER'S RULING, verbatim: "non-spendable is repealed; the stamps are
+// like any other, but are holo to signify the special source." And: "I'm good
+// to let funding minted stamps contribute to the max stamps you can get from
+// another fund. it compounds by design." (postmark-town/postmark#2811 § RULED.)
+//
+// This block said holo was soulbound — ruled 2026-08-20, enforced by row shape,
+// no verbs, never a balance. That is REPEALED. In one line, wherever a surface
+// needs the rule: HOLO IS FRESH MINT TO A GIVER, LIQUID LIKE ANY STAMP; THE
+// WORD NAMES ITS SOURCE AND ITS INK. A holo row of n is n stamps in the payer's
+// balance and in minted-cumulative; it stakes, votes, pays and transfers; and it
+// counts toward their cap at the next close.
+//
+// The arrow-free ROW SHAPE stays, and its reason is the surviving half of the
+// old one: a holo row is a MINT, not a movement, so the folds credit it by KIND.
+// That is the town's own job (tools/stamp-mint.mjs § foldBalances /
+// foldMintCount) and the office's numbers derive from it; nothing on this side
+// of the wire computes a balance at all.
+//
+// SO WHAT CHANGES HERE IS THE TEACHING, NOT THE NUMBERS. The site's numbers come
+// from the office's doors through tools/extract-town.mjs; they move on their own
+// when the town's folds land and the office redeploys. No fixture below is
+// re-pointed to fake that. HOLO_LINE ("a record of contribution, not a promise
+// of profit") is untouched: it was always about money, never about spending, and
+// it remains exact. The holo INK stays everywhere it is drawn — it is now the
+// whole of what the word means.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -75,8 +97,18 @@ export const HOLO_LINE = "a record of contribution, not a promise of profit";
 // one home, so a second surface cannot drift a word of it — and the falsifiers
 // in funding.test.mjs assert both halves: that no page retypes the sentence,
 // and that each built page carries it exactly once.
+// AMENDED 2026-09-17 at the founder's ruling ("non-spendable is repealed"). The
+// etymology is his 2026-08-26 sentence and stands; its closing clause — "never
+// spent as postage" — was the repealed law wearing the metaphor's clothes, so
+// exactly that clause moved and nothing else did.
+//
+// ⚠ THE OFFICE SHIPS THE TWIN OF THIS SENTENCE (postmark-office src/funding.mjs
+// § HOLO_EXPANSION) and moves with it in the same sweep. NOTHING CROSS-CHECKS
+// THE TWO REPOS: if one of the two PRs lands alone the town teaches two
+// sentences and no suite in either repo goes red. One sentence, two repos,
+// never two spellings.
 export const HOLO_NAME_LINE =
-  "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.";
+  "short for holographic stamp — the collector's shiny kind, kept in the album and shown; unlike the collector's, this one still spends.";
 
 // The one-breath answer to "what is this pot?" — the FIRST SENTENCE of the pot
 // file's own prose, never invented copy. Born of the founder's 2026-08-26
@@ -170,39 +202,47 @@ export function intakeFor(pot) {
 //
 // Every other handle renders as itself — this maps exactly one account, so a
 // second beneficiary can never be quietly relabelled as the town.
-// ── WHAT AN ELASTIC POT WOULD PAY, IF IT CLOSED THIS MOMENT ──────────────────
-// An estimate of holo per dollar, for a giver deciding right now. The law it
-// runs on, from WHITE_PAGES/pot-darko-fund.json § _close:
+// ── WHAT A POT WOULD MINT PER DOLLAR, IF IT CLOSED THIS MOMENT ───────────────
+// An estimate of stamps per dollar, for a giver deciding right now. The law it
+// runs on, ECONOMY-DIALS.json § law_side.keeping (amended 2026-09-14):
 //
-//   "When it runs, every standing stake converts in full … and holo splits by
-//    dollar share across the WHOLE accumulated roll"
+//   "EVERY OPEN STAKE RETURNS WHOLE … the funding mint M = floor(fraction × the
+//    open staked mass) is minted fresh to the payers by dollar share of the
+//    roll … Nothing burns."
 //
-// so at a close the holo pool is the payers' side of the split — (1 − σ) of the
-// burn — and every standing stake burns in full, which makes the burn the pot's
-// staked mass. Spread across the roll's dollars, that is:
+// so at a close the givers share the staked mass the dollars funded. Spread
+// across the dollars that will share it, that is:
 //
-//   holo per dollar ≈ ((1 − σ) × staked) ÷ max(roll, floor)
+//   an epoch pot     stamps per dollar ≈ staked ÷ the posted target
+//                    (each dollar funds one target's-worth of the mass; intake
+//                    refuses dollars past the target, so the roll never exceeds it)
+//   an elastic pot   stamps per dollar ≈ staked ÷ max(roll, floor)
+//                    (the roll is fully funded once it holds its floor)
 //
 // The floor is in the denominator because a close cannot run below it: until
-// the roll reaches it, the dollars that would share the pool are the floor's
+// the roll reaches it, the dollars that would share the mass are the floor's
 // worth, not today's smaller roll. Using the bare roll would quote a giver a
 // number that shrinks the moment anyone else gives, which is the opposite of
 // what the estimate is for.
 //
-// EVERY INPUT IS READ. σ comes from the economy emission, staked and the roll
-// from the pot row, the floor from the pot file. Nothing here is a typed
-// constant, so a dial that moves needs no edit (R10).
+// BEFORE THE CAP and before the household exclusion: the estimate is the mass
+// shared by dollar, and a giver's own stakes, or a cap of ρ × a thin earned
+// base, can only lower it. EVERY INPUT IS READ — staked and the roll from the
+// pot row, the target and the floor from the pot file. No dial is in this path
+// since the σ leg retired: there is no burn to split.
 //
 // It returns null rather than a zero whenever the estimate would be a fiction:
-// no dials published, nothing staked, or a pot that has no close to run.
-export function holoPerDollar(pot, econ) {
-  if (!pot || !econ || !pot.closes) return null;
+// nothing staked, or a pot that has no close to run.
+export function mintPerDollar(pot) {
+  if (!pot || !pot.closes) return null;
   const staked = Number(pot.staked ?? 0);
   if (!Number.isFinite(staked) || staked <= 0) return null;
+  const target = pot.target != null ? Number(pot.target) : null;
   const floor = pot.minCloseUsd != null ? Number(pot.minCloseUsd) : null;
-  const denom = Math.max(Number(pot.received ?? 0), floor ?? 0, 1);
-  const pool = (1 - econ.sigma) * staked;
-  return Math.round((pool / denom) * 10) / 10;
+  const denom = target != null && target > 0
+    ? target
+    : Math.max(Number(pot.received ?? 0), floor ?? 0, 1);
+  return Math.round((staked / denom) * 10) / 10;
 }
 
 export function beneficiaryLabel(beneficiary) {
@@ -475,10 +515,11 @@ export function toPot(raw) {
     //              — carried dollars plus this month's — totals at least
     //              min_close_usd; otherwise dollars and stakes both stand and
     //              ride to the next month … Nothing is ever refused at intake."
-    //   "epoch"    the monthly pot. pot-keeping-ec2.json § source: "at each
-    //              month's close, the share of every stake that the month's
-    //              dollars funded burns and splits between the stakers
-    //              themselves and the payers per the keeping law
+    //   "epoch"    the monthly pot. pot-keeping-ec2.json § source (amended
+    //              2026-09-14): "At each month's close every stake comes home
+    //              whole, and the stakes size the reward: the share of the
+    //              staked mass that the month's dollars funded is minted fresh
+    //              to the givers by dollar share, per the keeping law
     //              (ECONOMY-DIALS.json law_side.keeping)". The prose always
     //              ruled it; the WORD was made explicit 2026-08-25, after this
     //              page and the MCP's fund read derived the same silent pot in
@@ -595,69 +636,58 @@ export function loadPots({ path = null } = {}) {
 //     "rho_constitutional_ceiling": 0.5,   — ρ may never exceed this
 //     "treasury_usd":              175,    — dollars the town holds
 //     "primary_mint_earned":       2400,   — earned primary mint, ✦, town-wide
+//     "primary_mint_fold":  "foldPrimaryMint",  — which town fold answered it
 //     "holo_issued":               19      — holo ever minted (never burned)
 //   }
 //
-// WHAT THE TWO DIALS ACTUALLY MEAN:
+// WHAT THE TWO DIALS ACTUALLY MEAN (as amended 2026-09-14/15 — nothing burns
+// anywhere in the town; the pre-amendment text stands in this file's history):
 //
-//   σ is the EPOCH-CLOSE SPLIT. When witnessed dollars match staked stamps,
-//   those stamps BURN, and the matched burn converts to equity exactly once.
-//   The governing text is the capture doc § 8 (postmark-economy-ontology.md),
-//   quoted:
+//   σ is the DELIVERER'S FRACTION at a bounty's conversion. ECONOMY-DIALS.json
+//   law_side.conversion._deliverer_paid, quoted: "the deliverer is minted fresh
+//   floor(sigma x M), liquid — a wage" where M is the standing stakes, every
+//   one of which returns whole. σ has NO LEG IN A POT'S CLOSE since 2026-09-14
+//   (law_side.keeping._sigma: "there is no burn to split").
 //
-//     "σ × pot mints back to the keepers as their own equity, at par of their
-//      burn — permanent, verb-less, remembered ('everything you've ever
-//      given'). ... (1−σ) × pot mints to payers as Holo, by dollar share."
+//   A POT'S CLOSE, law_side.keeping._what, quoted: "EVERY OPEN STAKE RETURNS
+//   WHOLE (pot-return rows); the funding mint M = floor(fraction × the open
+//   staked mass) is minted fresh to the payers by dollar share of the roll, a
+//   payer's own household's stakes excluded from the mass sized for that payer,
+//   floors per payer, the remainder un-minted; and a household's funding mint
+//   from one close is capped at rho × its earned base. Nothing burns." The
+//   givers' reward is ordinary liquid mint, source-tagged `for: funding:<pot>`
+//   (_holo: "RETIRED for the funding seam 2026-09-14"); the keeping mint and
+//   the σ leg are retired with the burn (_keeping_mint).
 //
-//   THE KEEPERS ARE THE STAKERS. § 8's lifecycle names them: "Households stake
-//   keeping-stakes on it (the want signal + the pricing mass)." So the σ leg
-//   goes back to the households whose stamps burned, per-staker at par — NOT
-//   to the pot's beneficiary, who receives dollars and never stamps.
+//   The emission's `keeping_mint` and `holo_issued` fields stay: they are the
+//   RECORD's shape (no close ever ran under the old rule, so both read 0), and
+//   readEconomy keeps folding them so a ledger that carries the rows renders
+//   them honestly. The close's own emission shape under the amended rule is
+//   POS-33's lane (tools/epoch-close.mjs rebuilt against the amended close);
+//   the fixture below still tells the pre-amendment story for exactly that
+//   reason — it is coherent with the emitter as it stands, not with the law.
 //
-//   R12 (Keemin, 2026-08-21 afternoon) then names what that leg IS, and the
-//   ledger landed it (seam/ledger-legs-aligned 3668881b):
+//   There is no dollar↔stamp rate anywhere in the seam (law_side.keeping
+//   ._no_rate): a pot's dollars are priced against its OWN posted need,
+//   funded_fraction = min(1, non-treasury dollars ÷ target_usd_per_epoch), and
+//   the funded fraction of the staked mass is what the givers share. A fully
+//   funded pot lends its whole staked mass, however large the pile — the town
+//   prices money by how much it stakes.
 //
-//     "the σ leg IS ORDINARY MINT, source-tagged (`minted · for: keeping:<pot>`),
-//      with NO liquid coin (the coin was paid when the stake burned; the row
-//      stays purpose-tagged so balance folds never hand liquid back). It COUNTS
-//      toward the ρ base (holo cap base = earned primary mint + keeping mint).
-//      It stays EXCLUDED from the genesis parity formula."
+//   ρ is the FUNDING-MINT CAP (law_side.keeping._rho_owner, re-aimed
+//   2026-09-14: "rho caps the FUNDING MINT — a household's fresh mint from one
+//   close ≤ rho × its earned base (the rho base = earned primary mint)"). The
+//   holoCap this module folds is the same multiplication over the record's
+//   base and is what the holo gauges read. ρ may never exceed the
+//   constitutional ceiling of 0.5 — keepingDial() refuses a dial that tries.
+//   It is NOT the treasury's take.
 //
-//   So the noun "keeping-equity" is RETIRED from every resident-facing surface.
-//   The vocabulary on this site is "minted · for keeping" — or, in plain
-//   reader's English, "your permanent record". Two older row shapes are gone
-//   with it: the MINT-shaped `keeper-equity:<pot>/<epoch>` row, and the
-//   `keeping-equity ·` row. The live row is:
-//
-//     - <date> · minted · <staker> · <n> · for: keeping:<pot> · epoch:<epoch>
-//
-//   Arrow-free for the same reason a holo row is — and here that shape is what
-//   "no liquid coin" MEANS: the town's balance and mint-count folds key on the
-//   movement shape, so neither can see this row.
-//
-//   Nothing in this file reads that row, or any ledger row: the site parses no
-//   ledger text at all. The emitter folds the seam into the three JSONs above
-//   and this module reads only those. A grammar change reaches the site as a
-//   changed field, never as a changed parse.
-//
-//   σ is NOT a per-dollar mint rate — there is no dollar↔stamp rate anywhere
-//   in the seam. A pot converts against its OWN posted need:
-//   funded_fraction = min(1, non-treasury dollars ÷ target_usd_per_epoch),
-//   and each stake burns floor(fraction × stake) with the rest returning
-//   whole. A fully funded pot burns every stake, however large the pile — the
-//   town prices money by how much it stakes.
-//
-//   The σ leg is still NOT spendable — that is the "no liquid coin" half. And
-//   D1 (same day) settles where it lives: "ownership is a derived READ = minted
-//   (all sources) + holo — NOT a tense; no fifth tense node." So this site
-//   renders no fifth segment and no new balance; the leg is named in words, and
-//   the door is where the ownership read is served.
-//
-//   ρ is the HOLO CAP RATIO (ECONOMY-DIALS.json law_side.keeping._holo:
-//   "a household's holo <= rho x its RHO BASE, clipped at conversion, excess
-//   recorded as deed only"), where R12 sets the base = earned primary mint +
-//   keeping mint. ρ may never exceed the constitutional ceiling of 0.5 —
-//   keepingDial() refuses a dial that tries. It is NOT the treasury's take.
+//   ⚠ THE BASE MOVED 2026-09-17, on the founder's word: "I'm good to let
+//   funding minted stamps contribute to the max stamps you can get from another
+//   fund. it compounds by design." The ρ base is now the mint from EVERY source,
+//   holo included — so holo counts toward its own cap and the ceiling rises as
+//   the town gives. `readEconomy` folds that base and returns it as `capBase`,
+//   beside the cap it produced, because a cap nobody can check is not a cap.
 //
 //   ρ's VALUE is not written anywhere on this site, and that is deliberate.
 //   R10: "Owner of the number: `ECONOMY-DIALS.json § law_side.keeping.rho`;
@@ -691,6 +721,17 @@ export function readEconomy(raw) {
   // keeping_mint fold still render, at the narrower base they were built on.
   const keepingMint = dial(raw.keeping_mint) ?? 0;
   const holoIssued = dial(raw.holo_issued);
+  // ⚠ WHICH FOLD ANSWERED `primary_mint_earned`, and why this read needs to know
+  // (2026-09-17). After postmark-town/postmark#2886 the town's `foldMintCount`
+  // counts holo, so the extractor calls `foldPrimaryMint` when the checkout has
+  // it and says so here. Absent — every emission written before this field —
+  // means `foldMintCount` answered, and before the merge that fold cannot see an
+  // arrow-free holo row, so the number is primary alone either way.
+  //
+  // The one case the flag exists for: a checkout PAST the merge that lacks the
+  // new export. There `primary_mint_earned` already carries holo, and adding
+  // `holo_issued` to the cap base below would count it TWICE.
+  const primaryCarriesHolo = raw.primary_mint_fold === "foldMintCount" && holoIssued > 0;
   if ([sigma, rho, ceiling, treasuryUsd, primaryMint, holoIssued].some((v) => v == null)) return null;
 
   // keepingDial's own refusal, mirrored: a dial that breaks the constitutional
@@ -699,11 +740,23 @@ export function readEconomy(raw) {
   // ρ past the ceiling would never have closed an epoch in the first place.
   if (!(sigma > 0 && sigma < 1) || rho < 0 || rho > ceiling) return null;
 
-  const holoCap = Math.floor(rho * (primaryMint + keepingMint));
+  // ⚠ RE-AIMED 2026-09-17 at the founder's word, verbatim: "I'm good to let
+  // funding minted stamps contribute to the max stamps you can get from another
+  // fund. it compounds by design." The ρ base was earned primary mint (+ keeping
+  // mint, R12); it is now the mint from EVERY source, holo included — so holo
+  // enters its own cap's base and the cap rises as the town gives. Under the old
+  // base a town that had only ever minted holo could mint no more of it; that is
+  // the sentence the founder repealed.
+  //
+  // `holoIssued` is added only when `primary_mint_earned` does not already
+  // carry it (see `primaryCarriesHolo` above). Both spellings of the base are
+  // the same number until the first close, because the ledger holds 0 holo rows.
+  const capBase = primaryMint + keepingMint + (primaryCarriesHolo ? 0 : holoIssued);
+  const holoCap = Math.floor(rho * capBase);
   return {
     asOf: String(raw.as_of ?? "").slice(0, 10) || null,
     sigma, rho, rhoCeiling: ceiling,
-    treasuryUsd, primaryMint, holoIssued, holoCap,
+    treasuryUsd, primaryMint, holoIssued, holoCap, capBase,
     // the backing gauge: dollars the town holds per ✧ ever minted. Holo is
     // never burned, so issued IS the cumulative mint. A fact about the
     // treasury, never a redemption promise.
@@ -725,7 +778,12 @@ export function readEconomy(raw) {
 // import.meta.env.DEV. A fixture that can appear on the live site is a lie
 // about what was actually funded.
 //
-// THE STORY: keeping-ec2 (the town's box, $150/mo) closed 2026-08 at target.
+// THE STORY — told in the PRE-AMENDMENT emission shape. The fixture's closed
+// pot was cut under the law as it stood before 2026-09-14 (the funded share
+// burned and split); that is still the shape the emitter cuts until POS-33
+// rebuilds the close, so the fixture stays coherent with the emitter and with
+// itself, not with the amended law. No live pot has ever closed under either.
+// keeping-ec2 (the town's box, $150/mo) closed 2026-08 at target.
 // $150 witnessed from three patrons; 40✦ of staked escrow burned; σ=0.5 split
 // it 20 minted back to the stakers, source-tagged for keeping / 20 into the
 // payers' holo pool, shared by dollar:
@@ -896,6 +954,10 @@ export const ECONOMY_FIXTURE = {
   rho_constitutional_ceiling: 0.5,
   treasury_usd: 175,
   primary_mint_earned: 2400,
+  // The fixture runs as a post-#2886 checkout does: the extractor called the
+  // town's `foldPrimaryMint`, so 2400 is primary alone and `holo_issued` enters
+  // the ρ base beside it (capBase 2419, cap ⌊0.5 × 2419⌋ = 1209).
+  primary_mint_fold: "foldPrimaryMint",
   holo_issued: 19,
 };
 
