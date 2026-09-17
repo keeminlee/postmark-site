@@ -13,6 +13,7 @@ import media from "@/data/postmark/media.json";
 import ledger from "@/data/postmark/ledger.json";
 import friendships from "@/data/postmark/friendships.json";
 import { md, fmtDate, townFile, threadTitle } from "@/lib/pm.mjs";
+import { replyTarget } from "@/lib/mail-reply.mjs";
 
 // git-event legibility (support case, 2026-07-19): the happy path says so in
 // human words — a delivered letter wears its ledger receipt as "✓ delivered".
@@ -103,17 +104,29 @@ const monthMarks = weeks.map((col, i) => {
 const railItems = pairLetters.map((l) => ({
   id: l.id, date: l.date, from: l.from, title: threadTitle(l.id), hue: hueOf(tkeyOf(l)), tkey: tkeyOf(l),
 }));
-const composeHref = `/mail/compose/?to=${otherOf(lastSender)}&thread=${encodeURIComponent(tkeyOf(last))}`;
+// A reply names the LETTER it answers, never the conversation root (#2876):
+// `thread` at the office is a direct edge, and a root id answers nothing. The
+// desk link cannot know its viewer, so it names the newest letter delivered in
+// this correspondence — the office's `latest_delivered_id` notion — which is
+// the right letter for the recipient writing back and a harmless one for the
+// last sender following up. The in-page composer below knows who is signed in
+// and asks replyTarget for the newest letter that viewer did not write.
+const composeHref = `/mail/compose/?to=${otherOf(lastSender)}&thread=${encodeURIComponent(last.id)}`;
 
-// thread options for the in-page composer, most recently touched first
+// thread options for the in-page composer, most recently touched first. Each
+// carries its letters (newest first) so the composer can name the one the
+// signed-in viewer is answering once it knows who that is.
 const threadLast = new Map();
+const threadLetters = new Map();
 for (const l of pairLetters) {
   const k = tkeyOf(l);
   if (!threadLast.has(k) || threadLast.get(k) < l.date) threadLast.set(k, l.date);
+  if (!threadLetters.has(k)) threadLetters.set(k, []);
+  threadLetters.get(k).push({ id: l.id, from: l.from, date: l.date });
 }
 const threadOptions = [...threadOrder]
   .sort((x, y) => threadLast.get(y).localeCompare(threadLast.get(x)))
-  .map((k) => ({ key: k, title: threadTitle(k), last: threadLast.get(k) }));
+  .map((k) => ({ key: k, title: threadTitle(k), last: threadLast.get(k), letters: threadLetters.get(k) }));
 const composerData = { a, b, lastSender, threads: threadOptions };
 
 // The budding-friendship milestone (quest gold, decision 7 — it lives HERE, on
@@ -348,6 +361,7 @@ const pct = (n, t) => Math.max(0, Math.min(100, Math.round((n / t) * 100)));
     // this page KNOWS the correspondence, so the thread field is a named menu
     // instead of an id you have to go find.
     import { KEYS, OFFICE, tokenIsFresh } from "@/lib/auth.mjs";
+    import { replyTarget } from "@/lib/mail-reply.mjs";
 
     const OFFICE_BASE = (() => {
       try { return localStorage.getItem("pm.office.base") || OFFICE; } catch { return OFFICE; }
@@ -407,11 +421,17 @@ const pct = (n, t) => Math.max(0, Math.min(100, Math.round((n / t) * 100)));
       const errEl = $("[data-c-error]"), statusEl = $("[data-c-status]"), sendBtn = $("[data-c-send]");
       let me = null, booted = false;
 
-      function fillThreads() {
+      // The option's VALUE is the letter this viewer is answering in that thread
+      // (the newest one they did not write), never the thread key — the office
+      // reads `thread` as a direct edge to a letter, and a root answers nothing
+      // (#2876). The key stays on the option as data so the label is still the
+      // thread's.
+      function fillThreads(from) {
+        const targetOf = (t) => replyTarget(t.letters, from);
         threadEl.innerHTML =
-          pair.threads.map((t) => `<option value="${t.key}">↩ ${t.title} (${t.last.slice(5)})</option>`).join("") +
+          pair.threads.map((t) => `<option value="${targetOf(t)}" data-thread-key="${t.key}">↩ ${t.title} (${t.last.slice(5)})</option>`).join("") +
           `<option value="new">✚ a new thread</option>`;
-        threadEl.value = pair.threads.length ? pair.threads[0].key : "new";
+        threadEl.value = pair.threads.length ? targetOf(pair.threads[0]) : "new";
       }
       function configure() {
         const mine = me.handles.filter((h) => h === pair.a || h === pair.b);
@@ -420,7 +440,7 @@ const pct = (n, t) => Math.max(0, Math.min(100, Math.round((n / t) * 100)));
         const targets = mine.length ? [pair.a, pair.b].filter((h) => h !== mine[0]) : [pair.a, pair.b];
         toEl.innerHTML = targets.map((h) => `<option value="${h}">${h}</option>`).join("");
         if (!mine.length) { threadEl.innerHTML = `<option value="new">✚ a new thread</option>`; threadEl.value = "new"; }
-        else fillThreads();
+        else fillThreads(from);
         panel.dataset.from = from;
       }
       async function boot() {
