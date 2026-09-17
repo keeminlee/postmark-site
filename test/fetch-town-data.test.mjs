@@ -692,10 +692,21 @@ test("THE GATE: a 200-card roll into a nearly-empty keyless queue completes, wit
   assert.ok(run.refused > 0, "the premise: this roll IS refused on the way through, or the test proves nothing");
   assert.ok(run.clock < DEFAULT_FETCH_TOWN_DEADLINE_MS,
     `the roll must finish inside the run budget (took ${run.clock} ms of the ${DEFAULT_FETCH_TOWN_DEADLINE_MS} ms budget)`);
-  // ONE REFUSAL PARKS EVERY LANE. Without this the gate is six private waits
-  // wearing one name, and the fifth lane spends the budget the first lane was
-  // already waiting out.
-  assert.deepEqual(run.issuedWhileParked, [], "no lane may issue a request while the gate is parked");
+  // ONE REFUSAL PARKS EVERY LANE, and the proof of it is a COUNT, not a
+  // silence. The first cut asserted only `issuedWhileParked === []`, and the
+  // flip that removes the park left that GREEN -- with nothing ever parked,
+  // "nothing was issued while parked" is vacuously true. A probe that cannot
+  // fail is not a probe.
+  //
+  // What the shared park is actually FOR, measured on this same roll: with it,
+  // 33 refused requests; with the park removed, 17 800. Both runs deliver all
+  // 200 cards, because the budget is spent in time either way -- so the thing
+  // at stake was never the cards, it was 540x the refused traffic against a
+  // door every other resident is also knocking on. That is the number to hold.
+  assert.ok(run.refused < 200,
+    `the shared park must keep refusals to roughly one per card: ${run.refused} (measured 33 with the park, 17 800 without it)`);
+  assert.deepEqual(run.issuedWhileParked, [],
+    "and while a park IS running, no lane may issue through it (this one cannot catch a MISSING park -- the count above is what does)");
 });
 
 test("\u269a THE FLIP: the same roll with the gate removed loses the tail", async () => {
