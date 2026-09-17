@@ -233,3 +233,22 @@ test('"never closes" is a claim the page may only make when the town said it', (
   assert.ok(block.indexOf("This one never closes") < block.indexOf("is not in the town's record yet"),
     "and the humble arm is the LAST one — the fallthrough is the honest case, never the claim");
 });
+
+test("the stake island reads the act's answer inside the household door's envelope (postmark#2880)", () => {
+  // THE LAW THIS ASSERTS — postmark-office src/household-apex.mjs, the apex's
+  // last line: `return result?.error ? { ...result, ...done } : { ...done, result }`.
+  // A successful act's answer (applied, balance_after, reason, mode) rides
+  // INSIDE `result`; a bounce rides flat. The first cut of this island read the
+  // success fields at the top level, printed "nothing staked" over a stake that
+  // had landed (wright → stake:pot/darko-fund · 200, twice, 2026-09-17 07:45Z),
+  // and the founder staked twice. This pins the unwrap and the two reads.
+  const island = PAGE.slice(PAGE.indexOf("var box = document.querySelector(\"[data-stake]\")"));
+  assert.ok(island.length > 0, "the stake island is on the page");
+  assert.ok(island.includes('var a = j.result && typeof j.result === "object" ? j.result : j;'),
+    "the act's answer is read from result when the door wraps it, and from the top level when it does not");
+  for (const field of ["applied", "balance_after", "reason", "mode"])
+    assert.ok(island.includes("a." + field), `${field} is read off the unwrapped answer`);
+  assert.equal(island.includes("Number(j.applied"), false, "and never off the envelope");
+  // a bounce stays flat, and is read before any unwrap
+  assert.ok(island.indexOf("j.error") < island.indexOf("var a = j.result"), "the refusal is judged on the envelope, before the unwrap");
+});
