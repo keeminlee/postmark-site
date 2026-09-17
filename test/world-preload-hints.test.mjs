@@ -77,8 +77,12 @@ test("the record's growth cannot put the hint count back on a curve", () => {
 test("every other hint the page carries is unchanged, in count and in content", () => {
   // Written out rather than derived, so a filter that grew too wide reds here
   // with the missing line named. This is the pre-removal output verbatim, minus
-  // the replay lines. Order is the emitted order: modules, then fetches, atlas
-  // last (the island appends it to the fetch list by hand).
+  // the replay lines. Order is the emitted order: modules, then fetches.
+  //
+  // THE ATLAS LINE LEFT 2026-09-16 (#2800). `/atlas/town.html` was appended to
+  // the fetch list by hand and stood last; the atlas retired and that path now
+  // answers a redirect to /world/, so hinting it would spend a request to be
+  // told to go where the reader already is.
   assert.deepEqual(worldPreloadHints(files()), [
     '<link rel="modulepreload" href="/world-engine/spectator/viewer.mjs">',
     '<link rel="modulepreload" href="/world-engine/tools/geometry.mjs">',
@@ -87,8 +91,13 @@ test("every other hint the page carries is unchanged, in count and in content", 
     '<link rel="preload" as="fetch" href="/WORLD/skeleton.json" crossorigin>',
     '<link rel="preload" as="fetch" href="/WORLD/world-state.json" crossorigin>',
     '<link rel="preload" as="fetch" href="/world-engine/residents-meta.json" crossorigin>',
-    '<link rel="preload" as="fetch" href="/atlas/town.html" crossorigin>',
   ]);
+});
+
+test("the retired atlas is not hinted — a preload for a redirect is a wasted request", () => {
+  // Asserted alone, not left to the deepEqual above, because this is the line
+  // the retirement removed and a re-added hint should say so by name.
+  assert.equal(worldPreloadHints(files()).filter((tag) => tag.includes("/atlas/")).length, 0);
 });
 
 test("the fold is still hinted — the removal is the replay's, not the record's", () => {
