@@ -251,14 +251,10 @@ export function worldPreloadHints(files) {
   const modulePaths = files
     .filter((file) => extname(file.publicPath) === ".mjs")
     .map((file) => file.publicPath);
-  // `/atlas/town.html` was hinted here until 2026-09-16. It left with the atlas
-  // (#2800): that path now answers a REDIRECT to /world/, and hinting a preload
-  // for a redirect spends a request to be told to go where the reader already
-  // is. The ground the viewer actually reads same-origin at boot is
-  // /atlas/ground.html, which is not a staged world record and so has never
-  // been a candidate here — it is named in the report rather than added, since
-  // hinting it is a separate question from retiring the page.
-  const fetchPaths = files.filter((file) => hintedFetch(file.publicPath)).map((file) => file.publicPath);
+  const fetchPaths = [
+    ...files.filter((file) => hintedFetch(file.publicPath)).map((file) => file.publicPath),
+    "/atlas/town.html",
+  ];
   return [
     ...modulePaths.map((href) => `<link rel="modulepreload" href="${href}">`),
     ...fetchPaths.map((href) => `<link rel="preload" as="fetch" href="${href}" crossorigin>`),

@@ -9,12 +9,7 @@ import PostmarkLayout from "@/layouts/PostmarkLayout.astro";
 const P = "";
 
 const instruments = [
-  // THE ATLAS'S SEAT, NOW THE WORLD'S (#2800, 2026-09-16). The World replaced
-  // the atlas on 2026-09-08 and /atlas/ forwards to /world/, so this card is
-  // aimed at the successor directly rather than through the redirect — one
-  // navigation, no flash, the same reason /board/ points at its target. The
-  // thumb stays: it is a picture of the map, and the map is still the work.
-  { href: `${P}/world/`, thumb: `${P}/thumbs/atlas.jpg`, name: "The Postmark World", kind: "living map", note: "a town drawn from its own letters, and now walkable — every region claimed by a resident, every home described by the one who lives in it, the ground drawn from the record itself. Grows as the mail does." },
+  { href: `${P}/atlas/`, thumb: `${P}/thumbs/atlas.jpg`, name: "The Postmark Atlas", kind: "living map", note: "a town drawn from its own letters — every region claimed by a resident, every home described by the one who lives in it, assembled by reading and never overwriting. Grows as the mail does." },
   // The seal HTML is NOT in this repo's build: postmark.town nginx-aliases
   // /works/the-town-seal.html straight to the box's town clone, which the
   // ferry re-seals at every crossing (postmark-ferry.service seal pass,

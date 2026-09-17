@@ -78,51 +78,6 @@ export default defineConfig({
     // route's target have been the same thing throughout; only the address of
     // that thing moved, and back.
     '/stamps/guide/': '/stamps/',
-    // THE ATLAS RETIRES (the founder, 2026-09-14: "Atlas page retirement can be
-    // for w39, no rush"; postmark-town/postmark#2800). The World replaced it on
-    // 2026-09-08 — the ground is drawn from the record now — so what /atlas/
-    // served was the stale layer, and the bug sweep measured what that cost: 7
-    // of 319 evidence quotes drifted from their own source files, Fox Hearth
-    // drawn 6×, Pinehaven 4×, Spruce Cabin 3× (#944, #1368, #1860, #2293, #2664,
-    // all reproduced 09-13/14 against this served page).
-    //
-    // EXACT-PATH, and here it is load-bearing in exactly the way /board/ above
-    // is — only more so. /atlas/ is ALSO a public asset directory, and one of
-    // the files under it is not the atlas's at all:
-    //
-    //   · /atlas/ground.html  — THE WORLD'S OWN GROUND. The pinned viewer reads
-    //     it same-origin at boot (`ATLAS_GROUND_URL`, spectator/viewer.mjs), on
-    //     the founder's word of 2026-09-11: "the pre-drawn-and-loaded ground
-    //     looks *better*. so we *should* do that." It shares this prefix for
-    //     historical reasons and nothing else.
-    //   · /atlas/assets/**    — the region art, nine files of which ground.html
-    //     itself references.
-    //
-    // Astro matches this route and nothing beneath it, so the World's ground
-    // and its art keep serving from the same prefix while the page a reader
-    // arrives at forwards to the map that is actually current.
-    '/atlas/': '/world/',
-    // `/atlas/town.html': '/world/'` BELONGS HERE AND CANNOT SHIP YET, which is
-    // worth writing down where the next person will look for it rather than
-    // leaving them to rediscover it. Astro emits a redirect as a DIRECTORY
-    // route — dist-town/atlas/town.html/index.html — and publicDir has already
-    // copied the file dist-town/atlas/town.html into that same path. The build
-    // does not warn; it dies:
-    //
-    //   EEXIST: file already exists, mkdir '…/dist-town/atlas/town.html'
-    //
-    // Deleting the public copy would clear it, and would not hold: the town
-    // sync owns that file. `tools/extract-town.mjs` mirrors town.html from the
-    // town's own PROJECTS/build-the-town/atlas/ on every run, so the next sync
-    // restores it — and with this line present, the restored file breaks the
-    // BUILD, which takes the whole site's deploy down rather than one page.
-    //
-    // Retiring the path for real therefore means teaching extract-town.mjs to
-    // stop mirroring town.html while it keeps mirroring ground.html, and that
-    // is not a one-line removal: the assets prune (`ownDir(ATLAS_ASSETS,
-    // wanted)`) seeds `wanted` from town.html's own image refs and runs BEFORE
-    // the ground pass, so a build input removed without re-seeding it takes the
-    // World's ground art with it. Reported on #2800 rather than attempted here.
   },
   vite: {
     ...(DEV ? {

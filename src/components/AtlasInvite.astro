@@ -1,37 +1,69 @@
 ---
-// AtlasInvite — the map behind a veil: blurred map under the section's words,
-// one golden button that sends the reader to it.
+// AtlasInvite — the atlas behind a veil: blurred map under the section's
+// words, one golden button; opening it clears the words and the real,
+// interactive atlas takes the viewport. The overlay has its own top bar so
+// its close button never collides with the map's click-panel ×.
+// Used by the front door and the atlas page — one implementation, no drift.
 //
-// ── THE OVERLAY IS GONE (#2800, 2026-09-16) ─────────────────────────────────
-//
-// This component had two modes. With a `cta` it rendered a LINK; without one it
-// rendered a button that opened `/atlas/town.html` in a full-viewport iframe.
-// The atlas retired — the World replaced it on 2026-09-08 and /atlas/ now
-// forwards to /world/ — and the atlas page was the only caller that omitted
-// `cta`. So the overlay had exactly one consumer and that consumer is deleted;
-// the iframe, its top bar, its wiring script and its styles went with it rather
-// than staying as an unreachable embed of a retired page.
-//
-// The front door is the one caller left, and it always passed a `cta`, so what
-// it renders is unchanged: the veil, the words, the button. `cta` is therefore
-// required now instead of optional — a caller that forgets it gets a section
-// with no way out, which is worth failing loudly on.
-//
-// The name and the `atlas` id stay. The id is an anchor target on the front
-// door (`/#atlas`), and a live fragment is a URL someone may already hold.
-const { id = "atlas", cta } = Astro.props;
-if (!cta?.href || !cta?.label) {
-  throw new Error("AtlasInvite: `cta` ({ href, label }) is required — the in-place atlas overlay retired with #2800.");
-}
+// `cta` — a page that wants this panel to SEND the reader somewhere rather than
+// open the atlas in place passes { href, label } and gets a link where the
+// button stands. The overlay is then not rendered at all, so no page carries an
+// iframe it has no way to open; the wiring script below already no-ops when its
+// two handles are absent. Omitted (the atlas page) → the in-place overlay,
+// unchanged.
+const { id = "atlas", cta = null } = Astro.props;
 ---
 <section class="atlas-invite" id={id}>
   <img class="ai-bg" src="/thumbs/atlas.jpg" alt="" aria-hidden="true" />
   <div class="ai-veil"></div>
   <div class="ai-copy">
     <slot />
-    <a class="pm-btn ai-open" href={cta.href}>{cta.label}</a>
+    {cta
+      ? <a class="pm-btn ai-open" href={cta.href}>{cta.label}</a>
+      : <button class="pm-btn ai-open" type="button" data-atlas-open>Open the atlas ✦</button>}
   </div>
 </section>
+
+{!cta && (
+<div class="atlas-overlay" data-atlas-overlay aria-hidden="true" role="dialog" aria-label="The Postmark Atlas">
+  <div class="ao-bar">
+    <span class="ao-title">✉ The Postmark Atlas</span>
+    <button class="ao-close" type="button" data-atlas-close>× close</button>
+  </div>
+  <iframe
+    data-src="/atlas/town.html"
+    title="The Postmark Atlas — the living map of the mail town; click any home or region to read it in its resident's own words"
+  ></iframe>
+</div>
+)}
+
+<script>
+  (function () {
+    var overlay = document.querySelector("[data-atlas-overlay]");
+    var openBtn = document.querySelector("[data-atlas-open]");
+    if (!overlay || !openBtn) return;
+    var frame = overlay.querySelector("iframe");
+    var closeBtn = overlay.querySelector("[data-atlas-close]");
+    function open() {
+      if (!frame.src) frame.src = frame.getAttribute("data-src");
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      closeBtn.focus();
+    }
+    function close() {
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      openBtn.focus();
+    }
+    openBtn.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && overlay.classList.contains("open")) close();
+    });
+  })();
+</script>
 
 <style>
   .atlas-invite {
@@ -64,6 +96,34 @@ if (!cta?.href || !cta?.label) {
     text-shadow: 0 0 30px rgba(232, 196, 139, 0.25);
   }
   .ai-open { margin-top: 0.6em; font-size: 0.92rem; padding: 13px 30px; }
-  /* The overlay's rules (.atlas-overlay, .ao-bar, .ao-title, .ao-close and the
-     iframe) left with the overlay itself — see the header. */
+
+  .atlas-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: #070b15;
+    display: none;
+  }
+  .atlas-overlay.open { display: flex; flex-direction: column; }
+  .ao-bar {
+    flex: none;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px; padding: 0 1.1em;
+    background: rgba(13, 20, 38, 0.97);
+    border-bottom: 1px solid rgba(232, 196, 139, 0.3);
+  }
+  .ao-title {
+    font-family: var(--pm-mono, ui-monospace, monospace);
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--pm-gold-bright, #f6dcae);
+  }
+  .ao-close {
+    border: 1px solid rgba(232, 196, 139, 0.55);
+    background: transparent;
+    color: var(--pm-gold-bright, #f6dcae);
+    font-family: var(--pm-mono, ui-monospace, monospace);
+    font-size: 0.74rem; letter-spacing: 0.1em;
+    border-radius: 999px; padding: 7px 16px;
+    cursor: pointer;
+  }
+  .ao-close:hover { background: rgba(232, 196, 139, 0.12); }
+  .atlas-overlay iframe { flex: 1; width: 100%; border: 0; display: block; }
 </style>
