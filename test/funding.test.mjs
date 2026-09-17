@@ -21,7 +21,7 @@ import {
   DEEDS_FIXTURE,
   FOUNDER_ACCOUNT,
   HOLO_NAME_LINE,
-  holoPerDollar,
+  mintPerDollar,
   beneficiaryLabel,
   firstCloseLabel,
   epochLabel,
@@ -220,7 +220,13 @@ test("the closed pot's roll is the same holo its patrons' deeds carry", () => {
 });
 
 test("the σ-split floors, and the seam keeps the change", () => {
-  // THE LAW THIS ASSERTS — capture doc § 8, quoted:
+  // THE FIXTURE'S SHAPE, not the town's law: the closed pot below is told in
+  // the PRE-AMENDMENT emission shape (the funded share burned and split), which
+  // is the shape the emitter still cuts until POS-33 rebuilds the close under
+  // the amended rule (ECONOMY-DIALS.json law_side.keeping, 2026-09-14: nothing
+  // burns; every stake returns whole; the givers are minted fresh). What this
+  // test holds is that the fixture agrees with itself and with the emitter.
+  // THE LAW THE FIXTURE WAS CUT UNDER — capture doc § 8, quoted:
   //   "(1−σ) × pot mints to payers as Holo, by dollar share."
   // and R1 (floor both legs, remainder burns un-minted).
   //
@@ -444,35 +450,49 @@ test("the label is a display mapping — the routing truth is never rewritten", 
   }
 });
 
-// ── what an elastic pot would pay if it closed now ───────────────────────────
+// ── what a pot would mint per dollar if it closed now ─────────────────────────
 
-test("the estimate is the payers' side of the split, spread across the roll", () => {
-  // THE LAW THIS ASSERTS — WHITE_PAGES/pot-darko-fund.json § _close, quoted:
-  //   "When it runs, every standing stake converts in full … and holo splits by
-  //    dollar share across the WHOLE accumulated roll"
-  // so the pool is (1 − σ) of a burn equal to the whole staked mass, and it is
-  // divided by the dollars that will share it.
-  const econ = readEconomy(ECONOMY_FIXTURE);
+test("the estimate is the staked mass the dollars fund, spread across the roll", () => {
+  // THE LAW THIS ASSERTS — ECONOMY-DIALS.json § law_side.keeping._what
+  // (amended 2026-09-14), quoted:
+  //   "EVERY OPEN STAKE RETURNS WHOLE … the funding mint M = floor(fraction ×
+  //    the open staked mass) is minted fresh to the payers by dollar share of
+  //    the roll … Nothing burns."
+  // and, for the elastic pot, § _what: "an elastic pot reads 1 once its roll
+  // has met its floor" — so the whole staked mass is shared by the dollars
+  // that will share it, and nothing is halved by a σ that no longer applies.
   const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
   assert.equal(roll.staked, 4);
   assert.equal(roll.received, 2);
   assert.equal(roll.minCloseUsd, 5);
-  // (1 − 0.5) × 4 = 2 holo, over max(roll 2, floor 5) = 5  ->  0.4
-  assert.equal(holoPerDollar(roll, econ), 0.4);
+  // 4 staked, over max(roll 2, floor 5) = 5  ->  0.8
+  assert.equal(mintPerDollar(roll), 0.8);
 
   // THE FLOOR IS THE DENOMINATOR while the roll is under it, because a close
   // cannot run below it. Quoting today's smaller roll would hand a giver a
   // number that shrinks the moment anyone else gives.
   const under = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), received_usd: 1 });
-  assert.equal(holoPerDollar(under, econ), 0.4, "still divided by the floor, not by $1");
+  assert.equal(mintPerDollar(under), 0.8, "still divided by the floor, not by $1");
 
   // and past the floor the roll itself is the divisor
   const over = toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), received_usd: 20 });
-  assert.equal(holoPerDollar(over, econ), 0.1, "(0.5 × 4) ÷ 20");
+  assert.equal(mintPerDollar(over), 0.2, "4 ÷ 20");
+
+  // AN EPOCH POT prices a dollar against its POSTED TARGET (§ _no_rate: "Dollars
+  // are priced against the town's own POSTED NEED, never against the staked
+  // mass"): 12 staked over the $150 target is 0.1 a dollar, whatever the roll
+  // holds today — intake refuses dollars past the target, so the roll can never
+  // outrun it.
+  const epoch = toPot(POT_FIXTURE[0]);
+  assert.equal(epoch.target, 150);
+  assert.equal(epoch.staked, 12);
+  assert.equal(mintPerDollar(epoch), 0.1, "12 ÷ 150, rounded to a tenth");
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE[0], staked: 30 })), 0.2, "30 ÷ 150");
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE[0], received_usd: 10, staked: 30 })), 0.2,
+    "the roll's size does not move an epoch pot's estimate — the target does");
 });
 
 test("the estimate refuses to exist wherever it would be a fiction", () => {
-  const econ = readEconomy(ECONOMY_FIXTURE);
   const find = (slug) => toPot(POT_FIXTURE.find((p) => p.pot === slug));
 
   // A POT WITH NO CLOSE TO RUN has nothing to estimate — a number beside
@@ -482,27 +502,27 @@ test("the estimate refuses to exist wherever it would be a fiction", () => {
   // unexercised. Its own can-fail flip caught that.
   const stakedBox = toPot({ ...POT_FIXTURE.find((p) => p.pot === "keeping-tin"), staked: 40 });
   assert.equal(stakedBox.closes, false, "the standing box still never closes");
-  assert.equal(holoPerDollar(stakedBox, econ), null,
+  assert.equal(mintPerDollar(stakedBox), null,
     "and no estimate, however much is staked on it");
   const stakedUnsaid = toPot({ ...POT_FIXTURE.find((p) => p.pot === "keeping-unsaid"), staked: 40 });
-  assert.equal(holoPerDollar(stakedUnsaid, econ), null,
+  assert.equal(mintPerDollar(stakedUnsaid), null,
     "nor for a pot the record has not spoken for");
-  assert.equal(holoPerDollar(find("keeping-tin"), econ), null, "the standing box as it ships");
-  // nothing staked means no burn, so no pool
-  assert.equal(holoPerDollar(toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), staked: 0 }), econ),
+  assert.equal(mintPerDollar(find("keeping-tin")), null, "the standing box as it ships");
+  // nothing staked means no mass to share, so no mint
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund"), staked: 0 })),
     null, "an unstaked pot");
-  // and no dials published means no σ to split by
-  assert.equal(holoPerDollar(find("darko-fund"), null), null, "no economy emission");
 });
 
-test("σ is read, so a dial that moves moves the estimate", () => {
-  // R10: "every other surface reads it rather than restating it." If σ were
-  // typed anywhere in this path, this would not budge.
+test("no dial is in the estimate's path: σ moving moves nothing", () => {
+  // Before 2026-09-14 the estimate halved the mass by (1 − σ), because the
+  // funded share burned and split. Nothing burns now, so the whole staked mass
+  // is the givers' — and a σ that only governs a bounty's wage cannot touch a
+  // pot's estimate. If σ were read anywhere in this path, this would budge.
   const roll = toPot(POT_FIXTURE.find((p) => p.pot === "darko-fund"));
-  const half = readEconomy(ECONOMY_FIXTURE);
-  const quarter = readEconomy({ ...ECONOMY_FIXTURE, sigma: 0.25 });
-  assert.equal(holoPerDollar(roll, half), 0.4);
-  assert.equal(holoPerDollar(roll, quarter), 0.6, "a smaller σ leaves a larger holo side");
+  const before = mintPerDollar(roll);
+  assert.equal(before, 0.8);
+  assert.equal(mintPerDollar(toPot({ ...POT_FIXTURE.find((p) => p.pot === "darko-fund") })), before,
+    "the same row reads the same, with no economy emission in hand at all");
 });
 
 test("the emission stamps when it was made, and the reader carries it", () => {
@@ -785,9 +805,16 @@ test("each money surface teaches it exactly once outside the glossary, in both o
   // stopped teaching it" and "the hub quietly lost a paragraph" are the same
   // number to a test that only knows how to want one.
   const named = [join(DIST, "stamps", "index.html"), join(DIST, "numbers", "index.html")];
+  // ONE PAGE PER POT — the entries under dist/fund that are pot directories.
+  // /fund/ itself is an index (the Guild cards, no money moment, no holo word)
+  // since 2026-09-16, so a bare listing would name a file that is not a pot
+  // page; a money surface is a page that carries a pot.
   const fundDir = join(DIST, "fund");
   if (existsSync(fundDir)) {
-    for (const pot of readdirSync(fundDir)) named.push(join(fundDir, pot, "index.html"));
+    for (const pot of readdirSync(fundDir)) {
+      const page = join(fundDir, pot, "index.html");
+      if (existsSync(page)) named.push(page);
+    }
   }
 
   // ...and one household page of EACH shape, discovered rather than named, so
@@ -884,7 +911,7 @@ test("the fund page reads the roll the seam has always emitted", () => {
   // is the disclosure beside it — a reader meeting an unattached line deserves
   // to be told what it is and what it could not do.
   assert.match(page, /could not attach to a hand/, "and says what an unattached payer is");
-  assert.match(page, /cannot do is mint holo/, "including the honest half");
+  assert.match(page, /cannot do is be minted anything/, "including the honest half");
 });
 
 test("an UNCAPPED pot publishes what arrived — no posted need was never a reason to hide the total", () => {
