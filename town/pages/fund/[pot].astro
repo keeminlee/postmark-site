@@ -35,8 +35,26 @@
 //
 // The two sentences every money surface here carries, verbatim:
 //   "a record of contribution, not a promise of profit"
-//   "this buys ownership and memory, never voice, and converts to real value
-//    only if the town someday does"
+//   "this buys stamps that do everything a stamp does, including vote, plus
+//    ownership and memory; money's share of your household is capped, and it
+//    converts to real value only if the town someday does"
+//
+// The second one was AMENDED 2026-09-17 at the founder's ruling, verbatim:
+// "holo does anything a normal stamp can; staking vs voting is a
+// nondistiction." It read "this buys ownership and memory, NEVER VOICE, and
+// converts to real value only if the town someday does" — the repealed law,
+// rendered in bold on the page at the moment a patron is about to pay. The
+// office ships the twin of this sentence (postmark-office src/funding.mjs
+// § WHAT_THIS_BUYS) and moves with it: one sentence, two repos, never two
+// spellings. Naming the cap is not optional: a patron told their stamps vote
+// and not told their share is bounded has been told half the truth.
+//
+// The fine print's law bullet moved with it. It read: "Funding buys NO SAY. The
+// folk-law is the whole of it: money can join the ownership, never the
+// judgment." It now says funding buys a BOUNDED say, and names the bound. The
+// superseded wording is kept HERE and not on the page on purpose: this is the
+// money moment, and a struck sentence rendered beside the live one is a
+// sentence some patron will read as the rule.
 //
 // The QR is generated in-process (src/lib/qr.mjs) and inlined as SVG. No CDN,
 // no image service: a strict CSP would block it, and handing a third party the
@@ -305,7 +323,8 @@ const floorBar = pot.close === "elastic" && pot.minCloseUsd != null;
     <section class="f-law" aria-label="What funding does and does not buy">
       <p class="f-law-line">
         A gift here pays this bill and is <strong>written down in your name</strong> — the
-        town's permanent, public record of it. It buys <em>no say</em> and promises no return.
+        town's permanent, public record of it. The stamps it mints you are ordinary stamps — they
+        <em>stake, vote and pay</em> — and money's share of a household is capped. It promises no return.
         <a class="f-law-more" href="#fineprint"> The fine print ↓</a>
       </p>
     </section>
@@ -534,7 +553,7 @@ const floorBar = pot.close === "elastic" && pot.minCloseUsd != null;
         <summary><span class="f-fold-sum">the fine print</span><span class="f-fold-meta">what this is in full, and what a dollar does and doesn't get you</span></summary>
         <div class="f-fold-body f-fine-body">
           {pot.source && <p class="f-fine-source">{pot.source}</p>}
-          <p class="f-fine-law"><strong>This buys ownership and memory, never voice, and converts to real value only if the town someday does.</strong></p>
+          <p class="f-fine-law"><strong>This buys stamps that do everything a stamp does, including vote, plus ownership and memory; money's share of your household is capped, and it converts to real value only if the town someday does.</strong></p>
           <ul>
             <li>Every dollar is <strong>written down in your name</strong> — what you funded, when, for how much — permanently and publicly. A gift that mints nothing is recorded just as fully, and giving while expecting nothing back is a fine way to give.</li>
             {pot.close === "elastic" ? (
@@ -546,7 +565,7 @@ const floorBar = pot.close === "elastic" && pot.minCloseUsd != null;
             ) : (
               <li><strong>How this one closes is not in the town's record yet</strong> — so nothing here promises you a return, and nothing promises you there isn't one.</li>
             )}
-            <li>Funding buys <em>no say</em>. The folk-law is the whole of it: <em>money can join the ownership, never the judgment.</em></li>
+            <li>Funding buys <em>a bounded say</em>, and the bound is the whole of it: stamps minted to a giver do everything a stamp does — they stake, they vote, they pay — and a household's holo may never pass ρ × everything that household has minted. Money's share of a household is capped; what it buys inside that share is ordinary.</li>
             {estimate != null && (
               <li>≈ <strong>{estimate}✦ per $1</strong> if the close ran this moment — the staked mass standing today, shared across the roll's dollars, before the cap; it moves as both move. Never a promise.</li>
             )}
