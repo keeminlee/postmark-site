@@ -27,13 +27,32 @@
 // its own absence honestly. The board's law holds — a number invented to look
 // alive is a lie about the economy.
 //
-// ── HOLO IS SOULBOUND ────────────────────────────────────────────────────────
-// Ruled by Keemin 2026-08-20 and enforced in the ledger by ROW SHAPE: the holo
-// row is arrow-free, so no balance, mint, or stake fold can ever see one. Holo
-// cannot stake, vote, pay, or transfer. On this side of the wire that means:
-// holo is never rendered as a balance, never summed into liquid/staked/assets,
-// and every surface that shows it carries HOLO_LINE. That is the ruling, not a
-// style choice.
+// ── HOLO IS A BALANCE (soulbound repealed, 2026-09-17) ──────────────────────
+// THE FOUNDER'S RULING, verbatim: "non-spendable is repealed; the stamps are
+// like any other, but are holo to signify the special source." And: "I'm good
+// to let funding minted stamps contribute to the max stamps you can get from
+// another fund. it compounds by design." (postmark-town/postmark#2811 § RULED.)
+//
+// This block said holo was soulbound — ruled 2026-08-20, enforced by row shape,
+// no verbs, never a balance. That is REPEALED. In one line, wherever a surface
+// needs the rule: HOLO IS FRESH MINT TO A GIVER, LIQUID LIKE ANY STAMP; THE
+// WORD NAMES ITS SOURCE AND ITS INK. A holo row of n is n stamps in the payer's
+// balance and in minted-cumulative; it stakes, votes, pays and transfers; and it
+// counts toward their cap at the next close.
+//
+// The arrow-free ROW SHAPE stays, and its reason is the surviving half of the
+// old one: a holo row is a MINT, not a movement, so the folds credit it by KIND.
+// That is the town's own job (tools/stamp-mint.mjs § foldBalances /
+// foldMintCount) and the office's numbers derive from it; nothing on this side
+// of the wire computes a balance at all.
+//
+// SO WHAT CHANGES HERE IS THE TEACHING, NOT THE NUMBERS. The site's numbers come
+// from the office's doors through tools/extract-town.mjs; they move on their own
+// when the town's folds land and the office redeploys. No fixture below is
+// re-pointed to fake that. HOLO_LINE ("a record of contribution, not a promise
+// of profit") is untouched: it was always about money, never about spending, and
+// it remains exact. The holo INK stays everywhere it is drawn — it is now the
+// whole of what the word means.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -75,8 +94,18 @@ export const HOLO_LINE = "a record of contribution, not a promise of profit";
 // one home, so a second surface cannot drift a word of it — and the falsifiers
 // in funding.test.mjs assert both halves: that no page retypes the sentence,
 // and that each built page carries it exactly once.
+// AMENDED 2026-09-17 at the founder's ruling ("non-spendable is repealed"). The
+// etymology is his 2026-08-26 sentence and stands; its closing clause — "never
+// spent as postage" — was the repealed law wearing the metaphor's clothes, so
+// exactly that clause moved and nothing else did.
+//
+// ⚠ THE OFFICE SHIPS THE TWIN OF THIS SENTENCE (postmark-office src/funding.mjs
+// § HOLO_EXPANSION) and moves with it in the same sweep. NOTHING CROSS-CHECKS
+// THE TWO REPOS: if one of the two PRs lands alone the town teaches two
+// sentences and no suite in either repo goes red. One sentence, two repos,
+// never two spellings.
 export const HOLO_NAME_LINE =
-  "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.";
+  "short for holographic stamp — the collector's shiny kind, kept in the album and shown; unlike the collector's, this one still spends.";
 
 // The one-breath answer to "what is this pot?" — the FIRST SENTENCE of the pot
 // file's own prose, never invented copy. Born of the founder's 2026-08-26
