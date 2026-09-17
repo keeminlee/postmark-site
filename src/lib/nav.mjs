@@ -344,7 +344,12 @@ export const RAIL = [
       { key: "world", label: "the living map", href: "/world/", noActive: "the spectator shell renders its own document, not PostmarkLayout" },
       { key: "replay", label: "replay", href: "/replay/" },
       { key: "conversations", label: "conversations", href: "/conversations/" },
-      { key: "atlas", label: "the atlas", href: "/atlas/" },
+      // "the atlas" stood here until 2026-09-16. The atlas retired (#2800) and
+      // /atlas/ forwards to /world/, so the chip would have been a fourth seat
+      // in this row pointing at the row's own apex — one extra navigation and a
+      // visible flash to arrive where the first chip already goes. The same
+      // reason the redirects map aims /board/ at its target directly rather
+      // than chaining through /stamps/.
     ],
   },
 

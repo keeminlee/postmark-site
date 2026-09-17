@@ -170,6 +170,60 @@ export function fragmentLinksIn(src) {
   return out;
 }
 
+/**
+ * Every in-site href written as a literal, fragment or not.
+ * `href="/world/"` → "/world/" · `href="/town/#pots"` → "/town/#pots"
+ * Off-site (`https://…`) and computed (`href={expr}`) hrefs are not matched,
+ * by construction — the same cut `fragmentLinksIn` makes.
+ */
+export function hrefsIn(src) {
+  return Array.from(src.matchAll(/href="(\/[^"\s]*)"/g), (m) => m[1]);
+}
+
+/**
+ * Routes the site has RETIRED — no page of ours may point at one.
+ *
+ * A retired route still answers, through the redirects map in
+ * astro.config.town.mjs, so nothing here is about a dead link: it is about
+ * spending a navigation and a visible flash to arrive where a direct href
+ * would have gone in one. The redirects map says the same thing in its own
+ * words about /board/ ("Chaining would have worked … but it spends two
+ * navigations and a visible flash to arrive at the same place, and every extra
+ * hop is another thing that can break silently").
+ *
+ * `prefix` is matched as a PREFIX on purpose, so /atlas/town.html is refused
+ * beside /atlas/ — and that is also why the two exceptions below are spelled
+ * out rather than left implicit.
+ */
+const RETIRED_ROUTES = [
+  {
+    prefix: "/atlas/",
+    to: "/world/",
+    since: "2026-09-16",
+    why: "the atlas retired (postmark-town/postmark#2800); the World replaced it 2026-09-08 and /atlas/ forwards to /world/",
+    // NOT retired, and both live under the same prefix for historical reasons
+    // only. /atlas/ground.html is THE WORLD'S OWN GROUND — the pinned viewer
+    // reads it same-origin at boot (ATLAS_GROUND_URL, spectator/viewer.mjs) on
+    // the founder's word of 2026-09-11 — and it references nine files under
+    // /atlas/assets/. Neither is a page and neither is ever an href on a page
+    // of ours, so both are listed here to be REFUSED-AS-EXCEPTIONS rather than
+    // silently swept up by a prefix match that nobody reread.
+    keep: ["/atlas/ground.html", "/atlas/assets/"],
+  },
+];
+
+/** Every source a reader's chrome and pages are assembled from. */
+function everyLinkedSource() {
+  const out = everyPageFile();
+  for (const dir of ["components", "layouts"]) {
+    const abs = join(ROOT, "src", dir);
+    if (existsSync(abs)) out.push(...everyPageFile(abs, []));
+  }
+  // the rail is not a page and is where a route most easily outlives its page
+  out.push(join(ROOT, "src", "lib", "nav.mjs"));
+  return out;
+}
+
 const rel = (f) => relative(PAGES, f).split("\\").join("/");
 
 /** Every fragment link on the site, resolved: { from, href, path, frag, target, dead, noPage } */
@@ -322,5 +376,116 @@ test("every real page still parses to at least one id — stripping has not blan
   for (const anchor of ["quests", "pots", "board", "marketplace", "ideas", "ballot-house"]) {
     assert.ok(idsIn(sourceOf(join(PAGES, "town", "index.astro"))).has(anchor),
       `the hub's \`${anchor}\` anchor did not survive stripping`);
+  }
+});
+
+// ── RETIRED ROUTES ───────────────────────────────────────────────────────────
+//
+// THE FALSIFIER THAT STAYS (postmark-town/postmark#2800). Retiring a page is
+// two acts, and only the first is visible: the route starts forwarding, and
+// every href of ours stops pointing at it. The second is the one that rots —
+// a forwarder makes a stale link *work*, so nothing ever complains, and the
+// site keeps a chip aimed at a page it retired until somebody happens to look.
+// This is the somebody.
+//
+// The corpus is wider than the survey above on purpose. A route outlives its
+// page most easily in the CHROME — the rail in src/lib/nav.mjs, the World's
+// own sign-in strip in src/components — and neither is a page under
+// town/pages, so the fragment survey would never have read either.
+//
+// ONE MEASURED CAVEAT, named rather than assumed. This check reads the same
+// stripped source everything else here does, and that stripper removes block
+// comments before line comments — so a `/*` inside a `//` line opens a fake
+// block and blanks real markup (the class filed as #2867 against the staging
+// scan's own stripper). Measured across this corpus on 2026-09-16: 46 files,
+// TWO hrefs blanked that way (`/world/` and `/replay/`, both in
+// town/pages/world.astro), and ZERO of them under a retired prefix. So the
+// refusal's reach is intact today; it is not intact by construction, and a
+// future retired route whose only href sits in such a window would be missed.
+
+test("no page or chrome of ours points at a retired route", () => {
+  const offences = [];
+  for (const file of everyLinkedSource()) {
+    const src = stripComments(readFileSync(file, "utf8"));
+    for (const href of hrefsIn(src)) {
+      for (const route of RETIRED_ROUTES) {
+        if (!href.startsWith(route.prefix)) continue;
+        if (route.keep.some((k) => href.startsWith(k))) continue;
+        offences.push(`${relative(ROOT, file).split("\\").join("/")} → ${href}  (point it at ${route.to}: ${route.why})`);
+      }
+    }
+  }
+  assert.deepEqual(offences, [], "a retired route is still linked:\n  " + offences.join("\n  "));
+});
+
+test("the retired-route reader refuses a planted href and passes the route it forwards to", () => {
+  // BOTH DIRECTIONS, on the pure reader, so the corpus test above cannot be
+  // green merely because the reader found nothing anywhere.
+  const planted = '<a href="/atlas/">the atlas</a><a href="/world/">the world</a>';
+  const found = hrefsIn(planted);
+  assert.deepEqual(found, ["/atlas/", "/world/"], "the href reader stopped reading plain hrefs");
+
+  const retired = found.filter((h) => RETIRED_ROUTES.some((r) => h.startsWith(r.prefix) && !r.keep.some((k) => h.startsWith(k))));
+  assert.deepEqual(retired, ["/atlas/"], "a planted /atlas/ href was not refused");
+
+  // and the deeper page the redirects map names is refused beside it
+  assert.deepEqual(
+    hrefsIn('<a href="/atlas/town.html">x</a>').filter((h) => RETIRED_ROUTES.some((r) => h.startsWith(r.prefix) && !r.keep.some((k) => h.startsWith(k)))),
+    ["/atlas/town.html"],
+  );
+});
+
+test("the World's own ground keeps serving under the retired prefix", () => {
+  // THE EXCEPTION, asserted rather than trusted to a comment. /atlas/ground.html
+  // is what the pinned viewer reads at boot, and /atlas/assets/ is the art it
+  // references. A prefix match that swept these up would read as "the atlas is
+  // gone" while taking the World's ground with it.
+  const kept = ["/atlas/ground.html", "/atlas/assets/limen-the-threshold-district.jpg"];
+  for (const href of kept) {
+    const refused = RETIRED_ROUTES.some((r) => href.startsWith(r.prefix) && !r.keep.some((k) => href.startsWith(k)));
+    assert.equal(refused, false, `${href} was refused — it is the World's, not the atlas's`);
+  }
+  // and the files are really there, because an exception for a file that does
+  // not exist is a comment, not a guard
+  for (const rel of ["atlas/ground.html", "atlas/assets"]) {
+    assert.ok(existsSync(join(ROOT, "public", "atelier", "postmark", rel)), `${rel} is gone from the public tree`);
+  }
+});
+
+test("the retired-route corpus reads the chrome, not only the pages", () => {
+  // THE REACH CONTROL. The two files where a retired route most easily outlives
+  // its page are not pages, so a corpus that quietly narrowed to town/pages
+  // would pass every test above while checking none of the places that matter.
+  const corpus = everyLinkedSource().map((f) => relative(ROOT, f).split("\\").join("/"));
+  assert.ok(corpus.includes("src/lib/nav.mjs"), "the rail left the corpus");
+  assert.ok(corpus.some((f) => f.startsWith("src/components/")), "the components left the corpus");
+  assert.ok(corpus.some((f) => f.startsWith("src/layouts/")), "the layouts left the corpus");
+  assert.ok(corpus.some((f) => f.startsWith("town/pages/")), "the pages left the corpus");
+  assert.ok(corpus.length >= 40, `only ${corpus.length} sources in the retired-route corpus — the walk has stopped working`);
+});
+
+test("every retired route has a forwarder, so a link someone already holds still lands", () => {
+  // THE OTHER HALF. The tests above prove no href of OURS points at a retired
+  // route; this proves the route still answers for every href that is not ours
+  // — a bookmark, a letter, another town's page. Read off the redirects map's
+  // source rather than a built tree, because `test.yml` runs `npm test` without
+  // `npm run build`, and a falsifier nobody runs cannot fail.
+  const quote = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const config = readFileSync(join(ROOT, "astro.config.town.mjs"), "utf8");
+  const map = config.slice(config.indexOf("redirects:"), config.indexOf("vite:"));
+  assert.ok(map.length > 200, "the redirects map was not found in astro.config.town.mjs — this check is reading nothing");
+
+  for (const route of RETIRED_ROUTES) {
+    const line = new RegExp(`'${quote(route.prefix)}':\\s*'${quote(route.to)}'`);
+    assert.match(map, line, `${route.prefix} has no forwarder to ${route.to} — the route went dark instead of retiring`);
+  }
+
+  // AND THE EXCEPTIONS ARE NOT FORWARDED. /atlas/ground.html is the World's own
+  // ground; a redirect on it would take the floor out from under the map while
+  // reading, in the diff, exactly like more of the same cleanup.
+  for (const route of RETIRED_ROUTES) {
+    for (const keep of route.keep) {
+      assert.doesNotMatch(map, new RegExp(`'${quote(keep)}[^']*':`), `${keep} was given a forwarder — it is not the retired page's`);
+    }
   }
 });

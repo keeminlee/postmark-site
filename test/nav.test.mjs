@@ -500,7 +500,7 @@ test("a page anywhere in a family finds its section, so the seat lights up", () 
   assert.equal(sectionOf("town").key, "town");         // /town/, hidden from the row but still in the family
   assert.equal(sectionOf("meeps").key, "town");        // back in The Town this wave
   assert.equal(sectionOf("bulletin").key, "town");
-  assert.equal(sectionOf("atlas").key, "world");       // a lens on The World
+  assert.equal(sectionOf("replay").key, "world");      // a lens on The World
   assert.equal(sectionOf("votes").key, "town");
   assert.equal(sectionOf("works").key, "town");
   assert.equal(sectionOf("postmark").key, "postmark"); // the front door, its own seat
@@ -571,9 +571,32 @@ test("NO SUBPAGE REPLACES THE TOWN-LEVEL SUBRAIL WITH ITS OWN", () => {
   assert.deepEqual(withRows, [], `these rooms declare a row of their own:\n  ${withRows.join("\n  ")}`);
 
   // and therefore no page anywhere draws one
-  for (const key of ["residents", "mail", "daily", "votes", "atlas", "town", "meeps", "bulletin", "stamps", ""]) {
+  for (const key of ["residents", "mail", "daily", "votes", "replay", "town", "meeps", "bulletin", "stamps", ""]) {
     assert.equal(subChipsFor(key), null, `"${key}" still draws a second row`);
   }
+});
+
+test("THE ATLAS IS STRUCK FROM THE SITE, not just from the row (#2800)", () => {
+  // Unlike the three below, this one left the SITE. The World replaced the
+  // atlas on 2026-09-08 — the ground is drawn from the record now — and what
+  // /atlas/ kept serving was the stale layer the bug sweep measured against
+  // (#944, #1368, #1860, #2293, #2664). The founder ruled the retirement for
+  // w39 on 2026-09-14.
+  //
+  // So the chip goes AND the page goes, and this asserts both, because either
+  // alone is a broken state: a chip with no page is a dead link, and a page
+  // with no chip is a stale surface nobody maintains.
+  assert.equal(allEntries().some((e) => e.href === "/atlas/"), false,
+    "the atlas is back in the rail — it forwards to /world/, so a chip here is a hop to the row's own apex");
+  assert.equal(allEntries().some((e) => String(e.href).startsWith("/atlas/")), false,
+    "something in the rail points under /atlas/");
+  assert.equal(pageFileFor("/atlas/"), null,
+    "town/pages/atlas.astro is back — the retirement removes the page, and the redirects map owns the route");
+
+  // THE PAIRED CASE: the row it left is still a row, and its apex still stands.
+  // Without this, deleting The World's whole section would pass the above.
+  assert.ok(allEntries().some((e) => e.href === "/world/"), "The World lost the seat the atlas forwards to");
+  assert.equal(sectionOf("replay").key, "world", "The World's row lost its members");
 });
 
 test("THE THREE STILL-STRUCK CHIPS — the pages stay, at the URLs they had", () => {
@@ -695,7 +718,7 @@ test("ONE CHIP ROW PER PAGE — never the section's AND the room's", () => {
   // collapsing to one row must not mean collapsing to none
   assert.equal(rowFor("daily").place, "section");
   assert.equal(rowFor("daily").of.key, "town");
-  assert.equal(rowFor("atlas").place, "section");
+  assert.equal(rowFor("replay").place, "section");
   // and a lifted seat draws none at all, because its family is one read
   assert.equal(rowFor("residents"), null);
   assert.equal(rowFor("mail"), null);
