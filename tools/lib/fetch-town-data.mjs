@@ -18,6 +18,50 @@ export const DATA_FILES = [
   "stats.json",
 ];
 
+// -- ON THE BOX, SHORT IS FAILED (2026-09-17, postmark#2884) -----------------
+//
+// The instance: at 08:12:35Z the box published a 134-resident town from a
+// three-week-old committed snapshot, because fetch-town.mjs warned and exited
+// 0, and `deploy/site-refresh.sh` only dies on a non-zero exit. Prod served a
+// town with 48 doors missing for five minutes, and only the town moving again
+// mid-run ended it -- had the 07:40 tick's `quiet` verdict repeated, the short
+// town would have stood until the next change to the refresh key.
+//
+// The distinction that makes one line of code correct in two places:
+//   - OFF the box (CI, a local build, a checkout-less snapshot build) keeping
+//     the committed data IS the design. `deploy/site-refresh.sh`'s own header
+//     says CI builds the last-good static town. Exit 0, warn, proceed.
+//   - ON the release channel -- and `deploy/site-refresh.sh` L427 is the only
+//     caller that sets PUBLIC_CHANNEL=release -- the committed snapshot is a
+//     REGRESSION, not a fallback. The script's own section says "A failed build
+//     publishes NOTHING. The symlink still points at the last good", so a short
+//     fetch has to BE a failed build there, and the last good release stays up.
+//
+// The next tick then retries rather than reading `quiet`: the refresh key is
+// written at `deploy/site-refresh.sh` L624, inside the publish step and after
+// the atomic swap, so a run that dies at L428 leaves the key at its previous
+// value and the following :10/:40 tick sees the town as still moved.
+export const RELEASE_CHANNEL = "release";
+
+/**
+ * What a short fetch should DO, given the channel it is running on. Pure, so a
+ * falsifier drives both branches without spawning a build or an office.
+ */
+export function shortFetchPlan({ channel = null } = {}) {
+  const refuse = channel === RELEASE_CHANNEL;
+  return {
+    refuse,
+    exitCode: refuse ? 1 : 0,
+    // The journal line the founder and the round read. On the release channel
+    // it REPLACES "build may proceed", which would be false there; the two
+    // measurement lines above it are untouched, because they are what say how
+    // short the snapshot is and who is missing.
+    line: refuse
+      ? "WARN fetch-town: REFUSING to build from the committed snapshot on the release channel - the last good release stays published"
+      : "WARN fetch-town: build may proceed from src/data/postmark/*.json",
+  };
+}
+
 export function jsonText(value) {
   return JSON.stringify(value, null, 1) + "\n";
 }
@@ -39,36 +83,160 @@ function normApiBase(apiBase) {
   return apiBase.replace(/\/+$/, "");
 }
 
-export async function apiGet(path, { apiBase, fetchImpl = fetch, retries = 3, timeoutMs = 15000, maxRetryAfterMs = 60_000 } = {}) {
+// -- THE BUDGET IS TIME, AND IT IS SHARED (2026-09-17, postmark#2884) --------
+//
+// What this replaces, and why a count could never have worked. `apiGet` retried
+// three times per call and `mapLimit` ran six lanes, so a refused pass gave up
+// in fifteen seconds flat: 08:11:23 to 08:11:38 on the morning this was
+// written, after which the build published a three-week-old 134-row snapshot as
+// the town. Three attempts is a COUNT, and the thing on the other side is a
+// CLOCK.
+//
+// MEASURED ON THE BOX BEFORE ANY OF THIS WAS WRITTEN, and it is not the
+// office's bouncer that refused. The 429 came from nginx: zone
+// `postmark_keyless`, `rate=120r/m` with `burst=240 nodelay`, keyed on the
+// caller's address (/etc/nginx/conf.d/postmark-rate-limit.conf). The office's
+// own bouncer logs every 429 it serves and logged none. Two consequences the
+// old code could not have known:
+//   - that queue's excess SURVIVES an office restart (nginx shared memory),
+//     so "the office just came back, the bucket must be fresh" is false;
+//   - its `Retry-After` is the CONSTANT 1 the vhost hardcodes, while the honest
+//     wait when it fires is the excess over the rate -- 240 / 2 = about two
+//     minutes on 09-17. The header is a FLOOR, never the answer.
+//
+// THE GATE is therefore one object for a whole pass:
+//   - a refusal on ANY lane parks EVERY lane, because the budget the six lanes
+//     are spending is one budget, and six lanes discovering that separately is
+//     six times the noise for the same fact;
+//   - the park is the header's wait or a doubling floor, whichever is longer,
+//     capped. The floor exists because the header lies low; it stands back down
+//     to one second the moment a call succeeds, which keeps the recovery at the
+//     shield's own admitted rate instead of at a backoff's.
+//   - what ENDS a refusal is the run's DEADLINE, not a count. A refused call
+//     keeps asking until the budget is spent.
+// Non-429 failures are untouched: today's three tries, today's 250 ms-per-
+// attempt backoff. A 502 is not a budget, and waiting longer does not make a
+// dead upstream answer.
+export const DEFAULT_FETCH_TOWN_DEADLINE_MS = 180_000;
+
+/** The run-wide fetch budget, in ms. 180 s by default: nginx's measured drain
+ *  from a full queue is about 120 s (240 excess at 120 r/m), and the tail of a
+ *  182-card roll admitted at the shield's own 2/s is about another 30 s. */
+export function fetchTownDeadlineMs(env = process.env) {
+  const raw = env?.FETCH_TOWN_DEADLINE_MS;
+  if (raw == null || raw === "") return DEFAULT_FETCH_TOWN_DEADLINE_MS;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value <= 0)
+    throw new Error("FETCH_TOWN_DEADLINE_MS must be a positive number of milliseconds");
+  return value;
+}
+
+/**
+ * One gate for a whole pass. `now` and `sleep` are injectable so a falsifier can
+ * drive a real token bucket over a virtual clock in milliseconds of wall time.
+ */
+export function createRateGate({
+  now = Date.now,
+  sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  budgetMs = fetchTownDeadlineMs(),
+  maxParkMs = 60_000,
+  minParkMs = 1_000,
+} = {}) {
+  const startedAt = now();
+  const deadlineAt = startedAt + budgetMs;
+  let parkedUntil = 0;
+  let round = 0;      // consecutive PARKING ROUNDS, not refusals: six lanes
+  let refusals = 0;   // refused in one instant are one round, not six
+  let parks = 0;
+  return {
+    budgetMs,
+    deadlineAt,
+    sleep,
+    now,
+    expired: () => now() >= deadlineAt,
+    msLeft: () => Math.max(0, deadlineAt - now()),
+    stats: () => ({ refusals, parks, round, parkedUntil }),
+    /** Every lane waits here before every attempt. Re-reads the park after each
+     *  nap, so a lane asleep when another lane extended it stays put. */
+    async hold() {
+      for (let waitMs = parkedUntil - now(); waitMs > 0; waitMs = parkedUntil - now()) {
+        await sleep(waitMs);
+      }
+    },
+    /** A 429 landed. `retryAfterS` is the header, or 0/NaN when it said nothing. */
+    park(retryAfterS) {
+      const at = now();
+      refusals += 1;
+      // A refusal arriving while the park it caused is still running is the
+      // tail of THIS round (the other five lanes), not a new one.
+      if (at >= parkedUntil) round += 1;
+      const fromHeader = Number.isFinite(retryAfterS) && retryAfterS > 0 ? retryAfterS * 1000 : 0;
+      const floor = Math.min(minParkMs * 2 ** Math.max(0, round - 1), maxParkMs);
+      const waitMs = Math.min(Math.max(fromHeader, floor), maxParkMs);
+      const until = at + waitMs;
+      if (until > parkedUntil) {
+        parkedUntil = until;
+        parks += 1;
+      }
+      return waitMs;
+    },
+    /** A call got through: the queue has room again, so the floor stands down. */
+    succeed() {
+      round = 0;
+    },
+  };
+}
+
+export async function apiGet(path, { apiBase, fetchImpl = fetch, retries = 3, timeoutMs = 15000, maxRetryAfterMs = 60_000, gate = null } = {}) {
   const base = normApiBase(apiBase);
+  const nap = (ms) => (gate ? gate.sleep(ms) : new Promise((resolve) => setTimeout(resolve, ms)));
   let lastError = null;
-  for (let attempt = 1; attempt <= retries; attempt++) {
+  let hardAttempts = 0;   // the `retries` budget. Refusals do not spend it.
+  for (;;) {
+    if (gate) await gate.hold();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
-    let waitMs = 250 * attempt;
+    let waitMs = 250 * (hardAttempts + 1);
+    let refused = false;
     try {
       const res = await fetchImpl(`${base}${path}`, { signal: controller.signal });
       clearTimeout(timer);
       if (res.status === 429) {
         // THE OFFICE SAID WHEN (2026-09-13). Its bouncer answers a 429 with
-        // `retry-after` in whole seconds — the time until one token refills for
+        // `retry-after` in whole seconds -- the time until one token refills for
         // this caller. Before this the retry came 250 ms later, three times,
         // and every one of them met the same empty bucket; the build then kept
         // the committed roll, which is how thirty residents lost their front
         // doors for eighteen days (postmark#2730). Wait what it said, capped.
+        // 2026-09-17: and when a GATE is passed, every other lane waits too,
+        // and the DEADLINE rather than the count decides when to give up --
+        // because the refusal is one shared queue, not this call's bad luck.
+        refused = true;
         const ra = Number(res.headers?.get?.("retry-after"));
         waitMs = Number.isFinite(ra) && ra > 0 ? Math.min(ra * 1000, maxRetryAfterMs) : Math.max(waitMs, 1000);
+        if (gate) gate.park(ra);
         throw new Error(`${res.status} ${res.statusText}`.trim());
       }
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`.trim());
-      return {
+      const out = {
         body: await res.json(),
         asOf: res.headers?.get?.("x-postmark-as-of") ?? null,
       };
+      if (gate) gate.succeed();
+      return out;
     } catch (error) {
       clearTimeout(timer);
       lastError = error;
-      if (attempt < retries) await new Promise((resolve) => setTimeout(resolve, waitMs));
+      if (gate && refused) {
+        // The gate already holds the wait, for every lane. Keep asking until
+        // the RUN's budget is spent; a count cannot outlast a queue.
+        if (!gate.expired()) continue;
+        const { refusals } = gate.stats();
+        throw new Error(`GET ${path} refused: the run's ${gate.budgetMs} ms fetch budget is spent after ${refusals} refusal(s) (${lastError?.message ?? lastError})`);
+      }
+      hardAttempts += 1;
+      if (hardAttempts >= retries) break;
+      await nap(waitMs);
     }
   }
   throw new Error(`GET ${path} failed after ${retries} attempts: ${lastError?.message ?? lastError}`);
@@ -91,10 +259,10 @@ export async function mapLimit(items, limit, fn) {
   return out;
 }
 
-export async function fetchAllLetterIds({ apiBase, fetchImpl, retries, limit = 200 }) {
+export async function fetchAllLetterIds({ apiBase, fetchImpl, retries, gate = null, limit = 200 }) {
   const ids = [];
   for (let offset = 0; ; offset += limit) {
-    const { body } = await apiGet(`/letters?limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries });
+    const { body } = await apiGet(`/letters?limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries, gate });
     const batch = ensureArray(body.letters, "/letters.letters");
     ids.push(...batch.map((l) => l.id).filter(Boolean));
     if (batch.length < limit) break;
@@ -144,10 +312,10 @@ export function mapLetter(l) {
  * writes `l.body ?? ""`), and a truthiness test would read that real door as
  * an absent one and silently fall back forever.
  */
-export async function fetchLetterCorpus({ apiBase, fetchImpl, retries, limit = 200 } = {}) {
+export async function fetchLetterCorpus({ apiBase, fetchImpl, retries, gate = null, limit = 200 } = {}) {
   const letters = [];
   for (let offset = 0; ; offset += limit) {
-    const { body } = await apiGet(`/letters?full=1&limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries });
+    const { body } = await apiGet(`/letters?full=1&limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries, gate });
     const batch = ensureArray(body.letters, "/letters.letters");
     if (offset === 0) {
       if (!batch.length) return null;            // nothing to detect on; the fallback answers the same
@@ -192,11 +360,11 @@ export async function fetchLetterCorpus({ apiBase, fetchImpl, retries, limit = 2
  * error anywhere. When the door names a `total`, the assembled roll is checked
  * against it and the build refuses if they disagree.
  */
-export async function fetchResidentRoll({ apiBase, fetchImpl, retries, limit = 200 } = {}) {
+export async function fetchResidentRoll({ apiBase, fetchImpl, retries, gate = null, limit = 200 } = {}) {
   const roll = [];
   let total = null;
   for (let offset = 0; ; offset += limit) {
-    const { body } = await apiGet(`/residents?limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries });
+    const { body } = await apiGet(`/residents?limit=${limit}&offset=${offset}`, { apiBase, fetchImpl, retries, gate });
     // The pre-2026-09-10 office: one array, the whole roll, the limit ignored.
     if (Array.isArray(body)) return { roll: ensureArray(body, "/residents"), paged: false, total: body.length };
     const batch = ensureArray(body?.residents, "/residents.residents");
@@ -359,16 +527,20 @@ export async function buildOfficeData({
   townRoot = null,
   fetchImpl = fetch,
   retries = 3,
+  // ONE GATE FOR THE WHOLE PASS (2026-09-17). Made here rather than per call,
+  // because the thing it is pacing against is one shared queue per caller
+  // address: a gate per call would be six lanes each learning the same refusal.
+  gate = createRateGate(),
 } = {}) {
   const readSnapshot = snapshotReader(dataDir);
   const endpointGaps = [];
   const problems = [];
 
   const [{ body: town, asOf }, rollRes, metricsRes, bulletinListRes] = await Promise.all([
-    apiGet("/town", { apiBase, fetchImpl, retries }),
-    fetchResidentRoll({ apiBase, fetchImpl, retries }),
-    apiGet("/metrics/mail", { apiBase, fetchImpl, retries }),
-    apiGet("/bulletin", { apiBase, fetchImpl, retries }),
+    apiGet("/town", { apiBase, fetchImpl, retries, gate }),
+    fetchResidentRoll({ apiBase, fetchImpl, retries, gate }),
+    apiGet("/metrics/mail", { apiBase, fetchImpl, retries, gate }),
+    apiGet("/bulletin", { apiBase, fetchImpl, retries, gate }),
   ]);
 
   const residentHandles = rollRes.roll.map((r) => r.handle).sort();
@@ -384,7 +556,7 @@ export async function buildOfficeData({
   // past ~240 the keyless bucket refused the rest, the build kept the committed
   // snapshot, and the /residents/ directory froze at 134 while the town grew.
   const fullResidents = await mapLimit(residentHandles, RESIDENT_CARD_LANES, async (handle) =>
-    (await apiGet(`/residents/${encodeURIComponent(handle)}`, { apiBase, fetchImpl, retries })).body
+    (await apiGet(`/residents/${encodeURIComponent(handle)}`, { apiBase, fetchImpl, retries, gate })).body
   );
 
   // ── THE LETTER CORPUS: the bulk door first, the resident cards as fallback ──
@@ -401,7 +573,7 @@ export async function buildOfficeData({
   let letters;
   let corpus = null;
   try {
-    corpus = await fetchLetterCorpus({ apiBase, fetchImpl, retries });
+    corpus = await fetchLetterCorpus({ apiBase, fetchImpl, retries, gate });
   } catch (error) {
     // A door that errors is a door that is not there, for our purposes. The
     // fallback is the known-good route and the build goes on; the reason is
@@ -481,7 +653,7 @@ export async function buildOfficeData({
     .sort((a, b) => a.handle.localeCompare(b.handle));
 
   const bulletin = await Promise.all(ensureArray(bulletinListRes.body, "/bulletin").map(async (b) =>
-    (await apiGet(`/bulletin/${encodeURIComponent(b.slug)}`, { apiBase, fetchImpl, retries })).body
+    (await apiGet(`/bulletin/${encodeURIComponent(b.slug)}`, { apiBase, fetchImpl, retries, gate })).body
   ));
   bulletin.sort((a, b) => a.slug.localeCompare(b.slug));
 
