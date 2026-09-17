@@ -171,16 +171,6 @@ export function fragmentLinksIn(src) {
 }
 
 /**
- * Every in-site href written as a literal, fragment or not.
- * `href="/world/"` → "/world/" · `href="/town/#pots"` → "/town/#pots"
- * Off-site (`https://…`) and computed (`href={expr}`) hrefs are not matched,
- * by construction — the same cut `fragmentLinksIn` makes.
- */
-export function hrefsIn(src) {
-  return Array.from(src.matchAll(/href="(\/[^"\s]*)"/g), (m) => m[1]);
-}
-
-/**
  * Routes the site has RETIRED — no page of ours may point at one.
  *
  * A retired route still answers, through the redirects map in
@@ -211,6 +201,32 @@ const RETIRED_ROUTES = [
     keep: ["/atlas/ground.html", "/atlas/assets/"],
   },
 ];
+
+/**
+ * Every retired path a source names, whatever the quoting style.
+ *
+ * NOT an href reader, deliberately — see the flip test below. It matches the
+ * retired PREFIX wherever it appears as a path, so `href="/atlas/"`,
+ * `href: "/atlas/"`, `` href: `${P}/atlas/` `` and `data-src="/atlas/x.html"`
+ * are all one case. The trailing slash in the prefix is load-bearing:
+ * `/thumbs/atlas.jpg` is a thumbnail this site keeps, and must not match.
+ *
+ * Comments are expected to be blanked already; pass stripped source.
+ */
+export function retiredPathsIn(src) {
+  const out = [];
+  for (const route of RETIRED_ROUTES) {
+    const prefix = route.prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    for (const m of String(src).matchAll(new RegExp(`${prefix}[A-Za-z0-9._/-]*`, "g"))) {
+      if (route.keep.some((k) => m[0].startsWith(k))) continue;
+      out.push({ route, path: m[0] });
+    }
+  }
+  return out;
+}
+
+/** the reader's answers alone, for the paired falsifiers */
+const paths = (src) => retiredPathsIn(src).map((h) => h.path);
 
 /** Every source a reader's chrome and pages are assembled from. */
 function everyLinkedSource() {
@@ -401,18 +417,16 @@ test("every real page still parses to at least one id — stripping has not blan
 // TWO hrefs blanked that way (`/world/` and `/replay/`, both in
 // town/pages/world.astro), and ZERO of them under a retired prefix. So the
 // refusal's reach is intact today; it is not intact by construction, and a
-// future retired route whose only href sits in such a window would be missed.
+// future retired route whose only reference sits in such a window would be
+// missed. The same scan finds ZERO retired paths left in this corpus, which is
+// the state the first test below pins.
 
 test("no page or chrome of ours points at a retired route", () => {
   const offences = [];
   for (const file of everyLinkedSource()) {
     const src = stripComments(readFileSync(file, "utf8"));
-    for (const href of hrefsIn(src)) {
-      for (const route of RETIRED_ROUTES) {
-        if (!href.startsWith(route.prefix)) continue;
-        if (route.keep.some((k) => href.startsWith(k))) continue;
-        offences.push(`${relative(ROOT, file).split("\\").join("/")} → ${href}  (point it at ${route.to}: ${route.why})`);
-      }
+    for (const { route, path } of retiredPathsIn(src)) {
+      offences.push(`${relative(ROOT, file).split("\\").join("/")} → ${path}  (point it at ${route.to}: ${route.why})`);
     }
   }
   assert.deepEqual(offences, [], "a retired route is still linked:\n  " + offences.join("\n  "));
@@ -421,18 +435,35 @@ test("no page or chrome of ours points at a retired route", () => {
 test("the retired-route reader refuses a planted href and passes the route it forwards to", () => {
   // BOTH DIRECTIONS, on the pure reader, so the corpus test above cannot be
   // green merely because the reader found nothing anywhere.
-  const planted = '<a href="/atlas/">the atlas</a><a href="/world/">the world</a>';
-  const found = hrefsIn(planted);
-  assert.deepEqual(found, ["/atlas/", "/world/"], "the href reader stopped reading plain hrefs");
+  assert.deepEqual(paths('<a href="/atlas/">the atlas</a>'), ["/atlas/"], "a planted /atlas/ href was not refused");
+  assert.deepEqual(paths('<a href="/world/">the world</a>'), [], "the route the atlas forwards TO was refused");
 
-  const retired = found.filter((h) => RETIRED_ROUTES.some((r) => h.startsWith(r.prefix) && !r.keep.some((k) => h.startsWith(k))));
-  assert.deepEqual(retired, ["/atlas/"], "a planted /atlas/ href was not refused");
+  // the deeper page the redirects map names is refused beside it
+  assert.deepEqual(paths('<a href="/atlas/town.html">x</a>'), ["/atlas/town.html"]);
+  // and so is the iframe attribute the retired overlay used, which is not an href
+  assert.deepEqual(paths('<iframe data-src="/atlas/town.html"></iframe>'), ["/atlas/town.html"]);
+});
 
-  // and the deeper page the redirects map names is refused beside it
-  assert.deepEqual(
-    hrefsIn('<a href="/atlas/town.html">x</a>').filter((h) => RETIRED_ROUTES.some((r) => h.startsWith(r.prefix) && !r.keep.some((k) => h.startsWith(k)))),
-    ["/atlas/town.html"],
-  );
+test("THE FLIP THAT CAUGHT THIS: a computed href is refused too, because most of them are", () => {
+  // THE FIRST CUT OF THIS CHECK READ ONLY `href="…"` AND STAYED GREEN UNDER ITS
+  // OWN FLIP. Planting the retired route back into the Works card — the real
+  // page this lane re-pointed — changed nothing, because that page builds its
+  // cards from a data array and renders them with `href={w.href}`: a COMPUTED
+  // href, which this file's own header says it cannot resolve. The rail in
+  // nav.mjs is the same shape. So the two places a retired route was actually
+  // written were both outside a reader that only sees quoted attributes.
+  //
+  // The reader therefore looks for the retired PREFIX as a path, in any quoting
+  // style, over source whose comments are already blanked. Over-inclusion is
+  // the loud direction — a legitimate mention reds and is answered by naming it
+  // in `keep` — which is the same trade `tools/lib/world-staging.mjs` makes for
+  // its own record literals, and for the same reason.
+  assert.deepEqual(paths('const nav = [{ key: "atlas", href: "/atlas/" }];'), ["/atlas/"]);
+  assert.deepEqual(paths("const card = { href: `${P}/atlas/`, thumb: `${P}/thumbs/atlas.jpg` };"), ["/atlas/"]);
+  // …and the thumbnail beside it is NOT a retired path, which is why the prefix
+  // carries its trailing slash: /thumbs/atlas.jpg must never match.
+  assert.deepEqual(paths('<img src="/thumbs/atlas.jpg" />'), []);
+  assert.deepEqual(paths('<a href="/atelier/atlas-of-emergence/">x</a>'), [], "the atelier's own atlases are not this atlas");
 });
 
 test("the World's own ground keeps serving under the retired prefix", () => {
