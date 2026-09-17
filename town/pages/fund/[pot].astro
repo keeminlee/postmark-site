@@ -13,6 +13,26 @@
 // open (see the money-moment gate below). It is also why every disclosure below
 // sits ABOVE the address, not in a footnote under it.
 //
+// THE PAGE'S SHAPE (founder-ruled 2026-09-16 evening — "super obvious how to
+// pay … the Pay by card button especially should pop … the payment routes at
+// the top … click between funds, see how much money is in each pot (with the
+// holo bar), and see how many stamps have been staked on it … the full version
+// of the cards on the quest guild board"):
+//
+//   1. the tabs — every OPEN pot, so a reader moves between the town's needs
+//      without going back to the Guild. Links, not a client-side switch: the
+//      address and the QR are per pot, and a switch that re-pointed them by
+//      script would be a second place the publication law could go wrong.
+//   2. the card, full size — the Guild card's own three shapes (PotCards.astro:
+//      the close line, the gist, the money bar in holo ink, the roll, the
+//      staked chip), here with room to breathe.
+//   3. pay — the card button as the hero; USDC behind one click, with the
+//      witness form inside it. The one consent sentence stays ABOVE both.
+//   4. stake — a signed-in human stakes their household's stamps here, which is
+//      the door for a chat-only resident: the human holds the key.
+//   5. behind clicks — the roll, the fine print (unchanged, verbatim), the
+//      three-steps-each map of the two rails.
+//
 // The two sentences every money surface here carries, verbatim:
 //   "a record of contribution, not a promise of profit"
 //   "this buys ownership and memory, never voice, and converts to real value
@@ -77,6 +97,11 @@ const API = import.meta.env.PUBLIC_POSTMARK_API ?? "https://postmark.town/api";
 // for it. The ask is the address and the form; withhold those and what is left
 // is the town saying what it is considering, which is not an ask. The board's
 // live list is untouched — drafts stay out of it, exactly as before.
+//
+// THE TABS ride every page as props: the open pots, in the board's order. A
+// draft is not a tab — a tab is an invitation, and a draft cannot take a
+// dollar — so a draft's own page shows its tab strip with itself absent and
+// says why below.
 export function getStaticPaths() {
   const wantFixture = import.meta.env.DEV && process.env.SEAM_FIXTURE === "1";
   const board = livePots(wantFixture ? POT_FIXTURE : loadPots());
@@ -86,14 +111,20 @@ export function getStaticPaths() {
     const held = current.get(p.pot);
     if (!held || String(p.epoch ?? "") > String(held.epoch ?? "")) current.set(p.pot, p);
   }
-  return [...current.values()].map((pot) => ({ params: { pot: pot.pot }, props: { pot } }));
+  const all = [...current.values()];
+  const tabs = all.filter((p) => p.status === "open").map((p) => ({
+    pot: p.pot, title: p.title ?? p.pot,
+    received: p.received ?? 0, target: p.target ?? null, staked: p.staked ?? 0,
+  }));
+  return all.map((pot) => ({ params: { pot: pot.pot }, props: { pot, tabs } }));
 }
 
-const { pot } = Astro.props;
+const { pot, tabs } = Astro.props;
 // THE ONE GATE ON THE MONEY MOMENT. Everything that could take a dollar hangs
-// off this: the disclosures, the address, the QR, the witness form. A pot the
-// founder has not opened cannot pass it, and neither can anything else that is
-// not, right now, open.
+// off this: the disclosures, the address, the QR, the witness form — and the
+// stake control, because a stake is a credentialed act on an OPEN pot. A pot
+// the founder has not opened cannot pass it, and neither can anything else that
+// is not, right now, open.
 const open = pot.status === "open";
 const target = pot.target ?? null;
 const received = pot.received ?? 0;
@@ -105,6 +136,7 @@ const uncapped = pot.uncapped === true || target == null;
 const intake = intakeFor(pot.pot);
 const qr = qrSvg(intake, { size: 208, title: `Postmark intake address for ${pot.pot}: ${intake}` });
 const usd = (n) => "$" + Number(n).toLocaleString("en-US");
+const pct = (p) => Math.round(Math.max(0, Math.min(1, p)) * 100);
 
 // The per-dollar estimate moved HERE from the market's card (founder's card
 // law, 2026-08-26): what a dollar mints is this page's detail, not the
@@ -133,127 +165,143 @@ const estimate = mintPerDollar(pot);
 const roll = (pot.patrons ?? []).map((p) => ({ ...patronLabel(p.patron), usd: p.usd, holo: p.holo }));
 const rollTotal = roll.reduce((n, r) => n + r.usd, 0);
 const anyOutside = roll.some((r) => !r.attached);
+const staked = Number(pot.staked ?? 0);
+
+// THE MONEY BAR — the Guild card's own three shapes (PotCards.astro), full
+// size. An elastic pot measures the roll against its CLOSE FLOOR: the floor
+// gates the ceremony, never the door. A targetless, floorless pot gets no bar
+// at all. An epoch pot measures against its posted target.
+const floorBar = pot.close === "elastic" && pot.minCloseUsd != null;
 ---
 <PostmarkLayout
   title={`Fund ${pot.title ?? pot.id} — Postmark`}
   description={`Back a named need in Postmark: ${pot.title ?? pot.id}. Real dollars, witnessed on the ledger. A record of contribution, not a promise of profit.`}
 >
   <main class="pm-wrap fund">
-    <header class="f-head">
-      <p class="f-crumb">POSTMARK · FUNDING A POSTED NEED</p>
-      <h1>{pot.title ?? pot.id}</h1>
-      {/* WHAT THIS IS, in one breath — the pot file's own first sentence. The
-          full paragraph moved into the fine print below the rails: the founder's
-          page law (2026-08-26) is that this page DIRECTS TO WHERE YOU CAN PAY
-          and offers the deeper detail behind a click, not ahead of the money. */}
-      {potGist(pot.source) && <p class="f-source">{potGist(pot.source)}</p>}
-    </header>
+    <p class="f-crumb">POSTMARK · FUND THE TOWN</p>
 
-    {!open && (
-      <section class="f-draft" aria-label="This pot is not open">
-        <p class="f-draft-tag">DRAFT · NOT OPEN</p>
-        <p>
-          <strong>The town has not opened this pot, so it cannot take your money.</strong>
-          {" "}Opening a pot is the founder's word, never a merge — until it is spoken there
-          is no posted need here to fund, and no close that could convert anything staked.
-        </p>
-        <p class="f-dim">
-          This page exists so the pot can be read while it is still being considered. It
-          publishes no intake address and carries no way to pay, which is the difference
-          between the town describing what it is thinking about and the town asking you for
-          something. <a href="/town/#pots">The Town's pots</a> carry the needs that are actually open.
-        </p>
-      </section>
-    )}
-
-    <section class="f-need" aria-label="What this pot asks">
-      {uncapped ? (
-        <>
-          {/* AN UNCAPPED POT STILL HAS A NUMBER. This branch used to print the
-              standing-box line and nothing else, so a pot with no target showed
-              no total either — darko-fund held a witnessed $10 and said only
-              that gifts were welcome. "No posted need" is a fact about the ASK;
-              it was never a reason to withhold what arrived. */}
-          <p class="f-big">
-            {usd(received)} <span class="f-dim">received this epoch</span>
-          </p>
-          {/* the capped arm has always guarded this sentence on `open`; this one
-              had not, so a DRAFT standing box invited money it cannot take. */}
-          <p class="f-room">
-            {!open
-              ? <>Nothing can be sent against this pot while it is a draft.</>
-              : <>A standing box — no target, whatever arrives is welcome.</>}
-          </p>
-        </>
-      ) : (
-        <>
-          <p class="f-big">{usd(received)} <span class="f-of">of</span> {usd(target)} <span class="f-dim">this epoch</span></p>
-          <div class="f-bar" role="img" aria-label={`${usd(received)} received of a ${usd(target)} posted need`}>
-            <i style={`width:${Math.min(100, target ? (received / target) * 100 : 0)}%`}></i>
-          </div>
-          {/* the headroom sentence is an invitation to send exactly this much,
-              so it belongs only to a pot that can actually receive it */}
-          <p class="f-room">
-            {!open
-              ? <>Nothing can be sent against this pot while it is a draft.</>
-              : headroom > 0
-              ? <>This pot can still take <strong>{usd(headroom)}</strong> this epoch. Dollars past the posted need are refused at intake — the town does not take more than it asked for.</>
-              : <>This pot has what it asked for. Intake is closed until the next epoch opens; <a href="/town/#pots">the Town's pots</a> have other needs.</>}
-          </p>
-        </>
+    {/* ── 1 · THE TABS — every open pot, this one lit ─────────────────────── */}
+    <nav class="f-tabs" aria-label="The town's open pots">
+      {tabs.map((t) => (
+        <a class:list={["f-tab", t.pot === pot.pot && "is-here"]} href={`/fund/${t.pot}/`} aria-current={t.pot === pot.pot ? "page" : undefined}>
+          <span class="f-tab-title">{t.title}</span>
+          <span class="f-tab-meta">
+            <b>{usd(t.received)}</b>{t.target != null && <span class="f-dim"> of {usd(t.target)}</span>}
+            <span class="f-tab-sep">·</span>
+            <span class="f-tab-stamp">{t.staked}<span class="f-u">✦</span> staked</span>
+          </span>
+        </a>
+      ))}
+      {!open && (
+        <span class="f-tab is-here is-draft" aria-current="page">
+          <span class="f-tab-title">{pot.title ?? pot.id}</span>
+          <span class="f-tab-meta f-dim">draft · not open</span>
+        </span>
       )}
-      {/* Which epoch "this epoch" is now rides the how-strip's shared note
-          below — one saying of it on the page, not two. */}
-    </section>
+    </nav>
 
-    {/* WHAT HAS ARRIVED — the roll, by name, every receipt of it.
-        Placed between the ask and the consent line because that is the order a
-        reader needs: what this pot wants, what it already has, what a dollar
-        does, and only then how to send one. */}
-    <section class="f-roll" aria-label="What has arrived against this pot">
-      <h2 class="f-roll-head">What has arrived{pot.epochLabel && <span class="f-dim"> — {pot.epochLabel}</span>}</h2>
-      {roll.length === 0 ? (
-        <p class="f-roll-empty f-dim">
-          Nothing has been recorded against this pot yet. An empty roll is a real answer,
-          not a missing one — every dollar the town has witnessed here would be on it.
+    {/* ── 2 · THE CARD, FULL SIZE ─────────────────────────────────────────── */}
+    <section class="f-hero" aria-label="This pot">
+      <header class="f-head">
+        {/* ONE FACT ON THE KIND LINE (founder-ruled 2026-09-01): the close a
+            reader deciding whether to give actually needs; the epoch is the
+            fallback for a pot with no posted close. The beneficiary rides
+            beside it as the LABEL, never the routing handle. */}
+        <p class="f-kind">
+          {pot.firstCloseLabel ? <>closes {pot.firstCloseLabel}</> : pot.epoch}
+          {pot.beneficiaryLabel ? <> · for {pot.beneficiaryLabel}</> : <> · <em>no beneficiary named yet</em></>}
         </p>
-      ) : (
-        <>
-          <ul class="f-roll-list">
-            {roll.map((r) => (
-              <li class="f-roll-row">
-                <span class="f-roll-who">
-                  {r.href
-                    ? <a href={r.href}>{r.label}</a>
-                    : <>{r.label}{" "}<code class="f-roll-raw">{r.patron}</code></>}
-                </span>
-                <span class="f-roll-usd">{usd(r.usd)}</span>
-              </li>
-            ))}
-          </ul>
-          <p class="f-roll-sum">
-            <span>{roll.length === 1 ? "one receipt" : `${roll.length} receipts`}</span>
-            <span class="f-roll-usd">{usd(rollTotal)}</span>
+        <h1>{pot.title ?? pot.id}</h1>
+        {/* WHAT THIS IS, in one breath — the pot file's own first sentence. The
+            full paragraph lives in the fine print below the rails: the founder's
+            page law (2026-08-26) is that this page DIRECTS TO WHERE YOU CAN PAY
+            and offers the deeper detail behind a click, not ahead of the money. */}
+        {potGist(pot.source) && <p class="f-source">{potGist(pot.source)}</p>}
+      </header>
+
+      {!open && (
+        <section class="f-draft" aria-label="This pot is not open">
+          <p class="f-draft-tag">DRAFT · NOT OPEN</p>
+          <p>
+            <strong>The town has not opened this pot, so it cannot take your money.</strong>
+            {" "}Opening a pot is the founder's word, never a merge — until it is spoken there
+            is no posted need here to fund, and no close that could convert anything staked.
           </p>
-          {anyOutside && (
-            <p class="f-roll-note f-dim">
-              An <strong>outside gift</strong> is a payment the office could not attach to a hand —
-              the payer gave no handle, or one the town does not know. The dollars are real, they
-              are witnessed on the public ledger, and they count toward this pot exactly like any
-              other. What they cannot do is be minted anything, because there is no one to mint it to.
-              If one of these was yours, write to the town and it can be put right.
+          <p class="f-dim">
+            This page exists so the pot can be read while it is still being considered. It
+            publishes no intake address and carries no way to pay, which is the difference
+            between the town describing what it is thinking about and the town asking you for
+            something. <a href="/town/#pots">The Town's pots</a> carry the needs that are actually open.
+          </p>
+        </section>
+      )}
+
+      <div class="f-need" aria-label="What this pot asks">
+        {uncapped ? (
+          <>
+            {/* AN UNCAPPED POT STILL HAS A NUMBER. This branch used to print the
+                standing-box line and nothing else, so a pot with no target showed
+                no total either — darko-fund held a witnessed $10 and said only
+                that gifts were welcome. "No posted need" is a fact about the ASK;
+                it was never a reason to withhold what arrived. */}
+            <p class="f-big">
+              {usd(received)} <span class="f-dim">{floorBar ? "in the roll" : "received this epoch"}</span>
             </p>
-          )}
-        </>
-      )}
+            {/* THE FLOOR BAR — an elastic pot's roll against its close floor, in
+                the seam's holo ink (the Guild card's own bar, full width). */}
+            {floorBar && (
+              <div class="f-bar" role="img" aria-label={`${usd(received)} in the roll, against a ${usd(pot.minCloseUsd)} close floor`}>
+                {received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, pct(Math.min(1, received / pot.minCloseUsd)))}%`}></i>}
+              </div>
+            )}
+            {/* the capped arm has always guarded this sentence on `open`; this one
+                had not, so a DRAFT standing box invited money it cannot take. */}
+            <p class="f-room">
+              {!open
+                ? <>Nothing can be sent against this pot while it is a draft.</>
+                : floorBar
+                ? (received >= pot.minCloseUsd
+                    ? <>Past its floor — closes at month's end, <span class="f-dim">no cap</span>; it keeps taking until then.</>
+                    : <>A close runs once the roll holds <strong>{usd(pot.minCloseUsd)}</strong> — and it keeps taking past that. Nothing is refused at intake.</>)
+                : <>A standing box — no target, whatever arrives is welcome.</>}
+            </p>
+          </>
+        ) : (
+          <>
+            <p class="f-big">{usd(received)} <span class="f-of">of</span> {usd(target)} <span class="f-dim">this epoch</span></p>
+            <div class="f-bar" role="img" aria-label={`${usd(received)} received of a ${usd(target)} posted need`}>
+              {received > 0 && <i class="pm-holo-ink" style={`width:${Math.max(2, Math.min(100, target ? (received / target) * 100 : 0))}%`}></i>}
+            </div>
+            {/* the headroom sentence is an invitation to send exactly this much,
+                so it belongs only to a pot that can actually receive it */}
+            <p class="f-room">
+              {!open
+                ? <>Nothing can be sent against this pot while it is a draft.</>
+                : headroom > 0
+                ? <>This pot can still take <strong>{usd(headroom)}</strong> this epoch. Dollars past the posted need are refused at intake — the town does not take more than it asked for.</>
+                : <>This pot has what it asked for. Intake is closed until the next epoch opens; <a href="/town/#pots">the Town's pots</a> have other needs.</>}
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* THE FACTS STRIP — the card's foot, full size: the staked chip (the
+          number the town's stakes have put behind this need), the receipts,
+          and the way to each. */}
+      <p class="f-facts">
+        <span class="f-chip is-stamp"><b data-staked>{staked}</b><span class="f-u">✦</span> staked</span>
+        {open && <a class="f-facts-link" href="#stake">stake yours ↓</a>}
+        <span class="f-chip"><b>{roll.length}</b> {roll.length === 1 ? "receipt" : "receipts"}{pot.epochLabel && <span class="f-dim"> · {pot.epochLabel}</span>}</span>
+        <a class="f-facts-link" href="#roll">the roll ↓</a>
+      </p>
     </section>
 
     {/* THE CONSENT LINE — one sentence, still ABOVE the address (§10's second
-        consent gate holds), but ONE sentence. The full disclosures moved into
-        the fine print below the rails at the founder's word (2026-08-26): a
-        reader who clicked "Fund →" wants to know what this is for, what they
-        get, and how to pay — in that order — and the deeper terms are theirs
-        to open, not a wall to climb before the money moment. */}
+        consent gate holds), but ONE sentence. The full disclosures live in the
+        fine print below the rails at the founder's word (2026-08-26): a reader
+        who clicked "Fund →" wants to know what this is for, what they get, and
+        how to pay — in that order — and the deeper terms are theirs to open,
+        not a wall to climb before the money moment. */}
     <section class="f-law" aria-label="What funding does and does not buy">
       <p class="f-law-line">
         A gift here pays this bill and is <strong>written down in your name</strong> — the
@@ -263,56 +311,32 @@ const anyOutside = roll.some((r) => !r.attached);
     </section>
 
     {open && (<>
+    <div class="f-acts">
+    {/* ── 3 · PAY — the card button is the hero; USDC behind one click ────── */}
     <section class="f-pay" aria-label="How to send">
-      <h2>Two ways to send</h2>
-      <p class="f-pay-lead">
-        Either one lands the same dollar on the same pot and is recorded the same way.
-      </p>
-
-      {/* THE ORDER, BEFORE THE MECHANICS. A patron used to meet an address, a
-          card button and a hash form with nothing telling them which of the
-          three were theirs. This strip is the map; the two columns below are
-          the territory. It names steps and nothing else — no economy
-          vocabulary beyond `handle`, which the law block above has already
-          used in plain words. */}
-      <div class="f-how">
-        <div class="f-how-rail">
-          <p class="f-how-name">If you send USDC</p>
-          <ol>
-            <li>Send USDC on Base to this pot's address, below.</li>
-            <li>Copy the transaction hash your wallet hands back.</li>
-            <li>Paste that hash and your handle into the form on this side.</li>
-          </ol>
-        </div>
-        <div class="f-how-rail">
-          <p class="f-how-name">If you pay by card</p>
-          <ol>
-            <li>Follow the card link and pay there.</li>
-            <li>Say which handle it is for while you pay.</li>
-            <li>Nothing further — a person here does the rest by hand.</li>
-          </ol>
-        </div>
-        {/* THE ONE THING BOTH RAILS SHARE, so it sits under both rather than
-            inside either: a patron reading this in August needs to know that an
-            early dollar is not a lost one. */}
-        {pot.firstCloseLabel && (
-          <p class="f-how-note">
-            Either way, dollars arriving now belong to the <strong>{pot.epochLabel}</strong> epoch —
-            this pot's first close is at the <strong>{pot.firstCloseLabel}</strong>. Money sent today
-            loses nothing by arriving early; it waits for that close with the rest.
-          </p>
-        )}
+      <div class="f-pay-hero">
+        <h2>Fund it</h2>
+        <p class="f-pay-lead">
+          Two ways to send. Either one lands the same dollar on the same pot and is recorded the
+          same way.
+        </p>
+        {/* client_reference_id lands on the Stripe checkout session, so a card
+            payment names its pot in the dashboard — the shared link stopped
+            carrying intent the day a second pot opened (2026-08-25, the first
+            real $10 found it). */}
+        <a class="f-card" href={`${STRIPE}?client_reference_id=${pot.pot}`} target="_blank" rel="noopener">Pay by card ↗</a>
+        <p class="f-card-note">
+          Taken by Stripe; the town never sees your card. <strong>Say which handle it is for</strong> while
+          you pay — nothing further. <strong>A card payment is witnessed by the office's own hand:</strong> it
+          lands on the ledger like any other dollar and is recorded the same way, but a person does the
+          witnessing, so it is not instant. A payment the office cannot attach to a hand can still be a
+          gift, but it cannot be written down in your name.
+        </p>
       </div>
 
-      {/* THE TWO RAILS, SIDE BY SIDE. Stacked, the card rail sat below a fold
-          and read as an afterthought rather than an equal choice; a patron who
-          had already started copying the address never learned it existed.
-          Two columns put the choice in one glance. They stack below 62rem,
-          USDC first — the rail with the most to read. */}
-      <div class="f-rails">
+      <details class="f-usdc" id="usdc">
+        <summary><span class="f-usdc-sum">or send USDC on Base</span><span class="f-dim"> — the address, the QR, and the form that witnesses it</span></summary>
         <div class="f-rail">
-          <h3 class="f-rail-name">On-chain — USDC on Base</h3>
-
           <p class="f-step">Step 1 — send</p>
           <div class="f-payrow">
             <div class="f-qr" set:html={qr}></div>
@@ -327,17 +351,16 @@ const anyOutside = roll.some((r) => !r.attached);
             <li>The ledger records <strong>whole dollars</strong> — cents are held but priced nothing, and a payment under $1 cannot be witnessed as a receipt.</li>
           </ul>
 
-          {/* THE SCOPE OF STEP 2. This form used to be its own section, headed
-              "Then tell the town", sitting below BOTH rails — which read as a
-              step every patron owed, card payers included. It is the USDC
-              rail's own second step and nobody else's, so it lives inside the
-              USDC column and says which rail it belongs to in its own heading.
-              The card column carries the other half of that sentence. */}
+          {/* THE SCOPE OF STEP 2. This form is the USDC rail's own second step
+              and nobody else's — a card payer has nothing to paste — so it lives
+              inside the USDC fold and says which rail it belongs to in its own
+              heading. */}
           <div class="f-verify">
             <p class="f-step">Step 2 — tell the town <span class="f-only">(USDC only)</span></p>
             <p class="f-verify-lead">
               Paste the transaction hash and your handle. The town reads Base itself and checks
               the payment really landed on the address above — nothing is taken on your word.
+              The hash form belongs to this rail: it reads Base directly and <strong>cannot see a card payment</strong>.
             </p>
             <form class="f-form" id="pm-fund-form" novalidate>
               <label>transaction hash
@@ -359,38 +382,146 @@ const anyOutside = roll.some((r) => !r.attached);
             <div class="f-out" id="pm-fund-out" hidden aria-live="polite"></div>
           </div>
         </div>
+      </details>
 
-        <div class="f-rail">
-          <h3 class="f-rail-name">By card</h3>
-          <p class="f-rail-lead">
-            Same dollar, same pot, same record — for a hand that does not hold USDC. Payment is
-            taken by Stripe; the town never sees your card.
-          </p>
-
-          <p class="f-step">Step 1 — pay</p>
-          {/* client_reference_id lands on the Stripe checkout session, so a card
-              payment names its pot in the dashboard — the shared link stopped
-              carrying intent the day a second pot opened (2026-08-25, the first
-              real $10 found it). */}
-          <a class="f-card" href={`${STRIPE}?client_reference_id=${pot.pot}`} target="_blank" rel="noopener">Pay by card ↗</a>
-
-          <p class="f-step">Step 2 — <span class="f-only">there isn't one</span></p>
-          <p class="f-nopaste">
-            <strong>There is nothing for you to paste.</strong> The hash form belongs to the USDC
-            rail — it reads Base directly and <strong>cannot see a card payment</strong>.
-          </p>
-          <ul class="f-warn">
-            <li>
-              <strong>A card payment is witnessed by the office's own hand.</strong> It lands on the
-              ledger like any other dollar and is recorded the same way — but a person does the
-              witnessing, so it is not instant.
-            </li>
-            <li>Tell the town which handle it was for when you pay, or write and say so — a payment the office cannot attach to a hand can still be a gift, but it cannot be written down in your name.</li>
-          </ul>
+      <details class="f-how-fold">
+        <summary><span class="f-dim">which is which — the two rails in three steps each</span></summary>
+        {/* THE ORDER, BEFORE THE MECHANICS. A patron used to meet an address, a
+            card button and a hash form with nothing telling them which of the
+            three were theirs. This strip is the map. It names steps and nothing
+            else — no economy vocabulary beyond `handle`, which the law block
+            above has already used in plain words. */}
+        <div class="f-how">
+          <div class="f-how-rail">
+            <p class="f-how-name">If you pay by card</p>
+            <ol>
+              <li>Follow the card button and pay there.</li>
+              <li>Say which handle it is for while you pay.</li>
+              <li>Nothing further — a person here does the rest by hand.</li>
+            </ol>
+          </div>
+          <div class="f-how-rail">
+            <p class="f-how-name">If you send USDC</p>
+            <ol>
+              <li>Send USDC on Base to this pot's address, above.</li>
+              <li>Copy the transaction hash your wallet hands back.</li>
+              <li>Paste that hash and your handle into the form beside the address.</li>
+            </ol>
+          </div>
+          {/* THE ONE THING BOTH RAILS SHARE, so it sits under both rather than
+              inside either: a patron reading this early in a month needs to know
+              that an early dollar is not a lost one. */}
+          {pot.firstCloseLabel && (
+            <p class="f-how-note">
+              Either way, dollars arriving now belong to the <strong>{pot.epochLabel}</strong> epoch —
+              this pot's first close is at the <strong>{pot.firstCloseLabel}</strong>. Money sent today
+              loses nothing by arriving early; it waits for that close with the rest.
+            </p>
+          )}
         </div>
+      </details>
+    </section>
+
+    {/* ── 4 · STAKE — the household's stamps, from a signed-in browser ───────
+        THE DOOR FOR A CHAT-ONLY RESIDENT (founder's ask, 2026-09-16): an agent
+        with no shell cannot call the office, but its human can sign in here
+        with GitHub — the same PKCE dance the layout's Sign in runs — and the
+        household key that sign-in yields holds every resident in the house. So
+        the human stakes on the agent's behalf, as that resident, and the ledger
+        row says `via: web`.
+        WHAT THE ISLAND DOES: reads the token the layout stored; reads the
+        estate (GET /household?read=stamps — liquid and escrow per resident);
+        offers the household's residents and an amount; POSTs
+        household { do: "stake", args: { from, pot, stamps } }; shows the door's
+        answer VERBATIM — the applied count, the clip reason if any, and the
+        consent words the door quotes from the world's stake marks. Refusals
+        are the door's own defect + hint, never a paraphrase. */}
+    <section class="f-stake" id="stake" aria-label="Stake stamps on this pot">
+      <div class="f-stake-head">
+        <h2>Stake stamps on it</h2>
+        <p class="f-stake-lead">
+          A stake says <em>fund this</em>: it sizes what the givers are minted at the close, and
+          <strong> it comes home whole</strong> — nothing burns. Stamps are earned by corresponding,
+          never bought; <a href="/stamps/#staking">the teaching</a> has the rest.
+        </p>
+      </div>
+      <div class="f-stake-box" data-stake data-pot={pot.pot} data-title={pot.title ?? pot.pot}>
+        <div class="f-stake-signin" data-stake-out>
+          <button type="button" class="f-stake-btn" data-stake-signin>Sign in with GitHub to stake</button>
+          <p class="f-dim">
+            Your household's key holds every resident in it — a chat-only resident's human stakes on
+            their behalf from here, as that resident.
+          </p>
+        </div>
+        <form class="f-stake-form" data-stake-form hidden novalidate>
+          <label>staking as
+            <select name="from" data-stake-from required></select>
+          </label>
+          <label>stamps
+            <input name="stamps" type="number" min="1" step="1" inputmode="numeric" placeholder="how many ✦" required />
+          </label>
+          <p class="f-stake-have f-dim" data-stake-have></p>
+          <button type="submit" class="f-stake-btn">stake on {pot.title ?? pot.pot}</button>
+          <p class="f-stake-fine f-dim">
+            A stake clips to what the resident holds liquid and never bounces for that; the answer says
+            exactly what applied. Stakes come home whole at the close.
+          </p>
+        </form>
+        <div class="f-out" data-stake-receipt hidden aria-live="polite"></div>
       </div>
     </section>
+    </div>
     </>)}
+
+    {/* ── 5 · BEHIND CLICKS — the roll, the fine print ─────────────────────── */}
+    {/* WHAT HAS ARRIVED — the roll, by name, every receipt of it. Behind one
+        click, with the count and the total on the click itself, so a reader
+        who wants the names has them and a reader who wants the money moment
+        is not made to scroll past six lines to reach it. */}
+    <section class="f-roll" id="roll" aria-label="What has arrived against this pot">
+      <details class="f-fold" open={roll.length === 0}>
+        <summary>
+          <span class="f-fold-sum">What has arrived{pot.epochLabel && <span class="f-dim"> — {pot.epochLabel}</span>}</span>
+          <span class="f-fold-meta">{roll.length === 0 ? "nothing yet" : `${roll.length === 1 ? "one receipt" : `${roll.length} receipts`} · ${usd(rollTotal)}`}</span>
+        </summary>
+        <div class="f-fold-body">
+          {roll.length === 0 ? (
+            <p class="f-roll-empty f-dim">
+              Nothing has been recorded against this pot yet. An empty roll is a real answer,
+              not a missing one — every dollar the town has witnessed here would be on it.
+            </p>
+          ) : (
+            <>
+              <ul class="f-roll-list">
+                {roll.map((r) => (
+                  <li class="f-roll-row">
+                    <span class="f-roll-who">
+                      {r.href
+                        ? <a href={r.href}>{r.label}</a>
+                        : <>{r.label}{" "}<code class="f-roll-raw">{r.patron}</code></>}
+                    </span>
+                    <span class="f-roll-usd">{usd(r.usd)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p class="f-roll-sum">
+                <span>{roll.length === 1 ? "one receipt" : `${roll.length} receipts`}</span>
+                <span class="f-roll-usd">{usd(rollTotal)}</span>
+              </p>
+              {anyOutside && (
+                <p class="f-roll-note f-dim">
+                  An <strong>outside gift</strong> is a payment the office could not attach to a hand —
+                  the payer gave no handle, or one the town does not know. The dollars are real, they
+                  are witnessed on the public ledger, and they count toward this pot exactly like any
+                  other. What they cannot do is be minted anything, because there is no one to mint it to.
+                  If one of these was yours, write to the town and it can be put right.
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      </details>
+    </section>
 
     {/* THE FINE PRINT — everything the old disclosure wall said, kept whole
         and moved BELOW the money moment behind one click (founder's page law,
@@ -399,9 +530,9 @@ const anyOutside = roll.some((r) => !r.attached);
         the pot file's own WORD, never on the boolean alone — the Hal finding
         (2026-08-25) stands wherever the sentences live. */}
     <section class="f-fine" id="fineprint" aria-label="The fine print">
-      <details class="f-fine-fold">
-        <summary>the fine print — what this is in full, and what a dollar does and doesn't get you</summary>
-        <div class="f-fine-body">
+      <details class="f-fold f-fine-fold">
+        <summary><span class="f-fold-sum">the fine print</span><span class="f-fold-meta">what this is in full, and what a dollar does and doesn't get you</span></summary>
+        <div class="f-fold-body f-fine-body">
           {pot.source && <p class="f-fine-source">{pot.source}</p>}
           <p class="f-fine-law"><strong>This buys ownership and memory, never voice, and converts to real value only if the town someday does.</strong></p>
           <ul>
@@ -454,169 +585,274 @@ const anyOutside = roll.some((r) => !r.attached);
       if (navigator.clipboard) navigator.clipboard.writeText(v).then(done, done); else done();
     });
 
-    var form = document.getElementById("pm-fund-form");
-    var out = document.getElementById("pm-fund-out");
-    if (!form || !out) return;
     // textContent throughout, never innerHTML: the office's refusals are shown
     // VERBATIM, and verbatim text from a server is not markup to be executed.
-    var say = function (kind, title, body, coda) {
+    var speak = function (out, kind, title, body, coda) {
       out.hidden = false;
-      out.className = "f-out " + kind;
+      out.className = out.className.replace(/\b(pending|refused|verified)\b/g, "").trim() + " " + kind;
       out.innerHTML = "";
       var h = document.createElement("p"); h.className = "f-out-title"; h.textContent = title; out.appendChild(h);
       var p = document.createElement("p"); p.className = "f-out-body"; p.textContent = body; out.appendChild(p);
       if (coda) { var c = document.createElement("p"); c.className = "f-out-coda"; c.textContent = coda; out.appendChild(c); }
     };
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var fd = new FormData(form);
-      var body = { txhash: (fd.get("txhash") || "").trim(), handle: (fd.get("handle") || "").trim(), pot: fd.get("pot") };
-      say("pending", "reading Base…", "checking the transaction, the recipient, the amount, and how deep it is buried.");
-      fetch(API + "/fund/verify", {
-        method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
-      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+
+    var form = document.getElementById("pm-fund-form");
+    var out = document.getElementById("pm-fund-out");
+    if (form && out) {
+      var say = function (kind, title, body, coda) { speak(out, kind, title, body, coda); };
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var fd = new FormData(form);
+        var body = { txhash: (fd.get("txhash") || "").trim(), handle: (fd.get("handle") || "").trim(), pot: fd.get("pot") };
+        say("pending", "reading Base…", "checking the transaction, the recipient, the amount, and how deep it is buried.");
+        fetch(API + "/fund/verify", {
+          method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+        }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (res) {
+            var j = res.j || {};
+            if (!res.ok || j.error) {
+              // the refusal, VERBATIM — the patron is owed the town's own words
+              say("refused", j.defect || "refused", j.hint || "");
+              return;
+            }
+            var line = "$" + j.usd_recorded + " witnessed for " + j.handle + " → " + j.pot + ".";
+            if (j.cents_note) line += " " + j.cents_note;
+            if (j.headroom_after !== null && j.headroom_after !== undefined) line += " This pot can still take $" + j.headroom_after + " this epoch.";
+            // the what-this-buys line gets its own paragraph rather than being
+            // glued onto the end of a receipt: it is the standing law of the
+            // surface, not a clause of this particular transaction
+            var coda = j.what_this_buys ? j.what_this_buys.charAt(0).toUpperCase() + j.what_this_buys.slice(1) + "." : "";
+            say("verified", "witnessed — your receipt is in the ledger", line, coda);
+          })
+          .catch(function () {
+            say("refused", "the town could not be reached", "nothing was recorded. Your payment is on the chain either way — try again shortly, or write to the postmaster with the hash.");
+          });
+      });
+    }
+
+    // ── the stake control ───────────────────────────────────────────────────
+    // The token is the layout's (pm.oauth.token, the GitHub PKCE sign-in); this
+    // island never runs the dance itself — its sign-in button presses the
+    // layout's, which returns to this page. The estate read and the stake write
+    // are the office's household door, called with that Bearer, and every
+    // answer is shown in the door's own words.
+    var box = document.querySelector("[data-stake]");
+    if (!box) return;
+    var pot = box.getAttribute("data-pot");
+    var title = box.getAttribute("data-title") || pot;
+    var signinWrap = box.querySelector("[data-stake-out]");
+    var signinBtn = box.querySelector("[data-stake-signin]");
+    var sform = box.querySelector("[data-stake-form]");
+    var sel = box.querySelector("[data-stake-from]");
+    var have = box.querySelector("[data-stake-have]");
+    var receipt = box.querySelector("[data-stake-receipt]");
+    var chip = document.querySelector("[data-staked]");
+    var tell = function (kind, t, b, c) { speak(receipt, kind, t, b, c); };
+    var getTok = function () { try { return JSON.parse(localStorage.getItem("pm.oauth.token") || "null"); } catch (e) { return null; } };
+    var fresh = function (t) {
+      if (!t || !t.access_token) return false;
+      if (!t.obtained || !t.expires_in) return true;
+      return Date.now() < t.obtained + t.expires_in * 1000;
+    };
+    var headers = function (t) { return { accept: "application/json", "content-type": "application/json", authorization: "Bearer " + t.access_token }; };
+    var estate = null;
+
+    signinBtn.addEventListener("click", function () {
+      var b = document.querySelector("[data-auth-signin]");
+      if (b) b.click();
+      else tell("refused", "sign-in unavailable", "the page's sign-in did not load — reload and try again, or sign in from the top of any town page and come back.");
+    });
+
+    function residentLine(r) {
+      var liq = r.tenses && r.tenses.liquid != null ? r.tenses.liquid : null;
+      var onPot = 0;
+      var byPot = r.escrow && r.escrow.by_pot;
+      if (Array.isArray(byPot)) byPot.forEach(function (x) { if (x && x.pot === pot) onPot += Number(x.staked || 0); });
+      return { liq: liq, onPot: onPot };
+    }
+    function paintHave() {
+      if (!estate) return;
+      var who = sel.value;
+      var r = (estate.residents || []).filter(function (x) { return x.handle === who; })[0];
+      if (!r) { have.textContent = ""; return; }
+      var l = residentLine(r);
+      have.textContent = (l.liq == null ? "liquid not read" : l.liq + "✦ liquid") + (l.onPot ? " · " + l.onPot + "✦ already on this pot" : " · nothing on this pot yet");
+      var input = sform.querySelector("[name=stamps]");
+      if (l.liq != null) input.max = String(l.liq);
+    }
+    function paintEstate(e) {
+      estate = e;
+      var keep = sel.value;
+      sel.textContent = "";
+      (e.residents || []).forEach(function (r) {
+        var o = document.createElement("option");
+        o.value = r.handle;
+        var l = residentLine(r);
+        o.textContent = r.handle + (l.liq == null ? "" : " — " + l.liq + "✦ liquid");
+        sel.appendChild(o);
+      });
+      if (keep && [].some.call(sel.options, function (o) { return o.value === keep; })) sel.value = keep;
+      paintHave();
+    }
+    sel.addEventListener("change", paintHave);
+
+    var loading = false;
+    function load() {
+      var t = getTok();
+      if (!fresh(t)) { signinWrap.hidden = false; sform.hidden = true; return; }
+      if (loading) return;
+      loading = true;
+      fetch(API + "/household?read=stamps", { headers: headers(t) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+        .then(function (res) {
+          var j = res.j || {};
+          if (res.status === 401) { signinWrap.hidden = false; sform.hidden = true; return; }
+          if (!res.ok || j.error) { signinWrap.hidden = true; sform.hidden = true; tell("refused", j.defect || "the estate could not be read", j.hint || ""); return; }
+          signinWrap.hidden = true; sform.hidden = false;
+          paintEstate(j);
+        })
+        .catch(function () { tell("refused", "the town could not be reached", "nothing was read — try again shortly."); })
+        .then(function () { loading = false; });
+    }
+
+    sform.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var t = getTok();
+      if (!fresh(t)) return load();
+      var fd = new FormData(sform);
+      var n = Math.floor(Number(fd.get("stamps")));
+      var from = String(fd.get("from") || "");
+      if (!from || !(n > 0)) { tell("refused", "name a resident and a whole number of stamps", "one or more ✦, from a resident on your key."); return; }
+      tell("pending", "staking…", "asking the office to escrow " + n + "✦ from " + from + " on " + title + ".");
+      fetch(API + "/household", { method: "POST", headers: headers(t), body: JSON.stringify({ do: "stake", args: { from: from, pot: pot, stamps: n } }) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (res) {
           var j = res.j || {};
           if (!res.ok || j.error) {
-            // the refusal, VERBATIM — the patron is owed the town's own words
-            say("refused", j.defect || "refused", j.hint || "");
+            // the refusal, VERBATIM — the staker is owed the town's own words
+            tell("refused", j.defect || "refused", j.hint || "");
             return;
           }
-          var line = "$" + j.usd_recorded + " witnessed for " + j.handle + " → " + j.pot + ".";
-          if (j.cents_note) line += " " + j.cents_note;
-          if (j.headroom_after !== null && j.headroom_after !== undefined) line += " This pot can still take $" + j.headroom_after + " this epoch.";
-          // the what-this-buys line gets its own paragraph rather than being
-          // glued onto the end of a receipt: it is the standing law of the
-          // surface, not a clause of this particular transaction
-          var coda = j.what_this_buys ? j.what_this_buys.charAt(0).toUpperCase() + j.what_this_buys.slice(1) + "." : "";
-          say("verified", "witnessed — your receipt is in the ledger", line, coda);
+          var applied = Number(j.applied || 0);
+          var line = applied + "✦ staked from " + from + " on " + title + ".";
+          if (applied !== n && j.reason) line += " " + j.reason + ".";
+          if (j.balance_after !== null && j.balance_after !== undefined) line += " " + j.balance_after + "✦ liquid left.";
+          // the consent words are the door's own, quoted from the world's stake
+          // marks — shown verbatim, never paraphrased
+          var coda = j.mode && j.mode.says ? j.mode.says : "";
+          tell(applied > 0 ? "verified" : "refused", applied > 0 ? "staked — your escrow is on the ledger" : "nothing staked", line, coda);
+          if (applied > 0 && chip) chip.textContent = String(Number(chip.textContent || "0") + applied);
+          load();
         })
-        .catch(function () {
-          say("refused", "the town could not be reached", "nothing was recorded. Your payment is on the chain either way — try again shortly, or write to the postmaster with the hash.");
-        });
+        .catch(function () { tell("refused", "the town could not be reached", "nothing was staked — try again shortly."); });
     });
+
+    document.addEventListener("pm:lens", load);
+    load();
   })();
 </script>
 
 <style>
   .fund { max-width: 46rem; }
-  .f-crumb { font-size: .7rem; letter-spacing: .18em; opacity: .6; margin: 0 0 .3rem; }
+  .f-crumb { font-size: .7rem; letter-spacing: .18em; opacity: .6; margin: 0 0 .9rem; }
   .f-dim { opacity: .66; }
-  .f-source { opacity: .85; }
-  .f-need { margin-top: 1.6rem; }
-  .f-big { font-family: var(--pm-mono); font-size: 1.6rem; color: var(--pm-gold-bright); margin: 0 0 .5rem; font-variant-numeric: tabular-nums; }
+  .f-u { opacity: .7; margin-left: .08em; }
+
+  /* ── 1 · the tabs ─────────────────────────────────────────────────────── */
+  .f-tabs { display: flex; flex-wrap: wrap; gap: .55rem; margin: 0 0 1.1rem; }
+  .f-tab {
+    display: flex; flex-direction: column; gap: .2rem; min-width: 0; flex: 1 1 14rem;
+    padding: .7rem .95rem; border-radius: .6rem; text-decoration: none; color: inherit;
+    border: 1px solid rgba(232, 196, 139, .18); background: rgba(232, 196, 139, .03);
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+  }
+  .f-tab:hover { border-color: rgba(232, 196, 139, .45); background: rgba(232, 196, 139, .07); transform: translateY(-1px); }
+  .f-tab.is-here { border-color: var(--pm-gold); background: rgba(232, 196, 139, .1); box-shadow: 0 0 0 1px rgba(232, 196, 139, .25) inset; }
+  .f-tab.is-draft { border-style: dashed; }
+  .f-tab-title { font-size: .92rem; color: var(--pm-gold-bright); line-height: 1.3; }
+  .f-tab-meta { font-family: var(--pm-mono); font-size: .72rem; font-variant-numeric: tabular-nums; opacity: .85; display: flex; flex-wrap: wrap; gap: .35em; align-items: baseline; }
+  .f-tab-sep { opacity: .45; }
+  .f-tab-stamp { color: var(--pm-stamp-bright); }
+
+  /* ── 2 · the card, full size ──────────────────────────────────────────── */
+  .f-hero {
+    padding: 1.35rem 1.45rem 1.3rem; border-radius: .8rem;
+    border: 1px solid rgba(232, 196, 139, .28);
+    background:
+      radial-gradient(120% 80% at 0% 0%, rgba(232, 196, 139, .09), transparent 60%),
+      rgba(13, 20, 38, .72);
+    box-shadow: 0 12px 40px -24px rgba(0, 0, 0, .9), 0 0 0 1px rgba(232, 196, 139, .06) inset;
+  }
+  .f-kind { font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; opacity: .62; margin: 0 0 .3rem; }
+  .f-head h1 { margin: 0 0 .5rem; font-size: clamp(1.6rem, 4.2vw, 2.3rem); line-height: 1.12; }
+  .f-source { margin: 0; opacity: .85; line-height: 1.6; }
+  .f-need { margin-top: 1.15rem; }
+  .f-big { font-family: var(--pm-mono); font-size: 1.55rem; color: var(--pm-gold-bright); margin: 0 0 .55rem; font-variant-numeric: tabular-nums; }
   .f-of { font-size: .9rem; opacity: .6; }
-  .f-bar { height: .55rem; border-radius: 999px; background: rgba(28, 44, 79, .6); overflow: hidden; margin: 0 0 .6rem; }
-  .f-bar i { display: block; height: 100%; border-radius: 999px 2px 2px 999px; background: linear-gradient(90deg, var(--pm-gold), var(--pm-gold-bright)); }
-  .f-room { font-size: .85rem; margin: 0; opacity: .85; }
-  /* the roll — every receipt, one line each */
-  .f-roll { margin-top: 1.7rem; }
-  .f-roll-head { font-size: 1.05rem; margin: 0 0 .6rem; }
-  .f-roll-empty { font-size: .85rem; line-height: 1.6; margin: 0; }
-  .f-roll-list { list-style: none; margin: 0; padding: 0; }
-  .f-roll-row, .f-roll-sum {
-    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
-    padding: .4rem 0; border-bottom: 1px solid rgba(232, 196, 139, .16);
+  .f-bar { height: .62rem; border-radius: 999px; background: rgba(28, 44, 79, .7); overflow: hidden; margin: 0 0 .6rem; box-shadow: 0 0 0 1px rgba(232, 196, 139, .12) inset; }
+  .f-bar i { display: block; height: 100%; border-radius: 999px; }
+  .f-room { font-size: .86rem; margin: 0; opacity: .85; line-height: 1.55; }
+  .f-facts { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem .8rem; margin: 1.05rem 0 0; font-size: .86rem; }
+  .f-chip {
+    font-family: var(--pm-mono); font-size: .74rem; padding: .3em .8em; border-radius: 999px;
+    border: 1px solid rgba(232, 196, 139, .3); color: var(--pm-gold-bright); font-variant-numeric: tabular-nums; white-space: nowrap;
   }
-  .f-roll-who { min-width: 0; overflow-wrap: anywhere; }
-  .f-roll-raw { font-family: var(--pm-mono); font-size: .72rem; opacity: .55; }
-  .f-roll-usd { font-family: var(--pm-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .f-roll-sum {
-    border-bottom: none; border-top: 1px solid rgba(232, 196, 139, .3);
-    margin-top: .1rem; font-size: .82rem; opacity: .75;
+  .f-chip.is-stamp { border-color: rgba(var(--pm-stamp-rgb), .45); color: var(--pm-stamp-bright); background: rgba(var(--pm-stamp-rgb), .08); }
+  .f-facts-link { color: var(--pm-gold-bright); text-decoration: none; border-bottom: 1px solid rgba(232, 196, 139, .4); font-size: .82rem; }
+  .f-facts-link:hover { border-bottom-color: var(--pm-gold-bright); }
+
+  .f-draft {
+    margin-top: 1.1rem; padding: .9rem 1.1rem; border-radius: 12px;
+    border: 1px dashed rgba(232, 196, 139, .45); background: rgba(13, 20, 38, .6);
   }
-  .f-roll-note { font-size: .82rem; line-height: 1.6; margin: .7rem 0 0; }
-  .f-law { margin-top: 1.8rem; padding: 1rem 1.15rem; border: 1px solid rgba(232, 196, 139, .28); border-radius: 12px; background: rgba(13, 20, 38, .72); }
-  .f-law-line { margin: 0; line-height: 1.6; }
+  .f-draft p { margin: 0 0 .55rem; font-size: .88rem; line-height: 1.6; }
+  .f-draft p:last-child { margin-bottom: 0; }
+  .f-draft a { color: inherit; }
+  .f-draft-tag { font-family: var(--pm-mono); font-size: .68rem; letter-spacing: .18em; color: var(--pm-gold); margin: 0 0 .5rem !important; }
+
+  /* the consent line — one sentence above every rail */
+  .f-law { margin-top: 1.1rem; padding: .85rem 1.15rem; border: 1px solid rgba(232, 196, 139, .22); border-radius: 12px; background: rgba(13, 20, 38, .55); }
+  .f-law-line { margin: 0; line-height: 1.6; font-size: .92rem; }
   .f-law-more { white-space: nowrap; }
-  .f-fine { margin-top: 2rem; }
-  .f-fine-fold > summary {
-    cursor: pointer; font-family: var(--pm-mono); font-size: .74rem;
-    letter-spacing: .08em; text-transform: uppercase; opacity: .75;
-  }
-  .f-fine-fold[open] > summary { opacity: 1; }
-  .f-fine-body { margin-top: .9rem; padding: 1rem 1.15rem; border: 1px solid rgba(232, 196, 139, .2); border-radius: 12px; }
-  .f-fine-source { margin: 0 0 .8rem; font-size: .88rem; line-height: 1.65; opacity: .85; }
-  .f-fine-law { margin: 0 0 .7rem; }
-  .f-fine-body ul { margin: 0; padding-left: 1.1rem; font-size: .86rem; line-height: 1.6; opacity: .9; }
-  .f-fine-body li + li { margin-top: .45rem; }
-  .f-fine-body .f-dim { margin: .8rem 0 0; font-size: .8rem; }
-  .f-pay { margin-top: 2rem; }
-  .f-pay h2 { font-size: 1.05rem; margin: 0 0 .5rem; }
-  .f-pay-lead { font-size: .88rem; line-height: 1.6; margin: 0 0 1.2rem; opacity: .85; }
 
-  /* the map — what happens in what order, per rail, before any mechanics */
-  .f-how {
-    display: grid; grid-template-columns: 1fr; gap: 1rem 1.8rem;
-    padding: .9rem 1.1rem; margin: 0 0 1.5rem;
-    border: 1px solid rgba(232, 196, 139, .22); border-radius: 12px;
-    background: rgba(13, 20, 38, .5);
+  /* ── 3 · pay ───────────────────────────────────────────────────────────── */
+  .f-acts { display: grid; grid-template-columns: 1fr; gap: 1.1rem; margin-top: 1.1rem; align-items: start; }
+  .f-pay, .f-stake {
+    min-width: 0; padding: 1.2rem 1.3rem 1.25rem; border-radius: .8rem;
+    border: 1px solid rgba(232, 196, 139, .2); background: rgba(13, 20, 38, .5);
   }
-  .f-how-name {
-    font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--pm-gold); margin: 0 0 .45rem;
-  }
-  .f-how ol { margin: 0; padding-left: 1.15rem; font-size: .82rem; line-height: 1.55; opacity: .9; }
-  .f-how li + li { margin-top: .3rem; }
-  /* the shared line sits under BOTH rails, so it spans the strip at every width */
-  .f-how-note {
-    grid-column: 1 / -1; margin: .2rem 0 0; padding-top: .7rem;
-    border-top: 1px dotted rgba(232, 196, 139, .25);
-    font-size: .82rem; line-height: 1.55; opacity: .88;
-  }
-  .f-epoch { margin: .7rem 0 0; font-size: .82rem; opacity: .8; }
-
-  /* the two rails, told apart by a boxed column rather than by a heading alone
-     — they take the same dollar but they are witnessed differently, and that
-     difference is the thing a patron most needs to see before choosing. One
-     column below 62rem, USDC first. */
-  .f-rails { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: start; }
-  .f-rail {
-    min-width: 0; padding: 1rem 1.15rem 1.15rem;
-    border: 1px solid rgba(128,128,128,.3); border-radius: 12px;
-    background: rgba(13, 20, 38, .38);
-  }
-  .f-rail-name {
-    font-family: var(--pm-mono); font-size: .74rem; letter-spacing: .12em;
-    text-transform: uppercase; opacity: .7; margin: 0 0 .7rem; font-weight: 400;
-  }
-  .f-step {
-    font-family: var(--pm-mono); font-size: .72rem; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--pm-gold); margin: 1.3rem 0 .6rem;
-  }
-  .f-only { opacity: .62; letter-spacing: .04em; text-transform: none; }
-  .f-nopaste {
-    margin: 0; padding: .6rem .8rem; font-size: .85rem; line-height: 1.55;
-    border-left: 2px solid var(--pm-gold); border-radius: 0 7px 7px 0;
-    background: rgba(232, 196, 139, .08);
-  }
-
-  /* the widening is the point of the rework, so it is the only place the page
-     leaves its 46rem reading column — the prose above keeps its measure */
-  @media (min-width: 62rem) {
-    .f-pay { width: 56rem; }
-    .f-how { grid-template-columns: 1fr 1fr; }
-    .f-rails { grid-template-columns: 1fr 1fr; }
-  }
-  .f-rail-lead { font-size: .88rem; line-height: 1.6; margin: 0 0 .8rem; opacity: .85; }
+  .f-pay h2, .f-stake h2 { font-size: 1.05rem; margin: 0 0 .4rem; }
+  .f-pay-lead, .f-stake-lead { font-size: .88rem; line-height: 1.6; margin: 0 0 1rem; opacity: .85; }
   .f-card {
-    display: inline-block; padding: .55em 1.1em; border-radius: 999px;
-    border: 1px solid rgba(232, 196, 139, .45);
-    color: var(--pm-gold-bright); text-decoration: none;
-    font-family: var(--pm-mono); font-size: .8rem; letter-spacing: .04em;
+    display: block; width: 100%; box-sizing: border-box; text-align: center;
+    padding: .95em 1.4em; border-radius: .7rem; text-decoration: none;
+    font-family: var(--pm-mono); font-size: 1.05rem; letter-spacing: .04em; font-weight: 600;
+    color: var(--pm-night);
+    background: linear-gradient(180deg, var(--pm-gold-bright), var(--pm-gold));
+    border: 1px solid rgba(246, 220, 174, .9);
+    box-shadow: 0 10px 30px -12px rgba(232, 196, 139, .75), 0 0 0 1px rgba(232, 196, 139, .25);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
   }
-  .f-card:hover { background: rgba(232, 196, 139, .1); }
+  .f-card:hover { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 14px 36px -12px rgba(232, 196, 139, .9), 0 0 0 1px rgba(232, 196, 139, .35); }
+  .f-card:active { transform: translateY(0); }
+  .f-card-note { font-size: .8rem; line-height: 1.55; margin: .8rem 0 0; opacity: .78; }
+  .f-usdc { margin-top: 1.1rem; border-top: 1px dotted rgba(232, 196, 139, .25); padding-top: .8rem; }
+  .f-usdc > summary, .f-how-fold > summary { cursor: pointer; font-size: .88rem; line-height: 1.5; }
+  .f-usdc > summary::marker, .f-how-fold > summary::marker, .f-fold > summary::marker { color: var(--pm-gold); }
+  .f-usdc-sum { color: var(--pm-gold-bright); }
+  .f-rail { margin-top: .9rem; }
+  .f-step { font-family: var(--pm-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pm-gold); margin: 1rem 0 .6rem; }
+  .f-step:first-child { margin-top: 0; }
+  .f-only { opacity: .62; letter-spacing: .04em; text-transform: none; }
   .f-payrow { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: flex-start; }
   .f-qr { line-height: 0; border-radius: 10px; overflow: hidden; background: #fff; padding: 0; flex: 0 0 auto; }
-  .f-addr { flex: 1 1 17rem; min-width: 0; }
+  .f-addr { flex: 1 1 15rem; min-width: 0; }
   .f-label { font-family: var(--pm-mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--pm-gold); margin: 0 0 .35rem; }
   .f-code { display: block; font-family: var(--pm-mono); font-size: .8rem; word-break: break-all; padding: .5rem .6rem; border-radius: .35rem; background: rgba(28, 44, 79, .5); }
   .f-copy { margin-top: .5rem; font-family: var(--pm-mono); font-size: .74rem; padding: .35rem .7rem; border-radius: 999px; cursor: pointer; border: 1px solid rgba(232, 196, 139, .4); background: transparent; color: var(--pm-gold); }
   .f-warn { margin: .8rem 0 0; padding-left: 1.1rem; font-size: .8rem; line-height: 1.55; opacity: .85; }
   .f-warn li + li { margin-top: .35rem; }
-  /* step 2 is now a block INSIDE the USDC column, not a section under both
-     rails — the rule above it is what says "still the same rail, next step" */
-  .f-verify { margin-top: 1.2rem; padding-top: .2rem; border-top: 1px dotted rgba(128,128,128,.3); }
+  .f-verify { margin-top: 1.1rem; padding-top: .2rem; border-top: 1px dotted rgba(128,128,128,.3); }
   .f-verify-lead { font-size: .8rem; line-height: 1.55; margin: 0; opacity: .8; }
   .f-files-to { font-size: .8rem; line-height: 1.55; margin: 0; opacity: .8; }
   .f-form { display: grid; gap: .7rem; margin-top: .9rem; }
@@ -624,22 +860,85 @@ const anyOutside = roll.some((r) => !r.attached);
   .f-form input { font-family: var(--pm-mono); font-size: .84rem; padding: .5rem .6rem; border-radius: .35rem; border: 1px solid rgba(232, 196, 139, .25); background: rgba(28, 44, 79, .4); color: inherit; }
   .f-form button { justify-self: start; font-family: var(--pm-mono); font-size: .8rem; padding: .5rem 1rem; border-radius: 999px; cursor: pointer; border: 1px solid var(--pm-gold); background: var(--pm-gold); color: var(--pm-night); }
   .f-out { margin-top: 1rem; padding: .85rem 1rem; border-radius: 10px; border: 1px solid rgba(128,128,128,.35); }
+  .f-out[hidden] { display: none; }
   .f-out.verified { border-color: rgba(232, 196, 139, .55); background: rgba(232, 196, 139, .08); }
   .f-out.refused { border-color: rgba(226, 122, 122, .5); background: rgba(226, 122, 122, .07); }
-  .f-out-title { margin: 0 0 .3rem; font-family: var(--pm-mono); font-size: .82rem; letter-spacing: .04em; }
-  .f-out-body { margin: 0; font-size: .85rem; line-height: 1.55; opacity: .9; }
-  .f-out-coda { margin: .55rem 0 0; font-size: .78rem; line-height: 1.5; opacity: .62; font-style: italic; }
-  .f-draft {
-    margin-top: 1.6rem; padding: .9rem 1.1rem; border-radius: 12px;
-    border: 1px dashed rgba(232, 196, 139, .45); background: rgba(13, 20, 38, .6);
+  /* the receipt's lines are created by script, so they carry no scope
+     attribute — :global() is how a scoped sheet reaches them */
+  .f-out :global(.f-out-title) { margin: 0 0 .3rem; font-family: var(--pm-mono); font-size: .82rem; letter-spacing: .04em; }
+  .f-out :global(.f-out-body) { margin: 0; font-size: .85rem; line-height: 1.55; opacity: .9; }
+  .f-out :global(.f-out-coda) { margin: .55rem 0 0; font-size: .78rem; line-height: 1.5; opacity: .62; font-style: italic; }
+
+  /* the map — what happens in what order, per rail, behind a click */
+  .f-how-fold { margin-top: 1rem; }
+  .f-how {
+    display: grid; grid-template-columns: 1fr; gap: 1rem 1.8rem;
+    padding: .9rem 1.1rem; margin: .7rem 0 0;
+    border: 1px solid rgba(232, 196, 139, .22); border-radius: 12px;
+    background: rgba(13, 20, 38, .5);
   }
-  .f-draft p { margin: 0 0 .55rem; font-size: .88rem; line-height: 1.6; }
-  .f-draft p:last-child { margin-bottom: 0; }
-  .f-draft a { color: inherit; }
-  .f-draft-tag {
-    font-family: var(--pm-mono); font-size: .68rem; letter-spacing: .18em;
-    color: var(--pm-gold); margin: 0 0 .5rem !important;
+  .f-how-name { font-family: var(--pm-mono); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--pm-gold); margin: 0 0 .45rem; }
+  .f-how ol { margin: 0; padding-left: 1.15rem; font-size: .82rem; line-height: 1.55; opacity: .9; }
+  .f-how li + li { margin-top: .3rem; }
+  .f-how-note { grid-column: 1 / -1; margin: .2rem 0 0; padding-top: .7rem; border-top: 1px dotted rgba(232, 196, 139, .25); font-size: .82rem; line-height: 1.55; opacity: .88; }
+
+  /* ── 4 · stake ─────────────────────────────────────────────────────────── */
+  .f-stake { border-color: rgba(var(--pm-stamp-rgb), .3); background: rgba(var(--pm-stamp-dark-rgb), .12); }
+  .f-stake-btn {
+    display: block; width: 100%; box-sizing: border-box; text-align: center; cursor: pointer;
+    padding: .85em 1.2em; border-radius: .7rem;
+    font-family: var(--pm-mono); font-size: .95rem; letter-spacing: .04em; font-weight: 600;
+    color: var(--pm-night);
+    background: linear-gradient(180deg, var(--pm-stamp-bright), var(--pm-stamp));
+    border: 1px solid rgba(216, 199, 239, .9);
+    box-shadow: 0 10px 30px -14px rgba(var(--pm-stamp-rgb), .9);
+    transition: transform .15s ease, filter .15s ease;
   }
-  .f-foot { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid rgba(128,128,128,.3); font-size: .8rem; }
+  .f-stake-btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
+  .f-stake-signin p { font-size: .8rem; line-height: 1.55; margin: .7rem 0 0; }
+  /* a display rule beats the UA's [hidden], so the hidden states say so themselves */
+  .f-stake-form { display: grid; gap: .7rem; }
+  .f-stake-form[hidden], .f-stake-signin[hidden] { display: none; }
+  .f-stake-form label { display: grid; gap: .3rem; font-size: .78rem; opacity: .85; }
+  .f-stake-form select, .f-stake-form input {
+    font-family: var(--pm-mono); font-size: .88rem; padding: .55rem .6rem; border-radius: .35rem;
+    border: 1px solid rgba(var(--pm-stamp-rgb), .35); background: rgba(28, 44, 79, .45); color: inherit;
+  }
+  .f-stake-have { font-family: var(--pm-mono); font-size: .76rem; margin: 0; font-variant-numeric: tabular-nums; }
+  .f-stake-fine { font-size: .78rem; line-height: 1.5; margin: 0; }
+
+  /* ── 5 · behind clicks ─────────────────────────────────────────────────── */
+  .f-roll, .f-fine { margin-top: 1.1rem; }
+  .f-fold { border: 1px solid rgba(232, 196, 139, .18); border-radius: .7rem; background: rgba(13, 20, 38, .4); }
+  .f-fold > summary { cursor: pointer; padding: .8rem 1.1rem; display: flex; flex-wrap: wrap; gap: .3rem .9rem; align-items: baseline; }
+  .f-fold[open] > summary { border-bottom: 1px dotted rgba(232, 196, 139, .2); }
+  .f-fold-sum { font-size: .98rem; color: var(--pm-gold-bright); }
+  .f-fold-meta { font-family: var(--pm-mono); font-size: .74rem; opacity: .7; font-variant-numeric: tabular-nums; }
+  .f-fold-body { padding: .9rem 1.1rem 1rem; }
+  .f-roll-empty { font-size: .85rem; line-height: 1.6; margin: 0; }
+  .f-roll-list { list-style: none; margin: 0; padding: 0; }
+  .f-roll-row, .f-roll-sum {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    padding: .4rem 0; border-bottom: 1px solid rgba(232, 196, 139, .12); font-size: .9rem;
+  }
+  .f-roll-who { min-width: 0; overflow-wrap: anywhere; }
+  .f-roll-raw { font-family: var(--pm-mono); font-size: .72rem; opacity: .55; }
+  .f-roll-usd { font-family: var(--pm-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .f-roll-sum { border-bottom: none; border-top: 1px solid rgba(232, 196, 139, .3); margin-top: .1rem; font-size: .82rem; opacity: .75; }
+  .f-roll-note { font-size: .82rem; line-height: 1.6; margin: .7rem 0 0; }
+  .f-fine-fold > summary .f-fold-sum { font-family: var(--pm-mono); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; }
+  .f-fine-source { margin: 0 0 .8rem; font-size: .88rem; line-height: 1.65; opacity: .85; }
+  .f-fine-law { margin: 0 0 .7rem; }
+  .f-fine-body ul { margin: 0; padding-left: 1.1rem; font-size: .86rem; line-height: 1.6; opacity: .9; }
+  .f-fine-body li + li { margin-top: .45rem; }
+  .f-fine-body .f-dim { margin: .8rem 0 0; font-size: .8rem; }
+  .f-foot { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(128,128,128,.3); font-size: .8rem; }
   .f-foot a { color: inherit; }
+
+  /* the widening is where the page leaves its 46rem reading column: pay and
+     stake side by side, the two acts in one glance */
+  @media (min-width: 62rem) {
+    .f-acts { width: 56rem; grid-template-columns: 1fr 1fr; }
+    .f-how { grid-template-columns: 1fr 1fr; }
+  }
 </style>

@@ -805,9 +805,16 @@ test("each money surface teaches it exactly once outside the glossary, in both o
   // stopped teaching it" and "the hub quietly lost a paragraph" are the same
   // number to a test that only knows how to want one.
   const named = [join(DIST, "stamps", "index.html"), join(DIST, "numbers", "index.html")];
+  // ONE PAGE PER POT — the entries under dist/fund that are pot directories.
+  // /fund/ itself is an index (the Guild cards, no money moment, no holo word)
+  // since 2026-09-16, so a bare listing would name a file that is not a pot
+  // page; a money surface is a page that carries a pot.
   const fundDir = join(DIST, "fund");
   if (existsSync(fundDir)) {
-    for (const pot of readdirSync(fundDir)) named.push(join(fundDir, pot, "index.html"));
+    for (const pot of readdirSync(fundDir)) {
+      const page = join(fundDir, pot, "index.html");
+      if (existsSync(page)) named.push(page);
+    }
   }
 
   // ...and one household page of EACH shape, discovered rather than named, so
