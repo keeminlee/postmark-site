@@ -150,10 +150,19 @@ const LANE_KEYS = ["quests", "ideas", "bounties", "listings", "votes"];
 
 // ── the two content laws ─────────────────────────────────────────────────────
 
-test("the tri-law appears in the law's own words", () => {
+test("the return law appears in the law's own words", () => {
+  // THE LAW THIS ASSERTS — ECONOMY-DIALS.json § law_side.keeping._what, the
+  // rule in one breath (amended 2026-09-14). The tri-law it replaced ("voice
+  // returns · public-good rewards mint fresh · currency conversion burns",
+  // LOGOS/the-derivation.md § 9) is the pre-amendment law: nothing burns now,
+  // and a page that still quoted it would be teaching a rule the town repealed.
   assert.ok(
-    teachBody.includes("voice returns · public-good rewards mint fresh · currency conversion burns"),
-    "the tri-law must be quoted verbatim from LOGOS/the-derivation.md § 9",
+    teachBody.includes("it comes home whole at the close. What the stakes do is size the reward."),
+    "the return law must be quoted verbatim from ECONOMY-DIALS.json § law_side.keeping",
+  );
+  assert.equal(
+    teachBody.includes("currency conversion burns"), false,
+    "the repealed tri-law must not be taught as law",
   );
 });
 
@@ -1298,7 +1307,7 @@ test("the estimate renders only where a close could run, and never as a promise"
   assert.ok(fbody.includes("it moves as both move"), "and that it is not fixed");
   assert.ok(fund.includes("{HOLO_LINE}"), "and the page carries the ruling's line");
   // the number comes from the reader, not from the page
-  assert.ok(/const estimate = holoPerDollar\(pot, econ\)/.test(fund),
+  assert.ok(/const estimate = mintPerDollar\(pot\)/.test(fund),
     "the math lives in funding.mjs and the page only calls it");
   assert.equal(/per \$1[^<]*0\.\d/.test(fbody), false, "no estimate is typed into the markup");
 });
