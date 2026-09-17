@@ -27,13 +27,32 @@
 // its own absence honestly. The board's law holds — a number invented to look
 // alive is a lie about the economy.
 //
-// ── HOLO IS SOULBOUND ────────────────────────────────────────────────────────
-// Ruled by Keemin 2026-08-20 and enforced in the ledger by ROW SHAPE: the holo
-// row is arrow-free, so no balance, mint, or stake fold can ever see one. Holo
-// cannot stake, vote, pay, or transfer. On this side of the wire that means:
-// holo is never rendered as a balance, never summed into liquid/staked/assets,
-// and every surface that shows it carries HOLO_LINE. That is the ruling, not a
-// style choice.
+// ── HOLO IS A BALANCE (soulbound repealed, 2026-09-17) ──────────────────────
+// THE FOUNDER'S RULING, verbatim: "non-spendable is repealed; the stamps are
+// like any other, but are holo to signify the special source." And: "I'm good
+// to let funding minted stamps contribute to the max stamps you can get from
+// another fund. it compounds by design." (postmark-town/postmark#2811 § RULED.)
+//
+// This block said holo was soulbound — ruled 2026-08-20, enforced by row shape,
+// no verbs, never a balance. That is REPEALED. In one line, wherever a surface
+// needs the rule: HOLO IS FRESH MINT TO A GIVER, LIQUID LIKE ANY STAMP; THE
+// WORD NAMES ITS SOURCE AND ITS INK. A holo row of n is n stamps in the payer's
+// balance and in minted-cumulative; it stakes, votes, pays and transfers; and it
+// counts toward their cap at the next close.
+//
+// The arrow-free ROW SHAPE stays, and its reason is the surviving half of the
+// old one: a holo row is a MINT, not a movement, so the folds credit it by KIND.
+// That is the town's own job (tools/stamp-mint.mjs § foldBalances /
+// foldMintCount) and the office's numbers derive from it; nothing on this side
+// of the wire computes a balance at all.
+//
+// SO WHAT CHANGES HERE IS THE TEACHING, NOT THE NUMBERS. The site's numbers come
+// from the office's doors through tools/extract-town.mjs; they move on their own
+// when the town's folds land and the office redeploys. No fixture below is
+// re-pointed to fake that. HOLO_LINE ("a record of contribution, not a promise
+// of profit") is untouched: it was always about money, never about spending, and
+// it remains exact. The holo INK stays everywhere it is drawn — it is now the
+// whole of what the word means.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -75,8 +94,18 @@ export const HOLO_LINE = "a record of contribution, not a promise of profit";
 // one home, so a second surface cannot drift a word of it — and the falsifiers
 // in funding.test.mjs assert both halves: that no page retypes the sentence,
 // and that each built page carries it exactly once.
+// AMENDED 2026-09-17 at the founder's ruling ("non-spendable is repealed"). The
+// etymology is his 2026-08-26 sentence and stands; its closing clause — "never
+// spent as postage" — was the repealed law wearing the metaphor's clothes, so
+// exactly that clause moved and nothing else did.
+//
+// ⚠ THE OFFICE SHIPS THE TWIN OF THIS SENTENCE (postmark-office src/funding.mjs
+// § HOLO_EXPANSION) and moves with it in the same sweep. NOTHING CROSS-CHECKS
+// THE TWO REPOS: if one of the two PRs lands alone the town teaches two
+// sentences and no suite in either repo goes red. One sentence, two repos,
+// never two spellings.
 export const HOLO_NAME_LINE =
-  "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.";
+  "short for holographic stamp — the collector's shiny kind, kept in the album and shown; unlike the collector's, this one still spends.";
 
 // The one-breath answer to "what is this pot?" — the FIRST SENTENCE of the pot
 // file's own prose, never invented copy. Born of the founder's 2026-08-26
@@ -604,6 +633,7 @@ export function loadPots({ path = null } = {}) {
 //     "rho_constitutional_ceiling": 0.5,   — ρ may never exceed this
 //     "treasury_usd":              175,    — dollars the town holds
 //     "primary_mint_earned":       2400,   — earned primary mint, ✦, town-wide
+//     "primary_mint_fold":  "foldPrimaryMint",  — which town fold answered it
 //     "holo_issued":               19      — holo ever minted (never burned)
 //   }
 //
@@ -649,6 +679,13 @@ export function loadPots({ path = null } = {}) {
 //   constitutional ceiling of 0.5 — keepingDial() refuses a dial that tries.
 //   It is NOT the treasury's take.
 //
+//   ⚠ THE BASE MOVED 2026-09-17, on the founder's word: "I'm good to let
+//   funding minted stamps contribute to the max stamps you can get from another
+//   fund. it compounds by design." The ρ base is now the mint from EVERY source,
+//   holo included — so holo counts toward its own cap and the ceiling rises as
+//   the town gives. `readEconomy` folds that base and returns it as `capBase`,
+//   beside the cap it produced, because a cap nobody can check is not a cap.
+//
 //   ρ's VALUE is not written anywhere on this site, and that is deliberate.
 //   R10: "Owner of the number: `ECONOMY-DIALS.json § law_side.keeping.rho`;
 //   every other surface reads it rather than restating it." The pages render
@@ -681,6 +718,17 @@ export function readEconomy(raw) {
   // keeping_mint fold still render, at the narrower base they were built on.
   const keepingMint = dial(raw.keeping_mint) ?? 0;
   const holoIssued = dial(raw.holo_issued);
+  // ⚠ WHICH FOLD ANSWERED `primary_mint_earned`, and why this read needs to know
+  // (2026-09-17). After postmark-town/postmark#2886 the town's `foldMintCount`
+  // counts holo, so the extractor calls `foldPrimaryMint` when the checkout has
+  // it and says so here. Absent — every emission written before this field —
+  // means `foldMintCount` answered, and before the merge that fold cannot see an
+  // arrow-free holo row, so the number is primary alone either way.
+  //
+  // The one case the flag exists for: a checkout PAST the merge that lacks the
+  // new export. There `primary_mint_earned` already carries holo, and adding
+  // `holo_issued` to the cap base below would count it TWICE.
+  const primaryCarriesHolo = raw.primary_mint_fold === "foldMintCount" && holoIssued > 0;
   if ([sigma, rho, ceiling, treasuryUsd, primaryMint, holoIssued].some((v) => v == null)) return null;
 
   // keepingDial's own refusal, mirrored: a dial that breaks the constitutional
@@ -689,11 +737,23 @@ export function readEconomy(raw) {
   // ρ past the ceiling would never have closed an epoch in the first place.
   if (!(sigma > 0 && sigma < 1) || rho < 0 || rho > ceiling) return null;
 
-  const holoCap = Math.floor(rho * (primaryMint + keepingMint));
+  // ⚠ RE-AIMED 2026-09-17 at the founder's word, verbatim: "I'm good to let
+  // funding minted stamps contribute to the max stamps you can get from another
+  // fund. it compounds by design." The ρ base was earned primary mint (+ keeping
+  // mint, R12); it is now the mint from EVERY source, holo included — so holo
+  // enters its own cap's base and the cap rises as the town gives. Under the old
+  // base a town that had only ever minted holo could mint no more of it; that is
+  // the sentence the founder repealed.
+  //
+  // `holoIssued` is added only when `primary_mint_earned` does not already
+  // carry it (see `primaryCarriesHolo` above). Both spellings of the base are
+  // the same number until the first close, because the ledger holds 0 holo rows.
+  const capBase = primaryMint + keepingMint + (primaryCarriesHolo ? 0 : holoIssued);
+  const holoCap = Math.floor(rho * capBase);
   return {
     asOf: String(raw.as_of ?? "").slice(0, 10) || null,
     sigma, rho, rhoCeiling: ceiling,
-    treasuryUsd, primaryMint, holoIssued, holoCap,
+    treasuryUsd, primaryMint, holoIssued, holoCap, capBase,
     // the backing gauge: dollars the town holds per ✧ ever minted. Holo is
     // never burned, so issued IS the cumulative mint. A fact about the
     // treasury, never a redemption promise.
@@ -891,6 +951,10 @@ export const ECONOMY_FIXTURE = {
   rho_constitutional_ceiling: 0.5,
   treasury_usd: 175,
   primary_mint_earned: 2400,
+  // The fixture runs as a post-#2886 checkout does: the extractor called the
+  // town's `foldPrimaryMint`, so 2400 is primary alone and `holo_issued` enters
+  // the ρ base beside it (capBase 2419, cap ⌊0.5 × 2419⌋ = 1209).
+  primary_mint_fold: "foldPrimaryMint",
   holo_issued: 19,
 };
 

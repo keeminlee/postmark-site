@@ -184,13 +184,41 @@ test("the holo cap is the law's formula, not a stored number", () => {
   // So this test asserts the FORMULA and reads ρ from the dial. A hard-coded cap
   // here would be a second dial, and it would go red on a lawful ballot instead
   // of on a bug — which is the failure this whole alignment pass exists to fix.
+  //
+  // AMENDED 2026-09-17, and the base is what moved. This asserted
+  // `floor(ρ × primaryMint)` under the words "ρ × what the town has minted" —
+  // true while holo sat outside the mint. The founder: "funding minted stamps
+  // contribute to the max stamps you can get from another fund. it compounds by
+  // design." So the base is the ALL-SOURCES mint, which `readEconomy` now
+  // returns as `capBase` beside the cap it produced — a cap nobody can check is
+  // not a cap. The formula-not-a-constant discipline is unchanged: ρ and every
+  // term still come off the fixture.
   const e = readEconomy(ECONOMY_FIXTURE);
-  assert.equal(e.holoCap, Math.floor(e.rho * e.primaryMint), "ρ × what the town has minted");
+  assert.equal(e.capBase, e.primaryMint + e.holoIssued,
+    "the base is primary + holo (keeping mint is retired and reads 0) — leaving holo out is the repealed law");
+  assert.equal(e.holoCap, Math.floor(e.rho * e.capBase), "ρ × the town's mint from every source");
+  assert.notEqual(e.holoCap, Math.floor(e.rho * e.primaryMint),
+    "and the old narrower base is a different number here, so this assertion can actually fail");
   assert.equal(e.overCap, false);
-  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.holoCap + 1 }).overCap, true);
+  // ⚠ AND THE OVER-CAP PROBE HAD TO MOVE, which is a fact about the gauge and
+  // not about this test. It used to set `holo_issued = holoCap + 1` and expect
+  // `overCap`. That cannot work now: holo is inside its own base, so nudging
+  // holo up raises the cap with it. The town-wide condition solves to
+  // holo > ρ/(1−ρ) × primary, and at the launch dial ρ = 0.5 that is exactly
+  // holo > primary — i.e. "money's share of the town may not pass ρ", which is
+  // the constitutional sentence stated exactly ("money can come to own up to
+  // half of Postmark; it can never own more"). The OLD base capped money's share
+  // at ρ/(1+ρ) = 0.333, stricter than the constitution ever claimed. So the
+  // compounding base reads the ceiling MORE truly, not less.
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.holoCap + 1 }).overCap, false,
+    "one past the cap no longer trips it — the cap moved up with the input, and a probe that cannot fire is worth saying out loud");
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.primaryMint + 1 }).overCap, true,
+    "what DOES trip it at ρ = 0.5: holo past primary mint, which is money past half the town");
+  assert.equal(readEconomy({ ...ECONOMY_FIXTURE, holo_issued: e.primaryMint }).overCap, false,
+    "and exactly half is lawful — the ceiling is inclusive, as the founder's word has it");
   // and the cap MOVES with the dial — the proof it is derived, not stored
   const halved = readEconomy({ ...ECONOMY_FIXTURE, rho: e.rho / 2 });
-  assert.equal(halved.holoCap, Math.floor((e.rho / 2) * e.primaryMint));
+  assert.equal(halved.holoCap, Math.floor((e.rho / 2) * e.capBase));
   assert.notEqual(halved.holoCap, e.holoCap, "a stored cap would not have moved");
 });
 
@@ -275,18 +303,32 @@ test("the mintbar fixture agrees with the deeds it came from", () => {
   }
 });
 
-// ── holo is soulbound ────────────────────────────────────────────────────────
+// ── holo is a balance (soulbound repealed, 2026-09-17) ──────────────────────
 
-test("holo is never summed into anything that spends", () => {
-  // THE LAW THIS ASSERTS — capture doc § 9, quoted:
+test("holo is a SUBSET of what a household minted, and the tense arithmetic still closes", () => {
+  // THE LAW THIS USED TO ASSERT — capture doc § 9, quoted:
   //   "Soulbound equity denomination: no stake, no vote, no transfer. Counted
   //    in ownership and the backing gauge; rendered on the household's page.
   //    Holographic — you can see it; there's nothing inside to spend."
+  //
+  // REPEALED. THE FOUNDER, 2026-09-17, verbatim: "non-spendable is repealed; the
+  // stamps are like any other, but are holo to signify the special source." Holo
+  // is fresh mint to a giver, liquid like any stamp; the word names its source
+  // and its ink. So the old test's name — "holo is never summed into anything
+  // that spends" — is now the opposite of the law, and the assertion that read
+  // "holo is not a holding" is re-aimed rather than deleted.
+  //
+  // ⚠ WHAT THIS FILE CAN ASSERT. The site computes no balance: every number here
+  // arrives from the office's doors through tools/extract-town.mjs, and the
+  // office's own numbers arrive from the TOWN's foldBalances / foldMintCount. So
+  // the invariant that belongs to this repo is the one below — assets close, and
+  // holo never exceeds the mint it is part of. The credit itself is the town's
+  // and is falsified there (postmark-town/postmark#2811).
   for (const [handle, s] of Object.entries(STAMPS_FIXTURE)) {
     assert.equal(s.assets, s.liquid + s.staked,
-      `${handle}'s assets must be liquid + staked — holo is not a holding`);
+      `${handle}'s assets must be liquid + staked — that invariant is untouched by the ruling`);
     assert.ok(s.holo <= s.mint_count || s.mint_count === 0,
-      `${handle}: holo is a separate record, never folded into the mint count`);
+      `${handle}: holo is a SUBSET of the mint count, never larger than the number it is part of`);
   }
 });
 
@@ -697,11 +739,23 @@ test("the holo expansion has one home, and every surface imports it rather than 
   // STAMPS, and the pages should teach it. The sentence is a shared constant
   // for the same reason HOLO_LINE is one — one home, so a second surface
   // cannot drift a word of it.
+  //
+  // AMENDED 2026-09-17. The etymology is the founder's 2026-08-26 sentence and
+  // stands; its closing clause — "never spent as postage" — was the repealed law
+  // wearing the metaphor's clothes ("non-spendable is repealed"), so exactly
+  // that clause moved and nothing else did.
+  //
+  // ⚠ THE OFFICE SHIPS THE TWIN (postmark-office src/funding.mjs §
+  // HOLO_EXPANSION) and NOTHING CROSS-CHECKS THE TWO REPOS. If one of the two
+  // sweep PRs lands alone, the town teaches two sentences and neither suite goes
+  // red. One sentence, two repos, never two spellings.
   assert.equal(
     HOLO_NAME_LINE,
-    "short for holographic stamp — the collector's shiny kind, kept in the album and shown, never spent as postage.",
+    "short for holographic stamp — the collector's shiny kind, kept in the album and shown; unlike the collector's, this one still spends.",
     "the founder's sentence is verbatim or it is not the founder's sentence",
   );
+  assert.doesNotMatch(HOLO_NAME_LINE, /never spent as postage/,
+    "the repealed clause must not survive inside the name-teaching, which is the sentence most residents meet first");
 
   for (const rel of HOLO_SURFACES) {
     const src = readFileSync(new URL(rel, import.meta.url), "utf8");
@@ -778,6 +832,53 @@ test("no built page teaches the expansion twice in flowing prose", { skip: !buil
     .map((p) => [p, holoTimes(outsideGlossary(readFileSync(p, "utf8")))])
     .filter(([, n]) => n > 1);
   assert.deepEqual(twice, [], `these pages teach it more than once: ${twice.map(([p, n]) => `${p} (${n})`).join(", ")}`);
+});
+
+// ── THE REPEALED SENTENCE, SWEPT OFF EVERY BUILT PAGE (2026-09-17) ──────────
+//
+// THE NOTHING-BURNS EVENING'S LESSON (2026-09-16), applied a week later: a
+// repeal that is edited page by page leaves the old law standing on the page
+// nobody remembered. That evening it took six surfaces before the town agreed
+// with itself, and the citation list for THIS ruling arrived missing
+// town/components/Household.astro entirely — the household dashboard, with
+// eight holo mentions on it.
+//
+// So this does not check the pages the brief named. It checks ALL of them, by
+// the words the founder repealed, and it is the reason the dashboard's eight
+// were found at all.
+//
+// HOW TO FLIP IT RED: put "soulbound" back anywhere a built page renders.
+const REPEALED = [
+  "soulbound",                  // the word itself, on any surface
+  "never spent as postage",     // HOLO_NAME_LINE's old closing clause
+  "It never spends",            // the gifts shelf and the dashboard note
+  "no verbs",                   // the numbers footer
+  "a memory, never money",      // the stamps page's seam card
+  "excluded from every tally",  // the glossary entry
+];
+
+test("NOT ONE built page still teaches the repealed law", { skip: !built }, () => {
+  // THE FOUNDER, 2026-09-17, verbatim: "non-spendable is repealed; the stamps
+  // are like any other, but are holo to signify the special source."
+  const pages = everyBuiltPage();
+  assert.ok(pages.length > 100, `this law is reading nothing — ${pages.length} built pages found`);
+  const offenders = [];
+  for (const p of pages) {
+    const plain = readFileSync(p, "utf8").replace(/&#0*39;|&#x0*27;|&apos;/gi, "'");
+    for (const phrase of REPEALED) if (plain.includes(phrase)) offenders.push(`${p.slice(DIST.length)}: ${phrase}`);
+  }
+  assert.deepEqual(offenders, [], `the repealed law is still rendered:\n  ${offenders.join("\n  ")}`);
+});
+
+test("and the ruling's own rule IS on the pages that teach the word", { skip: !built }, () => {
+  // The other half, so "swept clean" cannot be satisfied by saying nothing at
+  // all. The one-line rule, from the sweep brief: "holo is fresh mint to a
+  // giver, liquid like any stamp; the word names its source and its ink."
+  for (const rel of [["stamps", "index.html"], ["numbers", "index.html"]]) {
+    const html = readFileSync(join(DIST, ...rel), "utf8");
+    assert.match(html, /liquid like any stamp/,
+      `/${rel[0]}/ teaches holo and must carry the ruling's rule`);
+  }
 });
 
 test("the glossary's holo entry says what the name is short for", { skip: !built }, () => {
