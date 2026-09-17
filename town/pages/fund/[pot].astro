@@ -733,13 +733,21 @@ const floorBar = pot.close === "elastic" && pot.minCloseUsd != null;
             tell("refused", j.defect || "refused", j.hint || "");
             return;
           }
-          var applied = Number(j.applied || 0);
+          // THE DOOR'S ENVELOPE (postmark-town/postmark#2880). The household
+          // apex answers a successful act as { did, dispatched_to, card?, result }
+          // with the exec's own answer — applied, balance_after, reason, mode —
+          // INSIDE result; a bounce comes back flat and is judged above. The
+          // first cut of this island read the success fields at the top level,
+          // printed "nothing staked" over a stake that had landed, and the
+          // founder staked twice. Read the act's answer where the door puts it.
+          var a = j.result && typeof j.result === "object" ? j.result : j;
+          var applied = Number(a.applied || 0);
           var line = applied + "✦ staked from " + from + " on " + title + ".";
-          if (applied !== n && j.reason) line += " " + j.reason + ".";
-          if (j.balance_after !== null && j.balance_after !== undefined) line += " " + j.balance_after + "✦ liquid left.";
+          if (applied !== n && a.reason) line += " " + a.reason + ".";
+          if (a.balance_after !== null && a.balance_after !== undefined) line += " " + a.balance_after + "✦ liquid left.";
           // the consent words are the door's own, quoted from the world's stake
           // marks — shown verbatim, never paraphrased
-          var coda = j.mode && j.mode.says ? j.mode.says : "";
+          var coda = a.mode && a.mode.says ? a.mode.says : "";
           tell(applied > 0 ? "verified" : "refused", applied > 0 ? "staked — your escrow is on the ledger" : "nothing staked", line, coda);
           if (applied > 0 && chip) chip.textContent = String(Number(chip.textContent || "0") + applied);
           load();
