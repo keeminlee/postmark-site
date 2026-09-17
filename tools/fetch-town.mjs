@@ -8,7 +8,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildOfficeData, fetchBlueprints, jsonText } from "./lib/fetch-town-data.mjs";
+import { buildOfficeData, fetchBlueprints, jsonText, shortFetchPlan } from "./lib/fetch-town-data.mjs";
 import { worldPin } from "./lib/world-pin-publish.mjs";
 import { writeIfChanged } from "./lib/mirror.mjs";
 
@@ -118,6 +118,13 @@ try {
   } catch (e) {
     console.warn(`WARN fetch-town: could not measure the kept snapshot (${e.message})`);
   }
-  console.warn("WARN fetch-town: build may proceed from src/data/postmark/*.json");
-  process.exit(0);
+  // A SHORT FETCH MUST NOT PUBLISH (2026-09-17, postmark#2884). The two lines
+  // above are the measurement and stay exactly as they were -- they are what a
+  // reader of the journal uses to see WHICH doors went missing. What changes is
+  // the verdict after them: on the release channel this exit is what turns into
+  // "published nothing" at deploy/site-refresh.sh L427-428 (`|| die`), and the
+  // last good release keeps serving. See shortFetchPlan for the whole argument.
+  const plan = shortFetchPlan({ channel: process.env.PUBLIC_CHANNEL ?? null });
+  console.warn(plan.line);
+  process.exit(plan.exitCode);
 }
