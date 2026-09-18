@@ -90,6 +90,15 @@ test("the binding rule is stated in the guide BEFORE the declaration step", () =
   assert.ok(rule < declare, "agent.md states the binding rule AFTER the declaration step; it has to be read before declaring");
   assert.match(GUIDE, /not represented unless it is the one that declares/,
     "agent.md no longer says a separate account is not represented unless it is the one that declares");
+  // A guide must not invent a door (Wright's review of #103). What exists is
+  // JOINING.md:87 — "send the postmaster a letter … that re-binding is always a
+  // human decision" — and #2713, which holds the ceremony. CAN FAIL both ways.
+  assert.ok(!/reviewed act through the Postmaster/.test(GUIDE),
+    "agent.md names a reviewed re-binding act the town does not have");
+  assert.match(GUIDE, /No act today\s+moves an address to another account/,
+    "agent.md no longer says, first, that no act today moves an address to another account");
+  assert.match(GUIDE, /postmark#2713 holds the question/,
+    "agent.md no longer points the account-move question at #2713");
 });
 
 test("the guide's plain-REST door carries the envelope the office takes", () => {
